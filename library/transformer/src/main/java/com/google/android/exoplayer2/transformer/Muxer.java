@@ -16,28 +16,26 @@
 package com.google.android.exoplayer2.transformer;
 
 import android.os.ParcelFileDescriptor;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
  * Abstracts media muxing operations.
  *
- * <p>Query whether {@linkplain Factory#supportsOutputMimeType(String) container MIME type} and
- * {@linkplain Factory#supportsSampleMimeType(String, String) sample MIME types} are supported and
- * {@linkplain #addTrack(Format) add all tracks}, then {@linkplain #writeSampleData(int, ByteBuffer,
- * boolean, long) write sample data} to mux samples. Once any sample data has been written, it is
- * not possible to add tracks. After writing all sample data, {@linkplain #release(boolean) release}
- * the instance to finish writing to the output and return any resources to the system.
+ * <p>Query whether {@linkplain Factory#getSupportedSampleMimeTypes(int) sample MIME types} are
+ * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain
+ * #writeSampleData(int, ByteBuffer, boolean, long) write sample data} to mux samples. Once any
+ * sample data has been written, it is not possible to add tracks. After writing all sample data,
+ * {@linkplain #release(boolean) release} the instance to finish writing to the output and return
+ * any resources to the system.
  */
-/* package */ interface Muxer {
+public interface Muxer {
 
   /** Thrown when a muxing failure occurs. */
-  /* package */ final class MuxerException extends Exception {
+  final class MuxerException extends Exception {
     /**
      * Creates an instance.
      *
@@ -55,11 +53,10 @@ import java.nio.ByteBuffer;
      * Returns a new muxer writing to a file.
      *
      * @param path The path to the output file.
-     * @param outputMimeType The container {@linkplain MimeTypes MIME type} of the output file.
-     * @throws IllegalArgumentException If the path is invalid or the MIME type is not supported.
-     * @throws IOException If an error occurs opening the output file for writing.
+     * @throws IllegalArgumentException If the path is invalid.
+     * @throws MuxerException If an error occurs opening the output file for writing.
      */
-    Muxer create(String path, String outputMimeType) throws IOException;
+    Muxer create(String path) throws MuxerException;
 
     /**
      * Returns a new muxer writing to a file descriptor.
@@ -68,31 +65,16 @@ import java.nio.ByteBuffer;
      *     output. The file referenced by this ParcelFileDescriptor should not be used before the
      *     muxer is released. It is the responsibility of the caller to close the
      *     ParcelFileDescriptor. This can be done after this method returns.
-     * @param outputMimeType The {@linkplain MimeTypes MIME type} of the output.
-     * @throws IllegalArgumentException If the file descriptor is invalid or the MIME type is not
-     *     supported.
-     * @throws IOException If an error occurs opening the output file descriptor for writing.
+     * @throws IllegalArgumentException If the file descriptor is invalid.
+     * @throws MuxerException If an error occurs opening the output file descriptor for writing.
      */
-    Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-        throws IOException;
-
-    /**
-     * Returns whether the {@linkplain MimeTypes MIME type} provided is a supported output format.
-     */
-    boolean supportsOutputMimeType(String mimeType);
-
-    /**
-     * Returns whether the sample {@linkplain MimeTypes MIME type} is supported with the given
-     * container {@linkplain MimeTypes MIME type}.
-     */
-    boolean supportsSampleMimeType(@Nullable String sampleMimeType, String containerMimeType);
+    Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException;
 
     /**
      * Returns the supported sample {@linkplain MimeTypes MIME types} for the given {@link
-     * C.TrackType} and container {@linkplain MimeTypes MIME type}.
+     * C.TrackType}.
      */
-    ImmutableList<String> getSupportedSampleMimeTypes(
-        @C.TrackType int trackType, String containerMimeType);
+    ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType);
   }
 
   /**
@@ -108,7 +90,7 @@ import java.nio.ByteBuffer;
    * Writes the specified sample.
    *
    * @param trackIndex The index of the track, previously returned by {@link #addTrack(Format)}.
-   * @param data Buffer containing the sample data to write to the container.
+   * @param data A buffer containing the sample data to write to the container.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @throws MuxerException If the muxer fails to write the sample.
@@ -117,12 +99,26 @@ import java.nio.ByteBuffer;
       throws MuxerException;
 
   /**
-   * Releases any resources associated with muxing.
+   * Finishes writing the output and releases any resources associated with muxing.
+   *
+   * <p>The muxer cannot be used anymore once this method has been called.
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
-   * @throws MuxerException If the muxer fails to stop or release resources and {@code
+   * @throws MuxerException If the muxer fails to finish writing the output and {@code
    *     forCancellation} is false.
    */
   void release(boolean forCancellation) throws MuxerException;
+
+  /**
+   * Returns the maximum delay allowed between output samples, in milliseconds, or {@link
+   * C#TIME_UNSET} if there is no maximum.
+   *
+   * <p>This is the maximum delay between samples of any track. They can be of the same or of
+   * different track types.
+   *
+   * <p>This value is used to abort the transformation when the maximum delay is reached. Note that
+   * there is no guarantee that the transformation will be aborted exactly at that time.
+   */
+  long getMaxDelayBetweenSamplesMs();
 }

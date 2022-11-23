@@ -16,9 +16,11 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import android.content.Context;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -28,15 +30,21 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** Unit test for {@link DefaultEncoderFactory}. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultEncoderFactoryTest {
+  private final Context context = getApplicationContext();
 
   @Before
   public void setUp() {
+    createShadowH264Encoder();
+  }
+
+  private static void createShadowH264Encoder() {
     MediaFormat avcFormat = new MediaFormat();
     avcFormat.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_VIDEO_AVC);
     MediaCodecInfo.CodecProfileLevel profileLevel = new MediaCodecInfo.CodecProfileLevel();
@@ -45,17 +53,26 @@ public class DefaultEncoderFactoryTest {
     // blocks will be left for encoding height 1088.
     profileLevel.level = MediaCodecInfo.CodecProfileLevel.AVCLevel4;
 
+    createShadowVideoEncoder(avcFormat, profileLevel, "test.transformer.avc.encoder");
+  }
+
+  private static void createShadowVideoEncoder(
+      MediaFormat supportedFormat,
+      MediaCodecInfo.CodecProfileLevel supportedProfileLevel,
+      String name) {
+    // ShadowMediaCodecList is static. The added encoders will be visible for every test.
     ShadowMediaCodecList.addCodec(
         MediaCodecInfoBuilder.newBuilder()
-            .setName("test.transformer.avc.encoder")
+            .setName(name)
             .setIsEncoder(true)
             .setCapabilities(
                 MediaCodecInfoBuilder.CodecCapabilitiesBuilder.newBuilder()
-                    .setMediaFormat(avcFormat)
+                    .setMediaFormat(supportedFormat)
                     .setIsEncoder(true)
                     .setColorFormats(
                         new int[] {MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible})
-                    .setProfileLevels(new MediaCodecInfo.CodecProfileLevel[] {profileLevel})
+                    .setProfileLevels(
+                        new MediaCodecInfo.CodecProfileLevel[] {supportedProfileLevel})
                     .build())
             .build());
   }
@@ -65,7 +82,8 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
     Format actualVideoFormat =
-        new DefaultEncoderFactory()
+        new DefaultEncoderFactory.Builder(context)
+            .build()
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -83,7 +101,8 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H265, 1920, 1080, 30);
     Format actualVideoFormat =
-        new DefaultEncoderFactory()
+        new DefaultEncoderFactory.Builder(context)
+            .build()
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -101,7 +120,8 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 3840, 2160, 60);
     Format actualVideoFormat =
-        new DefaultEncoderFactory()
+        new DefaultEncoderFactory.Builder(context)
+            .build()
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -109,6 +129,29 @@ public class DefaultEncoderFactoryTest {
 
     assertThat(actualVideoFormat.width).isEqualTo(1920);
     assertThat(actualVideoFormat.height).isEqualTo(1080);
+  }
+
+  @Config(sdk = 29)
+  @Test
+  public void
+      createForVideoEncoding_withH264Encoding_configuresEncoderWithCorrectPerformanceSettings()
+          throws Exception {
+    Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
+    Codec videoEncoder =
+        new DefaultEncoderFactory.Builder(context)
+            .build()
+            .createForVideoEncoding(
+                requestedVideoFormat,
+                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264));
+
+    assertThat(videoEncoder).isInstanceOf(DefaultCodec.class);
+    MediaFormat configurationMediaFormat =
+        ((DefaultCodec) videoEncoder).getConfigurationMediaFormat();
+    assertThat(configurationMediaFormat.containsKey(MediaFormat.KEY_PRIORITY)).isTrue();
+    assertThat(configurationMediaFormat.getInteger(MediaFormat.KEY_PRIORITY)).isEqualTo(1);
+    assertThat(configurationMediaFormat.containsKey(MediaFormat.KEY_OPERATING_RATE)).isTrue();
+    assertThat(configurationMediaFormat.getInteger(MediaFormat.KEY_OPERATING_RATE))
+        .isEqualTo(Integer.MAX_VALUE);
   }
 
   @Test
@@ -119,7 +162,8 @@ public class DefaultEncoderFactoryTest {
         assertThrows(
             TransformationException.class,
             () ->
-                new DefaultEncoderFactory()
+                new DefaultEncoderFactory.Builder(context)
+                    .build()
                     .createForVideoEncoding(
                         requestedVideoFormat,
                         /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H265)));
@@ -135,9 +179,9 @@ public class DefaultEncoderFactoryTest {
     assertThrows(
         TransformationException.class,
         () ->
-            new DefaultEncoderFactory(
-                    /* videoEncoderSelector= */ mimeType -> ImmutableList.of(),
-                    /* enableFallback= */ true)
+            new DefaultEncoderFactory.Builder(context)
+                .setVideoEncoderSelector(mimeType -> ImmutableList.of())
+                .build()
                 .createForVideoEncoding(
                     requestedVideoFormat,
                     /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264)));

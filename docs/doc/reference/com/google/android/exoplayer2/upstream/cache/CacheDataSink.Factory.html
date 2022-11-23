@@ -262,7 +262,8 @@ implements <a href="../DataSink.Factory.html" title="interface in com.google.and
 <ul class="blockList">
 <li class="blockList">
 <h4>setCache</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a>&nbsp;setCache&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a>&nbsp;setCache&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache)</pre>
 <div class="block">Sets the cache to which data will be written.
 
  <p>Must be called before the factory is used.</div>
@@ -280,7 +281,8 @@ implements <a href="../DataSink.Factory.html" title="interface in com.google.and
 <ul class="blockList">
 <li class="blockList">
 <h4>setFragmentSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a>&nbsp;setFragmentSize&#8203;(long&nbsp;fragmentSize)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a>&nbsp;setFragmentSize&#8203;(long&nbsp;fragmentSize)</pre>
 <div class="block">Sets the cache file fragment size. For requests that should be fragmented into multiple cache
  files, this is the maximum size of a cache file in bytes. If set to <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
  then no fragmentation will occur. Using a small value allows for finer-grained cache eviction
@@ -303,7 +305,8 @@ implements <a href="../DataSink.Factory.html" title="interface in com.google.and
 <ul class="blockList">
 <li class="blockList">
 <h4>setBufferSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a>&nbsp;setBufferSize&#8203;(int&nbsp;bufferSize)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a>&nbsp;setBufferSize&#8203;(int&nbsp;bufferSize)</pre>
 <div class="block">Sets the size of an in-memory buffer used when writing to a cache file. A zero or negative
  value disables buffering.
 

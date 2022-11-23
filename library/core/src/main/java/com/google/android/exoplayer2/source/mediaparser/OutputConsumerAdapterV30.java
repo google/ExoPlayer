@@ -55,10 +55,10 @@ import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -472,7 +472,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
             .setChannelCount(
                 mediaFormat.getInteger(
                     MediaFormat.KEY_CHANNEL_COUNT, /* defaultValue= */ Format.NO_VALUE))
-            .setColorInfo(getColorInfo(mediaFormat))
+            .setColorInfo(MediaFormatUtil.getColorInfo(mediaFormat))
             .setSampleMimeType(mediaFormatMimeType)
             .setCodecs(mediaFormat.getString(MediaFormat.KEY_CODECS_STRING))
             .setFrameRate(
@@ -570,38 +570,9 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
       if (byteBuffer == null) {
         break;
       }
-      initData.add(getArray(byteBuffer));
+      initData.add(MediaFormatUtil.getArray(byteBuffer));
     }
     return initData;
-  }
-
-  @Nullable
-  private static ColorInfo getColorInfo(MediaFormat mediaFormat) {
-    @Nullable
-    ByteBuffer hdrStaticInfoByteBuffer = mediaFormat.getByteBuffer(MediaFormat.KEY_HDR_STATIC_INFO);
-    @Nullable
-    byte[] hdrStaticInfo =
-        hdrStaticInfoByteBuffer != null ? getArray(hdrStaticInfoByteBuffer) : null;
-    int colorTransfer =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER, /* defaultValue= */ Format.NO_VALUE);
-    int colorRange =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE, /* defaultValue= */ Format.NO_VALUE);
-    int colorStandard =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD, /* defaultValue= */ Format.NO_VALUE);
-
-    if (hdrStaticInfo != null
-        || colorTransfer != Format.NO_VALUE
-        || colorRange != Format.NO_VALUE
-        || colorStandard != Format.NO_VALUE) {
-      return new ColorInfo(colorStandard, colorRange, colorTransfer, hdrStaticInfo);
-    }
-    return null;
-  }
-
-  private static byte[] getArray(ByteBuffer byteBuffer) {
-    byte[] array = new byte[byteBuffer.remaining()];
-    byteBuffer.get(array);
-    return array;
   }
 
   private static String getMimeType(String parserName) {

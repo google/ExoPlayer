@@ -285,7 +285,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSlidingWindowMaxWeight</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setSlidingWindowMaxWeight&#8203;(int&nbsp;slidingWindowMaxWeight)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setSlidingWindowMaxWeight&#8203;(int&nbsp;slidingWindowMaxWeight)</pre>
 <div class="block">Sets the maximum weight for the sliding window.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -301,7 +302,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setInitialBitrateEstimate</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate&#8203;(long&nbsp;initialBitrateEstimate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate&#8203;(long&nbsp;initialBitrateEstimate)</pre>
 <div class="block">Sets the initial bitrate estimate in bits per second that should be assumed when a bandwidth
  estimate is unavailable.</div>
 <dl>
@@ -318,7 +320,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setInitialBitrateEstimate</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate&#8203;(<a href="../C.NetworkType.html" title="annotation in com.google.android.exoplayer2">@NetworkType</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate&#8203;(<a href="../C.NetworkType.html" title="annotation in com.google.android.exoplayer2">@NetworkType</a>
                                                                @com.google.android.exoplayer2.C.NetworkType int&nbsp;networkType,
                                                                long&nbsp;initialBitrateEstimate)</pre>
 <div class="block">Sets the initial bitrate estimate in bits per second that should be assumed when a bandwidth
@@ -338,7 +341,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setInitialBitrateEstimate</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;countryCode)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;countryCode)</pre>
 <div class="block">Sets the initial bitrate estimates to the default values of the specified country. The
  initial estimates are used when a bandwidth estimate is unavailable.</div>
 <dl>
@@ -356,7 +360,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setClock</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setClock&#8203;(<a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setClock&#8203;(<a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <div class="block">Sets the clock used to estimate bandwidth from data transfers. Should only be set for testing
  purposes.</div>
 <dl>
@@ -373,7 +378,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setResetOnNetworkTypeChange</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setResetOnNetworkTypeChange&#8203;(boolean&nbsp;resetOnNetworkTypeChange)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setResetOnNetworkTypeChange&#8203;(boolean&nbsp;resetOnNetworkTypeChange)</pre>
 <div class="block">Sets whether to reset if the network type changes. The default value is <code>true</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

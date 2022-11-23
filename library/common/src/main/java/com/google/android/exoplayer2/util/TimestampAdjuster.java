@@ -65,6 +65,8 @@ public final class TimestampAdjuster {
    * Next sample timestamps for calling threads in shared mode when {@link #timestampOffsetUs} has
    * not yet been set.
    */
+  // incompatible type argument for type parameter T of ThreadLocal.
+  @SuppressWarnings("nullness:type.argument.type.incompatible")
   private final ThreadLocal<Long> nextSampleTimestampUs;
 
   /**
@@ -72,6 +74,8 @@ public final class TimestampAdjuster {
    *     microseconds, or {@link #MODE_NO_OFFSET} if timestamps should not be offset, or {@link
    *     #MODE_SHARED} if the adjuster will be used in shared mode.
    */
+  // incompatible types in assignment.
+  @SuppressWarnings("nullness:assignment.type.incompatible")
   public TimestampAdjuster(long firstSampleTimestampUs) {
     nextSampleTimestampUs = new ThreadLocal<>();
     reset(firstSampleTimestampUs);

@@ -82,6 +82,9 @@ project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'libr
 include modulePrefix + 'extension-cast'
 project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
 
+include modulePrefix + 'library-effect'
+project(modulePrefix + 'library-effect').projectDir = new File(rootDir, 'library/effect')
+
 include modulePrefix + 'library-transformer'
 project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'library/transformer')
 

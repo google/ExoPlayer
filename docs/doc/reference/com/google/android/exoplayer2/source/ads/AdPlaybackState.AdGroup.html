@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -218,20 +218,28 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#originalCount">originalCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The original number of ads in the ad group in case the ad group is only partially available,
+ or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#states">states</a></span></code></th>
 <td class="colLast">
 <div class="block">The state of each ad in the ad group.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeUs">timeUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>@NullableType <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uris">uris</a></span></code></th>
 <td class="colLast">
@@ -388,6 +396,20 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withLastAdRemoved()">withLastAdRemoved</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Removes the last ad from the ad group.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withOriginalAdCount(int)">withOriginalAdCount</a></span>&#8203;(int&nbsp;originalCount)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified value for <a href="#originalCount"><code>originalCount</code></a>.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withTimeUs(long)">withTimeUs</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
 <div class="block">Returns a new instance with the <a href="#timeUs"><code>timeUs</code></a> set to the specified value.</div>
@@ -435,6 +457,19 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <h4>count</h4>
 <pre>public final&nbsp;int count</pre>
 <div class="block">The number of ads in the ad group, or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</div>
+</li>
+</ul>
+<a id="originalCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>originalCount</h4>
+<pre>public final&nbsp;int originalCount</pre>
+<div class="block">The original number of ads in the ad group in case the ad group is only partially available,
+ or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown. An ad can be partially available when a server side
+ inserted ad live stream is joined while an ad is already playing and some ad information is
+ missing.</div>
 </li>
 </ul>
 <a id="uris">
@@ -555,7 +590,10 @@ public final&nbsp;@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdSt
                                 int&nbsp;lastPlayedAdIndex)</pre>
 <div class="block">Returns the index of the next ad in the ad group that should be played after playing <code>
  lastPlayedAdIndex</code>, or <a href="#count"><code>count</code></a> if no later ads should be played. If no ads have been
- played, pass -1 to get the index of the first ad to play.</div>
+ played, pass -1 to get the index of the first ad to play.
+
+ <p>Note: <a href="#isServerSideInserted">Server side inserted ads</a> are always considered
+ playable.</div>
 </li>
 </ul>
 <a id="shouldPlayAdGroup()">
@@ -690,6 +728,26 @@ public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.an
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withIsServerSideInserted&#8203;(boolean&nbsp;isServerSideInserted)</pre>
 <div class="block">Returns an instance with the specified value for <a href="#isServerSideInserted"><code>isServerSideInserted</code></a>.</div>
+</li>
+</ul>
+<a id="withOriginalAdCount(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withOriginalAdCount</h4>
+<pre class="methodSignature">public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withOriginalAdCount&#8203;(int&nbsp;originalCount)</pre>
+<div class="block">Returns an instance with the specified value for <a href="#originalCount"><code>originalCount</code></a>.</div>
+</li>
+</ul>
+<a id="withLastAdRemoved()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withLastAdRemoved</h4>
+<pre class="methodSignature">public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withLastAdRemoved()</pre>
+<div class="block">Removes the last ad from the ad group.</div>
 </li>
 </ul>
 <a id="withAllAdsSkipped()">

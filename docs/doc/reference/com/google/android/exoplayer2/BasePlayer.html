@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":42,"i18":10,"i19":42,"i20":42,"i21":10,"i22":42,"i23":10,"i24":10,"i25":10,"i26":10,"i27":42,"i28":42,"i29":42,"i30":10,"i31":10,"i32":42,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":42,"i45":10,"i46":10,"i47":42,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":42,"i18":10,"i19":42,"i20":42,"i21":10,"i22":42,"i23":10,"i24":10,"i25":10,"i26":10,"i27":42,"i28":42,"i29":42,"i30":10,"i31":10,"i32":42,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":42,"i46":10,"i47":10,"i48":42,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -134,7 +134,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></code>, <code><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code>, <code><a href="testutil/StubPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubPlayer</a></code></dd>
+<dd><code><a href="ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></code>, <code><a href="SimpleBasePlayer.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer</a></code>, <code><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code>, <code><a href="testutil/StubPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubPlayer</a></code></dd>
 </dl>
 <hr>
 <pre>public abstract class <span class="typeNameLabel">BasePlayer</span>
@@ -527,13 +527,20 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </td>
 </tr>
 <tr id="i37" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#repeatCurrentMediaItem()">repeatCurrentMediaItem</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Repeat the current media item.</div>
+</td>
+</tr>
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekBack()">seekBack</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks back in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> by <a href="Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> milliseconds.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekForward()">seekForward</a></span>()</code></th>
 <td class="colLast">
@@ -541,35 +548,35 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  milliseconds.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(long)">seekTo</a></span>&#8203;(long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Seeks to a position specified in milliseconds in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToDefaultPosition()">seekToDefaultPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to the default position associated with the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToDefaultPosition(int)">seekToDefaultPosition</a></span>&#8203;(int&nbsp;mediaItemIndex)</code></th>
 <td class="colLast">
 <div class="block">Seeks to the default position associated with the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNext()">seekToNext</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to a later position in the current or next <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> (if available).</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNextMediaItem()">seekToNextMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -577,7 +584,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNextWindow()">seekToNextWindow</a></span>()</code></th>
 <td class="colLast">
@@ -586,14 +593,14 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPrevious()">seekToPrevious</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to an earlier position in the current or previous <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> (if available).</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPreviousMediaItem()">seekToPreviousMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -601,7 +608,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPreviousWindow()">seekToPreviousWindow</a></span>()</code></th>
 <td class="colLast">
@@ -610,7 +617,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
 <td class="colLast">
@@ -618,7 +625,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  default position.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem,boolean)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             boolean&nbsp;resetPosition)</code></th>
@@ -626,7 +633,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem,long)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             long&nbsp;startPositionMs)</code></th>
@@ -634,7 +641,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItems(java.util.List)">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code></th>
 <td class="colLast">
@@ -642,7 +649,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  the default position.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackSpeed(float)">setPlaybackSpeed</a></span>&#8203;(float&nbsp;speed)</code></th>
 <td class="colLast">
@@ -662,7 +669,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></h3>
-<code><a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)">addListener</a>, <a href="Player.html#addMediaItems(int,java.util.List)">addMediaItems</a>, <a href="Player.html#clearVideoSurface()">clearVideoSurface</a>, <a href="Player.html#clearVideoSurface(android.view.Surface)">clearVideoSurface</a>, <a href="Player.html#clearVideoSurfaceHolder(android.view.SurfaceHolder)">clearVideoSurfaceHolder</a>, <a href="Player.html#clearVideoSurfaceView(android.view.SurfaceView)">clearVideoSurfaceView</a>, <a href="Player.html#clearVideoTextureView(android.view.TextureView)">clearVideoTextureView</a>, <a href="Player.html#decreaseDeviceVolume()">decreaseDeviceVolume</a>, <a href="Player.html#getApplicationLooper()">getApplicationLooper</a>, <a href="Player.html#getAudioAttributes()">getAudioAttributes</a>, <a href="Player.html#getAvailableCommands()">getAvailableCommands</a>, <a href="Player.html#getBufferedPosition()">getBufferedPosition</a>, <a href="Player.html#getContentBufferedPosition()">getContentBufferedPosition</a>, <a href="Player.html#getContentPosition()">getContentPosition</a>, <a href="Player.html#getCurrentAdGroupIndex()">getCurrentAdGroupIndex</a>, <a href="Player.html#getCurrentAdIndexInAdGroup()">getCurrentAdIndexInAdGroup</a>, <a href="Player.html#getCurrentCues()">getCurrentCues</a>, <a href="Player.html#getCurrentMediaItemIndex()">getCurrentMediaItemIndex</a>, <a href="Player.html#getCurrentPeriodIndex()">getCurrentPeriodIndex</a>, <a href="Player.html#getCurrentPosition()">getCurrentPosition</a>, <a href="Player.html#getCurrentTimeline()">getCurrentTimeline</a>, <a href="Player.html#getCurrentTracks()">getCurrentTracks</a>, <a href="Player.html#getDeviceInfo()">getDeviceInfo</a>, <a href="Player.html#getDeviceVolume()">getDeviceVolume</a>, <a href="Player.html#getDuration()">getDuration</a>, <a href="Player.html#getMaxSeekToPreviousPosition()">getMaxSeekToPreviousPosition</a>, <a href="Player.html#getMediaMetadata()">getMediaMetadata</a>, <a href="Player.html#getPlaybackParameters()">getPlaybackParameters</a>, <a href="Player.html#getPlaybackState()">getPlaybackState</a>, <a href="Player.html#getPlaybackSuppressionReason()">getPlaybackSuppressionReason</a>, <a href="Player.html#getPlayerError()">getPlayerError</a>, <a href="Player.html#getPlaylistMetadata()">getPlaylistMetadata</a>, <a href="Player.html#getPlayWhenReady()">getPlayWhenReady</a>, <a href="Player.html#getRepeatMode()">getRepeatMode</a>, <a href="Player.html#getSeekBackIncrement()">getSeekBackIncrement</a>, <a href="Player.html#getSeekForwardIncrement()">getSeekForwardIncrement</a>, <a href="Player.html#getShuffleModeEnabled()">getShuffleModeEnabled</a>, <a href="Player.html#getTotalBufferedDuration()">getTotalBufferedDuration</a>, <a href="Player.html#getTrackSelectionParameters()">getTrackSelectionParameters</a>, <a href="Player.html#getVideoSize()">getVideoSize</a>, <a href="Player.html#getVolume()">getVolume</a>, <a href="Player.html#increaseDeviceVolume()">increaseDeviceVolume</a>, <a href="Player.html#isDeviceMuted()">isDeviceMuted</a>, <a href="Player.html#isLoading()">isLoading</a>, <a href="Player.html#isPlayingAd()">isPlayingAd</a>, <a href="Player.html#moveMediaItems(int,int,int)">moveMediaItems</a>, <a href="Player.html#prepare()">prepare</a>, <a href="Player.html#release()">release</a>, <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)">removeListener</a>, <a href="Player.html#removeMediaItems(int,int)">removeMediaItems</a>, <a href="Player.html#seekTo(int,long)">seekTo</a>, <a href="Player.html#setDeviceMuted(boolean)">setDeviceMuted</a>, <a href="Player.html#setDeviceVolume(int)">setDeviceVolume</a>, <a href="Player.html#setMediaItems(java.util.List,boolean)">setMediaItems</a>, <a href="Player.html#setMediaItems(java.util.List,int,long)">setMediaItems</a>, <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a>, <a href="Player.html#setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">setPlaylistMetadata</a>, <a href="Player.html#setPlayWhenReady(boolean)">setPlayWhenReady</a>, <a href="Player.html#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a>, <a href="Player.html#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a>, <a href="Player.html#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setTrackSelectionParameters</a>, <a href="Player.html#setVideoSurface(android.view.Surface)">setVideoSurface</a>, <a href="Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a>, <a href="Player.html#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a>, <a href="Player.html#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a>, <a href="Player.html#setVolume(float)">setVolume</a>, <a href="Player.html#stop()">stop</a>, <a href="Player.html#stop(boolean)">stop</a></code></li>
+<code><a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)">addListener</a>, <a href="Player.html#addMediaItems(int,java.util.List)">addMediaItems</a>, <a href="Player.html#clearVideoSurface()">clearVideoSurface</a>, <a href="Player.html#clearVideoSurface(android.view.Surface)">clearVideoSurface</a>, <a href="Player.html#clearVideoSurfaceHolder(android.view.SurfaceHolder)">clearVideoSurfaceHolder</a>, <a href="Player.html#clearVideoSurfaceView(android.view.SurfaceView)">clearVideoSurfaceView</a>, <a href="Player.html#clearVideoTextureView(android.view.TextureView)">clearVideoTextureView</a>, <a href="Player.html#decreaseDeviceVolume()">decreaseDeviceVolume</a>, <a href="Player.html#getApplicationLooper()">getApplicationLooper</a>, <a href="Player.html#getAudioAttributes()">getAudioAttributes</a>, <a href="Player.html#getAvailableCommands()">getAvailableCommands</a>, <a href="Player.html#getBufferedPosition()">getBufferedPosition</a>, <a href="Player.html#getContentBufferedPosition()">getContentBufferedPosition</a>, <a href="Player.html#getContentPosition()">getContentPosition</a>, <a href="Player.html#getCurrentAdGroupIndex()">getCurrentAdGroupIndex</a>, <a href="Player.html#getCurrentAdIndexInAdGroup()">getCurrentAdIndexInAdGroup</a>, <a href="Player.html#getCurrentCues()">getCurrentCues</a>, <a href="Player.html#getCurrentMediaItemIndex()">getCurrentMediaItemIndex</a>, <a href="Player.html#getCurrentPeriodIndex()">getCurrentPeriodIndex</a>, <a href="Player.html#getCurrentPosition()">getCurrentPosition</a>, <a href="Player.html#getCurrentTimeline()">getCurrentTimeline</a>, <a href="Player.html#getCurrentTracks()">getCurrentTracks</a>, <a href="Player.html#getDeviceInfo()">getDeviceInfo</a>, <a href="Player.html#getDeviceVolume()">getDeviceVolume</a>, <a href="Player.html#getDuration()">getDuration</a>, <a href="Player.html#getMaxSeekToPreviousPosition()">getMaxSeekToPreviousPosition</a>, <a href="Player.html#getMediaMetadata()">getMediaMetadata</a>, <a href="Player.html#getPlaybackParameters()">getPlaybackParameters</a>, <a href="Player.html#getPlaybackState()">getPlaybackState</a>, <a href="Player.html#getPlaybackSuppressionReason()">getPlaybackSuppressionReason</a>, <a href="Player.html#getPlayerError()">getPlayerError</a>, <a href="Player.html#getPlaylistMetadata()">getPlaylistMetadata</a>, <a href="Player.html#getPlayWhenReady()">getPlayWhenReady</a>, <a href="Player.html#getRepeatMode()">getRepeatMode</a>, <a href="Player.html#getSeekBackIncrement()">getSeekBackIncrement</a>, <a href="Player.html#getSeekForwardIncrement()">getSeekForwardIncrement</a>, <a href="Player.html#getShuffleModeEnabled()">getShuffleModeEnabled</a>, <a href="Player.html#getSurfaceSize()">getSurfaceSize</a>, <a href="Player.html#getTotalBufferedDuration()">getTotalBufferedDuration</a>, <a href="Player.html#getTrackSelectionParameters()">getTrackSelectionParameters</a>, <a href="Player.html#getVideoSize()">getVideoSize</a>, <a href="Player.html#getVolume()">getVolume</a>, <a href="Player.html#increaseDeviceVolume()">increaseDeviceVolume</a>, <a href="Player.html#isDeviceMuted()">isDeviceMuted</a>, <a href="Player.html#isLoading()">isLoading</a>, <a href="Player.html#isPlayingAd()">isPlayingAd</a>, <a href="Player.html#moveMediaItems(int,int,int)">moveMediaItems</a>, <a href="Player.html#prepare()">prepare</a>, <a href="Player.html#release()">release</a>, <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)">removeListener</a>, <a href="Player.html#removeMediaItems(int,int)">removeMediaItems</a>, <a href="Player.html#seekTo(int,long)">seekTo</a>, <a href="Player.html#setDeviceMuted(boolean)">setDeviceMuted</a>, <a href="Player.html#setDeviceVolume(int)">setDeviceVolume</a>, <a href="Player.html#setMediaItems(java.util.List,boolean)">setMediaItems</a>, <a href="Player.html#setMediaItems(java.util.List,int,long)">setMediaItems</a>, <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a>, <a href="Player.html#setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">setPlaylistMetadata</a>, <a href="Player.html#setPlayWhenReady(boolean)">setPlayWhenReady</a>, <a href="Player.html#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a>, <a href="Player.html#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a>, <a href="Player.html#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setTrackSelectionParameters</a>, <a href="Player.html#setVideoSurface(android.view.Surface)">setVideoSurface</a>, <a href="Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a>, <a href="Player.html#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a>, <a href="Player.html#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a>, <a href="Player.html#setVolume(float)">setVolume</a>, <a href="Player.html#stop()">stop</a>, <a href="Player.html#stop(boolean)">stop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1685,7 +1692,7 @@ public final&nbsp;boolean&nbsp;isCurrentWindowSeekable()</pre>
 <a id="getContentDuration()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getContentDuration</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getContentDuration()</pre>
@@ -1697,6 +1704,20 @@ public final&nbsp;boolean&nbsp;isCurrentWindowSeekable()</pre>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getContentDuration()">getContentDuration</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 </dl>
+</li>
+</ul>
+<a id="repeatCurrentMediaItem()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>repeatCurrentMediaItem</h4>
+<pre class="methodSignature">@ForOverride
+protected&nbsp;void&nbsp;repeatCurrentMediaItem()</pre>
+<div class="block">Repeat the current media item.
+
+ <p>The default implementation seeks to the default position in the current item, which can be
+ overridden for additional handling.</div>
 </li>
 </ul>
 </li>

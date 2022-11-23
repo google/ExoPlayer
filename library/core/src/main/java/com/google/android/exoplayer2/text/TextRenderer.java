@@ -34,12 +34,13 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Collections;
-import java.util.List;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 
 /**
  * A renderer for text.
@@ -94,6 +95,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   @Nullable private SubtitleOutputBuffer nextSubtitle;
   private int nextSubtitleEventIndex;
   private long finalStreamEndPositionUs;
+  private long outputStreamOffsetUs;
+  private long lastRendererPositionUs;
 
   /**
    * @param output The output.
@@ -125,6 +128,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     this.decoderFactory = decoderFactory;
     formatHolder = new FormatHolder();
     finalStreamEndPositionUs = C.TIME_UNSET;
+    outputStreamOffsetUs = C.TIME_UNSET;
+    lastRendererPositionUs = C.TIME_UNSET;
   }
 
   @Override
@@ -161,6 +166,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+    outputStreamOffsetUs = offsetUs;
     streamFormat = formats[0];
     if (decoder != null) {
       decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
@@ -171,6 +177,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
+    lastRendererPositionUs = positionUs;
     clearOutput();
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -185,6 +192,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
+    lastRendererPositionUs = positionUs;
     if (isCurrentStreamFinal()
         && finalStreamEndPositionUs != C.TIME_UNSET
         && positionUs >= finalStreamEndPositionUs) {
@@ -248,7 +256,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       // If textRendererNeedsUpdate then subtitle must be non-null.
       checkNotNull(subtitle);
       // textRendererNeedsUpdate is set and we're playing. Update the renderer.
-      updateOutput(subtitle.getCues(positionUs));
+      long presentationTimeUs = getPresentationTimeUs(getCurrentEventTimeUs(positionUs));
+      CueGroup cueGroup = new CueGroup(subtitle.getCues(positionUs), presentationTimeUs);
+      updateOutput(cueGroup);
     }
 
     if (decoderReplacementState == REPLACEMENT_STATE_WAIT_END_OF_STREAM) {
@@ -306,6 +316,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     streamFormat = null;
     finalStreamEndPositionUs = C.TIME_UNSET;
     clearOutput();
+    outputStreamOffsetUs = C.TIME_UNSET;
+    lastRendererPositionUs = C.TIME_UNSET;
     releaseDecoder();
   }
 
@@ -361,33 +373,33 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         : subtitle.getEventTime(nextSubtitleEventIndex);
   }
 
-  private void updateOutput(List<Cue> cues) {
+  private void updateOutput(CueGroup cueGroup) {
     if (outputHandler != null) {
-      outputHandler.obtainMessage(MSG_UPDATE_OUTPUT, cues).sendToTarget();
+      outputHandler.obtainMessage(MSG_UPDATE_OUTPUT, cueGroup).sendToTarget();
     } else {
-      invokeUpdateOutputInternal(cues);
+      invokeUpdateOutputInternal(cueGroup);
     }
   }
 
   private void clearOutput() {
-    updateOutput(Collections.emptyList());
+    updateOutput(new CueGroup(ImmutableList.of(), getPresentationTimeUs(lastRendererPositionUs)));
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_UPDATE_OUTPUT:
-        invokeUpdateOutputInternal((List<Cue>) msg.obj);
+        invokeUpdateOutputInternal((CueGroup) msg.obj);
         return true;
       default:
         throw new IllegalStateException();
     }
   }
 
-  private void invokeUpdateOutputInternal(List<Cue> cues) {
-    output.onCues(cues);
-    output.onCues(new CueGroup(cues));
+  @SuppressWarnings("deprecation") // We need to call both onCues method for backward compatibility.
+  private void invokeUpdateOutputInternal(CueGroup cueGroup) {
+    output.onCues(cueGroup.cues);
+    output.onCues(cueGroup);
   }
 
   /**
@@ -400,5 +412,26 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     Log.e(TAG, "Subtitle decoding failed. streamFormat=" + streamFormat, e);
     clearOutput();
     replaceDecoder();
+  }
+
+  @RequiresNonNull("subtitle")
+  @SideEffectFree
+  private long getCurrentEventTimeUs(long positionUs) {
+    int nextEventTimeIndex = subtitle.getNextEventTimeIndex(positionUs);
+    if (nextEventTimeIndex == 0) {
+      return subtitle.timeUs;
+    }
+
+    return nextEventTimeIndex == C.INDEX_UNSET
+        ? subtitle.getEventTime(subtitle.getEventTimeCount() - 1)
+        : subtitle.getEventTime(nextEventTimeIndex - 1);
+  }
+
+  @SideEffectFree
+  private long getPresentationTimeUs(long positionUs) {
+    checkState(positionUs != C.TIME_UNSET);
+    checkState(outputStreamOffsetUs != C.TIME_UNSET);
+
+    return positionUs - outputStreamOffsetUs;
   }
 }

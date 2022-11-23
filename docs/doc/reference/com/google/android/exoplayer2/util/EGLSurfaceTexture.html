@@ -159,20 +159,13 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="EGLSurfaceTexture.GlException.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture.GlException</a></span></code></th>
-<td class="colLast">
-<div class="block">A runtime exception to be thrown if some EGL operations failed.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="EGLSurfaceTexture.SecureMode.html" title="annotation in com.google.android.exoplayer2.util">EGLSurfaceTexture.SecureMode</a></span></code></th>
 <td class="colLast">
 <div class="block">Secure mode to be used by the EGL surface and context.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="EGLSurfaceTexture.TextureImageListener.html" title="interface in com.google.android.exoplayer2.util">EGLSurfaceTexture.TextureImageListener</a></span></code></th>
 <td class="colLast">
@@ -418,11 +411,14 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode int&nbsp;secureMode)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode int&nbsp;secureMode)
+          throws <a href="GlUtil.GlException.html" title="class in com.google.android.exoplayer2.util">GlUtil.GlException</a></pre>
 <div class="block">Initializes required EGL parameters and creates the <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>secureMode</code> - The <a href="EGLSurfaceTexture.SecureMode.html" title="annotation in com.google.android.exoplayer2.util"><code>EGLSurfaceTexture.SecureMode</code></a> to be used for EGL surface.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="GlUtil.GlException.html" title="class in com.google.android.exoplayer2.util">GlUtil.GlException</a></code></dd>
 </dl>
 </li>
 </ul>

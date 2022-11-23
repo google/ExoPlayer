@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.opengl.Matrix;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.util.GlUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,9 +66,7 @@ public class FrameRotationQueueTest {
     float[] actualMatrix =
         getRotationMatrixFromAngleAxis(
             /* angleRadian= */ (float) Math.PI, /* x= */ 0, /* y= */ 1, /* z= */ 0);
-    float[] expectedMatrix = new float[16];
-    Matrix.setIdentityM(expectedMatrix, 0);
-    assertEquals(actualMatrix, expectedMatrix);
+    assertEquals(actualMatrix, GlUtil.create4x4IdentityMatrix());
   }
 
   @Test

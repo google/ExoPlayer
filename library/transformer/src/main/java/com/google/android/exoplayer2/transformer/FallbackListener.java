@@ -65,11 +65,15 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Updates the fallback {@link TransformationRequest}.
+   * Updates the {@link TransformationRequest}, if fallback is applied.
    *
-   * <p>Should be called with the final {@link TransformationRequest} for each track after all
-   * fallback has been applied. Calls {@link Transformer.Listener#onFallbackApplied(MediaItem,
-   * TransformationRequest, TransformationRequest)} once this method has been called for each track.
+   * <p>Should be called with the final {@link TransformationRequest} for each track, after any
+   * track-specific fallback changes have been applied.
+   *
+   * <p>Fallback is applied if the finalized {@code TransformationRequest} is different from the
+   * original {@code TransformationRequest}. If fallback is applied, calls {@link
+   * Transformer.Listener#onFallbackApplied(MediaItem, TransformationRequest,
+   * TransformationRequest)} once this method has been called for each track.
    *
    * @param transformationRequest The final {@link TransformationRequest} for a track.
    * @throws IllegalStateException If called for more tracks than registered using {@link
@@ -90,6 +94,15 @@ import com.google.android.exoplayer2.util.Util;
     }
     if (transformationRequest.outputHeight != originalTransformationRequest.outputHeight) {
       fallbackRequestBuilder.setResolution(transformationRequest.outputHeight);
+    }
+    if (transformationRequest.enableHdrEditing != originalTransformationRequest.enableHdrEditing) {
+      fallbackRequestBuilder.experimental_setEnableHdrEditing(
+          transformationRequest.enableHdrEditing);
+    }
+    if (transformationRequest.enableRequestSdrToneMapping
+        != originalTransformationRequest.enableRequestSdrToneMapping) {
+      fallbackRequestBuilder.setEnableRequestSdrToneMapping(
+          transformationRequest.enableRequestSdrToneMapping);
     }
     fallbackTransformationRequest = fallbackRequestBuilder.build();
 

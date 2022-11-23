@@ -16,21 +16,30 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -40,6 +49,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A default {@link Codec} implementation that uses {@link MediaCodec}. */
 public final class DefaultCodec implements Codec {
+
+  private static final String TAG = "DefaultCodec";
+
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
   // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
   private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
@@ -51,6 +63,7 @@ public final class DefaultCodec implements Codec {
   private final Format configurationFormat;
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
+  private final boolean decoderNeedsFrameDroppingWorkaround;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -63,6 +76,7 @@ public final class DefaultCodec implements Codec {
   /**
    * Creates a {@code DefaultCodec}.
    *
+   * @param context The {@link Context}.
    * @param configurationFormat The {@link Format} to configure the {@code DefaultCodec}. See {@link
    *     #getConfigurationFormat()}. The {@link Format#sampleMimeType sampleMimeType} must not be
    *     {@code null}.
@@ -73,6 +87,7 @@ public final class DefaultCodec implements Codec {
    * @param outputSurface The output {@link Surface} if the {@link MediaCodec} outputs to a surface.
    */
   public DefaultCodec(
+      Context context,
       Format configurationFormat,
       MediaFormat configurationMediaFormat,
       String mediaCodecName,
@@ -89,8 +104,18 @@ public final class DefaultCodec implements Codec {
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
     try {
+      boolean requestedHdrToneMapping =
+          SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
+      if (SDK_INT >= 29 && requestedHdrToneMapping) {
+        // The MediaCodec input format reflects whether tone-mapping is possible after configure().
+        // See
+        // https://developer.android.com/reference/android/media/MediaFormat#KEY_COLOR_TRANSFER_REQUEST.
+        checkArgument(
+            Api29.isSdrToneMappingEnabled(mediaCodec.getInputFormat()),
+            "Tone-mapping requested but not supported by the decoder.");
+      }
       if (isVideo && !isDecoder) {
         inputSurface = mediaCodec.createInputSurface();
       }
@@ -108,6 +133,7 @@ public final class DefaultCodec implements Codec {
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
+    decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
   }
 
   @Override
@@ -122,21 +148,18 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public int getMaxPendingFrameCount() {
-    if (SDK_INT < 29) {
-      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-      // bounds. From API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
-      // dropping even when the surface is full. Frame dropping is never desired, so allow a maximum
-      // of one frame to be pending at a time.
+    if (decoderNeedsFrameDroppingWorkaround) {
+      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
       // TODO(b/226330223): Investigate increasing this limit.
       return 1;
     }
-    if (Ascii.toUpperCase(mediaCodec.getCodecInfo().getCanonicalName()).startsWith("OMX.")) {
+    if (Ascii.toUpperCase(getName()).startsWith("OMX.")) {
       // Some OMX decoders don't correctly track their number of output buffers available, and get
       // stuck if too many frames are rendered without being processed, so limit the number of
       // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, and b/229978305.
+      // b/213455700, b/230097284, b/229978305, and b/245491744.
       // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
-      return 10;
+      return 5;
     }
     // Otherwise don't limit the number of frames that can be pending at a time, to maximize
     // throughput.
@@ -259,17 +282,18 @@ public final class DefaultCodec implements Codec {
    * {@inheritDoc}
    *
    * <p>This name is of the actual codec, which may not be the same as the {@code mediaCodecName}
-   * passed to {@link #DefaultCodec(Format, MediaFormat, String, boolean, Surface)}.
+   * passed to {@link #DefaultCodec(Context, Format, MediaFormat, String, boolean, Surface)}.
    *
    * @see MediaCodec#getCanonicalName()
    */
   @Override
   public String getName() {
-    if (SDK_INT >= 29) {
-      return mediaCodec.getCanonicalName();
-    }
+    return SDK_INT >= 29 ? Api29.getCanonicalName(mediaCodec) : mediaCodec.getName();
+  }
 
-    return mediaCodec.getName();
+  @VisibleForTesting
+  /* package */ MediaFormat getConfigurationMediaFormat() {
+    return configurationMediaFormat;
   }
 
   /**
@@ -296,7 +320,22 @@ public final class DefaultCodec implements Codec {
     }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = getFormat(mediaCodec.getOutputFormat());
+        outputFormat = convertToFormat(mediaCodec.getOutputFormat());
+        boolean isToneMappingEnabled =
+            SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
+        ColorInfo expectedColorInfo =
+            isToneMappingEnabled ? ColorInfo.SDR_BT709_LIMITED : configurationFormat.colorInfo;
+        if (!areColorTransfersEqual(expectedColorInfo, outputFormat.colorInfo)) {
+          // TODO(b/237674316): The container ColorInfo's transfer doesn't match the decoder output
+          //   MediaFormat, or we requested tone-mapping but it hasn't been applied. We should
+          //   reconfigure downstream components for this case instead.
+          Log.w(
+              TAG,
+              "Codec output color format does not match configured color format. Expected: "
+                  + expectedColorInfo
+                  + ". Actual: "
+                  + outputFormat.colorInfo);
+        }
       }
       return false;
     }
@@ -333,10 +372,23 @@ public final class DefaultCodec implements Codec {
         isVideo,
         isDecoder,
         configurationMediaFormat,
-        mediaCodec.getName(),
+        getName(),
         isDecoder
             ? TransformationException.ERROR_CODE_DECODING_FAILED
             : TransformationException.ERROR_CODE_ENCODING_FAILED);
+  }
+
+  private static boolean areColorTransfersEqual(
+      @Nullable ColorInfo colorInfo1, @Nullable ColorInfo colorInfo2) {
+    @C.ColorTransfer int transfer1 = C.COLOR_TRANSFER_SDR;
+    if (colorInfo1 != null && colorInfo1.colorTransfer != Format.NO_VALUE) {
+      transfer1 = colorInfo1.colorTransfer;
+    }
+    @C.ColorTransfer int transfer2 = C.COLOR_TRANSFER_SDR;
+    if (colorInfo2 != null && colorInfo2.colorTransfer != Format.NO_VALUE) {
+      transfer2 = colorInfo2.colorTransfer;
+    }
+    return transfer1 == transfer2;
   }
 
   private static TransformationException createInitializationTransformationException(
@@ -370,7 +422,7 @@ public final class DefaultCodec implements Codec {
     return TransformationException.createForUnexpected(cause);
   }
 
-  private static Format getFormat(MediaFormat mediaFormat) {
+  private static Format convertToFormat(MediaFormat mediaFormat) {
     ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
     int csdIndex = 0;
     while (true) {
@@ -385,13 +437,12 @@ public final class DefaultCodec implements Codec {
     }
     String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
     Format.Builder formatBuilder =
-        new Format.Builder()
-            .setSampleMimeType(mediaFormat.getString(MediaFormat.KEY_MIME))
-            .setInitializationData(csdBuffers.build());
+        new Format.Builder().setSampleMimeType(mimeType).setInitializationData(csdBuffers.build());
     if (MimeTypes.isVideo(mimeType)) {
       formatBuilder
           .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
-          .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
+          .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
+          .setColorInfo(MediaFormatUtil.getColorInfo(mediaFormat));
     } else if (MimeTypes.isAudio(mimeType)) {
       // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
       // simulate more realistic codec input/output formats in tests.
@@ -403,6 +454,7 @@ public final class DefaultCodec implements Codec {
     return formatBuilder.build();
   }
 
+  /** Calls and traces {@link MediaCodec#configure(MediaFormat, Surface, MediaCrypto, int)}. */
   private static void configureCodec(
       MediaCodec codec,
       MediaFormat mediaFormat,
@@ -417,9 +469,36 @@ public final class DefaultCodec implements Codec {
     TraceUtil.endSection();
   }
 
+  /** Calls and traces {@link MediaCodec#start()}. */
   private static void startCodec(MediaCodec codec) {
     TraceUtil.beginSection("startCodec");
     codec.start();
     TraceUtil.endSection();
+  }
+
+  private static boolean decoderNeedsFrameDroppingWorkaround(Context context) {
+    // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+    // bounds. From API 29, if the app targets API 29 or later, the {@link
+    // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is full.
+    // Frame dropping is never desired, so a workaround is needed for older API levels.
+    return SDK_INT < 29
+        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
+  }
+
+  @RequiresApi(29)
+  private static final class Api29 {
+    @DoNotInline
+    public static String getCanonicalName(MediaCodec mediaCodec) {
+      return mediaCodec.getCanonicalName();
+    }
+
+    @DoNotInline
+    public static boolean isSdrToneMappingEnabled(MediaFormat mediaFormat) {
+      // MediaFormat.getInteger(String, int) was added in API 29 but applying a color transfer
+      // request is only possible from API 31.
+      return SDK_INT >= 31
+          && mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER_REQUEST, /* defaultValue= */ 0)
+              == MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+    }
   }
 }

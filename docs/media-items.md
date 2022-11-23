@@ -88,7 +88,7 @@ when building a media item:
 ~~~
 MediaItem.SubtitleConfiguration subtitle =
     new MediaItem.SubtitleConfiguration.Builder(subtitleUri)
-        .setMimeType(MimeTypes.APPLICATION_SUBRIP) // The correct MIME type (required).
+        .setMimeType(mimeType) // The correct MIME type (required).
         .setLanguage(language) // The subtitle language (optional).
         .setSelectionFlags(selectionFlags) // Selection flags for the track (optional).
         .build();

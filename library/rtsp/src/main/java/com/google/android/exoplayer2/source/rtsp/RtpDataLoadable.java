@@ -33,14 +33,20 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link Loader.Loadable} that sets up a sockets listening to incoming RTP traffic, carried by
- * UDP packets.
+ * A {@link Loader.Loadable} that uses two {@link RtpDataChannel} instances to listen on incoming
+ * RTP and RTCP packets.
  *
- * <p>Uses a {@link RtpDataChannel} to listen on incoming packets. The local UDP port is selected by
- * the runtime on opening; it also opens another {@link RtpDataChannel} for RTCP on the RTP UDP port
- * number plus one one. Pass a listener via constructor to receive a callback when the local port is
- * opened. {@link #load} will throw an {@link IOException} if either of the two data channels fails
- * to open.
+ * <ul>
+ *   <li>When using UDP as RTP transport, the local RTP UDP port number is selected by the runtime
+ *       on opening the first {@link RtpDataChannel}; the second {@link RtpDataChannel} for RTCP
+ *       uses the port number that is the RTP UDP port number plus one.
+ *   <li>When using TCP as RTP transport, the first {@link RtpDataChannel} for RTP uses the {@link
+ *       #trackId} as its interleaved channel number; the second {@link RtpDataChannel} for RTCP
+ *       uses the interleaved channel number that is the RTP interleaved channel number plus one.
+ * </ul>
+ *
+ * <p>Pass a listener via the constructor to receive a callback when the RTSP transport is ready.
+ * {@link #load} will throw an {@link IOException} if either of the two data channels fails to open.
  *
  * <p>Received RTP packets' payloads will be extracted by an {@link RtpExtractor}, and will be
  * written to the {@link ExtractorOutput} instance provided at construction.

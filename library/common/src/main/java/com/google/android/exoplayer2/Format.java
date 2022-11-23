@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Joiner;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -250,6 +251,7 @@ public final class Format implements Bundleable {
      * @param id The {@link Format#id}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setId(@Nullable String id) {
       this.id = id;
       return this;
@@ -262,6 +264,7 @@ public final class Format implements Bundleable {
      * @param id The {@link Format#id}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setId(int id) {
       this.id = Integer.toString(id);
       return this;
@@ -273,6 +276,7 @@ public final class Format implements Bundleable {
      * @param label The {@link Format#label}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLabel(@Nullable String label) {
       this.label = label;
       return this;
@@ -284,6 +288,7 @@ public final class Format implements Bundleable {
      * @param language The {@link Format#language}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLanguage(@Nullable String language) {
       this.language = language;
       return this;
@@ -295,6 +300,7 @@ public final class Format implements Bundleable {
      * @param selectionFlags The {@link Format#selectionFlags}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSelectionFlags(@C.SelectionFlags int selectionFlags) {
       this.selectionFlags = selectionFlags;
       return this;
@@ -306,6 +312,7 @@ public final class Format implements Bundleable {
      * @param roleFlags The {@link Format#roleFlags}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRoleFlags(@C.RoleFlags int roleFlags) {
       this.roleFlags = roleFlags;
       return this;
@@ -317,6 +324,7 @@ public final class Format implements Bundleable {
      * @param averageBitrate The {@link Format#averageBitrate}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setAverageBitrate(int averageBitrate) {
       this.averageBitrate = averageBitrate;
       return this;
@@ -328,6 +336,7 @@ public final class Format implements Bundleable {
      * @param peakBitrate The {@link Format#peakBitrate}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPeakBitrate(int peakBitrate) {
       this.peakBitrate = peakBitrate;
       return this;
@@ -339,6 +348,7 @@ public final class Format implements Bundleable {
      * @param codecs The {@link Format#codecs}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setCodecs(@Nullable String codecs) {
       this.codecs = codecs;
       return this;
@@ -350,6 +360,7 @@ public final class Format implements Bundleable {
      * @param metadata The {@link Format#metadata}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMetadata(@Nullable Metadata metadata) {
       this.metadata = metadata;
       return this;
@@ -363,6 +374,7 @@ public final class Format implements Bundleable {
      * @param containerMimeType The {@link Format#containerMimeType}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setContainerMimeType(@Nullable String containerMimeType) {
       this.containerMimeType = containerMimeType;
       return this;
@@ -376,6 +388,7 @@ public final class Format implements Bundleable {
      * @param sampleMimeType {@link Format#sampleMimeType}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSampleMimeType(@Nullable String sampleMimeType) {
       this.sampleMimeType = sampleMimeType;
       return this;
@@ -387,6 +400,7 @@ public final class Format implements Bundleable {
      * @param maxInputSize The {@link Format#maxInputSize}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxInputSize(int maxInputSize) {
       this.maxInputSize = maxInputSize;
       return this;
@@ -398,6 +412,7 @@ public final class Format implements Bundleable {
      * @param initializationData The {@link Format#initializationData}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setInitializationData(@Nullable List<byte[]> initializationData) {
       this.initializationData = initializationData;
       return this;
@@ -409,6 +424,7 @@ public final class Format implements Bundleable {
      * @param drmInitData The {@link Format#drmInitData}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setDrmInitData(@Nullable DrmInitData drmInitData) {
       this.drmInitData = drmInitData;
       return this;
@@ -420,6 +436,7 @@ public final class Format implements Bundleable {
      * @param subsampleOffsetUs The {@link Format#subsampleOffsetUs}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSubsampleOffsetUs(long subsampleOffsetUs) {
       this.subsampleOffsetUs = subsampleOffsetUs;
       return this;
@@ -433,6 +450,7 @@ public final class Format implements Bundleable {
      * @param width The {@link Format#width}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setWidth(int width) {
       this.width = width;
       return this;
@@ -444,6 +462,7 @@ public final class Format implements Bundleable {
      * @param height The {@link Format#height}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setHeight(int height) {
       this.height = height;
       return this;
@@ -455,6 +474,7 @@ public final class Format implements Bundleable {
      * @param frameRate The {@link Format#frameRate}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setFrameRate(float frameRate) {
       this.frameRate = frameRate;
       return this;
@@ -466,6 +486,7 @@ public final class Format implements Bundleable {
      * @param rotationDegrees The {@link Format#rotationDegrees}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRotationDegrees(int rotationDegrees) {
       this.rotationDegrees = rotationDegrees;
       return this;
@@ -477,6 +498,7 @@ public final class Format implements Bundleable {
      * @param pixelWidthHeightRatio The {@link Format#pixelWidthHeightRatio}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPixelWidthHeightRatio(float pixelWidthHeightRatio) {
       this.pixelWidthHeightRatio = pixelWidthHeightRatio;
       return this;
@@ -488,6 +510,7 @@ public final class Format implements Bundleable {
      * @param projectionData The {@link Format#projectionData}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setProjectionData(@Nullable byte[] projectionData) {
       this.projectionData = projectionData;
       return this;
@@ -499,6 +522,7 @@ public final class Format implements Bundleable {
      * @param stereoMode The {@link Format#stereoMode}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setStereoMode(@C.StereoMode int stereoMode) {
       this.stereoMode = stereoMode;
       return this;
@@ -510,6 +534,7 @@ public final class Format implements Bundleable {
      * @param colorInfo The {@link Format#colorInfo}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setColorInfo(@Nullable ColorInfo colorInfo) {
       this.colorInfo = colorInfo;
       return this;
@@ -523,6 +548,7 @@ public final class Format implements Bundleable {
      * @param channelCount The {@link Format#channelCount}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setChannelCount(int channelCount) {
       this.channelCount = channelCount;
       return this;
@@ -534,6 +560,7 @@ public final class Format implements Bundleable {
      * @param sampleRate The {@link Format#sampleRate}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSampleRate(int sampleRate) {
       this.sampleRate = sampleRate;
       return this;
@@ -545,6 +572,7 @@ public final class Format implements Bundleable {
      * @param pcmEncoding The {@link Format#pcmEncoding}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPcmEncoding(@C.PcmEncoding int pcmEncoding) {
       this.pcmEncoding = pcmEncoding;
       return this;
@@ -556,6 +584,7 @@ public final class Format implements Bundleable {
      * @param encoderDelay The {@link Format#encoderDelay}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setEncoderDelay(int encoderDelay) {
       this.encoderDelay = encoderDelay;
       return this;
@@ -567,6 +596,7 @@ public final class Format implements Bundleable {
      * @param encoderPadding The {@link Format#encoderPadding}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setEncoderPadding(int encoderPadding) {
       this.encoderPadding = encoderPadding;
       return this;
@@ -580,6 +610,7 @@ public final class Format implements Bundleable {
      * @param accessibilityChannel The {@link Format#accessibilityChannel}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setAccessibilityChannel(int accessibilityChannel) {
       this.accessibilityChannel = accessibilityChannel;
       return this;
@@ -593,6 +624,7 @@ public final class Format implements Bundleable {
      * @param cryptoType The {@link C.CryptoType}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setCryptoType(@C.CryptoType int cryptoType) {
       this.cryptoType = cryptoType;
       return this;
@@ -1494,6 +1526,14 @@ public final class Format implements Bundleable {
 
   @Override
   public Bundle toBundle() {
+    return toBundle(/* excludeMetadata= */ false);
+  }
+
+  /**
+   * Returns a {@link Bundle} representing the information stored in this object. If {@code
+   * excludeMetadata} is true, {@linkplain Format#metadata metadata} is excluded.
+   */
+  public Bundle toBundle(boolean excludeMetadata) {
     Bundle bundle = new Bundle();
     bundle.putString(keyForField(FIELD_ID), id);
     bundle.putString(keyForField(FIELD_LABEL), label);
@@ -1503,10 +1543,10 @@ public final class Format implements Bundleable {
     bundle.putInt(keyForField(FIELD_AVERAGE_BITRATE), averageBitrate);
     bundle.putInt(keyForField(FIELD_PEAK_BITRATE), peakBitrate);
     bundle.putString(keyForField(FIELD_CODECS), codecs);
-    // Metadata is currently not Bundleable because Metadata.Entry is an Interface,
-    // which would be difficult to unbundle in a backward compatible way.
-    // The entries are additionally of limited usefulness to remote processes.
-    bundle.putParcelable(keyForField(FIELD_METADATA), metadata);
+    if (!excludeMetadata) {
+      // TODO (internal ref: b/239701618)
+      bundle.putParcelable(keyForField(FIELD_METADATA), metadata);
+    }
     // Container specific.
     bundle.putString(keyForField(FIELD_CONTAINER_MIME_TYPE), containerMimeType);
     // Sample specific.

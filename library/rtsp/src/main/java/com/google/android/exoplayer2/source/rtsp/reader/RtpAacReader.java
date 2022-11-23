@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.source.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import com.google.android.exoplayer2.C;
@@ -152,15 +153,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static void outputSampleMetadata(TrackOutput trackOutput, long sampleTimeUs, int size) {
     trackOutput.sampleMetadata(
         sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset= */ 0, /* cryptoData= */ null);
-  }
-
-  /** Returns the correct sample time from RTP timestamp, accounting for the AAC sampling rate. */
-  private static long toSampleTimeUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp, int sampleRate) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            rtpTimestamp - firstReceivedRtpTimestamp,
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ sampleRate);
   }
 }

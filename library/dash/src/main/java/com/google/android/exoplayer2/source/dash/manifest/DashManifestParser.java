@@ -1103,13 +1103,15 @@ public class DashManifestParser extends DefaultHandler
     String schemeIdUri = parseString(xpp, "schemeIdUri", "");
     String value = parseString(xpp, "value", "");
     long timescale = parseLong(xpp, "timescale", 1);
+    long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset", 0);
     List<Pair<Long, EventMessage>> eventMessages = new ArrayList<>();
     ByteArrayOutputStream scratchOutputStream = new ByteArrayOutputStream(512);
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Event")) {
         Pair<Long, EventMessage> event =
-            parseEvent(xpp, schemeIdUri, value, timescale, scratchOutputStream);
+            parseEvent(
+                xpp, schemeIdUri, value, timescale, presentationTimeOffset, scratchOutputStream);
         eventMessages.add(event);
       } else {
         maybeSkipTag(xpp);
@@ -1142,6 +1144,7 @@ public class DashManifestParser extends DefaultHandler
    * @param schemeIdUri The schemeIdUri of the parent EventStream.
    * @param value The schemeIdUri of the parent EventStream.
    * @param timescale The timescale of the parent EventStream.
+   * @param presentationTimeOffset The unscaled presentation time offset of the parent EventStream.
    * @param scratchOutputStream A {@link ByteArrayOutputStream} that is used when parsing event
    *     objects.
    * @return A pair containing the node's presentation timestamp in microseconds and the parsed
@@ -1154,6 +1157,7 @@ public class DashManifestParser extends DefaultHandler
       String schemeIdUri,
       String value,
       long timescale,
+      long presentationTimeOffset,
       ByteArrayOutputStream scratchOutputStream)
       throws IOException, XmlPullParserException {
     long id = parseLong(xpp, "id", 0);
@@ -1161,7 +1165,8 @@ public class DashManifestParser extends DefaultHandler
     long presentationTime = parseLong(xpp, "presentationTime", 0);
     long durationMs = Util.scaleLargeTimestamp(duration, C.MILLIS_PER_SECOND, timescale);
     long presentationTimesUs =
-        Util.scaleLargeTimestamp(presentationTime, C.MICROS_PER_SECOND, timescale);
+        Util.scaleLargeTimestamp(
+            presentationTime - presentationTimeOffset, C.MICROS_PER_SECOND, timescale);
     String messageData = parseString(xpp, "messageData", null);
     byte[] eventObject = parseEventObject(xpp, scratchOutputStream);
     return Pair.create(

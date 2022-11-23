@@ -72,7 +72,7 @@ public final class RtspPlaybackTest {
 
   private RtpPacketStreamDump aacRtpPacketStreamDump;
   // ExoPlayer does not support extracting MP4A-LATM RTP payload at the moment.
-  private RtpPacketStreamDump mp4aLatmRtpPacketStreamDump;
+  private RtpPacketStreamDump mpeg2tsRtpPacketStreamDump;
 
   /** Creates a new instance. */
   public RtspPlaybackTest() {
@@ -90,8 +90,8 @@ public final class RtspPlaybackTest {
   @Before
   public void setUp() throws Exception {
     aacRtpPacketStreamDump = RtspTestUtils.readRtpPacketStreamDump("media/rtsp/aac-dump.json");
-    mp4aLatmRtpPacketStreamDump =
-        RtspTestUtils.readRtpPacketStreamDump("media/rtsp/mp4a-latm-dump.json");
+    mpeg2tsRtpPacketStreamDump =
+        RtspTestUtils.readRtpPacketStreamDump("media/rtsp/mpeg2ts-dump.json");
   }
 
   @Test
@@ -99,7 +99,7 @@ public final class RtspPlaybackTest {
     ResponseProvider responseProvider =
         new ResponseProvider(
             clock,
-            ImmutableList.of(aacRtpPacketStreamDump, mp4aLatmRtpPacketStreamDump),
+            ImmutableList.of(aacRtpPacketStreamDump, mpeg2tsRtpPacketStreamDump),
             fakeRtpDataChannel);
 
     try (RtspServer rtspServer = new RtspServer(responseProvider)) {
@@ -124,7 +124,7 @@ public final class RtspPlaybackTest {
     try (RtspServer rtspServer =
         new RtspServer(
             new ResponseProvider(
-                clock, ImmutableList.of(mp4aLatmRtpPacketStreamDump), fakeRtpDataChannel))) {
+                clock, ImmutableList.of(mpeg2tsRtpPacketStreamDump), fakeRtpDataChannel))) {
       ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
       AtomicReference<Throwable> playbackError = new AtomicReference<>();

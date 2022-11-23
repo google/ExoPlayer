@@ -16,14 +16,10 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
@@ -39,11 +35,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected final MuxerWrapper muxerWrapper;
   protected final TransformerMediaClock mediaClock;
   protected final TransformationRequest transformationRequest;
+  protected final Transformer.AsyncErrorListener asyncErrorListener;
   protected final FallbackListener fallbackListener;
 
-  protected boolean isRendererStarted;
-  protected boolean muxerWrapperTrackAdded;
-  protected boolean muxerWrapperTrackEnded;
+  private boolean isTransformationRunning;
   protected long streamOffsetUs;
   protected long streamStartPositionUs;
   protected @MonotonicNonNull SamplePipeline samplePipeline;
@@ -53,11 +48,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
+      Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener) {
     super(trackType);
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
     this.transformationRequest = transformationRequest;
+    this.asyncErrorListener = asyncErrorListener;
     this.fallbackListener = fallbackListener;
   }
 
@@ -87,23 +84,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public final boolean isEnded() {
-    return muxerWrapperTrackEnded;
+    return samplePipeline != null && samplePipeline.isEnded();
   }
 
   @Override
-  public final void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public final void render(long positionUs, long elapsedRealtimeUs) {
     try {
-      if (!isRendererStarted || isEnded() || !ensureConfigured()) {
+      if (!isTransformationRunning || isEnded() || !ensureConfigured()) {
         return;
       }
 
-      while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+      while (samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
-      throw wrapTransformationException(e);
-    } catch (Muxer.MuxerException e) {
-      throw wrapTransformationException(
-          TransformationException.createForMuxer(
-              e, TransformationException.ERROR_CODE_MUXING_FAILED));
+      isTransformationRunning = false;
+      asyncErrorListener.onTransformationException(e);
     }
   }
 
@@ -122,12 +116,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected final void onStarted() {
-    isRendererStarted = true;
+    isTransformationRunning = true;
   }
 
   @Override
   protected final void onStopped() {
-    isRendererStarted = false;
+    isTransformationRunning = false;
   }
 
   @Override
@@ -135,62 +129,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (samplePipeline != null) {
       samplePipeline.release();
     }
-    muxerWrapperTrackAdded = false;
-    muxerWrapperTrackEnded = false;
   }
 
   @ForOverride
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
   protected abstract boolean ensureConfigured() throws TransformationException;
-
-  @RequiresNonNull({"samplePipeline", "#1.data"})
-  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
-      throws TransformationException {
-    samplePipeline.queueInputBuffer();
-  }
-
-  /**
-   * Attempts to write sample pipeline output data to the muxer.
-   *
-   * @return Whether it may be possible to write more data immediately by calling this method again.
-   * @throws Muxer.MuxerException If a muxing problem occurs.
-   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
-   */
-  @RequiresNonNull("samplePipeline")
-  private boolean feedMuxerFromPipeline() throws Muxer.MuxerException, TransformationException {
-    if (!muxerWrapperTrackAdded) {
-      @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
-      if (samplePipelineOutputFormat == null) {
-        return false;
-      }
-      muxerWrapperTrackAdded = true;
-      muxerWrapper.addTrackFormat(samplePipelineOutputFormat);
-    }
-
-    if (samplePipeline.isEnded()) {
-      muxerWrapper.endTrack(getTrackType());
-      muxerWrapperTrackEnded = true;
-      return false;
-    }
-
-    @Nullable DecoderInputBuffer samplePipelineOutputBuffer = samplePipeline.getOutputBuffer();
-    if (samplePipelineOutputBuffer == null) {
-      return false;
-    }
-
-    long samplePresentationTimeUs = samplePipelineOutputBuffer.timeUs - streamStartPositionUs;
-    // TODO(b/204892224): Consider subtracting the first sample timestamp from the sample pipeline
-    //  buffer from all samples so that they are guaranteed to start from zero in the output file.
-    if (!muxerWrapper.writeSample(
-        getTrackType(),
-        checkStateNotNull(samplePipelineOutputBuffer.data),
-        samplePipelineOutputBuffer.isKeyFrame(),
-        samplePresentationTimeUs)) {
-      return false;
-    }
-    samplePipeline.releaseOutputBuffer();
-    return true;
-  }
 
   /**
    * Attempts to read input data and pass the input data to the sample pipeline.
@@ -215,8 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           return false;
         }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        checkStateNotNull(samplePipelineInputBuffer.data);
-        maybeQueueSampleToPipeline(samplePipelineInputBuffer);
+        samplePipeline.queueInputBuffer();
         return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
@@ -224,24 +166,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       default:
         return false;
     }
-  }
-
-  /**
-   * Returns an {@link ExoPlaybackException} wrapping the {@link TransformationException}.
-   *
-   * <p>This temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer. {@link
-   * Transformer} extracts the {@link TransformationException} from this {@link
-   * ExoPlaybackException} again.
-   */
-  private ExoPlaybackException wrapTransformationException(
-      TransformationException transformationException) {
-    return ExoPlaybackException.createForRenderer(
-        transformationException,
-        "Transformer",
-        getIndex(),
-        /* rendererFormat= */ null,
-        C.FORMAT_HANDLED,
-        /* isRecoverable= */ false,
-        PlaybackException.ERROR_CODE_UNSPECIFIED);
   }
 }

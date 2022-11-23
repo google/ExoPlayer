@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.media.AudioDeviceInfo;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
@@ -132,6 +134,17 @@ public class ForwardingAudioSink implements AudioSink {
   @Override
   public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
     sink.setAuxEffectInfo(auxEffectInfo);
+  }
+
+  @RequiresApi(23)
+  @Override
+  public void setPreferredDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    sink.setPreferredDevice(audioDeviceInfo);
+  }
+
+  @Override
+  public void setOutputStreamOffsetUs(long outputStreamOffsetUs) {
+    sink.setOutputStreamOffsetUs(outputStreamOffsetUs);
   }
 
   @Override

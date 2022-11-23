@@ -28,10 +28,16 @@ import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
@@ -41,6 +47,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.common.io.ByteStreams;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -49,15 +58,20 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit tests for {@link Util}. */
 @RunWith(AndroidJUnit4.class)
 public class UtilTest {
+
+  private static final int TIMEOUT_MS = 10000;
 
   @Test
   public void addWithOverflowDefault_withoutOverFlow_returnsSum() {
@@ -1236,6 +1250,246 @@ public class UtilTest {
         .isEqualTo(0);
     assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_a1"))
         .isEqualTo(0);
+  }
+
+  @Test
+  public void postOrRun_withMatchingThread_runsInline() {
+    Runnable mockRunnable = mock(Runnable.class);
+
+    Util.postOrRun(new Handler(Looper.myLooper()), mockRunnable);
+
+    verify(mockRunnable).run();
+  }
+
+  @Test
+  public void postOrRun_fromDifferentThread_posts() throws Exception {
+    Runnable mockRunnable = mock(Runnable.class);
+    HandlerThread handlerThread = new HandlerThread("TestThread");
+    handlerThread.start();
+    Handler handler = new Handler(handlerThread.getLooper());
+
+    ConditionVariable postedCondition = new ConditionVariable();
+    handler.post(
+        () -> {
+          Util.postOrRun(new Handler(Looper.getMainLooper()), mockRunnable);
+          postedCondition.open();
+        });
+    postedCondition.block(TIMEOUT_MS);
+    handlerThread.quit();
+
+    verify(mockRunnable, never()).run();
+
+    ShadowLooper.idleMainLooper();
+    verify(mockRunnable).run();
+  }
+
+  @Test
+  public void postOrRunWithCompletion_withMatchingThread_runsInline() throws Exception {
+    Runnable mockRunnable = mock(Runnable.class);
+    Object expectedResult = new Object();
+
+    ListenableFuture<Object> future =
+        Util.postOrRunWithCompletion(new Handler(Looper.myLooper()), mockRunnable, expectedResult);
+
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.get()).isEqualTo(expectedResult);
+    verify(mockRunnable).run();
+  }
+
+  @Test
+  public void postOrRunWithCompletion_withException_hasException() throws Exception {
+    Object expectedResult = new Object();
+
+    ListenableFuture<Object> future =
+        Util.postOrRunWithCompletion(
+            new Handler(Looper.myLooper()),
+            () -> {
+              throw new IllegalStateException();
+            },
+            expectedResult);
+
+    assertThat(future.isDone()).isTrue();
+    ExecutionException executionException = assertThrows(ExecutionException.class, future::get);
+    assertThat(executionException).hasCauseThat().isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void postOrRunWithCompletion_fromDifferentThread_posts() throws Exception {
+    Runnable mockRunnable = mock(Runnable.class);
+    Object expectedResult = new Object();
+    HandlerThread handlerThread = new HandlerThread("TestThread");
+    handlerThread.start();
+    Handler handler = new Handler(handlerThread.getLooper());
+
+    ConditionVariable postedCondition = new ConditionVariable();
+    AtomicReference<ListenableFuture<Object>> futureReference = new AtomicReference<>();
+    handler.post(
+        () -> {
+          futureReference.set(
+              Util.postOrRunWithCompletion(
+                  new Handler(Looper.getMainLooper()), mockRunnable, expectedResult));
+          postedCondition.open();
+        });
+    postedCondition.block(TIMEOUT_MS);
+    handlerThread.quit();
+
+    ListenableFuture<Object> future = futureReference.get();
+    verify(mockRunnable, never()).run();
+    assertThat(future.isDone()).isFalse();
+
+    ShadowLooper.idleMainLooper();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.get()).isEqualTo(expectedResult);
+    verify(mockRunnable).run();
+  }
+
+  @Test
+  public void postOrRunWithCompletion_withCancel_isNeverRun() throws Exception {
+    Runnable mockRunnable = mock(Runnable.class);
+    Object expectedResult = new Object();
+    HandlerThread handlerThread = new HandlerThread("TestThread");
+    handlerThread.start();
+    Handler handler = new Handler(handlerThread.getLooper());
+
+    ConditionVariable postedCondition = new ConditionVariable();
+    AtomicReference<ListenableFuture<Object>> futureReference = new AtomicReference<>();
+    handler.post(
+        () -> {
+          futureReference.set(
+              Util.postOrRunWithCompletion(
+                  new Handler(Looper.getMainLooper()), mockRunnable, expectedResult));
+          postedCondition.open();
+        });
+    postedCondition.block(TIMEOUT_MS);
+    handlerThread.quit();
+    ListenableFuture<Object> future = futureReference.get();
+    future.cancel(/* mayInterruptIfRunning= */ false);
+
+    ShadowLooper.idleMainLooper();
+    verify(mockRunnable, never()).run();
+  }
+
+  @Test
+  public void transformFutureAsync_withCancelledInput_isCancelled() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    inputFuture.cancel(/* mayInterruptIfRunning= */ false);
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(inputFuture, input -> Futures.immediateFuture(new Object()));
+
+    assertThat(outputFuture.isCancelled()).isTrue();
+  }
+
+  @Test
+  public void transformFutureAsync_withExceptionInput_hasException() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    Exception expectedException = new Exception();
+    inputFuture.setException(expectedException);
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(inputFuture, input -> Futures.immediateFuture(new Object()));
+
+    assertThat(outputFuture.isDone()).isTrue();
+    ExecutionException executionException =
+        assertThrows(ExecutionException.class, outputFuture::get);
+    assertThat(executionException).hasCauseThat().isEqualTo(expectedException);
+  }
+
+  @Test
+  public void transformFutureAsync_withCancelledTransform_isCancelled() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    SettableFuture<Object> transformFuture = SettableFuture.create();
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(inputFuture, input -> transformFuture);
+    assertThat(outputFuture.isDone()).isFalse();
+    inputFuture.set(new Object());
+    assertThat(outputFuture.isDone()).isFalse();
+    transformFuture.cancel(/* mayInterruptIfRunning= */ false);
+
+    assertThat(outputFuture.isCancelled()).isTrue();
+  }
+
+  @Test
+  public void transformFutureAsync_withExceptionInTransformFunction_hasException() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    Exception expectedException = new Exception();
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(
+            inputFuture,
+            input -> {
+              throw expectedException;
+            });
+    assertThat(outputFuture.isDone()).isFalse();
+    inputFuture.set(new Object());
+
+    assertThat(outputFuture.isDone()).isTrue();
+    ExecutionException executionException =
+        assertThrows(ExecutionException.class, outputFuture::get);
+    assertThat(executionException).hasCauseThat().isEqualTo(expectedException);
+  }
+
+  @Test
+  public void transformFutureAsync_withExceptionDuringTransform_hasException() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    Exception expectedException = new Exception();
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(
+            inputFuture, input -> Futures.immediateFailedFuture(expectedException));
+    assertThat(outputFuture.isDone()).isFalse();
+    inputFuture.set(new Object());
+
+    assertThat(outputFuture.isDone()).isTrue();
+    ExecutionException executionException =
+        assertThrows(ExecutionException.class, outputFuture::get);
+    assertThat(executionException).hasCauseThat().isEqualTo(expectedException);
+  }
+
+  @Test
+  public void transformFutureAsync_cancelDuringInput_inputIsCancelled() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(inputFuture, input -> Futures.immediateFuture(new Object()));
+    assertThat(outputFuture.isDone()).isFalse();
+    outputFuture.cancel(/* mayInterruptIfRunning= */ true);
+
+    assertThat(inputFuture.isCancelled()).isTrue();
+  }
+
+  @Test
+  public void transformFutureAsync_cancelDuringTransform_transformIsCancelled() {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    SettableFuture<Object> transformFuture = SettableFuture.create();
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(inputFuture, input -> transformFuture);
+    assertThat(outputFuture.isDone()).isFalse();
+    inputFuture.set(new Object());
+    assertThat(outputFuture.isDone()).isFalse();
+    outputFuture.cancel(/* mayInterruptIfRunning= */ true);
+
+    assertThat(transformFuture.isCancelled()).isTrue();
+  }
+
+  @Test
+  public void transformFutureAsync_withSuccessfulTransform_returnsTransformedResult()
+      throws Exception {
+    SettableFuture<Object> inputFuture = SettableFuture.create();
+    SettableFuture<Object> transformFuture = SettableFuture.create();
+    Object expectedOutput = new Object();
+
+    ListenableFuture<Object> outputFuture =
+        Util.transformFutureAsync(inputFuture, input -> transformFuture);
+    assertThat(outputFuture.isDone()).isFalse();
+    inputFuture.set(new Object());
+    assertThat(outputFuture.isDone()).isFalse();
+    transformFuture.set(expectedOutput);
+
+    assertThat(outputFuture.isDone()).isTrue();
+    assertThat(outputFuture.get()).isEqualTo(expectedOutput);
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

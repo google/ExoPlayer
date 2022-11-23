@@ -63,6 +63,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,6 +135,7 @@ public final class SsMediaSource extends BaseMediaSource
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
@@ -154,6 +156,7 @@ public final class SsMediaSource extends BaseMediaSource
      *     default start position should precede the end of the live window.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setLivePresentationDelayMs(long livePresentationDelayMs) {
       this.livePresentationDelayMs = livePresentationDelayMs;
       return this;
@@ -165,6 +168,7 @@ public final class SsMediaSource extends BaseMediaSource
      * @param manifestParser A parser for loaded manifest data.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setManifestParser(
         @Nullable ParsingLoadable.Parser<? extends SsManifest> manifestParser) {
       this.manifestParser = manifestParser;
@@ -180,6 +184,7 @@ public final class SsMediaSource extends BaseMediaSource
      *     audio etc.).
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setCompositeSequenceableLoaderFactory(
         CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
       this.compositeSequenceableLoaderFactory =
@@ -191,6 +196,7 @@ public final class SsMediaSource extends BaseMediaSource
       return this;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setDrmSessionManagerProvider(
         DrmSessionManagerProvider drmSessionManagerProvider) {
@@ -284,7 +290,7 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     @Override
-    public int[] getSupportedTypes() {
+    public @C.ContentType int[] getSupportedTypes() {
       return new int[] {C.CONTENT_TYPE_SS};
     }
   }

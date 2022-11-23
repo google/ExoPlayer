@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 apply from: '../../constants.gradle'
 apply plugin: 'com.android.application'
 
@@ -26,7 +27,9 @@ android {
         versionName project.ext.releaseVersion
         versionCode project.ext.releaseVersionCode
         minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.appTargetSdkVersion
+        // Not using appTargetSDKVersion to allow local file access on API 29
+        // and higher [Internal ref: b/191644662]
+        targetSdkVersion project.ext.mainDemoAppTargetSdkVersion
         multiDexEnabled true
     }
 

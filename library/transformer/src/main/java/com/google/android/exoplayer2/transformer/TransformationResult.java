@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Information about the result of a successful transformation. */
 public final class TransformationResult {
@@ -43,6 +44,7 @@ public final class TransformationResult {
      *
      * <p>Input must be positive or {@link C#TIME_UNSET}.
      */
+    @CanIgnoreReturnValue
     public Builder setDurationMs(long durationMs) {
       checkArgument(durationMs > 0 || durationMs == C.TIME_UNSET);
       this.durationMs = durationMs;
@@ -54,6 +56,7 @@ public final class TransformationResult {
      *
      * <p>Input must be positive or {@link C#LENGTH_UNSET}.
      */
+    @CanIgnoreReturnValue
     public Builder setFileSizeBytes(long fileSizeBytes) {
       checkArgument(fileSizeBytes > 0 || fileSizeBytes == C.LENGTH_UNSET);
       this.fileSizeBytes = fileSizeBytes;
@@ -65,6 +68,7 @@ public final class TransformationResult {
      *
      * <p>Input must be positive or {@link C#RATE_UNSET_INT}.
      */
+    @CanIgnoreReturnValue
     public Builder setAverageAudioBitrate(int averageAudioBitrate) {
       checkArgument(averageAudioBitrate > 0 || averageAudioBitrate == C.RATE_UNSET_INT);
       this.averageAudioBitrate = averageAudioBitrate;
@@ -76,6 +80,7 @@ public final class TransformationResult {
      *
      * <p>Input must be positive or {@link C#RATE_UNSET_INT}.
      */
+    @CanIgnoreReturnValue
     public Builder setAverageVideoBitrate(int averageVideoBitrate) {
       checkArgument(averageVideoBitrate > 0 || averageVideoBitrate == C.RATE_UNSET_INT);
       this.averageVideoBitrate = averageVideoBitrate;
@@ -87,6 +92,7 @@ public final class TransformationResult {
      *
      * <p>Input must be positive or {@code 0}.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoFrameCount(int videoFrameCount) {
       checkArgument(videoFrameCount >= 0);
       this.videoFrameCount = videoFrameCount;

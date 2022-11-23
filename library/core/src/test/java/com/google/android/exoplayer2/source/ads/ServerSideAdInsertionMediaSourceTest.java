@@ -37,6 +37,7 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -46,6 +47,7 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
@@ -70,15 +72,15 @@ public final class ServerSideAdInsertionMediaSourceTest {
   private static final String TEST_ASSET_DUMP = "playbackdumps/mp4/ssai-sample.mp4.dump";
 
   @Test
-  public void timeline_containsAdsDefinedInAdPlaybackState() throws Exception {
+  public void timeline_vodSinglePeriod_containsAdsDefinedInAdPlaybackState() throws Exception {
     FakeTimeline wrappedTimeline =
         new FakeTimeline(
             new FakeTimeline.TimelineWindowDefinition(
                 /* periodCount= */ 1,
                 /* id= */ 0,
                 /* isSeekable= */ true,
-                /* isDynamic= */ true,
-                /* isLive= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
                 /* isPlaceholder= */ false,
                 /* durationUs= */ 10_000_000,
                 /* defaultPositionUs= */ 3_000_000,
@@ -138,6 +140,83 @@ public final class ServerSideAdInsertionMediaSourceTest {
     assertThat(period.getContentResumeOffsetUs(/* adGroupIndex= */ 2)).isEqualTo(200_000);
     // windowDurationUs + windowOffsetInFirstPeriodUs - sum(adDurations) + sum(contentResumeOffsets)
     assertThat(period.getDurationUs()).isEqualTo(51_400_000);
+    // positionInWindowUs + sum(adDurationsBeforeWindow) - sum(contentResumeOffsetsBeforeWindow)
+    assertThat(period.getPositionInWindowUs()).isEqualTo(-41_600_000);
+    Timeline.Window window = timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    assertThat(window.positionInFirstPeriodUs).isEqualTo(41_600_000);
+    // windowDurationUs - sum(adDurationsInWindow) + sum(applicableContentResumeOffsetUs)
+    assertThat(window.durationUs).isEqualTo(9_800_000);
+  }
+
+  @Test
+  public void timeline_liveSinglePeriodWithUnsetPeriodDuration_containsAdsDefinedInAdPlaybackState()
+      throws Exception {
+    Timeline wrappedTimeline =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ C.TIME_UNSET,
+            /* windowDurationUs= */ 10_000_000,
+            /* windowPositionInPeriodUs= */ 42_000_000L,
+            /* windowDefaultStartPositionUs= */ 3_000_000,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true,
+            /* useLiveConfiguration= */ true,
+            /* manifest= */ null,
+            /* mediaItem= */ MediaItem.EMPTY);
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
+            new FakeMediaSource(wrappedTimeline), /* adPlaybackStateUpdater= */ null);
+    // Test with one ad group before the window, and the window starting within the second ad group.
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(
+                /* adsId= */ new Object(), /* adGroupTimesUs= */ 15_000_000, 41_500_000, 42_200_000)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
+            .withIsServerSideInserted(/* adGroupIndex= */ 1, /* isServerSideInserted= */ true)
+            .withIsServerSideInserted(/* adGroupIndex= */ 2, /* isServerSideInserted= */ true)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+            .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 2)
+            .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs= */ 500_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs= */ 300_000, 100_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 400_000)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ 100_000)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(
+            wrappedTimeline.getPeriod(
+                    /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+                .uid,
+            adPlaybackState));
+
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    runMainLooperUntil(() -> timelineReference.get() != null);
+
+    Timeline timeline = timelineReference.get();
+    assertThat(timeline.getPeriodCount()).isEqualTo(1);
+    Timeline.Period period = timeline.getPeriod(/* periodIndex= */ 0, new Timeline.Period());
+    assertThat(period.getAdGroupCount()).isEqualTo(3);
+    assertThat(period.getAdCountInAdGroup(/* adGroupIndex= */ 0)).isEqualTo(1);
+    assertThat(period.getAdCountInAdGroup(/* adGroupIndex= */ 1)).isEqualTo(2);
+    assertThat(period.getAdCountInAdGroup(/* adGroupIndex= */ 2)).isEqualTo(1);
+    assertThat(period.getAdGroupTimeUs(/* adGroupIndex= */ 0)).isEqualTo(15_000_000);
+    assertThat(period.getAdGroupTimeUs(/* adGroupIndex= */ 1)).isEqualTo(41_500_000);
+    assertThat(period.getAdGroupTimeUs(/* adGroupIndex= */ 2)).isEqualTo(42_200_000);
+    assertThat(period.getAdDurationUs(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0))
+        .isEqualTo(500_000);
+    assertThat(period.getAdDurationUs(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0))
+        .isEqualTo(300_000);
+    assertThat(period.getAdDurationUs(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 1))
+        .isEqualTo(100_000);
+    assertThat(period.getAdDurationUs(/* adGroupIndex= */ 2, /* adIndexInAdGroup= */ 0))
+        .isEqualTo(400_000);
+    assertThat(period.getContentResumeOffsetUs(/* adGroupIndex= */ 0)).isEqualTo(100_000);
+    assertThat(period.getContentResumeOffsetUs(/* adGroupIndex= */ 1)).isEqualTo(400_000);
+    assertThat(period.getContentResumeOffsetUs(/* adGroupIndex= */ 2)).isEqualTo(200_000);
+    assertThat(period.getDurationUs()).isEqualTo(C.TIME_UNSET);
     // positionInWindowUs + sum(adDurationsBeforeWindow) - sum(contentResumeOffsetsBeforeWindow)
     assertThat(period.getPositionInWindowUs()).isEqualTo(-41_600_000);
     Timeline.Window window = timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());

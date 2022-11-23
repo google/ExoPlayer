@@ -21,6 +21,7 @@ import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -64,6 +65,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaCodecAdapterFactory forceEnableAsynchronous() {
     asynchronousMode = MODE_ENABLED;
     return this;
@@ -74,6 +76,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaCodecAdapterFactory forceDisableAsynchronous() {
     asynchronousMode = MODE_DISABLED;
     return this;

@@ -278,7 +278,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setImaSdkSettings</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setImaSdkSettings&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setImaSdkSettings&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
 <div class="block">Sets the IMA SDK settings.
 
  <p>If this method is not called the default settings will be used.</div>
@@ -296,7 +297,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdEventListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setAdEventListener&#8203;(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setAdEventListener&#8203;(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
 <div class="block">Sets the optional <code>AdEvent.AdEventListener</code> that will be passed to <code>BaseManager.addAdEventListener(AdEventListener)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -312,7 +314,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdErrorListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setAdErrorListener&#8203;(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setAdErrorListener&#8203;(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
 <div class="block">Sets the optional <code>AdErrorEvent.AdErrorListener</code> that will be passed to <code>BaseManager.addAdErrorListener(AdErrorEvent.AdErrorListener)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -328,7 +331,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompanionAdSlots</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setCompanionAdSlots&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setCompanionAdSlots&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
 <div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -346,7 +350,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdsLoaderState</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setAdsLoaderState&#8203;(<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.State.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.State</a>&nbsp;state)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setAdsLoaderState&#8203;(<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.State.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.State</a>&nbsp;state)</pre>
 <div class="block">Sets the optional state to resume with.
 
  <p>The state can be received when <a href="ImaServerSideAdInsertionMediaSource.AdsLoader.html#release()"><code>releasing</code></a> the <a href="ImaServerSideAdInsertionMediaSource.AdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaServerSideAdInsertionMediaSource.AdsLoader</code></a>.</div>

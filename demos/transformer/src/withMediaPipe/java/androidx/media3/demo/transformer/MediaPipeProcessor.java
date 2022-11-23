@@ -15,32 +15,37 @@
  */
 package com.google.android.exoplayer2.transformerdemo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.opengl.EGL14;
-import android.opengl.GLES20;
-import android.util.Size;
-import com.google.android.exoplayer2.transformer.FrameProcessingException;
-import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
-import com.google.android.exoplayer2.util.ConditionVariable;
-import com.google.android.exoplayer2.util.GlProgram;
-import com.google.android.exoplayer2.util.GlUtil;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.effect.GlTextureProcessor;
+import com.google.android.exoplayer2.effect.TextureInfo;
+import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.LibraryLoader;
+import com.google.android.exoplayer2.util.Util;
 import com.google.mediapipe.components.FrameProcessor;
-import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.framework.AppTextureFrame;
 import com.google.mediapipe.framework.TextureFrame;
 import com.google.mediapipe.glutil.EglManager;
-import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
-/**
- * Runs a MediaPipe graph on input frames. The implementation is currently limited to graphs that
- * can immediately produce one output frame per input frame.
- */
-/* package */ final class MediaPipeProcessor implements SingleFrameGlTextureProcessor {
+/** Runs a MediaPipe graph on input frames. */
+/* package */ final class MediaPipeProcessor implements GlTextureProcessor {
+
+  private static final String THREAD_NAME = "Demo:MediaPipeProcessor";
+  private static final long RELEASE_WAIT_TIME_MS = 100;
+  private static final long RETRY_WAIT_TIME_MS = 1;
 
   private static final LibraryLoader LOADER =
       new LibraryLoader("mediapipe_jni") {
@@ -60,116 +65,218 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private static final String COPY_VERTEX_SHADER_NAME = "vertex_shader_copy_es2.glsl";
-  private static final String COPY_FRAGMENT_SHADER_NAME = "shaders/fragment_shader_copy_es2.glsl";
+  private final FrameProcessor frameProcessor;
+  private final ConcurrentHashMap<TextureInfo, TextureFrame> outputFrames;
+  private final boolean isSingleFrameGraph;
+  @Nullable private final ExecutorService singleThreadExecutorService;
+  private final Queue<Future<?>> futures;
 
-  private final String graphName;
-  private final String inputStreamName;
-  private final String outputStreamName;
-  private final ConditionVariable frameProcessorConditionVariable;
-
-  private @MonotonicNonNull FrameProcessor frameProcessor;
-  private int inputWidth;
-  private int inputHeight;
-  private int inputTexId;
-  private @MonotonicNonNull GlProgram glProgram;
-  private @MonotonicNonNull TextureFrame outputFrame;
-  private @MonotonicNonNull RuntimeException frameProcessorPendingError;
+  private InputListener inputListener;
+  private OutputListener outputListener;
+  private ErrorListener errorListener;
+  private boolean acceptedFrame;
 
   /**
    * Creates a new texture processor that wraps a MediaPipe graph.
    *
+   * <p>If {@code isSingleFrameGraph} is {@code false}, the {@code MediaPipeProcessor} may waste CPU
+   * time by continuously attempting to queue input frames to MediaPipe until they are accepted or
+   * waste memory if MediaPipe accepts and stores many frames internally.
+   *
+   * @param context The {@link Context}.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param graphName Name of a MediaPipe graph asset to load.
+   * @param isSingleFrameGraph Whether the MediaPipe graph will eventually produce one output frame
+   *     each time an input frame (and no other input) has been queued.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
    */
-  public MediaPipeProcessor(String graphName, String inputStreamName, String outputStreamName) {
+  public MediaPipeProcessor(
+      Context context,
+      boolean useHdr,
+      String graphName,
+      boolean isSingleFrameGraph,
+      String inputStreamName,
+      String outputStreamName) {
     checkState(LOADER.isAvailable());
-    this.graphName = graphName;
-    this.inputStreamName = inputStreamName;
-    this.outputStreamName = outputStreamName;
-    frameProcessorConditionVariable = new ConditionVariable();
-  }
+    // TODO(b/227624622): Confirm whether MediaPipeProcessor could support HDR colors.
+    checkArgument(!useHdr, "MediaPipeProcessor does not support HDR colors.");
 
-  @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
-      throws IOException {
-    this.inputTexId = inputTexId;
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
-    glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
-
-    AndroidAssetUtil.initializeNativeAssetManager(context);
-
+    this.isSingleFrameGraph = isSingleFrameGraph;
+    singleThreadExecutorService =
+        isSingleFrameGraph ? null : Util.newSingleThreadExecutor(THREAD_NAME);
+    futures = new ArrayDeque<>();
+    inputListener = new InputListener() {};
+    outputListener = new OutputListener() {};
+    errorListener = (frameProcessingException) -> {};
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
         new FrameProcessor(
             context, eglManager.getNativeContext(), graphName, inputStreamName, outputStreamName);
+    outputFrames = new ConcurrentHashMap<>();
+    // OnWillAddFrameListener is called on the same thread as frameProcessor.onNewFrame(...), so no
+    // synchronization is needed for acceptedFrame.
+    frameProcessor.setOnWillAddFrameListener((long timestamp) -> acceptedFrame = true);
+  }
 
-    // Unblock drawFrame when there is an output frame or an error.
+  @Override
+  public void setInputListener(InputListener inputListener) {
+    this.inputListener = inputListener;
+    if (!isSingleFrameGraph || outputFrames.isEmpty()) {
+      inputListener.onReadyToAcceptInputFrame();
+    }
+  }
+
+  @Override
+  public void setOutputListener(OutputListener outputListener) {
+    this.outputListener = outputListener;
     frameProcessor.setConsumer(
         frame -> {
-          outputFrame = frame;
-          frameProcessorConditionVariable.open();
+          TextureInfo texture =
+              new TextureInfo(
+                  frame.getTextureName(),
+                  /* fboId= */ C.INDEX_UNSET,
+                  frame.getWidth(),
+                  frame.getHeight());
+          outputFrames.put(texture, frame);
+          outputListener.onOutputFrameAvailable(texture, frame.getTimestamp());
         });
+  }
+
+  @Override
+  public void setErrorListener(ErrorListener errorListener) {
+    this.errorListener = errorListener;
     frameProcessor.setAsynchronousErrorListener(
-        error -> {
-          frameProcessorPendingError = error;
-          frameProcessorConditionVariable.open();
-        });
+        error -> errorListener.onFrameProcessingError(new FrameProcessingException(error)));
   }
 
   @Override
-  public Size getOutputSize() {
-    return new Size(inputWidth, inputHeight);
-  }
-
-  @Override
-  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
-    frameProcessorConditionVariable.close();
-
-    // Pass the input frame to MediaPipe.
-    AppTextureFrame appTextureFrame = new AppTextureFrame(inputTexId, inputWidth, inputHeight);
+  public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+    AppTextureFrame appTextureFrame =
+        new AppTextureFrame(inputTexture.texId, inputTexture.width, inputTexture.height);
+    // TODO(b/238302213): Handle timestamps restarting from 0 when applying effects to a playlist.
+    //  MediaPipe will fail if the timestamps are not monotonically increasing.
+    //  Also make sure that a MediaPipe graph producing additional frames only starts producing
+    //  frames for the next MediaItem after receiving the first frame of that MediaItem as input
+    //  to avoid MediaPipe producing extra frames after the last MediaItem has ended.
     appTextureFrame.setTimestamp(presentationTimeUs);
-    checkStateNotNull(frameProcessor).onNewFrame(appTextureFrame);
-
-    // Wait for output to be passed to the consumer.
-    try {
-      frameProcessorConditionVariable.block();
-    } catch (InterruptedException e) {
-      // Propagate the interrupted flag so the next blocking operation will throw.
-      // TODO(b/230469581): The next processor that runs will not have valid input due to returning
-      //  early here. This could be fixed by checking for interruption in the outer loop that runs
-      //  through the texture processors.
-      Thread.currentThread().interrupt();
+    if (isSingleFrameGraph) {
+      boolean acceptedFrame = maybeQueueInputFrameSynchronous(appTextureFrame, inputTexture);
+      checkState(
+          acceptedFrame,
+          "queueInputFrame must only be called when a new input frame can be accepted");
       return;
     }
 
-    if (frameProcessorPendingError != null) {
-      throw new FrameProcessingException(frameProcessorPendingError);
-    }
+    // TODO(b/241782273): Avoid retrying continuously until the frame is accepted by using a
+    //  currently non-existent MediaPipe API to be notified when MediaPipe has capacity to accept a
+    //  new frame.
+    queueInputFrameAsynchronous(appTextureFrame, inputTexture);
+  }
 
-    // Copy from MediaPipe's output texture to the current output.
+  private boolean maybeQueueInputFrameSynchronous(
+      AppTextureFrame appTextureFrame, TextureInfo inputTexture) {
+    acceptedFrame = false;
+    frameProcessor.onNewFrame(appTextureFrame);
     try {
-      checkStateNotNull(glProgram).use();
-      glProgram.setSamplerTexIdUniform(
-          "uTexSampler", checkStateNotNull(outputFrame).getTextureName(), /* texUnitIndex= */ 0);
-      glProgram.setBufferAttribute(
-          "aFramePosition",
-          GlUtil.getNormalizedCoordinateBounds(),
-          GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-      glProgram.bindAttributesAndUniforms();
-      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-      GlUtil.checkGlError();
-    } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
-    } finally {
-      checkStateNotNull(outputFrame).release();
+      appTextureFrame.waitUntilReleasedWithGpuSync();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      errorListener.onFrameProcessingError(new FrameProcessingException(e));
+    }
+    if (acceptedFrame) {
+      inputListener.onInputFrameProcessed(inputTexture);
+    }
+    return acceptedFrame;
+  }
+
+  private void queueInputFrameAsynchronous(
+      AppTextureFrame appTextureFrame, TextureInfo inputTexture) {
+    removeFinishedFutures();
+    futures.add(
+        checkStateNotNull(singleThreadExecutorService)
+            .submit(
+                () -> {
+                  while (!maybeQueueInputFrameSynchronous(appTextureFrame, inputTexture)) {
+                    try {
+                      Thread.sleep(RETRY_WAIT_TIME_MS);
+                    } catch (InterruptedException e) {
+                      Thread.currentThread().interrupt();
+                      if (errorListener != null) {
+                        errorListener.onFrameProcessingError(new FrameProcessingException(e));
+                      }
+                    }
+                  }
+                  inputListener.onReadyToAcceptInputFrame();
+                }));
+  }
+
+  @Override
+  public void releaseOutputFrame(TextureInfo outputTexture) {
+    checkStateNotNull(outputFrames.get(outputTexture)).release();
+    if (isSingleFrameGraph) {
+      inputListener.onReadyToAcceptInputFrame();
     }
   }
 
   @Override
   public void release() {
-    checkStateNotNull(frameProcessor).close();
+    if (isSingleFrameGraph) {
+      frameProcessor.close();
+      return;
+    }
+
+    Queue<Future<?>> futures = checkStateNotNull(this.futures);
+    while (!futures.isEmpty()) {
+      futures.remove().cancel(/* mayInterruptIfRunning= */ false);
+    }
+    ExecutorService singleThreadExecutorService =
+        checkStateNotNull(this.singleThreadExecutorService);
+    singleThreadExecutorService.shutdown();
+    try {
+      if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
+        errorListener.onFrameProcessingError(new FrameProcessingException("Release timed out"));
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      errorListener.onFrameProcessingError(new FrameProcessingException(e));
+    }
+
+    frameProcessor.close();
+  }
+
+  @Override
+  public final void signalEndOfCurrentInputStream() {
+    if (isSingleFrameGraph) {
+      frameProcessor.waitUntilIdle();
+      outputListener.onCurrentOutputStreamEnded();
+      return;
+    }
+
+    removeFinishedFutures();
+    futures.add(
+        checkStateNotNull(singleThreadExecutorService)
+            .submit(
+                () -> {
+                  frameProcessor.waitUntilIdle();
+                  outputListener.onCurrentOutputStreamEnded();
+                }));
+  }
+
+  private void removeFinishedFutures() {
+    while (!futures.isEmpty()) {
+      if (!futures.element().isDone()) {
+        return;
+      }
+      try {
+        futures.remove().get();
+      } catch (ExecutionException e) {
+        errorListener.onFrameProcessingError(new FrameProcessingException(e));
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        errorListener.onFrameProcessingError(new FrameProcessingException(e));
+      }
+    }
   }
 }

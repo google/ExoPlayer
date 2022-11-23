@@ -37,25 +37,26 @@ import java.util.Map;
  */
 public final class RtpPayloadFormat {
 
-  private static final String RTP_MEDIA_AC3 = "AC3";
-  private static final String RTP_MEDIA_AMR = "AMR";
-  private static final String RTP_MEDIA_AMR_WB = "AMR-WB";
-  private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
-  private static final String RTP_MEDIA_MPEG4_VIDEO = "MP4V-ES";
-  private static final String RTP_MEDIA_H263_1998 = "H263-1998";
-  private static final String RTP_MEDIA_H263_2000 = "H263-2000";
-  private static final String RTP_MEDIA_H264 = "H264";
-  private static final String RTP_MEDIA_H265 = "H265";
-  private static final String RTP_MEDIA_OPUS = "OPUS";
-  private static final String RTP_MEDIA_PCM_L8 = "L8";
-  private static final String RTP_MEDIA_PCM_L16 = "L16";
-  private static final String RTP_MEDIA_PCMA = "PCMA";
-  private static final String RTP_MEDIA_PCMU = "PCMU";
-  private static final String RTP_MEDIA_VP8 = "VP8";
-  private static final String RTP_MEDIA_VP9 = "VP9";
+  public static final String RTP_MEDIA_AC3 = "AC3";
+  public static final String RTP_MEDIA_AMR = "AMR";
+  public static final String RTP_MEDIA_AMR_WB = "AMR-WB";
+  public static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
+  public static final String RTP_MEDIA_MPEG4_LATM_AUDIO = "MP4A-LATM";
+  public static final String RTP_MEDIA_MPEG4_VIDEO = "MP4V-ES";
+  public static final String RTP_MEDIA_H263_1998 = "H263-1998";
+  public static final String RTP_MEDIA_H263_2000 = "H263-2000";
+  public static final String RTP_MEDIA_H264 = "H264";
+  public static final String RTP_MEDIA_H265 = "H265";
+  public static final String RTP_MEDIA_OPUS = "OPUS";
+  public static final String RTP_MEDIA_PCM_L8 = "L8";
+  public static final String RTP_MEDIA_PCM_L16 = "L16";
+  public static final String RTP_MEDIA_PCMA = "PCMA";
+  public static final String RTP_MEDIA_PCMU = "PCMU";
+  public static final String RTP_MEDIA_VP8 = "VP8";
+  public static final String RTP_MEDIA_VP9 = "VP9";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
-  public static boolean isFormatSupported(MediaDescription mediaDescription) {
+  /* package */ static boolean isFormatSupported(MediaDescription mediaDescription) {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
       case RTP_MEDIA_AMR:
@@ -64,8 +65,9 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_H263_2000:
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
-      case RTP_MEDIA_MPEG4_VIDEO:
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_MPEG4_LATM_AUDIO:
+      case RTP_MEDIA_MPEG4_VIDEO:
       case RTP_MEDIA_OPUS:
       case RTP_MEDIA_PCM_L8:
       case RTP_MEDIA_PCM_L16:
@@ -95,6 +97,7 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_AMR_WB:
         return MimeTypes.AUDIO_AMR_WB;
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_MPEG4_LATM_AUDIO:
         return MimeTypes.AUDIO_AAC;
       case RTP_MEDIA_OPUS:
         return MimeTypes.AUDIO_OPUS;
@@ -140,6 +143,8 @@ public final class RtpPayloadFormat {
   public final Format format;
   /** The format parameters, mapped from the SDP FMTP attribute (RFC2327 Page 22). */
   public final ImmutableMap<String, String> fmtpParameters;
+  /** The RTP media encoding. */
+  public final String mediaEncoding;
 
   /**
    * Creates a new instance.
@@ -151,13 +156,19 @@ public final class RtpPayloadFormat {
    * @param fmtpParameters The format parameters, from the SDP FMTP attribute (RFC2327 Page 22),
    *     empty if unset. The keys and values are specified in the RFCs for specific formats. For
    *     instance, RFC3640 Section 4.1 defines keys like profile-level-id and config.
+   * @param mediaEncoding The RTP media encoding.
    */
   public RtpPayloadFormat(
-      Format format, int rtpPayloadType, int clockRate, Map<String, String> fmtpParameters) {
+      Format format,
+      int rtpPayloadType,
+      int clockRate,
+      Map<String, String> fmtpParameters,
+      String mediaEncoding) {
     this.rtpPayloadType = rtpPayloadType;
     this.clockRate = clockRate;
     this.format = format;
     this.fmtpParameters = ImmutableMap.copyOf(fmtpParameters);
+    this.mediaEncoding = mediaEncoding;
   }
 
   @Override
@@ -172,7 +183,8 @@ public final class RtpPayloadFormat {
     return rtpPayloadType == that.rtpPayloadType
         && clockRate == that.clockRate
         && format.equals(that.format)
-        && fmtpParameters.equals(that.fmtpParameters);
+        && fmtpParameters.equals(that.fmtpParameters)
+        && mediaEncoding.equals(that.mediaEncoding);
   }
 
   @Override
@@ -182,6 +194,7 @@ public final class RtpPayloadFormat {
     result = 31 * result + clockRate;
     result = 31 * result + format.hashCode();
     result = 31 * result + fmtpParameters.hashCode();
+    result = 31 * result + mediaEncoding.hashCode();
     return result;
   }
 }

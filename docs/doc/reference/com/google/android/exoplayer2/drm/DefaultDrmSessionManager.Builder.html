@@ -300,7 +300,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setKeyRequestParameters</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setKeyRequestParameters&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setKeyRequestParameters&#8203;(@Nullable
                                                                 <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</pre>
 <div class="block">Sets the key request parameters to pass as the last argument to <a href="ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null if not parameters need to
  be passed.
@@ -320,7 +321,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUuidAndExoMediaDrmProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setUuidAndExoMediaDrmProvider&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setUuidAndExoMediaDrmProvider&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                                                                       <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&nbsp;exoMediaDrmProvider)</pre>
 <div class="block">Sets the UUID of the DRM scheme and the <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm.Provider</code></a> to use.</div>
 <dl>
@@ -338,7 +340,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMultiSession</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
 <div class="block">Sets whether this session manager is allowed to acquire multiple simultaneous sessions.
 
  <p>Users should pass false when a single key request will obtain all keys required to decrypt
@@ -358,7 +361,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUseDrmSessionsForClearContent</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setUseDrmSessionsForClearContent&#8203;(@com.google.android.exoplayer2.C.TrackType int...&nbsp;useDrmSessionsForClearContentTrackTypes)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setUseDrmSessionsForClearContent&#8203;(@com.google.android.exoplayer2.C.TrackType int...&nbsp;useDrmSessionsForClearContentTrackTypes)</pre>
 <div class="block">Sets whether this session manager should attach <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> to the clear
  sections of the media content.
 
@@ -383,7 +387,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlayClearSamplesWithoutKeys</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setPlayClearSamplesWithoutKeys&#8203;(boolean&nbsp;playClearSamplesWithoutKeys)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setPlayClearSamplesWithoutKeys&#8203;(boolean&nbsp;playClearSamplesWithoutKeys)</pre>
 <div class="block">Sets whether clear samples within protected content should be played when keys for the
  encrypted part of the content have yet to be loaded.</div>
 <dl>
@@ -401,7 +406,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
 <div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a> for key and provisioning requests.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -417,7 +423,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSessionKeepaliveMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setSessionKeepaliveMs&#8203;(long&nbsp;sessionKeepaliveMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setSessionKeepaliveMs&#8203;(long&nbsp;sessionKeepaliveMs)</pre>
 <div class="block">Sets the time to keep <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> alive when they're not in use.
 
  <p>It can be useful to keep sessions alive during playback of short clear sections of media

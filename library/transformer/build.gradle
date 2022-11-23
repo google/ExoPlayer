@@ -30,7 +30,6 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDir '../test_data/src/test/assets/' //copybara:media3-only
         androidTest.assets.srcDir '../../testdata/src/test/assets/'
         test.assets.srcDir '../../testdata/src/test/assets/'
     }
@@ -39,6 +38,7 @@ android {
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-effect')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion

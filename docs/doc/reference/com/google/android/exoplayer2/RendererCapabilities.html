@@ -247,12 +247,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DECODER_SUPPORT_FALLBACK_MIMETYPE">DECODER_SUPPORT_FALLBACK_MIMETYPE</a></span></code></th>
+<td class="colLast">
+<div class="block">The renderer will use a decoder for fallback mimetype if possible as format's MIME type is
+ unsupported</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DECODER_SUPPORT_PRIMARY">DECODER_SUPPORT_PRIMARY</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is able to use the primary decoder for the format's MIME type.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FORMAT_EXCEEDS_CAPABILITIES">FORMAT_EXCEEDS_CAPABILITIES</a></span></code></th>
 <td class="colLast">
@@ -261,7 +269,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FORMAT_HANDLED">FORMAT_HANDLED</a></span></code></th>
 <td class="colLast">
@@ -270,14 +278,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FORMAT_SUPPORT_MASK">FORMAT_SUPPORT_MASK</a></span></code></th>
 <td class="colLast">
 <div class="block">A mask to apply to <a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain the <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> only.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FORMAT_UNSUPPORTED_DRM">FORMAT_UNSUPPORTED_DRM</a></span></code></th>
 <td class="colLast">
@@ -286,7 +294,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FORMAT_UNSUPPORTED_SUBTYPE">FORMAT_UNSUPPORTED_SUBTYPE</a></span></code></th>
 <td class="colLast">
@@ -295,7 +303,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FORMAT_UNSUPPORTED_TYPE">FORMAT_UNSUPPORTED_TYPE</a></span></code></th>
 <td class="colLast">
@@ -304,49 +312,49 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HARDWARE_ACCELERATION_NOT_SUPPORTED">HARDWARE_ACCELERATION_NOT_SUPPORTED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is not able to use hardware acceleration.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HARDWARE_ACCELERATION_SUPPORT_MASK">HARDWARE_ACCELERATION_SUPPORT_MASK</a></span></code></th>
 <td class="colLast">
 <div class="block">A mask to apply to <a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain <a href="RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.HardwareAccelerationSupport</code></a> only.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HARDWARE_ACCELERATION_SUPPORTED">HARDWARE_ACCELERATION_SUPPORTED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is able to use hardware acceleration.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_SUPPORT_MASK">MODE_SUPPORT_MASK</a></span></code></th>
 <td class="colLast">
 <div class="block">A mask to apply to <a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain <a href="RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.DecoderSupport</code></a> only.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TUNNELING_NOT_SUPPORTED">TUNNELING_NOT_SUPPORTED</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> does not support tunneled output.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TUNNELING_SUPPORT_MASK">TUNNELING_SUPPORT_MASK</a></span></code></th>
 <td class="colLast">
 <div class="block">A mask to apply to <a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> to obtain <a href="RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> only.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TUNNELING_SUPPORTED">TUNNELING_SUPPORTED</a></span></code></th>
 <td class="colLast">
@@ -730,6 +738,21 @@ static final&nbsp;int FORMAT_UNSUPPORTED_TYPE</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.MODE_SUPPORT_MASK">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="DECODER_SUPPORT_FALLBACK_MIMETYPE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DECODER_SUPPORT_FALLBACK_MIMETYPE</h4>
+<pre>static final&nbsp;int DECODER_SUPPORT_FALLBACK_MIMETYPE</pre>
+<div class="block">The renderer will use a decoder for fallback mimetype if possible as format's MIME type is
+ unsupported</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.DECODER_SUPPORT_FALLBACK_MIMETYPE">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>

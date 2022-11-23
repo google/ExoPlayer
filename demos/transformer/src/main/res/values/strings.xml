@@ -17,7 +17,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name" translatable="false">Transformer Demo</string>
   <string name="configuration" translatable="false">Configuration</string>
-  <string name="select_file_title" translatable="false">Choose file</string>
+  <string name="select_preset_file_title" translatable="false">Choose preset file</string>
+  <string name="select_local_file_title">Choose local file</string>
   <string name="remove_audio" translatable="false">Remove audio</string>
   <string name="remove_video" translatable="false">Remove video</string>
   <string name="flatten_for_slow_motion" translatable="false">Flatten for slow motion</string>
@@ -27,9 +28,11 @@
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
+  <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
-  <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
+  <string name="force_interpret_hdr_video_as_sdr" translatable="false">[Experimental] Force interpret HDR video as SDR (API 29+)</string>
+  <string name="hdr_editing" translatable="false">[Experimental] HDR editing (API 31+)</string>
   <string name="select_demo_effects" translatable="false">Add demo effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
   <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
@@ -40,8 +43,27 @@
   <string name="transformation_timer" translatable="false">Transformation started %d seconds ago.</string>
   <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
   <string name="transformation_error" translatable="false">Transformation error</string>
+  <string name="trim_range">Bounds in seconds</string>
+  <string-array name="color_filter_options">
+    <item>Grayscale</item>
+    <item>Inverted</item>
+    <item>Sepia</item>
+  </string-array>
+  <string name="contrast_value" translatable="false">Contrast value</string>
+  <string name="rgb_adjustment_options" translatable="false">Scale RGB Channels individually</string>
+  <string name="rgb_adjustment_scale_red" translatable="false">Scale red</string>
+  <string name="rgb_adjustment_scale_green" translatable="false">Scale green</string>
+  <string name="rgb_adjustment_scale_blue" translatable="false">Scale blue</string>
   <string name="center_x">Center X</string>
   <string name="center_y">Center Y</string>
   <string name="radius_range">Radius range</string>
-  <string name="trim_range">Bounds in seconds</string>
+  <string name="hsl_adjustment_options" translatable="false">HSL adjustment options</string>
+  <string name="hue_adjustment">Hue adjustment</string>
+  <string name="saturation_adjustment">Saturation adjustment</string>
+  <string name="lightness_adjustment">Lightness adjustment</string>
+  <string name="input_video">Input video:</string>
+  <string name="output_video">Output video:</string>
+  <string name="permission_denied">Permission Denied</string>
+  <string name="hide_input_video">Hide input video</string>
+  <string name="show_input_video">Show input video</string>
 </resources>

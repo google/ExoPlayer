@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -35,9 +34,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * A {@link MediaSource} that masks the {@link Timeline} with a placeholder until the actual media
  * structure is known.
  */
-public final class MaskingMediaSource extends CompositeMediaSource<Void> {
+public final class MaskingMediaSource extends WrappingMediaSource {
 
-  private final MediaSource mediaSource;
   private final boolean useLazyPreparation;
   private final Timeline.Window window;
   private final Timeline.Period period;
@@ -57,7 +55,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
    *     initial preparations are triggered only when the player starts buffering the media.
    */
   public MaskingMediaSource(MediaSource mediaSource, boolean useLazyPreparation) {
-    this.mediaSource = mediaSource;
+    super(mediaSource);
     this.useLazyPreparation = useLazyPreparation && mediaSource.isSingleWindow();
     window = new Timeline.Window();
     period = new Timeline.Period();
@@ -78,17 +76,11 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
-    super.prepareSourceInternal(mediaTransferListener);
+  public void prepareSourceInternal() {
     if (!useLazyPreparation) {
       hasStartedPreparing = true;
-      prepareChildSource(/* id= */ null, mediaSource);
+      prepareChildSource();
     }
-  }
-
-  @Override
-  public MediaItem getMediaItem() {
-    return mediaSource.getMediaItem();
   }
 
   @Override
@@ -113,7 +105,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       unpreparedMaskingMediaPeriod = mediaPeriod;
       if (!hasStartedPreparing) {
         hasStartedPreparing = true;
-        prepareChildSource(/* id= */ null, mediaSource);
+        prepareChildSource();
       }
     }
     return mediaPeriod;
@@ -135,8 +127,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline newTimeline) {
+  protected void onChildSourceInfoRefreshed(Timeline newTimeline) {
     @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
@@ -206,8 +197,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
   @Override
   @Nullable
-  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
-      Void id, MediaPeriodId mediaPeriodId) {
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(MediaPeriodId mediaPeriodId) {
     return mediaPeriodId.copyWithPeriodUid(getExternalPeriodUid(mediaPeriodId.periodUid));
   }
 
@@ -300,11 +290,6 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
      */
     public MaskingTimeline cloneWithUpdatedTimeline(Timeline timeline) {
       return new MaskingTimeline(timeline, replacedInternalWindowUid, replacedInternalPeriodUid);
-    }
-
-    /** Returns the wrapped timeline. */
-    public Timeline getTimeline() {
-      return timeline;
     }
 
     @Override

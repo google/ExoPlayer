@@ -269,8 +269,8 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until it
- has been <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until
+ <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> has been called and more input has been queued.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -459,7 +459,8 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre class="methodSignature">public&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
                                      throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">AudioProcessor</a></code></span></div>
 <div class="block">Configures the processor to process input audio with the specified format. After calling this
@@ -564,8 +565,8 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <h4>isEnded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#isEnded()">AudioProcessor</a></code></span></div>
-<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until it
- has been <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until
+ <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> has been called and more input has been queued.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="AudioProcessor.html#isEnded()">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>

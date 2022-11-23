@@ -17,9 +17,11 @@ package com.google.android.exoplayer2.audio;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.AudioDeviceInfo;
 import android.media.AudioTrack;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -415,6 +417,23 @@ public interface AudioSink {
 
   /** Sets the auxiliary effect. */
   void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
+
+  /**
+   * Sets the preferred audio device.
+   *
+   * @param audioDeviceInfo The preferred {@linkplain AudioDeviceInfo audio device}, or null to
+   *     restore the default.
+   */
+  @RequiresApi(23)
+  default void setPreferredDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {}
+
+  /**
+   * Sets the offset that is added to the media timestamp before it is passed as {@code
+   * presentationTimeUs} in {@link #handleBuffer(ByteBuffer, long, int)}.
+   *
+   * @param outputStreamOffsetUs The output stream offset in microseconds.
+   */
+  default void setOutputStreamOffsetUs(long outputStreamOffsetUs) {}
 
   /**
    * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled.

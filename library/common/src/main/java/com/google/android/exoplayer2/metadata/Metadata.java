@@ -18,9 +18,12 @@ package com.google.android.exoplayer2.metadata;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Longs;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,11 +64,28 @@ public final class Metadata implements Parcelable {
   }
 
   private final Entry[] entries;
+  /**
+   * The presentation time of the metadata, in microseconds.
+   *
+   * <p>This time is an offset from the start of the current {@link Timeline.Period}.
+   *
+   * <p>This time is {@link C#TIME_UNSET} when not known or undefined.
+   */
+  public final long presentationTimeUs;
 
   /**
    * @param entries The metadata entries.
    */
   public Metadata(Entry... entries) {
+    this(/* presentationTimeUs= */ C.TIME_UNSET, entries);
+  }
+
+  /**
+   * @param presentationTimeUs The presentation time for the metadata entries.
+   * @param entries The metadata entries.
+   */
+  public Metadata(long presentationTimeUs, Entry... entries) {
+    this.presentationTimeUs = presentationTimeUs;
     this.entries = entries;
   }
 
@@ -73,7 +93,15 @@ public final class Metadata implements Parcelable {
    * @param entries The metadata entries.
    */
   public Metadata(List<? extends Entry> entries) {
-    this.entries = entries.toArray(new Entry[0]);
+    this(entries.toArray(new Entry[0]));
+  }
+
+  /**
+   * @param presentationTimeUs The presentation time for the metadata entries.
+   * @param entries The metadata entries.
+   */
+  public Metadata(long presentationTimeUs, List<? extends Entry> entries) {
+    this(presentationTimeUs, entries.toArray(new Entry[0]));
   }
 
   /* package */ Metadata(Parcel in) {
@@ -81,6 +109,7 @@ public final class Metadata implements Parcelable {
     for (int i = 0; i < entries.length; i++) {
       entries[i] = in.readParcelable(Entry.class.getClassLoader());
     }
+    presentationTimeUs = in.readLong();
   }
 
   /** Returns the number of metadata entries. */
@@ -123,7 +152,21 @@ public final class Metadata implements Parcelable {
     if (entriesToAppend.length == 0) {
       return this;
     }
-    return new Metadata(Util.nullSafeArrayConcatenation(entries, entriesToAppend));
+    return new Metadata(
+        presentationTimeUs, Util.nullSafeArrayConcatenation(entries, entriesToAppend));
+  }
+
+  /**
+   * Returns a copy of this metadata with the specified presentation time.
+   *
+   * @param presentationTimeUs The new presentation time, in microseconds.
+   * @return The metadata instance with the new presentation time.
+   */
+  public Metadata copyWithPresentationTimeUs(long presentationTimeUs) {
+    if (this.presentationTimeUs == presentationTimeUs) {
+      return this;
+    }
+    return new Metadata(presentationTimeUs, entries);
   }
 
   @Override
@@ -135,17 +178,21 @@ public final class Metadata implements Parcelable {
       return false;
     }
     Metadata other = (Metadata) obj;
-    return Arrays.equals(entries, other.entries);
+    return Arrays.equals(entries, other.entries) && presentationTimeUs == other.presentationTimeUs;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(entries);
+    int result = Arrays.hashCode(entries);
+    result = 31 * result + Longs.hashCode(presentationTimeUs);
+    return result;
   }
 
   @Override
   public String toString() {
-    return "entries=" + Arrays.toString(entries);
+    return "entries="
+        + Arrays.toString(entries)
+        + (presentationTimeUs == C.TIME_UNSET ? "" : ", presentationTimeUs=" + presentationTimeUs);
   }
 
   // Parcelable implementation.
@@ -161,6 +208,7 @@ public final class Metadata implements Parcelable {
     for (Entry entry : entries) {
       dest.writeParcelable(entry, 0);
     }
+    dest.writeLong(presentationTimeUs);
   }
 
   public static final Parcelable.Creator<Metadata> CREATOR =

@@ -19,16 +19,32 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.media.MediaFormat;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.DecoderFactory}. */
 /* package */ final class DefaultDecoderFactory implements Codec.DecoderFactory {
+
+  private final Context context;
+
+  private final boolean decoderSupportsKeyAllowFrameDrop;
+
+  public DefaultDecoderFactory(Context context) {
+    this.context = context;
+
+    decoderSupportsKeyAllowFrameDrop =
+        SDK_INT >= 29
+            && context.getApplicationContext().getApplicationInfo().targetSdkVersion >= 29;
+  }
 
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
@@ -45,9 +61,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       throw createTransformationException(format);
     }
     return new DefaultCodec(
-        format, mediaFormat, mediaCodecName, /* isDecoder= */ true, /* outputSurface= */ null);
+        context,
+        format,
+        mediaFormat,
+        mediaCodecName,
+        /* isDecoder= */ true,
+        /* outputSurface= */ null);
   }
 
+  @SuppressLint("InlinedApi")
   @Override
   public Codec createForVideoDecoding(
       Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
@@ -59,9 +81,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     MediaFormatUtil.maybeSetInteger(
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-    if (SDK_INT >= 29) {
-      // On API levels over 29, Transformer decodes as many frames as possible in one render
-      // cycle. This key ensures no frame dropping when the decoder's output surface is full.
+    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
+    if (decoderSupportsKeyAllowFrameDrop) {
+      // This key ensures no frame dropping when the decoder's output surface is full. This allows
+      // transformer to decode as many frames as possible in one render cycle.
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
     if (SDK_INT >= 31 && enableRequestSdrToneMapping) {
@@ -70,12 +93,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Nullable
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+    if (codecProfileAndLevel != null) {
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
+    }
+
+    @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
     if (mediaCodecName == null) {
       throw createTransformationException(format);
     }
     return new DefaultCodec(
-        format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
+        context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
   }
 
   @RequiresNonNull("#1.sampleMimeType")

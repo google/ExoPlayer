@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static android.view.Display.DEFAULT_DISPLAY;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.format;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
@@ -26,13 +27,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.hardware.display.DisplayManager;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.Display;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -63,6 +67,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowDisplay;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link MediaCodecVideoRenderer}. */
@@ -608,5 +614,457 @@ public class MediaCodecVideoRendererTest {
         .isEqualTo(C.FORMAT_HANDLED);
     assertThat(RendererCapabilities.getFormatSupport(capabilitiesNoFallbackPossible))
         .isEqualTo(C.FORMAT_UNSUPPORTED_SUBTYPE);
+  }
+
+  @Test
+  public void supportsFormat_withDolbyVision_setsDecoderSupportFlagsByDisplayDolbyVisionSupport()
+      throws Exception {
+    Format formatDvheDtr =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+            .setCodecs("dvhe.04.01")
+            .build();
+    // Provide supporting Dolby Vision and fallback HEVC decoders
+    MediaCodecSelector mediaCodecSelector =
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
+          switch (mimeType) {
+            case MimeTypes.VIDEO_DOLBY_VISION:
+              {
+                CodecCapabilities capabilitiesDolby = new CodecCapabilities();
+                capabilitiesDolby.profileLevels = new CodecProfileLevel[] {new CodecProfileLevel()};
+                capabilitiesDolby.profileLevels[0].profile =
+                    CodecProfileLevel.DolbyVisionProfileDvheDtr;
+                capabilitiesDolby.profileLevels[0].level = CodecProfileLevel.DolbyVisionLevelFhd30;
+                return ImmutableList.of(
+                    MediaCodecInfo.newInstance(
+                        /* name= */ "dvhe-codec",
+                        /* mimeType= */ mimeType,
+                        /* codecMimeType= */ mimeType,
+                        /* capabilities= */ capabilitiesDolby,
+                        /* hardwareAccelerated= */ true,
+                        /* softwareOnly= */ false,
+                        /* vendor= */ false,
+                        /* forceDisableAdaptive= */ false,
+                        /* forceSecure= */ false));
+              }
+            case MimeTypes.VIDEO_H265:
+              {
+                CodecCapabilities capabilitiesH265 = new CodecCapabilities();
+                capabilitiesH265.profileLevels =
+                    new CodecProfileLevel[] {new CodecProfileLevel(), new CodecProfileLevel()};
+                capabilitiesH265.profileLevels[0].profile = CodecProfileLevel.HEVCProfileMain;
+                capabilitiesH265.profileLevels[0].level = CodecProfileLevel.HEVCMainTierLevel41;
+                capabilitiesH265.profileLevels[1].profile = CodecProfileLevel.HEVCProfileMain10;
+                capabilitiesH265.profileLevels[1].level = CodecProfileLevel.HEVCHighTierLevel51;
+                return ImmutableList.of(
+                    MediaCodecInfo.newInstance(
+                        /* name= */ "h265-codec",
+                        /* mimeType= */ mimeType,
+                        /* codecMimeType= */ mimeType,
+                        /* capabilities= */ capabilitiesH265,
+                        /* hardwareAccelerated= */ true,
+                        /* softwareOnly= */ false,
+                        /* vendor= */ false,
+                        /* forceDisableAdaptive= */ false,
+                        /* forceSecure= */ false));
+              }
+            default:
+              return ImmutableList.of();
+          }
+        };
+    MediaCodecVideoRenderer renderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1);
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    @Capabilities int capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
+
+    assertThat(RendererCapabilities.getDecoderSupport(capabilitiesDvheDtr))
+        .isEqualTo(RendererCapabilities.DECODER_SUPPORT_FALLBACK_MIMETYPE);
+
+    // Set Display to have Dolby Vision support
+    Context context = ApplicationProvider.getApplicationContext();
+    DisplayManager displayManager =
+        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    Display display = (displayManager != null) ? displayManager.getDisplay(DEFAULT_DISPLAY) : null;
+    ShadowDisplay shadowDisplay = Shadows.shadowOf(display);
+    int[] hdrCapabilities =
+        new int[] {
+          Display.HdrCapabilities.HDR_TYPE_HDR10, Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION
+        };
+    shadowDisplay.setDisplayHdrCapabilities(
+        display.getDisplayId(),
+        /* maxLuminance= */ 100f,
+        /* maxAverageLuminance= */ 100f,
+        /* minLuminance= */ 100f,
+        hdrCapabilities);
+
+    capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
+
+    assertThat(RendererCapabilities.getDecoderSupport(capabilitiesDvheDtr))
+        .isEqualTo(RendererCapabilities.DECODER_SUPPORT_PRIMARY);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoH263() {
+    MediaCodecInfo codecInfo = createMediaCodecInfo(MimeTypes.VIDEO_H263);
+
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_H263, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(230400);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_H263, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(691200);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_H263, 1920, 1080)))
+        .isEqualTo(1555200);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoH264() {
+    MediaCodecInfo codecInfo = createMediaCodecInfo(MimeTypes.VIDEO_H264);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_H264, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(230400);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_H264, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(691200);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_H264, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(1566720);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoHevc() {
+    MediaCodecInfo codecInfo = createMediaCodecInfo(MimeTypes.VIDEO_H265);
+
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_H265, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(2097152);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_H265, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(2097152);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_H265, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(2097152);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_H265, /* width= */ 3840, /* height= */ 2160)))
+        .isEqualTo(6220800);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoMp4v() {
+    MediaCodecInfo codecInfo = createMediaCodecInfo(MimeTypes.VIDEO_MP4V);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_MP4V, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(230400);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_MP4V, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(691200);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_MP4V, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(1555200);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoAv1() {
+    MediaCodecInfo codecInfo = createMediaCodecInfo(MimeTypes.VIDEO_AV1);
+
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_MP4V, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(230400);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_MP4V, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(691200);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_MP4V, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(1555200);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoVp8() {
+    MediaCodecInfo vp8CodecInfo = createMediaCodecInfo(MimeTypes.VIDEO_VP8);
+
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                vp8CodecInfo,
+                createFormat(MimeTypes.VIDEO_VP8, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(230400);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                vp8CodecInfo,
+                createFormat(MimeTypes.VIDEO_VP8, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(691200);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                vp8CodecInfo,
+                createFormat(MimeTypes.VIDEO_VP8, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(1555200);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_dolbyVision_fallBack() {
+    MediaCodecInfo dvCodecInfo = createMediaCodecInfo(MimeTypes.VIDEO_DOLBY_VISION);
+    int h264MaxSampleSize =
+        MediaCodecVideoRenderer.getCodecMaxInputSize(
+            createMediaCodecInfo(MimeTypes.VIDEO_H264),
+            createFormat(MimeTypes.VIDEO_H264, /* width= */ 1920, /* height= */ 1080));
+    int hevcMaxSampleSize =
+        MediaCodecVideoRenderer.getCodecMaxInputSize(
+            createMediaCodecInfo(MimeTypes.VIDEO_H265),
+            createFormat(MimeTypes.VIDEO_H265, /* width= */ 1920, /* height= */ 1080));
+
+    // DV format without codec string fallbacks to HEVC.
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    // DV profiles "00", "01" and "09" fallback to H264.
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.00.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(h264MaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.01.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(h264MaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.09.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(h264MaxSampleSize);
+    // DV profiles "02", "03", "04", "05", "06, "07" and "08" fallback to HEVC.
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.02.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.03.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.04.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.05.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.06.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.07.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                dvCodecInfo,
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+                    .setCodecs("dvhe.08.01")
+                    .setWidth(1920)
+                    .setHeight(1080)
+                    .build()))
+        .isEqualTo(hevcMaxSampleSize);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_videoVp9() {
+    MediaCodecInfo codecInfo = createMediaCodecInfo(MimeTypes.VIDEO_VP9);
+
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_VP9, /* width= */ 640, /* height= */ 480)))
+        .isEqualTo(115200);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo, createFormat(MimeTypes.VIDEO_VP9, /* width= */ 1280, /* height= */ 720)))
+        .isEqualTo(345600);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                codecInfo,
+                createFormat(MimeTypes.VIDEO_VP9, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(777600);
+  }
+
+  @Test
+  public void getCodecMaxInputSize_withUnsupportedFormat_returnsNoValue() {
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_MP43),
+                createFormat(MimeTypes.VIDEO_MP43, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_MP42),
+                createFormat(MimeTypes.VIDEO_MP42, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_MJPEG),
+                createFormat(MimeTypes.VIDEO_MJPEG, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_AVI),
+                createFormat(MimeTypes.VIDEO_AVI, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_OGG),
+                createFormat(MimeTypes.VIDEO_OGG, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_FLV),
+                createFormat(MimeTypes.VIDEO_FLV, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_VC1),
+                createFormat(MimeTypes.VIDEO_VC1, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_MPEG2),
+                createFormat(MimeTypes.VIDEO_MPEG2, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_PS),
+                createFormat(MimeTypes.VIDEO_PS, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_MPEG),
+                createFormat(MimeTypes.VIDEO_MPEG, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_MP2T),
+                createFormat(MimeTypes.VIDEO_MP2T, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_WEBM),
+                createFormat(MimeTypes.VIDEO_WEBM, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+    assertThat(
+            MediaCodecVideoRenderer.getCodecMaxInputSize(
+                createMediaCodecInfo(MimeTypes.VIDEO_DIVX),
+                createFormat(MimeTypes.VIDEO_DIVX, /* width= */ 1920, /* height= */ 1080)))
+        .isEqualTo(Format.NO_VALUE);
+  }
+
+  private static MediaCodecInfo createMediaCodecInfo(String mimeType) {
+    return MediaCodecInfo.newInstance(
+        /* name= */ mimeType,
+        /* mimeType= */ mimeType,
+        /* codecMimeType= */ mimeType,
+        /* capabilities= */ new CodecCapabilities(),
+        /* hardwareAccelerated= */ true,
+        /* softwareOnly= */ false,
+        /* vendor= */ true,
+        /* forceDisableAdaptive= */ false,
+        /* forceSecure= */ false);
+  }
+
+  private static Format createFormat(String mimeType, int width, int height) {
+    return new Format.Builder()
+        .setSampleMimeType(mimeType)
+        .setWidth(width)
+        .setHeight(height)
+        .build();
   }
 }

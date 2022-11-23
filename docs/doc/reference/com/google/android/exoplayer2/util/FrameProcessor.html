@@ -1,0 +1,540 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>FrameProcessor (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="FrameProcessor (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
+<h2 title="Interface FrameProcessor" class="title">Interface FrameProcessor</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="../effect/GlEffectsFrameProcessor.html" title="class in com.google.android.exoplayer2.effect">GlEffectsFrameProcessor</a></code></dd>
+</dl>
+<hr>
+<pre>public interface <span class="typeNameLabel">FrameProcessor</span></pre>
+<div class="block">Interface for a frame processor that applies changes to individual video frames.
+
+ <p>The changes are specified by <a href="Effect.html" title="interface in com.google.android.exoplayer2.util"><code>Effect</code></a> instances passed to <a href="FrameProcessor.Factory.html#create(android.content.Context,com.google.android.exoplayer2.util.FrameProcessor.Listener,java.util.List,com.google.android.exoplayer2.util.DebugViewProvider,com.google.android.exoplayer2.video.ColorInfo,boolean)"><code>FrameProcessor.Factory.create(android.content.Context, com.google.android.exoplayer2.util.FrameProcessor.Listener, java.util.List&lt;com.google.android.exoplayer2.util.Effect&gt;, com.google.android.exoplayer2.util.DebugViewProvider, com.google.android.exoplayer2.video.ColorInfo, boolean)</code></a>.
+
+ <p>Manages its input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a>, which can be accessed via <a href="#getInputSurface()" target="_top"><code>getInputSurface()</code></a>. The
+ output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a> must be set by the caller using <a href="#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)" target="_top"><code>setOutputSurfaceInfo(SurfaceInfo)</code></a>.
+
+ <p>The caller must <a href="#registerInputFrame()">register</a> input frames before rendering them
+ to the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util">FrameProcessor.Factory</a></span></code></th>
+<td class="colLast">
+<div class="block">A factory for <a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FrameProcessor.Listener.html" title="interface in com.google.android.exoplayer2.util">FrameProcessor.Listener</a></span></code></th>
+<td class="colLast">
+<div class="block">Listener for asynchronous frame processing events.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DROP_OUTPUT_FRAME">DROP_OUTPUT_FRAME</a></span></code></th>
+<td class="colLast">
+<div class="block">Indicates the frame should be dropped after <a href="#releaseOutputFrame(long)"><code>releaseOutputFrame(long)</code></a> is invoked.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RELEASE_OUTPUT_FRAME_IMMEDIATELY">RELEASE_OUTPUT_FRAME_IMMEDIATELY</a></span></code></th>
+<td class="colLast">
+<div class="block">Indicates the frame should be released immediately after <a href="#releaseOutputFrame(long)"><code>releaseOutputFrame(long)</code></a> is
+ invoked.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputSurface()">getInputSurface</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a>, where <a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util" target="_top"><code>FrameProcessor</code></a> consumes input frames from.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPendingInputFrameCount()">getPendingInputFrameCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of input frames that have been <a href="#registerInputFrame()">registered</a>
+ but not processed off the <a href="#getInputSurface()">input surface</a> yet.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerInputFrame()">registerInputFrame</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Informs the <code>FrameProcessor</code> that a frame will be queued to its input surface.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Releases all resources.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputFrame(long)">releaseOutputFrame</a></span>&#8203;(long&nbsp;releaseTimeNs)</code></th>
+<td class="colLast">
+<div class="block">Releases the oldest unreleased output frame that has become <a href="FrameProcessor.Listener.html#onOutputFrameAvailable(long)">available</a> at the given <code>releaseTimeNs</code>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)">setInputFrameInfo</a></span>&#8203;(<a href="FrameInfo.html" title="class in com.google.android.exoplayer2.util">FrameInfo</a>&nbsp;inputFrameInfo)</code></th>
+<td class="colLast">
+<div class="block">Sets information about the input frames.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">setOutputSurfaceInfo</a></span>&#8203;(<a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util">SurfaceInfo</a>&nbsp;outputSurfaceInfo)</code></th>
+<td class="colLast">
+<div class="block">Sets the output surface and supporting information.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfInput()">signalEndOfInput</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Informs the <code>FrameProcessor</code> that no further input frames should be accepted.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="RELEASE_OUTPUT_FRAME_IMMEDIATELY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>RELEASE_OUTPUT_FRAME_IMMEDIATELY</h4>
+<pre>static final&nbsp;long RELEASE_OUTPUT_FRAME_IMMEDIATELY</pre>
+<div class="block">Indicates the frame should be released immediately after <a href="#releaseOutputFrame(long)"><code>releaseOutputFrame(long)</code></a> is
+ invoked.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="DROP_OUTPUT_FRAME">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DROP_OUTPUT_FRAME</h4>
+<pre>static final&nbsp;long DROP_OUTPUT_FRAME</pre>
+<div class="block">Indicates the frame should be dropped after <a href="#releaseOutputFrame(long)"><code>releaseOutputFrame(long)</code></a> is invoked.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.FrameProcessor.DROP_OUTPUT_FRAME">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getInputSurface()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInputSurface</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getInputSurface()</pre>
+<div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a>, where <a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util" target="_top"><code>FrameProcessor</code></a> consumes input frames from.</div>
+</li>
+</ul>
+<a id="setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInputFrameInfo</h4>
+<pre class="methodSignature">void&nbsp;setInputFrameInfo&#8203;(<a href="FrameInfo.html" title="class in com.google.android.exoplayer2.util">FrameInfo</a>&nbsp;inputFrameInfo)</pre>
+<div class="block">Sets information about the input frames.
+
+ <p>The new input information is applied from the next frame <a href="#registerInputFrame()">registered</a> onwards.
+
+ <p>Pixels are expanded using the <a href="FrameInfo.html#pixelWidthHeightRatio"><code>FrameInfo.pixelWidthHeightRatio</code></a> so that the output
+ frames' pixels have a ratio of 1.
+
+ <p>The caller should update <a href="FrameInfo.html#streamOffsetUs"><code>FrameInfo.streamOffsetUs</code></a> when switching input streams to
+ ensure that frame timestamps are always monotonically increasing.</div>
+</li>
+</ul>
+<a id="registerInputFrame()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>registerInputFrame</h4>
+<pre class="methodSignature">void&nbsp;registerInputFrame()</pre>
+<div class="block">Informs the <code>FrameProcessor</code> that a frame will be queued to its input surface.
+
+ <p>Must be called before rendering a frame to the frame processor's input surface.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If called after <a href="#signalEndOfInput()"><code>signalEndOfInput()</code></a> or before <a href="#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)" target="_top"><code>setInputFrameInfo(FrameInfo)</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPendingInputFrameCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPendingInputFrameCount</h4>
+<pre class="methodSignature">int&nbsp;getPendingInputFrameCount()</pre>
+<div class="block">Returns the number of input frames that have been <a href="#registerInputFrame()">registered</a>
+ but not processed off the <a href="#getInputSurface()">input surface</a> yet.</div>
+</li>
+</ul>
+<a id="setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOutputSurfaceInfo</h4>
+<pre class="methodSignature">void&nbsp;setOutputSurfaceInfo&#8203;(@Nullable
+                          <a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util">SurfaceInfo</a>&nbsp;outputSurfaceInfo)</pre>
+<div class="block">Sets the output surface and supporting information. When output frames are released and not
+ dropped, they will be rendered to this output <a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a>.
+
+ <p>The new output <a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> is applied from the next output frame rendered onwards.
+ If the output <a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> is <code>null</code>, the <code>FrameProcessor</code> will stop
+ rendering pending frames and resume rendering once a non-null <a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> is set.
+
+ <p>If the dimensions given in <a href="SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> do not match the <a href="FrameProcessor.Listener.html#onOutputSizeChanged(int,int)">output size after applying the final effect</a> the frames
+ are resized before rendering to the surface and letter/pillar-boxing is applied.
+
+ <p>The caller is responsible for tracking the lifecycle of the <a href="SurfaceInfo.html#surface"><code>SurfaceInfo.surface</code></a>
+ including calling this method with a new surface if it is destroyed. When this method returns,
+ the previous output surface is no longer being used and can safely be released by the caller.</div>
+</li>
+</ul>
+<a id="releaseOutputFrame(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseOutputFrame</h4>
+<pre class="methodSignature">void&nbsp;releaseOutputFrame&#8203;(long&nbsp;releaseTimeNs)</pre>
+<div class="block">Releases the oldest unreleased output frame that has become <a href="FrameProcessor.Listener.html#onOutputFrameAvailable(long)">available</a> at the given <code>releaseTimeNs</code>.
+
+ <p>This will either render the output frame to the <a href="#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">output
+ surface</a>, or drop the frame, per <code>releaseTimeNs</code>.
+
+ <p>This method must only be called if <code>releaseFramesAutomatically</code> was set to <code>
+ false</code> using the <a href="FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor.Factory</code></a> and should be called exactly once for each frame that becomes
+ <a href="FrameProcessor.Listener.html#onOutputFrameAvailable(long)">available</a>.
+
+ <p>The <code>releaseTimeNs</code> may be passed to <a href="https://developer.android.com/reference/android/opengl/EGLExt.html#eglPresentationTimeANDROID(android.opengl.EGLDisplay,android.opengl.EGLSurface,long)" title="class or interface in android.opengl" class="externalLink" target="_top"><code>EGLExt.eglPresentationTimeANDROID(android.opengl.EGLDisplay, android.opengl.EGLSurface, long)</code></a>
+ depending on the implementation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>releaseTimeNs</code> - The release time to use for the frame, in nanoseconds. The release time
+     can be before of after the current system time. Use <a href="#DROP_OUTPUT_FRAME"><code>DROP_OUTPUT_FRAME</code></a> to drop the
+     frame, or <a href="#RELEASE_OUTPUT_FRAME_IMMEDIATELY"><code>RELEASE_OUTPUT_FRAME_IMMEDIATELY</code></a> to release the frame immediately.</dd>
+</dl>
+</li>
+</ul>
+<a id="signalEndOfInput()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>signalEndOfInput</h4>
+<pre class="methodSignature">void&nbsp;signalEndOfInput()</pre>
+<div class="block">Informs the <code>FrameProcessor</code> that no further input frames should be accepted.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If called more than once.</dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">void&nbsp;release()</pre>
+<div class="block">Releases all resources.
+
+ <p>If the frame processor is released before it has <a href="FrameProcessor.Listener.html#onFrameProcessingEnded()">ended</a>, it will attempt to cancel processing any input frames
+ that have already become available. Input frames that become available after release are
+ ignored.
+
+ <p>This method blocks until all resources are released or releasing times out.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
-import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
@@ -45,10 +44,12 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class EncoderPerformanceAnalysisTest {
 
-  /** A non-realtime {@link MediaFormat#KEY_PRIORITY encoder priority}. */
-  private static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 0;
-  /** A realtime {@link MediaFormat#KEY_PRIORITY encoder priority}. */
-  private static final int MEDIA_CODEC_PRIORITY_REALTIME = 1;
+  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
+  private static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+  /**
+   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
+   */
+  private static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
@@ -112,8 +113,7 @@ public class EncoderPerformanceAnalysisTest {
       recordTestSkipped(
           context,
           testId,
-          /* reason= */ "Skipping on this API version due to lack of support for setting operating"
-              + " rate and priority.");
+          /* reason= */ "API version lacks support for setting operating rate and priority.");
       return;
     }
 
@@ -126,12 +126,14 @@ public class EncoderPerformanceAnalysisTest {
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder()
-                        .setEncoderPerformanceParameters(operatingRate, priority)
-                        .build(),
-                    /* enableFallback= */ false))
+                new AndroidTestUtil.ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
+                        .setRequestedVideoEncoderSettings(
+                            new VideoEncoderSettings.Builder()
+                                .setEncoderPerformanceParameters(operatingRate, priority)
+                                .build())
+                        .setEnableFallback(false)
+                        .build()))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)

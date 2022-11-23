@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.source.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
@@ -36,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /* package */ final class RtpH264Reader implements RtpPayloadReader {
   private static final String TAG = "RtpH264Reader";
 
-  private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
+  private static final int MEDIA_CLOCK_FREQUENCY = 90_000;
 
   /** Offset of payload data within a FU type A payload. */
   private static final int FU_PAYLOAD_OFFSET = 2;
@@ -115,7 +116,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         firstReceivedTimestamp = timestamp;
       }
 
-      long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
+      long timeUs =
+          toSampleTimeUs(
+              startTimeOffsetUs, timestamp, firstReceivedTimestamp, MEDIA_CLOCK_FREQUENCY);
       trackOutput.sampleMetadata(
           timeUs, bufferFlags, fragmentedSampleSizeBytes, /* offset= */ 0, /* cryptoData= */ null);
       fragmentedSampleSizeBytes = 0;
@@ -285,15 +288,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int bytesWritten = nalStartCodeArray.bytesLeft();
     checkNotNull(trackOutput).sampleData(nalStartCodeArray, bytesWritten);
     return bytesWritten;
-  }
-
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            (rtpTimestamp - firstReceivedRtpTimestamp),
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 
   private static @C.BufferFlags int getBufferFlagsFromNalType(int nalType) {

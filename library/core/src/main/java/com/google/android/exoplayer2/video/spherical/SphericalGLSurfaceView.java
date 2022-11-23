@@ -37,6 +37,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -284,9 +285,9 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
 
     public Renderer(SceneRenderer scene) {
       this.scene = scene;
-      Matrix.setIdentityM(deviceOrientationMatrix, 0);
-      Matrix.setIdentityM(touchPitchMatrix, 0);
-      Matrix.setIdentityM(touchYawMatrix, 0);
+      GlUtil.setToIdentity(deviceOrientationMatrix);
+      GlUtil.setToIdentity(touchPitchMatrix);
+      GlUtil.setToIdentity(touchYawMatrix);
       deviceRoll = UPRIGHT_ROLL;
     }
 

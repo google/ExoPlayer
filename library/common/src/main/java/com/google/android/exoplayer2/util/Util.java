@@ -34,9 +34,11 @@ import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.UiModeManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -77,6 +79,11 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Commands;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -99,6 +106,8 @@ import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -115,8 +124,8 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
 public final class Util {
 
   /**
-   * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
-   * overridden for local testing.
+   * Like {@link Build.VERSION#SDK_INT}, but in a place where it can be conveniently overridden for
+   * local testing.
    */
   public static final int SDK_INT = Build.VERSION.SDK_INT;
 
@@ -184,6 +193,52 @@ public final class Util {
       outputStream.write(buffer, 0, bytesRead);
     }
     return outputStream.toByteArray();
+  }
+
+  /**
+   * Registers a {@link BroadcastReceiver} that's not intended to receive broadcasts from other
+   * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
+   * #SDK_INT} is 33 or above.
+   *
+   * @param context The context on which {@link Context#registerReceiver} will be called.
+   * @param receiver The {@link BroadcastReceiver} to register. This value may be null.
+   * @param filter Selects the Intent broadcasts to be received.
+   * @return The first sticky intent found that matches {@code filter}, or null if there are none.
+   */
+  @Nullable
+  public static Intent registerReceiverNotExported(
+      Context context, @Nullable BroadcastReceiver receiver, IntentFilter filter) {
+    if (SDK_INT < 33) {
+      return context.registerReceiver(receiver, filter);
+    } else {
+      return context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+    }
+  }
+
+  /**
+   * Registers a {@link BroadcastReceiver} that's not intended to receive broadcasts from other
+   * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
+   * #SDK_INT} is 33 or above.
+   *
+   * @param context The context on which {@link Context#registerReceiver} will be called.
+   * @param receiver The {@link BroadcastReceiver} to register. This value may be null.
+   * @param filter Selects the Intent broadcasts to be received.
+   * @param handler Handler identifying the thread that will receive the Intent.
+   * @return The first sticky intent found that matches {@code filter}, or null if there are none.
+   */
+  @Nullable
+  public static Intent registerReceiverNotExported(
+      Context context, BroadcastReceiver receiver, IntentFilter filter, Handler handler) {
+    if (SDK_INT < 33) {
+      return context.registerReceiver(receiver, filter, /* broadcastPermission= */ null, handler);
+    } else {
+      return context.registerReceiver(
+          receiver,
+          filter,
+          /* broadcastPermission= */ null,
+          handler,
+          Context.RECEIVER_NOT_EXPORTED);
+    }
   }
 
   /**
@@ -551,6 +606,92 @@ public final class Util {
     } else {
       return handler.post(runnable);
     }
+  }
+
+  /**
+   * Posts the {@link Runnable} if the calling thread differs with the {@link Looper} of the {@link
+   * Handler}. Otherwise, runs the {@link Runnable} directly. Also returns a {@link
+   * ListenableFuture} for when the {@link Runnable} has run.
+   *
+   * @param handler The handler to which the {@link Runnable} will be posted.
+   * @param runnable The runnable to either post or run.
+   * @param successValue The value to set in the {@link ListenableFuture} once the runnable
+   *     completes.
+   * @param <T> The type of {@code successValue}.
+   * @return A {@link ListenableFuture} for when the {@link Runnable} has run.
+   */
+  public static <T> ListenableFuture<T> postOrRunWithCompletion(
+      Handler handler, Runnable runnable, T successValue) {
+    SettableFuture<T> outputFuture = SettableFuture.create();
+    postOrRun(
+        handler,
+        () -> {
+          try {
+            if (outputFuture.isCancelled()) {
+              return;
+            }
+            runnable.run();
+            outputFuture.set(successValue);
+          } catch (Throwable e) {
+            outputFuture.setException(e);
+          }
+        });
+    return outputFuture;
+  }
+
+  /**
+   * Asynchronously transforms the result of a {@link ListenableFuture}.
+   *
+   * <p>The transformation function is called using a {@linkplain MoreExecutors#directExecutor()
+   * direct executor}.
+   *
+   * <p>The returned Future attempts to keep its cancellation state in sync with that of the input
+   * future and that of the future returned by the transform function. That is, if the returned
+   * Future is cancelled, it will attempt to cancel the other two, and if either of the other two is
+   * cancelled, the returned Future will also be cancelled. All forwarded cancellations will not
+   * attempt to interrupt.
+   *
+   * @param future The input {@link ListenableFuture}.
+   * @param transformFunction The function transforming the result of the input future.
+   * @param <T> The result type of the input future.
+   * @param <U> The result type of the transformation function.
+   * @return A {@link ListenableFuture} for the transformed result.
+   */
+  public static <T, U> ListenableFuture<T> transformFutureAsync(
+      ListenableFuture<U> future, AsyncFunction<U, T> transformFunction) {
+    // This is a simplified copy of Guava's Futures.transformAsync.
+    SettableFuture<T> outputFuture = SettableFuture.create();
+    outputFuture.addListener(
+        () -> {
+          if (outputFuture.isCancelled()) {
+            future.cancel(/* mayInterruptIfRunning= */ false);
+          }
+        },
+        MoreExecutors.directExecutor());
+    future.addListener(
+        () -> {
+          U inputFutureResult;
+          try {
+            inputFutureResult = Futures.getDone(future);
+          } catch (CancellationException cancellationException) {
+            outputFuture.cancel(/* mayInterruptIfRunning= */ false);
+            return;
+          } catch (ExecutionException exception) {
+            @Nullable Throwable cause = exception.getCause();
+            outputFuture.setException(cause == null ? exception : cause);
+            return;
+          } catch (RuntimeException | Error error) {
+            outputFuture.setException(error);
+            return;
+          }
+          try {
+            outputFuture.setFuture(transformFunction.apply(inputFutureResult));
+          } catch (Throwable exception) {
+            outputFuture.setException(exception);
+          }
+        },
+        MoreExecutors.directExecutor());
+    return outputFuture;
   }
 
   /**
@@ -1638,6 +1779,7 @@ public final class Util {
    * @return The channel configuration or {@link AudioFormat#CHANNEL_INVALID} if output is not
    *     possible.
    */
+  @SuppressLint("InlinedApi") // Inlined AudioFormat constants.
   public static int getAudioTrackChannelConfig(int channelCount) {
     switch (channelCount) {
       case 1:
@@ -1655,21 +1797,9 @@ public final class Util {
       case 7:
         return AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
       case 8:
-        if (SDK_INT >= 23) {
-          return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
-        } else if (SDK_INT >= 21) {
-          // Equal to AudioFormat.CHANNEL_OUT_7POINT1_SURROUND, which is hidden before Android M.
-          return AudioFormat.CHANNEL_OUT_5POINT1
-              | AudioFormat.CHANNEL_OUT_SIDE_LEFT
-              | AudioFormat.CHANNEL_OUT_SIDE_RIGHT;
-        } else {
-          // 8 ch output is not supported before Android L.
-          return AudioFormat.CHANNEL_INVALID;
-        }
+        return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
       case 12:
-        return Util.SDK_INT >= 32
-            ? AudioFormat.CHANNEL_OUT_7POINT1POINT4
-            : AudioFormat.CHANNEL_INVALID;
+        return AudioFormat.CHANNEL_OUT_7POINT1POINT4;
       default:
         return AudioFormat.CHANNEL_INVALID;
     }
@@ -2493,6 +2623,7 @@ public final class Util {
    * @param toIndex The index up to which elements should be moved (exclusive).
    * @param newFromIndex The new from index.
    */
+  @SuppressWarnings("ExtendsObject") // See go/lsc-extends-object
   public static <T extends Object> void moveItems(
       List<T> items, int fromIndex, int toIndex, int newFromIndex) {
     ArrayDeque<T> removedItems = new ArrayDeque<>();

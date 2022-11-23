@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -195,9 +195,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioProcessorChain(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain)">setAudioProcessorChain</a></span>&#8203;(<a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioProcessorChain(com.google.android.exoplayer2.audio.AudioProcessorChain)">setAudioProcessorChain</a></span>&#8203;(<a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a>&nbsp;audioProcessorChain)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioProcessorChain</code></a> to process audio before playback.</div>
+<div class="block">Sets the <a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessorChain</code></a> to process audio
+ before playback.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -210,9 +211,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioTrackBufferSizeProvider(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider)">setAudioTrackBufferSizeProvider</a></span>&#8203;(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider&nbsp;audioTrackBufferSizeProvider)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioTrackBufferSizeProvider(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider)">setAudioTrackBufferSizeProvider</a></span>&#8203;(<a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioTrackBufferSizeProvider</a>&nbsp;audioTrackBufferSizeProvider)</code></th>
 <td class="colLast">
-<div class="block">Sets an <code>DefaultAudioSink.AudioTrackBufferSizeProvider</code> to compute the buffer size when <a href="DefaultAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>DefaultAudioSink.configure(com.google.android.exoplayer2.Format, int, int[])</code></a> is called with <code>specifiedBufferSize == 0</code>.</div>
+<div class="block">Sets an <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioTrackBufferSizeProvider</code></a> to compute the buffer size when <a href="DefaultAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>DefaultAudioSink.configure(com.google.android.exoplayer2.Format, int, int[])</code></a> is called with <code>specifiedBufferSize == 0</code>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -230,6 +231,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExperimentalAudioOffloadListener(com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener)">setExperimentalAudioOffloadListener</a></span>&#8203;(<a href="../ExoPlayer.AudioOffloadListener.html" title="interface in com.google.android.exoplayer2">ExoPlayer.AudioOffloadListener</a>&nbsp;audioOffloadListener)</code></th>
+<td class="colLast">
+<div class="block">Sets an optional <a href="../ExoPlayer.AudioOffloadListener.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer.AudioOffloadListener</code></a> to receive events relevant to offloaded
+ playback.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOffloadMode(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadModeint)">setOffloadMode</a></span>&#8203;(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadMode int&nbsp;offloadMode)</code></th>
 <td class="colLast">
@@ -286,7 +295,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioCapabilities</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioCapabilities&#8203;(<a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioCapabilities&#8203;(<a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</pre>
 <div class="block">Sets audio capabilities for playback on this device. May be <code>null</code> if the default
  capabilities (no encoded audio passthrough support) should be assumed.
 
@@ -299,7 +309,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioProcessors</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioProcessors&#8203;(<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioProcessors&#8203;(<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</pre>
 <div class="block">Sets an array of <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessors</code></a>s that will process PCM audio before
  output. May be empty. Equivalent of <code>setAudioProcessorChain(new
  DefaultAudioProcessorChain(audioProcessors)</code>.
@@ -307,16 +318,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <p>The default value is an empty array.</div>
 </li>
 </ul>
-<a id="setAudioProcessorChain(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain)">
+<a id="setAudioProcessorChain(com.google.android.exoplayer2.audio.AudioProcessorChain)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioProcessorChain</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioProcessorChain&#8203;(<a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain)</pre>
-<div class="block">Sets the <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioProcessorChain</code></a> to process audio before playback. The instance passed in
- must not be reused in other sinks. Processing chains are only supported for PCM playback (not
- passthrough or offload).
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioProcessorChain&#8203;(<a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a>&nbsp;audioProcessorChain)</pre>
+<div class="block">Sets the <a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessorChain</code></a> to process audio
+ before playback. The instance passed in must not be reused in other sinks. Processing chains
+ are only supported for PCM playback (not passthrough or offload).
 
  <p>By default, no processing will be applied.</div>
 </li>
@@ -327,7 +339,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableFloatOutput</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setEnableFloatOutput&#8203;(boolean&nbsp;enableFloatOutput)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setEnableFloatOutput&#8203;(boolean&nbsp;enableFloatOutput)</pre>
 <div class="block">Sets whether to enable 32-bit float output or integer output. Where possible, 32-bit float
  output will be used if the input is 32-bit float, and also if the input is high resolution
  (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio processing
@@ -342,7 +355,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioTrackPlaybackParams</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setEnableAudioTrackPlaybackParams&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setEnableAudioTrackPlaybackParams&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
 <div class="block">Sets whether to control the playback speed using the platform implementation (see <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams(android.media.PlaybackParams)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>), if supported. If set to <code>false</code>, speed
  up/down of the audio will be done by ExoPlayer (see <a href="SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>). Platform
  speed adjustment is lower latency, but less reliable.
@@ -356,7 +370,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setOffloadMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setOffloadMode&#8203;(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadMode int&nbsp;offloadMode)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setOffloadMode&#8203;(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadMode int&nbsp;offloadMode)</pre>
 <div class="block">Sets the offload mode. If an audio format can be both played with offload and encoded audio
  passthrough, it will be played in offload. Audio offload is supported from API level 29. Most
  Android devices can only support one offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> at a time and can invalidate
@@ -373,10 +388,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioTrackBufferSizeProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioTrackBufferSizeProvider&#8203;(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider&nbsp;audioTrackBufferSizeProvider)</pre>
-<div class="block">Sets an <code>DefaultAudioSink.AudioTrackBufferSizeProvider</code> to compute the buffer size when <a href="DefaultAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>DefaultAudioSink.configure(com.google.android.exoplayer2.Format, int, int[])</code></a> is called with <code>specifiedBufferSize == 0</code>.
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioTrackBufferSizeProvider&#8203;(<a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioTrackBufferSizeProvider</a>&nbsp;audioTrackBufferSizeProvider)</pre>
+<div class="block">Sets an <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioTrackBufferSizeProvider</code></a> to compute the buffer size when <a href="DefaultAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>DefaultAudioSink.configure(com.google.android.exoplayer2.Format, int, int[])</code></a> is called with <code>specifiedBufferSize == 0</code>.
 
- <p>The default value is <code>DefaultAudioSink.AudioTrackBufferSizeProvider.DEFAULT</code>.</div>
+ <p>The default value is <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html#DEFAULT"><code>DefaultAudioSink.AudioTrackBufferSizeProvider.DEFAULT</code></a>.</div>
+</li>
+</ul>
+<a id="setExperimentalAudioOffloadListener(com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setExperimentalAudioOffloadListener</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setExperimentalAudioOffloadListener&#8203;(@Nullable
+                                                                    <a href="../ExoPlayer.AudioOffloadListener.html" title="interface in com.google.android.exoplayer2">ExoPlayer.AudioOffloadListener</a>&nbsp;audioOffloadListener)</pre>
+<div class="block">Sets an optional <a href="../ExoPlayer.AudioOffloadListener.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer.AudioOffloadListener</code></a> to receive events relevant to offloaded
+ playback.
+
+ <p>The default value is null.</div>
 </li>
 </ul>
 <a id="build()">

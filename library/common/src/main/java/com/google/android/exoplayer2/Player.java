@@ -37,9 +37,11 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -405,6 +407,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder add(@Command int command) {
         flagsBuilder.add(command);
         return this;
@@ -418,6 +421,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addIf(@Command int command, boolean condition) {
         flagsBuilder.addIf(command, condition);
         return this;
@@ -430,6 +434,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addAll(@Command int... commands) {
         flagsBuilder.addAll(commands);
         return this;
@@ -442,6 +447,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addAll(Commands commands) {
         flagsBuilder.addAll(commands.flags);
         return this;
@@ -453,6 +459,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addAllCommands() {
         flagsBuilder.addAll(SUPPORTED_COMMANDS);
         return this;
@@ -465,6 +472,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder remove(@Command int command) {
         flagsBuilder.remove(command);
         return this;
@@ -478,6 +486,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder removeIf(@Command int command, boolean condition) {
         flagsBuilder.removeIf(command, condition);
         return this;
@@ -490,6 +499,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder removeAll(@Command int... commands) {
         flagsBuilder.removeAll(commands);
         return this;
@@ -2461,6 +2471,13 @@ public interface Player {
    * @see Listener#onVideoSizeChanged(VideoSize)
    */
   VideoSize getVideoSize();
+
+  /**
+   * Gets the size of the surface on which the video is rendered.
+   *
+   * @see Listener#onSurfaceSizeChanged(int, int)
+   */
+  Size getSurfaceSize();
 
   /** Returns the current {@link CueGroup}. */
   CueGroup getCurrentCues();

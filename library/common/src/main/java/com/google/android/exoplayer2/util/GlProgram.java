@@ -22,6 +22,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import androidx.annotation.Nullable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,10 +54,26 @@ public final class GlProgram {
    * @throws IOException When failing to read shader files.
    */
   public GlProgram(Context context, String vertexShaderFilePath, String fragmentShaderFilePath)
-      throws IOException {
-    this(
-        GlUtil.loadAsset(context, vertexShaderFilePath),
-        GlUtil.loadAsset(context, fragmentShaderFilePath));
+      throws IOException, GlUtil.GlException {
+    this(loadAsset(context, vertexShaderFilePath), loadAsset(context, fragmentShaderFilePath));
+  }
+
+  /**
+   * Loads a file from the assets folder.
+   *
+   * @param context The {@link Context}.
+   * @param assetPath The path to the file to load, from the assets folder.
+   * @return The content of the file to load.
+   * @throws IOException If the file couldn't be read.
+   */
+  public static String loadAsset(Context context, String assetPath) throws IOException {
+    @Nullable InputStream inputStream = null;
+    try {
+      inputStream = context.getAssets().open(assetPath);
+      return Util.fromUtf8Bytes(Util.toByteArray(inputStream));
+    } finally {
+      Util.closeQuietly(inputStream);
+    }
   }
 
   /**
@@ -68,7 +85,7 @@ public final class GlProgram {
    * @param vertexShaderGlsl The vertex shader program.
    * @param fragmentShaderGlsl The fragment shader program.
    */
-  public GlProgram(String vertexShaderGlsl, String fragmentShaderGlsl) {
+  public GlProgram(String vertexShaderGlsl, String fragmentShaderGlsl) throws GlUtil.GlException {
     programId = GLES20.glCreateProgram();
     GlUtil.checkGlError();
 
@@ -80,10 +97,9 @@ public final class GlProgram {
     GLES20.glLinkProgram(programId);
     int[] linkStatus = new int[] {GLES20.GL_FALSE};
     GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, /* offset= */ 0);
-    if (linkStatus[0] != GLES20.GL_TRUE) {
-      GlUtil.throwGlException(
-          "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
-    }
+    GlUtil.checkGlException(
+        linkStatus[0] == GLES20.GL_TRUE,
+        "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
     GLES20.glUseProgram(programId);
     attributeByName = new HashMap<>();
     int[] attributeCount = new int[1];
@@ -106,16 +122,15 @@ public final class GlProgram {
     GlUtil.checkGlError();
   }
 
-  private static void addShader(int programId, int type, String glsl) {
+  private static void addShader(int programId, int type, String glsl) throws GlUtil.GlException {
     int shader = GLES20.glCreateShader(type);
     GLES20.glShaderSource(shader, glsl);
     GLES20.glCompileShader(shader);
 
     int[] result = new int[] {GLES20.GL_FALSE};
     GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, /* offset= */ 0);
-    if (result[0] != GLES20.GL_TRUE) {
-      GlUtil.throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
-    }
+    GlUtil.checkGlException(
+        result[0] == GLES20.GL_TRUE, GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
 
     GLES20.glAttachShader(programId, shader);
     GLES20.glDeleteShader(shader);
@@ -145,13 +160,13 @@ public final class GlProgram {
    *
    * <p>Call this in the rendering loop to switch between different programs.
    */
-  public void use() {
+  public void use() throws GlUtil.GlException {
     GLES20.glUseProgram(programId);
     GlUtil.checkGlError();
   }
 
   /** Deletes the program. Deleted programs cannot be used again. */
-  public void delete() {
+  public void delete() throws GlUtil.GlException {
     GLES20.glDeleteProgram(programId);
     GlUtil.checkGlError();
   }
@@ -160,7 +175,7 @@ public final class GlProgram {
    * Returns the location of an {@link Attribute}, which has been enabled as a vertex attribute
    * array.
    */
-  public int getAttributeArrayLocationAndEnable(String attributeName) {
+  public int getAttributeArrayLocationAndEnable(String attributeName) throws GlUtil.GlException {
     int location = getAttributeLocation(attributeName);
     GLES20.glEnableVertexAttribArray(location);
     GlUtil.checkGlError();
@@ -184,18 +199,23 @@ public final class GlProgram {
     checkNotNull(uniformByName.get(name)).setSamplerTexId(texId, texUnitIndex);
   }
 
-  /** Sets a float type uniform. */
+  /** Sets an {@code int} type uniform. */
+  public void setIntUniform(String name, int value) {
+    checkNotNull(uniformByName.get(name)).setInt(value);
+  }
+
+  /** Sets a {@code float} type uniform. */
   public void setFloatUniform(String name, float value) {
     checkNotNull(uniformByName.get(name)).setFloat(value);
   }
 
-  /** Sets a float array type uniform. */
+  /** Sets a {@code float[]} type uniform. */
   public void setFloatsUniform(String name, float[] value) {
     checkNotNull(uniformByName.get(name)).setFloats(value);
   }
 
   /** Binds all attributes and uniforms in the program. */
-  public void bindAttributesAndUniforms() {
+  public void bindAttributesAndUniforms() throws GlUtil.GlException {
     for (Attribute attribute : attributes) {
       attribute.bind();
     }
@@ -276,7 +296,7 @@ public final class GlProgram {
      *
      * <p>Should be called before each drawing call.
      */
-    public void bind() {
+    public void bind() throws GlUtil.GlException {
       Buffer buffer = checkNotNull(this.buffer, "call setBuffer before bind");
       GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, /* buffer= */ 0);
       GLES20.glVertexAttribPointer(
@@ -323,16 +343,17 @@ public final class GlProgram {
 
     private final int location;
     private final int type;
-    private final float[] value;
+    private final float[] floatValue;
 
-    private int texId;
+    private int intValue;
+    private int texIdValue;
     private int texUnitIndex;
 
     private Uniform(String name, int location, int type) {
       this.name = name;
       this.location = location;
       this.type = type;
-      this.value = new float[16];
+      this.floatValue = new float[16];
     }
 
     /**
@@ -342,18 +363,22 @@ public final class GlProgram {
      * @param texUnitIndex The GL texture unit index.
      */
     public void setSamplerTexId(int texId, int texUnitIndex) {
-      this.texId = texId;
+      this.texIdValue = texId;
       this.texUnitIndex = texUnitIndex;
     }
-
-    /** Configures {@link #bind()} to use the specified float {@code value} for this uniform. */
-    public void setFloat(float value) {
-      this.value[0] = value;
+    /** Configures {@link #bind()} to use the specified {@code int} {@code value}. */
+    public void setInt(int value) {
+      this.intValue = value;
     }
 
-    /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
+    /** Configures {@link #bind()} to use the specified {@code float} {@code value}. */
+    public void setFloat(float value) {
+      this.floatValue[0] = value;
+    }
+
+    /** Configures {@link #bind()} to use the specified {@code float[]} {@code value}. */
     public void setFloats(float[] value) {
-      System.arraycopy(value, /* srcPos= */ 0, this.value, /* destPos= */ 0, value.length);
+      System.arraycopy(value, /* srcPos= */ 0, this.floatValue, /* destPos= */ 0, value.length);
     }
 
     /**
@@ -362,34 +387,37 @@ public final class GlProgram {
      *
      * <p>Should be called before each drawing call.
      */
-    public void bind() {
+    public void bind() throws GlUtil.GlException {
       switch (type) {
+        case GLES20.GL_INT:
+          GLES20.glUniform1i(location, intValue);
+          break;
         case GLES20.GL_FLOAT:
-          GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GLES20.glUniform1fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_VEC2:
-          GLES20.glUniform2fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GLES20.glUniform2fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_VEC3:
-          GLES20.glUniform3fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GLES20.glUniform3fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_MAT3:
           GLES20.glUniformMatrix3fv(
-              location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+              location, /* count= */ 1, /* transpose= */ false, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_MAT4:
           GLES20.glUniformMatrix4fv(
-              location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+              location, /* count= */ 1, /* transpose= */ false, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_SAMPLER_2D:
         case GLES11Ext.GL_SAMPLER_EXTERNAL_OES:
         case GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
-          if (texId == 0) {
+          if (texIdValue == 0) {
             throw new IllegalStateException("No call to setSamplerTexId() before bind.");
           }
           GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texUnitIndex);
@@ -398,7 +426,7 @@ public final class GlProgram {
               type == GLES20.GL_SAMPLER_2D
                   ? GLES20.GL_TEXTURE_2D
                   : GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
-              texId);
+              texIdValue);
           GLES20.glUniform1i(location, texUnitIndex);
           GlUtil.checkGlError();
           break;

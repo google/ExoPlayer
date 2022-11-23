@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import java.util.Arrays;
@@ -35,6 +36,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Renders a GL Scene. */
 /* package */ final class SceneRenderer
     implements VideoFrameMetadataListener, CameraMotionListener {
+
+  private static final String TAG = "SceneRenderer";
 
   private final AtomicBoolean frameAvailable;
   private final AtomicBoolean resetRotationAtNextFrame;
@@ -83,14 +86,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** Initializes the renderer. */
   public SurfaceTexture init() {
-    // Set the background frame color. This is only visible if the display mesh isn't a full sphere.
-    GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-    checkGlError();
+    try {
+      // Set the background frame color. This is only visible if the display mesh isn't a full
+      // sphere.
+      GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+      checkGlError();
 
-    projectionRenderer.init();
-    checkGlError();
+      projectionRenderer.init();
+      checkGlError();
 
-    textureId = GlUtil.createExternalTexture();
+      textureId = GlUtil.createExternalTexture();
+    } catch (GlUtil.GlException e) {
+      Log.e(TAG, "Failed to initialize the renderer", e);
+    }
     surfaceTexture = new SurfaceTexture(textureId);
     surfaceTexture.setOnFrameAvailableListener(surfaceTexture -> frameAvailable.set(true));
     return surfaceTexture;
@@ -107,13 +115,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // glClear isn't strictly necessary when rendering fully spherical panoramas, but it can improve
     // performance on tiled renderers by causing the GPU to discard previous data.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-    checkGlError();
+    try {
+      checkGlError();
+    } catch (GlUtil.GlException e) {
+      Log.e(TAG, "Failed to draw a frame", e);
+    }
 
     if (frameAvailable.compareAndSet(true, false)) {
       Assertions.checkNotNull(surfaceTexture).updateTexImage();
-      checkGlError();
+      try {
+        checkGlError();
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Failed to draw a frame", e);
+      }
       if (resetRotationAtNextFrame.compareAndSet(true, false)) {
-        Matrix.setIdentityM(rotationMatrix, 0);
+        GlUtil.setToIdentity(rotationMatrix);
       }
       long lastFrameTimestampNs = surfaceTexture.getTimestamp();
       Long sampleTimestampUs = sampleTimestampQueue.poll(lastFrameTimestampNs);

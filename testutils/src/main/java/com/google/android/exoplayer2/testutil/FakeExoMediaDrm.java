@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Bytes;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
      *
      * <p>Defaults to true.
      */
+    @CanIgnoreReturnValue
     public Builder setEnforceValidKeyResponses(boolean enforceValidKeyResponses) {
       this.enforceValidKeyResponses = enforceValidKeyResponses;
       return this;
@@ -98,6 +100,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
      *
      * <p>Defaults to 0 (i.e. device is already provisioned).
      */
+    @CanIgnoreReturnValue
     public Builder setProvisionsRequired(int provisionsRequired) {
       this.provisionsRequired = provisionsRequired;
       return this;
@@ -108,6 +111,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
      * {@link #getKeyRequest(byte[], List, int, HashMap)} instead of the default behaviour of
      * throwing from {@link #openSession()}.
      */
+    @CanIgnoreReturnValue
     public Builder throwNotProvisionedExceptionFromGetKeyRequest() {
       this.throwNotProvisionedExceptionFromGetKeyRequest = true;
       return this;
@@ -121,6 +125,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
      *
      * <p>Defaults to {@link Integer#MAX_VALUE}.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxConcurrentSessions(int maxConcurrentSessions) {
       this.maxConcurrentSessions = maxConcurrentSessions;
       return this;

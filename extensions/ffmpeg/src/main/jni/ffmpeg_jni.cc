@@ -89,6 +89,11 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
                  uint8_t *outputBuffer, int outputSize);
 
 /**
+ * Transforms ffmpeg AVERROR into a negative AUDIO_DECODER_ERROR constant value.
+ */
+int transformError(int errorNumber);
+
+/**
  * Outputs a log message describing the avcodec error number.
  */
 void logError(const char *functionName, int errorNumber);
@@ -264,8 +269,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
   result = avcodec_send_packet(context, packet);
   if (result) {
     logError("avcodec_send_packet", result);
-    return result == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
-                                         : AUDIO_DECODER_ERROR_OTHER;
+    return transformError(result);
   }
 
   // Dequeue output data until it runs out.
@@ -274,7 +278,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
     AVFrame *frame = av_frame_alloc();
     if (!frame) {
       LOGE("Failed to allocate output frame.");
-      return -1;
+      return AUDIO_DECODER_ERROR_INVALID_DATA;
     }
     result = avcodec_receive_frame(context, frame);
     if (result) {
@@ -283,7 +287,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
         break;
       }
       logError("avcodec_receive_frame", result);
-      return result;
+      return transformError(result);
     }
 
     // Resample output.
@@ -311,7 +315,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       if (result < 0) {
         logError("swr_init", result);
         av_frame_free(&frame);
-        return -1;
+        return transformError(result);
       }
       context->opaque = resampleContext;
     }
@@ -323,25 +327,30 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       LOGE("Output buffer size (%d) too small for output data (%d).",
            outputSize, outSize + bufferOutSize);
       av_frame_free(&frame);
-      return -1;
+      return AUDIO_DECODER_ERROR_INVALID_DATA;
     }
     result = swr_convert(resampleContext, &outputBuffer, bufferOutSize,
                          (const uint8_t **)frame->data, frame->nb_samples);
     av_frame_free(&frame);
     if (result < 0) {
       logError("swr_convert", result);
-      return result;
+      return AUDIO_DECODER_ERROR_INVALID_DATA;
     }
     int available = swr_get_out_samples(resampleContext, 0);
     if (available != 0) {
       LOGE("Expected no samples remaining after resampling, but found %d.",
            available);
-      return -1;
+      return AUDIO_DECODER_ERROR_INVALID_DATA;
     }
     outputBuffer += bufferOutSize;
     outSize += bufferOutSize;
   }
   return outSize;
+}
+
+int transformError(int errorNumber) {
+  return errorNumber == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
+                                            : AUDIO_DECODER_ERROR_OTHER;
 }
 
 void logError(const char *functionName, int errorNumber) {

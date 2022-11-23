@@ -39,9 +39,6 @@ public interface Codec {
   /** A factory for {@linkplain Codec decoder} instances. */
   interface DecoderFactory {
 
-    /** A default {@code DecoderFactory} implementation. */
-    DecoderFactory DEFAULT = new DefaultDecoderFactory();
-
     /**
      * Returns a {@link Codec} for audio decoding.
      *
@@ -69,9 +66,6 @@ public interface Codec {
 
   /** A factory for {@linkplain Codec encoder} instances. */
   interface EncoderFactory {
-
-    /** A default {@code EncoderFactory} implementation. */
-    EncoderFactory DEFAULT = new DefaultEncoderFactory();
 
     /**
      * Returns a {@link Codec} for audio encoding.

@@ -61,10 +61,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link MediaPeriod} that loads an HLS stream. */
-public final class HlsMediaPeriod
-    implements MediaPeriod,
-        HlsSampleStreamWrapper.Callback,
-        HlsPlaylistTracker.PlaylistEventListener {
+public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.PlaylistEventListener {
 
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
@@ -82,8 +79,9 @@ public final class HlsMediaPeriod
   private final @HlsMediaSource.MetadataType int metadataType;
   private final boolean useSessionKeys;
   private final PlayerId playerId;
+  private final HlsSampleStreamWrapper.Callback sampleStreamWrapperCallback;
 
-  @Nullable private Callback callback;
+  @Nullable private MediaPeriod.Callback mediaPeriodCallback;
   private int pendingPrepareCount;
   private @MonotonicNonNull TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
@@ -141,6 +139,7 @@ public final class HlsMediaPeriod
     this.metadataType = metadataType;
     this.useSessionKeys = useSessionKeys;
     this.playerId = playerId;
+    sampleStreamWrapperCallback = new SampleStreamWrapperCallback();
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamWrapperIndices = new IdentityHashMap<>();
@@ -155,12 +154,12 @@ public final class HlsMediaPeriod
     for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
       sampleStreamWrapper.release();
     }
-    callback = null;
+    mediaPeriodCallback = null;
   }
 
   @Override
   public void prepare(Callback callback, long positionUs) {
-    this.callback = callback;
+    this.mediaPeriodCallback = callback;
     playlistTracker.addListener(this);
     buildAndPrepareSampleStreamWrappers(positionUs);
   }
@@ -437,38 +436,6 @@ public final class HlsMediaPeriod
 
   // HlsSampleStreamWrapper.Callback implementation.
 
-  @Override
-  public void onPrepared() {
-    if (--pendingPrepareCount > 0) {
-      return;
-    }
-
-    int totalTrackGroupCount = 0;
-    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      totalTrackGroupCount += sampleStreamWrapper.getTrackGroups().length;
-    }
-    TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
-    int trackGroupIndex = 0;
-    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      int wrapperTrackGroupCount = sampleStreamWrapper.getTrackGroups().length;
-      for (int j = 0; j < wrapperTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = sampleStreamWrapper.getTrackGroups().get(j);
-      }
-    }
-    trackGroups = new TrackGroupArray(trackGroupArray);
-    callback.onPrepared(this);
-  }
-
-  @Override
-  public void onPlaylistRefreshRequired(Uri url) {
-    playlistTracker.refreshPlaylist(url);
-  }
-
-  @Override
-  public void onContinueLoadingRequested(HlsSampleStreamWrapper sampleStreamWrapper) {
-    callback.onContinueLoadingRequested(this);
-  }
-
   // PlaylistListener implementation.
 
   @Override
@@ -476,7 +443,7 @@ public final class HlsMediaPeriod
     for (HlsSampleStreamWrapper streamWrapper : sampleStreamWrappers) {
       streamWrapper.onPlaylistUpdated();
     }
-    callback.onContinueLoadingRequested(this);
+    mediaPeriodCallback.onContinueLoadingRequested(this);
   }
 
   @Override
@@ -486,7 +453,7 @@ public final class HlsMediaPeriod
     for (HlsSampleStreamWrapper streamWrapper : sampleStreamWrappers) {
       exclusionSucceeded &= streamWrapper.onPlaylistError(url, loadErrorInfo, forceRetry);
     }
-    callback.onContinueLoadingRequested(this);
+    mediaPeriodCallback.onContinueLoadingRequested(this);
     return exclusionSucceeded;
   }
 
@@ -808,7 +775,7 @@ public final class HlsMediaPeriod
     return new HlsSampleStreamWrapper(
         uid,
         trackType,
-        /* callback= */ this,
+        /* callback= */ sampleStreamWrapperCallback,
         defaultChunkSource,
         overridingDrmInitData,
         allocator,
@@ -912,5 +879,39 @@ public final class HlsMediaPeriod
         .setRoleFlags(roleFlags)
         .setLanguage(language)
         .build();
+  }
+
+  private class SampleStreamWrapperCallback implements HlsSampleStreamWrapper.Callback {
+    @Override
+    public void onPrepared() {
+      if (--pendingPrepareCount > 0) {
+        return;
+      }
+
+      int totalTrackGroupCount = 0;
+      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+        totalTrackGroupCount += sampleStreamWrapper.getTrackGroups().length;
+      }
+      TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
+      int trackGroupIndex = 0;
+      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+        int wrapperTrackGroupCount = sampleStreamWrapper.getTrackGroups().length;
+        for (int j = 0; j < wrapperTrackGroupCount; j++) {
+          trackGroupArray[trackGroupIndex++] = sampleStreamWrapper.getTrackGroups().get(j);
+        }
+      }
+      trackGroups = new TrackGroupArray(trackGroupArray);
+      mediaPeriodCallback.onPrepared(HlsMediaPeriod.this);
+    }
+
+    @Override
+    public void onPlaylistRefreshRequired(Uri url) {
+      playlistTracker.refreshPlaylist(url);
+    }
+
+    @Override
+    public void onContinueLoadingRequested(HlsSampleStreamWrapper sampleStreamWrapper) {
+      mediaPeriodCallback.onContinueLoadingRequested(HlsMediaPeriod.this);
+    }
   }
 }

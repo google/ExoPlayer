@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -152,12 +153,14 @@ public class FakeDataSet {
      * the {@link DataSpec#length} of the argument, including the case where the length is equal to
      * {@link C#LENGTH_UNSET}.
      */
+    @CanIgnoreReturnValue
     public FakeData setSimulateUnknownLength(boolean simulateUnknownLength) {
       this.simulateUnknownLength = simulateUnknownLength;
       return this;
     }
 
     /** Appends to the underlying data. */
+    @CanIgnoreReturnValue
     public FakeData appendReadData(byte[] data) {
       Assertions.checkState(data.length > 0);
       segments.add(new Segment(data, getLastSegment()));
@@ -168,6 +171,7 @@ public class FakeDataSet {
      * Appends a data segment of the specified length. No actual data is available and the {@link
      * FakeDataSource} will perform no copy operations when this data is read.
      */
+    @CanIgnoreReturnValue
     public FakeData appendReadData(int length) {
       Assertions.checkState(length > 0);
       segments.add(new Segment(length, getLastSegment()));
@@ -175,12 +179,14 @@ public class FakeDataSet {
     }
 
     /** Appends an error in the underlying data. */
+    @CanIgnoreReturnValue
     public FakeData appendReadError(IOException exception) {
       segments.add(new Segment(exception, getLastSegment()));
       return this;
     }
 
     /** Appends an action. */
+    @CanIgnoreReturnValue
     public FakeData appendReadAction(Runnable action) {
       segments.add(new Segment(action, getLastSegment()));
       return this;

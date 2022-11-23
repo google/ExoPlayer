@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -79,6 +80,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>Methods should be called on the application's main thread.
  */
 public final class CastPlayer extends BasePlayer {
+
+  /** The {@link DeviceInfo} returned by {@link #getDeviceInfo() this player}. */
+  public static final DeviceInfo DEVICE_INFO =
+      new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 0);
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.cast");
@@ -721,16 +726,22 @@ public final class CastPlayer extends BasePlayer {
     return VideoSize.UNKNOWN;
   }
 
+  /** This method is not supported and returns {@link Size#UNKNOWN}. */
+  @Override
+  public Size getSurfaceSize() {
+    return Size.UNKNOWN;
+  }
+
   /** This method is not supported and returns an empty {@link CueGroup}. */
   @Override
   public CueGroup getCurrentCues() {
-    return CueGroup.EMPTY;
+    return CueGroup.EMPTY_TIME_ZERO;
   }
 
-  /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */
+  /** This method always returns {@link CastPlayer#DEVICE_INFO}. */
   @Override
   public DeviceInfo getDeviceInfo() {
-    return DeviceInfo.UNKNOWN;
+    return DEVICE_INFO;
   }
 
   /** This method is not supported and always returns {@code 0}. */

@@ -16,9 +16,11 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.os.Looper;
@@ -28,6 +30,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -62,6 +65,7 @@ import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 
 /**
@@ -421,6 +425,16 @@ public interface ExoPlayer extends Player {
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
     default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
+
+    /**
+     * Called when the value of {@link AudioTrack#isOffloadedPlayback} changes.
+     *
+     * <p>This should not be generally required to be acted upon. But when offload is critical for
+     * efficiency, or audio features (gapless, playback speed), this will let the app know.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalOffloadedPlayback(boolean offloadedPlayback) {}
   }
 
   /**
@@ -529,6 +543,7 @@ public interface ExoPlayer extends Player {
           context,
           () -> renderersFactory,
           () -> new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
+      checkNotNull(renderersFactory);
     }
 
     /**
@@ -546,6 +561,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder(Context context, MediaSource.Factory mediaSourceFactory) {
       this(context, () -> new DefaultRenderersFactory(context), () -> mediaSourceFactory);
+      checkNotNull(mediaSourceFactory);
     }
 
     /**
@@ -568,6 +584,8 @@ public interface ExoPlayer extends Player {
         RenderersFactory renderersFactory,
         MediaSource.Factory mediaSourceFactory) {
       this(context, () -> renderersFactory, () -> mediaSourceFactory);
+      checkNotNull(renderersFactory);
+      checkNotNull(mediaSourceFactory);
     }
 
     /**
@@ -601,6 +619,11 @@ public interface ExoPlayer extends Player {
           () -> loadControl,
           () -> bandwidthMeter,
           (clock) -> analyticsCollector);
+      checkNotNull(renderersFactory);
+      checkNotNull(mediaSourceFactory);
+      checkNotNull(trackSelector);
+      checkNotNull(bandwidthMeter);
+      checkNotNull(analyticsCollector);
     }
 
     private Builder(
@@ -625,7 +648,7 @@ public interface ExoPlayer extends Player {
         Supplier<LoadControl> loadControlSupplier,
         Supplier<BandwidthMeter> bandwidthMeterSupplier,
         Function<Clock, AnalyticsCollector> analyticsCollectorFunction) {
-      this.context = context;
+      this.context = checkNotNull(context);
       this.renderersFactorySupplier = renderersFactorySupplier;
       this.mediaSourceFactorySupplier = mediaSourceFactorySupplier;
       this.trackSelectorSupplier = trackSelectorSupplier;
@@ -657,6 +680,7 @@ public interface ExoPlayer extends Player {
      *
      * @param timeoutMs The time limit in milliseconds.
      */
+    @CanIgnoreReturnValue
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
       checkState(!buildCalled);
       foregroundModeTimeoutMs = timeoutMs;
@@ -670,8 +694,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
       checkState(!buildCalled);
+      checkNotNull(renderersFactory);
       this.renderersFactorySupplier = () -> renderersFactory;
       return this;
     }
@@ -683,8 +709,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       checkState(!buildCalled);
+      checkNotNull(mediaSourceFactory);
       this.mediaSourceFactorySupplier = () -> mediaSourceFactory;
       return this;
     }
@@ -696,8 +724,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setTrackSelector(TrackSelector trackSelector) {
       checkState(!buildCalled);
+      checkNotNull(trackSelector);
       this.trackSelectorSupplier = () -> trackSelector;
       return this;
     }
@@ -709,8 +739,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setLoadControl(LoadControl loadControl) {
       checkState(!buildCalled);
+      checkNotNull(loadControl);
       this.loadControlSupplier = () -> loadControl;
       return this;
     }
@@ -722,8 +754,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       checkState(!buildCalled);
+      checkNotNull(bandwidthMeter);
       this.bandwidthMeterSupplier = () -> bandwidthMeter;
       return this;
     }
@@ -736,8 +770,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setLooper(Looper looper) {
       checkState(!buildCalled);
+      checkNotNull(looper);
       this.looper = looper;
       return this;
     }
@@ -749,8 +785,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
+      checkNotNull(analyticsCollector);
       this.analyticsCollectorFunction = (clock) -> analyticsCollector;
       return this;
     }
@@ -764,6 +802,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
       checkState(!buildCalled);
       this.priorityTaskManager = priorityTaskManager;
@@ -783,9 +822,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
       checkState(!buildCalled);
-      this.audioAttributes = audioAttributes;
+      this.audioAttributes = checkNotNull(audioAttributes);
       this.handleAudioFocus = handleAudioFocus;
       return this;
     }
@@ -807,6 +847,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
       checkState(!buildCalled);
       this.wakeMode = wakeMode;
@@ -824,6 +865,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
       checkState(!buildCalled);
       this.handleAudioBecomingNoisy = handleAudioBecomingNoisy;
@@ -837,6 +879,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
       checkState(!buildCalled);
       this.skipSilenceEnabled = skipSilenceEnabled;
@@ -853,6 +896,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       checkState(!buildCalled);
       this.videoScalingMode = videoScalingMode;
@@ -873,6 +917,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
       checkState(!buildCalled);
@@ -891,6 +936,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       checkState(!buildCalled);
       this.useLazyPreparation = useLazyPreparation;
@@ -904,9 +950,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSeekParameters(SeekParameters seekParameters) {
       checkState(!buildCalled);
-      this.seekParameters = seekParameters;
+      this.seekParameters = checkNotNull(seekParameters);
       return this;
     }
 
@@ -918,6 +965,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
       checkArgument(seekBackIncrementMs > 0);
       checkState(!buildCalled);
@@ -933,6 +981,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
       checkArgument(seekForwardIncrementMs > 0);
       checkState(!buildCalled);
@@ -951,6 +1000,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
       checkState(!buildCalled);
       this.releaseTimeoutMs = releaseTimeoutMs;
@@ -968,6 +1018,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
       checkState(!buildCalled);
       this.detachSurfaceTimeoutMs = detachSurfaceTimeoutMs;
@@ -986,6 +1037,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
       checkState(!buildCalled);
       this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
@@ -1000,9 +1052,10 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
       checkState(!buildCalled);
-      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      this.livePlaybackSpeedControl = checkNotNull(livePlaybackSpeedControl);
       return this;
     }
 
@@ -1021,6 +1074,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setUsePlatformDiagnostics(boolean usePlatformDiagnostics) {
       checkState(!buildCalled);
       this.usePlatformDiagnostics = usePlatformDiagnostics;
@@ -1035,6 +1089,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     public Builder setClock(Clock clock) {
       checkState(!buildCalled);
@@ -1351,6 +1406,15 @@ public interface ExoPlayer extends Player {
   void clearAuxEffectInfo();
 
   /**
+   * Sets the preferred audio device.
+   *
+   * @param audioDeviceInfo The preferred {@linkplain AudioDeviceInfo audio device}, or null to
+   *     restore the default.
+   */
+  @RequiresApi(23)
+  void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo);
+
+  /**
    * Sets whether skipping silences in the audio stream is enabled.
    *
    * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
@@ -1602,4 +1666,13 @@ public interface ExoPlayer extends Player {
    * @see AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)
    */
   boolean experimentalIsSleepingForOffload();
+
+  /**
+   * Returns whether <a
+   * href="https://source.android.com/devices/tv/multimedia-tunneling">tunneling</a> is enabled for
+   * the currently selected tracks.
+   *
+   * @see Player.Listener#onTracksChanged(Tracks)
+   */
+  boolean isTunnelingEnabled();
 }

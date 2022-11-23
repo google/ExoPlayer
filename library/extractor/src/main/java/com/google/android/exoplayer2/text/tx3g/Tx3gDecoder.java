@@ -123,9 +123,9 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length, boolean reset)
+  protected Subtitle decode(byte[] data, int length, boolean reset)
       throws SubtitleDecoderException {
-    parsableByteArray.reset(bytes, length);
+    parsableByteArray.reset(data, length);
     String cueTextString = readSubtitleText(parsableByteArray);
     if (cueTextString.isEmpty()) {
       return Tx3gSubtitle.EMPTY;

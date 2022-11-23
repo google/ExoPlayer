@@ -136,13 +136,13 @@ public final class Gav1Decoder
   }
 
   @Override
-  protected void releaseOutputBuffer(VideoDecoderOutputBuffer buffer) {
+  protected void releaseOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
     // Decode only frames do not acquire a reference on the internal decoder buffer and thus do not
     // require a call to gav1ReleaseFrame.
-    if (buffer.mode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !buffer.isDecodeOnly()) {
-      gav1ReleaseFrame(gav1DecoderContext, buffer);
+    if (outputBuffer.mode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !outputBuffer.isDecodeOnly()) {
+      gav1ReleaseFrame(gav1DecoderContext, outputBuffer);
     }
-    super.releaseOutputBuffer(buffer);
+    super.releaseOutputBuffer(outputBuffer);
   }
 
   /**

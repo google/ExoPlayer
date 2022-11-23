@@ -30,7 +30,10 @@ public class MetadataTest {
   @Test
   public void parcelable() {
     Metadata metadataToParcel =
-        new Metadata(new FakeMetadataEntry("id1"), new FakeMetadataEntry("id2"));
+        new Metadata(
+            /* presentationTimeUs= */ 1_230_000,
+            new FakeMetadataEntry("id1"),
+            new FakeMetadataEntry("id2"));
 
     Parcel parcel = Parcel.obtain();
     metadataToParcel.writeToParcel(parcel, 0);

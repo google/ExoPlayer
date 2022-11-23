@@ -215,7 +215,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int[]</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ContentType int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedTypes()">getSupportedTypes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2"><code>content types</code></a> supported by media sources created by this
@@ -379,7 +379,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setExtractorFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setExtractorFactory&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setExtractorFactory&#8203;(@Nullable
                                                   <a href="HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory)</pre>
 <div class="block">Sets the factory for <a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>s for the segments. The default value is <a href="HlsExtractorFactory.html#DEFAULT"><code>HlsExtractorFactory.DEFAULT</code></a>.</div>
 <dl>
@@ -397,7 +398,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets an optional <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 <dl>
@@ -414,7 +416,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaylistParserFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setPlaylistParserFactory&#8203;(<a href="playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setPlaylistParserFactory&#8203;(<a href="playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</pre>
 <div class="block">Sets the factory from which playlist parsers will be obtained.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -430,7 +433,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaylistTrackerFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setPlaylistTrackerFactory&#8203;(<a href="playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a>&nbsp;playlistTrackerFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setPlaylistTrackerFactory&#8203;(<a href="playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a>&nbsp;playlistTrackerFactory)</pre>
 <div class="block">Sets the <a href="playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistTracker</code></a> factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -446,7 +450,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompositeSequenceableLoaderFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setCompositeSequenceableLoaderFactory&#8203;(<a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setCompositeSequenceableLoaderFactory&#8203;(<a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</pre>
 <div class="block">Sets the factory to create composite <a href="../SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
  loads data from multiple streams (video, audio etc...).</div>
 <dl>
@@ -464,7 +469,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setAllowChunklessPreparation</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setAllowChunklessPreparation&#8203;(boolean&nbsp;allowChunklessPreparation)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setAllowChunklessPreparation&#8203;(boolean&nbsp;allowChunklessPreparation)</pre>
 <div class="block">Sets whether chunkless preparation is allowed. If true, preparation without chunk downloads
  will be enabled for streams that provide sufficient information in their multivariant
  playlist.</div>
@@ -482,7 +488,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setMetadataType</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setMetadataType&#8203;(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setMetadataType&#8203;(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType)</pre>
 <div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a>).
 
  <p>HLS supports in-band ID3 in both TS and fMP4 streams, but in the fMP4 case the data is
@@ -510,7 +517,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setUseSessionKeys</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setUseSessionKeys&#8203;(boolean&nbsp;useSessionKeys)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setUseSessionKeys&#8203;(boolean&nbsp;useSessionKeys)</pre>
 <div class="block">Sets whether to use #EXT-X-SESSION-KEY tags provided in the multivariant playlist. If
  enabled, it's assumed that any single session key declared in the multivariant playlist can
  be used to obtain all of the keys required for playback. For media where this is not true,
@@ -529,7 +537,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionManagerProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets the <a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManagerProvider</code></a> used to obtain a <a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
  <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
@@ -567,7 +576,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getSupportedTypes</h4>
-<pre class="methodSignature">public&nbsp;int[]&nbsp;getSupportedTypes()</pre>
+<pre class="methodSignature"><a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2">@ContentType</a>
+public&nbsp;@com.google.android.exoplayer2.C.ContentType int[]&nbsp;getSupportedTypes()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#getSupportedTypes()">MediaSource.Factory</a></code></span></div>
 <div class="block">Returns the <a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2"><code>content types</code></a> supported by media sources created by this
  factory.</div>

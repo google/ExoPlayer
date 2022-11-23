@@ -64,6 +64,7 @@ public final class MediaPeriodQueueTest {
   private static final long FIRST_AD_START_TIME_US = 10 * C.MICROS_PER_SECOND;
   private static final long SECOND_AD_START_TIME_US = 20 * C.MICROS_PER_SECOND;
 
+  private static final Uri AD_URI = Uri.parse("https://google.com/empty");
   private static final Timeline CONTENT_TIMELINE =
       new SinglePeriodTimeline(
           CONTENT_DURATION_US,
@@ -71,8 +72,7 @@ public final class MediaPeriodQueueTest {
           /* isDynamic= */ false,
           /* useLiveConfiguration= */ false,
           /* manifest= */ null,
-          MediaItem.fromUri(Uri.EMPTY));
-  private static final Uri AD_URI = Uri.EMPTY;
+          MediaItem.fromUri(AD_URI));
 
   private MediaPeriodQueue mediaPeriodQueue;
   private AdPlaybackState adPlaybackState;
@@ -1081,7 +1081,7 @@ public final class MediaPeriodQueueTest {
     mediaSourceList.setMediaSources(
         ImmutableList.of(mediaSourceHolder), new FakeShuffleOrder(/* length= */ 1));
     mediaSourceHolder.mediaSource.prepareSource(
-        mock(MediaSourceCaller.class), /* mediaTransferListener */ null, PlayerId.UNSET);
+        mock(MediaSourceCaller.class), /* mediaTransferListener= */ null, PlayerId.UNSET);
 
     Timeline playlistTimeline = mediaSourceList.createTimeline();
     firstPeriodUid = playlistTimeline.getUidOfPeriod(/* periodIndex= */ 0);
@@ -1168,7 +1168,7 @@ public final class MediaPeriodQueueTest {
     adPlaybackState =
         adPlaybackState
             .withAdCount(adGroupIndex, /* adCount= */ 1)
-            .withAdUri(adGroupIndex, /* adIndexInAdGroup= */ 0, AD_URI)
+            .withAvailableAdUri(adGroupIndex, /* adIndexInAdGroup= */ 0, AD_URI)
             .withAdDurationsUs(newDurations);
     updateTimeline();
   }

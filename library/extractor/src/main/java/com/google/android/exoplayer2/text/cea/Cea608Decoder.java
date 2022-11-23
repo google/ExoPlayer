@@ -458,8 +458,8 @@ public final class Cea608Decoder extends CeaDecoder {
     ccData.reset(subtitleData.array(), subtitleData.limit());
     boolean captionDataProcessed = false;
     while (ccData.bytesLeft() >= packetLength) {
-      byte ccHeader =
-          packetLength == 2 ? CC_IMPLICIT_DATA_HEADER : (byte) ccData.readUnsignedByte();
+      int ccHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER : ccData.readUnsignedByte();
+
       int ccByte1 = ccData.readUnsignedByte();
       int ccByte2 = ccData.readUnsignedByte();
 
@@ -872,8 +872,8 @@ public final class Cea608Decoder extends CeaDecoder {
   }
 
   private static boolean isServiceSwitchCommand(byte cc1) {
-    // cc1 - 0|0|0|1|C|1|0|0
-    return (cc1 & 0xF7) == 0x14;
+    // cc1 - 0|0|0|1|C|1|0|F
+    return (cc1 & 0xF6) == 0x14;
   }
 
   private static final class CueBuilder {

@@ -34,8 +34,8 @@ import java.nio.ByteOrder;
  * <p>This audio processor can be inserted into the audio processor chain to access audio data
  * before/after particular processing steps have been applied. For example, to get audio output
  * after playback speed adjustment and silence skipping have been applied it is necessary to pass a
- * custom {@link DefaultAudioSink.AudioProcessorChain} when creating the audio sink, and include
- * this audio processor after all other audio processors.
+ * custom {@link AudioProcessorChain} when creating the audio sink, and include this audio processor
+ * after all other audio processors.
  */
 public final class TeeAudioProcessor extends BaseAudioProcessor {
 

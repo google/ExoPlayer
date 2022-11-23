@@ -33,6 +33,7 @@ import com.google.common.collect.ForwardingMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.net.HttpHeaders;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -81,6 +82,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
@@ -97,6 +99,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      *     agent of the underlying platform.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
@@ -110,6 +113,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param connectTimeoutMs The connect timeout, in milliseconds, that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setConnectTimeoutMs(int connectTimeoutMs) {
       this.connectTimeoutMs = connectTimeoutMs;
       return this;
@@ -123,6 +127,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param readTimeoutMs The connect timeout, in milliseconds, that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setReadTimeoutMs(int readTimeoutMs) {
       this.readTimeoutMs = readTimeoutMs;
       return this;
@@ -136,6 +141,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param allowCrossProtocolRedirects Whether to allow cross protocol redirects.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setAllowCrossProtocolRedirects(boolean allowCrossProtocolRedirects) {
       this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
       return this;
@@ -152,6 +158,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      *     predicate that was previously set.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
       return this;
@@ -167,6 +174,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
@@ -176,6 +184,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
      * POST request.
      */
+    @CanIgnoreReturnValue
     public Factory setKeepPostFor302Redirects(boolean keepPostFor302Redirects) {
       this.keepPostFor302Redirects = keepPostFor302Redirects;
       return this;

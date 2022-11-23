@@ -400,7 +400,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     outputStreamStartPositionUs = C.TIME_UNSET;
-    outputStreamOffsetUs = C.TIME_UNSET;
+    setOutputStreamOffsetUs(C.TIME_UNSET);
     // MediaCodec outputs audio buffers in native endian:
     // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
     // and code called from MediaCodecAudioRenderer.processOutputBuffer expects this endianness.
@@ -649,7 +649,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (this.outputStreamOffsetUs == C.TIME_UNSET) {
       checkState(this.outputStreamStartPositionUs == C.TIME_UNSET);
       this.outputStreamStartPositionUs = startPositionUs;
-      this.outputStreamOffsetUs = offsetUs;
+      setOutputStreamOffsetUs(offsetUs);
     } else {
       if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
         Log.w(
@@ -686,7 +686,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     formatQueue.clear();
     if (pendingOutputStreamOffsetCount != 0) {
-      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1];
+      setOutputStreamOffsetUs(pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
       outputStreamStartPositionUs =
           pendingOutputStreamStartPositionsUs[pendingOutputStreamOffsetCount - 1];
       pendingOutputStreamOffsetCount = 0;
@@ -705,7 +705,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onDisabled() {
     inputFormat = null;
     outputStreamStartPositionUs = C.TIME_UNSET;
-    outputStreamOffsetUs = C.TIME_UNSET;
+    setOutputStreamOffsetUs(C.TIME_UNSET);
     pendingOutputStreamOffsetCount = 0;
     flushOrReleaseCodec();
   }
@@ -1586,7 +1586,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     while (pendingOutputStreamOffsetCount != 0
         && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
       outputStreamStartPositionUs = pendingOutputStreamStartPositionsUs[0];
-      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
+      setOutputStreamOffsetUs(pendingOutputStreamOffsetsUs[0]);
       pendingOutputStreamOffsetCount--;
       System.arraycopy(
           pendingOutputStreamStartPositionsUs,
@@ -1634,6 +1634,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         newFormat,
         REUSE_RESULT_NO,
         DISCARD_REASON_REUSE_NOT_IMPLEMENTED);
+  }
+
+  /**
+   * Called after the output stream offset changes.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param outputStreamOffsetUs The output stream offset in microseconds.
+   */
+  protected void onOutputStreamOffsetUsChanged(long outputStreamOffsetUs) {
+    // Do nothing
   }
 
   @Override
@@ -2044,6 +2055,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return outputStreamOffsetUs;
   }
 
+  private void setOutputStreamOffsetUs(long outputStreamOffsetUs) {
+    this.outputStreamOffsetUs = outputStreamOffsetUs;
+    if (outputStreamOffsetUs != C.TIME_UNSET) {
+      onOutputStreamOffsetUsChanged(outputStreamOffsetUs);
+    }
+  }
+
   /** Returns whether this renderer supports the given {@link Format Format's} DRM scheme. */
   protected static boolean supportsFormatDrm(Format format) {
     return format.cryptoType == C.CRYPTO_TYPE_NONE || format.cryptoType == C.CRYPTO_TYPE_FRAMEWORK;
@@ -2073,6 +2091,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     // Note: Both oldSession and newSession are non-null, and they are different sessions.
+
+    if (!newSession.getSchemeUuid().equals(oldSession.getSchemeUuid())) {
+      // MediaCrypto.setMediaDrmSession is unable to switch between DRM schemes.
+      return true;
+    }
 
     if (Util.SDK_INT < 23) {
       // MediaCrypto.setMediaDrmSession is only available from API level 23, so re-initialization is

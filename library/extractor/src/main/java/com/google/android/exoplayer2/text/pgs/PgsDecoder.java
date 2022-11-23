@@ -54,8 +54,9 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] data, int size, boolean reset) throws SubtitleDecoderException {
-    buffer.reset(data, size);
+  protected Subtitle decode(byte[] data, int length, boolean reset)
+      throws SubtitleDecoderException {
+    buffer.reset(data, length);
     maybeInflateData(buffer);
     cueBuilder.reset();
     ArrayList<Cue> cues = new ArrayList<>();

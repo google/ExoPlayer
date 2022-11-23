@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.transformerdemo;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -29,9 +31,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -59,14 +66,28 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String TRIM_START_MS = "trim_start_ms";
   public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
+  public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
+  public static final String FORCE_INTERPRET_HDR_VIDEO_AS_SDR = "force_interpret_hdr_video_as_sdr";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
   public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
   public static final String PERIODIC_VIGNETTE_OUTER_RADIUS = "periodic_vignette_outer_radius";
-  private static final String[] INPUT_URIS = {
+  public static final String COLOR_FILTER_SELECTION = "color_filter_selection";
+  public static final String CONTRAST_VALUE = "contrast_value";
+  public static final String RGB_ADJUSTMENT_RED_SCALE = "rgb_adjustment_red_scale";
+  public static final String RGB_ADJUSTMENT_GREEN_SCALE = "rgb_adjustment_green_scale";
+  public static final String RGB_ADJUSTMENT_BLUE_SCALE = "rgb_adjustment_blue_scale";
+  public static final String HSL_ADJUSTMENTS_HUE = "hsl_adjustments_hue";
+  public static final String HSL_ADJUSTMENTS_SATURATION = "hsl_adjustments_saturation";
+  public static final String HSL_ADJUSTMENTS_LIGHTNESS = "hsl_adjustments_lightness";
+  public static final int COLOR_FILTER_GRAYSCALE = 0;
+  public static final int COLOR_FILTER_INVERTED = 1;
+  public static final int COLOR_FILTER_SEPIA = 2;
+  public static final int FILE_PERMISSION_REQUEST_CODE = 1;
+  private static final String[] PRESET_FILE_URIS = {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
     "https://html5demos.com/assets/dizzy.mp4",
@@ -79,9 +100,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_rotated_avc_aac.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd",
-    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-hdr-hdr10.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4",
   };
-  private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
+  private static final String[] PRESET_FILE_URI_DESCRIPTIONS = { // same order as PRESET_FILE_URIS
     "720p H264 video and AAC audio",
     "1080p H265 video and AAC audio",
     "360p H264 video and AAC audio",
@@ -94,21 +115,32 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "H264 video and AAC audio (portrait, H < W, 90\u00B0)",
     "SEF slow motion with 240 fps",
     "480p DASH (non-square pixels)",
-    "HDR (HDR10) H265 video (encoding may fail)",
+    "HDR (HDR10) H265 limited range video (encoding may fail)",
   };
   private static final String[] DEMO_EFFECTS = {
     "Dizzy crop",
     "Edge detector (Media Pipe)",
+    "Color filters",
+    "Map White to Green Color Lookup Table",
+    "RGB Adjustments",
+    "HSL Adjustments",
+    "Contrast",
     "Periodic vignette",
     "3D spin",
     "Overlay logo & timer",
     "Zoom in start",
   };
-  private static final int PERIODIC_VIGNETTE_INDEX = 2;
+  private static final int COLOR_FILTERS_INDEX = 2;
+  private static final int RGB_ADJUSTMENTS_INDEX = 4;
+  private static final int HSL_ADJUSTMENT_INDEX = 5;
+  private static final int CONTRAST_INDEX = 6;
+  private static final int PERIODIC_VIGNETTE_INDEX = 7;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
-  private @MonotonicNonNull Button selectFileButton;
+  private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
+  private @MonotonicNonNull Button selectPresetFileButton;
+  private @MonotonicNonNull Button selectLocalFileButton;
   private @MonotonicNonNull TextView selectedFileTextView;
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
@@ -120,13 +152,24 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner rotateSpinner;
   private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
+  private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
+  private @MonotonicNonNull CheckBox forceInterpretHdrVideoAsSdrCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private @MonotonicNonNull Button selectDemoEffectsButton;
   private boolean @MonotonicNonNull [] demoEffectsSelections;
+  private @Nullable Uri localFileUri;
   private int inputUriPosition;
   private long trimStartMs;
   private long trimEndMs;
+  private int colorFilterSelection;
+  private float rgbAdjustmentRedScale;
+  private float rgbAdjustmentGreenScale;
+  private float rgbAdjustmentBlueScale;
+  private float contrastValue;
+  private float hueAdjustment;
+  private float saturationAdjustment;
+  private float lightnessAdjustment;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
   private float periodicVignetteInnerRadius;
@@ -139,11 +182,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     findViewById(R.id.transform_button).setOnClickListener(this::startTransformation);
 
-    selectFileButton = findViewById(R.id.select_file_button);
-    selectFileButton.setOnClickListener(this::selectFile);
+    flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
 
     selectedFileTextView = findViewById(R.id.selected_file_text_view);
-    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+    selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
 
     removeAudioCheckbox = findViewById(R.id.remove_audio_checkbox);
     removeAudioCheckbox.setOnClickListener(this::onRemoveAudio);
@@ -151,7 +193,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
     removeVideoCheckbox = findViewById(R.id.remove_video_checkbox);
     removeVideoCheckbox.setOnClickListener(this::onRemoveVideo);
 
-    flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
+    selectPresetFileButton = findViewById(R.id.select_preset_file_button);
+    selectPresetFileButton.setOnClickListener(this::selectPresetFile);
+
+    selectLocalFileButton = findViewById(R.id.select_local_file_button);
+    selectLocalFileButton.setOnClickListener(this::selectLocalFile);
 
     ArrayAdapter<String> audioMimeAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
@@ -200,14 +246,38 @@ public final class ConfigurationActivity extends AppCompatActivity {
     trimEndMs = C.TIME_UNSET;
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
+    enableDebugPreviewCheckBox = findViewById(R.id.enable_debug_preview_checkbox);
     enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
     enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
     findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
+    forceInterpretHdrVideoAsSdrCheckBox =
+        findViewById(R.id.force_interpret_hdr_video_as_sdr_checkbox);
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
 
     demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
     selectDemoEffectsButton = findViewById(R.id.select_demo_effects_button);
     selectDemoEffectsButton.setOnClickListener(this::selectDemoEffects);
+
+    localFilePickerLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::localFilePickerLauncherResult);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode, String[] permissions, int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    if (requestCode == FILE_PERMISSION_REQUEST_CODE
+        && grantResults.length == 1
+        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      launchLocalFilePicker();
+    } else {
+      Toast.makeText(
+              getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_LONG)
+          .show();
+    }
   }
 
   @Override
@@ -215,7 +285,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     super.onResume();
     @Nullable Uri intentUri = getIntent().getData();
     if (intentUri != null) {
-      checkNotNull(selectFileButton).setEnabled(false);
+      checkNotNull(selectPresetFileButton).setEnabled(false);
+      checkNotNull(selectLocalFileButton).setEnabled(false);
       checkNotNull(selectedFileTextView).setText(intentUri.toString());
     }
   }
@@ -237,7 +308,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "trimCheckBox",
     "enableFallbackCheckBox",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "demoEffectsSelections"
   })
@@ -275,30 +348,83 @@ public final class ConfigurationActivity extends AppCompatActivity {
       bundle.putLong(TRIM_END_MS, trimEndMs);
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
+    bundle.putBoolean(ENABLE_DEBUG_PREVIEW, enableDebugPreviewCheckBox.isChecked());
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
+    bundle.putBoolean(
+        FORCE_INTERPRET_HDR_VIDEO_AS_SDR, forceInterpretHdrVideoAsSdrCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
+    bundle.putInt(COLOR_FILTER_SELECTION, colorFilterSelection);
+    bundle.putFloat(CONTRAST_VALUE, contrastValue);
+    bundle.putFloat(RGB_ADJUSTMENT_RED_SCALE, rgbAdjustmentRedScale);
+    bundle.putFloat(RGB_ADJUSTMENT_GREEN_SCALE, rgbAdjustmentGreenScale);
+    bundle.putFloat(RGB_ADJUSTMENT_BLUE_SCALE, rgbAdjustmentBlueScale);
+    bundle.putFloat(HSL_ADJUSTMENTS_HUE, hueAdjustment);
+    bundle.putFloat(HSL_ADJUSTMENTS_SATURATION, saturationAdjustment);
+    bundle.putFloat(HSL_ADJUSTMENTS_LIGHTNESS, lightnessAdjustment);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
     bundle.putFloat(PERIODIC_VIGNETTE_OUTER_RADIUS, periodicVignetteOuterRadius);
     transformerIntent.putExtras(bundle);
 
-    @Nullable Uri intentUri = getIntent().getData();
-    transformerIntent.setData(
-        intentUri != null ? intentUri : Uri.parse(INPUT_URIS[inputUriPosition]));
+    @Nullable Uri intentUri;
+    if (getIntent().getData() != null) {
+      intentUri = getIntent().getData();
+    } else if (localFileUri != null) {
+      intentUri = localFileUri;
+    } else {
+      intentUri = Uri.parse(PRESET_FILE_URIS[inputUriPosition]);
+    }
+    transformerIntent.setData(intentUri);
 
     startActivity(transformerIntent);
   }
 
-  private void selectFile(View view) {
+  private void selectPresetFile(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.select_file_title)
-        .setSingleChoiceItems(URI_DESCRIPTIONS, inputUriPosition, this::selectFileInDialog)
+        .setTitle(R.string.select_preset_file_title)
+        .setSingleChoiceItems(
+            PRESET_FILE_URI_DESCRIPTIONS, inputUriPosition, this::selectPresetFileInDialog)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
         .create()
         .show();
+  }
+
+  @RequiresNonNull("selectedFileTextView")
+  private void selectPresetFileInDialog(DialogInterface dialog, int which) {
+    inputUriPosition = which;
+    localFileUri = null;
+    selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
+  }
+
+  private void selectLocalFile(View view) {
+    int permissionStatus =
+        ActivityCompat.checkSelfPermission(
+            ConfigurationActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+      String[] neededPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+      ActivityCompat.requestPermissions(
+          ConfigurationActivity.this, neededPermissions, FILE_PERMISSION_REQUEST_CODE);
+    } else {
+      launchLocalFilePicker();
+    }
+  }
+
+  private void launchLocalFilePicker() {
+    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    intent.setType("video/*");
+    checkNotNull(localFilePickerLauncher).launch(intent);
+  }
+
+  @RequiresNonNull("selectedFileTextView")
+  private void localFilePickerLauncherResult(ActivityResult result) {
+    Intent data = result.getData();
+    if (data != null) {
+      localFileUri = checkNotNull(data.getData());
+      selectedFileTextView.setText(localFileUri.toString());
+    }
   }
 
   private void selectDemoEffects(View view) {
@@ -316,35 +442,122 @@ public final class ConfigurationActivity extends AppCompatActivity {
       return;
     }
     View dialogView = getLayoutInflater().inflate(R.layout.trim_options, /* root= */ null);
-    RangeSlider radiusRangeSlider =
+    RangeSlider trimRangeSlider =
         checkNotNull(dialogView.findViewById(R.id.trim_bounds_range_slider));
-    radiusRangeSlider.setValues(0f, 60f); // seconds
+    trimRangeSlider.setValues(0f, 10f); // seconds
     new AlertDialog.Builder(/* context= */ this)
         .setView(dialogView)
         .setPositiveButton(
             android.R.string.ok,
             (DialogInterface dialogInterface, int i) -> {
-              List<Float> radiusRange = radiusRangeSlider.getValues();
-              trimStartMs = 1000 * radiusRange.get(0).longValue();
-              trimEndMs = 1000 * radiusRange.get(1).longValue();
+              List<Float> trimRange = trimRangeSlider.getValues();
+              trimStartMs = Math.round(1000 * trimRange.get(0));
+              trimEndMs = Math.round(1000 * trimRange.get(1));
             })
         .create()
         .show();
   }
 
-  @RequiresNonNull("selectedFileTextView")
-  private void selectFileInDialog(DialogInterface dialog, int which) {
-    inputUriPosition = which;
-    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
-  }
-
   @RequiresNonNull("demoEffectsSelections")
   private void selectDemoEffect(DialogInterface dialog, int which, boolean isChecked) {
     demoEffectsSelections[which] = isChecked;
-    if (!isChecked || which != PERIODIC_VIGNETTE_INDEX) {
+    if (!isChecked) {
       return;
     }
 
+    switch (which) {
+      case COLOR_FILTERS_INDEX:
+        controlColorFiltersSettings();
+        break;
+      case RGB_ADJUSTMENTS_INDEX:
+        controlRgbAdjustmentsScale();
+        break;
+      case CONTRAST_INDEX:
+        controlContrastSettings();
+        break;
+      case HSL_ADJUSTMENT_INDEX:
+        controlHslAdjustmentSettings();
+        break;
+      case PERIODIC_VIGNETTE_INDEX:
+        controlPeriodicVignetteSettings();
+        break;
+    }
+  }
+
+  private void controlColorFiltersSettings() {
+    new AlertDialog.Builder(/* context= */ this)
+        .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+        .setSingleChoiceItems(
+            this.getResources().getStringArray(R.array.color_filter_options),
+            colorFilterSelection,
+            (DialogInterface dialogInterface, int i) -> {
+              checkState(
+                  i == COLOR_FILTER_GRAYSCALE
+                      || i == COLOR_FILTER_INVERTED
+                      || i == COLOR_FILTER_SEPIA);
+              colorFilterSelection = i;
+              dialogInterface.dismiss();
+            })
+        .create()
+        .show();
+  }
+
+  private void controlRgbAdjustmentsScale() {
+    View dialogView =
+        getLayoutInflater().inflate(R.layout.rgb_adjustment_options, /* root= */ null);
+    Slider redScaleSlider = checkNotNull(dialogView.findViewById(R.id.rgb_adjustment_red_scale));
+    Slider greenScaleSlider =
+        checkNotNull(dialogView.findViewById(R.id.rgb_adjustment_green_scale));
+    Slider blueScaleSlider = checkNotNull(dialogView.findViewById(R.id.rgb_adjustment_blue_scale));
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.rgb_adjustment_options)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              rgbAdjustmentRedScale = redScaleSlider.getValue();
+              rgbAdjustmentGreenScale = greenScaleSlider.getValue();
+              rgbAdjustmentBlueScale = blueScaleSlider.getValue();
+            })
+        .create()
+        .show();
+  }
+
+  private void controlContrastSettings() {
+    View dialogView = getLayoutInflater().inflate(R.layout.contrast_options, /* root= */ null);
+    Slider contrastSlider = checkNotNull(dialogView.findViewById(R.id.contrast_slider));
+    new AlertDialog.Builder(/* context= */ this)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> contrastValue = contrastSlider.getValue())
+        .create()
+        .show();
+  }
+
+  private void controlHslAdjustmentSettings() {
+    View dialogView =
+        getLayoutInflater().inflate(R.layout.hsl_adjustment_options, /* root= */ null);
+    Slider hueAdjustmentSlider = checkNotNull(dialogView.findViewById(R.id.hsl_adjustments_hue));
+    Slider saturationAdjustmentSlider =
+        checkNotNull(dialogView.findViewById(R.id.hsl_adjustments_saturation));
+    Slider lightnessAdjustmentSlider =
+        checkNotNull(dialogView.findViewById(R.id.hsl_adjustment_lightness));
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.hsl_adjustment_options)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              hueAdjustment = hueAdjustmentSlider.getValue();
+              saturationAdjustment = saturationAdjustmentSlider.getValue();
+              lightnessAdjustment = lightnessAdjustmentSlider.getValue();
+            })
+        .create()
+        .show();
+  }
+
+  private void controlPeriodicVignetteSettings() {
     View dialogView =
         getLayoutInflater().inflate(R.layout.periodic_vignette_options, /* root= */ null);
     Slider centerXSlider =
@@ -377,7 +590,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
   })
@@ -397,7 +612,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
   })
@@ -416,7 +633,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
   })
@@ -426,8 +645,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
+    enableDebugPreviewCheckBox.setEnabled(isVideoEnabled);
     enableRequestSdrToneMappingCheckBox.setEnabled(
         isRequestSdrToneMappingSupported() && isVideoEnabled);
+    forceInterpretHdrVideoAsSdrCheckBox.setEnabled(isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
     selectDemoEffectsButton.setEnabled(isVideoEnabled);
 
@@ -438,6 +659,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
     findViewById(R.id.request_sdr_tone_mapping)
         .setEnabled(isRequestSdrToneMappingSupported() && isVideoEnabled);
+    findViewById(R.id.force_interpret_hdr_video_as_sdr).setEnabled(isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
   }
 

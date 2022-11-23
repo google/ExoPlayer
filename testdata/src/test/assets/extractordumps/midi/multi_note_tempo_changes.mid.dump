@@ -1,0 +1,137 @@
+seekMap:
+  isSeekable = true
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=14]]
+  getPosition(1) = [[timeUs=1, position=14]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 78
+  sample count = 31
+  format 0:
+    sampleMimeType = audio/x-exoplayer-midi
+    codecs = audio/midi
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 3, hash 70FB
+  sample 1:
+    time = 0
+    flags = 1
+    data = length 3, hash FFFF5A77
+  sample 2:
+    time = 0
+    flags = 1
+    data = length 7, hash C95FA238
+  sample 3:
+    time = 0
+    flags = 1
+    data = length 3, hash 70FB
+  sample 4:
+    time = 0
+    flags = 1
+    data = length 6, hash 37A83E76
+  sample 5:
+    time = 0
+    flags = 1
+    data = length 3, hash FFFF4D46
+  sample 6:
+    time = 0
+    flags = 1
+    data = length 3, hash FFFF4D0D
+  sample 7:
+    time = 0
+    flags = 1
+    data = length 3, hash FFFF4DA4
+  sample 8:
+    time = 0
+    flags = 1
+    data = length 3, hash 40
+  sample 9:
+    time = 0
+    flags = 1
+    data = length 2, hash FFFFFC20
+  sample 10:
+    time = 0
+    flags = 1
+    data = length 3, hash FFFEDCE7
+  sample 11:
+    time = 100000
+    flags = 1
+    data = length 0, hash 1
+  sample 12:
+    time = 200000
+    flags = 1
+    data = length 0, hash 1
+  sample 13:
+    time = 300000
+    flags = 1
+    data = length 0, hash 1
+  sample 14:
+    time = 400000
+    flags = 1
+    data = length 0, hash 1
+  sample 15:
+    time = 500000
+    flags = 1
+    data = length 6, hash 37A84514
+  sample 16:
+    time = 500000
+    flags = 1
+    data = length 3, hash FFFEDD63
+  sample 17:
+    time = 600000
+    flags = 1
+    data = length 0, hash 1
+  sample 18:
+    time = 700000
+    flags = 1
+    data = length 0, hash 1
+  sample 19:
+    time = 800000
+    flags = 1
+    data = length 0, hash 1
+  sample 20:
+    time = 833333
+    flags = 1
+    data = length 3, hash FFFEA0D4
+  sample 21:
+    time = 833333
+    flags = 1
+    data = length 6, hash 37A83493
+  sample 22:
+    time = 833333
+    flags = 1
+    data = length 3, hash FFFEDDC0
+  sample 23:
+    time = 933333
+    flags = 1
+    data = length 0, hash 1
+  sample 24:
+    time = 1033333
+    flags = 1
+    data = length 0, hash 1
+  sample 25:
+    time = 1083333
+    flags = 1
+    data = length 6, hash 37A83CA6
+  sample 26:
+    time = 1083333
+    flags = 1
+    data = length 3, hash FFFEA131
+  sample 27:
+    time = 1083333
+    flags = 1
+    data = length 3, hash FFFEDE1D
+  sample 28:
+    time = 1183333
+    flags = 1
+    data = length 0, hash 1
+  sample 29:
+    time = 1283333
+    flags = 1
+    data = length 3, hash FFFEA058
+  sample 30:
+    time = 1283333
+    flags = 1
+    data = length 3, hash FFFEA18E
+tracksEnded = true

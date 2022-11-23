@@ -70,10 +70,10 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length, boolean reset) {
+  protected Subtitle decode(byte[] data, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
-    ParsableByteArray subripData = new ParsableByteArray(bytes, length);
+    ParsableByteArray subripData = new ParsableByteArray(data, length);
 
     @Nullable String currentLine;
     while ((currentLine = subripData.readLine()) != null) {

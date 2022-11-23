@@ -18,10 +18,12 @@ dependencies {
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.concurrent:concurrent-futures:' + androidxFuturesVersion
     api 'androidx.media2:media2-session:' + androidxMedia2Version
+    compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation project(modulePrefix + 'library-core')
+    androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     androidTestImplementation 'androidx.test:core:' + androidxTestCoreVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion

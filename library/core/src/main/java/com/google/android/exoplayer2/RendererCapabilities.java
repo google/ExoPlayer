@@ -127,21 +127,23 @@ public interface RendererCapabilities {
   int HARDWARE_ACCELERATION_NOT_SUPPORTED = 0;
 
   /**
-   * Level of decoder support. One of {@link #DECODER_SUPPORT_PRIMARY} and {@link
-   * #DECODER_SUPPORT_FALLBACK}.
+   * Level of decoder support. One of {@link #DECODER_SUPPORT_FALLBACK_MIMETYPE}, {@link
+   * #DECODER_SUPPORT_FALLBACK}, and {@link #DECODER_SUPPORT_PRIMARY}.
    *
    * <p>For video renderers, the level of support is indicated for non-tunneled output.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({
-    DECODER_SUPPORT_PRIMARY,
-    DECODER_SUPPORT_FALLBACK,
-  })
+  @IntDef({DECODER_SUPPORT_FALLBACK_MIMETYPE, DECODER_SUPPORT_PRIMARY, DECODER_SUPPORT_FALLBACK})
   @interface DecoderSupport {}
   /** A mask to apply to {@link Capabilities} to obtain {@link DecoderSupport} only. */
-  int MODE_SUPPORT_MASK = 0b1 << 7;
+  int MODE_SUPPORT_MASK = 0b11 << 7;
+  /**
+   * The renderer will use a decoder for fallback mimetype if possible as format's MIME type is
+   * unsupported
+   */
+  int DECODER_SUPPORT_FALLBACK_MIMETYPE = 0b10 << 7;
   /** The renderer is able to use the primary decoder for the format's MIME type. */
   int DECODER_SUPPORT_PRIMARY = 0b1 << 7;
   /** The renderer will use a fallback decoder. */

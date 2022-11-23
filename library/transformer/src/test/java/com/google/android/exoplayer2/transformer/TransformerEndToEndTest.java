@@ -26,12 +26,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -43,6 +43,14 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -55,7 +63,9 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -271,9 +281,9 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    verify(mockListener1, times(1)).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener2, times(1)).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener2).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
   }
 
   @Test
@@ -294,9 +304,9 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    verify(mockListener1, times(1)).onTransformationError(mediaItem, exception);
-    verify(mockListener2, times(1)).onTransformationError(mediaItem, exception);
-    verify(mockListener3, times(1)).onTransformationError(mediaItem, exception);
+    verify(mockListener1).onTransformationError(mediaItem, exception);
+    verify(mockListener2).onTransformationError(mediaItem, exception);
+    verify(mockListener3).onTransformationError(mediaItem, exception);
   }
 
   @Test
@@ -319,11 +329,11 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    verify(mockListener1, times(1))
+    verify(mockListener1)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
-    verify(mockListener2, times(1))
+    verify(mockListener2)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
-    verify(mockListener3, times(1))
+    verify(mockListener3)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
   }
 
@@ -345,9 +355,9 @@ public final class TransformerEndToEndTest {
     transformer2.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer2);
 
-    verify(mockListener1, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
     verify(mockListener2, never()).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
   }
 
   @Test
@@ -474,8 +484,42 @@ public final class TransformerEndToEndTest {
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
-    verify(mockListener, times(1))
+    verify(mockListener)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+  }
+
+  @Test
+  public void startTransformation_withSlowOutputSampleRate_completesWithError() throws Exception {
+    MediaSource.Factory mediaSourceFactory =
+        new DefaultMediaSourceFactory(
+            context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
+    Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setMuxerFactory(muxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
+    assertThat(exception.errorCode).isEqualTo(TransformationException.ERROR_CODE_MUXING_FAILED);
+  }
+
+  @Test
+  public void startTransformation_withUnsetMaxDelayBetweenSamples_completesSuccessfully()
+      throws Exception {
+    Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setMuxerFactory(muxerFactory).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
   }
 
   @Test
@@ -537,8 +581,6 @@ public final class TransformerEndToEndTest {
             () -> {
               try {
                 transformer.startTransformation(mediaItem, outputPath);
-              } catch (IOException e) {
-                // Do nothing.
               } catch (IllegalStateException e) {
                 illegalStateException.set(e);
               } finally {
@@ -750,7 +792,8 @@ public final class TransformerEndToEndTest {
     return new Transformer.Builder(context)
         .setClock(clock)
         .setMuxerFactory(new TestMuxerFactory())
-        .setEncoderFactory(new DefaultEncoderFactory(EncoderSelector.DEFAULT, enableFallback));
+        .setEncoderFactory(
+            new DefaultEncoderFactory.Builder(context).setEnableFallback(enableFallback).build());
   }
 
   private static void createEncodersAndDecoders() {
@@ -856,41 +899,100 @@ public final class TransformerEndToEndTest {
 
   private final class TestMuxerFactory implements Muxer.Factory {
 
-    private final Muxer.Factory frameworkMuxerFactory;
+    private final Muxer.Factory defaultMuxerFactory;
 
     public TestMuxerFactory() {
-      frameworkMuxerFactory = new FrameworkMuxer.Factory();
+      defaultMuxerFactory = new DefaultMuxer.Factory();
+    }
+
+    public TestMuxerFactory(long maxDelayBetweenSamplesMs) {
+      defaultMuxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
     }
 
     @Override
-    public Muxer create(String path, String outputMimeType) throws IOException {
-      testMuxer = new TestMuxer(path, outputMimeType, frameworkMuxerFactory);
+    public Muxer create(String path) throws Muxer.MuxerException {
+      testMuxer = new TestMuxer(path, defaultMuxerFactory);
       return testMuxer;
     }
 
     @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-        throws IOException {
-      testMuxer =
-          new TestMuxer(
-              "FD:" + parcelFileDescriptor.getFd(), outputMimeType, frameworkMuxerFactory);
+    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws Muxer.MuxerException {
+      testMuxer = new TestMuxer("FD:" + parcelFileDescriptor.getFd(), defaultMuxerFactory);
       return testMuxer;
     }
 
     @Override
-    public boolean supportsOutputMimeType(String mimeType) {
-      return true;
+    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
+    }
+  }
+
+  private static final class SlowExtractorsFactory implements ExtractorsFactory {
+
+    private final long delayBetweenReadsMs;
+    private final ExtractorsFactory defaultExtractorsFactory;
+
+    public SlowExtractorsFactory(long delayBetweenReadsMs) {
+      this.delayBetweenReadsMs = delayBetweenReadsMs;
+      this.defaultExtractorsFactory = new DefaultExtractorsFactory();
     }
 
     @Override
-    public boolean supportsSampleMimeType(String sampleMimeType, String outputMimeType) {
-      return frameworkMuxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType);
+    public Extractor[] createExtractors() {
+      return slowDownExtractors(defaultExtractorsFactory.createExtractors());
     }
 
     @Override
-    public ImmutableList<String> getSupportedSampleMimeTypes(
-        @C.TrackType int trackType, String containerMimeType) {
-      return frameworkMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+    public Extractor[] createExtractors(Uri uri, Map<String, List<String>> responseHeaders) {
+      return slowDownExtractors(defaultExtractorsFactory.createExtractors(uri, responseHeaders));
+    }
+
+    private Extractor[] slowDownExtractors(Extractor[] extractors) {
+      Extractor[] slowExtractors = new Extractor[extractors.length];
+      Arrays.setAll(slowExtractors, i -> new SlowExtractor(extractors[i], delayBetweenReadsMs));
+      return slowExtractors;
+    }
+
+    private static final class SlowExtractor implements Extractor {
+
+      private final Extractor extractor;
+      private final long delayBetweenReadsMs;
+
+      public SlowExtractor(Extractor extractor, long delayBetweenReadsMs) {
+        this.extractor = extractor;
+        this.delayBetweenReadsMs = delayBetweenReadsMs;
+      }
+
+      @Override
+      public boolean sniff(ExtractorInput input) throws IOException {
+        return extractor.sniff(input);
+      }
+
+      @Override
+      public void init(ExtractorOutput output) {
+        extractor.init(output);
+      }
+
+      @Override
+      public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
+          throws IOException {
+        try {
+          Thread.sleep(delayBetweenReadsMs);
+        } catch (InterruptedException e) {
+          throw new IllegalStateException(e);
+        }
+        return extractor.read(input, seekPosition);
+      }
+
+      @Override
+      public void seek(long position, long timeUs) {
+        extractor.seek(position, timeUs);
+      }
+
+      @Override
+      public void release() {
+        extractor.release();
+      }
     }
   }
 }

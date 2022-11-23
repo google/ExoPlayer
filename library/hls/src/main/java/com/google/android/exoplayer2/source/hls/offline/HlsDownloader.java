@@ -110,15 +110,15 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
   }
 
   @Override
-  protected List<Segment> getSegments(DataSource dataSource, HlsPlaylist playlist, boolean removing)
+  protected List<Segment> getSegments(DataSource dataSource, HlsPlaylist manifest, boolean removing)
       throws IOException, InterruptedException {
     ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
-    if (playlist instanceof HlsMultivariantPlaylist) {
-      HlsMultivariantPlaylist multivariantPlaylist = (HlsMultivariantPlaylist) playlist;
+    if (manifest instanceof HlsMultivariantPlaylist) {
+      HlsMultivariantPlaylist multivariantPlaylist = (HlsMultivariantPlaylist) manifest;
       addMediaPlaylistDataSpecs(multivariantPlaylist.mediaPlaylistUrls, mediaPlaylistDataSpecs);
     } else {
       mediaPlaylistDataSpecs.add(
-          SegmentDownloader.getCompressibleDataSpec(Uri.parse(playlist.baseUri)));
+          SegmentDownloader.getCompressibleDataSpec(Uri.parse(manifest.baseUri)));
     }
 
     ArrayList<Segment> segments = new ArrayList<>();

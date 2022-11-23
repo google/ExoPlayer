@@ -26,7 +26,6 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.ParcelFileDescriptor;
 import android.util.SparseLongArray;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -34,7 +33,6 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -43,90 +41,74 @@ import java.nio.ByteBuffer;
 /* package */ final class FrameworkMuxer implements Muxer {
 
   // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
-  private static final ImmutableMap<String, ImmutableList<String>>
-      SUPPORTED_CONTAINER_TO_VIDEO_SAMPLE_MIME_TYPES =
-          ImmutableMap.of(
-              MimeTypes.VIDEO_MP4,
-              Util.SDK_INT >= 24
-                  ? ImmutableList.of(
-                      MimeTypes.VIDEO_H263,
-                      MimeTypes.VIDEO_H264,
-                      MimeTypes.VIDEO_MP4V,
-                      MimeTypes.VIDEO_H265)
-                  : ImmutableList.of(
-                      MimeTypes.VIDEO_H263, MimeTypes.VIDEO_H264, MimeTypes.VIDEO_MP4V),
-              MimeTypes.VIDEO_WEBM,
-              Util.SDK_INT >= 24
-                  ? ImmutableList.of(MimeTypes.VIDEO_VP8, MimeTypes.VIDEO_VP9)
-                  : ImmutableList.of(MimeTypes.VIDEO_VP8));
+  private static final ImmutableList<String> SUPPORTED_VIDEO_SAMPLE_MIME_TYPES =
+      Util.SDK_INT >= 24
+          ? ImmutableList.of(
+              MimeTypes.VIDEO_H263,
+              MimeTypes.VIDEO_H264,
+              MimeTypes.VIDEO_MP4V,
+              MimeTypes.VIDEO_H265)
+          : ImmutableList.of(MimeTypes.VIDEO_H263, MimeTypes.VIDEO_H264, MimeTypes.VIDEO_MP4V);
 
-  private static final ImmutableMap<String, ImmutableList<String>>
-      SUPPORTED_CONTAINER_TO_AUDIO_SAMPLE_MIME_TYPES =
-          ImmutableMap.of(
-              MimeTypes.VIDEO_MP4,
-              ImmutableList.of(MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AMR_NB, MimeTypes.AUDIO_AMR_WB),
-              MimeTypes.VIDEO_WEBM,
-              ImmutableList.of(MimeTypes.AUDIO_VORBIS));
+  private static final ImmutableList<String> SUPPORTED_AUDIO_SAMPLE_MIME_TYPES =
+      ImmutableList.of(MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AMR_NB, MimeTypes.AUDIO_AMR_WB);
 
   /** {@link Muxer.Factory} for {@link FrameworkMuxer}. */
   public static final class Factory implements Muxer.Factory {
+
+    private final long maxDelayBetweenSamplesMs;
+
+    public Factory(long maxDelayBetweenSamplesMs) {
+      this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
+    }
+
     @Override
-    public FrameworkMuxer create(String path, String outputMimeType) throws IOException {
-      MediaMuxer mediaMuxer = new MediaMuxer(path, mimeTypeToMuxerOutputFormat(outputMimeType));
-      return new FrameworkMuxer(mediaMuxer);
+    public FrameworkMuxer create(String path) throws MuxerException {
+      MediaMuxer mediaMuxer;
+      try {
+        mediaMuxer = new MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+      } catch (IOException e) {
+        throw new MuxerException("Error creating muxer", e);
+      }
+      return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs);
     }
 
     @RequiresApi(26)
     @Override
-    public FrameworkMuxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-        throws IOException {
-      MediaMuxer mediaMuxer =
-          new MediaMuxer(
-              parcelFileDescriptor.getFileDescriptor(),
-              mimeTypeToMuxerOutputFormat(outputMimeType));
-      return new FrameworkMuxer(mediaMuxer);
-    }
-
-    @Override
-    public boolean supportsOutputMimeType(String mimeType) {
+    public FrameworkMuxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException {
+      MediaMuxer mediaMuxer;
       try {
-        mimeTypeToMuxerOutputFormat(mimeType);
-      } catch (IllegalArgumentException e) {
-        return false;
+        mediaMuxer =
+            new MediaMuxer(
+                parcelFileDescriptor.getFileDescriptor(),
+                MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+      } catch (IOException e) {
+        throw new MuxerException("Error creating muxer", e);
       }
-      return true;
+      return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs);
     }
 
     @Override
-    public boolean supportsSampleMimeType(
-        @Nullable String sampleMimeType, String containerMimeType) {
-      return getSupportedSampleMimeTypes(MimeTypes.getTrackType(sampleMimeType), containerMimeType)
-          .contains(sampleMimeType);
-    }
-
-    @Override
-    public ImmutableList<String> getSupportedSampleMimeTypes(
-        @C.TrackType int trackType, String containerMimeType) {
-      // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
+    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
       if (trackType == C.TRACK_TYPE_VIDEO) {
-        return SUPPORTED_CONTAINER_TO_VIDEO_SAMPLE_MIME_TYPES.getOrDefault(
-            containerMimeType, ImmutableList.of());
+        return SUPPORTED_VIDEO_SAMPLE_MIME_TYPES;
       } else if (trackType == C.TRACK_TYPE_AUDIO) {
-        return SUPPORTED_CONTAINER_TO_AUDIO_SAMPLE_MIME_TYPES.getOrDefault(
-            containerMimeType, ImmutableList.of());
+        return SUPPORTED_AUDIO_SAMPLE_MIME_TYPES;
       }
       return ImmutableList.of();
     }
   }
 
   private final MediaMuxer mediaMuxer;
+  private final long maxDelayBetweenSamplesMs;
   private final MediaCodec.BufferInfo bufferInfo;
   private final SparseLongArray trackIndexToLastPresentationTimeUs;
 
   private boolean isStarted;
 
-  private FrameworkMuxer(MediaMuxer mediaMuxer) {
+  private FrameworkMuxer(MediaMuxer mediaMuxer, long maxDelayBetweenSamplesMs) {
     this.mediaMuxer = mediaMuxer;
+    this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
     bufferInfo = new MediaCodec.BufferInfo();
     trackIndexToLastPresentationTimeUs = new SparseLongArray();
   }
@@ -142,6 +124,7 @@ import java.nio.ByteBuffer;
     } else {
       mediaFormat =
           MediaFormat.createVideoFormat(castNonNull(sampleMimeType), format.width, format.height);
+      MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
       try {
         mediaMuxer.setOrientationHint(format.rotationDegrees);
       } catch (RuntimeException e) {
@@ -220,23 +203,9 @@ import java.nio.ByteBuffer;
     }
   }
 
-  /**
-   * Converts a {@linkplain MimeTypes MIME type} into a {@linkplain MediaMuxer.OutputFormat
-   * MediaMuxer output format}.
-   *
-   * @param mimeType The {@linkplain MimeTypes MIME type} to convert.
-   * @return The corresponding {@linkplain MediaMuxer.OutputFormat MediaMuxer output format}.
-   * @throws IllegalArgumentException If the {@linkplain MimeTypes MIME type} is not supported as
-   *     output format.
-   */
-  private static int mimeTypeToMuxerOutputFormat(String mimeType) {
-    if (mimeType.equals(MimeTypes.VIDEO_MP4)) {
-      return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
-    } else if (SDK_INT >= 21 && mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-      return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
-    } else {
-      throw new IllegalArgumentException("Unsupported output MIME type: " + mimeType);
-    }
+  @Override
+  public long getMaxDelayBetweenSamplesMs() {
+    return maxDelayBetweenSamplesMs;
   }
 
   // Accesses MediaMuxer state via reflection to ensure that muxer resources can be released even

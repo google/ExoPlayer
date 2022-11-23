@@ -17,16 +17,20 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
+import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 
 import android.content.Context;
 import android.os.Build;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
@@ -39,11 +43,12 @@ import org.json.JSONObject;
 public final class AndroidTestUtil {
   private static final String TAG = "AndroidTestUtil";
 
-  // TODO(b/228865104): Add device capability based test skipping.
+  // Format values are sourced from `mediainfo` command.
+
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final Format MP4_ASSET_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1080)
           .setHeight(720)
           .setFrameRate(29.97f)
@@ -53,7 +58,7 @@ public final class AndroidTestUtil {
       "asset:///media/mp4/sample_with_increasing_timestamps.mp4";
   public static final Format MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1920)
           .setHeight(1080)
           .setFrameRate(30.00f)
@@ -65,7 +70,7 @@ public final class AndroidTestUtil {
 
   public static final Format MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(320)
           .setHeight(240)
           .setFrameRate(30.00f)
@@ -75,17 +80,35 @@ public final class AndroidTestUtil {
       "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final Format MP4_ASSET_SEF_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(320)
           .setHeight(240)
           .setFrameRate(30.472f)
           .build();
 
+  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
+  public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(23.517f)
+          .setColorInfo(
+              new ColorInfo(
+                  C.COLOR_SPACE_BT2020,
+                  C.COLOR_RANGE_LIMITED,
+                  C.COLOR_TRANSFER_ST2084,
+                  /* hdrStaticInfo= */ null))
+          .build();
+  public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
+      "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
+
   public static final String MP4_REMOTE_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
   public static final Format MP4_REMOTE_10_SECONDS_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1280)
           .setHeight(720)
           .setFrameRate(29.97f)
@@ -97,7 +120,7 @@ public final class AndroidTestUtil {
 
   public static final Format MP4_REMOTE_H264_MP3_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1280)
           .setHeight(720)
           .setFrameRate(29.97f)
@@ -107,7 +130,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4";
   public static final Format MP4_REMOTE_4K60_PORTRAIT_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(3840)
           .setHeight(2160)
           .setFrameRate(57.39f)
@@ -128,7 +151,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1280w_720h_highmotion.mp4";
   public static final Format MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1280)
           .setHeight(720)
           .setAverageBitrate(8_939_000)
@@ -139,7 +162,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1440w_1440h_highmotion.mp4";
   public static final Format MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1440)
           .setHeight(1440)
           .setAverageBitrate(17_000_000)
@@ -150,7 +173,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_highmotion.mp4";
   public static final Format MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1920)
           .setHeight(1080)
           .setAverageBitrate(17_100_000)
@@ -161,7 +184,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/3840w_2160h_highmotion.mp4";
   public static final Format MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(3840)
           .setHeight(2160)
           .setAverageBitrate(48_300_000)
@@ -172,7 +195,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1280w_720h_30s_highmotion.mp4";
   public static final Format MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1280)
           .setHeight(720)
           .setAverageBitrate(9_962_000)
@@ -183,7 +206,7 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_30s_highmotion.mp4";
   public static final Format MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(1920)
           .setHeight(1080)
           .setAverageBitrate(15_000_000)
@@ -194,13 +217,202 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/3840w_2160h_32s_highmotion.mp4";
   public static final Format MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION_FORMAT =
       new Format.Builder()
-          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setSampleMimeType(VIDEO_H264)
           .setWidth(3840)
           .setHeight(2160)
           .setAverageBitrate(47_800_000)
           .setFrameRate(28.414f)
           .build();
 
+  public static final String MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_downsampled_256w_144h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(256)
+          .setHeight(144)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_downsampled_426w_240h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(426)
+          .setHeight(240)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_downsampled_640w_360h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(640)
+          .setHeight(360)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_downsampled_854w_480h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(854)
+          .setHeight(480)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_downsampled_256w_144h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(256)
+          .setHeight(144)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_downsampled_426w_240h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(426)
+          .setHeight(240)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_downsampled_640w_360h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(640)
+          .setHeight(360)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_downsampled_854w_480h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(854)
+          .setHeight(480)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/SonyXperiaXZ3_640w_480h_31s_roof.mp4";
+  public static final Format MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(640)
+          .setHeight(480)
+          .setAverageBitrate(3_578_000)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_1280W_720H_30_SECOND_ROOF_ONEPLUSNORD2 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_1280w_720h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_1280W_720H_30_SECOND_ROOF_ONEPLUSNORD2_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(1280)
+          .setHeight(720)
+          .setAverageBitrate(8_966_000)
+          .setFrameRate(29.763f)
+          .build();
+
+  public static final String MP4_REMOTE_1280W_720H_32_SECOND_ROOF_REDMINOTE9 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_1280w_720h_32s_roof.mp4";
+  public static final Format MP4_REMOTE_1280W_720H_32_SECOND_ROOF_REDMINOTE9_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(1280)
+          .setHeight(720)
+          .setAverageBitrate(14_100_000)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_1440W_1440H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/SsS20Ultra5G_1440hw_31s_roof.mp4";
+  public static final Format MP4_REMOTE_1440W_1440H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(1440)
+          .setHeight(1440)
+          .setAverageBitrate(16_300_000)
+          .setFrameRate(25.931f)
+          .build();
+
+  public static final String MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_ONEPLUSNORD2 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_1920w_1080h_60fr_30s_roof.mp4";
+  public static final Format MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_ONEPLUSNORD2_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setAverageBitrate(20_000_000)
+          .setFrameRate(59.94f)
+          .build();
+
+  public static final String MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_REDMINOTE9 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_1920w_1080h_60fps_30s_roof.mp4";
+  public static final Format MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_REDMINOTE9_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setAverageBitrate(20_100_000)
+          .setFrameRate(61.069f)
+          .build();
+
+  public static final String MP4_REMOTE_2400W_1080H_34_SECOND_ROOF_SAMSUNGS20ULTRA5G =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/SsS20Ultra5G_2400w_1080h_34s_roof.mp4";
+  public static final Format MP4_REMOTE_2400W_1080H_34_SECOND_ROOF_SAMSUNGS20ULTRA5G_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(2400)
+          .setHeight(1080)
+          .setAverageBitrate(29_500_000)
+          .setFrameRate(27.472f)
+          .build();
+
+  public static final String MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_ONEPLUSNORD2 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/OnePlusNord2_3840w_2160h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_ONEPLUSNORD2_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setAverageBitrate(49_800_000)
+          .setFrameRate(29.802f)
+          .build();
+
+  public static final String MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_REDMINOTE9 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/RedmiNote9_3840w_2160h_30s_roof.mp4";
+  public static final Format MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_REDMINOTE9_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setAverageBitrate(42_100_000)
+          .setFrameRate(30)
+          .build();
+
+  public static final String MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/device_videos/SsS20Ultra5G_7680w_4320h_31s_roof.mp4";
+  public static final Format MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(7680)
+          .setHeight(4320)
+          .setAverageBitrate(79_900_000)
+          .setFrameRate(23.163f)
+          .build();
   /**
    * Log in logcat and in an analysis file that this test was skipped.
    *
@@ -218,33 +430,46 @@ public final class AndroidTestUtil {
     writeTestSummaryToFile(context, testId, testJson);
   }
 
-  /**
-   * A {@link Codec.EncoderFactory} that forces encoding, wrapping {@link DefaultEncoderFactory}.
-   */
-  public static final Codec.EncoderFactory FORCE_ENCODE_ENCODER_FACTORY =
-      new Codec.EncoderFactory() {
-        @Override
-        public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-            throws TransformationException {
-          return Codec.EncoderFactory.DEFAULT.createForAudioEncoding(format, allowedMimeTypes);
-        }
+  /** A customizable forwarding {@link Codec.EncoderFactory} that forces encoding. */
+  public static final class ForceEncodeEncoderFactory implements Codec.EncoderFactory {
 
-        @Override
-        public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-            throws TransformationException {
-          return Codec.EncoderFactory.DEFAULT.createForVideoEncoding(format, allowedMimeTypes);
-        }
+    private final Codec.EncoderFactory encoderFactory;
 
-        @Override
-        public boolean audioNeedsEncoding() {
-          return true;
-        }
+    /** Creates an instance that wraps {@link DefaultEncoderFactory}. */
+    public ForceEncodeEncoderFactory(Context context) {
+      encoderFactory = new DefaultEncoderFactory.Builder(context).build();
+    }
 
-        @Override
-        public boolean videoNeedsEncoding() {
-          return true;
-        }
-      };
+    /**
+     * Creates an instance that wraps {@link DefaultEncoderFactory} that wraps another {@link
+     * Codec.EncoderFactory}.
+     */
+    public ForceEncodeEncoderFactory(Codec.EncoderFactory wrappedEncoderFactory) {
+      this.encoderFactory = wrappedEncoderFactory;
+    }
+
+    @Override
+    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException {
+      return encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    }
+
+    @Override
+    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException {
+      return encoderFactory.createForVideoEncoding(format, allowedMimeTypes);
+    }
+
+    @Override
+    public boolean audioNeedsEncoding() {
+      return true;
+    }
+
+    @Override
+    public boolean videoNeedsEncoding() {
+      return true;
+    }
+  }
 
   /**
    * Returns a {@link JSONObject} containing device specific details from {@link Build}, including
@@ -366,20 +591,56 @@ public final class AndroidTestUtil {
         return MP4_REMOTE_H264_MP3_FORMAT;
       case MP4_REMOTE_4K60_PORTRAIT_URI_STRING:
         return MP4_REMOTE_4K60_PORTRAIT_FORMAT;
+      case MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED:
+        return MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED:
+        return MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED:
+        return MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED:
+        return MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED:
+        return MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED:
+        return MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED:
+        return MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED:
+        return MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED_FORMAT;
+      case MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3:
+        return MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3_FORMAT;
       case MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION:
         return MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION_FORMAT;
-      case MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION:
-        return MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION_FORMAT;
-      case MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION:
-        return MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION_FORMAT;
-      case MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION:
-        return MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION_FORMAT;
       case MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION:
         return MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1280W_720H_30_SECOND_ROOF_ONEPLUSNORD2:
+        return MP4_REMOTE_1280W_720H_30_SECOND_ROOF_ONEPLUSNORD2_FORMAT;
+      case MP4_REMOTE_1280W_720H_32_SECOND_ROOF_REDMINOTE9:
+        return MP4_REMOTE_1280W_720H_32_SECOND_ROOF_REDMINOTE9_FORMAT;
+      case MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1440W_1440H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G:
+        return MP4_REMOTE_1440W_1440H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G_FORMAT;
+      case MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION_FORMAT;
       case MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION:
         return MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_ONEPLUSNORD2:
+        return MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_ONEPLUSNORD2_FORMAT;
+      case MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_REDMINOTE9:
+        return MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_REDMINOTE9_FORMAT;
+      case MP4_REMOTE_2400W_1080H_34_SECOND_ROOF_SAMSUNGS20ULTRA5G:
+        return MP4_REMOTE_2400W_1080H_34_SECOND_ROOF_SAMSUNGS20ULTRA5G_FORMAT;
+      case MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION_FORMAT;
       case MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION:
         return MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_ONEPLUSNORD2:
+        return MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_ONEPLUSNORD2_FORMAT;
+      case MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_REDMINOTE9:
+        return MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_REDMINOTE9_FORMAT;
+      case MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G:
+        return MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G_FORMAT;
       default:
         throw new IllegalArgumentException("The format for the given uri is not found.");
     }

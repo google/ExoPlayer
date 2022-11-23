@@ -30,8 +30,21 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Stores color info. */
+/**
+ * Stores color info.
+ *
+ * <p>When a {@code null} {@code ColorInfo} instance is used, this often represents a generic {@link
+ * #SDR_BT709_LIMITED} instance.
+ */
 public final class ColorInfo implements Bundleable {
+
+  /** Color info representing SDR BT.709 limited range, which is a common SDR video color format. */
+  public static final ColorInfo SDR_BT709_LIMITED =
+      new ColorInfo(
+          C.COLOR_SPACE_BT709,
+          C.COLOR_RANGE_LIMITED,
+          C.COLOR_TRANSFER_SDR,
+          /* hdrStaticInfo= */ null);
 
   /**
    * Returns the {@link C.ColorSpace} corresponding to the given ISO color primary code, as per
@@ -75,6 +88,13 @@ public final class ColorInfo implements Bundleable {
       default:
         return Format.NO_VALUE;
     }
+  }
+
+  /** Returns whether the {@code ColorInfo} uses an HDR {@link C.ColorTransfer}. */
+  public static boolean isTransferHdr(@Nullable ColorInfo colorInfo) {
+    return colorInfo != null
+        && colorInfo.colorTransfer != Format.NO_VALUE
+        && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
   }
 
   /**

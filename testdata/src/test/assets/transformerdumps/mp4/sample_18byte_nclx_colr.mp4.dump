@@ -1,4 +1,3 @@
-containerMimeType = video/mp4
 format 0:
   id = 1
   sampleMimeType = video/avc

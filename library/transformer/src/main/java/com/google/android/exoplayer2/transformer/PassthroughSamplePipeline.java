@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /** Pipeline that passes through the samples without any re-encoding or transformation. */
-/* package */ final class PassthroughSamplePipeline implements SamplePipeline {
+/* package */ final class PassthroughSamplePipeline extends BaseSamplePipeline {
 
   private final DecoderInputBuffer buffer;
   private final Format format;
@@ -30,52 +30,62 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
   public PassthroughSamplePipeline(
       Format format,
+      long streamOffsetUs,
+      long streamStartPositionUs,
       TransformationRequest transformationRequest,
+      MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener) {
+    super(
+        format,
+        streamOffsetUs,
+        streamStartPositionUs,
+        transformationRequest.flattenForSlowMotion,
+        muxerWrapper);
     this.format = format;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
-    hasPendingBuffer = false;
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
   }
 
   @Override
+  public void release() {}
+
+  @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
+  protected DecoderInputBuffer dequeueInputBufferInternal() {
     return hasPendingBuffer ? null : buffer;
   }
 
   @Override
-  public void queueInputBuffer() {
-    hasPendingBuffer = true;
+  protected void queueInputBufferInternal() {
+    if (buffer.data != null && buffer.data.hasRemaining()) {
+      hasPendingBuffer = true;
+    }
   }
 
   @Override
-  public boolean processData() {
+  protected boolean processDataUpToMuxer() {
     return false;
   }
 
   @Override
-  public Format getOutputFormat() {
+  protected Format getMuxerInputFormat() {
     return format;
   }
 
   @Override
   @Nullable
-  public DecoderInputBuffer getOutputBuffer() {
+  protected DecoderInputBuffer getMuxerInputBuffer() {
     return hasPendingBuffer ? buffer : null;
   }
 
   @Override
-  public void releaseOutputBuffer() {
+  protected void releaseMuxerInputBuffer() {
     buffer.clear();
     hasPendingBuffer = false;
   }
 
   @Override
-  public boolean isEnded() {
+  protected boolean isMuxerInputEnded() {
     return buffer.isEndOfStream();
   }
-
-  @Override
-  public void release() {}
 }

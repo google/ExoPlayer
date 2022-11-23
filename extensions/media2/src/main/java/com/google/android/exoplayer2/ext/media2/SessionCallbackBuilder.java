@@ -36,6 +36,7 @@ import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -394,6 +395,7 @@ public final class SessionCallbackBuilder {
    * @see MediaSession.SessionCallback#onSetRating(MediaSession, ControllerInfo, String, Rating)
    * @see androidx.media2.session.MediaController#setRating(String, Rating)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setRatingCallback(@Nullable RatingCallback ratingCallback) {
     this.ratingCallback = ratingCallback;
     return this;
@@ -408,6 +410,7 @@ public final class SessionCallbackBuilder {
    *     Bundle)
    * @see androidx.media2.session.MediaController#sendCustomCommand(SessionCommand, Bundle)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setCustomCommandProvider(
       @Nullable CustomCommandProvider customCommandProvider) {
     this.customCommandProvider = customCommandProvider;
@@ -425,6 +428,7 @@ public final class SessionCallbackBuilder {
    * @see androidx.media2.session.MediaController#setMediaItem(String)
    * @see androidx.media2.session.MediaController#setPlaylist(List, MediaMetadata)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setMediaItemProvider(
       @Nullable MediaItemProvider mediaItemProvider) {
     this.mediaItemProvider = mediaItemProvider;
@@ -437,6 +441,7 @@ public final class SessionCallbackBuilder {
    * @param allowedCommandProvider A allowed command provider.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setAllowedCommandProvider(
       @Nullable AllowedCommandProvider allowedCommandProvider) {
     this.allowedCommandProvider = allowedCommandProvider;
@@ -453,6 +458,7 @@ public final class SessionCallbackBuilder {
    * @see MediaController#skipBackward()
    * @see MediaController#skipForward()
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setSkipCallback(@Nullable SkipCallback skipCallback) {
     this.skipCallback = skipCallback;
     return this;
@@ -465,6 +471,7 @@ public final class SessionCallbackBuilder {
    * @return This builder.
    * @see MediaSession.SessionCallback#onPostConnect(MediaSession, ControllerInfo)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setPostConnectCallback(
       @Nullable PostConnectCallback postConnectCallback) {
     this.postConnectCallback = postConnectCallback;
@@ -478,6 +485,7 @@ public final class SessionCallbackBuilder {
    * @return This builder.
    * @see MediaSession.SessionCallback#onDisconnected(MediaSession, ControllerInfo)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setDisconnectedCallback(
       @Nullable DisconnectedCallback disconnectedCallback) {
     this.disconnectedCallback = disconnectedCallback;
@@ -493,6 +501,7 @@ public final class SessionCallbackBuilder {
    * @see MediaSession.SessionCallback#onRewind(MediaSession, MediaSession.ControllerInfo)
    * @see #setSeekTimeoutMs(int)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setRewindIncrementMs(int rewindMs) {
     this.rewindMs = rewindMs;
     return this;
@@ -507,6 +516,7 @@ public final class SessionCallbackBuilder {
    * @see MediaSession.SessionCallback#onFastForward(MediaSession, MediaSession.ControllerInfo)
    * @see #setSeekTimeoutMs(int)
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setFastForwardIncrementMs(int fastForwardMs) {
     this.fastForwardMs = fastForwardMs;
     return this;
@@ -521,6 +531,7 @@ public final class SessionCallbackBuilder {
    *     forever.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public SessionCallbackBuilder setSeekTimeoutMs(int seekTimeoutMs) {
     this.seekTimeoutMs = seekTimeoutMs;
     return this;

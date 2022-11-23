@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -34,8 +35,9 @@ import java.util.List;
 /** Class to represent the state of active {@link Cue Cues} at a particular time. */
 public final class CueGroup implements Bundleable {
 
-  /** Empty {@link CueGroup}. */
-  public static final CueGroup EMPTY = new CueGroup(ImmutableList.of());
+  /** An empty group with no {@link Cue Cues} and presentation time of zero. */
+  public static final CueGroup EMPTY_TIME_ZERO =
+      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   /**
    * The cues in this group.
@@ -46,10 +48,17 @@ public final class CueGroup implements Bundleable {
    * <p>This list may be empty if the group represents a state with no cues.
    */
   public final ImmutableList<Cue> cues;
+  /**
+   * The presentation time of the {@link #cues}, in microseconds.
+   *
+   * <p>This time is an offset from the start of the current {@link Timeline.Period}.
+   */
+  public final long presentationTimeUs;
 
   /** Creates a CueGroup. */
-  public CueGroup(List<Cue> cues) {
+  public CueGroup(List<Cue> cues, long presentationTimeUs) {
     this.cues = ImmutableList.copyOf(cues);
+    this.presentationTimeUs = presentationTimeUs;
   }
 
   // Bundleable implementation.
@@ -57,16 +66,18 @@ public final class CueGroup implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({FIELD_CUES})
+  @IntDef({FIELD_CUES, FIELD_PRESENTATION_TIME_US})
   private @interface FieldNumber {}
 
   private static final int FIELD_CUES = 0;
+  private static final int FIELD_PRESENTATION_TIME_US = 1;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
         keyForField(FIELD_CUES), BundleableUtil.toBundleArrayList(filterOutBitmapCues(cues)));
+    bundle.putLong(keyForField(FIELD_PRESENTATION_TIME_US), presentationTimeUs);
     return bundle;
   }
 
@@ -78,7 +89,8 @@ public final class CueGroup implements Bundleable {
         cueBundles == null
             ? ImmutableList.of()
             : BundleableUtil.fromBundleList(Cue.CREATOR, cueBundles);
-    return new CueGroup(cues);
+    long presentationTimeUs = bundle.getLong(keyForField(FIELD_PRESENTATION_TIME_US));
+    return new CueGroup(cues, presentationTimeUs);
   }
 
   private static String keyForField(@FieldNumber int field) {
