@@ -27,7 +27,6 @@ This release corresponds to the
 *   Build:
     *   Enforce minimum `compileSdkVersion` to avoid compilation errors
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
-    *   Avoid publishing block when included in another gradle build.
 *   Track selection:
     *   Prefer other tracks to Dolby Vision if display does not support it.
         ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
@@ -52,8 +51,6 @@ This release corresponds to the
     *   Make `AudioTrackBufferSizeProvider` a public interface.
     *   Add `ExoPlayer.setPreferredAudioDevice` to set the preferred audio
         output device ([#135](https://github.com/androidx/media/issues/135)).
-    *   Rename `com.google.android.exoplayer2.audio.AudioProcessor` to
-        `com.google.android.exoplayer2.audio.AudioProcessor`.
     *   Map 8-channel and 12-channel audio to the 7.1 and 7.1.4 channel masks
         respectively on all Android versions
         ([#10701](https://github.com/google/ExoPlayer/issues/10701)).
