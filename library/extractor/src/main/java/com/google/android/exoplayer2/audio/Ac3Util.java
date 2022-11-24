@@ -149,16 +149,21 @@ public final class Ac3Util {
    */
   public static Format parseAc3AnnexFFormat(
       ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
-    int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
+    ParsableBitArray dataBitArray = new ParsableBitArray();
+    dataBitArray.reset(data);
+
+    int fscod = dataBitArray.readBits(2);
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
-    int nextByte = data.readUnsignedByte();
-    int channelCount = CHANNEL_COUNT_BY_ACMOD[(nextByte & 0x38) >> 3];
-    if ((nextByte & 0x04) != 0) { // lfeon
+    dataBitArray.skipBits(8); // bsid, bsmod
+    int channelCount = CHANNEL_COUNT_BY_ACMOD[dataBitArray.readBits(3)]; // acmod
+    if (dataBitArray.readBits(1) != 0) { // lfeon
       channelCount++;
     }
-    // bit_rate_code - 5 bits. 2 bits from previous byte and 3 bits from next.
-    int halfFrmsizecod = ((nextByte & 0x03) << 3) | ((data.readUnsignedByte() & 0xE0) >> 5);
+    int halfFrmsizecod = dataBitArray.readBits(5); // bit_rate_code
     int constantBitrate = BITRATE_BY_HALF_FRMSIZECOD[halfFrmsizecod];
+    // Update data position
+    dataBitArray.byteAlign();
+    data.setPosition(dataBitArray.getBytePosition());
     return new Format.Builder()
         .setId(trackId)
         .setSampleMimeType(MimeTypes.AUDIO_AC3)
@@ -183,37 +188,45 @@ public final class Ac3Util {
    */
   public static Format parseEAc3AnnexFFormat(
       ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
-    // 13 bits for data_rate, 3 bits for num_ind_sub which are ignored.
-    int peakBitrate =
-        ((data.readUnsignedByte() & 0xFF) << 5) | ((data.readUnsignedByte() & 0xF8) >> 3);
+    ParsableBitArray dataBitArray = new ParsableBitArray();
+    dataBitArray.reset(data);
+
+    int peakBitrate = dataBitArray.readBits(13); // data_rate
+    dataBitArray.skipBits(3); // num_ind_sub
 
     // Read the first independent substream.
-    int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
+    int fscod = dataBitArray.readBits(2);
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
-    int nextByte = data.readUnsignedByte();
-    int channelCount = CHANNEL_COUNT_BY_ACMOD[(nextByte & 0x0E) >> 1];
-    if ((nextByte & 0x01) != 0) { // lfeon
+    dataBitArray.skipBits(10); // bsid, reserved, asvc, bsmod
+    int channelCount = CHANNEL_COUNT_BY_ACMOD[dataBitArray.readBits(3)]; // acmod
+    if (dataBitArray.readBits(1) != 0) { // lfeon
       channelCount++;
     }
 
     // Read the first dependent substream.
-    nextByte = data.readUnsignedByte();
-    int numDepSub = ((nextByte & 0x1E) >> 1);
+    dataBitArray.skipBits(3); // reserved
+    int numDepSub = dataBitArray.readBits(4); // num_dep_sub
+    dataBitArray.skipBits(1); // numDepSub > 0 ? LFE2 : reserved
     if (numDepSub > 0) {
-      int lowByteChanLoc = data.readUnsignedByte();
+      dataBitArray.skipBytes(6); // other channel configurations
       // Read Lrs/Rrs pair
       // TODO: Read other channel configuration
-      if ((lowByteChanLoc & 0x02) != 0) {
+      if (dataBitArray.readBits(1) != 0) {
         channelCount += 2;
       }
+      dataBitArray.skipBits(1); // Lc/Rc pair
     }
+
     String mimeType = MimeTypes.AUDIO_E_AC3;
-    if (data.bytesLeft() > 0) {
-      nextByte = data.readUnsignedByte();
-      if ((nextByte & 0x01) != 0) { // flag_ec3_extension_type_a
+    if (dataBitArray.bitsLeft() > 7) {
+      dataBitArray.skipBits(7); // reserved
+      if (dataBitArray.readBits(1) != 0) { // flag_ec3_extension_type_a
         mimeType = MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
+    // Update data position
+    dataBitArray.byteAlign();
+    data.setPosition(dataBitArray.getBytePosition());
     return new Format.Builder()
         .setId(trackId)
         .setSampleMimeType(mimeType)
