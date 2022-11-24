@@ -27,7 +27,6 @@ This release corresponds to the
 *   Build:
     *   Enforce minimum `compileSdkVersion` to avoid compilation errors
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
-    *   Avoid publishing block when included in another gradle build.
 *   Track selection:
     *   Prefer other tracks to Dolby Vision if display does not support it.
         ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
