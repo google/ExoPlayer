@@ -330,11 +330,16 @@ public final class AacUtil {
     int samplingFrequency;
     int frequencyIndex = bitArray.readBits(4);
     if (frequencyIndex == AUDIO_SPECIFIC_CONFIG_FREQUENCY_INDEX_ARBITRARY) {
+      if (bitArray.bitsLeft() < 24) {
+        throw ParserException.createForMalformedContainer(
+            /* message= */ "AAC header insufficient data", /* cause= */ null);
+      }
       samplingFrequency = bitArray.readBits(24);
     } else if (frequencyIndex < 13) {
       samplingFrequency = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
     } else {
-      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
+      throw ParserException.createForMalformedContainer(
+          /* message= */ "AAC header wrong Sampling Frequency Index", /* cause= */ null);
     }
     return samplingFrequency;
   }
