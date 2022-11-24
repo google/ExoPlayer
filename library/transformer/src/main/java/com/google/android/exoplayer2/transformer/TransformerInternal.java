@@ -430,8 +430,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private void handleTransformationEnded(
         @Nullable TransformationException transformationException) {
-      Util.postOrRun(
-          handler,
+      handler.post(
           () -> {
             @Nullable TransformationException releaseException = null;
             try {

@@ -454,7 +454,9 @@ public final class TransformerActivity extends AppCompatActivity {
     "transformationStopwatch",
   })
   private void onTransformationError(TransformationException exception) {
-    transformationStopwatch.stop();
+    if (transformationStopwatch.isRunning()) {
+      transformationStopwatch.stop();
+    }
     informationTextView.setText(R.string.transformation_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
