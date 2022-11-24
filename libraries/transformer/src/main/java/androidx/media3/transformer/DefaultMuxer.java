@@ -30,7 +30,7 @@ public final class DefaultMuxer implements Muxer {
   public static final class Factory implements Muxer.Factory {
 
     /** The default value returned by {@link #getMaxDelayBetweenSamplesMs()}. */
-    public static final long DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS = 3000;
+    public static final long DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS = 10_000;
 
     private final Muxer.Factory muxerFactory;
 
