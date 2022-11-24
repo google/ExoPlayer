@@ -160,7 +160,7 @@ public final class Ac3Util {
       channelCount++;
     }
     int halfFrmsizecod = dataBitArray.readBits(5); // bit_rate_code
-    int constantBitrate = BITRATE_BY_HALF_FRMSIZECOD[halfFrmsizecod];
+    int constantBitrate = BITRATE_BY_HALF_FRMSIZECOD[halfFrmsizecod] * 1000;
     // Update data position
     dataBitArray.byteAlign();
     data.setPosition(dataBitArray.getBytePosition());
@@ -191,7 +191,7 @@ public final class Ac3Util {
     ParsableBitArray dataBitArray = new ParsableBitArray();
     dataBitArray.reset(data);
 
-    int peakBitrate = dataBitArray.readBits(13); // data_rate
+    int peakBitrate = dataBitArray.readBits(13) * 1000; // data_rate
     dataBitArray.skipBits(3); // num_ind_sub
 
     // Read the first independent substream.
