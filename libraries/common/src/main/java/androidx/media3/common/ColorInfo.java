@@ -89,11 +89,16 @@ public final class ColorInfo implements Bundleable {
     }
   }
 
-  /** Returns whether the {@code ColorInfo} uses an HDR {@link C.ColorTransfer}. */
+  /**
+   * Returns whether the {@code ColorInfo} uses an HDR {@link C.ColorTransfer}.
+   *
+   * <p>{@link C#COLOR_TRANSFER_LINEAR} is not considered to be an HDR {@link C.ColorTransfer},
+   * because it may represent either SDR or HDR contents.
+   */
   public static boolean isTransferHdr(@Nullable ColorInfo colorInfo) {
     return colorInfo != null
-        && colorInfo.colorTransfer != Format.NO_VALUE
-        && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
+        && (colorInfo.colorTransfer == C.COLOR_TRANSFER_HLG
+            || colorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
   }
 
   /**
@@ -109,9 +114,9 @@ public final class ColorInfo implements Bundleable {
   public final @C.ColorRange int colorRange;
 
   /**
-   * The color transfer characteristics of the video. Valid values are {@link C#COLOR_TRANSFER_HLG},
-   * {@link C#COLOR_TRANSFER_ST2084}, {@link C#COLOR_TRANSFER_SDR} or {@link Format#NO_VALUE} if
-   * unknown.
+   * The color transfer characteristics of the video. Valid values are {@link
+   * C#COLOR_TRANSFER_LINEAR}, {@link C#COLOR_TRANSFER_HLG}, {@link C#COLOR_TRANSFER_ST2084}, {@link
+   * C#COLOR_TRANSFER_SDR} or {@link Format#NO_VALUE} if unknown.
    */
   public final @C.ColorTransfer int colorTransfer;
 

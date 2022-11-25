@@ -79,12 +79,20 @@ highp vec3 pqOetf(highp vec3 linearColor) {
 highp vec3 getElectricalColor(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_ST2084 = 6;
-  return (uOetfColorTransfer == COLOR_TRANSFER_ST2084) ?
-      pqOetf(linearColor) : hlgOetf(linearColor);
+  const int COLOR_TRANSFER_HLG = 7;
+  if (uOetfColorTransfer == COLOR_TRANSFER_ST2084) {
+    return pqOetf(linearColor);
+  } else if (uOetfColorTransfer == COLOR_TRANSFER_HLG) {
+    return hlgOetf(linearColor);
+  } else {
+    // Output red as an obviously visible error.
+    return vec3(1.0, 0.0, 0.0);
+  }
 }
 
 void main() {
   vec4 inputColor = texture(uTexSampler, vTexSamplingCoord);
+  // transformedColors is an optical color.
   vec4 transformedColors = uRgbMatrix * vec4(inputColor.rgb, 1);
   outColor = vec4(getElectricalColor(transformedColors.rgb), inputColor.a);
 }

@@ -1071,25 +1071,28 @@ public final class C {
   // LINT.IfChange(color_transfer)
   /**
    * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
-   * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
+   * #COLOR_TRANSFER_LINEAR}, {@link #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link
+   * #COLOR_TRANSFER_HLG}.
    */
   @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
+  @IntDef({
+    Format.NO_VALUE,
+    COLOR_TRANSFER_LINEAR,
+    COLOR_TRANSFER_SDR,
+    COLOR_TRANSFER_ST2084,
+    COLOR_TRANSFER_HLG
+  })
   public @interface ColorTransfer {}
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_LINEAR}. */
+  @UnstableApi public static final int COLOR_TRANSFER_LINEAR = MediaFormat.COLOR_TRANSFER_LINEAR;
+  /** See {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO}. */
   @UnstableApi public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_ST2084
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_ST2084}. */
   @UnstableApi public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_HLG
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_HLG}. */
   @UnstableApi public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
   // LINT.IfChange(color_range)
