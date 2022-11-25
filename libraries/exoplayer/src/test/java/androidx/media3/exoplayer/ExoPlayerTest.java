@@ -112,6 +112,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
@@ -11897,7 +11898,11 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(context)
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) -> {
-                  videoRenderer.set(new FakeVideoRenderer(handler, videoListener));
+                  videoRenderer.set(
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener));
                   return new Renderer[] {videoRenderer.get()};
                 })
             .build();
@@ -12034,7 +12039,12 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
-                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+                    new Renderer[] {
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener)
+                    })
             .build();
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
@@ -12059,7 +12069,12 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
-                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+                    new Renderer[] {
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener)
+                    })
             .build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
