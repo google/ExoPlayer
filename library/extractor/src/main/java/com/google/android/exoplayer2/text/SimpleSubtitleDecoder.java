@@ -89,11 +89,11 @@ public abstract class SimpleSubtitleDecoder
    * Decodes data into a {@link Subtitle}.
    *
    * @param data An array holding the data to be decoded, starting at position 0.
-   * @param size The size of the data to be decoded.
+   * @param length The number of bytes from {@code data} to be decoded.
    * @param reset Whether the decoder must be reset before decoding.
    * @return The decoded {@link Subtitle}.
    * @throws SubtitleDecoderException If a decoding error occurs.
    */
-  protected abstract Subtitle decode(byte[] data, int size, boolean reset)
+  protected abstract Subtitle decode(byte[] data, int length, boolean reset)
       throws SubtitleDecoderException;
 }

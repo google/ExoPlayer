@@ -37,9 +37,11 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -405,6 +407,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder add(@Command int command) {
         flagsBuilder.add(command);
         return this;
@@ -418,6 +421,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addIf(@Command int command, boolean condition) {
         flagsBuilder.addIf(command, condition);
         return this;
@@ -430,6 +434,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addAll(@Command int... commands) {
         flagsBuilder.addAll(commands);
         return this;
@@ -442,6 +447,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addAll(Commands commands) {
         flagsBuilder.addAll(commands.flags);
         return this;
@@ -453,6 +459,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder addAllCommands() {
         flagsBuilder.addAll(SUPPORTED_COMMANDS);
         return this;
@@ -465,6 +472,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder remove(@Command int command) {
         flagsBuilder.remove(command);
         return this;
@@ -478,6 +486,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder removeIf(@Command int command, boolean condition) {
         flagsBuilder.removeIf(command, condition);
         return this;
@@ -490,6 +499,7 @@ public interface Player {
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
+      @CanIgnoreReturnValue
       public Builder removeAll(@Command int... commands) {
         flagsBuilder.removeAll(commands);
         return this;
@@ -664,7 +674,8 @@ public interface Player {
      * to the current {@link #getRepeatMode() repeat mode}.
      *
      * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
-     * consequence of a playlist change.
+     * consequence of a playlist change or {@linkplain #onAvailableCommandsChanged(Commands) a
+     * change in available commands}.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -1087,8 +1098,9 @@ public interface Player {
    * #PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST}, {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS}, {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY}, {@link
-   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE} or {@link
-   * #PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM}.
+   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE}, {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} or {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1100,7 +1112,8 @@ public interface Player {
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS,
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY,
     PLAY_WHEN_READY_CHANGE_REASON_REMOTE,
-    PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
+    PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM,
+    PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG
   })
   @interface PlayWhenReadyChangeReason {}
   /** Playback has been started or paused by a call to {@link #setPlayWhenReady(boolean)}. */
@@ -1113,11 +1126,17 @@ public interface Player {
   int PLAY_WHEN_READY_CHANGE_REASON_REMOTE = 4;
   /** Playback has been paused at the end of a media item. */
   int PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM = 5;
+  /**
+   * Playback has been paused because playback has been {@linkplain #getPlaybackSuppressionReason()
+   * suppressed} too long.
+   */
+  int PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG = 6;
 
   /**
    * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
-   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
-   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
+   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE}, {@link
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1126,13 +1145,19 @@ public interface Player {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     PLAYBACK_SUPPRESSION_REASON_NONE,
-    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS,
+    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE
   })
   @interface PlaybackSuppressionReason {}
   /** Playback is not suppressed. */
   int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
   /** Playback is suppressed due to transient audio focus loss. */
   int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
+  /**
+   * Playback is suppressed due to no suitable audio route, such as an attempt to use an internal
+   * speaker instead of bluetooth headphones on Wear OS.
+   */
+  int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2;
 
   /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
@@ -2461,6 +2486,13 @@ public interface Player {
    * @see Listener#onVideoSizeChanged(VideoSize)
    */
   VideoSize getVideoSize();
+
+  /**
+   * Gets the size of the surface on which the video is rendered.
+   *
+   * @see Listener#onSurfaceSizeChanged(int, int)
+   */
+  Size getSurfaceSize();
 
   /** Returns the current {@link CueGroup}. */
   CueGroup getCurrentCues();

@@ -49,11 +49,11 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length, boolean reset)
+  protected Subtitle decode(byte[] data, int length, boolean reset)
       throws SubtitleDecoderException {
     // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box parsing:
     // first 4 bytes size and then 4 bytes type.
-    sampleData.reset(bytes, length);
+    sampleData.reset(data, length);
     List<Cue> resultingCueList = new ArrayList<>();
     while (sampleData.bytesLeft() > 0) {
       if (sampleData.bytesLeft() < BOX_HEADER_SIZE) {

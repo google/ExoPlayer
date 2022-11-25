@@ -19,6 +19,10 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -28,6 +32,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -51,7 +56,7 @@ public class TransformerAndroidTestRunner {
   public static class Builder {
     private final Context context;
     private final Transformer transformer;
-    private boolean maybeCalculateSsim;
+    private boolean requestCalculateSsim;
     private int timeoutSeconds;
     private boolean suppressAnalysisExceptions;
     @Nullable private Map<String, Object> inputValues;
@@ -77,27 +82,28 @@ public class TransformerAndroidTestRunner {
      * @param timeoutSeconds The timeout.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setTimeoutSeconds(int timeoutSeconds) {
       this.timeoutSeconds = timeoutSeconds;
       return this;
     }
 
     /**
-     * Sets whether to try to calculate the SSIM of the transformation output.
+     * Sets whether to calculate the SSIM of the transformation output compared to the input, if
+     * supported. Calculating SSIM is not supported if the input and output video dimensions don't
+     * match, or if the input video is trimmed.
      *
-     * <p>SSIM requires the input and output video dimensions to match. Therefore, if encoder
-     * resolution fallback occurs, this calculation is skipped.
-     *
-     * <p>The calculation involves decoding and comparing both the input and the output video.
-     * Consequently this calculation is not cost-free.
+     * <p>Calculating SSIM involves decoding and comparing frames of the expected and actual videos,
+     * which will increase the runtime of the test.
      *
      * <p>The default value is {@code false}.
      *
-     * @param maybeCalculateSsim Whether to try to calculate SSIM.
+     * @param requestCalculateSsim Whether to calculate SSIM, if supported.
      * @return This {@link Builder}.
      */
-    public Builder setMaybeCalculateSsim(boolean maybeCalculateSsim) {
-      this.maybeCalculateSsim = maybeCalculateSsim;
+    @CanIgnoreReturnValue
+    public Builder setRequestCalculateSsim(boolean requestCalculateSsim) {
+      this.requestCalculateSsim = requestCalculateSsim;
       return this;
     }
 
@@ -115,6 +121,7 @@ public class TransformerAndroidTestRunner {
      * @param suppressAnalysisExceptions Whether to suppress analysis exceptions.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setSuppressAnalysisExceptions(boolean suppressAnalysisExceptions) {
       this.suppressAnalysisExceptions = suppressAnalysisExceptions;
       return this;
@@ -130,6 +137,7 @@ public class TransformerAndroidTestRunner {
      * @param inputValues A {@link Map} of values to be written to the transformation summary.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setInputValues(@Nullable Map<String, Object> inputValues) {
       this.inputValues = inputValues;
       return this;
@@ -141,7 +149,7 @@ public class TransformerAndroidTestRunner {
           context,
           transformer,
           timeoutSeconds,
-          maybeCalculateSsim,
+          requestCalculateSsim,
           suppressAnalysisExceptions,
           inputValues);
     }
@@ -151,7 +159,7 @@ public class TransformerAndroidTestRunner {
   private final CodecNameForwardingCodecFactory transformerCodecFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
-  private final boolean maybeCalculateSsim;
+  private final boolean requestCalculateSsim;
   private final boolean suppressAnalysisExceptions;
   @Nullable private final Map<String, Object> inputValues;
 
@@ -159,7 +167,7 @@ public class TransformerAndroidTestRunner {
       Context context,
       Transformer transformer,
       int timeoutSeconds,
-      boolean maybeCalculateSsim,
+      boolean requestCalculateSsim,
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
@@ -172,7 +180,7 @@ public class TransformerAndroidTestRunner {
             .setEncoderFactory(transformerCodecFactory)
             .build();
     this.timeoutSeconds = timeoutSeconds;
-    this.maybeCalculateSsim = maybeCalculateSsim;
+    this.requestCalculateSsim = requestCalculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
     this.inputValues = inputValues;
   }
@@ -224,9 +232,17 @@ public class TransformerAndroidTestRunner {
   private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
       throws InterruptedException, IOException, TimeoutException, TransformationException {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && maybeCalculateSsim) {
+        && requestCalculateSsim) {
       throw new UnsupportedOperationException(
           "SSIM calculation is not supported for clipped inputs.");
+    }
+
+    Uri mediaItemUri = checkNotNull(mediaItem.localConfiguration).uri;
+    String scheme = checkNotNull(mediaItemUri.getScheme());
+    if ((scheme.equals("http") || scheme.equals("https")) && !hasNetworkConnection(context)) {
+      throw new UnsupportedOperationException(
+          "Input network file requested on device with no network connection. Input file name: "
+              + mediaItemUri);
     }
 
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
@@ -318,7 +334,7 @@ public class TransformerAndroidTestRunner {
             .setFilePath(outputVideoFile.getPath())
             .setElapsedTimeMs(elapsedTimeMs);
 
-    if (!maybeCalculateSsim) {
+    if (!requestCalculateSsim) {
       return resultBuilder.build();
     }
     if (fallbackResolutionApplied.get()) {
@@ -359,6 +375,34 @@ public class TransformerAndroidTestRunner {
     return resultBuilder.build();
   }
 
+  /** Returns whether the context is connected to the network. */
+  private static boolean hasNetworkConnection(Context context) {
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
+      return false;
+    }
+    if (Util.SDK_INT >= 23) {
+      // getActiveNetwork is available from API 23.
+      NetworkCapabilities activeNetworkCapabilities =
+          connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+      if (activeNetworkCapabilities != null
+          && (activeNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+              || activeNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))) {
+        return true;
+      }
+    } else {
+      // getActiveNetworkInfo is deprecated from API 29.
+      NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+      if (activeNetworkInfo != null
+          && (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
+              || activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * A {@link Codec.EncoderFactory} that forwards all methods to another encoder factory, whilst
    * providing visibility into the names of last codecs created by it.
@@ -393,10 +437,10 @@ public class TransformerAndroidTestRunner {
 
     @Override
     public Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
+        Format format, Surface outputSurface, boolean requestSdrToneMapping)
         throws TransformationException {
       Codec videoDecoder =
-          decoderFactory.createForVideoDecoding(format, outputSurface, enableRequestSdrToneMapping);
+          decoderFactory.createForVideoDecoding(format, outputSurface, requestSdrToneMapping);
       videoDecoderName = videoDecoder.getName();
       return videoDecoder;
     }

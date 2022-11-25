@@ -1,4 +1,3 @@
-containerMimeType = video/mp4
 format 0:
   sampleMimeType = audio/3gpp
   maxInputSize = 61

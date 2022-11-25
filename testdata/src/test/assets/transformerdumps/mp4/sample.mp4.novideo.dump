@@ -1,4 +1,3 @@
-containerMimeType = video/mp4
 format 0:
   peakBitrate = 200000
   id = 2

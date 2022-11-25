@@ -363,7 +363,7 @@ public final class ConcatenatingMediaSourceTest {
           new FakeMediaSource(Timeline.EMPTY),
           new FakeMediaSource(Timeline.EMPTY),
         };
-    Timeline nonEmptyTimeline = new FakeTimeline(/* windowCount = */ 1);
+    Timeline nonEmptyTimeline = new FakeTimeline(/* windowCount= */ 1);
 
     mediaSource.addMediaSources(Arrays.asList(childSources));
     Timeline timeline = testRunner.prepareSource();

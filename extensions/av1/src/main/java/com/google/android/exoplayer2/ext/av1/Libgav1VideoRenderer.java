@@ -138,8 +138,9 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
         C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
   }
 
+  /** {@inheritDoc} */
   @Override
-  protected Gav1Decoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
+  protected final Gav1Decoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws Gav1DecoderException {
     TraceUtil.beginSection("createGav1Decoder");
     int initialInputBufferSize =

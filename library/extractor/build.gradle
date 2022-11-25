@@ -28,6 +28,7 @@ dependencies {
     implementation project(modulePrefix + 'library-common')
     // TODO(b/203752187): Remove this dependency.
     implementation project(modulePrefix + 'library-decoder')
+    compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion

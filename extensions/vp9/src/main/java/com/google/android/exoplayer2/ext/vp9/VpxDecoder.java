@@ -99,13 +99,13 @@ public final class VpxDecoder
   }
 
   @Override
-  protected void releaseOutputBuffer(VideoDecoderOutputBuffer buffer) {
+  protected void releaseOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
     // Decode only frames do not acquire a reference on the internal decoder buffer and thus do not
     // require a call to vpxReleaseFrame.
-    if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !buffer.isDecodeOnly()) {
-      vpxReleaseFrame(vpxDecContext, buffer);
+    if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !outputBuffer.isDecodeOnly()) {
+      vpxReleaseFrame(vpxDecContext, outputBuffer);
     }
-    super.releaseOutputBuffer(buffer);
+    super.releaseOutputBuffer(outputBuffer);
   }
 
   @Override

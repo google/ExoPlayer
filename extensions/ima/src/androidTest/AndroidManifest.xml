@@ -24,6 +24,7 @@
   <uses-sdk/>
 
   <application
+      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <activity android:name="com.google.android.exoplayer2.testutil.HostActivity"

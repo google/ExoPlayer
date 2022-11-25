@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.gldemo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -83,7 +85,8 @@ public final class MainActivity extends Activity {
     VideoProcessingGLSurfaceView videoProcessingGLSurfaceView =
         new VideoProcessingGLSurfaceView(
             context, requestSecureSurface, new BitmapOverlayVideoProcessor(context));
-    FrameLayout contentFrame = findViewById(R.id.exo_content_frame);
+    checkNotNull(playerView);
+    FrameLayout contentFrame = playerView.findViewById(R.id.exo_content_frame);
     contentFrame.addView(videoProcessingGLSurfaceView);
     this.videoProcessingGLSurfaceView = videoProcessingGLSurfaceView;
   }

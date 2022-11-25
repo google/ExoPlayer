@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
@@ -759,6 +760,12 @@ public class ForwardingPlayer implements Player {
   @Override
   public VideoSize getVideoSize() {
     return player.getVideoSize();
+  }
+
+  /** Calls {@link Player#getSurfaceSize()} on the delegate and returns the result. */
+  @Override
+  public Size getSurfaceSize() {
+    return player.getSurfaceSize();
   }
 
   /** Calls {@link Player#clearVideoSurface()} on the delegate. */

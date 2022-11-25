@@ -22,6 +22,11 @@
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-sdk/>
 
+  <application
+    android:name="androidx.multidex.MultiDexApplication"
+    android:allowBackup="false"
+    tools:ignore="MissingApplicationIcon,HardcodedDebugMode"/>
+
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.ext.media2.test"
       android:name="androidx.test.runner.AndroidJUnitRunner"/>

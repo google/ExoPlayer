@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.transformer;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /**
@@ -26,6 +25,25 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
 /* package */ interface SamplePipeline {
+
+  /** A listener for the sample pipeline events. */
+  interface Listener {
+
+    /**
+     * Called when an input buffer is {@linkplain #queueInputBuffer() queued}.
+     *
+     * @param positionUs The position of the buffer queued from the stream start position, in
+     *     microseconds.
+     */
+    void onInputBufferQueued(long positionUs);
+
+    /**
+     * Called if an exception occurs in the sample pipeline.
+     *
+     * @param exception The {@link TransformationException} describing the exception.
+     */
+    void onTransformationError(TransformationException exception);
+  }
 
   /** Returns a buffer if the pipeline is ready to accept input, and {@code null} otherwise. */
   @Nullable
@@ -44,21 +62,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
    * this method again.
    */
   boolean processData() throws TransformationException;
-
-  /** Returns the output format of the pipeline if available, and {@code null} otherwise. */
-  @Nullable
-  Format getOutputFormat() throws TransformationException;
-
-  /** Returns an output buffer if the pipeline has produced output, and {@code null} otherwise */
-  @Nullable
-  DecoderInputBuffer getOutputBuffer() throws TransformationException;
-
-  /**
-   * Releases the pipeline's output buffer.
-   *
-   * <p>Should be called when the output buffer from {@link #getOutputBuffer()} is no longer needed.
-   */
-  void releaseOutputBuffer() throws TransformationException;
 
   /** Returns whether the pipeline has ended. */
   boolean isEnded();

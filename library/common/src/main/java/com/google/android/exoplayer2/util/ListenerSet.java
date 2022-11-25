@@ -268,6 +268,7 @@ public final class ListenerSet<T extends @NonNull Object> {
     public void release(IterationFinishedEvent<T> event) {
       released = true;
       if (needsIterationFinishedEvent) {
+        needsIterationFinishedEvent = false;
         event.invoke(listener, flagsBuilder.build());
       }
     }

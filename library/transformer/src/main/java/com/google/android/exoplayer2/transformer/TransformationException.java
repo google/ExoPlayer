@@ -24,9 +24,10 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableBiMap;
 import java.lang.annotation.Documented;
@@ -38,12 +39,11 @@ import java.lang.annotation.Target;
 public final class TransformationException extends Exception {
 
   /**
-   * Codes that identify causes of {@link Transformer} errors.
+   * Error codes that identify causes of {@link Transformer} errors.
    *
    * <p>This list of errors may be extended in future versions. The underlying values may also
    * change, so it is best to avoid relying on them directly without using the constants.
    */
-  // TODO(b/209469847): Update the javadoc once the underlying values are fixed.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
@@ -67,8 +67,9 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
         ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
-        ERROR_CODE_GL_INIT_FAILED,
-        ERROR_CODE_GL_PROCESSING_FAILED,
+        ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
+        ERROR_CODE_FRAME_PROCESSING_FAILED,
+        ERROR_CODE_AUDIO_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
       })
   public @interface ErrorCode {}
@@ -135,6 +136,8 @@ public final class TransformationException extends Exception {
   public static final int ERROR_CODE_DECODING_FAILED = 3002;
   /** Caused by trying to decode content whose format is not supported. */
   public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 3003;
+  /** Caused by the decoder not supporting HDR formats. */
+  public static final int ERROR_CODE_HDR_DECODING_UNSUPPORTED = 3004;
 
   // Encoding errors (4xxx).
 
@@ -149,17 +152,23 @@ public final class TransformationException extends Exception {
    * Codec.DecoderFactory encoders} available.
    */
   public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
+  /** Caused by the encoder not supporting HDR formats. */
+  public static final int ERROR_CODE_HDR_ENCODING_UNSUPPORTED = 4004;
 
   // Video editing errors (5xxx).
 
-  /** Caused by a GL initialization failure. */
-  public static final int ERROR_CODE_GL_INIT_FAILED = 5001;
-  /** Caused by a failure while using or releasing a GL program. */
-  public static final int ERROR_CODE_GL_PROCESSING_FAILED = 5002;
+  /** Caused by a frame processing failure. */
+  public static final int ERROR_CODE_FRAME_PROCESSING_FAILED = 5001;
 
-  // Muxing errors (6xxx).
+  // Audio processing errors (6xxx).
+
+  /** Caused by an audio processing failure. */
+  public static final int ERROR_CODE_AUDIO_PROCESSING_FAILED = 6001;
+
+  // Muxing errors (7xxx).
+
   /** Caused by a failure while muxing media samples. */
-  public static final int ERROR_CODE_MUXING_FAILED = 6001;
+  public static final int ERROR_CODE_MUXING_FAILED = 7001;
 
   private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
@@ -176,11 +185,13 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_DECODER_INIT_FAILED", ERROR_CODE_DECODER_INIT_FAILED)
           .put("ERROR_CODE_DECODING_FAILED", ERROR_CODE_DECODING_FAILED)
           .put("ERROR_CODE_DECODING_FORMAT_UNSUPPORTED", ERROR_CODE_DECODING_FORMAT_UNSUPPORTED)
+          .put("ERROR_CODE_HDR_DECODING_UNSUPPORTED", ERROR_CODE_HDR_DECODING_UNSUPPORTED)
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
           .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
-          .put("ERROR_CODE_GL_INIT_FAILED", ERROR_CODE_GL_INIT_FAILED)
-          .put("ERROR_CODE_GL_PROCESSING_FAILED", ERROR_CODE_GL_PROCESSING_FAILED)
+          .put("ERROR_CODE_HDR_ENCODING_UNSUPPORTED", ERROR_CODE_HDR_ENCODING_UNSUPPORTED)
+          .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
+          .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
 
@@ -198,7 +209,7 @@ public final class TransformationException extends Exception {
    * Equivalent to {@link TransformationException#getErrorCodeName(int)
    * TransformationException.getErrorCodeName(this.errorCode)}.
    */
-  public final String getErrorCodeName() {
+  public String getErrorCodeName() {
     return getErrorCodeName(errorCode);
   }
 
@@ -257,30 +268,30 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for an {@link AudioProcessor} related exception.
+   * Creates an instance for an audio processing related exception.
    *
    * @param cause The cause of the failure.
-   * @param componentName The name of the {@link AudioProcessor} used.
    * @param audioFormat The {@link AudioFormat} used.
-   * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  public static TransformationException createForAudioProcessor(
-      Throwable cause, String componentName, AudioFormat audioFormat, int errorCode) {
+  public static TransformationException createForAudioProcessing(
+      Throwable cause, AudioFormat audioFormat) {
     return new TransformationException(
-        componentName + " error, audio_format = " + audioFormat, cause, errorCode);
+        "Audio processing error, audio_format = " + audioFormat,
+        cause,
+        ERROR_CODE_AUDIO_PROCESSING_FAILED);
   }
 
   /**
-   * Creates an instance for a {@link FrameProcessorChain} related exception.
+   * Creates an instance for a {@link FrameProcessor} related exception.
    *
    * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForFrameProcessorChain(
-      Throwable cause, int errorCode) {
-    return new TransformationException("FrameProcessorChain error", cause, errorCode);
+  /* package */ static TransformationException createForFrameProcessingException(
+      FrameProcessingException cause, int errorCode) {
+    return new TransformationException("Frame processing error", cause, errorCode);
   }
 
   /**

@@ -254,7 +254,7 @@ extends <a href="../../../offline/SegmentDownloader.html" title="class in com.go
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline" target="_top">SegmentDownloader.Segment</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegments(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist,boolean)">getSegments</a></span>&#8203;(<a href="../../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-           <a href="../playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&nbsp;playlist,
+           <a href="../playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&nbsp;manifest,
            boolean&nbsp;removing)</code></th>
 <td class="colLast">
 <div class="block">Returns a list of all downloadable <a href="../../../offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
@@ -369,7 +369,7 @@ extends <a href="../../../offline/SegmentDownloader.html" title="class in com.go
 <li class="blockList">
 <h4>getSegments</h4>
 <pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a>&gt;&nbsp;getSegments&#8203;(<a href="../../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream" target="_top">DataSource</a>&nbsp;dataSource,
-                                                      <a href="../playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&nbsp;playlist,
+                                                      <a href="../playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&nbsp;manifest,
                                                       boolean&nbsp;removing)
                                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
                                                       <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
@@ -381,7 +381,7 @@ extends <a href="../../../offline/SegmentDownloader.html" title="class in com.go
 <dd><code><a href="../../../offline/SegmentDownloader.html#getSegments(com.google.android.exoplayer2.upstream.DataSource,M,boolean)">getSegments</a></code>&nbsp;in class&nbsp;<code><a href="../../../offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load any required data.</dd>
-<dd><code>playlist</code> - The manifest containing the segments.</dd>
+<dd><code>manifest</code> - The manifest containing the segments.</dd>
 <dd><code>removing</code> - Whether the segments are being obtained as part of a removal. If true then a
      partial segment list is returned in the case that a load error prevents all segments from
      being listed. If false then an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a> will be thrown in this case.</dd>

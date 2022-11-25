@@ -375,7 +375,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setConstantBitrateSeekingEnabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingEnabled&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingEnabled&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</pre>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it. If set to true, the flags required to enable
  this functionality will be OR'd with those passed to the setters when creating extractor
@@ -396,7 +397,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setConstantBitrateSeekingAlwaysEnabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingAlwaysEnabled&#8203;(boolean&nbsp;constantBitrateSeekingAlwaysEnabled)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingAlwaysEnabled&#8203;(boolean&nbsp;constantBitrateSeekingAlwaysEnabled)</pre>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it, and if it should be enabled even if the content
  length (and hence the duration of the media) is unknown. If set to true, the flags required to
@@ -424,7 +426,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdtsExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAdtsExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.ts.AdtsExtractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAdtsExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.ts.AdtsExtractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -442,7 +445,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setAmrExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAmrExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.amr.AmrExtractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAmrExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.amr.AmrExtractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -460,7 +464,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setFlacExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFlacExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.flac.FlacExtractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFlacExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.flac.FlacExtractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory. The flags are also used
  by <code>com.google.android.exoplayer2.ext.flac.FlacExtractor</code> instances if the FLAC extension
  is being used.</div>
@@ -480,7 +485,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setMatroskaExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMatroskaExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMatroskaExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -498,7 +504,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setMp4ExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp4ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp4ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -516,7 +523,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setFragmentedMp4ExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFragmentedMp4ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFragmentedMp4ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -534,7 +542,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setMp3ExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp3ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp3.Mp3Extractor.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp3ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp3.Mp3Extractor.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -552,7 +561,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setTsExtractorMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorMode&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorMode&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode)</pre>
 <div class="block">Sets the mode for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -570,7 +580,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setTsExtractorFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</pre>
 <div class="block">Sets flags for <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
  created by the factory.</div>
 <dl>
@@ -589,7 +600,8 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <ul class="blockList">
 <li class="blockList">
 <h4>setTsExtractorTimestampSearchBytes</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorTimestampSearchBytes&#8203;(int&nbsp;timestampSearchBytes)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorTimestampSearchBytes&#8203;(int&nbsp;timestampSearchBytes)</pre>
 <div class="block">Sets the number of bytes searched to find a timestamp for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
  by the factory.</div>
 <dl>

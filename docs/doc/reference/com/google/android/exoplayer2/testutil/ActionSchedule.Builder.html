@@ -565,7 +565,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>delay</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;delay&#8203;(long&nbsp;delayMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;delay&#8203;(long&nbsp;delayMs)</pre>
 <div class="block">Schedules a delay between executing any previous actions and any subsequent ones.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -581,7 +582,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>apply</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;apply&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;apply&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action)</pre>
 <div class="block">Schedules an action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -597,7 +599,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>repeat</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;repeat&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;repeat&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action,
                                      long&nbsp;intervalMs)</pre>
 <div class="block">Schedules an action repeatedly.</div>
 <dl>
@@ -615,7 +618,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(long&nbsp;positionMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(long&nbsp;positionMs)</pre>
 <div class="block">Schedules a seek action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -631,7 +635,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;mediaItemIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;mediaItemIndex,
                                    long&nbsp;positionMs)</pre>
 <div class="block">Schedules a seek action.</div>
 <dl>
@@ -649,7 +654,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;mediaItemIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;mediaItemIndex,
                                    long&nbsp;positionMs,
                                    boolean&nbsp;catchIllegalSeekException)</pre>
 <div class="block">Schedules a seek action to be executed.</div>
@@ -685,7 +691,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPendingPlayerCommands</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPendingPlayerCommands()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPendingPlayerCommands()</pre>
 <div class="block">Schedules a delay until all pending player commands have been handled.
 
  <p>A command is considered as having been handled if it arrived on the playback thread and
@@ -702,7 +709,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block">Schedules a playback parameters setting action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -720,7 +728,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop()</pre>
 <div class="block">Schedules a stop action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -734,7 +743,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <div class="block">Schedules a stop action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -750,7 +760,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>play</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;play()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;play()</pre>
 <div class="block">Schedules a play action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -764,7 +775,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>playUntilPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilPosition&#8203;(int&nbsp;mediaItemIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilPosition&#8203;(int&nbsp;mediaItemIndex,
                                                 long&nbsp;positionMs)</pre>
 <div class="block">Schedules a play action, waits until the player reaches the specified position, and pauses
  the player again.</div>
@@ -783,7 +795,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>playUntilStartOfMediaItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilStartOfMediaItem&#8203;(int&nbsp;mediaItemIndex)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilStartOfMediaItem&#8203;(int&nbsp;mediaItemIndex)</pre>
 <div class="block">Schedules a play action, waits until the player reaches the start of the specified media
  item, and pauses the player again.</div>
 <dl>
@@ -800,7 +813,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>pause</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;pause()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;pause()</pre>
 <div class="block">Schedules a pause action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -814,7 +828,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>enableRenderer</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;enableRenderer&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;enableRenderer&#8203;(int&nbsp;index)</pre>
 <div class="block">Schedules a renderer enable action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -828,7 +843,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>disableRenderer</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;disableRenderer&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;disableRenderer&#8203;(int&nbsp;index)</pre>
 <div class="block">Schedules a renderer disable action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -842,7 +858,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>clearVideoSurface</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearVideoSurface()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearVideoSurface()</pre>
 <div class="block">Schedules a clear video surface action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -856,7 +873,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoSurface</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setVideoSurface()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setVideoSurface()</pre>
 <div class="block">Schedules a set video surface action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -870,7 +888,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioAttributes</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
                                                  boolean&nbsp;handleAudioFocus)</pre>
 <div class="block">Schedules application of audio attributes.</div>
 <dl>
@@ -885,7 +904,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;mediaItemIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;mediaItemIndex,
                                               long&nbsp;positionMs,
                                               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
@@ -907,7 +927,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(boolean&nbsp;resetPosition,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(boolean&nbsp;resetPosition,
                                               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
 <dl>
@@ -924,7 +945,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -940,7 +962,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaSources</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;addMediaSources&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;addMediaSources&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
 <div class="block">Schedules a add media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -956,7 +979,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>moveMediaItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;moveMediaItem&#8203;(int&nbsp;currentIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;moveMediaItem&#8203;(int&nbsp;currentIndex,
                                             int&nbsp;newIndex)</pre>
 <div class="block">Schedules a move media item action to be executed.</div>
 <dl>
@@ -974,7 +998,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>removeMediaItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItem&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItem&#8203;(int&nbsp;index)</pre>
 <div class="block">Schedules a remove media item action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -990,7 +1015,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>removeMediaItems</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItems&#8203;(int&nbsp;fromIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItems&#8203;(int&nbsp;fromIndex,
                                                int&nbsp;toIndex)</pre>
 <div class="block">Schedules a remove media items action to be executed.</div>
 <dl>
@@ -1008,7 +1034,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>prepare</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;prepare()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;prepare()</pre>
 <div class="block">Schedules a prepare action to be executed.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1022,7 +1049,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>clearMediaItems</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearMediaItems()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearMediaItems()</pre>
 <div class="block">Schedules a clear media items action to be created.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1036,7 +1064,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setRepeatMode&#8203;(<a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setRepeatMode&#8203;(<a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                             @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</pre>
 <div class="block">Schedules a repeat mode setting action.</div>
 <dl>
@@ -1051,7 +1080,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setShuffleOrder</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleOrder&#8203;(<a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleOrder&#8203;(<a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
 <div class="block">Schedules a set shuffle order action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1067,7 +1097,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setShuffleModeEnabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleModeEnabled&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleModeEnabled&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
 <div class="block">Schedules a shuffle setting action to be executed.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1081,7 +1112,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>sendMessage</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                                           long&nbsp;positionMs)</pre>
 <div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
@@ -1099,7 +1131,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>sendMessage</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                                           int&nbsp;mediaItemIndex,
                                           long&nbsp;positionMs)</pre>
 <div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
@@ -1119,7 +1152,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>sendMessage</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                                           int&nbsp;mediaItemIndex,
                                           long&nbsp;positionMs,
                                           boolean&nbsp;deleteAfterDelivery)</pre>
@@ -1141,7 +1175,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForTimelineChanged</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged()</pre>
 <div class="block">Schedules a delay until any timeline change.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1155,7 +1190,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForTimelineChanged</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                                                      <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
                                                      @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;expectedReason)</pre>
 <div class="block">Schedules a delay until the timeline changed to a specified expected timeline.</div>
@@ -1174,7 +1210,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPositionDiscontinuity</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPositionDiscontinuity()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPositionDiscontinuity()</pre>
 <div class="block">Schedules a delay until the next position discontinuity.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1188,7 +1225,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPlayWhenReady</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlayWhenReady&#8203;(boolean&nbsp;targetPlayWhenReady)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlayWhenReady&#8203;(boolean&nbsp;targetPlayWhenReady)</pre>
 <div class="block">Schedules a delay until playWhenReady has the specified value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1204,7 +1242,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPlaybackState</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlaybackState&#8203;(<a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlaybackState&#8203;(<a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
                                                    @com.google.android.exoplayer2.Player.State int&nbsp;targetPlaybackState)</pre>
 <div class="block">Schedules a delay until the playback state changed to the specified state.</div>
 <dl>
@@ -1221,7 +1260,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForIsLoading</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForIsLoading&#8203;(boolean&nbsp;targetIsLoading)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForIsLoading&#8203;(boolean&nbsp;targetIsLoading)</pre>
 <div class="block">Schedules a delay until <code>player.isLoading()</code> changes to the specified value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1237,7 +1277,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForMessage</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForMessage&#8203;(<a href="ActionSchedule.PlayerTarget.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget</a>&nbsp;playerTarget)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForMessage&#8203;(<a href="ActionSchedule.PlayerTarget.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget</a>&nbsp;playerTarget)</pre>
 <div class="block">Schedules a delay until a message arrives at the <a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1253,7 +1294,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>executeRunnable</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;executeRunnable&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;executeRunnable&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</pre>
 <div class="block">Schedules a <a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Runnable</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1267,7 +1309,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>throwPlaybackException</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;throwPlaybackException&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;exception)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;throwPlaybackException&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;exception)</pre>
 <div class="block">Schedules to throw a playback exception on the playback thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

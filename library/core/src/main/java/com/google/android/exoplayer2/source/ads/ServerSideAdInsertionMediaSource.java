@@ -158,16 +158,25 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       checkArgument(Util.areEqual(adsId, adPlaybackState.adsId));
       @Nullable AdPlaybackState oldAdPlaybackState = this.adPlaybackStates.get(periodUid);
       if (oldAdPlaybackState != null) {
-        for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
-          AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
+        for (int adGroupIndex = adPlaybackState.removedAdGroupCount;
+            adGroupIndex < adPlaybackState.adGroupCount;
+            adGroupIndex++) {
+          AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
           checkArgument(adGroup.isServerSideInserted);
-          if (i < oldAdPlaybackState.adGroupCount) {
-            checkArgument(
-                getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i)
-                    >= getAdCountInGroup(oldAdPlaybackState, /* adGroupIndex= */ i));
+          if (adGroupIndex < oldAdPlaybackState.adGroupCount
+              && getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ adGroupIndex)
+                  < getAdCountInGroup(oldAdPlaybackState, /* adGroupIndex= */ adGroupIndex)) {
+            // Removing ads from an ad group is only allowed when the group has been split.
+            AdPlaybackState.AdGroup nextAdGroup = adPlaybackState.getAdGroup(adGroupIndex + 1);
+            long sumOfSplitContentResumeOffsetUs =
+                adGroup.contentResumeOffsetUs + nextAdGroup.contentResumeOffsetUs;
+            AdPlaybackState.AdGroup oldAdGroup = oldAdPlaybackState.getAdGroup(adGroupIndex);
+            checkArgument(sumOfSplitContentResumeOffsetUs == oldAdGroup.contentResumeOffsetUs);
+            checkArgument(adGroup.timeUs + adGroup.contentResumeOffsetUs == nextAdGroup.timeUs);
           }
           if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
-            checkArgument(getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i) == 0);
+            checkArgument(
+                getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ adGroupIndex) == 0);
           }
         }
       }
@@ -1007,8 +1016,9 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     @Override
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       super.getWindow(windowIndex, window, defaultPositionProjectionUs);
+      Period period = new Period();
       Object firstPeriodUid =
-          checkNotNull(getPeriod(window.firstPeriodIndex, new Period(), /* setIds= */ true).uid);
+          checkNotNull(getPeriod(window.firstPeriodIndex, period, /* setIds= */ true).uid);
       AdPlaybackState firstAdPlaybackState = checkNotNull(adPlaybackStates.get(firstPeriodUid));
       long positionInPeriodUs =
           getMediaPeriodPositionUsForContent(
@@ -1020,11 +1030,21 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
           window.durationUs = firstAdPlaybackState.contentDurationUs - positionInPeriodUs;
         }
       } else {
-        Period lastPeriod = getPeriod(/* periodIndex= */ window.lastPeriodIndex, new Period());
+        Period originalLastPeriod =
+            super.getPeriod(/* periodIndex= */ window.lastPeriodIndex, period, /* setIds= */ true);
+        long originalLastPeriodPositionInWindowUs = originalLastPeriod.positionInWindowUs;
+        AdPlaybackState lastAdPlaybackState =
+            checkNotNull(adPlaybackStates.get(originalLastPeriod.uid));
+        Period adjustedLastPeriod = getPeriod(/* periodIndex= */ window.lastPeriodIndex, period);
+        long originalWindowDurationInLastPeriodUs =
+            window.durationUs - originalLastPeriodPositionInWindowUs;
+        long adjustedWindowDurationInLastPeriodUs =
+            getMediaPeriodPositionUsForContent(
+                originalWindowDurationInLastPeriodUs,
+                /* nextAdGroupIndex= */ C.INDEX_UNSET,
+                lastAdPlaybackState);
         window.durationUs =
-            lastPeriod.durationUs == C.TIME_UNSET
-                ? C.TIME_UNSET
-                : lastPeriod.positionInWindowUs + lastPeriod.durationUs;
+            adjustedLastPeriod.positionInWindowUs + adjustedWindowDurationInLastPeriodUs;
       }
       window.positionInFirstPeriodUs = positionInPeriodUs;
       return window;

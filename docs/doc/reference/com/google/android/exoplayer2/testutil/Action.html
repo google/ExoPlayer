@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -404,36 +404,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doActionAndScheduleNext(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">doActionAndScheduleNext</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                       <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
-                       <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                       <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
-                       com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</code></th>
-<td class="colLast">
-<div class="block">Executes the action and schedules the next.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doActionAndScheduleNextImpl(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">doActionAndScheduleNextImpl</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                           <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
-                           <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                           <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
-                           com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</code></th>
-<td class="colLast">
-<div class="block">Called by <a href="#doActionAndScheduleNext(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)"><code>doActionAndScheduleNext(ExoPlayer, DefaultTrackSelector, Surface,
- HandlerWrapper, ActionNode)</code></a> to perform the action and to schedule the next action node.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>protected abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doActionImpl(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface)">doActionImpl</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
             <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
@@ -495,59 +472,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="doActionAndScheduleNext(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>doActionAndScheduleNext</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;doActionAndScheduleNext&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                          <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
-                                          @Nullable
-                                          <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                                          <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
-                                          @Nullable
-                                          com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</pre>
-<div class="block">Executes the action and schedules the next.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player to which the action should be applied.</dd>
-<dd><code>trackSelector</code> - The track selector to which the action should be applied.</dd>
-<dd><code>surface</code> - The surface to use when applying actions, or <code>null</code> if no surface is
-     needed.</dd>
-<dd><code>handler</code> - The handler to use to pass to the next action.</dd>
-<dd><code>nextAction</code> - The next action to schedule immediately after this action finished, or <code>
-     null</code> if there's no next action.</dd>
-</dl>
-</li>
-</ul>
-<a id="doActionAndScheduleNextImpl(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>doActionAndScheduleNextImpl</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;doActionAndScheduleNextImpl&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                           <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
-                                           @Nullable
-                                           <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                                           <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
-                                           @Nullable
-                                           com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</pre>
-<div class="block">Called by <a href="#doActionAndScheduleNext(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)"><code>doActionAndScheduleNext(ExoPlayer, DefaultTrackSelector, Surface,
- HandlerWrapper, ActionNode)</code></a> to perform the action and to schedule the next action node.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player to which the action should be applied.</dd>
-<dd><code>trackSelector</code> - The track selector to which the action should be applied.</dd>
-<dd><code>surface</code> - The surface to use when applying actions, or <code>null</code> if no surface is
-     needed.</dd>
-<dd><code>handler</code> - The handler to use to pass to the next action.</dd>
-<dd><code>nextAction</code> - The next action to schedule immediately after this action finished, or <code>
-     null</code> if there's no next action.</dd>
-</dl>
-</li>
-</ul>
 <a id="doActionImpl(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface)">
 <!--   -->
 </a>

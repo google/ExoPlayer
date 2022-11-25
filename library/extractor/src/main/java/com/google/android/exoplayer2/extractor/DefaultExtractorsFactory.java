@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 import android.net.Uri;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
@@ -43,6 +44,8 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader;
 import com.google.android.exoplayer2.extractor.wav.WavExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -125,11 +128,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   private @Mp3Extractor.Flags int mp3Flags;
   private @TsExtractor.Mode int tsMode;
   private @DefaultTsPayloadReaderFactory.Flags int tsFlags;
+  private ImmutableList<Format> tsSubtitleFormats;
   private int tsTimestampSearchBytes;
 
   public DefaultExtractorsFactory() {
     tsMode = TsExtractor.MODE_SINGLE_PMT;
     tsTimestampSearchBytes = TsExtractor.DEFAULT_TIMESTAMP_SEARCH_BYTES;
+    tsSubtitleFormats = ImmutableList.of();
   }
 
   /**
@@ -143,6 +148,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *     assumption should be enabled for all extractors that support it.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingEnabled(
       boolean constantBitrateSeekingEnabled) {
     this.constantBitrateSeekingEnabled = constantBitrateSeekingEnabled;
@@ -167,6 +173,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *     duration is unknown.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingAlwaysEnabled(
       boolean constantBitrateSeekingAlwaysEnabled) {
     this.constantBitrateSeekingAlwaysEnabled = constantBitrateSeekingAlwaysEnabled;
@@ -180,6 +187,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setAdtsExtractorFlags(
       @AdtsExtractor.Flags int flags) {
     this.adtsFlags = flags;
@@ -193,6 +201,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setAmrExtractorFlags(@AmrExtractor.Flags int flags) {
     this.amrFlags = flags;
     return this;
@@ -207,6 +216,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setFlacExtractorFlags(
       @FlacExtractor.Flags int flags) {
     this.flacFlags = flags;
@@ -220,6 +230,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMatroskaExtractorFlags(
       @MatroskaExtractor.Flags int flags) {
     this.matroskaFlags = flags;
@@ -233,6 +244,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMp4ExtractorFlags(@Mp4Extractor.Flags int flags) {
     this.mp4Flags = flags;
     return this;
@@ -245,6 +257,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setFragmentedMp4ExtractorFlags(
       @FragmentedMp4Extractor.Flags int flags) {
     this.fragmentedMp4Flags = flags;
@@ -258,6 +271,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMp3ExtractorFlags(@Mp3Extractor.Flags int flags) {
     mp3Flags = flags;
     return this;
@@ -270,6 +284,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param mode The mode to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorMode(@TsExtractor.Mode int mode) {
     tsMode = mode;
     return this;
@@ -283,9 +298,24 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorFlags(
       @DefaultTsPayloadReaderFactory.Flags int flags) {
     tsFlags = flags;
+    return this;
+  }
+
+  /**
+   * Sets a list of subtitle formats to pass to the {@link DefaultTsPayloadReaderFactory} used by
+   * {@link TsExtractor} instances created by the factory.
+   *
+   * @see DefaultTsPayloadReaderFactory#DefaultTsPayloadReaderFactory(int, List)
+   * @param subtitleFormats The subtitle formats.
+   * @return The factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  public synchronized DefaultExtractorsFactory setTsSubtitleFormats(List<Format> subtitleFormats) {
+    tsSubtitleFormats = ImmutableList.copyOf(subtitleFormats);
     return this;
   }
 
@@ -297,6 +327,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param timestampSearchBytes The number of search bytes to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorTimestampSearchBytes(
       int timestampSearchBytes) {
     tsTimestampSearchBytes = timestampSearchBytes;
@@ -401,7 +432,12 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         extractors.add(new PsExtractor());
         break;
       case FileTypes.TS:
-        extractors.add(new TsExtractor(tsMode, tsFlags, tsTimestampSearchBytes));
+        extractors.add(
+            new TsExtractor(
+                tsMode,
+                new TimestampAdjuster(0),
+                new DefaultTsPayloadReaderFactory(tsFlags, tsSubtitleFormats),
+                tsTimestampSearchBytes));
         break;
       case FileTypes.WAV:
         extractors.add(new WavExtractor());
@@ -434,7 +470,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   @Nullable
   private static Constructor<? extends Extractor> getFlacExtractorConstructor()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+      throws ClassNotFoundException,
+          NoSuchMethodException,
+          InvocationTargetException,
           IllegalAccessException {
     @SuppressWarnings("nullness:argument")
     boolean isFlacNativeLibraryAvailable =
@@ -455,7 +493,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     public interface ConstructorSupplier {
       @Nullable
       Constructor<? extends Extractor> getConstructor()
-          throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
+          throws InvocationTargetException,
+              IllegalAccessException,
+              NoSuchMethodException,
               ClassNotFoundException;
     }
 

@@ -195,6 +195,13 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_WAKEUP_LISTENER = 11;
   /**
+   * The type of a message that can be passed to audio renderers via {@link
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
+   * android.media.AudioDeviceInfo} instance representing the preferred audio device, or null to
+   * restore the default.
+   */
+  int MSG_SET_PREFERRED_AUDIO_DEVICE = 12;
+  /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
    */

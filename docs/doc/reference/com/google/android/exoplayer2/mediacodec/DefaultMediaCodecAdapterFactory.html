@@ -279,7 +279,8 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <ul class="blockList">
 <li class="blockList">
 <h4>forceEnableAsynchronous</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a>&nbsp;forceEnableAsynchronous()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a>&nbsp;forceEnableAsynchronous()</pre>
 <div class="block">Forces this factory to always create <code>AsynchronousMediaCodecAdapter</code> instances, provided
  the device API level is &gt;= 23. For devices with API level &lt; 23, the factory will create
  <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapters</code></a>.</div>
@@ -295,7 +296,8 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <ul class="blockList">
 <li class="blockList">
 <h4>forceDisableAsynchronous</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a>&nbsp;forceDisableAsynchronous()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a>&nbsp;forceDisableAsynchronous()</pre>
 <div class="block">Forces the factory to always create <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapter</code></a> instances.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

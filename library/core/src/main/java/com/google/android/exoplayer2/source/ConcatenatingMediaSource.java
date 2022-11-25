@@ -526,12 +526,14 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     dispatchOnCompletionActions(pendingOnCompletionActions);
   }
 
+  /** {@inheritDoc} */
   @Override
   protected void onChildSourceInfoRefreshed(
       MediaSourceHolder mediaSourceHolder, MediaSource mediaSource, Timeline timeline) {
     updateMediaSourceInternal(mediaSourceHolder, timeline);
   }
 
+  /** {@inheritDoc} */
   @Override
   @Nullable
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
@@ -548,6 +550,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     return null;
   }
 
+  /** {@inheritDoc} */
   @Override
   protected int getWindowIndexForChildWindowIndex(
       MediaSourceHolder mediaSourceHolder, int windowIndex) {

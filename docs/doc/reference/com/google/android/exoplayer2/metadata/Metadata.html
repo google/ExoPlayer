@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -194,6 +194,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#presentationTimeUs">presentationTimeUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The presentation time of the metadata, in microseconds.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.android.os.Parcelable">
@@ -217,6 +224,16 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,com.google.android.exoplayer2.metadata.Metadata.Entry...)">Metadata</a></span>&#8203;(long&nbsp;presentationTimeUs,
+        <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,java.util.List)">Metadata</a></span>&#8203;(long&nbsp;presentationTimeUs,
+        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.Metadata.Entry...)">Metadata</a></span>&#8203;(<a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</code></th>
@@ -259,40 +276,47 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithPresentationTimeUs(long)">copyWithPresentationTimeUs</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of this metadata with the specified presentation time.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Returns the entry at the specified index.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length()">length</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the number of metadata entries.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
@@ -322,6 +346,20 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a id="presentationTimeUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>presentationTimeUs</h4>
+<pre>public final&nbsp;long presentationTimeUs</pre>
+<div class="block">The presentation time of the metadata, in microseconds.
+
+ <p>This time is an offset from the start of the current <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>.
+
+ <p>This time is <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> when not known or undefined.</div>
+</li>
+</ul>
 <a id="CREATOR">
 <!--   -->
 </a>
@@ -354,15 +392,45 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </dl>
 </li>
 </ul>
+<a id="&lt;init&gt;(long,com.google.android.exoplayer2.metadata.Metadata.Entry...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Metadata</h4>
+<pre>public&nbsp;Metadata&#8203;(long&nbsp;presentationTimeUs,
+                <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>presentationTimeUs</code> - The presentation time for the metadata entries.</dd>
+<dd><code>entries</code> - The metadata entries.</dd>
+</dl>
+</li>
+</ul>
 <a id="&lt;init&gt;(java.util.List)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>Metadata</h4>
 <pre>public&nbsp;Metadata&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>entries</code> - The metadata entries.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Metadata</h4>
+<pre>public&nbsp;Metadata&#8203;(long&nbsp;presentationTimeUs,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>presentationTimeUs</code> - The presentation time for the metadata entries.</dd>
 <dd><code>entries</code> - The metadata entries.</dd>
 </dl>
 </li>
@@ -435,6 +503,22 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <dd><code>entriesToAppend</code> - The entries to append.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata instance with the appended entries.</dd>
+</dl>
+</li>
+</ul>
+<a id="copyWithPresentationTimeUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithPresentationTimeUs</h4>
+<pre class="methodSignature">public&nbsp;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;copyWithPresentationTimeUs&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="block">Returns a copy of this metadata with the specified presentation time.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>presentationTimeUs</code> - The new presentation time, in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The metadata instance with the new presentation time.</dd>
 </dl>
 </li>
 </ul>

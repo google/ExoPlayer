@@ -31,10 +31,13 @@ import android.util.Size;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.ColorTransfer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Ascii;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -63,6 +66,84 @@ public final class EncoderUtil {
   /** Returns a list of video {@linkplain MimeTypes MIME types} that can be encoded. */
   public static ImmutableSet<String> getSupportedVideoMimeTypes() {
     return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).keySet();
+  }
+
+  /**
+   * Returns the names of encoders that support HDR editing for the given format, or an empty list
+   * if the format is unknown or not supported for HDR encoding.
+   */
+  public static ImmutableList<String> getSupportedEncoderNamesForHdrEditing(
+      String mimeType, @Nullable ColorInfo colorInfo) {
+    if (Util.SDK_INT < 31 || colorInfo == null) {
+      return ImmutableList.of();
+    }
+
+    @ColorTransfer int colorTransfer = colorInfo.colorTransfer;
+    ImmutableList<Integer> profiles = getCodecProfilesForHdrFormat(mimeType, colorTransfer);
+    ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
+    ImmutableList<MediaCodecInfo> mediaCodecInfos =
+        EncoderSelector.DEFAULT.selectEncoderInfos(mimeType);
+    for (int i = 0; i < mediaCodecInfos.size(); i++) {
+      MediaCodecInfo mediaCodecInfo = mediaCodecInfos.get(i);
+      if (mediaCodecInfo.isAlias()
+          || !isFeatureSupported(
+              mediaCodecInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing)) {
+        continue;
+      }
+      for (MediaCodecInfo.CodecProfileLevel codecProfileLevel :
+          mediaCodecInfo.getCapabilitiesForType(mimeType).profileLevels) {
+        if (profiles.contains(codecProfileLevel.profile)) {
+          resultBuilder.add(mediaCodecInfo.getName());
+        }
+      }
+    }
+    return resultBuilder.build();
+  }
+
+  /**
+   * Returns the {@linkplain MediaCodecInfo.CodecProfileLevel#profile profile} constants that can be
+   * used to encode the given HDR format, if supported by the device (this method does not check
+   * device capabilities). If multiple profiles are returned, they are ordered by expected level of
+   * compatibility, with the most widely compatible profile first.
+   */
+  @SuppressWarnings("InlinedApi") // Safe use of inlined constants from newer API versions.
+  public static ImmutableList<Integer> getCodecProfilesForHdrFormat(
+      String mimeType, @ColorTransfer int colorTransfer) {
+    // TODO(b/239174610): Add a way to determine profiles for DV and HDR10+.
+    switch (mimeType) {
+      case MimeTypes.VIDEO_VP9:
+        if (colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084) {
+          // Profiles support both HLG and PQ.
+          return ImmutableList.of(
+              MediaCodecInfo.CodecProfileLevel.VP9Profile2HDR,
+              MediaCodecInfo.CodecProfileLevel.VP9Profile3HDR);
+        }
+        break;
+      case MimeTypes.VIDEO_H264:
+        if (colorTransfer == C.COLOR_TRANSFER_HLG) {
+          return ImmutableList.of(MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10);
+        }
+        // CodecProfileLevel does not support PQ/HDR10 for H264.
+        break;
+      case MimeTypes.VIDEO_H265:
+        if (colorTransfer == C.COLOR_TRANSFER_HLG) {
+          return ImmutableList.of(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10);
+        } else if (colorTransfer == C.COLOR_TRANSFER_ST2084) {
+          return ImmutableList.of(MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10);
+        }
+        break;
+      case MimeTypes.VIDEO_AV1:
+        if (colorTransfer == C.COLOR_TRANSFER_HLG) {
+          return ImmutableList.of(MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10);
+        } else if (colorTransfer == C.COLOR_TRANSFER_ST2084) {
+          return ImmutableList.of(MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10);
+        }
+        break;
+      default:
+        break;
+    }
+    // There are no profiles defined for the HDR format, or it's invalid.
+    return ImmutableList.of();
   }
 
   /** Returns whether the {@linkplain MediaCodecInfo encoder} supports the given resolution. */
@@ -234,12 +315,17 @@ public final class EncoderUtil {
    */
   @Nullable
   public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
-    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     // Format must not include KEY_FRAME_RATE on API21.
     // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
-    @Nullable String frameRate = null;
+    float frameRate = Format.NO_VALUE;
     if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
-      frameRate = format.getString(MediaFormat.KEY_FRAME_RATE);
+      try {
+        frameRate = format.getFloat(MediaFormat.KEY_FRAME_RATE);
+      } catch (ClassCastException e) {
+        frameRate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
+      }
+      // Clears the frame rate field.
       format.setString(MediaFormat.KEY_FRAME_RATE, null);
     }
 
@@ -249,7 +335,7 @@ public final class EncoderUtil {
             : mediaCodecList.findEncoderForFormat(format);
 
     if (Util.SDK_INT == 21) {
-      MediaFormatUtil.maybeSetString(format, MediaFormat.KEY_FRAME_RATE, frameRate);
+      MediaFormatUtil.maybeSetInteger(format, MediaFormat.KEY_FRAME_RATE, round(frameRate));
     }
     return mediaCodecName;
   }
@@ -350,7 +436,7 @@ public final class EncoderUtil {
     ImmutableListMultimap.Builder<String, MediaCodecInfo> encoderInfosBuilder =
         new ImmutableListMultimap.Builder<>();
 
-    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     MediaCodecInfo[] allCodecInfos = mediaCodecList.getCodecInfos();
 
     for (MediaCodecInfo mediaCodecInfo : allCodecInfos) {

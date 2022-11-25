@@ -15,7 +15,7 @@ all of the information requested in the issue template.
 
 ## Pull requests ##
 
-We will also consider high quality pull requests. These should normally merge
+We will also consider high quality pull requests. These should merge
 into the `dev-v2` branch. Before a pull request can be accepted you must submit
 a Contributor License Agreement, as described below.
 

@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,6 +64,7 @@ public final class CacheDataSink implements DataSink {
      * @param cache The cache to which data will be written.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setCache(Cache cache) {
       this.cache = cache;
       return this;
@@ -81,6 +83,7 @@ public final class CacheDataSink implements DataSink {
      *     fragmentation.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setFragmentSize(long fragmentSize) {
       this.fragmentSize = fragmentSize;
       return this;
@@ -95,6 +98,7 @@ public final class CacheDataSink implements DataSink {
      * @param bufferSize The buffer size in bytes.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setBufferSize(int bufferSize) {
       this.bufferSize = bufferSize;
       return this;

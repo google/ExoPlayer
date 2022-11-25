@@ -315,7 +315,7 @@ public final class ImaAdsLoaderTest {
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-                .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
+                .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
@@ -1063,7 +1063,7 @@ public final class ImaAdsLoaderTest {
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-                .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
+                .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}}));
   }
 
@@ -1117,7 +1117,7 @@ public final class ImaAdsLoaderTest {
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-                .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
+                .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
@@ -1184,7 +1184,7 @@ public final class ImaAdsLoaderTest {
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-                .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
+                .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));

@@ -371,7 +371,7 @@ public class MediaSourceListTest {
             mockMediaSource2,
             mockMediaSource3,
             mockMediaSource4);
-    mediaSourceList.prepare(/* mediaTransferListener */ null);
+    mediaSourceList.prepare(/* mediaTransferListener= */ null);
     mediaSourceList.addMediaSources(/* index= */ 0, holders, shuffleOrder);
     mediaSourceList.removeMediaSourceRange(/* fromIndex= */ 1, /* toIndex= */ 3, shuffleOrder);
 
@@ -448,7 +448,7 @@ public class MediaSourceListTest {
   @Test
   public void setMediaSources_expectTimelineUsesCustomShuffleOrder() {
     Timeline timeline =
-        mediaSourceList.setMediaSources(createFakeHolders(), new FakeShuffleOrder(/* length=*/ 4));
+        mediaSourceList.setMediaSources(createFakeHolders(), new FakeShuffleOrder(/* length= */ 4));
     assertTimelineUsesFakeShuffleOrder(timeline);
   }
 

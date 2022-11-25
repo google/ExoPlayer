@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.os.Handler;
@@ -32,8 +33,14 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 
-/** A renderer for metadata. */
+/**
+ * A renderer for metadata.
+ *
+ * <p>The renderer can be configured to render metadata as soon as they are available using {@link
+ * #MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory, boolean)}.
+ */
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private static final String TAG = "MetadataRenderer";
@@ -43,15 +50,19 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private final MetadataOutput output;
   @Nullable private final Handler outputHandler;
   private final MetadataInputBuffer buffer;
+  private final boolean outputMetadataEarly;
 
   @Nullable private MetadataDecoder decoder;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private long subsampleOffsetUs;
-  private long pendingMetadataTimestampUs;
   @Nullable private Metadata pendingMetadata;
+  private long outputStreamOffsetUs;
 
   /**
+   * Creates an instance that uses {@link MetadataDecoderFactory#DEFAULT} to create {@link
+   * MetadataDecoder} instances.
+   *
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be called.
    *     If the output makes use of standard Android UI components, then this should normally be the
@@ -64,6 +75,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be called.
    *     If the output makes use of standard Android UI components, then this should normally be the
@@ -74,13 +87,36 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    */
   public MetadataRenderer(
       MetadataOutput output, @Nullable Looper outputLooper, MetadataDecoderFactory decoderFactory) {
+    this(output, outputLooper, decoderFactory, /* outputMetadataEarly= */ false);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param output The output.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using {@link
+   *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
+   *     directly on the player's internal rendering thread.
+   * @param decoderFactory A factory from which to obtain {@link MetadataDecoder} instances.
+   * @param outputMetadataEarly Whether the renderer outputs metadata early. When {@code true},
+   *     {@link #render} will output metadata as soon as they are available to the renderer,
+   *     otherwise {@link #render} will output metadata in sync with the rendering position.
+   */
+  public MetadataRenderer(
+      MetadataOutput output,
+      @Nullable Looper outputLooper,
+      MetadataDecoderFactory decoderFactory,
+      boolean outputMetadataEarly) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler =
         outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = Assertions.checkNotNull(decoderFactory);
+    this.outputMetadataEarly = outputMetadataEarly;
     buffer = new MetadataInputBuffer();
-    pendingMetadataTimestampUs = C.TIME_UNSET;
+    outputStreamOffsetUs = C.TIME_UNSET;
   }
 
   @Override
@@ -101,12 +137,17 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     decoder = decoderFactory.createDecoder(formats[0]);
+    if (pendingMetadata != null) {
+      pendingMetadata =
+          pendingMetadata.copyWithPresentationTimeUs(
+              pendingMetadata.presentationTimeUs + outputStreamOffsetUs - offsetUs);
+    }
+    outputStreamOffsetUs = offsetUs;
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
     pendingMetadata = null;
-    pendingMetadataTimestampUs = C.TIME_UNSET;
     inputStreamEnded = false;
     outputStreamEnded = false;
   }
@@ -153,8 +194,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   @Override
   protected void onDisabled() {
     pendingMetadata = null;
-    pendingMetadataTimestampUs = C.TIME_UNSET;
     decoder = null;
+    outputStreamOffsetUs = C.TIME_UNSET;
   }
 
   @Override
@@ -195,9 +236,9 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
             List<Metadata.Entry> entries = new ArrayList<>(metadata.length());
             decodeWrappedMetadata(metadata, entries);
             if (!entries.isEmpty()) {
-              Metadata expandedMetadata = new Metadata(entries);
+              Metadata expandedMetadata =
+                  new Metadata(getPresentationTimeUs(buffer.timeUs), entries);
               pendingMetadata = expandedMetadata;
-              pendingMetadataTimestampUs = buffer.timeUs;
             }
           }
         }
@@ -209,10 +250,11 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private boolean outputMetadata(long positionUs) {
     boolean didOutput = false;
-    if (pendingMetadata != null && pendingMetadataTimestampUs <= positionUs) {
+    if (pendingMetadata != null
+        && (outputMetadataEarly
+            || pendingMetadata.presentationTimeUs <= getPresentationTimeUs(positionUs))) {
       invokeRenderer(pendingMetadata);
       pendingMetadata = null;
-      pendingMetadataTimestampUs = C.TIME_UNSET;
       didOutput = true;
     }
     if (inputStreamEnded && pendingMetadata == null) {
@@ -231,5 +273,13 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private void invokeRendererInternal(Metadata metadata) {
     output.onMetadata(metadata);
+  }
+
+  @SideEffectFree
+  private long getPresentationTimeUs(long positionUs) {
+    checkState(positionUs != C.TIME_UNSET);
+    checkState(outputStreamOffsetUs != C.TIME_UNSET);
+
+    return positionUs - outputStreamOffsetUs;
   }
 }

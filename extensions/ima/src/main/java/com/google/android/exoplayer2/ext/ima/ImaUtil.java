@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForContent;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -44,8 +48,10 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState.AdGroup;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
@@ -322,7 +328,7 @@ import java.util.Set;
   @CheckResult
   public static AdPlaybackState updateAdDurationInAdGroup(
       int adGroupIndex, int adIndexInAdGroup, long adDurationUs, AdPlaybackState adPlaybackState) {
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     checkArgument(adIndexInAdGroup < adGroup.durationsUs.length);
     long[] adDurationsUs =
         updateAdDurationAndPropagate(
@@ -334,25 +340,28 @@ import java.util.Set;
   }
 
   /**
-   * Updates the duration of the given ad in the array and propagates the difference to the total
-   * duration to the next ad. If the updated ad is the last ad, the remaining duration is wrapped
-   * around to the first ad in the group.
+   * Updates the duration of the given ad in the array.
+   *
+   * <p>The remaining difference when subtracting {@code adDurationUs} from {@code
+   * remainingDurationUs} is used as the duration of the next ad after {@code adIndex}. If the
+   * updated ad is the last ad, the remaining duration is wrapped around to the first ad of the
+   * group.
    *
    * <p>The remaining ad duration is only propagated if the destination ad has a duration of 0.
    *
    * @param adDurationsUs The array to edit.
    * @param adIndex The index of the ad in the durations array.
    * @param adDurationUs The new ad duration.
-   * @param totalDurationUs The total duration the difference of which to propagate to the next ad.
+   * @param remainingDurationUs The remaining ad duration before updating the new ad duration.
    * @return The updated input array, for convenience.
    */
-  /* package */ static long[] updateAdDurationAndPropagate(
-      long[] adDurationsUs, int adIndex, long adDurationUs, long totalDurationUs) {
+  private static long[] updateAdDurationAndPropagate(
+      long[] adDurationsUs, int adIndex, long adDurationUs, long remainingDurationUs) {
     adDurationsUs[adIndex] = adDurationUs;
     int nextAdIndex = (adIndex + 1) % adDurationsUs.length;
     if (adDurationsUs[nextAdIndex] == 0) {
       // Propagate the remaining duration to the next ad.
-      adDurationsUs[nextAdIndex] = max(0, totalDurationUs - adDurationUs);
+      adDurationsUs[nextAdIndex] = max(0, remainingDurationUs - adDurationUs);
     }
     return adDurationsUs;
   }
@@ -389,7 +398,7 @@ import java.util.Set;
     AdPlaybackState contentOnlyAdPlaybackState = new AdPlaybackState(adsId);
     Map<Object, AdPlaybackState> adPlaybackStates = new HashMap<>();
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
+      AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
       if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
         checkState(i == adPlaybackState.adGroupCount - 1);
         // The last ad group is a placeholder for a potential post roll. We can just stop here.
@@ -432,7 +441,7 @@ import java.util.Set;
   }
 
   private static AdPlaybackState splitAdGroupForPeriod(
-      Object adsId, AdPlaybackState.AdGroup adGroup, long periodStartUs, long periodDurationUs) {
+      Object adsId, AdGroup adGroup, long periodStartUs, long periodDurationUs) {
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -484,7 +493,7 @@ import java.util.Set;
     long totalElapsedContentDurationUs = 0;
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       int adIndexInAdGroup = 0;
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
+      AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
       long adGroupDurationUs = sum(adGroup.durationsUs);
       long elapsedAdGroupAdDurationUs = 0;
       for (int j = periodIndex; j < contentTimeline.getPeriodCount(); j++) {
@@ -511,6 +520,181 @@ import java.util.Set;
       }
     }
     throw new IllegalStateException();
+  }
+
+  /**
+   * Called when the SDK emits a {@code LOADED} event of an IMA SSAI live stream.
+   *
+   * <p>For each ad, the SDK emits a {@code LOADED} event at the start of the ad. The {@code LOADED}
+   * event provides the information of a certain ad (index and duration) and its ad pod (number of
+   * ads and total ad duration) that is mapped to an ad in an {@linkplain AdGroup ad group} of an
+   * {@linkplain AdPlaybackState ad playback state} to reflect ads in the ExoPlayer media structure.
+   *
+   * <p>In the normal case (when all ad information is available completely and in time), the
+   * life-cycle of a live ad group and its ads has these phases:
+   *
+   * <ol>
+   *   <li>When playing content and a {@code LOADED} event arrives, an ad group is inserted at the
+   *       current position with the number of ads reported by the ad pod. The duration of the first
+   *       ad is set and its state is set to {@link AdPlaybackState#AD_STATE_AVAILABLE}. The
+   *       duration of the 2nd ad is set to the remaining duration of the total ad group duration.
+   *       This pads out the duration of the ad group, so it doesn't end before the next ad event
+   *       arrives. When inserting the ad group at the current position, the player immediately
+   *       advances to play the inserted ad period.
+   *   <li>When playing an ad group and a further {@code LOADED} event arrives, the ad state is
+   *       inspected to find the {@linkplain AdPlaybackState#getAdGroupIndexForPositionUs(long,
+   *       long) ad group currently being played}. We query for the first {@linkplain
+   *       AdPlaybackState#AD_STATE_UNAVAILABLE unavailable ad} of that ad group, override its
+   *       placeholder duration, mark it {@linkplain AdPlaybackState#AD_STATE_AVAILABLE available}
+   *       and propagate the remainder of the placeholder duration to the next ad. Repeating this
+   *       step until all ads are configured and marked as available.
+   *   <li>When playing an ad and a {@code LOADED} event arrives but no more ads are in {@link
+   *       AdPlaybackState#AD_STATE_UNAVAILABLE}, the group is expanded by inserting a new ad at the
+   *       end of the ad group.
+   *   <li>After playing an ad: When playback exits from an ad period to the next ad or back to
+   *       content, {@link ImaServerSideAdInsertionMediaSource} detects {@linkplain
+   *       Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int) a
+   *       position discontinuity}, identifies {@linkplain Player.PositionInfo#adIndexInAdGroup the
+   *       ad being exited} and {@linkplain AdPlaybackState#AD_STATE_PLAYED marks the ad as played}.
+   * </ol>
+   *
+   * <p>Some edge-cases need consideration. When a user joins a live stream during an ad being
+   * played, ad information previous to the first received {@code LOADED} event is missing. Only ads
+   * starting from the first ad with full information are inserted into the group (back to happy
+   * path step 2).
+   *
+   * <p>There is further a chance, that a (pre-fetch) event arrives after the ad group has already
+   * ended. In such a case, the pre-fetch ad starts a new ad group with the remaining ads in the
+   * same way as the during-ad-joiner case that can afterwards be expanded again (back to end of
+   * happy path step 2).
+   *
+   * @param currentContentPeriodPositionUs The current public content position, in microseconds.
+   * @param adDurationUs The duration of the ad to be inserted, in microseconds.
+   * @param adPositionInAdPod The ad position in the ad pod (Note: starts with index 1).
+   * @param totalAdDurationUs The total duration of all ads as declared by the ad pod.
+   * @param totalAdsInAdPod The total number of ads declared by the ad pod.
+   * @param adPlaybackState The ad playback state with the current ad information.
+   * @return The updated {@link AdPlaybackState}.
+   */
+  @CheckResult
+  public static AdPlaybackState addLiveAdBreak(
+      long currentContentPeriodPositionUs,
+      long adDurationUs,
+      int adPositionInAdPod,
+      long totalAdDurationUs,
+      int totalAdsInAdPod,
+      AdPlaybackState adPlaybackState) {
+    checkArgument(adPositionInAdPod > 0);
+    long mediaPeriodPositionUs =
+        getMediaPeriodPositionUsForContent(
+            currentContentPeriodPositionUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
+    // TODO(b/217187518) Support seeking backwards.
+    int adGroupIndex =
+        adPlaybackState.getAdGroupIndexForPositionUs(
+            mediaPeriodPositionUs, /* periodDurationUs= */ C.TIME_UNSET);
+    if (adGroupIndex == C.INDEX_UNSET) {
+      int adIndexInAdGroup = adPositionInAdPod - 1;
+      long[] adDurationsUs =
+          updateAdDurationAndPropagate(
+              new long[totalAdsInAdPod - adIndexInAdGroup],
+              /* adIndex= */ 0,
+              adDurationUs,
+              totalAdDurationUs);
+      adPlaybackState =
+          addAdGroupToAdPlaybackState(
+              adPlaybackState,
+              /* fromPositionUs= */ currentContentPeriodPositionUs,
+              /* contentResumeOffsetUs= */ sum(adDurationsUs),
+              /* adDurationsUs...= */ adDurationsUs);
+      adGroupIndex =
+          adPlaybackState.getAdGroupIndexForPositionUs(
+              mediaPeriodPositionUs, /* periodDurationUs= */ C.TIME_UNSET);
+      if (adGroupIndex != C.INDEX_UNSET) {
+        adPlaybackState =
+            adPlaybackState
+                .withAvailableAd(adGroupIndex, /* adIndexInAdGroup= */ 0)
+                .withOriginalAdCount(adGroupIndex, /* originalAdCount= */ totalAdsInAdPod);
+      }
+    } else {
+      AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+      long[] newDurationsUs = Arrays.copyOf(adGroup.durationsUs, adGroup.count);
+      int nextUnavailableAdIndex = getNextUnavailableAdIndex(adGroup);
+      if (adGroup.originalCount < totalAdsInAdPod || nextUnavailableAdIndex == adGroup.count) {
+        int adInAdGroupCount = max(totalAdsInAdPod, nextUnavailableAdIndex + 1);
+        adPlaybackState =
+            adPlaybackState
+                .withAdCount(adGroupIndex, adInAdGroupCount)
+                .withOriginalAdCount(adGroupIndex, /* originalAdCount= */ adInAdGroupCount);
+        newDurationsUs = Arrays.copyOf(newDurationsUs, adInAdGroupCount);
+        newDurationsUs[nextUnavailableAdIndex] = totalAdDurationUs;
+        Arrays.fill(
+            newDurationsUs,
+            /* fromIndex= */ nextUnavailableAdIndex + 1,
+            /* toIndex= */ adInAdGroupCount,
+            /* val= */ 0L);
+      }
+      long remainingDurationUs = max(adDurationUs, newDurationsUs[nextUnavailableAdIndex]);
+      updateAdDurationAndPropagate(
+          newDurationsUs, nextUnavailableAdIndex, adDurationUs, remainingDurationUs);
+      adPlaybackState =
+          adPlaybackState
+              .withAdDurationsUs(adGroupIndex, newDurationsUs)
+              .withAvailableAd(adGroupIndex, nextUnavailableAdIndex)
+              .withContentResumeOffsetUs(adGroupIndex, sum(newDurationsUs));
+    }
+    return adPlaybackState;
+  }
+
+  /**
+   * Splits the ad group at an available ad at a given split index.
+   *
+   * <p>When splitting, the ads from and after the split index are removed from the existing ad
+   * group. Then the ad events of all removed available ads are replicated to get the exact same
+   * result as if the new ad group was created by SDK ad events.
+   *
+   * @param adGroup The ad group to split.
+   * @param adGroupIndex The index of the ad group in the ad playback state.
+   * @param splitIndexExclusive The first index that should be part of the newly created ad group.
+   * @param adPlaybackState The ad playback state to modify.
+   * @return The ad playback state with the split ad group.
+   */
+  @CheckResult
+  public static AdPlaybackState splitAdGroup(
+      AdGroup adGroup, int adGroupIndex, int splitIndexExclusive, AdPlaybackState adPlaybackState) {
+    checkArgument(splitIndexExclusive > 0 && splitIndexExclusive < adGroup.count);
+    // Remove the ads from the ad group.
+    for (int i = 0; i < adGroup.count - splitIndexExclusive; i++) {
+      adPlaybackState = adPlaybackState.withLastAdRemoved(adGroupIndex);
+    }
+    AdGroup previousAdGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    long newAdGroupTimeUs = previousAdGroup.timeUs + previousAdGroup.contentResumeOffsetUs;
+    // Replicate ad events for each available ad that has been removed.
+    @AdPlaybackState.AdState
+    int[] removedStates = Arrays.copyOfRange(adGroup.states, splitIndexExclusive, adGroup.count);
+    long[] removedDurationsUs =
+        Arrays.copyOfRange(adGroup.durationsUs, splitIndexExclusive, adGroup.count);
+    long remainingAdDurationUs = sum(removedDurationsUs);
+    for (int i = 0; i < removedStates.length && removedStates[i] == AD_STATE_AVAILABLE; i++) {
+      adPlaybackState =
+          addLiveAdBreak(
+              newAdGroupTimeUs,
+              /* adDurationUs= */ removedDurationsUs[i],
+              /* adPositionInAdPod= */ i + 1,
+              /* totalAdDurationUs= */ remainingAdDurationUs,
+              /* totalAdsInAdPod= */ removedDurationsUs.length,
+              adPlaybackState);
+      remainingAdDurationUs -= removedDurationsUs[i];
+    }
+    return adPlaybackState;
+  }
+
+  private static int getNextUnavailableAdIndex(AdGroup adGroup) {
+    for (int i = 0; i < adGroup.states.length; i++) {
+      if (adGroup.states[i] == AD_STATE_UNAVAILABLE) {
+        return i;
+      }
+    }
+    return adGroup.states.length;
   }
 
   /**

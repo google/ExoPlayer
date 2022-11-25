@@ -24,10 +24,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,9 +38,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
   @Test
-  public void transformWithDecodeEncode_ssimIsGreaterThan90Percent() throws Exception {
+  public void transformHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
+      throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transformWithDecodeEncode_ssim";
+    String testId = "transformHighQualityTargetingAvcToAvc1920x1080_ssim";
 
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
@@ -52,13 +55,19 @@ public final class TranscodeQualityTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(
+                new DefaultEncoderFactory.Builder(context)
+                    .setRequestedVideoEncoderSettings(
+                        new VideoEncoderSettings.Builder()
+                            .setEnableHighQualityTargeting(true)
+                            .build())
+                    .build())
             .setRemoveAudio(true)
             .build();
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setMaybeCalculateSsim(true)
+            .setRequestCalculateSsim(true)
             .build()
             .run(
                 testId,
@@ -95,7 +104,7 @@ public final class TranscodeQualityTest {
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setMaybeCalculateSsim(true)
+            .setRequestCalculateSsim(true)
             .build()
             .run(
                 testId,
@@ -119,13 +128,13 @@ public final class TranscodeQualityTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setMaybeCalculateSsim(true)
+            .setRequestCalculateSsim(true)
             .build()
             .run(
                 testId,

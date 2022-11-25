@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.transformerdemo;
 
 import android.graphics.Matrix;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.transformer.GlMatrixTransformation;
-import com.google.android.exoplayer2.transformer.MatrixTransformation;
+import com.google.android.exoplayer2.effect.GlMatrixTransformation;
+import com.google.android.exoplayer2.effect.MatrixTransformation;
 import com.google.android.exoplayer2.util.Util;
 
 /**

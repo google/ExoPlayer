@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
@@ -31,8 +30,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
-import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
@@ -53,10 +52,10 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
@@ -80,13 +79,14 @@ public class TransformationTest {
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
-                    /* enableFallback= */ true))
+                new ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
+                        .setRequestedVideoEncoderSettings(
+                            new VideoEncoderSettings.Builder().setBitrate(5_000_000).build())
+                        .build()))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
@@ -105,9 +105,11 @@ public class TransformationTest {
     }
 
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
+        new Transformer.Builder(context)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING)));
@@ -126,9 +128,11 @@ public class TransformationTest {
       return;
     }
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
+        new Transformer.Builder(context)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING)));
@@ -140,11 +144,11 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
@@ -155,7 +159,7 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .setRemoveVideo(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -170,10 +174,7 @@ public class TransformationTest {
 
     if (Util.SDK_INT < 25) {
       // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
-      recordTestSkipped(
-          context,
-          testId,
-          /* reason= */ "Skipping on this API version due to lack of muxing support");
+      recordTestSkipped(context, testId, /* reason= */ "API version lacks muxing support");
       return;
     }
 

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
+
 import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.MediaFormat;
@@ -190,6 +192,53 @@ public final class MediaFormatUtil {
     }
   }
 
+  /**
+   * Creates and returns a {@code ColorInfo}, if a valid instance is described in the {@link
+   * MediaFormat}.
+   */
+  @Nullable
+  public static ColorInfo getColorInfo(MediaFormat mediaFormat) {
+    if (SDK_INT < 29) {
+      return null;
+    }
+    int colorSpace =
+        mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD, /* defaultValue= */ Format.NO_VALUE);
+    int colorRange =
+        mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE, /* defaultValue= */ Format.NO_VALUE);
+    int colorTransfer =
+        mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER, /* defaultValue= */ Format.NO_VALUE);
+    @Nullable
+    ByteBuffer hdrStaticInfoByteBuffer = mediaFormat.getByteBuffer(MediaFormat.KEY_HDR_STATIC_INFO);
+    @Nullable
+    byte[] hdrStaticInfo =
+        hdrStaticInfoByteBuffer != null ? getArray(hdrStaticInfoByteBuffer) : null;
+    // Some devices may produce invalid values from MediaFormat#getInteger.
+    // See b/239435670 for more information.
+    if (!isValidColorSpace(colorSpace)) {
+      colorSpace = Format.NO_VALUE;
+    }
+    if (!isValidColorRange(colorRange)) {
+      colorRange = Format.NO_VALUE;
+    }
+    if (!isValidColorTransfer(colorTransfer)) {
+      colorTransfer = Format.NO_VALUE;
+    }
+
+    if (colorSpace != Format.NO_VALUE
+        || colorRange != Format.NO_VALUE
+        || colorTransfer != Format.NO_VALUE
+        || hdrStaticInfo != null) {
+      return new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+    }
+    return null;
+  }
+
+  public static byte[] getArray(ByteBuffer byteBuffer) {
+    byte[] array = new byte[byteBuffer.remaining()];
+    byteBuffer.get(array);
+    return array;
+  }
+
   // Internal methods.
 
   private static void setBooleanAsInt(MediaFormat format, String key, int value) {
@@ -250,6 +299,32 @@ public final class MediaFormatUtil {
         return;
     }
     mediaFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, mediaFormatPcmEncoding);
+  }
+
+  /** Whether this is a valid {@link C.ColorSpace} instance. */
+  private static boolean isValidColorSpace(int colorSpace) {
+    // LINT.IfChange(color_space)
+    return colorSpace == C.COLOR_SPACE_BT601
+        || colorSpace == C.COLOR_SPACE_BT709
+        || colorSpace == C.COLOR_SPACE_BT2020
+        || colorSpace == Format.NO_VALUE;
+  }
+
+  /** Whether this is a valid {@link C.ColorRange} instance. */
+  private static boolean isValidColorRange(int colorRange) {
+    // LINT.IfChange(color_range)
+    return colorRange == C.COLOR_RANGE_LIMITED
+        || colorRange == C.COLOR_RANGE_FULL
+        || colorRange == Format.NO_VALUE;
+  }
+
+  /** Whether this is a valid {@link C.ColorTransfer} instance. */
+  private static boolean isValidColorTransfer(int colorTransfer) {
+    // LINT.IfChange(color_transfer)
+    return colorTransfer == C.COLOR_TRANSFER_SDR
+        || colorTransfer == C.COLOR_TRANSFER_ST2084
+        || colorTransfer == C.COLOR_TRANSFER_HLG
+        || colorTransfer == Format.NO_VALUE;
   }
 
   private MediaFormatUtil() {}

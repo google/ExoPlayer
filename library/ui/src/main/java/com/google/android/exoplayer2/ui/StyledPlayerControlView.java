@@ -60,7 +60,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
@@ -84,12 +83,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A view for controlling {@link Player} instances.
  *
- * <p>A StyledPlayerControlView can be customized by setting attributes (or calling corresponding
- * methods), or overriding drawables.
+ * <p>A {@code StyledPlayerControlView} can be customized by setting attributes (or calling
+ * corresponding methods), or overriding drawables.
  *
  * <h2>Attributes</h2>
  *
- * The following attributes can be set on a StyledPlayerControlView when used in a layout XML file:
+ * The following attributes can be set on a {@code StyledPlayerControlView} when used in a layout
+ * XML file:
  *
  * <ul>
  *   <li><b>{@code show_timeout}</b> - The time between the last user interaction and the controls
@@ -148,22 +148,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setTimeBarMinUpdateInterval(int)}
  *         <li>Default: {@link #DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS}
  *       </ul>
- *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
- *       below for more details.
- *       <ul>
- *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_styled_player_control_view}
- *       </ul>
- *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a
- *       StyledPlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar}
- *       unless the layout is overridden to specify a custom {@code exo_progress} (see below).
+ *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a {@code
+ *       StyledPlayerControlView}, and will be propagated to the inflated {@link DefaultTimeBar}.
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by StyledPlayerControlView (with its default layout file) can be overridden by
- * drawables with the same names defined in your application. The drawables that can be overridden
- * are:
+ * The drawables used by {@code StyledPlayerControlView} can be overridden by drawables with the
+ * same names defined in your application. The drawables that can be overridden are:
  *
  * <ul>
  *   <li><b>{@code exo_styled_controls_play}</b> - The play icon.
@@ -254,10 +246,22 @@ public class StyledPlayerControlView extends FrameLayout {
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
 
+  private final StyledPlayerControlViewLayoutManager controlViewLayoutManager;
+  private final Resources resources;
   private final ComponentListener componentListener;
 
   @SuppressWarnings("deprecation") // Using the deprecated type for now.
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
+
+  private final RecyclerView settingsView;
+  private final SettingsAdapter settingsAdapter;
+  private final PlaybackSpeedAdapter playbackSpeedAdapter;
+  private final TextTrackSelectionAdapter textTrackSelectionAdapter;
+  private final AudioTrackSelectionAdapter audioTrackSelectionAdapter;
+  // TODO(insun): Add setTrackNameProvider to use customized track name provider.
+  private final TrackNameProvider trackNameProvider;
+  private final PopupWindow settingsWindow;
+  private final int settingsWindowMargin;
 
   @Nullable private final View previousButton;
   @Nullable private final View nextButton;
@@ -269,6 +273,12 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private final ImageView repeatToggleButton;
   @Nullable private final ImageView shuffleButton;
   @Nullable private final View vrButton;
+  @Nullable private final ImageView subtitleButton;
+  @Nullable private final ImageView fullScreenButton;
+  @Nullable private final ImageView minimalFullScreenButton;
+  @Nullable private final View settingsButton;
+  @Nullable private final View playbackSpeedButton;
+  @Nullable private final View audioTrackButton;
   @Nullable private final TextView durationView;
   @Nullable private final TextView positionView;
   @Nullable private final TimeBar timeBar;
@@ -317,27 +327,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
 
-  private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
-  private Resources resources;
-
-  private RecyclerView settingsView;
-  private SettingsAdapter settingsAdapter;
-  private PlaybackSpeedAdapter playbackSpeedAdapter;
-  private PopupWindow settingsWindow;
   private boolean needToHideBars;
-  private int settingsWindowMargin;
-
-  private TextTrackSelectionAdapter textTrackSelectionAdapter;
-  private AudioTrackSelectionAdapter audioTrackSelectionAdapter;
-  // TODO(insun): Add setTrackNameProvider to use customized track name provider.
-  private TrackNameProvider trackNameProvider;
-
-  @Nullable private ImageView subtitleButton;
-  @Nullable private ImageView fullScreenButton;
-  @Nullable private ImageView minimalFullScreenButton;
-  @Nullable private View settingsButton;
-  @Nullable private View playbackSpeedButton;
-  @Nullable private View audioTrackButton;
 
   public StyledPlayerControlView(Context context) {
     this(context, /* attrs= */ null);
@@ -647,9 +637,6 @@ public class StyledPlayerControlView extends FrameLayout {
     this.player = player;
     if (player != null) {
       player.addListener(componentListener);
-    }
-    if (player instanceof ForwardingPlayer) {
-      player = ((ForwardingPlayer) player).getWrappedPlayer();
     }
     updateAll();
   }
@@ -1300,7 +1287,7 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsWindow.setHeight(height);
   }
 
-  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter) {
+  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter, View anchorView) {
     settingsView.setAdapter(adapter);
 
     updateSettingsWindowSize();
@@ -1312,7 +1299,7 @@ public class StyledPlayerControlView extends FrameLayout {
     int xoff = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
     int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
 
-    settingsWindow.showAsDropDown(this, xoff, yoff);
+    settingsWindow.showAsDropDown(anchorView, xoff, yoff);
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1394,9 +1381,9 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void onSettingViewClicked(int position) {
     if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
-      displaySettingsWindow(playbackSpeedAdapter);
+      displaySettingsWindow(playbackSpeedAdapter, checkNotNull(settingsButton));
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
-      displaySettingsWindow(audioTrackSelectionAdapter);
+      displaySettingsWindow(audioTrackSelectionAdapter, checkNotNull(settingsButton));
     } else {
       settingsWindow.dismiss();
     }
@@ -1690,16 +1677,16 @@ public class StyledPlayerControlView extends FrameLayout {
         player.setShuffleModeEnabled(!player.getShuffleModeEnabled());
       } else if (settingsButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(settingsAdapter);
+        displaySettingsWindow(settingsAdapter, settingsButton);
       } else if (playbackSpeedButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(playbackSpeedAdapter);
+        displaySettingsWindow(playbackSpeedAdapter, playbackSpeedButton);
       } else if (audioTrackButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(audioTrackSelectionAdapter);
+        displaySettingsWindow(audioTrackSelectionAdapter, audioTrackButton);
       } else if (subtitleButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(textTrackSelectionAdapter);
+        displaySettingsWindow(textTrackSelectionAdapter, subtitleButton);
       }
     }
   }

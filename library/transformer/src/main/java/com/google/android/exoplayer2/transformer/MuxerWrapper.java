@@ -16,19 +16,30 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.maxValue;
 import static com.google.android.exoplayer2.util.Util.minValue;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.os.ParcelFileDescriptor;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A wrapper around a media muxer.
@@ -45,30 +56,45 @@ import java.nio.ByteBuffer;
    */
   private static final long MAX_TRACK_WRITE_AHEAD_US = Util.msToUs(500);
 
-  private final Muxer muxer;
+  @Nullable private final String outputPath;
+  @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final Muxer.Factory muxerFactory;
+  private final Consumer<TransformationException> errorConsumer;
   private final SparseIntArray trackTypeToIndex;
   private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
   private final SparseLongArray trackTypeToBytesWritten;
-  private final String containerMimeType;
+  private final ScheduledExecutorService abortScheduledExecutorService;
 
   private int trackCount;
   private int trackFormatCount;
   private boolean isReady;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
+  private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
+  private boolean isAborted;
+  private @MonotonicNonNull Muxer muxer;
 
-  public MuxerWrapper(Muxer muxer, Muxer.Factory muxerFactory, String containerMimeType) {
-    this.muxer = muxer;
+  public MuxerWrapper(
+      @Nullable String outputPath,
+      @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
+      Muxer.Factory muxerFactory,
+      Consumer<TransformationException> errorConsumer) {
+    if (outputPath == null && outputParcelFileDescriptor == null) {
+      throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
+    }
+
+    this.outputPath = outputPath;
+    this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
-    this.containerMimeType = containerMimeType;
+    this.errorConsumer = errorConsumer;
 
     trackTypeToIndex = new SparseIntArray();
     trackTypeToSampleCount = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
     trackTypeToBytesWritten = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
+    abortScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
   }
 
   /**
@@ -88,7 +114,8 @@ import java.nio.ByteBuffer;
 
   /** Returns whether the sample {@linkplain MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
-    return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
+    @C.TrackType int trackType = MimeTypes.getTrackType(mimeType);
+    return getSupportedSampleMimeTypes(trackType).contains(mimeType);
   }
 
   /**
@@ -96,7 +123,7 @@ import java.nio.ByteBuffer;
    * track type}.
    */
   public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
-    return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+    return muxerFactory.getSupportedSampleMimeTypes(trackType);
   }
 
   /**
@@ -124,6 +151,8 @@ import java.nio.ByteBuffer;
         trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET) == C.INDEX_UNSET,
         "There is already a track of type " + trackType);
 
+    ensureMuxerInitialized();
+
     int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
     trackTypeToSampleCount.put(trackType, 0);
@@ -132,6 +161,7 @@ import java.nio.ByteBuffer;
     trackFormatCount++;
     if (trackFormatCount == trackCount) {
       isReady = true;
+      resetAbortTimer();
     }
   }
 
@@ -169,6 +199,8 @@ import java.nio.ByteBuffer;
       trackTypeToTimeUs.put(trackType, presentationTimeUs);
     }
 
+    checkNotNull(muxer);
+    resetAbortTimer();
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
     return true;
@@ -182,26 +214,27 @@ import java.nio.ByteBuffer;
    */
   public void endTrack(@C.TrackType int trackType) {
     trackTypeToIndex.delete(trackType);
+    if (trackTypeToIndex.size() == 0) {
+      abortScheduledExecutorService.shutdownNow();
+    }
   }
 
   /**
-   * Releases any resources associated with muxing.
+   * Finishes writing the output and releases any resources associated with muxing.
    *
    * <p>The muxer cannot be used anymore once this method has been called.
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
-   * @throws Muxer.MuxerException If the underlying muxer fails to stop and to release resources and
+   * @throws Muxer.MuxerException If the underlying muxer fails to finish writing the output and
    *     {@code forCancellation} is false.
    */
   public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
-    muxer.release(forCancellation);
-  }
-
-  /** Returns the number of {@link #registerTrack() registered} tracks. */
-  public int getTrackCount() {
-    return trackCount;
+    abortScheduledExecutorService.shutdownNow();
+    if (muxer != null) {
+      muxer.release(forCancellation);
+    }
   }
 
   /**
@@ -228,9 +261,32 @@ import java.nio.ByteBuffer;
     return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
   }
 
-  /** Returns the duration of the longest track in milliseconds. */
+  /**
+   * Returns the duration of the longest track in milliseconds, or {@link C#TIME_UNSET} if there is
+   * no track.
+   */
   public long getDurationMs() {
+    if (trackTypeToTimeUs.size() == 0) {
+      return C.TIME_UNSET;
+    }
     return Util.usToMs(maxValue(trackTypeToTimeUs));
+  }
+
+  /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
+  public long getCurrentOutputSizeBytes() {
+    long fileSize = C.LENGTH_UNSET;
+
+    if (outputPath != null) {
+      fileSize = new File(outputPath).length();
+    } else if (outputParcelFileDescriptor != null) {
+      fileSize = outputParcelFileDescriptor.getStatSize();
+    }
+
+    if (fileSize <= 0) {
+      fileSize = C.LENGTH_UNSET;
+    }
+
+    return fileSize;
   }
 
   /**
@@ -257,5 +313,45 @@ import java.nio.ByteBuffer;
       minTrackTimeUs = minValue(trackTypeToTimeUs);
     }
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
+  }
+
+  @RequiresNonNull("muxer")
+  private void resetAbortTimer() {
+    long maxDelayBetweenSamplesMs = muxer.getMaxDelayBetweenSamplesMs();
+    if (maxDelayBetweenSamplesMs == C.TIME_UNSET) {
+      return;
+    }
+    if (abortScheduledFuture != null) {
+      abortScheduledFuture.cancel(/* mayInterruptIfRunning= */ false);
+    }
+    abortScheduledFuture =
+        abortScheduledExecutorService.schedule(
+            () -> {
+              if (isAborted) {
+                return;
+              }
+              isAborted = true;
+              errorConsumer.accept(
+                  TransformationException.createForMuxer(
+                      new IllegalStateException(
+                          "No output sample written in the last "
+                              + maxDelayBetweenSamplesMs
+                              + " milliseconds. Aborting transformation."),
+                      TransformationException.ERROR_CODE_MUXING_FAILED));
+            },
+            maxDelayBetweenSamplesMs,
+            MILLISECONDS);
+  }
+
+  @EnsuresNonNull("muxer")
+  private void ensureMuxerInitialized() throws Muxer.MuxerException {
+    if (muxer == null) {
+      if (outputPath != null) {
+        muxer = muxerFactory.create(outputPath);
+      } else {
+        checkNotNull(outputParcelFileDescriptor);
+        muxer = muxerFactory.create(outputParcelFileDescriptor);
+      }
+    }
   }
 }

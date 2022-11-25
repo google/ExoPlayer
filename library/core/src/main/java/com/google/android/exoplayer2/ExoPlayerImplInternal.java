@@ -167,6 +167,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * to load it.
    */
   private static final long PLAYBACK_STUCK_AFTER_MS = 4000;
+  /**
+   * Threshold under which a buffered duration is assumed to be empty. We cannot use zero to account
+   * for buffers currently hold but not played by the renderer.
+   */
+  private static final long PLAYBACK_BUFFER_EMPTY_THRESHOLD_US = 500_000;
 
   private final Renderer[] renderers;
   private final Set<Renderer> renderersToReset;
@@ -176,7 +181,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final LoadControl loadControl;
   private final BandwidthMeter bandwidthMeter;
   private final HandlerWrapper handler;
-  private final HandlerThread internalPlaybackThread;
+  @Nullable private final HandlerThread internalPlaybackThread;
   private final Looper playbackLooper;
   private final Timeline.Window window;
   private final Timeline.Period period;
@@ -231,7 +236,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Looper applicationLooper,
       Clock clock,
       PlaybackInfoUpdateListener playbackInfoUpdateListener,
-      PlayerId playerId) {
+      PlayerId playerId,
+      Looper playbackLooper) {
     this.playbackInfoUpdateListener = playbackInfoUpdateListener;
     this.renderers = renderers;
     this.trackSelector = trackSelector;
@@ -272,12 +278,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
     mediaSourceList =
         new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler, playerId);
 
-    // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
-    // not normally change to this priority" is incorrect.
-    internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
-    internalPlaybackThread.start();
-    playbackLooper = internalPlaybackThread.getLooper();
-    handler = clock.createHandler(playbackLooper, this);
+    if (playbackLooper != null) {
+      internalPlaybackThread = null;
+      this.playbackLooper = playbackLooper;
+    } else {
+      // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
+      // not normally change to this priority" is incorrect.
+      internalPlaybackThread =
+          new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
+      internalPlaybackThread.start();
+      this.playbackLooper = internalPlaybackThread.getLooper();
+    }
+    handler = clock.createHandler(this.playbackLooper, this);
   }
 
   public void experimentalSetForegroundModeTimeoutMs(long setForegroundModeTimeoutMs) {
@@ -380,7 +392,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   @Override
   public synchronized void sendMessage(PlayerMessage message) {
-    if (released || !internalPlaybackThread.isAlive()) {
+    if (released || !playbackLooper.getThread().isAlive()) {
       Log.w(TAG, "Ignoring messages sent after release.");
       message.markAsProcessed(/* isDelivered= */ false);
       return;
@@ -395,7 +407,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return Whether the operations succeeded. If false, the operation timed out.
    */
   public synchronized boolean setForegroundMode(boolean foregroundMode) {
-    if (released || !internalPlaybackThread.isAlive()) {
+    if (released || !playbackLooper.getThread().isAlive()) {
       return true;
     }
     if (foregroundMode) {
@@ -417,7 +429,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return Whether the release succeeded. If false, the release timed out.
    */
   public synchronized boolean release() {
-    if (released || !internalPlaybackThread.isAlive()) {
+    if (released || !playbackLooper.getThread().isAlive()) {
       return true;
     }
     handler.sendEmptyMessage(MSG_RELEASE);
@@ -1050,7 +1062,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         }
       }
       if (!playbackInfo.isLoading
-          && playbackInfo.totalBufferedDurationUs < 500_000
+          && playbackInfo.totalBufferedDurationUs < PLAYBACK_BUFFER_EMPTY_THRESHOLD_US
           && isLoadingPossible()) {
         // The renderers are not ready, there is more media available to load, and the LoadControl
         // is refusing to load it (indicated by !playbackInfo.isLoading). This could be because the
@@ -1079,7 +1091,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     if (sleepingForOffload || playbackInfo.playbackState == Player.STATE_ENDED) {
       // No need to schedule next work.
-      return;
     } else if (isPlaying || playbackInfo.playbackState == Player.STATE_BUFFERING) {
       // We are actively playing or waiting for data to be ready. Schedule next work quickly.
       scheduleNextWork(operationStartTimeMs, ACTIVE_INTERVAL_MS);
@@ -1370,7 +1381,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         /* resetError= */ false);
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
-    internalPlaybackThread.quit();
+    if (internalPlaybackThread != null) {
+      internalPlaybackThread.quit();
+    }
     synchronized (this) {
       released = true;
       notifyAll();
@@ -2306,8 +2319,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
             ? loadingPeriodHolder.toPeriodTime(rendererPositionUs)
             : loadingPeriodHolder.toPeriodTime(rendererPositionUs)
                 - loadingPeriodHolder.info.startPositionUs;
-    return loadControl.shouldContinueLoading(
-        playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
+    boolean shouldContinueLoading =
+        loadControl.shouldContinueLoading(
+            playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
+    if (!shouldContinueLoading
+        && bufferedDurationUs < PLAYBACK_BUFFER_EMPTY_THRESHOLD_US
+        && (backBufferDurationUs > 0 || retainBackBufferFromKeyframe)) {
+      // LoadControl doesn't want to continue loading despite no buffered data. Clear back buffer
+      // and try again in case it's blocked on memory usage of the back buffer.
+      queue
+          .getPlayingPeriod()
+          .mediaPeriod
+          .discardBuffer(playbackInfo.positionUs, /* toKeyframe= */ false);
+      shouldContinueLoading =
+          loadControl.shouldContinueLoading(
+              playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
+    }
+    return shouldContinueLoading;
   }
 
   private boolean isLoadingPossible() {

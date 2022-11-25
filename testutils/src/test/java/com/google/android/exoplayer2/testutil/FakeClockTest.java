@@ -82,17 +82,17 @@ public final class FakeClockTest {
     handler.obtainMessage(/* what= */ 2, /* obj= */ testObject).sendToTarget();
     handler.obtainMessage(/* what= */ 3, /* arg1= */ 99, /* arg2= */ 44).sendToTarget();
     handler
-        .obtainMessage(/* what= */ 4, /* arg1= */ 88, /* arg2= */ 33, /* obj=*/ testObject)
+        .obtainMessage(/* what= */ 4, /* arg1= */ 88, /* arg2= */ 33, /* obj= */ testObject)
         .sendToTarget();
     ShadowLooper.idleMainLooper();
     shadowOf(handler.getLooper()).idle();
 
     assertThat(callback.messages)
         .containsExactly(
-            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
-            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ testObject),
-            new MessageData(/* what= */ 3, /* arg1= */ 99, /* arg2= */ 44, /* obj=*/ null),
-            new MessageData(/* what= */ 4, /* arg1= */ 88, /* arg2= */ 33, /* obj=*/ testObject))
+            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null),
+            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ testObject),
+            new MessageData(/* what= */ 3, /* arg1= */ 99, /* arg2= */ 44, /* obj= */ null),
+            new MessageData(/* what= */ 4, /* arg1= */ 88, /* arg2= */ 33, /* obj= */ testObject))
         .inOrder();
   }
 
@@ -113,8 +113,8 @@ public final class FakeClockTest {
 
     assertThat(callback.messages)
         .containsExactly(
-            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
-            new MessageData(/* what= */ 4, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null))
+            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null),
+            new MessageData(/* what= */ 4, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null))
         .inOrder();
 
     fakeClock.advanceTime(50);
@@ -122,14 +122,14 @@ public final class FakeClockTest {
 
     assertThat(callback.messages).hasSize(3);
     assertThat(Iterables.getLast(callback.messages))
-        .isEqualTo(new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+        .isEqualTo(new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null));
 
     fakeClock.advanceTime(50);
     shadowOf(handler.getLooper()).idle();
 
     assertThat(callback.messages).hasSize(4);
     assertThat(Iterables.getLast(callback.messages))
-        .isEqualTo(new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+        .isEqualTo(new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null));
   }
 
   @Test
@@ -149,10 +149,10 @@ public final class FakeClockTest {
 
     assertThat(callback.messages)
         .containsExactly(
-            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
-            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
-            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
-            new MessageData(/* what= */ 4, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null))
+            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null),
+            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null),
+            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null),
+            new MessageData(/* what= */ 4, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null))
         .inOrder();
   }
 
@@ -223,14 +223,14 @@ public final class FakeClockTest {
 
     assertThat(callback.messages)
         .containsExactly(
-            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null));
     assertThat(testRunnable1.hasRun).isTrue();
     assertThat(testRunnable2.hasRun).isTrue();
 
     // Assert that message with same "what" on other handler wasn't removed.
     assertThat(otherCallback.messages)
         .containsExactly(
-            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null));
   }
 
   @Test
@@ -266,7 +266,7 @@ public final class FakeClockTest {
     // Assert that message on other handler wasn't removed.
     assertThat(otherCallback.messages)
         .containsExactly(
-            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj= */ null));
   }
 
   @Test

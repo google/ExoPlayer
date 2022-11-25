@@ -256,25 +256,25 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   @Override
   protected void onChildSourceInfoRefreshed(
-      MediaPeriodId mediaPeriodId, MediaSource mediaSource, Timeline timeline) {
-    if (mediaPeriodId.isAd()) {
-      int adGroupIndex = mediaPeriodId.adGroupIndex;
-      int adIndexInAdGroup = mediaPeriodId.adIndexInAdGroup;
+      MediaPeriodId childSourceId, MediaSource mediaSource, Timeline newTimeline) {
+    if (childSourceId.isAd()) {
+      int adGroupIndex = childSourceId.adGroupIndex;
+      int adIndexInAdGroup = childSourceId.adIndexInAdGroup;
       checkNotNull(adMediaSourceHolders[adGroupIndex][adIndexInAdGroup])
-          .handleSourceInfoRefresh(timeline);
+          .handleSourceInfoRefresh(newTimeline);
     } else {
-      Assertions.checkArgument(timeline.getPeriodCount() == 1);
-      contentTimeline = timeline;
+      Assertions.checkArgument(newTimeline.getPeriodCount() == 1);
+      contentTimeline = newTimeline;
     }
     maybeUpdateSourceInfo();
   }
 
   @Override
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
-      MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
+      MediaPeriodId childSourceId, MediaPeriodId mediaPeriodId) {
     // The child id for the content period is just CHILD_SOURCE_MEDIA_PERIOD_ID. That's why
     // we need to forward the reported mediaPeriodId in this case.
-    return childId.isAd() ? childId : mediaPeriodId;
+    return childSourceId.isAd() ? childSourceId : mediaPeriodId;
   }
 
   // Internal methods.

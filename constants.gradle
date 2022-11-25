@@ -13,15 +13,18 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.18.1'
-    releaseVersionCode = 2_018_001
+    releaseVersion = '2.18.2'
+    releaseVersionCode = 2_018_002
     minSdkVersion = 16
-    appTargetSdkVersion = 29
+    appTargetSdkVersion = 33
+    // API version before restricting local file access.
+    // https://developer.android.com/training/data-storage/app-specific
+    mainDemoAppTargetSdkVersion = 29
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.
     targetSdkVersion = 30
-    compileSdkVersion = 32
-    dexmakerVersion = '2.28.1'
+    compileSdkVersion = 33
+    dexmakerVersion = '2.28.3'
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
     // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
@@ -40,7 +43,7 @@ project.ext {
     androidxConstraintLayoutVersion = '2.0.4'
     androidxCoreVersion = '1.7.0'
     androidxFuturesVersion = '1.1.0'
-    androidxMediaVersion = '1.4.3'
+    androidxMediaVersion = '1.6.0'
     androidxMedia2Version = '1.2.0'
     androidxMultidexVersion = '2.0.1'
     androidxRecyclerViewVersion = '1.2.1'

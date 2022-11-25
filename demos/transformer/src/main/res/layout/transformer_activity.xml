@@ -29,42 +29,113 @@
     app:cardElevation="2dp"
     android:gravity="center_vertical" >
 
-    <TextView
-      android:id="@+id/information_text_view"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
+    <LinearLayout
+      android:layout_width="match_parent"
       android:orientation="vertical"
-      android:padding="8dp" />
+      android:layout_height="wrap_content">
+
+      <TextView
+        android:id="@+id/information_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp" />
+
+      <Button
+        android:id="@+id/display_input_button"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hide_input_video"
+        android:layout_margin="8dp" />
+
+
+    </LinearLayout>
 
   </com.google.android.material.card.MaterialCardView>
 
   <com.google.android.material.card.MaterialCardView
+    android:id="@+id/input_card_view"
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="1"
     android:layout_margin="16dp"
     app:cardCornerRadius="4dp"
     app:cardElevation="2dp">
-      <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <com.google.android.exoplayer2.ui.StyledPlayerView
-          android:id="@+id/player_view"
+    <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" >
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:padding="8dp"
+        android:text="@string/input_video" />
+
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" >
+
+      <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/input_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+          android:id="@+id/input_debug_aspect_ratio_frame_layout"
           android:layout_width="match_parent"
           android:layout_height="match_parent" />
+      </FrameLayout>
+    </LinearLayout>
 
-        <TextView
-          android:id="@+id/debug_text_view"
+
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+    android:id="@+id/output_card_view"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="2dp">
+    <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" >
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="@string/output_video" />
+
+      <TextView
+        android:id="@+id/debug_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textSize="10sp"
+        tools:ignore="SmallSp"/>
+
+      <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content">
+
+        <com.google.android.exoplayer2.ui.StyledPlayerView
+          android:id="@+id/output_player_view"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:textSize="10sp"
-          tools:ignore="SmallSp"/>
+          android:layout_height="wrap_content" />
 
         <LinearLayout
           android:id="@+id/progress_view_group"
-          android:layout_height="match_parent"
+          android:layout_height="wrap_content"
           android:layout_width="match_parent"
+          android:layout_gravity="bottom"
           android:padding="8dp"
           android:orientation="vertical">
 
@@ -96,5 +167,9 @@
         </LinearLayout>
 
       </FrameLayout>
+
+
+    </LinearLayout>
+
   </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

@@ -51,7 +51,8 @@ public final class RtpOpusReaderTest {
               .build(),
           /* rtpPayloadType= */ 97,
           /* clockRate= */ 48_000,
-          /* fmtpParameters= */ ImmutableMap.of());
+          /* fmtpParameters= */ ImmutableMap.of(),
+          RtpPayloadFormat.RTP_MEDIA_OPUS);
 
   private static final RtpPacket OPUS_HEADER =
       createRtpPacket(

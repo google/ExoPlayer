@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.media.AudioDeviceInfo;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -235,6 +236,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   }
 
   @Override
+  public void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
     throw new UnsupportedOperationException();
   }
@@ -408,6 +414,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public boolean experimentalIsSleepingForOffload() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isTunnelingEnabled() {
     throw new UnsupportedOperationException();
   }
 }

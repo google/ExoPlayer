@@ -22,8 +22,13 @@
 
   <uses-sdk/>
 
-  <application android:label="@string/application_name" android:icon="@mipmap/ic_launcher"
-      android:largeHeap="true" android:allowBackup="false">
+  <application
+      android:name="androidx.multidex.MultiDexApplication"
+      android:label="@string/application_name"
+      android:icon="@mipmap/ic_launcher"
+      android:largeHeap="true"
+      android:allowBackup="false"
+      android:taskAffinity="">
 
     <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
         android:value="com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider"/>

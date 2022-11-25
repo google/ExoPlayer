@@ -176,6 +176,14 @@ public interface TsPayloadReader {
 
   /**
    * Contextual flags indicating the presence of indicators in the TS packet or PES packet headers.
+   *
+   * <p>The individual flag values are:
+   *
+   * <ul>
+   *   <li>{@link #FLAG_PAYLOAD_UNIT_START_INDICATOR}
+   *   <li>{@link #FLAG_RANDOM_ACCESS_INDICATOR}
+   *   <li>{@link #FLAG_DATA_ALIGNMENT_INDICATOR}
+   * </ul>
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)

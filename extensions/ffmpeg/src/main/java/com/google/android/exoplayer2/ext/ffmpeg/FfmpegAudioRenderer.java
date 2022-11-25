@@ -104,10 +104,11 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
   }
 
   @Override
-  public final @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
+  public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
+  /** {@inheritDoc} */
   @Override
   protected FfmpegAudioDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws FfmpegDecoderException {
@@ -121,8 +122,9 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
     return decoder;
   }
 
+  /** {@inheritDoc} */
   @Override
-  public Format getOutputFormat(FfmpegAudioDecoder decoder) {
+  protected Format getOutputFormat(FfmpegAudioDecoder decoder) {
     Assertions.checkNotNull(decoder);
     return new Format.Builder()
         .setSampleMimeType(MimeTypes.AUDIO_RAW)

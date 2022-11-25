@@ -187,6 +187,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void seek(long nextRtpTimestamp, long playbackStartTimeUs) {
     synchronized (lock) {
+      if (!isSeekPending) {
+        // Sets the isSeekPending flag, in the case preSeek() is not called, when seeking does not
+        // require RTSP message exchange. For example, playing back with non-zero start position.
+        isSeekPending = true;
+      }
       this.nextRtpTimestamp = nextRtpTimestamp;
       this.playbackStartTimeUs = playbackStartTimeUs;
     }

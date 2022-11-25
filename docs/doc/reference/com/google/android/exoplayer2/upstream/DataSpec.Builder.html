@@ -315,7 +315,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uriString)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uriString)</pre>
 <div class="block">Sets <a href="DataSpec.html#uri"><code>DataSpec.uri</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -331,7 +332,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
 <div class="block">Sets <a href="DataSpec.html#uri"><code>DataSpec.uri</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -347,7 +349,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUriPositionOffset</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setUriPositionOffset&#8203;(long&nbsp;uriPositionOffset)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setUriPositionOffset&#8203;(long&nbsp;uriPositionOffset)</pre>
 <div class="block">Sets the <a href="DataSpec.html#uriPositionOffset"><code>DataSpec.uriPositionOffset</code></a>. The default value is 0.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -363,7 +366,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setHttpMethod</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setHttpMethod&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.HttpMethod int&nbsp;httpMethod)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setHttpMethod&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.HttpMethod int&nbsp;httpMethod)</pre>
 <div class="block">Sets <a href="DataSpec.html#httpMethod"><code>DataSpec.httpMethod</code></a>. The default value is <a href="DataSpec.html#HTTP_METHOD_GET"><code>DataSpec.HTTP_METHOD_GET</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -379,7 +383,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setHttpBody</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setHttpBody&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setHttpBody&#8203;(@Nullable
                                     byte[]&nbsp;httpBody)</pre>
 <div class="block">Sets <a href="DataSpec.html#httpBody"><code>DataSpec.httpBody</code></a>. The default value is <code>null</code>.</div>
 <dl>
@@ -396,7 +401,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setHttpRequestHeaders</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setHttpRequestHeaders&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setHttpRequestHeaders&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
 <div class="block">Sets the <a href="DataSpec.html#httpRequestHeaders"><code>DataSpec.httpRequestHeaders</code></a>. The default value is an empty map.
 
  <p>Note: <code>Range</code>, <code>Accept-Encoding</code> and <code>User-Agent</code> should not be set with
@@ -416,7 +422,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setPosition&#8203;(long&nbsp;position)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setPosition&#8203;(long&nbsp;position)</pre>
 <div class="block">Sets the <a href="DataSpec.html#position"><code>DataSpec.position</code></a>. The default value is 0.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -432,7 +439,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLength</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setLength&#8203;(long&nbsp;length)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setLength&#8203;(long&nbsp;length)</pre>
 <div class="block">Sets the <a href="DataSpec.html#length"><code>DataSpec.length</code></a>. The default value is <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -448,7 +456,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setKey&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setKey&#8203;(@Nullable
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</pre>
 <div class="block">Sets the <a href="DataSpec.html#key"><code>DataSpec.key</code></a>. The default value is <code>null</code>.</div>
 <dl>
@@ -465,7 +474,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setFlags&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setFlags&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.Flags int&nbsp;flags)</pre>
 <div class="block">Sets the <a href="DataSpec.html#flags"><code>DataSpec.flags</code></a>. The default value is 0.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -481,7 +491,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setCustomData</h4>
-<pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setCustomData&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;setCustomData&#8203;(@Nullable
                                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;customData)</pre>
 <div class="block">Sets the <a href="DataSpec.html#customData"><code>DataSpec.customData</code></a>. The default value is <code>null</code>.</div>
 <dl>

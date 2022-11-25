@@ -705,7 +705,7 @@ public class PlayerNotificationManager {
   private int color;
   @DrawableRes private int smallIconResourceId;
   private int visibility;
-  @Priority private int priority;
+  private @Priority int priority;
   private boolean useChronometer;
   @Nullable private String groupKey;
 
@@ -1162,7 +1162,7 @@ public class PlayerNotificationManager {
     Notification notification = builder.build();
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
-      context.registerReceiver(notificationBroadcastReceiver, intentFilter);
+      Util.registerReceiverNotExported(context, notificationBroadcastReceiver, intentFilter);
     }
     if (notificationListener != null) {
       // Always pass true for ongoing with the first notification to tell a service to go into

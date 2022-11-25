@@ -20,6 +20,7 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -76,10 +77,13 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:' + androidxConstraintLayoutVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'com.google.android.material:material:' + androidxMaterialVersion
+    implementation project(modulePrefix + 'library-effect')
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
     implementation project(modulePrefix + 'library-transformer')
     implementation project(modulePrefix + 'library-ui')
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // For MediaPipe and its dependencies:
     withMediaPipeImplementation fileTree(dir: 'libs', include: ['*.aar'])

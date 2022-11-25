@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.source.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
@@ -26,7 +27,6 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.rtsp.RtpPayloadFormat;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Parses an AC3 byte stream carried on RTP packets, and extracts AC3 frames. */
@@ -205,15 +205,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* offset= */ 0,
             /* cryptoData= */ null);
     numBytesPendingMetadataOutput = 0;
-  }
-
-  /** Returns the correct sample time from RTP timestamp, accounting for the AC3 sampling rate. */
-  private static long toSampleTimeUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp, int sampleRate) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            rtpTimestamp - firstReceivedRtpTimestamp,
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ sampleRate);
   }
 }

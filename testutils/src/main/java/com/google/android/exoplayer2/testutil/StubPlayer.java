@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
@@ -346,6 +347,11 @@ public class StubPlayer extends BasePlayer {
 
   @Override
   public VideoSize getVideoSize() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Size getSurfaceSize() {
     throw new UnsupportedOperationException();
   }
 

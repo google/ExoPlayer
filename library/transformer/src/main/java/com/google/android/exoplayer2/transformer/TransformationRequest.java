@@ -17,16 +17,75 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /** A media transformation request. */
 public final class TransformationRequest {
+
+  /**
+   * The strategy to use to transcode or edit High Dynamic Range (HDR) input video.
+   *
+   * <p>One of {@link #HDR_MODE_KEEP_HDR}, {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR}, or {@link
+   * #HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
+   *
+   * <p>Standard Dynamic Range (SDR) input video is unaffected by these settings.
+   */
+  @Documented
+  @Retention(SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    HDR_MODE_KEEP_HDR,
+    HDR_MODE_TONE_MAP_HDR_TO_SDR,
+    HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR
+  })
+  public @interface HdrMode {}
+  /**
+   * Processes HDR input as HDR, to generate HDR output.
+   *
+   * <p>Supported on API 31+, by some device and HDR format combinations.
+   *
+   * <p>If not supported, {@link Transformer} may fall back to {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR}.
+   */
+  public static final int HDR_MODE_KEEP_HDR = 0;
+  /**
+   * Tone map HDR input to SDR before processing, to generate SDR output.
+   *
+   * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
+   * guaranteed to be supported from Android T onwards.
+   *
+   * <p>If not supported, {@link Transformer} may throw a {@link TransformationException}.
+   */
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR = 1;
+  /**
+   * Interpret HDR input as SDR, resulting in washed out video.
+   *
+   * <p>Supported on API 29+.
+   *
+   * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR}. However, as HDR transfer functions and metadata will be
+   * ignored, contents will be displayed incorrectly, likely with a washed out look.
+   *
+   * <p>Use of this flag may result in {@code
+   * TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED} or {@code
+   * ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
+   *
+   * <p>This field is experimental, and will be renamed or removed in a future release.
+   */
+  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR = 2;
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
@@ -38,8 +97,7 @@ public final class TransformationRequest {
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
-    private boolean enableRequestSdrToneMapping;
-    private boolean enableHdrEditing;
+    private @HdrMode int hdrMode;
 
     /**
      * Creates a new instance with default values.
@@ -61,8 +119,7 @@ public final class TransformationRequest {
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
-      this.enableRequestSdrToneMapping = transformationRequest.enableRequestSdrToneMapping;
-      this.enableHdrEditing = transformationRequest.enableHdrEditing;
+      this.hdrMode = transformationRequest.hdrMode;
     }
 
     /**
@@ -94,6 +151,7 @@ public final class TransformationRequest {
      * @param flattenForSlowMotion Whether to flatten for slow motion.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       this.flattenForSlowMotion = flattenForSlowMotion;
       return this;
@@ -110,6 +168,7 @@ public final class TransformationRequest {
      * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setScale(float scaleX, float scaleY) {
       this.scaleX = scaleX;
       this.scaleY = scaleY;
@@ -128,6 +187,7 @@ public final class TransformationRequest {
      * @param rotationDegrees The counterclockwise rotation, in degrees.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRotationDegrees(float rotationDegrees) {
       this.rotationDegrees = rotationDegrees;
       return this;
@@ -148,6 +208,7 @@ public final class TransformationRequest {
      * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setResolution(int outputHeight) {
       this.outputHeight = outputHeight;
       return this;
@@ -171,6 +232,7 @@ public final class TransformationRequest {
      * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
      *     {@linkplain MimeTypes MIME type}.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoMimeType(@Nullable String videoMimeType) {
       checkArgument(
           videoMimeType == null || MimeTypes.isVideo(videoMimeType),
@@ -196,6 +258,7 @@ public final class TransformationRequest {
      * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
      *     {@linkplain MimeTypes MIME type}.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioMimeType(@Nullable String audioMimeType) {
       checkArgument(
           audioMimeType == null || MimeTypes.isAudio(audioMimeType),
@@ -205,36 +268,45 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets whether to request tone-mapping to standard dynamic range (SDR). If enabled and
-     * supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
-     * transfer function before processing.
+     * Sets the {@link HdrMode} for HDR video input.
      *
-     * <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
-     * supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.
+     * <p>The default value is {@link #HDR_MODE_KEEP_HDR}.
      *
-     * @param enableRequestSdrToneMapping Whether to request tone-mapping down to SDR.
+     * @param hdrMode The {@link HdrMode} used.
      * @return This builder.
      */
-    public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
-      this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
+    @CanIgnoreReturnValue
+    public Builder setHdrMode(@HdrMode int hdrMode) {
+      this.hdrMode = hdrMode;
       return this;
     }
 
     /**
-     * Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
-     * signal.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
-     * editing feature is under development and is intended for developing/testing HDR processing
-     * and encoding support. HDR editing can't be enabled at the same time as {@linkplain
-     * #setEnableRequestSdrToneMapping(boolean) SDR tone-mapping}.
-     *
-     * @param enableHdrEditing Whether to attempt to process any input video stream as a high
-     *     dynamic range (HDR) signal.
-     * @return This builder.
+     * @deprecated This method is now a no-op if {@code false}, and sets {@code
+     *     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR)} if {@code true}. Use {@link #setHdrMode} with
+     *     {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR} instead.
      */
+    @Deprecated
+    @CanIgnoreReturnValue
+    public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
+      if (enableRequestSdrToneMapping) {
+        return setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR);
+      }
+      return this;
+    }
+
+    /**
+     * @deprecated This method is now a no-op if {@code false}, and sets {@code
+     *     setHdrMode(HDR_MODE_KEEP_HDR)} if {@code true}. {@code
+     *     experimental_setEnableHdrEditing(true)} is now the default behavior. Use {@link
+     *     #setHdrMode} with link {@link #HDR_MODE_KEEP_HDR} instead.
+     */
+    @Deprecated
+    @CanIgnoreReturnValue
     public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
-      this.enableHdrEditing = enableHdrEditing;
+      if (enableHdrEditing) {
+        return setHdrMode(HDR_MODE_KEEP_HDR);
+      }
       return this;
     }
 
@@ -248,8 +320,7 @@ public final class TransformationRequest {
           outputHeight,
           audioMimeType,
           videoMimeType,
-          enableRequestSdrToneMapping,
-          enableHdrEditing);
+          hdrMode);
     }
   }
 
@@ -299,15 +370,12 @@ public final class TransformationRequest {
    * @see Builder#setVideoMimeType(String)
    */
   @Nullable public final String videoMimeType;
-  /** Whether to request tone-mapping to standard dynamic range (SDR). */
-  public final boolean enableRequestSdrToneMapping;
-
   /**
-   * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
+   * The {@link HdrMode} specifying how to handle HDR input video.
    *
-   * @see Builder#experimental_setEnableHdrEditing(boolean)
+   * @see Builder#setHdrMode(int)
    */
-  public final boolean enableHdrEditing;
+  public final @HdrMode int hdrMode;
 
   private TransformationRequest(
       boolean flattenForSlowMotion,
@@ -317,9 +385,8 @@ public final class TransformationRequest {
       int outputHeight,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType,
-      boolean enableRequestSdrToneMapping,
-      boolean enableHdrEditing) {
-    checkArgument(!enableHdrEditing || !enableRequestSdrToneMapping);
+      @HdrMode int hdrMode) {
+
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.scaleX = scaleX;
     this.scaleY = scaleY;
@@ -327,8 +394,7 @@ public final class TransformationRequest {
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
-    this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
-    this.enableHdrEditing = enableHdrEditing;
+    this.hdrMode = hdrMode;
   }
 
   @Override
@@ -347,8 +413,7 @@ public final class TransformationRequest {
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
         && Util.areEqual(videoMimeType, that.videoMimeType)
-        && enableRequestSdrToneMapping == that.enableRequestSdrToneMapping
-        && enableHdrEditing == that.enableHdrEditing;
+        && hdrMode == that.hdrMode;
   }
 
   @Override
@@ -360,8 +425,7 @@ public final class TransformationRequest {
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);
-    result = 31 * result + (enableRequestSdrToneMapping ? 1 : 0);
-    result = 31 * result + (enableHdrEditing ? 1 : 0);
+    result = 31 * result + hdrMode;
     return result;
   }
 

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,25 +33,27 @@ import java.util.Map;
  * A {@link DataSource} that supports multiple URI schemes. The supported schemes are:
  *
  * <ul>
- *   <li>file: For fetching data from a local file (e.g. file:///path/to/media/media.mp4, or just
- *       /path/to/media/media.mp4 because the implementation assumes that a URI without a scheme is
- *       a local file URI).
- *   <li>asset: For fetching data from an asset in the application's apk (e.g. asset:///media.mp4).
- *   <li>rawresource: For fetching data from a raw resource in the application's apk (e.g.
- *       rawresource:///resourceId, where rawResourceId is the integer identifier of the raw
- *       resource).
- *   <li>android.resource: For fetching data in the application's apk (e.g.
- *       android.resource:///resourceId or android.resource://resourceType/resourceName). See {@link
- *       RawResourceDataSource} for more information about the URI form.
- *   <li>content: For fetching data from a content URI (e.g. content://authority/path/123).
- *   <li>rtmp: For fetching data over RTMP. Only supported if the project using ExoPlayer has an
- *       explicit dependency on ExoPlayer's RTMP extension.
- *   <li>data: For parsing data inlined in the URI as defined in RFC 2397.
- *   <li>udp: For fetching data over UDP (e.g. udp://something.com/media).
- *   <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4),
- *       if constructed using {@link #DefaultDataSource(Context, String, boolean)}, or any other
- *       schemes supported by a base data source if constructed using {@link
- *       #DefaultDataSource(Context, DataSource)}.
+ *   <li>{@code file}: For fetching data from a local file (e.g. {@code
+ *       file:///path/to/media/media.mp4}, or just {@code /path/to/media/media.mp4} because the
+ *       implementation assumes that a URI without a scheme is a local file URI).
+ *   <li>{@code asset}: For fetching data from an asset in the application's APK (e.g. {@code
+ *       asset:///media.mp4}).
+ *   <li>{@code rawresource}: For fetching data from a raw resource in the application's APK (e.g.
+ *       {@code rawresource:///resourceId}, where {@code rawResourceId} is the integer identifier of
+ *       the raw resource).
+ *   <li>{@code android.resource}: For fetching data in the application's APK (e.g. {@code
+ *       android.resource:///resourceId} or {@code android.resource://resourceType/resourceName}).
+ *       See {@link RawResourceDataSource} for more information about the URI form.
+ *   <li>{@code content}: For fetching data from a content URI (e.g. {@code
+ *       content://authority/path/123}).
+ *   <li>{@code rtmp}: For fetching data over RTMP. Only supported if the project using ExoPlayer
+ *       has an explicit dependency on ExoPlayer's RTMP extension.
+ *   <li>{@code data}: For parsing data inlined in the URI as defined in RFC 2397.
+ *   <li>{@code udp}: For fetching data over UDP (e.g. {@code udp://something.com/media}).
+ *   <li>{@code http(s)}: For fetching data over HTTP and HTTPS (e.g. {@code
+ *       https://www.something.com/media.mp4}), if constructed using {@link
+ *       #DefaultDataSource(Context, String, boolean)}, or any other schemes supported by a base
+ *       data source if constructed using {@link #DefaultDataSource(Context, DataSource)}.
  * </ul>
  */
 public final class DefaultDataSource implements DataSource {
@@ -96,6 +99,7 @@ public final class DefaultDataSource implements DataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;

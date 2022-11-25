@@ -279,8 +279,8 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until it
- has been <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until
+ <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> has been called and more input has been queued.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -320,10 +320,9 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceOutputBuffer(int)">replaceOutputBuffer</a></span>&#8203;(int&nbsp;count)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceOutputBuffer(int)">replaceOutputBuffer</a></span>&#8203;(int&nbsp;size)</code></th>
 <td class="colLast">
-<div class="block">Replaces the current output buffer with a buffer of at least <code>count</code> bytes and returns
- it.</div>
+<div class="block">Replaces the current output buffer with a buffer of at least <code>size</code> bytes and returns it.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -419,7 +418,8 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre class="methodSignature">public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
                                            throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">AudioProcessor</a></code></span></div>
 <div class="block">Configures the processor to process input audio with the specified format. After calling this
@@ -504,8 +504,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <pre class="methodSignature">@CallSuper
 public&nbsp;boolean&nbsp;isEnded()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#isEnded()">AudioProcessor</a></code></span></div>
-<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until it
- has been <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until
+ <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> has been called and more input has been queued.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="AudioProcessor.html#isEnded()">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
@@ -549,10 +549,10 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>replaceOutputBuffer</h4>
-<pre class="methodSignature">protected final&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;replaceOutputBuffer&#8203;(int&nbsp;count)</pre>
-<div class="block">Replaces the current output buffer with a buffer of at least <code>count</code> bytes and returns
- it. Callers should write to the returned buffer then <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#flip()" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.flip()</code></a> it so it can be
- read via <a href="#getOutput()"><code>getOutput()</code></a>.</div>
+<pre class="methodSignature">protected final&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;replaceOutputBuffer&#8203;(int&nbsp;size)</pre>
+<div class="block">Replaces the current output buffer with a buffer of at least <code>size</code> bytes and returns it.
+ Callers should write to the returned buffer then <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#flip()" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.flip()</code></a> it so it can be read
+ via <a href="#getOutput()"><code>getOutput()</code></a>.</div>
 </li>
 </ul>
 <a id="hasPendingOutput()">
@@ -571,7 +571,8 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>onConfigure</h4>
-<pre class="methodSignature">protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;onConfigure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+<pre class="methodSignature">@CanIgnoreReturnValue
+protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;onConfigure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
                                           throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
 <div class="block">Called when the processor is configured for a new input format.</div>
 <dl>

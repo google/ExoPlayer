@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.source.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
@@ -36,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class RtpMpeg4Reader implements RtpPayloadReader {
   private static final String TAG = "RtpMpeg4Reader";
 
-  private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
+  private static final int MEDIA_CLOCK_FREQUENCY = 90_000;
 
   /** VOP (Video Object Plane) unit type. */
   private static final int I_VOP = 0;
@@ -60,7 +61,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
-    sampleLength = 0;
   }
 
   @Override
@@ -103,7 +103,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         firstReceivedTimestamp = timestamp;
       }
 
-      long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
+      long timeUs =
+          toSampleTimeUs(
+              startTimeOffsetUs, timestamp, firstReceivedTimestamp, MEDIA_CLOCK_FREQUENCY);
       trackOutput.sampleMetadata(timeUs, bufferFlags, sampleLength, 0, null);
       sampleLength = 0;
     }
@@ -135,14 +137,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return vopType == I_VOP ? C.BUFFER_FLAG_KEY_FRAME : 0;
     }
     return 0;
-  }
-
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            (rtpTimestamp - firstReceivedRtpTimestamp),
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 }

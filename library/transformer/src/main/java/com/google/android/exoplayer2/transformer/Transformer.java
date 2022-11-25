@@ -16,51 +16,38 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS;
-import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
-import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
-import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.transformer.TransformerInternal.END_TRANSFORMATION_REASON_CANCELLED;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
-import android.view.SurfaceView;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Tracks;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.effect.GlEffect;
+import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
+import com.google.android.exoplayer2.effect.GlMatrixTransformation;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.text.TextOutput;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.DebugViewProvider;
+import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -92,41 +79,23 @@ public final class Transformer {
   public static final class Builder {
 
     // Mandatory field.
-    // TODO(huangdarwin): Update @MonotonicNonNull to final after deprecated {@link
-    // #setContext(Context)} is removed.
-    private @MonotonicNonNull Context context;
+    private final Context context;
 
     // Optional fields.
-    private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
-    private Muxer.Factory muxerFactory;
+    private TransformationRequest transformationRequest;
+    private ImmutableList<AudioProcessor> audioProcessors;
+    private ImmutableList<Effect> videoEffects;
     private boolean removeAudio;
     private boolean removeVideo;
-    private String containerMimeType;
-    private TransformationRequest transformationRequest;
-    private ImmutableList<GlEffect> videoFrameEffects;
     private ListenerSet<Transformer.Listener> listeners;
-    private DebugViewProvider debugViewProvider;
-    private Looper looper;
-    private Clock clock;
-    private Codec.EncoderFactory encoderFactory;
+    private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
     private Codec.DecoderFactory decoderFactory;
-
-    /**
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
-    @Deprecated
-    public Builder() {
-      muxerFactory = new FrameworkMuxer.Factory();
-      looper = Util.getCurrentOrMainLooper();
-      clock = Clock.DEFAULT;
-      listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = Codec.EncoderFactory.DEFAULT;
-      decoderFactory = Codec.DecoderFactory.DEFAULT;
-      debugViewProvider = DebugViewProvider.NONE;
-      containerMimeType = MimeTypes.VIDEO_MP4;
-      transformationRequest = new TransformationRequest.Builder().build();
-      videoFrameEffects = ImmutableList.of();
-    }
+    private Codec.EncoderFactory encoderFactory;
+    private FrameProcessor.Factory frameProcessorFactory;
+    private Muxer.Factory muxerFactory;
+    private Looper looper;
+    private DebugViewProvider debugViewProvider;
+    private Clock clock;
 
     /**
      * Creates a builder with default values.
@@ -135,43 +104,36 @@ public final class Transformer {
      */
     public Builder(Context context) {
       this.context = context.getApplicationContext();
-      muxerFactory = new FrameworkMuxer.Factory();
+      transformationRequest = new TransformationRequest.Builder().build();
+      audioProcessors = ImmutableList.of();
+      videoEffects = ImmutableList.of();
+      decoderFactory = new DefaultDecoderFactory(this.context);
+      encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
+      frameProcessorFactory = new GlEffectsFrameProcessor.Factory();
+      muxerFactory = new DefaultMuxer.Factory();
       looper = Util.getCurrentOrMainLooper();
+      debugViewProvider = DebugViewProvider.NONE;
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = Codec.EncoderFactory.DEFAULT;
-      decoderFactory = Codec.DecoderFactory.DEFAULT;
-      debugViewProvider = DebugViewProvider.NONE;
-      containerMimeType = MimeTypes.VIDEO_MP4;
-      transformationRequest = new TransformationRequest.Builder().build();
-      videoFrameEffects = ImmutableList.of();
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
     private Builder(Transformer transformer) {
       this.context = transformer.context;
-      this.mediaSourceFactory = transformer.mediaSourceFactory;
-      this.muxerFactory = transformer.muxerFactory;
+      this.transformationRequest = transformer.transformationRequest;
+      this.audioProcessors = transformer.audioProcessors;
+      this.videoEffects = transformer.videoEffects;
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
-      this.containerMimeType = transformer.containerMimeType;
-      this.transformationRequest = transformer.transformationRequest;
-      this.videoFrameEffects = transformer.videoFrameEffects;
       this.listeners = transformer.listeners;
-      this.looper = transformer.looper;
-      this.encoderFactory = transformer.encoderFactory;
+      this.mediaSourceFactory = transformer.mediaSourceFactory;
       this.decoderFactory = transformer.decoderFactory;
+      this.encoderFactory = transformer.encoderFactory;
+      this.frameProcessorFactory = transformer.frameProcessorFactory;
+      this.muxerFactory = transformer.muxerFactory;
+      this.looper = transformer.looper;
       this.debugViewProvider = transformer.debugViewProvider;
       this.clock = transformer.clock;
-    }
-
-    /**
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
-    @Deprecated
-    public Builder setContext(Context context) {
-      this.context = context.getApplicationContext();
-      return this;
     }
 
     /**
@@ -184,40 +146,45 @@ public final class Transformer {
      * @param transformationRequest The {@link TransformationRequest}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setTransformationRequest(TransformationRequest transformationRequest) {
       this.transformationRequest = transformationRequest;
       return this;
     }
 
     /**
-     * Sets the {@linkplain GlEffect effects} to apply to each video frame.
+     * Sets the {@link AudioProcessor} instances to apply to audio buffers.
      *
-     * <p>The {@linkplain GlEffect effects} are applied before any {@linkplain
+     * <p>The {@link AudioProcessor} instances are applied in the order of the list, and buffers
+     * will only be modified by that {@link AudioProcessor} if it {@link AudioProcessor#isActive()}
+     * based on the current configuration.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAudioProcessors(List<AudioProcessor> audioProcessors) {
+      this.audioProcessors = ImmutableList.copyOf(audioProcessors);
+      return this;
+    }
+
+    /**
+     * Sets the {@link Effect} instances to apply to each video frame.
+     *
+     * <p>The {@link Effect} instances are applied before any {@linkplain
      * TransformationRequest.Builder#setScale(float, float) scale}, {@linkplain
      * TransformationRequest.Builder#setRotationDegrees(float) rotation}, or {@linkplain
      * TransformationRequest.Builder#setResolution(int) resolution} changes specified in the {@link
      * #setTransformationRequest(TransformationRequest) TransformationRequest} but after {@linkplain
      * TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
      *
-     * @param effects The {@linkplain GlEffect effects} to apply to each video frame.
+     * <p>The default {@link FrameProcessor} only supports {@link GlEffect} instances. To use other
+     * effects, call {@link #setFrameProcessorFactory(FrameProcessor.Factory)} with a custom {@link
+     * FrameProcessor.Factory}.
+     *
+     * @param effects The {@link Effect} instances to apply to each video frame.
      * @return This builder.
      */
-    public Builder setVideoFrameEffects(List<GlEffect> effects) {
-      this.videoFrameEffects = ImmutableList.copyOf(effects);
-      return this;
-    }
-
-    /**
-     * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform.
-     *
-     * <p>The default value is a {@link DefaultMediaSourceFactory} built with the context provided
-     * in {@linkplain #Builder(Context) the constructor}.
-     *
-     * @param mediaSourceFactory A {@link MediaSource.Factory}.
-     * @return This builder.
-     */
-    public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
-      this.mediaSourceFactory = mediaSourceFactory;
+    @CanIgnoreReturnValue
+    public Builder setVideoEffects(List<Effect> effects) {
+      this.videoEffects = ImmutableList.copyOf(effects);
       return this;
     }
 
@@ -232,6 +199,7 @@ public final class Transformer {
      * @param removeAudio Whether to remove the audio.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRemoveAudio(boolean removeAudio) {
       this.removeAudio = removeAudio;
       return this;
@@ -248,6 +216,7 @@ public final class Transformer {
      * @param removeVideo Whether to remove the video.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRemoveVideo(boolean removeVideo) {
       this.removeVideo = removeVideo;
       return this;
@@ -257,6 +226,7 @@ public final class Transformer {
      * @deprecated Use {@link TransformationRequest.Builder#setFlattenForSlowMotion(boolean)}
      *     instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       transformationRequest =
@@ -265,19 +235,10 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated This feature will be removed in a following release and the MIME type of the
-     *     output will always be MP4.
-     */
-    @Deprecated
-    public Builder setOutputMimeType(String outputMimeType) {
-      this.containerMimeType = outputMimeType;
-      return this;
-    }
-
-    /**
      * @deprecated Use {@link #addListener(Listener)}, {@link #removeListener(Listener)} or {@link
      *     #removeAllListeners()} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setListener(Transformer.Listener listener) {
       this.listeners.clear();
@@ -293,6 +254,7 @@ public final class Transformer {
      * @param listener A {@link Transformer.Listener}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder addListener(Transformer.Listener listener) {
       this.listeners.add(listener);
       return this;
@@ -306,6 +268,7 @@ public final class Transformer {
      * @param listener A {@link Transformer.Listener}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder removeListener(Transformer.Listener listener) {
       this.listeners.remove(listener);
       return this;
@@ -318,8 +281,86 @@ public final class Transformer {
      *
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder removeAllListeners() {
       this.listeners.clear();
+      return this;
+    }
+
+    /**
+     * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform.
+     *
+     * <p>The default value is a {@link DefaultMediaSourceFactory} built with the context provided
+     * in {@linkplain #Builder(Context) the constructor}.
+     *
+     * @param mediaSourceFactory A {@link MediaSource.Factory}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
+      this.mediaSourceFactory = mediaSourceFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Codec.DecoderFactory} that will be used by the transformer.
+     *
+     * <p>The default value is a {@link DefaultDecoderFactory} instance.
+     *
+     * @param decoderFactory The {@link Codec.DecoderFactory} instance.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setDecoderFactory(Codec.DecoderFactory decoderFactory) {
+      this.decoderFactory = decoderFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
+     *
+     * <p>The default value is a {@link DefaultEncoderFactory} instance.
+     *
+     * @param encoderFactory The {@link Codec.EncoderFactory} instance.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
+      this.encoderFactory = encoderFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link FrameProcessor.Factory} for the {@link FrameProcessor} to use when applying
+     * {@linkplain Effect effects} to the video frames.
+     *
+     * <p>This factory will be used to create the {@link FrameProcessor} used for applying the
+     * {@link Effect} instances passed to {@link #setVideoEffects(List)} and any additional {@link
+     * GlMatrixTransformation} instances derived from the {@link TransformationRequest} set using
+     * {@link #setTransformationRequest(TransformationRequest)}.
+     *
+     * <p>The default is {@link GlEffectsFrameProcessor.Factory}.
+     *
+     * @param frameProcessorFactory The {@link FrameProcessor.Factory} to use.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
+      this.frameProcessorFactory = frameProcessorFactory;
+      return this;
+    }
+
+    /**
+     * Sets the factory for muxers that write the media container.
+     *
+     * <p>The default value is a {@link DefaultMuxer.Factory}.
+     *
+     * @param muxerFactory A {@link Muxer.Factory}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setMuxerFactory(Muxer.Factory muxerFactory) {
+      this.muxerFactory = muxerFactory;
       return this;
     }
 
@@ -333,35 +374,10 @@ public final class Transformer {
      * @param looper A {@link Looper}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLooper(Looper looper) {
       this.looper = looper;
       this.listeners = listeners.copy(looper, (listener, flags) -> {});
-      return this;
-    }
-
-    /**
-     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
-     *
-     * <p>The default value is {@link Codec.EncoderFactory#DEFAULT}.
-     *
-     * @param encoderFactory The {@link Codec.EncoderFactory} instance.
-     * @return This builder.
-     */
-    public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
-      this.encoderFactory = encoderFactory;
-      return this;
-    }
-
-    /**
-     * Sets the {@link Codec.DecoderFactory} that will be used by the transformer.
-     *
-     * <p>The default value is {@link Codec.DecoderFactory#DEFAULT}.
-     *
-     * @param decoderFactory The {@link Codec.DecoderFactory} instance.
-     * @return This builder.
-     */
-    public Builder setDecoderFactory(Codec.DecoderFactory decoderFactory) {
-      this.decoderFactory = decoderFactory;
       return this;
     }
 
@@ -377,6 +393,7 @@ public final class Transformer {
      * @param debugViewProvider Provider for debug views.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setDebugViewProvider(DebugViewProvider debugViewProvider) {
       this.debugViewProvider = debugViewProvider;
       return this;
@@ -390,6 +407,7 @@ public final class Transformer {
      * @param clock The {@link Clock} instance.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     /* package */ Builder setClock(Clock clock) {
       this.clock = clock;
@@ -398,32 +416,20 @@ public final class Transformer {
     }
 
     /**
-     * Sets the factory for muxers that write the media container.
-     *
-     * <p>The default value is a {@link FrameworkMuxer.Factory}.
-     *
-     * @param muxerFactory A {@link Muxer.Factory}.
-     * @return This builder.
-     */
-    @VisibleForTesting
-    /* package */ Builder setMuxerFactory(Muxer.Factory muxerFactory) {
-      this.muxerFactory = muxerFactory;
-      return this;
-    }
-
-    /**
      * Builds a {@link Transformer} instance.
      *
-     * @throws NullPointerException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
      * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
      * @throws IllegalStateException If the muxer doesn't support the requested video MIME type.
      */
     public Transformer build() {
-      // TODO(huangdarwin): Remove this checkNotNull after deprecated {@link #setContext(Context)}
-      // is removed.
-      checkNotNull(context);
+      if (transformationRequest.audioMimeType != null) {
+        checkSampleMimeType(transformationRequest.audioMimeType);
+      }
+      if (transformationRequest.videoMimeType != null) {
+        checkSampleMimeType(transformationRequest.videoMimeType);
+      }
       if (mediaSourceFactory == null) {
         DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
         if (transformationRequest.flattenForSlowMotion) {
@@ -431,39 +437,30 @@ public final class Transformer {
         }
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
-      checkState(
-          muxerFactory.supportsOutputMimeType(containerMimeType),
-          "Unsupported container MIME type: " + containerMimeType);
-      if (transformationRequest.audioMimeType != null) {
-        checkSampleMimeType(transformationRequest.audioMimeType);
-      }
-      if (transformationRequest.videoMimeType != null) {
-        checkSampleMimeType(transformationRequest.videoMimeType);
-      }
       return new Transformer(
           context,
-          mediaSourceFactory,
-          muxerFactory,
+          transformationRequest,
+          audioProcessors,
+          videoEffects,
           removeAudio,
           removeVideo,
-          containerMimeType,
-          transformationRequest,
-          videoFrameEffects,
           listeners,
-          looper,
-          clock,
-          encoderFactory,
+          mediaSourceFactory,
           decoderFactory,
-          debugViewProvider);
+          encoderFactory,
+          frameProcessorFactory,
+          muxerFactory,
+          looper,
+          debugViewProvider,
+          clock);
     }
 
     private void checkSampleMimeType(String sampleMimeType) {
       checkState(
-          muxerFactory.supportsSampleMimeType(sampleMimeType, containerMimeType),
-          "Unsupported sample MIME type "
-              + sampleMimeType
-              + " for container MIME type "
-              + containerMimeType);
+          muxerFactory
+              .getSupportedSampleMimeTypes(MimeTypes.getTrackType(sampleMimeType))
+              .contains(sampleMimeType),
+          "Unsupported sample MIME type " + sampleMimeType);
     }
   }
 
@@ -512,29 +509,14 @@ public final class Transformer {
      * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
      *     building {@link Transformer}.
      * @param fallbackTransformationRequest The alternative {@link TransformationRequest}, with
-     *     supported {@link TransformationRequest#outputHeight} and {@link
-     *     TransformationRequest#videoMimeType} values set.
+     *     supported {@link TransformationRequest#audioMimeType}, {@link
+     *     TransformationRequest#videoMimeType}, {@link TransformationRequest#outputHeight}, and
+     *     {@link TransformationRequest#hdrMode} values set.
      */
     default void onFallbackApplied(
         MediaItem inputMediaItem,
         TransformationRequest originalTransformationRequest,
         TransformationRequest fallbackTransformationRequest) {}
-  }
-
-  /** Provider for views to show diagnostic information during transformation, for debugging. */
-  public interface DebugViewProvider {
-
-    /** Debug view provider that doesn't show any debug info. */
-    DebugViewProvider NONE = (int width, int height) -> null;
-
-    /**
-     * Returns a new surface view to show a preview of transformer output with the given
-     * width/height in pixels, or {@code null} if no debug information should be shown.
-     *
-     * <p>This method may be called on an arbitrary thread.
-     */
-    @Nullable
-    SurfaceView getDebugPreviewSurfaceView(int width, int height);
   }
 
   /**
@@ -565,57 +547,57 @@ public final class Transformer {
   /** Indicates that there is no current transformation. */
   public static final int PROGRESS_STATE_NO_TRANSFORMATION = 4;
 
-  private final Context context;
-  private final MediaSource.Factory mediaSourceFactory;
-  private final Muxer.Factory muxerFactory;
-  private final boolean removeAudio;
-  private final boolean removeVideo;
-  private final String containerMimeType;
-  private final TransformationRequest transformationRequest;
-  private final ImmutableList<GlEffect> videoFrameEffects;
-  private final Looper looper;
-  private final Clock clock;
-  private final Transformer.DebugViewProvider debugViewProvider;
-  private final ListenerSet<Transformer.Listener> listeners;
   @VisibleForTesting /* package */ final Codec.DecoderFactory decoderFactory;
   @VisibleForTesting /* package */ final Codec.EncoderFactory encoderFactory;
 
-  @Nullable private MuxerWrapper muxerWrapper;
-  @Nullable private ExoPlayer player;
-  private @ProgressState int progressState;
-  private boolean isCancelling;
+  private final Context context;
+  private final TransformationRequest transformationRequest;
+  private final ImmutableList<AudioProcessor> audioProcessors;
+  private final ImmutableList<Effect> videoEffects;
+  private final boolean removeAudio;
+  private final boolean removeVideo;
+  private final ListenerSet<Transformer.Listener> listeners;
+  private final MediaSource.Factory mediaSourceFactory;
+  private final FrameProcessor.Factory frameProcessorFactory;
+  private final Muxer.Factory muxerFactory;
+  private final Looper looper;
+  private final DebugViewProvider debugViewProvider;
+  private final Clock clock;
+
+  @Nullable private TransformerInternal transformerInternal;
 
   private Transformer(
       Context context,
-      MediaSource.Factory mediaSourceFactory,
-      Muxer.Factory muxerFactory,
+      TransformationRequest transformationRequest,
+      ImmutableList<AudioProcessor> audioProcessors,
+      ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
-      String containerMimeType,
-      TransformationRequest transformationRequest,
-      ImmutableList<GlEffect> videoFrameEffects,
       ListenerSet<Transformer.Listener> listeners,
-      Looper looper,
-      Clock clock,
-      Codec.EncoderFactory encoderFactory,
+      MediaSource.Factory mediaSourceFactory,
       Codec.DecoderFactory decoderFactory,
-      Transformer.DebugViewProvider debugViewProvider) {
+      Codec.EncoderFactory encoderFactory,
+      FrameProcessor.Factory frameProcessorFactory,
+      Muxer.Factory muxerFactory,
+      Looper looper,
+      DebugViewProvider debugViewProvider,
+      Clock clock) {
     checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed.");
     this.context = context;
-    this.mediaSourceFactory = mediaSourceFactory;
-    this.muxerFactory = muxerFactory;
+    this.transformationRequest = transformationRequest;
+    this.audioProcessors = audioProcessors;
+    this.videoEffects = videoEffects;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
-    this.containerMimeType = containerMimeType;
-    this.transformationRequest = transformationRequest;
-    this.videoFrameEffects = videoFrameEffects;
     this.listeners = listeners;
-    this.looper = looper;
-    this.clock = clock;
-    this.encoderFactory = encoderFactory;
+    this.mediaSourceFactory = mediaSourceFactory;
     this.decoderFactory = decoderFactory;
+    this.encoderFactory = encoderFactory;
+    this.frameProcessorFactory = frameProcessorFactory;
+    this.muxerFactory = muxerFactory;
+    this.looper = looper;
     this.debugViewProvider = debugViewProvider;
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
+    this.clock = clock;
   }
 
   /** Returns a {@link Transformer.Builder} initialized with the values of this instance. */
@@ -681,18 +663,12 @@ public final class Transformer {
    * @param mediaItem The {@link MediaItem} to transform.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
+   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
-   * @throws IOException If an error occurs opening the output file for writing.
    */
-  public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && transformationRequest.flattenForSlowMotion) {
-      // TODO(b/233986762): Support clipping with SEF flattening.
-      throw new UnsupportedEncodingException(
-          "Clipping is not supported when slow motion flattening is requested");
-    }
-    startTransformation(mediaItem, muxerFactory.create(path, containerMimeType));
+  public void startTransformation(MediaItem mediaItem, String path) {
+    startTransformationInternal(mediaItem, path, /* parcelFileDescriptor= */ null);
   }
 
   /**
@@ -713,73 +689,54 @@ public final class Transformer {
    *     transformation is completed. It is the responsibility of the caller to close the
    *     ParcelFileDescriptor. This can be done after this method returns.
    * @throws IllegalArgumentException If the file descriptor is invalid.
+   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
-   * @throws IOException If an error occurs opening the output file for writing.
    */
   @RequiresApi(26)
-  public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
-      throws IOException {
-    startTransformation(mediaItem, muxerFactory.create(parcelFileDescriptor, containerMimeType));
+  public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor) {
+    startTransformationInternal(mediaItem, /* path= */ null, parcelFileDescriptor);
   }
 
-  private void startTransformation(MediaItem mediaItem, Muxer muxer) {
+  private void startTransformationInternal(
+      MediaItem mediaItem,
+      @Nullable String path,
+      @Nullable ParcelFileDescriptor parcelFileDescriptor) {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && transformationRequest.flattenForSlowMotion) {
+      // TODO(b/233986762): Support clipping with SEF flattening.
+      throw new IllegalArgumentException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
     verifyApplicationThread();
-    if (player != null) {
+    if (transformerInternal != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer, muxerFactory, containerMimeType);
-    this.muxerWrapper = muxerWrapper;
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
-    trackSelector.setParameters(
-        new DefaultTrackSelector.ParametersBuilder(context)
-            .setForceHighestSupportedBitrate(true)
-            .build());
-    // Arbitrarily decrease buffers for playback so that samples start being sent earlier to the
-    // muxer (rebuffers are less problematic for the transformation use case).
-    DefaultLoadControl loadControl =
-        new DefaultLoadControl.Builder()
-            .setBufferDurationsMs(
-                DEFAULT_MIN_BUFFER_MS,
-                DEFAULT_MAX_BUFFER_MS,
-                DEFAULT_BUFFER_FOR_PLAYBACK_MS / 10,
-                DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
-            .build();
-    TransformerPlayerListener playerListener =
-        new TransformerPlayerListener(mediaItem, muxerWrapper, looper);
-    ExoPlayer.Builder playerBuilder =
-        new ExoPlayer.Builder(
-                context,
-                new TransformerRenderersFactory(
-                    context,
-                    muxerWrapper,
-                    removeAudio,
-                    removeVideo,
-                    transformationRequest,
-                    mediaItem.clippingConfiguration.startsAtKeyFrame,
-                    videoFrameEffects,
-                    encoderFactory,
-                    decoderFactory,
-                    new FallbackListener(mediaItem, listeners, transformationRequest),
-                    playerListener,
-                    debugViewProvider))
-            .setMediaSourceFactory(mediaSourceFactory)
-            .setTrackSelector(trackSelector)
-            .setLoadControl(loadControl)
-            .setLooper(looper);
-    if (clock != Clock.DEFAULT) {
-      // Transformer.Builder#setClock is also @VisibleForTesting, so if we're using a non-default
-      // clock we must be in a test context.
-      @SuppressWarnings("VisibleForTests")
-      ExoPlayer.Builder unusedForAnnotation = playerBuilder.setClock(clock);
-    }
-
-    player = playerBuilder.build();
-    player.setMediaItem(mediaItem);
-    player.addListener(playerListener);
-    player.prepare();
-
-    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+    TransformerInternalListener transformerInternalListener =
+        new TransformerInternalListener(mediaItem);
+    FallbackListener fallbackListener =
+        new FallbackListener(mediaItem, listeners, transformationRequest);
+    transformerInternal =
+        new TransformerInternal(
+            context,
+            mediaItem,
+            path,
+            parcelFileDescriptor,
+            transformationRequest,
+            audioProcessors,
+            videoEffects,
+            removeAudio,
+            removeVideo,
+            mediaSourceFactory,
+            decoderFactory,
+            encoderFactory,
+            frameProcessorFactory,
+            muxerFactory,
+            transformerInternalListener,
+            fallbackListener,
+            debugViewProvider,
+            clock);
+    transformerInternal.start();
   }
 
   /**
@@ -805,13 +762,9 @@ public final class Transformer {
    */
   public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
-    if (progressState == PROGRESS_STATE_AVAILABLE) {
-      Player player = checkNotNull(this.player);
-      long durationMs = player.getDuration();
-      long positionMs = player.getCurrentPosition();
-      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
-    }
-    return progressState;
+    return transformerInternal == null
+        ? PROGRESS_STATE_NO_TRANSFORMATION
+        : transformerInternal.getProgress(progressHolder);
   }
 
   /**
@@ -820,40 +773,16 @@ public final class Transformer {
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
   public void cancel() {
-    isCancelling = true;
+    verifyApplicationThread();
+    if (transformerInternal == null) {
+      return;
+    }
     try {
-      releaseResources(/* forCancellation= */ true);
+      transformerInternal.release(END_TRANSFORMATION_REASON_CANCELLED);
     } catch (TransformationException impossible) {
       throw new IllegalStateException(impossible);
     }
-    isCancelling = false;
-  }
-
-  /**
-   * Releases the resources.
-   *
-   * @param forCancellation Whether the reason for releasing the resources is the transformation
-   *     cancellation.
-   * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws TransformationException If the muxer is in the wrong state and {@code forCancellation}
-   *     is false.
-   */
-  private void releaseResources(boolean forCancellation) throws TransformationException {
-    verifyApplicationThread();
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
-    if (player != null) {
-      player.release();
-      player = null;
-    }
-    if (muxerWrapper != null) {
-      try {
-        muxerWrapper.release(forCancellation);
-      } catch (Muxer.MuxerException e) {
-        throw TransformationException.createForMuxer(
-            e, TransformationException.ERROR_CODE_MUXING_FAILED);
-      }
-      muxerWrapper = null;
-    }
+    transformerInternal = null;
   }
 
   private void verifyApplicationThread() {
@@ -862,205 +791,41 @@ public final class Transformer {
     }
   }
 
-  private static final class TransformerRenderersFactory implements RenderersFactory {
-
-    private final Context context;
-    private final MuxerWrapper muxerWrapper;
-    private final TransformerMediaClock mediaClock;
-    private final boolean removeAudio;
-    private final boolean removeVideo;
-    private final TransformationRequest transformationRequest;
-    private final boolean clippingStartsAtKeyFrame;
-    private final ImmutableList<GlEffect> videoFrameEffects;
-    private final Codec.EncoderFactory encoderFactory;
-    private final Codec.DecoderFactory decoderFactory;
-    private final FallbackListener fallbackListener;
-    private final FrameProcessorChain.Listener frameProcessorChainListener;
-    private final Transformer.DebugViewProvider debugViewProvider;
-
-    public TransformerRenderersFactory(
-        Context context,
-        MuxerWrapper muxerWrapper,
-        boolean removeAudio,
-        boolean removeVideo,
-        TransformationRequest transformationRequest,
-        boolean clippingStartsAtKeyFrame,
-        ImmutableList<GlEffect> videoFrameEffects,
-        Codec.EncoderFactory encoderFactory,
-        Codec.DecoderFactory decoderFactory,
-        FallbackListener fallbackListener,
-        FrameProcessorChain.Listener frameProcessorChainListener,
-        Transformer.DebugViewProvider debugViewProvider) {
-      this.context = context;
-      this.muxerWrapper = muxerWrapper;
-      this.removeAudio = removeAudio;
-      this.removeVideo = removeVideo;
-      this.transformationRequest = transformationRequest;
-      this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
-      this.videoFrameEffects = videoFrameEffects;
-      this.encoderFactory = encoderFactory;
-      this.decoderFactory = decoderFactory;
-      this.fallbackListener = fallbackListener;
-      this.frameProcessorChainListener = frameProcessorChainListener;
-      this.debugViewProvider = debugViewProvider;
-      mediaClock = new TransformerMediaClock();
-    }
-
-    @Override
-    public Renderer[] createRenderers(
-        Handler eventHandler,
-        VideoRendererEventListener videoRendererEventListener,
-        AudioRendererEventListener audioRendererEventListener,
-        TextOutput textRendererOutput,
-        MetadataOutput metadataRendererOutput) {
-      int rendererCount = removeAudio || removeVideo ? 1 : 2;
-      Renderer[] renderers = new Renderer[rendererCount];
-      int index = 0;
-      if (!removeAudio) {
-        renderers[index] =
-            new TransformerAudioRenderer(
-                muxerWrapper,
-                mediaClock,
-                transformationRequest,
-                encoderFactory,
-                decoderFactory,
-                fallbackListener);
-        index++;
-      }
-      if (!removeVideo) {
-        renderers[index] =
-            new TransformerVideoRenderer(
-                context,
-                muxerWrapper,
-                mediaClock,
-                transformationRequest,
-                clippingStartsAtKeyFrame,
-                videoFrameEffects,
-                encoderFactory,
-                decoderFactory,
-                fallbackListener,
-                frameProcessorChainListener,
-                debugViewProvider);
-        index++;
-      }
-      return renderers;
-    }
-  }
-
-  private final class TransformerPlayerListener
-      implements Player.Listener, FrameProcessorChain.Listener {
+  private final class TransformerInternalListener implements TransformerInternal.Listener {
 
     private final MediaItem mediaItem;
-    private final MuxerWrapper muxerWrapper;
     private final Handler handler;
 
-    public TransformerPlayerListener(
-        MediaItem mediaItem, MuxerWrapper muxerWrapper, Looper looper) {
+    public TransformerInternalListener(MediaItem mediaItem) {
       this.mediaItem = mediaItem;
-      this.muxerWrapper = muxerWrapper;
-      handler = new Handler(looper);
+      handler = Util.createHandlerForCurrentLooper();
     }
 
     @Override
-    public void onPlaybackStateChanged(int state) {
-      if (state == Player.STATE_ENDED) {
-        handleTransformationEnded(/* exception= */ null);
-      }
+    public void onTransformationCompleted(TransformationResult transformationResult) {
+      // TODO(b/213341814): Add event flags for Transformer events.
+      Util.postOrRun(
+          handler,
+          () -> {
+            transformerInternal = null;
+            listeners.queueEvent(
+                /* eventFlag= */ C.INDEX_UNSET,
+                listener -> listener.onTransformationCompleted(mediaItem, transformationResult));
+            listeners.flushEvents();
+          });
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, int reason) {
-      if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
-        return;
-      }
-      Timeline.Window window = new Timeline.Window();
-      timeline.getWindow(/* windowIndex= */ 0, window);
-      if (!window.isPlaceholder) {
-        long durationUs = window.durationUs;
-        // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
-        // to a high value at the end of the transformation if the duration is set once the media is
-        // entirely loaded.
-        progressState =
-            durationUs <= 0 || durationUs == C.TIME_UNSET
-                ? PROGRESS_STATE_UNAVAILABLE
-                : PROGRESS_STATE_AVAILABLE;
-        checkNotNull(player).play();
-      }
-    }
-
-    @Override
-    public void onTracksChanged(Tracks tracks) {
-      if (muxerWrapper.getTrackCount() == 0) {
-        handleTransformationEnded(
-            TransformationException.createForUnexpected(
-                new IllegalStateException("The output does not contain any tracks.")));
-      }
-    }
-
-    @Override
-    public void onPlayerError(PlaybackException error) {
-      @Nullable Throwable cause = error.getCause();
-      TransformationException transformationException =
-          cause instanceof TransformationException
-              ? (TransformationException) cause
-              : TransformationException.createForPlaybackException(error);
-      if (isCancelling) {
-        // Resources are already being released.
-        listeners.queueEvent(
-            /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationError(mediaItem, transformationException));
-        listeners.flushEvents();
-      } else {
-        handleTransformationEnded(transformationException);
-      }
-    }
-
-    private void handleTransformationEnded(@Nullable TransformationException exception) {
-      @Nullable TransformationException resourceReleaseException = null;
-      try {
-        releaseResources(/* forCancellation= */ false);
-      } catch (TransformationException e) {
-        resourceReleaseException = e;
-      } catch (RuntimeException e) {
-        resourceReleaseException = TransformationException.createForUnexpected(e);
-      }
-      if (exception == null) {
-        // We only report the exception caused by releasing the resources if there is no other
-        // exception. It is more intuitive to call the error callback only once and reporting the
-        // exception caused by releasing the resources can be confusing if it is a consequence of
-        // the first exception.
-        exception = resourceReleaseException;
-      }
-
-      if (exception != null) {
-        TransformationException finalException = exception;
-        // TODO(b/213341814): Add event flags for Transformer events.
-        listeners.queueEvent(
-            /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationError(mediaItem, finalException));
-      } else {
-        TransformationResult result =
-            new TransformationResult.Builder()
-                .setDurationMs(muxerWrapper.getDurationMs())
-                .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
-                .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
-                .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
-                .build();
-
-        listeners.queueEvent(
-            /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationCompleted(mediaItem, result));
-      }
-      listeners.flushEvents();
-    }
-
-    @Override
-    public void onFrameProcessingError(FrameProcessingException exception) {
-      handler.post(
-          () ->
-              handleTransformationEnded(
-                  TransformationException.createForFrameProcessorChain(
-                      exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)));
+    public void onTransformationError(TransformationException exception) {
+      Util.postOrRun(
+          handler,
+          () -> {
+            transformerInternal = null;
+            listeners.queueEvent(
+                /* eventFlag= */ C.INDEX_UNSET,
+                listener -> listener.onTransformationError(mediaItem, exception));
+            listeners.flushEvents();
+          });
     }
   }
 }

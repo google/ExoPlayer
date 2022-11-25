@@ -218,11 +218,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         mediaDrm.getKeyRequest(scope, initData, mimeType, keyType, optionalParameters);
 
     byte[] requestData = adjustRequestData(uuid, request.getData());
-
-    String licenseServerUrl = request.getDefaultUrl();
-    if (MOCK_LA_URL_VALUE.equals(licenseServerUrl)) {
-      licenseServerUrl = "";
-    }
+    String licenseServerUrl = adjustLicenseServerUrl(request.getDefaultUrl());
     if (TextUtils.isEmpty(licenseServerUrl)
         && schemeData != null
         && !TextUtils.isEmpty(schemeData.licenseServerUrl)) {
@@ -234,6 +230,17 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         Util.SDK_INT >= 23 ? request.getRequestType() : KeyRequest.REQUEST_TYPE_UNKNOWN;
 
     return new KeyRequest(requestData, licenseServerUrl, requestType);
+  }
+
+  private static String adjustLicenseServerUrl(String licenseServerUrl) {
+    if (MOCK_LA_URL.equals(licenseServerUrl)) {
+      return "";
+    } else if (Util.SDK_INT == 33 && "https://default.url".equals(licenseServerUrl)) {
+      // Work around b/247808112
+      return "";
+    } else {
+      return licenseServerUrl;
+    }
   }
 
   @Override

@@ -170,7 +170,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectEncoderInfos(java.lang.String)">selectEncoderInfos</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns a list of encoders that can encode media in the specified <code>mimeType</code>, in priority
@@ -221,14 +221,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockListLast">
 <li class="blockList">
 <h4>selectEncoderInfos</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink">MediaCodecInfo</a>&gt;&nbsp;selectEncoderInfos&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<pre class="methodSignature"><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink">MediaCodecInfo</a>&gt;&nbsp;selectEncoderInfos&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns a list of encoders that can encode media in the specified <code>mimeType</code>, in priority
  order.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a> for which an encoder is required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>An unmodifiable list of <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoders</a> that support the <code>
+<dd>An immutable list of <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoders</a> that support the <code>
      mimeType</code>. The list may be empty.</dd>
 </dl>
 </li>

@@ -169,8 +169,8 @@ public final class AviExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder positionHolder) throws IOException {
-    if (resolvePendingReposition(input, positionHolder)) {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+    if (resolvePendingReposition(input, seekPosition)) {
       return RESULT_SEEK;
     }
     switch (state) {
@@ -303,14 +303,14 @@ public final class AviExtractor implements Extractor {
    * {@link ExtractorInput#getPosition() current position}, but not further than {@link
    * #RELOAD_MINIMUM_SEEK_DISTANCE}.
    */
-  private boolean resolvePendingReposition(ExtractorInput input, PositionHolder positionHolder)
+  private boolean resolvePendingReposition(ExtractorInput input, PositionHolder seekPosition)
       throws IOException {
     boolean needSeek = false;
     if (pendingReposition != C.POSITION_UNSET) {
       long currentPosition = input.getPosition();
       if (pendingReposition < currentPosition
           || pendingReposition > currentPosition + RELOAD_MINIMUM_SEEK_DISTANCE) {
-        positionHolder.position = pendingReposition;
+        seekPosition.position = pendingReposition;
         needSeek = true;
       } else {
         // The distance to the target position is short enough that it makes sense to just skip the

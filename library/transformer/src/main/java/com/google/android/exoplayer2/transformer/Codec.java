@@ -39,9 +39,6 @@ public interface Codec {
   /** A factory for {@linkplain Codec decoder} instances. */
   interface DecoderFactory {
 
-    /** A default {@code DecoderFactory} implementation. */
-    DecoderFactory DEFAULT = new DefaultDecoderFactory();
-
     /**
      * Returns a {@link Codec} for audio decoding.
      *
@@ -58,20 +55,17 @@ public interface Codec {
      * @param format The {@link Format} (of the input data) used to determine the underlying decoder
      *     and its configuration values.
      * @param outputSurface The {@link Surface} to which the decoder output is rendered.
-     * @param enableRequestSdrToneMapping Whether to request tone-mapping to SDR.
+     * @param requestSdrToneMapping Whether to request tone-mapping to SDR.
      * @return A {@link Codec} for video decoding.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
     Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
+        Format format, Surface outputSurface, boolean requestSdrToneMapping)
         throws TransformationException;
   }
 
   /** A factory for {@linkplain Codec encoder} instances. */
   interface EncoderFactory {
-
-    /** A default {@code EncoderFactory} implementation. */
-    EncoderFactory DEFAULT = new DefaultEncoderFactory();
 
     /**
      * Returns a {@link Codec} for audio encoding.

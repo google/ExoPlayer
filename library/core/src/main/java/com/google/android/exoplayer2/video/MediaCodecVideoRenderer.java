@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static android.view.Display.DEFAULT_DISPLAY;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -25,6 +28,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
@@ -35,8 +39,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
+import android.view.Display;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -58,7 +64,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -110,6 +115,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   /** Magic frame render timestamp that indicates the EOS in tunneling mode. */
   private static final long TUNNELING_EOS_PRESENTATION_TIME_US = Long.MAX_VALUE;
+
+  /** The minimum input buffer size for HEVC. */
+  private static final int HEVC_MAX_INPUT_SIZE_THRESHOLD = 2 * 1024 * 1024;
 
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
@@ -350,6 +358,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     boolean requiresSecureDecryption = drmInitData != null;
     List<MediaCodecInfo> decoderInfos =
         getDecoderInfos(
+            context,
             mediaCodecSelector,
             format,
             requiresSecureDecryption,
@@ -358,6 +367,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // No secure decoders are available. Fall back to non-secure decoders.
       decoderInfos =
           getDecoderInfos(
+              context,
               mediaCodecSelector,
               format,
               /* requiresSecureDecoder= */ false,
@@ -401,10 +411,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     @DecoderSupport
     int decoderSupport = isPreferredDecoder ? DECODER_SUPPORT_PRIMARY : DECODER_SUPPORT_FALLBACK;
 
+    if (Util.SDK_INT >= 26
+        && MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)
+        && !Api26.doesDisplaySupportDolbyVision(context)) {
+      decoderSupport = DECODER_SUPPORT_FALLBACK_MIMETYPE;
+    }
+
     @TunnelingSupport int tunnelingSupport = TUNNELING_NOT_SUPPORTED;
     if (isFormatSupported) {
       List<MediaCodecInfo> tunnelingDecoderInfos =
           getDecoderInfos(
+              context,
               mediaCodecSelector,
               format,
               requiresSecureDecryption,
@@ -433,7 +450,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
     return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
-        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, tunneling), format);
+        getDecoderInfos(context, mediaCodecSelector, format, requiresSecureDecoder, tunneling),
+        format);
   }
 
   /**
@@ -453,6 +471,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   private static List<MediaCodecInfo> getDecoderInfos(
+      Context context,
       MediaCodecSelector mediaCodecSelector,
       Format format,
       boolean requiresSecureDecoder,
@@ -472,10 +491,38 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     List<MediaCodecInfo> alternativeDecoderInfos =
         mediaCodecSelector.getDecoderInfos(
             alternativeMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+    if (Util.SDK_INT >= 26
+        && MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)
+        && !alternativeDecoderInfos.isEmpty()
+        && !Api26.doesDisplaySupportDolbyVision(context)) {
+      return ImmutableList.copyOf(alternativeDecoderInfos);
+    }
     return ImmutableList.<MediaCodecInfo>builder()
         .addAll(decoderInfos)
         .addAll(alternativeDecoderInfos)
         .build();
+  }
+
+  @RequiresApi(26)
+  private static final class Api26 {
+    @DoNotInline
+    public static boolean doesDisplaySupportDolbyVision(Context context) {
+      boolean supportsDolbyVision = false;
+      DisplayManager displayManager =
+          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+      Display display =
+          (displayManager != null) ? displayManager.getDisplay(DEFAULT_DISPLAY) : null;
+      if (display != null && display.isHdr()) {
+        int[] supportedHdrTypes = display.getHdrCapabilities().getSupportedHdrTypes();
+        for (int hdrType : supportedHdrTypes) {
+          if (hdrType == Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION) {
+            supportsDolbyVision = true;
+            break;
+          }
+        }
+      }
+      return supportsDolbyVision;
+    }
   }
 
   @Override
@@ -483,7 +530,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
     boolean tunneling = getConfiguration().tunneling;
-    Assertions.checkState(!tunneling || tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET);
+    checkState(!tunneling || tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET);
     if (this.tunneling != tunneling) {
       this.tunneling = tunneling;
       releaseCodec();
@@ -787,14 +834,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     // Attempt to infer a maximum input size from the format.
-    int maxPixels;
-    int minCompressionRatio;
     switch (sampleMimeType) {
       case MimeTypes.VIDEO_H263:
       case MimeTypes.VIDEO_MP4V:
-        maxPixels = width * height;
-        minCompressionRatio = 2;
-        break;
+      case MimeTypes.VIDEO_AV1:
+        // Assume a min compression of 2 similar to the platform's C2SoftAomDec.cpp.
+      case MimeTypes.VIDEO_VP8:
+        // Assume a min compression of 2 similar to the platform's SoftVPX.cpp.
+        return getMaxSampleSize(/* pixelCount= */ width * height, /* minCompressionRatio= */ 2);
+      case MimeTypes.VIDEO_H265:
+        // Assume a min compression of 2 similar to the platform's C2SoftHevcDec.cpp, but restrict
+        // the minimum size.
+        return max(
+            HEVC_MAX_INPUT_SIZE_THRESHOLD,
+            getMaxSampleSize(/* pixelCount= */ width * height, /* minCompressionRatio= */ 2));
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
             || ("Amazon".equals(Util.MANUFACTURER)
@@ -805,27 +858,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           return Format.NO_VALUE;
         }
         // Round up width/height to an integer number of macroblocks.
-        maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_AV1:
-        // AV1 does not specify a ratio so use the values from the platform's C2SoftAomDec.cpp.
-      case MimeTypes.VIDEO_VP8:
-        // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
-        maxPixels = width * height;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_H265:
+        int maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
+        return getMaxSampleSize(maxPixels, /* minCompressionRatio= */ 2);
       case MimeTypes.VIDEO_VP9:
-        maxPixels = width * height;
-        minCompressionRatio = 4;
-        break;
+        return getMaxSampleSize(/* pixelCount= */ width * height, /* minCompressionRatio= */ 4);
       default:
         // Leave the default max input size.
         return Format.NO_VALUE;
     }
-    // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
-    return (maxPixels * 3) / (2 * minCompressionRatio);
   }
 
   @Override
@@ -852,10 +892,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
     codecNeedsSetOutputSurfaceWorkaround = codecNeedsSetOutputSurfaceWorkaround(name);
     codecHandlesHdr10PlusOutOfBandMetadata =
-        Assertions.checkNotNull(getCodecInfo()).isHdr10PlusOutOfBandMetadataSupported();
+        checkNotNull(getCodecInfo()).isHdr10PlusOutOfBandMetadataSupported();
     if (Util.SDK_INT >= 23 && tunneling) {
-      tunnelingOnFrameRenderedListener =
-          new OnFrameRenderedListenerV23(Assertions.checkNotNull(getCodec()));
+      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(checkNotNull(getCodec()));
     }
   }
 
@@ -913,7 +952,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       currentWidth = format.width;
       currentHeight = format.height;
     } else {
-      Assertions.checkNotNull(mediaFormat);
+      checkNotNull(mediaFormat);
       boolean hasCrop =
           mediaFormat.containsKey(KEY_CROP_RIGHT)
               && mediaFormat.containsKey(KEY_CROP_LEFT)
@@ -953,7 +992,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!codecHandlesHdr10PlusOutOfBandMetadata) {
       return;
     }
-    ByteBuffer data = Assertions.checkNotNull(buffer.supplementalData);
+    ByteBuffer data = checkNotNull(buffer.supplementalData);
     if (data.remaining() >= 7) {
       // Check for HDR10+ out-of-band metadata. See User_data_registered_itu_t_t35 in ST 2094-40.
       byte ituTT35CountryCode = data.get();
@@ -966,7 +1005,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           && ituTT35TerminalProviderCode == 0x003C
           && ituTT35TerminalProviderOrientedCode == 0x0001
           && applicationIdentifier == 4
-          && applicationVersion == 0) {
+          && (applicationVersion == 0 || applicationVersion == 1)) {
         // The metadata size may vary so allocate a new array every time. This is not too
         // inefficient because the metadata is only a few tens of bytes.
         byte[] hdr10PlusInfo = new byte[data.remaining()];
@@ -991,7 +1030,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException {
-    Assertions.checkNotNull(codec); // Can not render video without codec
+    checkNotNull(codec); // Can not render video without codec
 
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
@@ -1733,6 +1772,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  /**
+   * Returns the maximum sample size assuming three channel 4:2:0 subsampled input frames with the
+   * specified {@code minCompressionRatio}
+   *
+   * @param pixelCount The number of pixels
+   * @param minCompressionRatio The minimum compression ratio
+   */
+  private static int getMaxSampleSize(int pixelCount, int minCompressionRatio) {
+    return (pixelCount * 3) / (2 * minCompressionRatio);
+  }
+
   private static boolean evaluateDeviceNeedsSetOutputSurfaceWorkaround() {
     if (Util.SDK_INT <= 28) {
       // Workaround for MiTV and MiBox devices which have been observed broken up to API 28.
@@ -1759,6 +1809,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Workaround for Huawei P20:
       // https://github.com/google/ExoPlayer/issues/4468#issuecomment-459291645.
       return true;
+    }
+    switch (Util.MODEL) {
+        // Workaround for some Fire OS devices.
+      case "AFTA":
+      case "AFTN":
+      case "AFTR":
+      case "AFTEU011":
+      case "AFTEU014":
+      case "AFTEUFF014":
+      case "AFTJMST12":
+      case "AFTKMST12":
+      case "AFTSO001":
+        return true;
+      default:
+        break; // Do nothing.
     }
     if (Util.SDK_INT <= 26) {
       // In general, devices running API level 27 or later should be unaffected unless observed
@@ -1926,8 +1991,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           break; // Do nothing.
       }
       switch (Util.MODEL) {
-        case "AFTA":
-        case "AFTN":
         case "JSN-L21":
           return true;
         default:

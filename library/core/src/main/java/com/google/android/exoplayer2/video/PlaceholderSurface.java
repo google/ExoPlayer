@@ -177,6 +177,9 @@ public final class PlaceholderSurface extends Surface {
           } catch (RuntimeException e) {
             Log.e(TAG, "Failed to initialize placeholder surface", e);
             initException = e;
+          } catch (GlUtil.GlException e) {
+            Log.e(TAG, "Failed to initialize placeholder surface", e);
+            initException = new IllegalStateException(e);
           } catch (Error e) {
             Log.e(TAG, "Failed to initialize placeholder surface", e);
             initError = e;
@@ -200,7 +203,7 @@ public final class PlaceholderSurface extends Surface {
       }
     }
 
-    private void initInternal(@SecureMode int secureMode) {
+    private void initInternal(@SecureMode int secureMode) throws GlUtil.GlException {
       Assertions.checkNotNull(eglSurfaceTexture);
       eglSurfaceTexture.init(secureMode);
       this.surface =
