@@ -86,12 +86,17 @@ highp vec3 getOpticalColor(highp vec3 electricalColor) {
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
 
+  const int FORMAT_NO_VALUE = -1;
+
   if (uEotfColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqEotf(electricalColor);
   } else if (uEotfColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgEotf(electricalColor);
-  } else {
+  } else if (uEotfColorTransfer == FORMAT_NO_VALUE) {
     return electricalColor;
+  } else {
+    // Output red as an obviously visible error.
+    return vec3(1.0, 0.0, 0.0);
   }
 }
 
