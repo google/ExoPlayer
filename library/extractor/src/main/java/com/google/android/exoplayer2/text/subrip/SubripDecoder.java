@@ -72,30 +72,14 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length, boolean reset) {
+  protected Subtitle decode(byte[] data, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
-    ParsableByteArray subripData = new ParsableByteArray(bytes, length);
-
-    @Nullable Charset utf16Charset;
-    if (bytes.length >= 2) {
-      utf16Charset = getUtf16Charset(bytes[0], bytes[1]);
-    } else {
-      utf16Charset = null;
-    }
+    ParsableByteArray subripData = new ParsableByteArray(data, length);
+    Charset charset = detectUtfCharset(subripData);
 
     @Nullable String currentLine;
-    while (true) {
-      if (utf16Charset != null) {
-        currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
-      } else {
-        currentLine = subripData.readLine();
-      }
-
-      if (currentLine == null) {
-        break;
-      }
-
+    while ((currentLine = subripData.readUtfLine(charset)) != null) {
       if (currentLine.length() == 0) {
         // Skip blank lines.
         continue;
@@ -110,11 +94,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       }
 
       // Read and parse the timing line.
-      if (utf16Charset != null) {
-        currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
-      } else {
-        currentLine = subripData.readLine();
-      }
+      currentLine = subripData.readUtfLine(charset);
       if (currentLine == null) {
         Log.w(TAG, "Unexpected end");
         break;
@@ -132,21 +112,13 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       // Read and parse the text and tags.
       textBuilder.setLength(0);
       tags.clear();
-      if (utf16Charset != null) {
-        currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
-      } else {
-        currentLine = subripData.readLine();
-      }
+      currentLine = subripData.readUtfLine(charset);
       while (!TextUtils.isEmpty(currentLine)) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
         textBuilder.append(processLine(currentLine, tags));
-        if (utf16Charset != null) {
-          currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
-        } else {
-          currentLine = subripData.readLine();
-        }
+        currentLine = subripData.readUtfLine(charset);
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
@@ -169,19 +141,29 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
   }
 
-  @Nullable
-  private Charset getUtf16Charset(byte first, byte second) {
-    if (first == (byte) 0xFE && second == (byte) 0xFF) {
-      // UTF-16 (BE)
-      return Charsets.UTF_16BE;
+  /**
+   * Determine UTF encoding of the byte array. It can be UTF-16LE/UTF-16BE
+   * if the byte array contains BOM, or UTF-8 otherwise as the default behavior.
+   * After it resets the offset in ParsableByteArray
+   *
+   * @param data byte array to determinate UTF encoding.
+   * @return Determined encoding
+   */
+  private Charset detectUtfCharset(ParsableByteArray data) {
+    if(data.limit() < 2) {
+      return Charsets.UTF_8;
     }
 
-    if (first == (byte) 0xFF && second == (byte) 0xFE) {
-      // UTF-16 (LE)
-      return Charsets.UTF_16LE;
-    }
+    char twoBytes = data.peekChar();
 
-    return null;
+    switch (twoBytes) {
+      case ParsableByteArray.BOM_UTF16_BE:
+        return Charsets.UTF_16BE;
+      case ParsableByteArray.BOM_UTF16_LE:
+        return Charsets.UTF_16LE;
+      default:
+        return Charsets.UTF_8;
+    }
   }
 
   /**

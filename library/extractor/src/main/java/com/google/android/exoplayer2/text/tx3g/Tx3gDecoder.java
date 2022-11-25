@@ -46,9 +46,6 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
 
   private static final String TAG = "Tx3gDecoder";
 
-  private static final char BOM_UTF16_BE = '\uFEFF';
-  private static final char BOM_UTF16_LE = '\uFFFE';
-
   private static final int TYPE_STYL = 0x7374796c;
   private static final int TYPE_TBOX = 0x74626f78;
   private static final String TX3G_SERIF = "Serif";
@@ -173,7 +170,7 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     }
     if (parsableByteArray.bytesLeft() >= SIZE_BOM_UTF16) {
       char firstChar = parsableByteArray.peekChar();
-      if (firstChar == BOM_UTF16_BE || firstChar == BOM_UTF16_LE) {
+      if (firstChar == ParsableByteArray.BOM_UTF16_BE || firstChar == ParsableByteArray.BOM_UTF16_LE) {
         return parsableByteArray.readString(textLength, Charsets.UTF_16);
       }
     }

@@ -27,6 +27,10 @@ import java.util.Arrays;
  */
 public final class ParsableByteArray {
 
+  // UTF-16 BOM
+  public static final char BOM_UTF16_BE = '\uFEFF';
+  public static final char BOM_UTF16_LE = '\uFFFE';
+
   private byte[] data;
   private int position;
   // TODO(internal b/147657250): Enforce this limit on all read methods.
@@ -153,6 +157,11 @@ public final class ParsableByteArray {
     this.position = position;
   }
 
+  /** Resets the current byte offset. */
+  public void resetPosition() {
+    this.position = 0;
+  }
+
   /**
    * Returns the underlying array.
    *
@@ -226,6 +235,11 @@ public final class ParsableByteArray {
   /** Peeks at the next char. */
   public char peekChar() {
     return (char) ((data[position] & 0xFF) << 8 | (data[position + 1] & 0xFF));
+  }
+
+  /** Peeks at the next char. */
+  public char peekLittleEndianChar() {
+    return (char) ((data[position] & 0xFF) | (data[position + 1] & 0xFF) << 8 );
   }
 
   /** Reads the next byte as an unsigned value. */
@@ -532,48 +546,67 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Reads a line of text.
+   * Reads a line of text. Only UTF-8, UTF-16LE, UTF-16BE encoding supported.
    *
    * <p>A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
    * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The UTF-16 charset
    * is used. This method discards leading UTF-16 byte order marks (BOM), if present.
    *
-   * @param isLittleEndian UTF-16 (LE) or UTF-16 (BE) encoding should be used
+   * @param charset used encoding.
    * @return The line not including any line-termination characters, or null if the end of the data
    * has already been reached.
+   * @throws IllegalArgumentException if charset not supported.
    */
   @Nullable
-  public String readLineUtf16(boolean isLittleEndian) {
+  public String readUtfLine(Charset charset) {
+    if(!charset.equals(Charsets.UTF_8)
+        && !charset.equals(Charsets.UTF_16BE)
+        && !charset.equals(Charsets.UTF_16LE)) {
+      throw new IllegalArgumentException("Only UTF-8, UTF-16LE, UTF-16BE encoding supported.");
+    }
+    if(charset.equals(Charsets.UTF_8)) {
+      return readLine();
+    }
+
     if (bytesLeft() == 0) {
       return null;
     }
 
+    boolean isLittleEndian = charset.equals(Charsets.UTF_16LE);
     int lineLimit = calculateLineLimitForUtf16(isLittleEndian);
 
-    if (lineLimit - position >= 2 && isUtf16BOM(data[position], data[position + 1])) {
+    if (lineLimit - position >= 2 && isUtf16BOM(peekChar())) {
       // There's a UTF-16 byte order mark at the start of the line. Discard it.
       position += 2;
     }
 
-    String line;
-    if (isLittleEndian) {
-      line = Util.fromUtf16LEBytes(data, position, lineLimit - position);
-    } else {
-      line = Util.fromUtf16BEBytes(data, position, lineLimit - position);
-    }
+    String line = readString(lineLimit - position, charset);
 
-    position = lineLimit;
     if (position == limit) {
       return line;
     }
 
-    if (isEqualsInUtf16(data[position], data[position + 1], '\r', isLittleEndian)) {
+    char currentChar;
+    if(isLittleEndian) {
+      currentChar = peekLittleEndianChar();
+    } else {
+      currentChar = peekChar();
+    }
+
+    if (currentChar == '\r') {
       position += 2;
       if (position == limit) {
         return line;
       }
     }
-    if (isEqualsInUtf16(data[position], data[position + 1], '\n', isLittleEndian)) {
+
+    if(isLittleEndian) {
+      currentChar = peekLittleEndianChar();
+    } else {
+      currentChar = peekChar();
+    }
+
+    if (currentChar == '\n') {
       position += 2;
     }
     return line;
@@ -614,14 +647,8 @@ public final class ParsableByteArray {
     return value;
   }
 
-  private boolean isEqualsInUtf16(byte first, byte second, char value, boolean isLittleEndian) {
-    return (isLittleEndian && (first | second << 8) == value)
-        || (!isLittleEndian && (first << 8 | second) == value);
-  }
-
-  private boolean isUtf16BOM(byte first, byte second) {
-    return (first == (byte) 0xFF && second == (byte) 0xFE)
-        || (first == (byte) 0xFE && second == (byte) 0xFF);
+  private boolean isUtf16BOM(char character) {
+    return character == BOM_UTF16_BE || character == BOM_UTF16_LE;
   }
 
   private int calculateLineLimitForUtf16(boolean isLittleEndian) {
