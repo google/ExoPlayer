@@ -157,11 +157,6 @@ public final class ParsableByteArray {
     this.position = position;
   }
 
-  /** Resets the current byte offset. */
-  public void resetPosition() {
-    this.position = 0;
-  }
-
   /**
    * Returns the underlying array.
    *
@@ -572,8 +567,7 @@ public final class ParsableByteArray {
       return null;
     }
 
-    boolean isLittleEndian = charset.equals(Charsets.UTF_16LE);
-    int lineLimit = calculateLineLimitForUtf16(isLittleEndian);
+    int lineLimit = calculateLineLimitForUtf16(charset.equals(Charsets.UTF_16LE));
 
     if (lineLimit - position >= 2 && isUtf16BOM(peekChar())) {
       // There's a UTF-16 byte order mark at the start of the line. Discard it.
@@ -586,27 +580,14 @@ public final class ParsableByteArray {
       return line;
     }
 
-    char currentChar;
-    if(isLittleEndian) {
-      currentChar = peekLittleEndianChar();
-    } else {
-      currentChar = peekChar();
-    }
-
-    if (currentChar == '\r') {
+    if (peekLittleEndianChar() == '\r' || peekChar() == '\r') {
       position += 2;
       if (position == limit) {
         return line;
       }
     }
 
-    if(isLittleEndian) {
-      currentChar = peekLittleEndianChar();
-    } else {
-      currentChar = peekChar();
-    }
-
-    if (currentChar == '\n') {
+    if (peekLittleEndianChar() == '\n' || peekChar() == '\n') {
       position += 2;
     }
     return line;

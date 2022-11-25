@@ -144,10 +144,9 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   /**
    * Determine UTF encoding of the byte array. It can be UTF-16LE/UTF-16BE
    * if the byte array contains BOM, or UTF-8 otherwise as the default behavior.
-   * After it resets the offset in ParsableByteArray
    *
    * @param data byte array to determinate UTF encoding.
-   * @return Determined encoding
+   * @return determined encoding
    */
   private Charset detectUtfCharset(ParsableByteArray data) {
     if(data.limit() < 2) {
