@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -69,7 +70,7 @@ import com.google.common.collect.ImmutableList;
   private final Timeline.Period period;
   private final Timeline.Window window;
   private final AnalyticsCollector analyticsCollector;
-  private final Handler analyticsCollectorHandler;
+  private final HandlerWrapper analyticsCollectorHandler;
 
   private long nextWindowSequenceNumber;
   private @RepeatMode int repeatMode;
@@ -89,7 +90,7 @@ import com.google.common.collect.ImmutableList;
    *     on.
    */
   public MediaPeriodQueue(
-      AnalyticsCollector analyticsCollector, Handler analyticsCollectorHandler) {
+      AnalyticsCollector analyticsCollector, HandlerWrapper analyticsCollectorHandler) {
     this.analyticsCollector = analyticsCollector;
     this.analyticsCollectorHandler = analyticsCollectorHandler;
     period = new Timeline.Period();

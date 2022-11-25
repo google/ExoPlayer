@@ -90,6 +90,30 @@ public class TestPlayerRunHelper {
   }
 
   /**
+   * Runs tasks of the main {@link Looper} until {@link Player#isLoading()} matches the expected
+   * value or a playback error occurs.
+   *
+   * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
+   *
+   * @param player The {@link Player}.
+   * @param expectedIsLoading The expected value for {@link Player#isLoading()}.
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
+   */
+  public static void runUntilIsLoading(Player player, boolean expectedIsLoading)
+      throws TimeoutException {
+    verifyMainTestThread(player);
+    if (player instanceof ExoPlayer) {
+      verifyPlaybackThreadIsAlive((ExoPlayer) player);
+    }
+    runMainLooperUntil(
+        () -> player.isLoading() == expectedIsLoading || player.getPlayerError() != null);
+    if (player.getPlayerError() != null) {
+      throw new IllegalStateException(player.getPlayerError());
+    }
+  }
+
+  /**
    * Runs tasks of the main {@link Looper} until {@link Player#getCurrentTimeline()} matches the
    * expected timeline or a playback error occurs.
    *
