@@ -25,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.net.Uri;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
@@ -48,6 +47,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -91,13 +91,14 @@ public final class MediaPeriodQueueTest {
     analyticsCollector.setPlayer(
         new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.getMainLooper());
-    mediaPeriodQueue =
-        new MediaPeriodQueue(analyticsCollector, new Handler(Looper.getMainLooper()));
+    HandlerWrapper handler =
+        Clock.DEFAULT.createHandler(Looper.getMainLooper(), /* callback= */ null);
+    mediaPeriodQueue = new MediaPeriodQueue(analyticsCollector, handler);
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
             analyticsCollector,
-            new Handler(Looper.getMainLooper()),
+            handler,
             PlayerId.UNSET);
     rendererCapabilities = new RendererCapabilities[0];
     trackSelector = mock(TrackSelector.class);

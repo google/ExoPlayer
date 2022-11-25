@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -297,13 +298,16 @@ public class TestExoPlayerBuilder {
               videoRendererEventListener,
               audioRendererEventListener,
               textRendererOutput,
-              metadataRendererOutput) ->
-              renderers != null
-                  ? renderers
-                  : new Renderer[] {
-                    new FakeVideoRenderer(eventHandler, videoRendererEventListener),
-                    new FakeAudioRenderer(eventHandler, audioRendererEventListener)
-                  };
+              metadataRendererOutput) -> {
+            HandlerWrapper clockAwareHandler =
+                clock.createHandler(eventHandler.getLooper(), /* callback= */ null);
+            return renderers != null
+                ? renderers
+                : new Renderer[] {
+                  new FakeVideoRenderer(clockAwareHandler, videoRendererEventListener),
+                  new FakeAudioRenderer(clockAwareHandler, audioRendererEventListener)
+                };
+          };
     }
 
     ExoPlayer.Builder builder =

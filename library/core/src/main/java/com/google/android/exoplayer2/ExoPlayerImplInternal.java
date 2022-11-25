@@ -273,7 +273,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     deliverPendingMessageAtStartPositionRequired = true;
 
-    Handler eventHandler = new Handler(applicationLooper);
+    HandlerWrapper eventHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     queue = new MediaPeriodQueue(analyticsCollector, eventHandler);
     mediaSourceList =
         new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler, playerId);
