@@ -198,6 +198,15 @@
           android:checked="true"/>
       </TableRow>
       <TableRow
+        android:layout_weight="1">
+        <TextView
+          android:layout_gravity="center_vertical"
+          android:text="@string/abort_slow_transformation" />
+        <CheckBox
+          android:id="@+id/abort_slow_transformation_checkbox"
+          android:layout_gravity="end"/>
+      </TableRow>
+      <TableRow
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView

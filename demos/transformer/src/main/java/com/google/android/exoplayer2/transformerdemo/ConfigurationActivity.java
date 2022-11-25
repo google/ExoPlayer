@@ -69,6 +69,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
+  public static final String ABORT_SLOW_TRANSFORMATION = "abort_slow_transformation";
   public static final String HDR_MODE = "hdr_mode";
   public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
@@ -164,6 +165,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
+  private @MonotonicNonNull CheckBox abortSlowTransformationCheckBox;
   private @MonotonicNonNull Spinner hdrModeSpinner;
   private @MonotonicNonNull Button selectDemoEffectsButton;
   private boolean @MonotonicNonNull [] demoEffectsSelections;
@@ -257,6 +259,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableDebugPreviewCheckBox = findViewById(R.id.enable_debug_preview_checkbox);
 
+    abortSlowTransformationCheckBox = findViewById(R.id.abort_slow_transformation_checkbox);
+
     ArrayAdapter<String> hdrModeAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
     hdrModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -319,6 +323,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "trimCheckBox",
     "enableFallbackCheckBox",
     "enableDebugPreviewCheckBox",
+    "abortSlowTransformationCheckBox",
     "hdrModeSpinner",
     "demoEffectsSelections"
   })
@@ -357,6 +362,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
     bundle.putBoolean(ENABLE_DEBUG_PREVIEW, enableDebugPreviewCheckBox.isChecked());
+    bundle.putBoolean(ABORT_SLOW_TRANSFORMATION, abortSlowTransformationCheckBox.isChecked());
     String selectedhdrMode = String.valueOf(hdrModeSpinner.getSelectedItem());
     bundle.putInt(HDR_MODE, checkNotNull(HDR_MODE_DESCRIPTIONS.get(selectedhdrMode)));
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);

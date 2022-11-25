@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
 import com.google.android.exoplayer2.effect.SingleColorLut;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.DefaultMuxer;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
@@ -285,7 +286,13 @@ public final class TransformerActivity extends AppCompatActivity {
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
       }
+
+      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_TRANSFORMATION)) {
+        transformerBuilder.setMuxerFactory(
+            new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
+      }
     }
+
     return transformerBuilder
         .addListener(
             new Transformer.Listener() {

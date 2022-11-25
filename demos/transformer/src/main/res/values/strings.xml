@@ -29,6 +29,7 @@
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
+  <string name="abort_slow_transformation" translatable="false">Abort slow transformation</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="hdr_mode" translatable="false">HDR mode</string>
   <string name="select_demo_effects" translatable="false">Add demo effects</string>
