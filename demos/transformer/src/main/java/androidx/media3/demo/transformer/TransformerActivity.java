@@ -54,6 +54,7 @@ import androidx.media3.effect.SingleColorLut;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.DefaultMuxer;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
@@ -285,7 +286,13 @@ public final class TransformerActivity extends AppCompatActivity {
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
       }
+
+      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_TRANSFORMATION)) {
+        transformerBuilder.setMuxerFactory(
+            new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
+      }
     }
+
     return transformerBuilder
         .addListener(
             new Transformer.Listener() {
