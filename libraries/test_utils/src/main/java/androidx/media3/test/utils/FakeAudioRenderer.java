@@ -16,10 +16,10 @@
 
 package androidx.media3.test.utils;
 
-import android.os.Handler;
 import android.os.SystemClock;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.ExoPlaybackException;
@@ -29,13 +29,15 @@ import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 @UnstableApi
 public class FakeAudioRenderer extends FakeRenderer {
 
-  private final AudioRendererEventListener.EventDispatcher eventDispatcher;
+  private final HandlerWrapper handler;
+  private final AudioRendererEventListener eventListener;
   private final DecoderCounters decoderCounters;
   private boolean notifiedPositionAdvancing;
 
-  public FakeAudioRenderer(Handler handler, AudioRendererEventListener eventListener) {
+  public FakeAudioRenderer(HandlerWrapper handler, AudioRendererEventListener eventListener) {
     super(C.TRACK_TYPE_AUDIO);
-    eventDispatcher = new AudioRendererEventListener.EventDispatcher(handler, eventListener);
+    this.handler = handler;
+    this.eventListener = eventListener;
     decoderCounters = new DecoderCounters();
   }
 
@@ -43,30 +45,33 @@ public class FakeAudioRenderer extends FakeRenderer {
   protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
-    eventDispatcher.enabled(decoderCounters);
+    handler.post(() -> eventListener.onAudioEnabled(decoderCounters));
     notifiedPositionAdvancing = false;
   }
 
   @Override
   protected void onDisabled() {
     super.onDisabled();
-    eventDispatcher.disabled(decoderCounters);
+    handler.post(() -> eventListener.onAudioDisabled(decoderCounters));
   }
 
   @Override
   protected void onFormatChanged(Format format) {
-    eventDispatcher.inputFormatChanged(format, /* decoderReuseEvaluation= */ null);
-    eventDispatcher.decoderInitialized(
-        /* decoderName= */ "fake.audio.decoder",
-        /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
-        /* initializationDurationMs= */ 0);
+    handler.post(
+        () -> eventListener.onAudioInputFormatChanged(format, /* decoderReuseEvaluation= */ null));
+    handler.post(
+        () ->
+            eventListener.onAudioDecoderInitialized(
+                /* decoderName= */ "fake.audio.decoder",
+                /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
+                /* initializationDurationMs= */ 0));
   }
 
   @Override
   protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
     boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
     if (shouldProcess && !notifiedPositionAdvancing) {
-      eventDispatcher.positionAdvancing(System.currentTimeMillis());
+      handler.post(() -> eventListener.onAudioPositionAdvancing(System.currentTimeMillis()));
       notifiedPositionAdvancing = true;
     }
     return shouldProcess;
