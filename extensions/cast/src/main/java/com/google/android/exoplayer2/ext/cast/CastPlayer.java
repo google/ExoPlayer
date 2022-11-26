@@ -1321,6 +1321,9 @@ public final class CastPlayer extends BasePlayer {
     @Override
     public void onProgressUpdated(long progressMs, long unusedDurationMs) {
       lastReportedPositionMs = progressMs;
+      if (remoteMediaClient != null && remoteMediaClient.isLiveStream()) {
+        remoteMediaClient.requestStatus();
+      }
     }
 
     // RemoteMediaClient.Callback implementation.
