@@ -149,13 +149,11 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
    * @return determined encoding
    */
   private Charset detectUtfCharset(ParsableByteArray data) {
-    if(data.limit() < 2) {
+    if (data.limit() < 2) {
       return Charsets.UTF_8;
     }
 
-    char twoBytes = data.peekChar();
-
-    switch (twoBytes) {
+    switch (data.peekChar()) {
       case ParsableByteArray.BOM_UTF16_BE:
         return Charsets.UTF_16BE;
       case ParsableByteArray.BOM_UTF16_LE:

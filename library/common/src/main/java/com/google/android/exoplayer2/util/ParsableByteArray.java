@@ -234,7 +234,7 @@ public final class ParsableByteArray {
 
   /** Peeks at the next char. */
   public char peekLittleEndianChar() {
-    return (char) ((data[position] & 0xFF) | (data[position + 1] & 0xFF) << 8 );
+    return (char) ((data[position] & 0xFF) | (data[position + 1] & 0xFF) << 8);
   }
 
   /** Reads the next byte as an unsigned value. */
@@ -554,12 +554,12 @@ public final class ParsableByteArray {
    */
   @Nullable
   public String readUtfLine(Charset charset) {
-    if(!charset.equals(Charsets.UTF_8)
+    if (!charset.equals(Charsets.UTF_8)
         && !charset.equals(Charsets.UTF_16BE)
         && !charset.equals(Charsets.UTF_16LE)) {
       throw new IllegalArgumentException("Only UTF-8, UTF-16LE, UTF-16BE encoding supported.");
     }
-    if(charset.equals(Charsets.UTF_8)) {
+    if (charset.equals(Charsets.UTF_8)) {
       return readLine();
     }
 
