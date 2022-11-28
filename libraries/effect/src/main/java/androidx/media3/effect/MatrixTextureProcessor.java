@@ -24,7 +24,6 @@ import android.opengl.Matrix;
 import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.Format;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
@@ -154,7 +153,6 @@ import java.util.List;
             context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
 
     // No transfer functions needed, because input and output are both optical colors.
-    // TODO(b/241902517): Add transfer functions since existing color filters may change the colors.
     return new MatrixTextureProcessor(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
@@ -216,6 +214,8 @@ import java.util.List;
       checkArgument(
           colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084);
       glProgram.setIntUniform("uEotfColorTransfer", colorTransfer);
+      // No OETF needed, because the intended output here is optical colors.
+      glProgram.setIntUniform("uOetfColorTransfer", C.COLOR_TRANSFER_LINEAR);
     } else {
       glProgram.setIntUniform("uApplyOetf", 0);
     }
@@ -319,8 +319,11 @@ import java.util.List;
               ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
               : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
 
-      // No transfer functions needed, because the EOTF and OETF cancel out.
-      glProgram.setIntUniform("uEotfColorTransfer", Format.NO_VALUE);
+      @C.ColorTransfer int colorTransfer = electricalColorInfo.colorTransfer;
+      checkArgument(
+          colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084);
+      glProgram.setIntUniform("uEotfColorTransfer", colorTransfer);
+      glProgram.setIntUniform("uOetfColorTransfer", colorTransfer);
     } else {
       glProgram.setIntUniform("uApplyOetf", 1);
     }

@@ -14,12 +14,13 @@
 // limitations under the License.
 
 // ES 3 fragment shader that:
-// 1. samples optical linear BT.2020 RGB from a (non-external) texture with
-//    uTexSampler, and applies a 4x4 RGB color matrix to change the pixel
-//    colors,
-// 2. applies the HLG or PQ OETF to yield electrical (HLG or PQ) BT.2020 RGB,
-//    and
-// 3. copies this converted texture color to the current output.
+// 1. Samples optical linear BT.2020 RGB from a (non-external) texture with
+//    uTexSampler.
+// 2. Applies a 4x4 RGB color matrix to change the pixel colors.
+// 3. Applies the HLG or PQ OETF to yield electrical (HLG or PQ) BT.2020 RGB,
+//    based on uOetfColorTransfer.
+// 4. Copies this converted texture color to the current output.
+// The output will be red if an error has occurred.
 
 precision mediump float;
 uniform sampler2D uTexSampler;
@@ -75,8 +76,8 @@ highp vec3 pqOetf(highp vec3 linearColor) {
 }
 
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
-// electrical signals. Input and output are both normalzied to [0, 1].
-highp vec3 getElectricalColor(highp vec3 linearColor) {
+// electrical signals. Input and output are both normalized to [0, 1].
+highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
@@ -94,5 +95,5 @@ void main() {
   vec4 inputColor = texture(uTexSampler, vTexSamplingCoord);
   // transformedColors is an optical color.
   vec4 transformedColors = uRgbMatrix * vec4(inputColor.rgb, 1);
-  outColor = vec4(getElectricalColor(transformedColors.rgb), inputColor.a);
+  outColor = vec4(applyOetf(transformedColors.rgb), inputColor.a);
 }
