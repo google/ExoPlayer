@@ -20,11 +20,13 @@
 //    https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt,
 // 2. Applies a YUV to RGB conversion using the specified color transform
 //    uYuvToRgbColorTransform, yielding electrical (HLG or PQ) BT.2020 RGB,
-// 3. If uEotfColorTransfer is COLOR_TRANSFER_NO_VALUE, outputs electrical
-//    (HLG or PQ) BT.2020 RGB. Otherwise, outputs optical linear BT.2020 RGB for
-//    intermediate shaders by applying the HLG or PQ EOTF.
-// 4. Copies this converted texture color to the current output, with alpha = 1,
-//    while applying a 4x4 RGB color matrix to change the pixel colors.
+// 3. Applies an EOTF based on uEotfColorTransfer, yielding optical linear
+//    BT.2020 RGB.
+// 4. Applies a 4x4 RGB color matrix to change the pixel colors.
+// 5. If uOetfColorTransfer is COLOR_TRANSFER_LINEAR, outputs linear colors as
+//    is to intermediate shaders. Otherwise, applies the HLG or PQ OETF, based
+// on uOetfColorTransfer, to provide the corresponding output electrical color.
+// The output will be red if an error has occurred.
 
 #extension GL_OES_EGL_image_external : require
 #extension GL_EXT_YUV_target : require
@@ -33,7 +35,12 @@ uniform __samplerExternal2DY2YEXT uTexSampler;
 uniform mat3 uYuvToRgbColorTransform;
 uniform mat4 uRgbMatrix;
 // C.java#ColorTransfer value.
+// Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
 uniform int uEotfColorTransfer;
+// C.java#ColorTransfer value.
+// Only COLOR_TRANSFER_LINEAR, COLOR_TRANSFER_ST2084, and COLOR_TRANSFER_HLG are
+// allowed.
+uniform int uOetfColorTransfer;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
 
@@ -81,19 +88,74 @@ highp vec3 pqEotf(highp vec3 pqColor) {
 
 // Applies the appropriate EOTF to convert nonlinear electrical values to linear
 // optical values. Input and output are both normalized to [0, 1].
-highp vec3 getOpticalColor(highp vec3 electricalColor) {
+highp vec3 applyEotf(highp vec3 electricalColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
-
-  const int FORMAT_NO_VALUE = -1;
 
   if (uEotfColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqEotf(electricalColor);
   } else if (uEotfColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgEotf(electricalColor);
-  } else if (uEotfColorTransfer == FORMAT_NO_VALUE) {
-    return electricalColor;
+  } else {
+    // Output red as an obviously visible error.
+    return vec3(1.0, 0.0, 0.0);
+  }
+}
+
+// HLG OETF for one channel.
+highp float hlgOetfSingleChannel(highp float linearChannel) {
+  // Specification:
+  // https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.inline.html#TRANSFER_HLG
+  // Reference implementation:
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/native/libs/renderengine/gl/ProgramCache.cpp;l=529-543;drc=de09f10aa504fd8066370591a00c9ff1cafbb7fa
+  const highp float a = 0.17883277;
+  const highp float b = 0.28466892;
+  const highp float c = 0.55991073;
+
+  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel) :
+      a * log(12.0 * linearChannel - b) + c;
+}
+
+// BT.2100 / BT.2020 HLG OETF.
+highp vec3 hlgOetf(highp vec3 linearColor) {
+  return vec3(
+      hlgOetfSingleChannel(linearColor.r),
+      hlgOetfSingleChannel(linearColor.g),
+      hlgOetfSingleChannel(linearColor.b)
+  );
+}
+
+// BT.2100 / BT.2020, PQ / ST2084 OETF.
+highp vec3 pqOetf(highp vec3 linearColor) {
+  // Specification:
+  // https://registry.khronos.org/DataFormat/specs/1.3/dataformat.1.3.inline.html#TRANSFER_PQ
+  // Reference implementation:
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/native/libs/renderengine/gl/ProgramCache.cpp;l=514-527;drc=de09f10aa504fd8066370591a00c9ff1cafbb7fa
+  const highp float m1 = (2610.0 / 16384.0);
+  const highp float m2 = (2523.0 / 4096.0) * 128.0;
+  const highp float c1 = (3424.0 / 4096.0);
+  const highp float c2 = (2413.0 / 4096.0) * 32.0;
+  const highp float c3 = (2392.0 / 4096.0) * 32.0;
+
+  highp vec3 temp = pow(linearColor, vec3(m1));
+  temp = (c1 + c2 * temp) / (1.0 + c3 * temp);
+  return pow(temp, vec3(m2));
+}
+
+// Applies the appropriate OETF to convert linear optical signals to nonlinear
+// electrical signals. Input and output are both normalized to [0, 1].
+highp vec3 applyOetf(highp vec3 linearColor) {
+  // LINT.IfChange(color_transfer_oetf)
+  const int COLOR_TRANSFER_LINEAR = 1;
+  const int COLOR_TRANSFER_ST2084 = 6;
+  const int COLOR_TRANSFER_HLG = 7;
+  if(uOetfColorTransfer == COLOR_TRANSFER_ST2084) {
+    return pqOetf(linearColor);
+  } else if(uOetfColorTransfer == COLOR_TRANSFER_HLG) {
+    return hlgOetf(linearColor);
+  } else if (uOetfColorTransfer == COLOR_TRANSFER_LINEAR) {
+    return linearColor;
   } else {
     // Output red as an obviously visible error.
     return vec3(1.0, 0.0, 0.0);
@@ -107,7 +169,7 @@ vec3 yuvToRgb(vec3 yuv) {
 
 void main() {
   vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
-  vec3 rgb = yuvToRgb(srcYuv);
-  outColor = uRgbMatrix * vec4(getOpticalColor(rgb), 1.0);
-  // TODO(b/241902517): Transform optical to electrical colors.
+  vec4 opticalColor = vec4(applyEotf(yuvToRgb(srcYuv)), 1.0);
+  vec4 transformedColors = uRgbMatrix * opticalColor;
+  outColor = vec4(applyOetf(transformedColors.rgb), 1.0);
 }
