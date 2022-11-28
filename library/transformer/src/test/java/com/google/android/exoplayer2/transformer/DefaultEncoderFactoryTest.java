@@ -131,6 +131,96 @@ public class DefaultEncoderFactoryTest {
     assertThat(actualVideoFormat.height).isEqualTo(1080);
   }
 
+  @Test
+  public void
+      createForVideoEncoding_setFormatAverageBitrateUnsetVideoEncoderSettings_configuresEncoderUsingFormatAverageBitrate()
+          throws Exception {
+    Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
+    requestedVideoFormat = requestedVideoFormat.buildUpon().setAverageBitrate(5_000_000).build();
+
+    Format actualVideoFormat =
+        new DefaultEncoderFactory.Builder(context)
+            .setRequestedVideoEncoderSettings(VideoEncoderSettings.DEFAULT)
+            .build()
+            .createForVideoEncoding(
+                requestedVideoFormat,
+                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .getConfigurationFormat();
+
+    assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
+    assertThat(actualVideoFormat.width).isEqualTo(1920);
+    assertThat(actualVideoFormat.height).isEqualTo(1080);
+    assertThat(actualVideoFormat.averageBitrate).isEqualTo(5_000_000);
+  }
+
+  @Test
+  public void
+      createForVideoEncoding_unsetFormatAverageBitrateAndUnsetVideoEncoderSettingsBitrate_configuresEncoderUsingDefaultBitrateMapping()
+          throws Exception {
+    Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
+    Format actualVideoFormat =
+        new DefaultEncoderFactory.Builder(context)
+            .build()
+            .createForVideoEncoding(
+                requestedVideoFormat,
+                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .getConfigurationFormat();
+
+    assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
+    assertThat(actualVideoFormat.width).isEqualTo(1920);
+    assertThat(actualVideoFormat.height).isEqualTo(1080);
+    // The default behavior is to use DefaultEncoderFactory#getSuggestedBitrate.
+    // 1920 * 1080 * 30 * 0.07 * 2.
+    assertThat(actualVideoFormat.averageBitrate).isEqualTo(8_709_120);
+  }
+
+  @Test
+  public void
+      createForVideoEncoding_setFormatAverageBitrateAndSetVideoEncoderSettingHighQualityTargeting_configuresEncoderUsingHighQualityTargeting()
+          throws Exception {
+    Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
+    requestedVideoFormat = requestedVideoFormat.buildUpon().setAverageBitrate(5_000_000).build();
+    Format actualVideoFormat =
+        new DefaultEncoderFactory.Builder(context)
+            .setRequestedVideoEncoderSettings(
+                new VideoEncoderSettings.Builder().setEnableHighQualityTargeting(true).build())
+            .build()
+            .createForVideoEncoding(
+                requestedVideoFormat,
+                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .getConfigurationFormat();
+
+    assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
+    assertThat(actualVideoFormat.width).isEqualTo(1920);
+    assertThat(actualVideoFormat.height).isEqualTo(1080);
+    // DeviceMappedEncoderBitrateProvider will produce 1920 * 1080 * 30 * 1.4, but the value is
+    // clampped down to the encoder's maximum, 25_000_000.
+    assertThat(actualVideoFormat.averageBitrate).isEqualTo(25_000_000);
+  }
+
+  @Test
+  public void
+      createForVideoEncoding_setFormatAverageBitrateAndVideoEncoderSettingsBitrate_configuresEncoderUsingVideoEncoderSettingsBitrate()
+          throws Exception {
+    Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
+    requestedVideoFormat = requestedVideoFormat.buildUpon().setAverageBitrate(5_000_000).build();
+
+    Format actualVideoFormat =
+        new DefaultEncoderFactory.Builder(context)
+            .setRequestedVideoEncoderSettings(
+                new VideoEncoderSettings.Builder().setBitrate(10_000_000).build())
+            .build()
+            .createForVideoEncoding(
+                requestedVideoFormat,
+                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .getConfigurationFormat();
+
+    assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
+    assertThat(actualVideoFormat.width).isEqualTo(1920);
+    assertThat(actualVideoFormat.height).isEqualTo(1080);
+    assertThat(actualVideoFormat.averageBitrate).isEqualTo(10_000_000);
+  }
+
   @Config(sdk = 29)
   @Test
   public void
