@@ -63,6 +63,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
     void onError(Exception e);
   }
 
+  private final MediaItem mediaItem;
   private final ExoPlayer player;
 
   public ExoPlayerAssetLoader(
@@ -71,8 +72,10 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
       boolean removeAudio,
       boolean removeVideo,
       MediaSource.Factory mediaSourceFactory,
+      Looper looper,
       Listener listener,
       Clock clock) {
+    this.mediaItem = mediaItem;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
         new DefaultTrackSelector.Parameters.Builder(context)
@@ -92,7 +95,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
         new ExoPlayer.Builder(context, new RenderersFactoryImpl(removeAudio, removeVideo, listener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
-            .setLoadControl(loadControl);
+            .setLoadControl(loadControl)
+            .setLooper(looper);
     if (clock != Clock.DEFAULT) {
       // Transformer.Builder#setClock is also @VisibleForTesting, so if we're using a non-default
       // clock we must be in a test context.
@@ -101,20 +105,16 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
     }
 
     player = playerBuilder.build();
-    player.setMediaItem(mediaItem);
     player.addListener(new PlayerListener(listener));
   }
 
   public void start() {
+    player.setMediaItem(mediaItem);
     player.prepare();
   }
 
   public void release() {
     player.release();
-  }
-
-  public Looper getPlaybackLooper() {
-    return player.getPlaybackLooper();
   }
 
   private static final class RenderersFactoryImpl implements RenderersFactory {
