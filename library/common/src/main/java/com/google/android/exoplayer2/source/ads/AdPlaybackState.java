@@ -630,7 +630,7 @@ public final class AdPlaybackState implements Bundleable {
 
   /** Returns the specified {@link AdGroup}. */
   public AdGroup getAdGroup(@IntRange(from = 0) int adGroupIndex) {
-    return adGroupIndex < removedAdGroupCount
+    return adGroups.length == 0 || adGroupIndex < removedAdGroupCount
         ? REMOVED_AD_GROUP
         : adGroups[adGroupIndex - removedAdGroupCount];
   }
