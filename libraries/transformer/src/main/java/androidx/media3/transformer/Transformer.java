@@ -17,11 +17,9 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.transformer.TransformerInternal.END_TRANSFORMATION_REASON_CANCELLED;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.IntDef;
@@ -37,6 +35,7 @@ import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -734,6 +733,7 @@ public final class Transformer {
             encoderFactory,
             frameProcessorFactory,
             muxerFactory,
+            looper,
             transformerInternalListener,
             fallbackListener,
             debugViewProvider,
@@ -780,11 +780,10 @@ public final class Transformer {
       return;
     }
     try {
-      transformerInternal.release(END_TRANSFORMATION_REASON_CANCELLED);
-    } catch (TransformationException impossible) {
-      throw new IllegalStateException(impossible);
+      transformerInternal.cancel();
+    } finally {
+      transformerInternal = null;
     }
-    transformerInternal = null;
   }
 
   private void verifyApplicationThread() {
@@ -796,18 +795,17 @@ public final class Transformer {
   private final class TransformerInternalListener implements TransformerInternal.Listener {
 
     private final MediaItem mediaItem;
-    private final Handler handler;
+    private final HandlerWrapper handler;
 
     public TransformerInternalListener(MediaItem mediaItem) {
       this.mediaItem = mediaItem;
-      handler = Util.createHandlerForCurrentLooper();
+      handler = clock.createHandler(looper, /* callback= */ null);
     }
 
     @Override
     public void onTransformationCompleted(TransformationResult transformationResult) {
       // TODO(b/213341814): Add event flags for Transformer events.
-      Util.postOrRun(
-          handler,
+      handler.post(
           () -> {
             transformerInternal = null;
             listeners.queueEvent(
@@ -819,8 +817,7 @@ public final class Transformer {
 
     @Override
     public void onTransformationError(TransformationException exception) {
-      Util.postOrRun(
-          handler,
+      handler.post(
           () -> {
             transformerInternal = null;
             listeners.queueEvent(

@@ -17,15 +17,17 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
-import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -62,26 +64,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Represents a reason for ending a transformation. May be one of {@link
-   * #END_TRANSFORMATION_REASON_COMPLETED}, {@link #END_TRANSFORMATION_REASON_CANCELLED} or {@link
-   * #END_TRANSFORMATION_REASON_ERROR}.
+   * Represents a reason for ending a transformation. May be one of {@link #END_REASON_COMPLETED},
+   * {@link #END_REASON_CANCELLED} or {@link #END_REASON_ERROR}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({
-    END_TRANSFORMATION_REASON_COMPLETED,
-    END_TRANSFORMATION_REASON_CANCELLED,
-    END_TRANSFORMATION_REASON_ERROR
-  })
-  public @interface EndTransformationReason {}
-
+  @IntDef({END_REASON_COMPLETED, END_REASON_CANCELLED, END_REASON_ERROR})
+  private @interface EndReason {}
   /** The transformation completed successfully. */
-  public static final int END_TRANSFORMATION_REASON_COMPLETED = 0;
+  private static final int END_REASON_COMPLETED = 0;
   /** The transformation was cancelled. */
-  public static final int END_TRANSFORMATION_REASON_CANCELLED = 1;
+  private static final int END_REASON_CANCELLED = 1;
   /** An error occurred during the transformation. */
-  public static final int END_TRANSFORMATION_REASON_ERROR = 2;
+  private static final int END_REASON_ERROR = 2;
+
+  // Internal messages.
+  private static final int MSG_START = 0;
+  private static final int MSG_END = 1;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
@@ -93,17 +93,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Listener listener;
   private final DebugViewProvider debugViewProvider;
   private final Clock clock;
-  private final Handler handler;
+  private final HandlerWrapper applicationHandler;
+  private final HandlerThread internalHandlerThread;
+  private final HandlerWrapper internalHandler;
   private final ExoPlayerAssetLoader exoPlayerAssetLoader;
   private final MuxerWrapper muxerWrapper;
-  private final ConditionVariable releasingMuxerConditionVariable;
+  private final ConditionVariable cancellingConditionVariable;
 
   private @Transformer.ProgressState int progressState;
   private long progressPositionMs;
   private long durationMs;
   private boolean released;
-  private volatile @MonotonicNonNull TransformationResult transformationResult;
-  private volatile @MonotonicNonNull TransformationException releaseMuxerException;
+  private @MonotonicNonNull RuntimeException cancelException;
 
   public TransformerInternal(
       Context context,
@@ -120,6 +121,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Codec.EncoderFactory encoderFactory,
       FrameProcessor.Factory frameProcessorFactory,
       Muxer.Factory muxerFactory,
+      Looper applicationLooper,
       Listener listener,
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider,
@@ -134,14 +136,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.listener = listener;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
-    handler = Util.createHandlerForCurrentLooper();
+    applicationHandler = clock.createHandler(applicationLooper, /* callback= */ null);
+    internalHandlerThread = new HandlerThread("Transformer:Internal");
+    internalHandlerThread.start();
+    Looper internalLooper = internalHandlerThread.getLooper();
     ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
-    muxerWrapper =
-        new MuxerWrapper(
-            outputPath,
-            outputParcelFileDescriptor,
-            muxerFactory,
-            /* errorConsumer= */ componentListener::onTransformationError);
     exoPlayerAssetLoader =
         new ExoPlayerAssetLoader(
             context,
@@ -149,14 +148,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             removeAudio,
             removeVideo,
             mediaSourceFactory,
+            internalLooper,
             componentListener,
             clock);
-    releasingMuxerConditionVariable = new ConditionVariable();
+    muxerWrapper =
+        new MuxerWrapper(
+            outputPath,
+            outputParcelFileDescriptor,
+            muxerFactory,
+            /* errorConsumer= */ componentListener::onTransformationError);
+    cancellingConditionVariable = new ConditionVariable();
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+    // It's safe to use "this" because we don't send a message before exiting the constructor.
+    @SuppressWarnings("nullness:methodref.receiver.bound")
+    HandlerWrapper internalHandler =
+        clock.createHandler(internalLooper, /* callback= */ this::handleMessage);
+    this.internalHandler = internalHandler;
   }
 
   public void start() {
-    exoPlayerAssetLoader.start();
+    internalHandler.sendEmptyMessage(MSG_START);
   }
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
@@ -166,26 +177,53 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return progressState;
   }
 
-  /**
-   * Releases the resources.
-   *
-   * @param endTransformationReason The {@linkplain EndTransformationReason reason} for ending the
-   *     transformation.
-   * @throws TransformationException If the muxer is in the wrong state and {@code
-   *     endTransformationReason} is not {@link #END_TRANSFORMATION_REASON_CANCELLED}.
-   */
-  public void release(@EndTransformationReason int endTransformationReason)
-      throws TransformationException {
-    if (released) {
-      return;
+  public void cancel() {
+    internalHandler
+        .obtainMessage(
+            MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* transformationException */ null)
+        .sendToTarget();
+    clock.onThreadBlocked();
+    cancellingConditionVariable.blockUninterruptible();
+    if (cancelException != null) {
+      throw cancelException;
     }
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
-    released = true;
-    HandlerWrapper playbackHandler =
-        clock.createHandler(exoPlayerAssetLoader.getPlaybackLooper(), /* callback= */ null);
-    playbackHandler.post(
-        () -> {
-          if (endTransformationReason == END_TRANSFORMATION_REASON_COMPLETED) {
+  }
+
+  private boolean handleMessage(Message msg) {
+    try {
+      switch (msg.what) {
+        case MSG_START:
+          startInternal();
+          break;
+        case MSG_END:
+          endInternal(
+              /* endReason= */ msg.arg1,
+              /* transformationException= */ (TransformationException) msg.obj);
+          break;
+        default:
+          return false;
+      }
+    } catch (RuntimeException e) {
+      endInternal(END_REASON_ERROR, TransformationException.createForUnexpected(e));
+    }
+    return true;
+  }
+
+  private void startInternal() {
+    exoPlayerAssetLoader.start();
+  }
+
+  private void endInternal(
+      @EndReason int endReason, @Nullable TransformationException transformationException) {
+    @Nullable TransformationResult transformationResult = null;
+    boolean forCancellation = endReason == END_REASON_CANCELLED;
+    @Nullable TransformationException releaseTransformationException = null;
+    if (!released) {
+      released = true;
+      try {
+        try {
+          exoPlayerAssetLoader.release();
+          if (endReason == END_REASON_COMPLETED) {
             transformationResult =
                 new TransformationResult.Builder()
                     .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
@@ -195,24 +233,37 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
                     .build();
           }
-          try {
-            muxerWrapper.release(
-                /* forCancellation= */ endTransformationReason
-                    == END_TRANSFORMATION_REASON_CANCELLED);
-          } catch (Muxer.MuxerException e) {
-            releaseMuxerException =
-                TransformationException.createForMuxer(
-                    e, TransformationException.ERROR_CODE_MUXING_FAILED);
-          } finally {
-            releasingMuxerConditionVariable.open();
-          }
-        });
-    clock.onThreadBlocked();
-    releasingMuxerConditionVariable.blockUninterruptible();
-    exoPlayerAssetLoader.release();
-    if (releaseMuxerException != null) {
-      throw releaseMuxerException;
+        } finally {
+          muxerWrapper.release(forCancellation);
+        }
+      } catch (Muxer.MuxerException e) {
+        releaseTransformationException =
+            TransformationException.createForMuxer(e, ERROR_CODE_MUXING_FAILED);
+      } catch (RuntimeException e) {
+        releaseTransformationException = TransformationException.createForUnexpected(e);
+        cancelException = e;
+      }
     }
+
+    if (!forCancellation) {
+      TransformationException exception = transformationException;
+      if (exception == null) {
+        // We only report the exception caused by releasing the resources if there is no other
+        // exception. It is more intuitive to call the error callback only once and reporting the
+        // exception caused by releasing the resources can be confusing if it is a consequence of
+        // the first exception.
+        exception = releaseTransformationException;
+      }
+
+      if (exception != null) {
+        listener.onTransformationError(exception);
+      } else {
+        listener.onTransformationCompleted(checkNotNull(transformationResult));
+      }
+    }
+
+    internalHandlerThread.quitSafely();
+    cancellingConditionVariable.open();
   }
 
   private class ComponentListener
@@ -236,14 +287,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onDurationMs(long durationMs) {
-      // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
-      // to a high value at the end of the transformation if the duration is set once the media is
-      // entirely loaded.
-      progressState =
-          durationMs <= 0 || durationMs == C.TIME_UNSET
-              ? PROGRESS_STATE_UNAVAILABLE
-              : PROGRESS_STATE_AVAILABLE;
-      TransformerInternal.this.durationMs = durationMs;
+      applicationHandler.post(
+          () -> {
+            // Make progress permanently unavailable if the duration is unknown, so that it doesn't
+            // jump to a high value at the end of the transformation if the duration is set once the
+            // media is entirely loaded.
+            progressState =
+                durationMs <= 0 || durationMs == C.TIME_UNSET
+                    ? PROGRESS_STATE_UNAVAILABLE
+                    : PROGRESS_STATE_AVAILABLE;
+            TransformerInternal.this.durationMs = durationMs;
+          });
     }
 
     @Override
@@ -278,12 +332,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else {
         transformationException = TransformationException.createForUnexpected(e);
       }
-      handleTransformationEnded(transformationException);
+      onTransformationError(transformationException);
     }
 
     @Override
     public void onEnded() {
-      handleTransformationEnded(/* transformationException= */ null);
+      internalHandler
+          .obtainMessage(
+              MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* transformationException */ null)
+          .sendToTarget();
     }
 
     // SamplePipeline.Listener implementation.
@@ -295,15 +352,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (elapsedTimeMs > lastProgressUpdateMs + MIN_DURATION_BETWEEN_PROGRESS_UPDATES_MS
           && positionMs > lastProgressPositionMs) {
         lastProgressUpdateMs = elapsedTimeMs;
-        // Store positionMs in a local variable to make sure the thread reads the latest value.
+        // Store positionMs in a variable to make sure the thread reads the latest value.
         lastProgressPositionMs = positionMs;
-        handler.post(() -> progressPositionMs = positionMs);
+        applicationHandler.post(() -> progressPositionMs = positionMs);
       }
     }
 
     @Override
     public void onTransformationError(TransformationException transformationException) {
-      handleTransformationEnded(transformationException);
+      internalHandler
+          .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, transformationException)
+          .sendToTarget();
     }
 
     private SamplePipeline getSamplePipeline(
@@ -426,38 +485,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return true;
       }
       return false;
-    }
-
-    private void handleTransformationEnded(
-        @Nullable TransformationException transformationException) {
-      handler.post(
-          () -> {
-            @Nullable TransformationException releaseException = null;
-            try {
-              release(
-                  transformationException == null
-                      ? END_TRANSFORMATION_REASON_COMPLETED
-                      : END_TRANSFORMATION_REASON_ERROR);
-            } catch (TransformationException e) {
-              releaseException = e;
-            } catch (RuntimeException e) {
-              releaseException = TransformationException.createForUnexpected(e);
-            }
-            TransformationException exception = transformationException;
-            if (exception == null) {
-              // We only report the exception caused by releasing the resources if there is no other
-              // exception. It is more intuitive to call the error callback only once and reporting
-              // the exception caused by releasing the resources can be confusing if it is a
-              // consequence of the first exception.
-              exception = releaseException;
-            }
-
-            if (exception != null) {
-              listener.onTransformationError(exception);
-            } else {
-              listener.onTransformationCompleted(checkNotNull(transformationResult));
-            }
-          });
     }
   }
 }
