@@ -24,7 +24,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.opengl.GLES20;
@@ -211,7 +210,7 @@ public class BitmapTestUtil {
     // https://developer.android.com/reference/android/graphics/Bitmap.Config#ARGB_8888.
     bitmap.copyPixelsFromBuffer(rgba8888Buffer);
     // Flip the bitmap as its positive y-axis points down while OpenGL's positive y-axis points up.
-    return flipBitmapVertically(bitmap);
+    return BitmapUtil.flipBitmapVertically(bitmap);
   }
 
   /**
@@ -227,22 +226,9 @@ public class BitmapTestUtil {
             bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, flipBitmapVertically(bitmap), 0);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, BitmapUtil.flipBitmapVertically(bitmap), 0);
     GlUtil.checkGlError();
     return texId;
-  }
-
-  private static Bitmap flipBitmapVertically(Bitmap bitmap) {
-    Matrix flip = new Matrix();
-    flip.postScale(1f, -1f);
-    return Bitmap.createBitmap(
-        bitmap,
-        /* x= */ 0,
-        /* y= */ 0,
-        bitmap.getWidth(),
-        bitmap.getHeight(),
-        flip,
-        /* filter= */ true);
   }
 
   private BitmapTestUtil() {}
