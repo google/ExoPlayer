@@ -32,6 +32,7 @@ import androidx.media3.extractor.Ac3Util;
 import androidx.media3.extractor.Ac4Util;
 import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.MpegAudioUtil;
+import androidx.media3.extractor.OpusUtil;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Provide the buffer size to use when creating an {@link AudioTrack}. */
@@ -255,6 +256,8 @@ public class DefaultAudioTrackBufferSizeProvider
         return DtsUtil.DTS_HD_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_DOLBY_TRUEHD:
         return Ac3Util.TRUEHD_MAX_RATE_BYTES_PER_SECOND;
+      case C.ENCODING_OPUS:
+        return OpusUtil.MAX_BYTES_PER_SECOND;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:
