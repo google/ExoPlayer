@@ -194,7 +194,7 @@ public final class C {
    * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT},
    * {@link #ENCODING_PCM_FLOAT}, {@link #ENCODING_MP3}, {@link #ENCODING_AC3}, {@link
    * #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4}, {@link #ENCODING_DTS},
-   * {@link #ENCODING_DTS_HD} or {@link #ENCODING_DOLBY_TRUEHD}.
+   * {@link #ENCODING_DTS_HD}, {@link #ENCODING_DOLBY_TRUEHD} or {@link #ENCODING_OPUS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -221,7 +221,8 @@ public final class C {
     ENCODING_AC4,
     ENCODING_DTS,
     ENCODING_DTS_HD,
-    ENCODING_DOLBY_TRUEHD
+    ENCODING_DOLBY_TRUEHD,
+    ENCODING_OPUS,
   })
   public @interface Encoding {}
 
@@ -321,6 +322,10 @@ public final class C {
    * @see AudioFormat#ENCODING_DOLBY_TRUEHD
    */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
+  /**
+   * @see AudioFormat#ENCODING_OPUS
+   */
+  public static final int ENCODING_OPUS = AudioFormat.ENCODING_OPUS;
 
   /** Represents the behavior affecting whether spatialization will be used. */
   @Documented

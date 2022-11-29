@@ -248,6 +248,8 @@ public class DefaultAudioTrackBufferSizeProvider
         return DtsUtil.DTS_HD_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_DOLBY_TRUEHD:
         return Ac3Util.TRUEHD_MAX_RATE_BYTES_PER_SECOND;
+      case C.ENCODING_OPUS:
+        return OpusUtil.MAX_BYTES_PER_SECOND;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:

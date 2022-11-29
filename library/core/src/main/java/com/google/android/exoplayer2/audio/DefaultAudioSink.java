@@ -1666,6 +1666,8 @@ public final class DefaultAudioSink implements AudioSink {
             ? 0
             : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
                 * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
+      case C.ENCODING_OPUS:
+        return OpusUtil.parsePacketAudioSampleCount(buffer);
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:
