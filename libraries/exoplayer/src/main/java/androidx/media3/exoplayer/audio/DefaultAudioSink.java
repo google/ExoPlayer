@@ -60,6 +60,7 @@ import androidx.media3.extractor.Ac3Util;
 import androidx.media3.extractor.Ac4Util;
 import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.MpegAudioUtil;
+import androidx.media3.extractor.OpusUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
@@ -1676,6 +1677,8 @@ public final class DefaultAudioSink implements AudioSink {
             ? 0
             : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
                 * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
+      case C.ENCODING_OPUS:
+        return OpusUtil.parsePacketAudioSampleCount(buffer);
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:
