@@ -32,7 +32,6 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
-import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.Renderer;
@@ -48,7 +47,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 
   public interface Listener {
 
-    void onDurationMs(long durationMs);
+    void onDurationUs(long durationUs);
 
     void onTrackRegistered();
 
@@ -174,7 +173,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
-        listener.onDurationMs(Util.usToMs(window.durationUs));
+        listener.onDurationUs(window.durationUs);
         hasSentDuration = true;
       }
     }
