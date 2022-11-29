@@ -249,16 +249,44 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
   @DrawableRes private int smallIconResourceId;
 
-  private DefaultMediaNotificationProvider(Builder builder) {
-    this.context = builder.context;
-    this.notificationIdProvider = builder.notificationIdProvider;
-    this.channelId = builder.channelId;
-    this.channelNameResourceId = builder.channelNameResourceId;
+  /**
+   * Creates an instance. Use this constructor only when you want to override methods of this class.
+   * Otherwise use {@link Builder}.
+   */
+  public DefaultMediaNotificationProvider(Context context) {
+    this(
+        context,
+        session -> DEFAULT_NOTIFICATION_ID,
+        DEFAULT_CHANNEL_ID,
+        DEFAULT_CHANNEL_NAME_RESOURCE_ID);
+  }
+
+  /**
+   * Creates an instance. Use this constructor only when you want to override methods of this class.
+   * Otherwise use {@link Builder}.
+   */
+  public DefaultMediaNotificationProvider(
+      Context context,
+      NotificationIdProvider notificationIdProvider,
+      String channelId,
+      int channelNameResourceId) {
+    this.context = context;
+    this.notificationIdProvider = notificationIdProvider;
+    this.channelId = channelId;
+    this.channelNameResourceId = channelNameResourceId;
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
     mainHandler = new Handler(Looper.getMainLooper());
     smallIconResourceId = R.drawable.media3_notification_small_icon;
+  }
+
+  private DefaultMediaNotificationProvider(Builder builder) {
+    this(
+        builder.context,
+        builder.notificationIdProvider,
+        builder.channelId,
+        builder.channelNameResourceId);
   }
 
   // MediaNotification.Provider implementation
