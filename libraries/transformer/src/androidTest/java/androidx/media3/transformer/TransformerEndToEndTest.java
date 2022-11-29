@@ -26,7 +26,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -140,9 +139,8 @@ public class TransformerEndToEndTest {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      return encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    public Codec createForAudioEncoding(Format format) throws TransformationException {
+      return encoderFactory.createForAudioEncoding(format);
     }
 
     @Override

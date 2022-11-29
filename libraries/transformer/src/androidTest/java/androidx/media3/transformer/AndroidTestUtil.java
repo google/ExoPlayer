@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -472,9 +471,8 @@ public final class AndroidTestUtil {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      return encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    public Codec createForAudioEncoding(Format format) throws TransformationException {
+      return encoderFactory.createForAudioEncoding(format);
     }
 
     @Override

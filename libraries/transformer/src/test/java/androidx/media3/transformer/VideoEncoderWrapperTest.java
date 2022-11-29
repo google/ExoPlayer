@@ -32,7 +32,6 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -165,7 +164,7 @@ public final class VideoEncoderWrapperTest {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes) {
+    public Codec createForAudioEncoding(Format format) {
       throw new UnsupportedOperationException();
     }
 

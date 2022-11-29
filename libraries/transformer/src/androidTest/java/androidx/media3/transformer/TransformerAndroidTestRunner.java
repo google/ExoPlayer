@@ -35,7 +35,6 @@ import com.google.common.base.Ascii;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
@@ -446,9 +445,8 @@ public class TransformerAndroidTestRunner {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      Codec audioEncoder = encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    public Codec createForAudioEncoding(Format format) throws TransformationException {
+      Codec audioEncoder = encoderFactory.createForAudioEncoding(format);
       audioEncoderName = audioEncoder.getName();
       return audioEncoder;
     }

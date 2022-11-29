@@ -446,9 +446,7 @@ public final class EncoderUtil {
       }
       String[] supportedMimeTypes = mediaCodecInfo.getSupportedTypes();
       for (String mimeType : supportedMimeTypes) {
-        if (MimeTypes.isVideo(mimeType)) {
-          encoderInfosBuilder.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
-        }
+        encoderInfosBuilder.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
       }
     }
     return encoderInfosBuilder.build();
