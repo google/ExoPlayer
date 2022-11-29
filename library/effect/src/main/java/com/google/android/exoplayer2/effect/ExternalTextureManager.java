@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.graphics.SurfaceTexture;
 import androidx.annotation.Nullable;
@@ -118,7 +118,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   /**
    * Returns the number of {@linkplain #registerInputFrame(FrameInfo) registered} frames that have
-   * not been rendered to the external texture yet.
+   * not been sent to the downstream {@link ExternalTextureProcessor} yet.
    *
    * <p>Can be called on any thread.
    */
@@ -151,11 +151,11 @@ import java.util.concurrent.atomic.AtomicInteger;
       return;
     }
 
-    availableFrameCount.getAndDecrement();
     surfaceTexture.updateTexImage();
-    this.currentFrame = pendingFrames.remove();
+    availableFrameCount.getAndDecrement();
+    this.currentFrame = pendingFrames.peek();
 
-    FrameInfo currentFrame = checkNotNull(this.currentFrame);
+    FrameInfo currentFrame = checkStateNotNull(this.currentFrame);
     externalTextureProcessorInputCapacity.getAndDecrement();
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
     externalTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
@@ -173,6 +173,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         new TextureInfo(
             externalTexId, /* fboId= */ C.INDEX_UNSET, currentFrame.width, currentFrame.height),
         presentationTimeUs);
+    checkStateNotNull(pendingFrames.remove());
 
     if (inputStreamEnded && pendingFrames.isEmpty()) {
       externalTextureProcessor.signalEndOfCurrentInputStream();

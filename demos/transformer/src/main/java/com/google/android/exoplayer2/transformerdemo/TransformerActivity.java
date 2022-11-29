@@ -189,9 +189,10 @@ public final class TransformerActivity extends AppCompatActivity {
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-    informationTextView.setText(R.string.transformation_started);
     inputCardView.setVisibility(View.GONE);
     outputPlayerView.setVisibility(View.GONE);
+    informationTextView.setText(R.string.transformation_started);
+    progressViewGroup.setVisibility(View.VISIBLE);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
     mainHandler.post(
@@ -269,13 +270,7 @@ public final class TransformerActivity extends AppCompatActivity {
       float rotateDegrees =
           bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
       requestBuilder.setRotationDegrees(rotateDegrees);
-
-      requestBuilder.setEnableRequestSdrToneMapping(
-          bundle.getBoolean(ConfigurationActivity.ENABLE_REQUEST_SDR_TONE_MAPPING));
-      requestBuilder.experimental_setForceInterpretHdrVideoAsSdr(
-          bundle.getBoolean(ConfigurationActivity.FORCE_INTERPRET_HDR_VIDEO_AS_SDR));
-      requestBuilder.experimental_setEnableHdrEditing(
-          bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
+      requestBuilder.setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE));
       transformerBuilder
           .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
@@ -459,7 +454,9 @@ public final class TransformerActivity extends AppCompatActivity {
     "transformationStopwatch",
   })
   private void onTransformationError(TransformationException exception) {
-    transformationStopwatch.stop();
+    if (transformationStopwatch.isRunning()) {
+      transformationStopwatch.stop();
+    }
     informationTextView.setText(R.string.transformation_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();

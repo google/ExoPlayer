@@ -34,13 +34,15 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,
+      Listener listener,
       FallbackListener fallbackListener) {
     super(
         format,
         streamStartPositionUs,
         streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
+        muxerWrapper,
+        listener);
     this.format = format;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     fallbackListener.onTransformationRequestFinalized(transformationRequest);

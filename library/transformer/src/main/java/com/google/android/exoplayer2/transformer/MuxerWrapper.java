@@ -28,9 +28,11 @@ import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,7 +59,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private final String outputPath;
   @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final Muxer.Factory muxerFactory;
-  private final Transformer.AsyncErrorListener asyncErrorListener;
+  private final Consumer<TransformationException> errorConsumer;
   private final SparseIntArray trackTypeToIndex;
   private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
@@ -77,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable String outputPath,
       @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
       Muxer.Factory muxerFactory,
-      Transformer.AsyncErrorListener asyncErrorListener) {
+      Consumer<TransformationException> errorConsumer) {
     if (outputPath == null && outputParcelFileDescriptor == null) {
       throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
     }
@@ -85,7 +87,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.outputPath = outputPath;
     this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
-    this.asyncErrorListener = asyncErrorListener;
+    this.errorConsumer = errorConsumer;
 
     trackTypeToIndex = new SparseIntArray();
     trackTypeToSampleCount = new SparseIntArray();
@@ -259,9 +261,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
   }
 
-  /** Returns the duration of the longest track in milliseconds. */
+  /**
+   * Returns the duration of the longest track in milliseconds, or {@link C#TIME_UNSET} if there is
+   * no track.
+   */
   public long getDurationMs() {
+    if (trackTypeToTimeUs.size() == 0) {
+      return C.TIME_UNSET;
+    }
     return Util.usToMs(maxValue(trackTypeToTimeUs));
+  }
+
+  /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
+  public long getCurrentOutputSizeBytes() {
+    long fileSize = C.LENGTH_UNSET;
+
+    if (outputPath != null) {
+      fileSize = new File(outputPath).length();
+    } else if (outputParcelFileDescriptor != null) {
+      fileSize = outputParcelFileDescriptor.getStatSize();
+    }
+
+    if (fileSize <= 0) {
+      fileSize = C.LENGTH_UNSET;
+    }
+
+    return fileSize;
   }
 
   /**
@@ -306,7 +331,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              asyncErrorListener.onTransformationError(
+              errorConsumer.accept(
                   TransformationException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "

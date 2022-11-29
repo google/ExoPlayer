@@ -294,7 +294,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>add</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;add&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;add&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                                    @com.google.android.exoplayer2.Player.Command int&nbsp;command)</pre>
 <div class="block">Adds a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</div>
 <dl>
@@ -313,7 +314,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>addIf</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addIf&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addIf&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                                      @com.google.android.exoplayer2.Player.Command int&nbsp;command,
                                      boolean&nbsp;condition)</pre>
 <div class="block">Adds a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> if the provided condition is true. Does nothing otherwise.</div>
@@ -334,7 +336,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>addAll</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAll&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAll&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                                       @com.google.android.exoplayer2.Player.Command int...&nbsp;commands)</pre>
 <div class="block">Adds <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
 <dl>
@@ -353,7 +356,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>addAll</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAll&#8203;(<a href="Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a>&nbsp;commands)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAll&#8203;(<a href="Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a>&nbsp;commands)</pre>
 <div class="block">Adds <a href="Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -371,7 +375,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>addAllCommands</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAllCommands()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAllCommands()</pre>
 <div class="block">Adds all existing <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -387,7 +392,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;remove&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;remove&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                                       @com.google.android.exoplayer2.Player.Command int&nbsp;command)</pre>
 <div class="block">Removes a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</div>
 <dl>
@@ -406,7 +412,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>removeIf</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;removeIf&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;removeIf&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                                         @com.google.android.exoplayer2.Player.Command int&nbsp;command,
                                         boolean&nbsp;condition)</pre>
 <div class="block">Removes a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> if the provided condition is true. Does nothing otherwise.</div>
@@ -427,7 +434,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>removeAll</h4>
-<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;removeAll&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;removeAll&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                                          @com.google.android.exoplayer2.Player.Command int...&nbsp;commands)</pre>
 <div class="block">Removes <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
 <dl>

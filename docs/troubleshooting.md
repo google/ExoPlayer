@@ -11,6 +11,7 @@ redirect_from:
 * [Why is seeking inaccurate in some MP3 files?][]
 * [Why is seeking in my video slow?][]
 * [Why do some MPEG-TS files fail to play?][]
+* [Why are subtitles not found in some MPEG-TS files?][]
 * [Why do some MP4/FMP4 files play incorrectly?][]
 * [Why do some streams fail with HTTP response code 301 or 302?][]
 * [Why do some streams fail with UnrecognizedInputFormatException?][]
@@ -20,7 +21,7 @@ redirect_from:
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
 * [Why does ExoPlayer support my content but the Cast extension doesn't?][]
-* [Why does content fail to play, but no error is surfaced?]
+* [Why does content fail to play, but no error is surfaced?][]
 * [How can I get a decoding extension to load and be used for playback?][]
 * [Can I play YouTube videos directly with ExoPlayer?][]
 * [Video playback is stuttering][]
@@ -144,6 +145,31 @@ Use of `FLAG_DETECT_ACCESS_UNITS` has no side effects other than being
 computationally expensive relative to AUD based frame boundary detection. Use of
 `FLAG_ALLOW_NON_IDR_KEYFRAMES` may result in temporary visual corruption at the
 start of playback and immediately after seeks when playing some MPEG-TS files.
+
+#### Why are subtitles not found in some MPEG-TS files? ####
+
+Some MPEG-TS files include CEA-608 tracks but don't declare them in the
+container metadata, so ExoPlayer is unable to detect them. You can manually
+specify that the subtitle track(s) exist by providing a list of expected
+subtitle formats to the `DefaultExtractorsFactory`, including the accessibility
+channels that can be used to identify them in the MPEG-TS stream:
+
+```java
+DefaultExtractorsFactory extractorsFactory =
+    new DefaultExtractorsFactory()
+        .setTsSubtitleFormats(
+            ImmutableList.of(
+                new Format.Builder()
+                    .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
+                    .setAccessibilityChannel(accessibilityChannel)
+                    // Set other subtitle format info, e.g. language.
+                    .build()));
+Player player =
+    new ExoPlayer.Builder(
+            context,
+            new DefaultMediaSourceFactory(context, extractorsFactory))
+        .build();
+```
 
 #### Why do some MP4/FMP4 files play incorrectly? ####
 
@@ -333,6 +359,7 @@ particularly when playing DRM protected or high frame rate content, you can try
 [Why is seeking inaccurate in some MP3 files?]: #why-is-seeking-inaccurate-in-some-mp3-files
 [Why is seeking in my video slow?]: #why-is-seeking-in-my-video-slow
 [Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
+[Why are subtitles not found in some MPEG-TS files?]: #why-are-subtitles-not-found-in-some-mpeg-ts-files
 [Why do some MP4/FMP4 files play incorrectly?]: #why-do-some-mp4fmp4-files-play-incorrectly
 [Why do some streams fail with HTTP response code 301 or 302?]: #why-do-some-streams-fail-with-http-response-code-301-or-302
 [Why do some streams fail with UnrecognizedInputFormatException?]: #why-do-some-streams-fail-with-unrecognizedinputformatexception

@@ -24,6 +24,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.os.Looper;
+import android.os.Process;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -473,6 +474,7 @@ public interface ExoPlayer extends Player {
     /* package */ long detachSurfaceTimeoutMs;
     /* package */ boolean pauseAtEndOfMediaItems;
     /* package */ boolean usePlatformDiagnostics;
+    @Nullable /* package */ Looper playbackLooper;
     /* package */ boolean buildCalled;
 
     /**
@@ -515,6 +517,7 @@ public interface ExoPlayer extends Player {
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@code usePlatformDiagnostics}: {@code true}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
+     *   <li>{@code playbackLooper}: {@code null} (create new thread)
      * </ul>
      *
      * @param context A {@link Context}.
@@ -1094,6 +1097,23 @@ public interface ExoPlayer extends Player {
     public Builder setClock(Clock clock) {
       checkState(!buildCalled);
       this.clock = clock;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Looper} that will be used for playback.
+     *
+     * <p>The backing thread should run with priority {@link Process#THREAD_PRIORITY_AUDIO} and
+     * should handle messages within 10ms.
+     *
+     * @param playbackLooper A {@link looper}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @CanIgnoreReturnValue
+    public Builder setPlaybackLooper(Looper playbackLooper) {
+      checkState(!buildCalled);
+      this.playbackLooper = playbackLooper;
       return this;
     }
 

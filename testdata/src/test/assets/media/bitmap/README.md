@@ -10,11 +10,11 @@ To generate new "expected" assets:
 
 1.  Start an emulator with the same configuration as on presubmit. The emulator
     is given
-    [here](cs/target_device%20f:media/libraries/transformer/src/androidTest/BUILD)
+    [here](http://cs/f:transformer/src/androidTest/BUILD$%20test_e2e_)
     and can be run locally, using go/crow:
 
     ```shell
-    crow --device generic_phone --api_level 30 --arch x86
+    crow --device generic_phone --api_level 31 --arch x86
     ```
 
 2.  Run the test.

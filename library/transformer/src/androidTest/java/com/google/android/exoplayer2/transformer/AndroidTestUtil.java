@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 
 import android.content.Context;
+import android.media.MediaFormat;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -42,6 +43,13 @@ import org.json.JSONObject;
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
   private static final String TAG = "AndroidTestUtil";
+
+  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
+  public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+  /**
+   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
+   */
+  public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
   // Format values are sourced from `mediainfo` command.
 
@@ -86,9 +94,24 @@ public final class AndroidTestUtil {
           .setFrameRate(30.472f)
           .build();
 
-  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
+  public static final String MP4_REMOTE_1080P_5_SECOND_HLG10 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4";
+  public static final Format MP4_REMOTE_1080P_5_SECOND_HLG10_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(30.000f)
+          .setColorInfo(
+              new ColorInfo(
+                  C.COLOR_SPACE_BT2020,
+                  C.COLOR_RANGE_LIMITED,
+                  C.COLOR_TRANSFER_HLG,
+                  /* hdrStaticInfo= */ null))
+          .build();
+  public static final String MP4_REMOTE_1080P_4_SECOND_HDR10 =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
-  public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
+  public static final Format MP4_REMOTE_1080P_4_SECOND_HDR10_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H265)
           .setWidth(1920)

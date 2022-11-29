@@ -281,7 +281,8 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <ul class="blockList">
 <li class="blockList">
 <h4>setDefaultRequestProperties</h4>
-<pre class="methodSignature">public final&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setDefaultRequestProperties&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;defaultRequestProperties)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public final&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setDefaultRequestProperties&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;defaultRequestProperties)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.Factory.html#setDefaultRequestProperties(java.util.Map)">HttpDataSource.Factory</a></code></span></div>
 <div class="block">Sets the default request headers for <a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances created by the factory.
 
@@ -305,7 +306,8 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <ul class="blockList">
 <li class="blockList">
 <h4>setUserAgent</h4>
-<pre class="methodSignature">public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setUserAgent&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setUserAgent&#8203;(@Nullable
                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
 <div class="block">Sets the user agent that will be used.
 
@@ -325,7 +327,8 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <ul class="blockList">
 <li class="blockList">
 <h4>setCacheControl</h4>
-<pre class="methodSignature">public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setCacheControl&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setCacheControl&#8203;(@Nullable
                                                 okhttp3.CacheControl&nbsp;cacheControl)</pre>
 <div class="block">Sets the <code>CacheControl</code> that will be used.
 
@@ -344,7 +347,8 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentTypePredicate</h4>
-<pre class="methodSignature">public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setContentTypePredicate&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setContentTypePredicate&#8203;(@Nullable
                                                         <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <div class="block">Sets a content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
  <a href="../../upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="OkHttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>OkHttpDataSource.open(DataSpec)</code></a>.
@@ -365,7 +369,8 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <ul class="blockList">
 <li class="blockList">
 <h4>setTransferListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setTransferListener&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a>&nbsp;setTransferListener&#8203;(@Nullable
                                                     <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
 <div class="block">Sets the <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that will be used.
 

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":9,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -136,7 +136,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">ColorInfo</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
-<div class="block">Stores color info.</div>
+<div class="block">Stores color info.
+
+ <p>When a <code>null</code> <code>ColorInfo</code> instance is used, this often represents a generic <a href="#SDR_BT709_LIMITED"><code>SDR_BT709_LIMITED</code></a> instance.</div>
 </li>
 </ul>
 </div>
@@ -205,6 +207,13 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hdrStaticInfo">hdrStaticInfo</a></span></code></th>
 <td class="colLast">
 <div class="block">HdrStaticInfo as defined in CTA-861.3, or null if none specified.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SDR_BT709_LIMITED">SDR_BT709_LIMITED</a></span></code></th>
+<td class="colLast">
+<div class="block">Color info representing SDR BT.709 limited range, which is a common SDR video color format.</div>
 </td>
 </tr>
 </table>
@@ -278,13 +287,20 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTransferHdr(com.google.android.exoplayer2.video.ColorInfo)">isTransferHdr</a></span>&#8203;(<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the <code>ColorInfo</code> uses an HDR <a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorTransfer</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -313,6 +329,16 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a id="SDR_BT709_LIMITED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SDR_BT709_LIMITED</h4>
+<pre>public static final&nbsp;<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a> SDR_BT709_LIMITED</pre>
+<div class="block">Color info representing SDR BT.709 limited range, which is a common SDR video color format.</div>
+</li>
+</ul>
 <a id="colorSpace">
 <!--   -->
 </a>
@@ -430,6 +456,17 @@ public static&nbsp;@com.google.android.exoplayer2.C.ColorTransfer int&nbsp;isoTr
 <div class="block">Returns the <a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorTransfer</code></a> corresponding to the given ISO transfer characteristics
  code, as per table A.7.21.2 in Rec. ITU-T T.832 (03/2009), or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if no
  mapping can be made.</div>
+</li>
+</ul>
+<a id="isTransferHdr(com.google.android.exoplayer2.video.ColorInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isTransferHdr</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isTransferHdr&#8203;(@Nullable
+                                    <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</pre>
+<div class="block">Returns whether the <code>ColorInfo</code> uses an HDR <a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorTransfer</code></a>.</div>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">

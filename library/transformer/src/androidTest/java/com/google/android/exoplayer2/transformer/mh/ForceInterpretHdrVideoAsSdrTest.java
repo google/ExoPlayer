@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 
 import android.content.Context;
@@ -37,11 +39,12 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for {@linkplain
- * TransformationRequest#forceInterpretHdrVideoAsSdr forcing HDR contents to be interpreted as SDR}.
+ * TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR forcing HDR contents to be
+ * interpreted as SDR}.
  */
 @RunWith(AndroidJUnit4.class)
-public class SetForceInterpretHdrVideoAsSdrTest {
-  public static final String TAG = "SetForceInterpretHdrVideoAsSdrTest";
+public class ForceInterpretHdrVideoAsSdrTest {
+  public static final String TAG = "ForceInterpretHdrVideoAsSdrTest";
 
   @Test
   public void forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows() throws Exception {
@@ -51,7 +54,7 @@ public class SetForceInterpretHdrVideoAsSdrTest {
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
         testId,
-        /* decodingFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
+        /* decodingFormat= */ MP4_REMOTE_1080P_4_SECOND_HDR10_FORMAT,
         /* encodingFormat= */ null)) {
       return;
     }
@@ -60,14 +63,51 @@ public class SetForceInterpretHdrVideoAsSdrTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .experimental_setForceInterpretHdrVideoAsSdr(true)
+                    .setHdrMode(
+                        TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
                     .build())
             .build();
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      Log.i(TAG, "Transformed.");
+    } catch (TransformationException exception) {
+      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
+          && exception.errorCode != TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED) {
+        throw exception;
+      }
+    }
+  }
+
+  @Test
+  public void forceInterpretHdrVideoAsSdrTest_hlg10File_transformsOrThrows() throws Exception {
+    String testId = "forceInterpretHdrVideoAsSdrTest_hlg10File_transformsOrThrows";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ MP4_REMOTE_1080P_5_SECOND_HLG10_FORMAT,
+        /* encodingFormat= */ null)) {
+      return;
+    }
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setHdrMode(
+                        TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
+                    .build())
+            .build();
+    try {
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {

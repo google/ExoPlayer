@@ -113,7 +113,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.effect</a></div>
 <h2 title="Interface GlMatrixTransformation" class="title">Interface GlMatrixTransformation</h2>
 </div>
 <div class="contentContainer">
@@ -122,26 +122,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.transformer">GlEffect</a></code></dd>
+<dd><code><a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">Effect</a></code>, <code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.transformer">MatrixTransformation</a></code></dd>
+<dd><code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer">Presentation</a></code>, <code><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation</a></code></dd>
+<dd><code><a href="Crop.html" title="class in com.google.android.exoplayer2.effect">Crop</a></code>, <code><a href="Presentation.html" title="class in com.google.android.exoplayer2.effect">Presentation</a></code>, <code><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.effect">ScaleToFitTransformation</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">GlMatrixTransformation</span>
-extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.transformer">GlEffect</a></pre>
+extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></pre>
 <div class="block">Specifies a 4x4 transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>Matrix</code></a> to apply in the vertex shader for each frame.
 
  <p>The matrix is applied to points given in normalized device coordinates (-1 to 1 on x, y, and z
  axes). Transformed pixels that are moved outside of the normal device coordinate range are
  clipped.
 
- <p>Output frame pixels outside of the transformed input frame will be black.</div>
+ <p>Output frame pixels outside of the transformed input frame will be black, with alpha = 0 if
+ applicable.</div>
 </li>
 </ul>
 </div>
@@ -163,7 +164,7 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>default <a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top">Size</a></code></td>
+<td class="colFirst"><code>default <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(int,int)">configure</a></span>&#8203;(int&nbsp;inputWidth,
          int&nbsp;inputHeight)</code></th>
 <td class="colLast">
@@ -178,10 +179,11 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>default <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer">SingleFrameGlTextureProcessor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlTextureProcessor()">toGlTextureProcessor</a></span>()</code></th>
+<td class="colFirst"><code>default <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                    boolean&nbsp;useHdr)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
 </td>
 </tr>
 </table>
@@ -207,8 +209,8 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre class="methodSignature">default&nbsp;<a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top">Size</a>&nbsp;configure&#8203;(int&nbsp;inputWidth,
-                       int&nbsp;inputHeight)</pre>
+<pre class="methodSignature">default&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;configure&#8203;(int&nbsp;inputWidth,
+                                              int&nbsp;inputHeight)</pre>
 <div class="block">Configures the input and output dimensions.
 
  <p>Must be called before <a href="#getGlMatrixArray(long)"><code>getGlMatrixArray(long)</code></a>.</div>
@@ -217,7 +219,7 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 <dd><code>inputWidth</code> - The input frame width, in pixels.</dd>
 <dd><code>inputHeight</code> - The input frame height, in pixels.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The output frame <a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Size</code></a>, in pixels.</dd>
+<dd>The output frame width and height, in pixels.</dd>
 </dl>
 </li>
 </ul>
@@ -231,18 +233,26 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 <div class="block">Returns the 4x4 transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 </li>
 </ul>
-<a id="toGlTextureProcessor()">
+<a id="toGlTextureProcessor(android.content.Context,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toGlTextureProcessor</h4>
-<pre class="methodSignature">default&nbsp;<a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer">SingleFrameGlTextureProcessor</a>&nbsp;toGlTextureProcessor()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlTextureProcessor()">GlEffect</a></code></span></div>
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<pre class="methodSignature">default&nbsp;<a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a>&nbsp;toGlTextureProcessor&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                           boolean&nbsp;useHdr)
+                                                    throws <a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">GlEffect</a></code></span></div>
+<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="GlEffect.html#toGlTextureProcessor()">toGlTextureProcessor</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.transformer">GlEffect</a></code></dd>
+<dd><code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
+<dd><code>useHdr</code> - Whether input textures come from an HDR source. If <code>true</code>, colors will be
+     in linear RGB BT.2020. If <code>false</code>, colors will be in linear RGB BT.709.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></code></dd>
 </dl>
 </li>
 </ul>

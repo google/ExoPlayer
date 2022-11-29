@@ -16,7 +16,8 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -44,16 +45,22 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for applying an {@linkplain
- * TransformationRequest.Builder#experimental_setEnableHdrEditing HDR frame edit}.
+ * TransformationRequest#HDR_MODE_KEEP_HDR HDR frame edit}.
  */
 @RunWith(AndroidJUnit4.class)
-public class SetHdrEditingTest {
-  public static final String TAG = "SetHdrEditingTest";
+public class HdrEditingTest {
+  public static final String TAG = "HdrEditingTest";
   private static final ColorInfo HDR10_DEFAULT_COLOR_INFO =
       new ColorInfo(
           C.COLOR_SPACE_BT2020,
           C.COLOR_RANGE_LIMITED,
           C.COLOR_TRANSFER_ST2084,
+          /* hdrStaticInfo= */ null);
+  private static final ColorInfo HLG10_DEFAULT_COLOR_INFO =
+      new ColorInfo(
+          C.COLOR_SPACE_BT2020,
+          C.COLOR_RANGE_LIMITED,
+          C.COLOR_TRANSFER_HLG,
           /* hdrStaticInfo= */ null);
 
   @Test
@@ -61,19 +68,38 @@ public class SetHdrEditingTest {
     String testId = "transform_noRequestedTranscode_hdr10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
 
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
+      return;
+    } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      assertThat(exception.errorCode)
+          .isEqualTo(TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+    }
+  }
+
+  @Test
+  public void transform_noRequestedTranscode_hlg10File_transformsOrThrows() throws Exception {
+    String testId = "transform_noRequestedTranscode_hlg10File_transformsOrThrows";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    Transformer transformer = new Transformer.Builder(context).build();
+
+    try {
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
+      Log.i(TAG, "Transformed.");
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_HLG);
       return;
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
@@ -96,17 +122,37 @@ public class SetHdrEditingTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .experimental_setEnableHdrEditing(true)
-                    .setRotationDegrees(180)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
             .build();
 
     TransformationTestResult transformationTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+            .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
     assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
+  }
+
+  @Test
+  public void transformAndTranscode_hlg10File_whenHdrEditingIsSupported_transforms()
+      throws Exception {
+    String testId = "transformAndTranscode_hlg10File_whenHdrEditingIsSupported_transforms";
+    Context context = ApplicationProvider.getApplicationContext();
+    if (!deviceSupportsHdrEditing(VIDEO_H265, HLG10_DEFAULT_COLOR_INFO)) {
+      recordTestSkipped(context, testId, /* reason= */ "Device lacks HLG10 editing support.");
+      return;
+    }
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
+            .build();
+
+    TransformationTestResult transformationTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
+    assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_HLG);
   }
 
   @Test
@@ -124,10 +170,7 @@ public class SetHdrEditingTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .experimental_setEnableHdrEditing(true)
-                    .setRotationDegrees(180)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -136,9 +179,11 @@ public class SetHdrEditingTest {
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
                     isFallbackListenerInvoked.set(true);
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping).isFalse();
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
-                        fallbackTransformationRequest.enableRequestSdrToneMapping);
+                        fallbackTransformationRequest.hdrMode
+                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR);
                   }
                 })
             .build();
@@ -147,7 +192,60 @@ public class SetHdrEditingTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
+      Log.i(TAG, "Tone mapped.");
+      assertThat(isToneMappingFallbackApplied.get()).isTrue();
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+    } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      assertThat(exception.errorCode)
+          .isAnyOf(
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      assertThat(isFallbackListenerInvoked.get()).isFalse();
+      return;
+    }
+  }
+
+  @Test
+  public void transformAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows()
+      throws Exception {
+    String testId = "transformAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows";
+    Context context = ApplicationProvider.getApplicationContext();
+    if (deviceSupportsHdrEditing(VIDEO_H265, HLG10_DEFAULT_COLOR_INFO)) {
+      recordTestSkipped(context, testId, /* reason= */ "Device supports HLG10 editing.");
+      return;
+    }
+
+    AtomicBoolean isFallbackListenerInvoked = new AtomicBoolean();
+    AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onFallbackApplied(
+                      MediaItem inputMediaItem,
+                      TransformationRequest originalTransformationRequest,
+                      TransformationRequest fallbackTransformationRequest) {
+                    isFallbackListenerInvoked.set(true);
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
+                    isToneMappingFallbackApplied.set(
+                        fallbackTransformationRequest.hdrMode
+                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR);
+                  }
+                })
+            .build();
+
+    try {
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
@@ -175,11 +273,7 @@ public class SetHdrEditingTest {
       return;
     }
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(

@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
@@ -74,8 +73,8 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
+      Listener listener,
       FallbackListener fallbackListener,
-      Transformer.AsyncErrorListener asyncErrorListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
     super(
@@ -83,10 +82,12 @@ import org.checkerframework.dataflow.qual.Pure;
         streamStartPositionUs,
         streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
+        muxerWrapper,
+        listener);
 
     if (ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
-      if (transformationRequest.forceInterpretHdrVideoAsSdr) {
+      if (transformationRequest.hdrMode
+          == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
               new IllegalArgumentException("Interpreting HDR video as SDR is not supported."),
@@ -154,7 +155,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     checkNotNull(frameProcessor)
                         .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
                   } catch (TransformationException exception) {
-                    asyncErrorListener.onTransformationError(exception);
+                    listener.onTransformationError(exception);
                   }
                 }
 
@@ -165,7 +166,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
-                  asyncErrorListener.onTransformationError(
+                  listener.onTransformationError(
                       TransformationException.createForFrameProcessingException(
                           exception, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED));
                 }
@@ -175,7 +176,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   try {
                     encoderWrapper.signalEndOfInputStream();
                   } catch (TransformationException exception) {
-                    asyncErrorListener.onTransformationError(exception);
+                    listener.onTransformationError(exception);
                   }
                 }
               },
@@ -280,7 +281,7 @@ import org.checkerframework.dataflow.qual.Pure;
    *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
    * @param requestedFormat The requested format.
    * @param supportedFormat A format supported by the device.
-   * @param isToneMappedToSdr Whether tone mapping to SDR will be applied.
+   * @param supportedHdrMode A {@link TransformationRequest.HdrMode} supported by the device.
    * @return The created instance.
    */
   @Pure
@@ -289,26 +290,21 @@ import org.checkerframework.dataflow.qual.Pure;
       boolean hasOutputFormatRotation,
       Format requestedFormat,
       Format supportedFormat,
-      boolean isToneMappedToSdr) {
+      @TransformationRequest.HdrMode int supportedHdrMode) {
     // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
     //  implemented.
-    if (transformationRequest.enableRequestSdrToneMapping == isToneMappedToSdr
+    if (transformationRequest.hdrMode == supportedHdrMode
         && Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
         && (hasOutputFormatRotation
             ? requestedFormat.width == supportedFormat.width
             : requestedFormat.height == supportedFormat.height)) {
       return transformationRequest;
     }
-    TransformationRequest.Builder transformationRequestBuilder = transformationRequest.buildUpon();
-    if (transformationRequest.enableRequestSdrToneMapping != isToneMappedToSdr) {
-      checkState(isToneMappedToSdr);
-      transformationRequestBuilder
-          .setEnableRequestSdrToneMapping(true)
-          .experimental_setEnableHdrEditing(false);
-    }
-    return transformationRequestBuilder
+    return transformationRequest
+        .buildUpon()
         .setVideoMimeType(supportedFormat.sampleMimeType)
         .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
+        .setHdrMode(supportedHdrMode)
         .build();
   }
 
@@ -409,8 +405,7 @@ import org.checkerframework.dataflow.qual.Pure;
     /** Returns the {@link ColorInfo} expected from the input surface. */
     public ColorInfo getSupportedInputColor() {
       boolean isHdrEditingEnabled =
-          transformationRequest.enableHdrEditing
-              && !transformationRequest.enableRequestSdrToneMapping
+          transformationRequest.hdrMode == TransformationRequest.HDR_MODE_KEEP_HDR
               && !supportedEncoderNamesForHdrEditing.isEmpty();
       boolean isInputToneMapped =
           !isHdrEditingEnabled && ColorInfo.isTransferHdr(inputFormat.colorInfo);
@@ -477,13 +472,19 @@ import org.checkerframework.dataflow.qual.Pure;
       boolean isInputToneMapped =
           ColorInfo.isTransferHdr(inputFormat.colorInfo)
               && !ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo);
+      @TransformationRequest.HdrMode
+      int hdrMode =
+          isInputToneMapped
+              ? TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR
+              : transformationRequest.hdrMode;
+
       fallbackListener.onTransformationRequestFinalized(
           createSupportedTransformationRequest(
               transformationRequest,
               /* hasOutputFormatRotation= */ flipOrientation,
               requestedEncoderFormat,
               encoderSupportedFormat,
-              isInputToneMapped));
+              hdrMode));
 
       encoderSurfaceInfo =
           new SurfaceInfo(

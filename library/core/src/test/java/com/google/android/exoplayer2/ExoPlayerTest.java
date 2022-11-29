@@ -2627,7 +2627,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .sendMessage(target, /* mediaItemIndex = */ 2, /* positionMs= */ 50)
+            .sendMessage(target, /* mediaItemIndex= */ 2, /* positionMs= */ 50)
             .play()
             .build();
     new ExoPlayerTestRunner.Builder(context)
@@ -2649,7 +2649,7 @@ public final class ExoPlayerTest {
             .pause()
             .waitForTimelineChanged(
                 timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .sendMessage(target, /* mediaItemIndex = */ 2, /* positionMs= */ 50)
+            .sendMessage(target, /* mediaItemIndex= */ 2, /* positionMs= */ 50)
             .play()
             .build();
     new ExoPlayerTestRunner.Builder(context)
@@ -2680,7 +2680,7 @@ public final class ExoPlayerTest {
             .pause()
             .waitForTimelineChanged(
                 timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .sendMessage(target, /* mediaItemIndex = */ 1, /* positionMs= */ 50)
+            .sendMessage(target, /* mediaItemIndex= */ 1, /* positionMs= */ 50)
             .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline))
             .waitForTimelineChanged(
                 secondTimeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
@@ -2714,9 +2714,9 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .sendMessage(target1, /* mediaItemIndex = */ 0, /* positionMs= */ 50)
-            .sendMessage(target2, /* mediaItemIndex = */ 1, /* positionMs= */ 50)
-            .sendMessage(target3, /* mediaItemIndex = */ 2, /* positionMs= */ 50)
+            .sendMessage(target1, /* mediaItemIndex= */ 0, /* positionMs= */ 50)
+            .sendMessage(target2, /* mediaItemIndex= */ 1, /* positionMs= */ 50)
+            .sendMessage(target3, /* mediaItemIndex= */ 2, /* positionMs= */ 50)
             .setShuffleModeEnabled(true)
             .seek(/* mediaItemIndex= */ 2, /* positionMs= */ 0)
             .play()
@@ -8071,7 +8071,7 @@ public final class ExoPlayerTest {
   @Test
   public void seekToCurrentPosition_inEndedState_switchesToBufferingStateAndContinuesPlayback()
       throws Exception {
-    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount = */ 1));
+    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1));
     AtomicInteger mediaItemIndexAfterFinalEndedState = new AtomicInteger();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
@@ -8542,8 +8542,8 @@ public final class ExoPlayerTest {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* isPlaceholder= */ false,
-            /* durationUs = */ 100_000,
-            /* defaultPositionUs = */ 0,
+            /* durationUs= */ 100_000,
+            /* defaultPositionUs= */ 0,
             /* windowOffsetInFirstPeriodUs= */ 0,
             ImmutableList.of(AdPlaybackState.NONE),
             MediaItem.fromUri("http://foo.bar/fake1"));
@@ -8556,8 +8556,8 @@ public final class ExoPlayerTest {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* isPlaceholder= */ false,
-            /* durationUs = */ 100_000,
-            /* defaultPositionUs = */ 0,
+            /* durationUs= */ 100_000,
+            /* defaultPositionUs= */ 0,
             /* windowOffsetInFirstPeriodUs= */ 0,
             ImmutableList.of(AdPlaybackState.NONE),
             MediaItem.fromUri("http://foo.bar/fake2"));
@@ -8570,8 +8570,8 @@ public final class ExoPlayerTest {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* isPlaceholder= */ false,
-            /* durationUs = */ 100_000,
-            /* defaultPositionUs = */ 0,
+            /* durationUs= */ 100_000,
+            /* defaultPositionUs= */ 0,
             /* windowOffsetInFirstPeriodUs= */ 0,
             ImmutableList.of(AdPlaybackState.NONE),
             MediaItem.fromUri("http://foo.bar/fake3"));
@@ -11755,7 +11755,7 @@ public final class ExoPlayerTest {
 
     player.prepare();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
-    player.seekTo(/* positionMs = */ 0);
+    player.seekTo(/* positionMs= */ 0);
     player.seekToNext();
 
     assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);

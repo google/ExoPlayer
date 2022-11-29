@@ -587,7 +587,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalSetForegroundModeTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;experimentalSetForegroundModeTimeoutMs&#8203;(long&nbsp;timeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;experimentalSetForegroundModeTimeoutMs&#8203;(long&nbsp;timeoutMs)</pre>
 <div class="block">Sets a limit on the time a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> can spend. If a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>timeoutMs</code> milliseconds to complete, the player
  will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.
 
@@ -604,7 +605,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setRenderersFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setRenderersFactory&#8203;(<a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setRenderersFactory&#8203;(<a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
 <div class="block">Sets the <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -622,7 +624,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</pre>
 <div class="block">Sets the <a href="source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -640,7 +643,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setTrackSelector</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setTrackSelector&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setTrackSelector&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</pre>
 <div class="block">Sets the <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -658,7 +662,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadControl</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLoadControl&#8203;(<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLoadControl&#8203;(<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
 <div class="block">Sets the <a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -676,7 +681,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBandwidthMeter</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setBandwidthMeter&#8203;(<a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setBandwidthMeter&#8203;(<a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
 <div class="block">Sets the <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -694,7 +700,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLooper</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> that must be used for all calls to the player and that is used to
  call listeners on.</div>
 <dl>
@@ -713,7 +720,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAnalyticsCollector</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setAnalyticsCollector&#8203;(<a href="analytics/AnalyticsCollector.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setAnalyticsCollector&#8203;(<a href="analytics/AnalyticsCollector.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</pre>
 <div class="block">Sets the <a href="analytics/AnalyticsCollector.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> that will collect and forward all player events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -731,7 +739,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPriorityTaskManager</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setPriorityTaskManager&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setPriorityTaskManager&#8203;(@Nullable
                                                 <a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
 <div class="block">Sets an <a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> that will be used by the player.
 
@@ -752,7 +761,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioAttributes</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
                                             boolean&nbsp;handleAudioFocus)</pre>
 <div class="block">Sets <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used by the player and whether to handle audio
  focus.
@@ -775,7 +785,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setWakeMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setWakeMode&#8203;(<a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2">@WakeMode</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setWakeMode&#8203;(<a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2">@WakeMode</a>
                                      @com.google.android.exoplayer2.C.WakeMode int&nbsp;wakeMode)</pre>
 <div class="block">Sets the <a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2"><code>C.WakeMode</code></a> that will be used by the player.
 
@@ -802,7 +813,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setHandleAudioBecomingNoisy</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setHandleAudioBecomingNoisy&#8203;(boolean&nbsp;handleAudioBecomingNoisy)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setHandleAudioBecomingNoisy&#8203;(boolean&nbsp;handleAudioBecomingNoisy)</pre>
 <div class="block">Sets whether the player should pause automatically when audio is rerouted from a headset to
  device speakers. See the <a href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">
  audio becoming noisy</a> documentation for more information.</div>
@@ -823,7 +835,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSkipSilenceEnabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
 <div class="block">Sets whether silences silences in the audio stream is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -841,7 +854,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoScalingMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setVideoScalingMode&#8203;(<a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setVideoScalingMode&#8203;(<a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
                                              @com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;videoScalingMode)</pre>
 <div class="block">Sets the <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a> that will be used by the player.
 
@@ -863,7 +877,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoChangeFrameRateStrategy</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setVideoChangeFrameRateStrategy&#8203;(<a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setVideoChangeFrameRateStrategy&#8203;(<a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
                                                          @com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;videoChangeFrameRateStrategy)</pre>
 <div class="block">Sets a <a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> that will be used by the player when provided
  with a video output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.
@@ -888,7 +903,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUseLazyPreparation</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setUseLazyPreparation&#8203;(boolean&nbsp;useLazyPreparation)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setUseLazyPreparation&#8203;(boolean&nbsp;useLazyPreparation)</pre>
 <div class="block">Sets whether media sources should be initialized lazily.
 
  <p>If false, all initial preparation steps (e.g., manifest loads) happen immediately. If
@@ -910,7 +926,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekParameters</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekParameters&#8203;(<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekParameters&#8203;(<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -928,7 +945,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekBackIncrementMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekBackIncrementMs&#8203;(@IntRange(from=1L)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekBackIncrementMs&#8203;(@IntRange(from=1L)
                                                 long&nbsp;seekBackIncrementMs)</pre>
 <div class="block">Sets the <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment.</div>
 <dl>
@@ -948,7 +966,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekForwardIncrementMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekForwardIncrementMs&#8203;(@IntRange(from=1L)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekForwardIncrementMs&#8203;(@IntRange(from=1L)
                                                    long&nbsp;seekForwardIncrementMs)</pre>
 <div class="block">Sets the <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment.</div>
 <dl>
@@ -968,7 +987,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setReleaseTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setReleaseTimeoutMs&#8203;(long&nbsp;releaseTimeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setReleaseTimeoutMs&#8203;(long&nbsp;releaseTimeoutMs)</pre>
 <div class="block">Sets a timeout for calls to <a href="Player.html#release()"><code>Player.release()</code></a> and <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a>.
 
  <p>If a call to <a href="Player.html#release()"><code>Player.release()</code></a> or <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>
@@ -989,7 +1009,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDetachSurfaceTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setDetachSurfaceTimeoutMs&#8203;(long&nbsp;detachSurfaceTimeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setDetachSurfaceTimeoutMs&#8203;(long&nbsp;detachSurfaceTimeoutMs)</pre>
 <div class="block">Sets a timeout for detaching a surface from the player.
 
  <p>If detaching a surface or replacing a surface takes more than <code>
@@ -1010,7 +1031,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPauseAtEndOfMediaItems</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setPauseAtEndOfMediaItems&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setPauseAtEndOfMediaItems&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
 <div class="block">Sets whether to pause playback at the end of each media item.
 
  <p>This means the player will pause at the end of each window in the current <a href="Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.Listener.html#onPlayWhenReadyChanged(boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
@@ -1030,7 +1052,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLivePlaybackSpeedControl</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLivePlaybackSpeedControl&#8203;(<a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a>&nbsp;livePlaybackSpeedControl)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLivePlaybackSpeedControl&#8203;(<a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a>&nbsp;livePlaybackSpeedControl)</pre>
 <div class="block">Sets the <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a> that will control the playback speed when playing
  live streams, in order to maintain a steady target offset from the live stream edge.</div>
 <dl>
@@ -1049,7 +1072,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUsePlatformDiagnostics</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setUsePlatformDiagnostics&#8203;(boolean&nbsp;usePlatformDiagnostics)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setUsePlatformDiagnostics&#8203;(boolean&nbsp;usePlatformDiagnostics)</pre>
 <div class="block">Sets whether the player reports diagnostics data to the Android platform.
 
  <p>If enabled, the player will use the <a href="https://developer.android.com/reference/android/media/metrics/MediaMetricsManager.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>MediaMetricsManager</code></a> to
@@ -1074,7 +1098,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setClock</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setClock&#8203;(<a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setClock&#8203;(<a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <div class="block">Sets the <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> that will be used by the player. Should only be set for testing
  purposes.</div>
 <dl>

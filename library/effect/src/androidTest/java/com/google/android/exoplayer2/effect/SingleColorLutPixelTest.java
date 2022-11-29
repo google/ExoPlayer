@@ -105,7 +105,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -126,7 +126,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -147,7 +147,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -168,7 +168,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -189,7 +189,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -212,7 +212,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(LUT_MAP_WHITE_TO_GREEN_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -233,7 +233,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -254,7 +254,7 @@ public class SingleColorLutPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 

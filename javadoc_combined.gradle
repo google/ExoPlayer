@@ -58,6 +58,11 @@ class CombinedJavadocPlugin implements Plugin<Project> {
                             "media-" + project.ext.androidxMediaVersion + "-api.jar")) {
                       return false;
                     }
+                    if (file ==~ /.*\/core-.\..\..-api.jar$/
+                            && !file.path.endsWith(
+                            "core-" + project.ext.androidxCoreVersion + "-api.jar")) {
+                      return false;
+                    }
                     return true;
                   }
                   classpath +=

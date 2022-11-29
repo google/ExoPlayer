@@ -239,26 +239,33 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_GL_INIT_FAILED">ERROR_CODE_GL_INIT_FAILED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_FRAME_PROCESSING_FAILED">ERROR_CODE_FRAME_PROCESSING_FAILED</a></span></code></th>
 <td class="colLast">
-<div class="block">Caused by a GL initialization failure.</div>
+<div class="block">Caused by a frame processing failure.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_GL_PROCESSING_FAILED">ERROR_CODE_GL_PROCESSING_FAILED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_HDR_DECODING_UNSUPPORTED">ERROR_CODE_HDR_DECODING_UNSUPPORTED</a></span></code></th>
 <td class="colLast">
-<div class="block">Caused by a failure while using or releasing a GL program.</div>
+<div class="block">Caused by the decoder not supporting HDR formats.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_HDR_ENCODING_UNSUPPORTED">ERROR_CODE_HDR_ENCODING_UNSUPPORTED</a></span></code></th>
+<td class="colLast">
+<div class="block">Caused by the encoder not supporting HDR formats.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_BAD_HTTP_STATUS">ERROR_CODE_IO_BAD_HTTP_STATUS</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by an HTTP server returning an unexpected HTTP response status code.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED">ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED</a></span></code></th>
 <td class="colLast">
@@ -266,84 +273,84 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
  https://) when the app's Network Security Configuration does not permit it.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_FILE_NOT_FOUND">ERROR_CODE_IO_FILE_NOT_FOUND</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by a non-existent file.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE">ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_NETWORK_CONNECTION_FAILED">ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by a network connection failure.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT">ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by a network timeout, meaning the server is taking too long to fulfill a request.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_NO_PERMISSION">ERROR_CODE_IO_NO_PERMISSION</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by lack of permission to perform an IO operation.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE">ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by reading data out of the data bound.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_UNSPECIFIED">ERROR_CODE_IO_UNSPECIFIED</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by an Input/Output error which could not be identified.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_MUXING_FAILED">ERROR_CODE_MUXING_FAILED</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by a failure while muxing media samples.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED">ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by the output format for a track not being supported.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_UNSPECIFIED">ERROR_CODE_UNSPECIFIED</a></span></code></th>
 <td class="colLast">
 <div class="block">Caused by an error whose cause could not be identified.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorCode">errorCode</a></span></code></th>
 <td class="colLast">
 <div class="block">An error code which identifies the cause of the transformation failure.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timestampMs">timestampMs</a></span></code></th>
 <td class="colLast">
@@ -674,6 +681,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </dl>
 </li>
 </ul>
+<a id="ERROR_CODE_HDR_DECODING_UNSUPPORTED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ERROR_CODE_HDR_DECODING_UNSUPPORTED</h4>
+<pre>public static final&nbsp;int ERROR_CODE_HDR_DECODING_UNSUPPORTED</pre>
+<div class="block">Caused by the decoder not supporting HDR formats.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="ERROR_CODE_ENCODER_INIT_FAILED">
 <!--   -->
 </a>
@@ -718,31 +739,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </dl>
 </li>
 </ul>
-<a id="ERROR_CODE_GL_INIT_FAILED">
+<a id="ERROR_CODE_HDR_ENCODING_UNSUPPORTED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>ERROR_CODE_GL_INIT_FAILED</h4>
-<pre>public static final&nbsp;int ERROR_CODE_GL_INIT_FAILED</pre>
-<div class="block">Caused by a GL initialization failure.</div>
+<h4>ERROR_CODE_HDR_ENCODING_UNSUPPORTED</h4>
+<pre>public static final&nbsp;int ERROR_CODE_HDR_ENCODING_UNSUPPORTED</pre>
+<div class="block">Caused by the encoder not supporting HDR formats.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_GL_INIT_FAILED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="ERROR_CODE_GL_PROCESSING_FAILED">
+<a id="ERROR_CODE_FRAME_PROCESSING_FAILED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>ERROR_CODE_GL_PROCESSING_FAILED</h4>
-<pre>public static final&nbsp;int ERROR_CODE_GL_PROCESSING_FAILED</pre>
-<div class="block">Caused by a failure while using or releasing a GL program.</div>
+<h4>ERROR_CODE_FRAME_PROCESSING_FAILED</h4>
+<pre>public static final&nbsp;int ERROR_CODE_FRAME_PROCESSING_FAILED</pre>
+<div class="block">Caused by a frame processing failure.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_GL_PROCESSING_FAILED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -806,7 +827,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>getErrorCodeName</h4>
-<pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getErrorCodeName()</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getErrorCodeName()</pre>
 <div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)"><code>TransformationException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </li>
 </ul>

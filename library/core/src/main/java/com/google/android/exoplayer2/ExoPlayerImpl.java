@@ -334,7 +334,8 @@ import java.util.concurrent.TimeoutException;
               applicationLooper,
               clock,
               playbackInfoUpdateListener,
-              playerId);
+              playerId,
+              builder.playbackLooper);
 
       volume = 1;
       repeatMode = Player.REPEAT_MODE_OFF;
@@ -1220,7 +1221,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     verifyApplicationThread();
     return surfaceSize;
   }

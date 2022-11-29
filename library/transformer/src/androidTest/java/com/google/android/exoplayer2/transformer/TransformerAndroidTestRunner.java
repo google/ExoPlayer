@@ -19,6 +19,10 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -233,6 +237,14 @@ public class TransformerAndroidTestRunner {
           "SSIM calculation is not supported for clipped inputs.");
     }
 
+    Uri mediaItemUri = checkNotNull(mediaItem.localConfiguration).uri;
+    String scheme = checkNotNull(mediaItemUri.getScheme());
+    if ((scheme.equals("http") || scheme.equals("https")) && !hasNetworkConnection(context)) {
+      throw new UnsupportedOperationException(
+          "Input network file requested on device with no network connection. Input file name: "
+              + mediaItemUri);
+    }
+
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
         new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
@@ -363,6 +375,34 @@ public class TransformerAndroidTestRunner {
     return resultBuilder.build();
   }
 
+  /** Returns whether the context is connected to the network. */
+  private static boolean hasNetworkConnection(Context context) {
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
+      return false;
+    }
+    if (Util.SDK_INT >= 23) {
+      // getActiveNetwork is available from API 23.
+      NetworkCapabilities activeNetworkCapabilities =
+          connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+      if (activeNetworkCapabilities != null
+          && (activeNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+              || activeNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))) {
+        return true;
+      }
+    } else {
+      // getActiveNetworkInfo is deprecated from API 29.
+      NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+      if (activeNetworkInfo != null
+          && (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
+              || activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * A {@link Codec.EncoderFactory} that forwards all methods to another encoder factory, whilst
    * providing visibility into the names of last codecs created by it.
@@ -397,10 +437,10 @@ public class TransformerAndroidTestRunner {
 
     @Override
     public Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
+        Format format, Surface outputSurface, boolean requestSdrToneMapping)
         throws TransformationException {
       Codec videoDecoder =
-          decoderFactory.createForVideoDecoding(format, outputSurface, enableRequestSdrToneMapping);
+          decoderFactory.createForVideoDecoding(format, outputSurface, requestSdrToneMapping);
       videoDecoderName = videoDecoder.getName();
       return videoDecoder;
     }

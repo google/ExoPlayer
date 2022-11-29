@@ -17,7 +17,10 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -25,9 +28,64 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /** A media transformation request. */
 public final class TransformationRequest {
+
+  /**
+   * The strategy to use to transcode or edit High Dynamic Range (HDR) input video.
+   *
+   * <p>One of {@link #HDR_MODE_KEEP_HDR}, {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR}, or {@link
+   * #HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
+   *
+   * <p>Standard Dynamic Range (SDR) input video is unaffected by these settings.
+   */
+  @Documented
+  @Retention(SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    HDR_MODE_KEEP_HDR,
+    HDR_MODE_TONE_MAP_HDR_TO_SDR,
+    HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR
+  })
+  public @interface HdrMode {}
+  /**
+   * Processes HDR input as HDR, to generate HDR output.
+   *
+   * <p>Supported on API 31+, by some device and HDR format combinations.
+   *
+   * <p>If not supported, {@link Transformer} may fall back to {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR}.
+   */
+  public static final int HDR_MODE_KEEP_HDR = 0;
+  /**
+   * Tone map HDR input to SDR before processing, to generate SDR output.
+   *
+   * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
+   * guaranteed to be supported from Android T onwards.
+   *
+   * <p>If not supported, {@link Transformer} may throw a {@link TransformationException}.
+   */
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR = 1;
+  /**
+   * Interpret HDR input as SDR, resulting in washed out video.
+   *
+   * <p>Supported on API 29+.
+   *
+   * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR}. However, as HDR transfer functions and metadata will be
+   * ignored, contents will be displayed incorrectly, likely with a washed out look.
+   *
+   * <p>Use of this flag may result in {@code
+   * TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED} or {@code
+   * ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
+   *
+   * <p>This field is experimental, and will be renamed or removed in a future release.
+   */
+  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR = 2;
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
@@ -39,9 +97,7 @@ public final class TransformationRequest {
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
-    private boolean enableRequestSdrToneMapping;
-    private boolean forceInterpretHdrVideoAsSdr;
-    private boolean enableHdrEditing;
+    private @HdrMode int hdrMode;
 
     /**
      * Creates a new instance with default values.
@@ -63,9 +119,7 @@ public final class TransformationRequest {
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
-      this.enableRequestSdrToneMapping = transformationRequest.enableRequestSdrToneMapping;
-      this.forceInterpretHdrVideoAsSdr = transformationRequest.forceInterpretHdrVideoAsSdr;
-      this.enableHdrEditing = transformationRequest.enableHdrEditing;
+      this.hdrMode = transformationRequest.hdrMode;
     }
 
     /**
@@ -214,93 +268,44 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets whether to request tone-mapping to standard dynamic range (SDR). If enabled and
-     * supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
-     * transfer function before processing.
+     * Sets the {@link HdrMode} for HDR video input.
      *
-     * <p>The default value is {@code true}, which corresponds to tone-mapping output if possible.
+     * <p>The default value is {@link #HDR_MODE_KEEP_HDR}.
      *
-     * <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
-     * supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.
-     *
-     * <p>Setting this as {@code true} will set {@linkplain #experimental_setEnableHdrEditing} and
-     * {@linkplain #forceInterpretHdrVideoAsSdr} to {@code false}.
-     *
-     * @param enableRequestSdrToneMapping Whether to request tone-mapping down to SDR.
+     * @param hdrMode The {@link HdrMode} used.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
+    public Builder setHdrMode(@HdrMode int hdrMode) {
+      this.hdrMode = hdrMode;
+      return this;
+    }
+
+    /**
+     * @deprecated This method is now a no-op if {@code false}, and sets {@code
+     *     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR)} if {@code true}. Use {@link #setHdrMode} with
+     *     {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR} instead.
+     */
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
-      this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
       if (enableRequestSdrToneMapping) {
-        forceInterpretHdrVideoAsSdr = false;
-        enableHdrEditing = false;
+        return setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR);
       }
       return this;
     }
 
     /**
-     * Sets whether to interpret HDR video as SDR, resulting in washed out video.
-     *
-     * <p>The default value is {@code false}, with {@link #setEnableRequestSdrToneMapping} being
-     * applied.
-     *
-     * <p>Use of this flag may result in {@code
-     * TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED} or {@code
-     * ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     *
-     * <p>If enabled, HDR information will be interpreted as SDR, which is much more widely
-     * supported than tone mapping or HDR editing. However, as HDR transfer functions and metadata
-     * will be ignored, contents will be displayed incorrectly, likely with a washed out look.
-     *
-     * <p>The setting has no effect if the input is already in SDR.
-     *
-     * <p>Setting this as {@code true} will set {@linkplain #experimental_setEnableHdrEditing} and
-     * {@linkplain #forceInterpretHdrVideoAsSdr} to {@code false}.
-     *
-     * @param forceInterpretHdrVideoAsSdr Whether to interpret HDR contents as SDR.
-     * @return This builder.
+     * @deprecated This method is now a no-op if {@code false}, and sets {@code
+     *     setHdrMode(HDR_MODE_KEEP_HDR)} if {@code true}. {@code
+     *     experimental_setEnableHdrEditing(true)} is now the default behavior. Use {@link
+     *     #setHdrMode} with link {@link #HDR_MODE_KEEP_HDR} instead.
      */
-    // TODO(http://b/258246130): Use IntDef to select between tone mapping, HDR editing, and this.
-    @CanIgnoreReturnValue
-    public Builder experimental_setForceInterpretHdrVideoAsSdr(
-        boolean forceInterpretHdrVideoAsSdr) {
-      this.forceInterpretHdrVideoAsSdr = forceInterpretHdrVideoAsSdr;
-      if (forceInterpretHdrVideoAsSdr) {
-        enableRequestSdrToneMapping = false;
-        enableHdrEditing = false;
-      }
-      return this;
-    }
-
-    /**
-     * Sets whether to allow processing high dynamic range (HDR) input video streams as HDR.
-     *
-     * <p>The default value is {@code false}, with {@link #setEnableRequestSdrToneMapping} being
-     * applied.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
-     * editing feature is under development and is intended for developing/testing HDR support.
-     *
-     * <p>Setting this as {@code true} will set {@linkplain #experimental_setEnableHdrEditing} and
-     * {@linkplain #forceInterpretHdrVideoAsSdr} to {@code false}.
-     *
-     * <p>With this flag enabled, HDR streams will correctly edit in HDR, convert via tone-mapping
-     * to SDR, or throw an error, based on the device's HDR support. SDR streams will be interpreted
-     * the same way regardless of this flag's state.
-     *
-     * @param enableHdrEditing Whether to attempt to process any input video stream as a high
-     *     dynamic range (HDR) signal.
-     * @return This builder.
-     */
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
-      this.enableHdrEditing = enableHdrEditing;
       if (enableHdrEditing) {
-        enableRequestSdrToneMapping = false;
-        forceInterpretHdrVideoAsSdr = false;
+        return setHdrMode(HDR_MODE_KEEP_HDR);
       }
       return this;
     }
@@ -315,9 +320,7 @@ public final class TransformationRequest {
           outputHeight,
           audioMimeType,
           videoMimeType,
-          enableRequestSdrToneMapping,
-          forceInterpretHdrVideoAsSdr,
-          enableHdrEditing);
+          hdrMode);
     }
   }
 
@@ -367,18 +370,12 @@ public final class TransformationRequest {
    * @see Builder#setVideoMimeType(String)
    */
   @Nullable public final String videoMimeType;
-  /** Whether to request tone-mapping to standard dynamic range (SDR). */
-  public final boolean enableRequestSdrToneMapping;
-
-  /** Whether to force interpreting HDR video as SDR. */
-  public final boolean forceInterpretHdrVideoAsSdr;
-
   /**
-   * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
+   * The {@link HdrMode} specifying how to handle HDR input video.
    *
-   * @see Builder#experimental_setEnableHdrEditing(boolean)
+   * @see Builder#setHdrMode(int)
    */
-  public final boolean enableHdrEditing;
+  public final @HdrMode int hdrMode;
 
   private TransformationRequest(
       boolean flattenForSlowMotion,
@@ -388,12 +385,7 @@ public final class TransformationRequest {
       int outputHeight,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType,
-      boolean enableRequestSdrToneMapping,
-      boolean forceInterpretHdrVideoAsSdr,
-      boolean enableHdrEditing) {
-    checkArgument(!forceInterpretHdrVideoAsSdr || !enableRequestSdrToneMapping);
-    checkArgument(!enableHdrEditing || !forceInterpretHdrVideoAsSdr);
-    checkArgument(!enableHdrEditing || !enableRequestSdrToneMapping);
+      @HdrMode int hdrMode) {
 
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.scaleX = scaleX;
@@ -402,9 +394,7 @@ public final class TransformationRequest {
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
-    this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
-    this.forceInterpretHdrVideoAsSdr = forceInterpretHdrVideoAsSdr;
-    this.enableHdrEditing = enableHdrEditing;
+    this.hdrMode = hdrMode;
   }
 
   @Override
@@ -423,9 +413,7 @@ public final class TransformationRequest {
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
         && Util.areEqual(videoMimeType, that.videoMimeType)
-        && enableRequestSdrToneMapping == that.enableRequestSdrToneMapping
-        && forceInterpretHdrVideoAsSdr == that.forceInterpretHdrVideoAsSdr
-        && enableHdrEditing == that.enableHdrEditing;
+        && hdrMode == that.hdrMode;
   }
 
   @Override
@@ -437,9 +425,7 @@ public final class TransformationRequest {
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);
-    result = 31 * result + (enableRequestSdrToneMapping ? 1 : 0);
-    result = 31 * result + (forceInterpretHdrVideoAsSdr ? 1 : 0);
-    result = 31 * result + (enableHdrEditing ? 1 : 0);
+    result = 31 * result + hdrMode;
     return result;
   }
 

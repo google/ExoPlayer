@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>Presentation.Builder (ExoPlayer library)</title>
+<title>ScaleToFitTransformation (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,13 +19,13 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="Presentation.Builder (ExoPlayer library)";
+            parent.document.title="ScaleToFitTransformation (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -86,15 +86,15 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -113,15 +113,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
-<h2 title="Class Presentation.Builder" class="title">Class Presentation.Builder</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.effect</a></div>
+<h2 title="Class ScaleToFitTransformation" class="title">Class ScaleToFitTransformation</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.transformer.Presentation.Builder</li>
+<li>com.google.android.exoplayer2.effect.ScaleToFitTransformation</li>
 </ul>
 </li>
 </ul>
@@ -129,36 +129,44 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>Enclosing class:</dt>
-<dd><a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer">Presentation</a></dd>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code>, <code><a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></code>, <code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></code>, <code><a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">Effect</a></code></dd>
 </dl>
 <hr>
-<pre>public static final class <span class="typeNameLabel">Presentation.Builder</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A builder for <a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer"><code>Presentation</code></a> instances.</div>
+<pre>public final class <span class="typeNameLabel">ScaleToFitTransformation</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></pre>
+<div class="block">Specifies a simple rotation and/or scale to apply in the vertex shader.
+
+ <p>All input frames' pixels will be preserved and copied into an output frame, potentially
+ changing the width and height of the frame by scaling dimensions to fit.
+
+ <p>The background color of the output frame will be black, with alpha = 0 if applicable.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
-<h3>Constructor Summary</h3>
+<h3>Nested Class Summary</h3>
 <table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Constructor</th>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ScaleToFitTransformation.Builder.html" title="class in com.google.android.exoplayer2.effect">ScaleToFitTransformation.Builder</a></span></code></th>
 <td class="colLast">
-<div class="block">Creates a builder with default values.</div>
+<div class="block">A builder for <a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.effect"><code>ScaleToFitTransformation</code></a> instances.</div>
 </td>
 </tr>
 </table>
@@ -180,34 +188,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer">Presentation</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(int,int)">configure</a></span>&#8203;(int&nbsp;inputWidth,
+         int&nbsp;inputHeight)</code></th>
+<td class="colLast">
+<div class="block">Configures the input and output dimensions.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAspectRatio(float,@com.google.android.exoplayer2.transformer.Presentation.Layoutint)">setAspectRatio</a></span>&#8203;(float&nbsp;aspectRatio,
-              @com.google.android.exoplayer2.transformer.Presentation.Layout int&nbsp;layout)</code></th>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMatrix(long)">getMatrix</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Sets the aspect ratio (width/height ratio) for the output frame.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCrop(float,float,float,float)">setCrop</a></span>&#8203;(float&nbsp;left,
-       float&nbsp;right,
-       float&nbsp;bottom,
-       float&nbsp;top)</code></th>
-<td class="colLast">
-<div class="block">Crops a smaller (or larger frame), per normalized device coordinates (NDC), where the input
- frame corresponds to the square ranging from -1 to 1 on the x and y axes.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResolution(int)">setResolution</a></span>&#8203;(int&nbsp;height)</code></th>
-<td class="colLast">
-<div class="block">Sets the output resolution using the output height.</div>
+<div class="block">Returns the 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 </td>
 </tr>
 </table>
@@ -218,6 +210,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.GlMatrixTransformation">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></h3>
+<code><a href="GlMatrixTransformation.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.MatrixTransformation">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></h3>
+<code><a href="MatrixTransformation.html#getGlMatrixArray(long)">getGlMatrixArray</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -227,26 +233,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>Builder</h4>
-<pre>public&nbsp;Builder()</pre>
-<div class="block">Creates a builder with default values.</div>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -254,97 +240,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setResolution(int)">
+<a id="configure(int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setResolution</h4>
-<pre class="methodSignature">public&nbsp;<a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a>&nbsp;setResolution&#8203;(int&nbsp;height)</pre>
-<div class="block">Sets the output resolution using the output height.
+<h4>configure</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;configure&#8203;(int&nbsp;inputWidth,
+                                             int&nbsp;inputHeight)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlMatrixTransformation.html#configure(int,int)">GlMatrixTransformation</a></code></span></div>
+<div class="block">Configures the input and output dimensions.
 
- <p>The default value, <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, corresponds to using the same height as the
- input. Output width of the displayed frame will scale to preserve the frame's aspect ratio
- after other transformations.
-
- <p>For example, a 1920x1440 frame can be scaled to 640x480 by calling <code>
- setResolution(480)</code>.</div>
+ <p>Must be called before <a href="GlMatrixTransformation.html#getGlMatrixArray(long)"><code>GlMatrixTransformation.getGlMatrixArray(long)</code></a>.</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlMatrixTransformation.html#configure(int,int)">configure</a></code>&nbsp;in interface&nbsp;<code><a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>height</code> - The output height of the displayed frame, in pixels.</dd>
+<dd><code>inputWidth</code> - The input frame width, in pixels.</dd>
+<dd><code>inputHeight</code> - The input frame height, in pixels.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
+<dd>The output frame width and height, in pixels.</dd>
 </dl>
 </li>
 </ul>
-<a id="setCrop(float,float,float,float)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setCrop</h4>
-<pre class="methodSignature">public&nbsp;<a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a>&nbsp;setCrop&#8203;(float&nbsp;left,
-                                    float&nbsp;right,
-                                    float&nbsp;bottom,
-                                    float&nbsp;top)</pre>
-<div class="block">Crops a smaller (or larger frame), per normalized device coordinates (NDC), where the input
- frame corresponds to the square ranging from -1 to 1 on the x and y axes.
-
- <p><code>left</code> and <code>bottom</code> default to -1, and <code>right</code> and <code>top</code> default
- to 1, which corresponds to not applying any crop. To crop to a smaller subset of the input
- frame, use values between -1 and 1. To crop to a larger frame, use values below -1 and above
- 1.
-
- <p>Width and height values set may be rescaled by <a href="#setResolution(int)"><code>setResolution(int)</code></a>, which is
- applied after cropping changes.
-
- <p>Only one of <code>setCrop</code> or <a href="#setAspectRatio(float,@com.google.android.exoplayer2.transformer.Presentation.Layoutint)"><code>setAspectRatio(float, int)</code></a> can be called for one
- <a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer"><code>Presentation</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>left</code> - The left edge of the output frame, in NDC. Must be less than <code>right</code>.</dd>
-<dd><code>right</code> - The right edge of the output frame, in NDC. Must be greater than <code>left</code>.</dd>
-<dd><code>bottom</code> - The bottom edge of the output frame, in NDC. Must be less than <code>top</code>.</dd>
-<dd><code>top</code> - The top edge of the output frame, in NDC. Must be greater than <code>bottom</code>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="setAspectRatio(float,@com.google.android.exoplayer2.transformer.Presentation.Layoutint)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setAspectRatio</h4>
-<pre class="methodSignature">public&nbsp;<a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a>&nbsp;setAspectRatio&#8203;(float&nbsp;aspectRatio,
-                                           @com.google.android.exoplayer2.transformer.Presentation.Layout int&nbsp;layout)</pre>
-<div class="block">Sets the aspect ratio (width/height ratio) for the output frame.
-
- <p>Resizes a frame's width or height to conform to an <code>aspectRatio</code>, given a <a href="Presentation.Layout.html" title="annotation in com.google.android.exoplayer2.transformer"><code>Presentation.Layout</code></a>. <code>aspectRatio</code> defaults to <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, which corresponds to the
- same aspect ratio as the input frame. <code>layout</code> defaults to <a href="Presentation.html#LAYOUT_SCALE_TO_FIT"><code>Presentation.LAYOUT_SCALE_TO_FIT</code></a>
-
- <p>Width and height values set may be rescaled by <a href="#setResolution(int)"><code>setResolution(int)</code></a>, which is
- applied after aspect ratio changes.
-
- <p>Only one of <a href="#setCrop(float,float,float,float)"><code>setCrop(float, float, float, float)</code></a> or <code>setAspectRatio</code> can be
- called for one <a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer"><code>Presentation</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>aspectRatio</code> - The aspect ratio (width/height ratio) of the output frame. Must be
-     positive.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="build()">
+<a id="getMatrix(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>build</h4>
-<pre class="methodSignature">public&nbsp;<a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer">Presentation</a>&nbsp;build()</pre>
+<h4>getMatrix</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;getMatrix&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MatrixTransformation.html#getMatrix(long)">MatrixTransformation</a></code></span></div>
+<div class="block">Returns the 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MatrixTransformation.html#getMatrix(long)">getMatrix</a></code>&nbsp;in interface&nbsp;<code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -398,15 +329,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

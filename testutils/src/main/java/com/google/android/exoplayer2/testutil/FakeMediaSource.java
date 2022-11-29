@@ -387,7 +387,7 @@ public class FakeMediaSource extends BaseMediaSource {
               C.SELECTION_REASON_UNKNOWN,
               /* trackSelectionData= */ null,
               /* mediaStartTimeMs= */ C.TIME_UNSET,
-              /* mediaEndTimeMs = */ C.TIME_UNSET);
+              /* mediaEndTimeMs= */ C.TIME_UNSET);
       long elapsedRealTimeMs = SystemClock.elapsedRealtime();
       MediaSourceEventListener.EventDispatcher eventDispatcher =
           createEventDispatcher(/* mediaPeriodId= */ null);

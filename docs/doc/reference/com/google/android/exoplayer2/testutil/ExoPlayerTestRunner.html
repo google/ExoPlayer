@@ -402,7 +402,8 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start()</pre>
 <div class="block">Starts the test runner on its own thread. This will trigger the creation of the player, the
  listener registration, the start of the action schedule, the initial set of media items and the
  preparation of the player.</div>
@@ -418,7 +419,8 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start&#8203;(boolean&nbsp;doPrepare)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start&#8203;(boolean&nbsp;doPrepare)</pre>
 <div class="block">Starts the test runner on its own thread. This will trigger the creation of the player, the
  listener registration, the start of the action schedule and the initial set of media items.</div>
 <dl>
@@ -435,7 +437,8 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilEnded</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilEnded&#8203;(long&nbsp;timeoutMs)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilEnded&#8203;(long&nbsp;timeoutMs)
                                     throws <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
 <div class="block">Blocks the current thread until the test runner finishes. A test is deemed to be finished when
  the playback state transitioned to <a href="../Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a> or <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> for
@@ -458,7 +461,8 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilActionScheduleFinished</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilActionScheduleFinished&#8203;(long&nbsp;timeoutMs)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilActionScheduleFinished&#8203;(long&nbsp;timeoutMs)
                                                      throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a>,
                                                             <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
 <div class="block">Blocks the current thread until the action schedule finished. This does not release the test

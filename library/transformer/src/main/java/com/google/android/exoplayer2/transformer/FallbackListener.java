@@ -95,14 +95,8 @@ import com.google.android.exoplayer2.util.Util;
     if (transformationRequest.outputHeight != originalTransformationRequest.outputHeight) {
       fallbackRequestBuilder.setResolution(transformationRequest.outputHeight);
     }
-    if (transformationRequest.enableHdrEditing != originalTransformationRequest.enableHdrEditing) {
-      fallbackRequestBuilder.experimental_setEnableHdrEditing(
-          transformationRequest.enableHdrEditing);
-    }
-    if (transformationRequest.enableRequestSdrToneMapping
-        != originalTransformationRequest.enableRequestSdrToneMapping) {
-      fallbackRequestBuilder.setEnableRequestSdrToneMapping(
-          transformationRequest.enableRequestSdrToneMapping);
+    if (transformationRequest.hdrMode != originalTransformationRequest.hdrMode) {
+      fallbackRequestBuilder.setHdrMode(transformationRequest.hdrMode);
     }
     fallbackTransformationRequest = fallbackRequestBuilder.build();
 

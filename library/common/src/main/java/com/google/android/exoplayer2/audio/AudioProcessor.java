@@ -35,6 +35,13 @@ public interface AudioProcessor {
 
   /** PCM audio format that may be handled by an audio processor. */
   final class AudioFormat {
+    /**
+     * An {@link AudioFormat} instance to represent an unset {@link AudioFormat}. This should not be
+     * returned by {@link #configure(AudioFormat)} if the processor {@link #isActive()}.
+     *
+     * <p>Typically used to represent an inactive {@link AudioProcessor} {@linkplain
+     * #configure(AudioFormat) output format}.
+     */
     public static final AudioFormat NOT_SET =
         new AudioFormat(
             /* sampleRate= */ Format.NO_VALUE,

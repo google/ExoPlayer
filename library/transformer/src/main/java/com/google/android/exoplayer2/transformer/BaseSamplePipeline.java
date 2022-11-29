@@ -33,6 +33,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final long streamStartPositionUs;
   private final long streamOffsetUs;
   private final MuxerWrapper muxerWrapper;
+  private final Listener listener;
   private final @C.TrackType int trackType;
   private final @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
 
@@ -45,10 +46,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long streamStartPositionUs,
       long streamOffsetUs,
       boolean flattenForSlowMotion,
-      MuxerWrapper muxerWrapper) {
+      MuxerWrapper muxerWrapper,
+      Listener listener) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.streamOffsetUs = streamOffsetUs;
     this.muxerWrapper = muxerWrapper;
+    this.listener = listener;
     trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
     sefVideoSlowMotionFlattener =
         flattenForSlowMotion && trackType == C.TRACK_TYPE_VIDEO
@@ -65,9 +68,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void queueInputBuffer() throws TransformationException {
-    checkNotNull(inputBuffer);
+    DecoderInputBuffer inputBuffer = checkNotNull(this.inputBuffer);
+    listener.onInputBufferQueued(inputBuffer.timeUs - streamStartPositionUs);
     checkNotNull(inputBuffer.data);
-    if (!shouldDropInputBuffer()) {
+    if (!shouldDropInputBuffer(inputBuffer)) {
       queueInputBufferInternal();
     }
   }
@@ -103,8 +107,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Preprocesses an {@linkplain DecoderInputBuffer input buffer} queued to the pipeline and returns
    * whether it should be dropped.
    */
-  @RequiresNonNull({"inputBuffer", "inputBuffer.data"})
-  private boolean shouldDropInputBuffer() {
+  @RequiresNonNull("#1.data")
+  private boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
     ByteBuffer inputBytes = inputBuffer.data;
 
     if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
@@ -112,7 +116,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
-    DecoderInputBuffer inputBuffer = this.inputBuffer;
     boolean shouldDropInputBuffer =
         sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
     if (shouldDropInputBuffer) {

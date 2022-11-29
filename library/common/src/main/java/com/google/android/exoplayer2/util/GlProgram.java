@@ -327,7 +327,7 @@ public final class GlProgram {
           /* unusedLength */ new int[1],
           /* lengthOffset= */ 0,
           /* unusedSize */ new int[1],
-          /*sizeOffset= */ 0,
+          /* sizeOffset= */ 0,
           type,
           /* typeOffset= */ 0,
           nameBytes,

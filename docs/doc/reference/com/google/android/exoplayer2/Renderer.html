@@ -244,41 +244,48 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a></span></code></th>
+<td class="colLast">
+<div class="block">The type of a message that can be passed to audio renderers via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>-based video renderer via
  <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to an audio renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to a video renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to a video renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_VOLUME">MSG_SET_VOLUME</a></span></code></th>
 <td class="colLast">
 <div class="block">A type of a message that can be passed to an audio renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a></span></code></th>
 <td class="colLast">
@@ -286,21 +293,21 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
  waking up another component.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_DISABLED">STATE_DISABLED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is disabled.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_ENABLED">STATE_ENABLED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is enabled but not started.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_STARTED">STATE_STARTED</a></span></code></th>
 <td class="colLast">
@@ -709,6 +716,21 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.MSG_SET_WAKEUP_LISTENER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="MSG_SET_PREFERRED_AUDIO_DEVICE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MSG_SET_PREFERRED_AUDIO_DEVICE</h4>
+<pre>static final&nbsp;int MSG_SET_PREFERRED_AUDIO_DEVICE</pre>
+<div class="block">The type of a message that can be passed to audio renderers via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a>. The message payload should be an <a href="https://developer.android.com/reference/android/media/AudioDeviceInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioDeviceInfo</code></a> instance representing the preferred audio device, or null to
+ restore the default.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.MSG_SET_PREFERRED_AUDIO_DEVICE">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>

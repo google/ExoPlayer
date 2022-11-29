@@ -171,19 +171,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Transformer.DebugViewProvider.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.DebugViewProvider</a></span></code></th>
-<td class="colLast">
-<div class="block">Provider for views to show diagnostic information during transformation, for debugging.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a></span></code></th>
 <td class="colLast">
 <div class="block">A listener for the transformation events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer">Transformer.ProgressState</a></span></code></th>
 <td class="colLast">
@@ -498,8 +491,7 @@ public&nbsp;void&nbsp;setListener&#8203;(<a href="Transformer.Listener.html" tit
 <li class="blockList">
 <h4>startTransformation</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;startTransformation&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
-                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;path)
-                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;path)</pre>
 <div class="block">Starts an asynchronous operation to transform the given <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
 
  <p>The transformation state is notified through the <a href="Transformer.Builder.html#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">listener</a>.
@@ -515,9 +507,9 @@ public&nbsp;void&nbsp;setListener&#8203;(<a href="Transformer.Listener.html" tit
 <dd><code>path</code> - The path to the output file.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the path is invalid.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></code> - If the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2" target="_top"><code>MediaItem</code></a> is not supported.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called from the wrong thread.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If a transformation is already in progress.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs opening the output file for writing.</dd>
 </dl>
 </li>
 </ul>
@@ -529,8 +521,7 @@ public&nbsp;void&nbsp;setListener&#8203;(<a href="Transformer.Listener.html" tit
 <h4>startTransformation</h4>
 <pre class="methodSignature">@RequiresApi(26)
 public&nbsp;void&nbsp;startTransformation&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
-                                <a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;parcelFileDescriptor)
-                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+                                <a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;parcelFileDescriptor)</pre>
 <div class="block">Starts an asynchronous operation to transform the given <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
 
  <p>The transformation state is notified through the <a href="Transformer.Builder.html#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">listener</a>.
@@ -549,9 +540,9 @@ public&nbsp;void&nbsp;startTransformation&#8203;(<a href="../MediaItem.html" tit
      ParcelFileDescriptor. This can be done after this method returns.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the file descriptor is invalid.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></code> - If the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2" target="_top"><code>MediaItem</code></a> is not supported.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called from the wrong thread.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If a transformation is already in progress.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs opening the output file for writing.</dd>
 </dl>
 </li>
 </ul>
