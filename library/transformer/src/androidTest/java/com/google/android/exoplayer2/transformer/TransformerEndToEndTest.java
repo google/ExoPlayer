@@ -146,8 +146,7 @@ public class TransformerEndToEndTest {
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
+    public Codec createForVideoEncoding(Format format) throws TransformationException {
       throw TransformationException.createForCodec(
           new IllegalArgumentException(),
           /* isVideo= */ true,

@@ -87,23 +87,22 @@ public interface Codec {
     /**
      * Returns a {@link Codec} for video encoding.
      *
-     * <p>This method must validate that the {@link Codec} is configured to produce one of the
-     * {@code allowedMimeTypes}. The {@linkplain Format#sampleMimeType sample MIME type} given in
-     * {@code format} is not necessarily allowed.
+     * <p>The caller should ensure the {@linkplain Format#sampleMimeType MIME type} is supported on
+     * the device before calling this method. If encoding to HDR, the caller should also ensure the
+     * {@linkplain Format#colorInfo color characteristics} are supported.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link Format#width}
      *     and {@link Format#height} are set to those of the desired output video format. {@link
-     *     Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link Format#height},
-     *     therefore the video is always in landscape orientation. {@link Format#frameRate} is set
-     *     to the output video's frame rate, if available.
-     * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes
-     *     MIME types}.
-     * @return A {@link Codec} for video encoding.
+     *     Format#frameRate} is set to the requested output frame rate, if available. {@link
+     *     Format#colorInfo} is set to the requested output color characteristics, if available.
+     *     {@link Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link
+     *     Format#height}, therefore the video is always in landscape orientation.
+     * @return A {@link Codec} for encoding video to the requested {@linkplain Format#sampleMimeType
+     *     MIME type}.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
-    Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException;
+    Codec createForVideoEncoding(Format format) throws TransformationException;
 
     /** Returns whether the audio needs to be encoded because of encoder specific configuration. */
     default boolean audioNeedsEncoding() {

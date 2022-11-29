@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
@@ -36,6 +37,7 @@ import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -369,7 +371,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
     private final Codec.EncoderFactory encoderFactory;
     private final Format inputFormat;
-    private final List<String> allowedOutputMimeTypes;
+    private final List<String> muxerSupportedMimeTypes;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
     private final String requestedOutputMimeType;
@@ -384,12 +386,12 @@ import org.checkerframework.dataflow.qual.Pure;
     public EncoderWrapper(
         Codec.EncoderFactory encoderFactory,
         Format inputFormat,
-        List<String> allowedOutputMimeTypes,
+        List<String> muxerSupportedMimeTypes,
         TransformationRequest transformationRequest,
         FallbackListener fallbackListener) {
       this.encoderFactory = encoderFactory;
       this.inputFormat = inputFormat;
-      this.allowedOutputMimeTypes = allowedOutputMimeTypes;
+      this.muxerSupportedMimeTypes = muxerSupportedMimeTypes;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
 
@@ -454,20 +456,31 @@ import org.checkerframework.dataflow.qual.Pure;
               .setColorInfo(getSupportedInputColor())
               .build();
 
+      @Nullable
+      String supportedMimeType =
+          selectEncoderAndMuxerSupportedMimeType(
+              requestedOutputMimeType, muxerSupportedMimeTypes, requestedEncoderFormat.colorInfo);
+      if (supportedMimeType == null) {
+        throw TransformationException.createForCodec(
+            new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
+            /* isVideo= */ true,
+            /* isDecoder= */ false,
+            requestedEncoderFormat,
+            /* mediaCodecName= */ null,
+            TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+      }
+
       encoder =
-          encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
+          encoderFactory.createForVideoEncoding(
+              requestedEncoderFormat.buildUpon().setSampleMimeType(supportedMimeType).build());
 
       Format encoderSupportedFormat = encoder.getConfigurationFormat();
-      if (ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo)) {
-        if (!requestedOutputMimeType.equals(encoderSupportedFormat.sampleMimeType)) {
-          throw createEncodingException(
-              new IllegalStateException("MIME type fallback unsupported with HDR editing"),
-              encoderSupportedFormat);
-        } else if (!supportedEncoderNamesForHdrEditing.contains(encoder.getName())) {
-          throw createEncodingException(
-              new IllegalStateException("Selected encoder doesn't support HDR editing"),
-              encoderSupportedFormat);
-        }
+      checkState(supportedMimeType.equals(encoderSupportedFormat.sampleMimeType));
+      if (ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo)
+          && !supportedEncoderNamesForHdrEditing.contains(encoder.getName())) {
+        throw createEncodingException(
+            new IllegalStateException("Selected encoder doesn't support HDR editing"),
+            encoderSupportedFormat);
       }
       boolean isInputToneMapped =
           ColorInfo.isTransferHdr(inputFormat.colorInfo)
@@ -552,6 +565,49 @@ import org.checkerframework.dataflow.qual.Pure;
           format,
           checkNotNull(encoder).getName(),
           TransformationException.ERROR_CODE_ENCODING_FAILED);
+    }
+
+    /**
+     * Finds a {@linkplain MimeTypes MIME type} that is supported by both the encoder and the muxer.
+     *
+     * @param requestedMimeType The requested {@linkplain MimeTypes MIME type}.
+     * @param muxerSupportedMimeTypes The list of sample {@linkplain MimeTypes MIME types} that the
+     *     muxer supports.
+     * @param colorInfo The requested encoding {@link ColorInfo}, if available.
+     * @return A {@linkplain MimeTypes MIME type} that is supported by an encoder and the muxer, or
+     *     {@code null} if no such {@linkplain MimeTypes MIME type} exists.
+     */
+    @Nullable
+    private static String selectEncoderAndMuxerSupportedMimeType(
+        String requestedMimeType,
+        List<String> muxerSupportedMimeTypes,
+        @Nullable ColorInfo colorInfo) {
+      ImmutableList<String> mimeTypesToCheck =
+          new ImmutableList.Builder<String>()
+              .add(requestedMimeType)
+              .add(MimeTypes.VIDEO_H265)
+              .add(MimeTypes.VIDEO_H264)
+              .addAll(muxerSupportedMimeTypes)
+              .build();
+
+      for (int i = 0; i < mimeTypesToCheck.size(); i++) {
+        String mimeType = mimeTypesToCheck.get(i);
+        if (mimeTypeAndColorAreSupported(mimeType, muxerSupportedMimeTypes, colorInfo)) {
+          return mimeType;
+        }
+      }
+      return null;
+    }
+
+    private static boolean mimeTypeAndColorAreSupported(
+        String mimeType, List<String> muxerSupportedMimeTypes, @Nullable ColorInfo colorInfo) {
+      if (!muxerSupportedMimeTypes.contains(mimeType)) {
+        return false;
+      }
+      if (ColorInfo.isTransferHdr(colorInfo)) {
+        return !EncoderUtil.getSupportedEncoderNamesForHdrEditing(mimeType, colorInfo).isEmpty();
+      }
+      return !EncoderUtil.getSupportedEncoders(mimeType).isEmpty();
     }
   }
 }

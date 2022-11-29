@@ -19,6 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,6 +36,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.shadows.MediaCodecInfoBuilder;
+import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** Unit tests for {@link VideoTranscodingSamplePipeline.EncoderWrapper}. */
 @RunWith(AndroidJUnit4.class)
@@ -49,14 +53,15 @@ public final class VideoEncoderWrapperTest {
   private final VideoTranscodingSamplePipeline.EncoderWrapper encoderWrapper =
       new VideoTranscodingSamplePipeline.EncoderWrapper(
           fakeEncoderFactory,
-          /* inputFormat= */ new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H265).build(),
-          /* allowedOutputMimeTypes= */ ImmutableList.of(),
+          /* inputFormat= */ new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build(),
+          /* muxerSupportedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264),
           emptyTransformationRequest,
           fallbackListener);
 
   @Before
   public void registerTrack() {
     fallbackListener.registerTrack();
+    createShadowH264Encoder();
   }
 
   @Test
@@ -111,6 +116,39 @@ public final class VideoEncoderWrapperTest {
     assertThat(surfaceInfo.height).isEqualTo(fallbackHeight);
   }
 
+  private static void createShadowH264Encoder() {
+    MediaFormat avcFormat = new MediaFormat();
+    avcFormat.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_VIDEO_AVC);
+    MediaCodecInfo.CodecProfileLevel profileLevel = new MediaCodecInfo.CodecProfileLevel();
+    profileLevel.profile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh;
+    // Using Level4 gives us 8192 16x16 blocks. If using width 1920 uses 120 blocks, 8192 / 120 = 68
+    // blocks will be left for encoding height 1088.
+    profileLevel.level = MediaCodecInfo.CodecProfileLevel.AVCLevel4;
+
+    createShadowVideoEncoder(avcFormat, profileLevel, "test.transformer.avc.encoder");
+  }
+
+  private static void createShadowVideoEncoder(
+      MediaFormat supportedFormat,
+      MediaCodecInfo.CodecProfileLevel supportedProfileLevel,
+      String name) {
+    // ShadowMediaCodecList is static. The added encoders will be visible for every test.
+    ShadowMediaCodecList.addCodec(
+        MediaCodecInfoBuilder.newBuilder()
+            .setName(name)
+            .setIsEncoder(true)
+            .setCapabilities(
+                MediaCodecInfoBuilder.CodecCapabilitiesBuilder.newBuilder()
+                    .setMediaFormat(supportedFormat)
+                    .setIsEncoder(true)
+                    .setColorFormats(
+                        new int[] {MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible})
+                    .setProfileLevels(
+                        new MediaCodecInfo.CodecProfileLevel[] {supportedProfileLevel})
+                    .build())
+            .build());
+  }
+
   private static class FakeVideoEncoderFactory implements Codec.EncoderFactory {
 
     private int fallbackWidth;
@@ -132,7 +170,7 @@ public final class VideoEncoderWrapperTest {
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes) {
+    public Codec createForVideoEncoding(Format format) {
       Codec mockEncoder = mock(Codec.class);
       if (fallbackWidth != C.LENGTH_UNSET) {
         format = format.buildUpon().setWidth(fallbackWidth).build();
