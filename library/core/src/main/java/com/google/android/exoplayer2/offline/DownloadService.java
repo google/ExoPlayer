@@ -573,6 +573,17 @@ public abstract class DownloadService extends Service {
     Util.startForegroundService(context, intent);
   }
 
+  /**
+   * Clear all {@linkplain DownloadManagerHelper download manager helpers} before restarting the
+   * service.
+   *
+   * <p>Calling this method is normally only required if an app supports downloading content for
+   * multiple users for which different download directories should be used.
+   */
+  public static void clearDownloadManagerHelpers() {
+    downloadManagerHelpers.clear();
+  }
+
   @Override
   public void onCreate() {
     if (channelId != null) {
