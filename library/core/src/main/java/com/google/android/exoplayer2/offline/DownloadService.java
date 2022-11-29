@@ -869,9 +869,7 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  /**
-   * Clear all DownloadManagerHelper to restart the new service.
-   */
+  /** Clear all DownloadManagerHelper. */
   public static void clearDownloadManagerHelpers() {
     downloadManagerHelpers.clear();
   }
