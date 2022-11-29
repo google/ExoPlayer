@@ -107,7 +107,7 @@ public class MetadataRendererTest {
     assertThat(metadata).hasSize(1);
     assertThat(metadata.get(0).length()).isEqualTo(1);
     TextInformationFrame expectedId3Frame =
-        new TextInformationFrame("TXXX", "Test description", "Test value");
+        new TextInformationFrame("TXXX", "Test description", ImmutableList.of("Test value"));
     assertThat(metadata.get(0).get(0)).isEqualTo(expectedId3Frame);
   }
 
