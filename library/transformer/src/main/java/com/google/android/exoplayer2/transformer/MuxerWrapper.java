@@ -69,6 +69,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private int trackCount;
   private int trackFormatCount;
   private boolean isReady;
+  private boolean isEnded;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
   private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
@@ -216,7 +217,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     trackTypeToIndex.delete(trackType);
     if (trackTypeToIndex.size() == 0) {
       abortScheduledExecutorService.shutdownNow();
+      isEnded = true;
     }
+  }
+
+  /** Returns whether all the tracks are {@linkplain #endTrack(int) ended}. */
+  public boolean isEnded() {
+    return isEnded;
   }
 
   /**

@@ -45,7 +45,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isTransformationRunning;
   private long streamStartPositionUs;
   private long streamOffsetUs;
-  private @MonotonicNonNull SamplePipeline samplePipeline;
+  private SamplePipeline.@MonotonicNonNull Input samplePipelineInput;
+  private boolean isEnded;
 
   public ExoPlayerAssetLoaderRenderer(
       int trackType,
@@ -88,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public boolean isEnded() {
-    return samplePipeline != null && samplePipeline.isEnded();
+    return isEnded;
   }
 
   @Override
@@ -98,7 +99,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         return;
       }
 
-      while (samplePipeline.processData() || feedPipelineFromInput()) {}
+      while (feedPipelineFromInput()) {}
     } catch (TransformationException e) {
       isTransformationRunning = false;
       assetLoaderListener.onError(e);
@@ -127,16 +128,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     isTransformationRunning = false;
   }
 
-  @Override
-  protected void onReset() {
-    if (samplePipeline != null) {
-      samplePipeline.release();
-    }
-  }
-
-  @EnsuresNonNullIf(expression = "samplePipeline", result = true)
+  @EnsuresNonNullIf(expression = "samplePipelineInput", result = true)
   private boolean ensureConfigured() throws TransformationException {
-    if (samplePipeline != null) {
+    if (samplePipelineInput != null) {
       return true;
     }
 
@@ -147,7 +141,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    samplePipeline =
+    samplePipelineInput =
         assetLoaderListener.onTrackAdded(inputFormat, streamStartPositionUs, streamOffsetUs);
     return true;
   }
@@ -156,11 +150,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to read input data and pass the input data to the sample pipeline.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
    */
-  @RequiresNonNull("samplePipeline")
-  private boolean feedPipelineFromInput() throws TransformationException {
-    @Nullable DecoderInputBuffer samplePipelineInputBuffer = samplePipeline.dequeueInputBuffer();
+  @RequiresNonNull("samplePipelineInput")
+  private boolean feedPipelineFromInput() {
+    @Nullable
+    DecoderInputBuffer samplePipelineInputBuffer = samplePipelineInput.dequeueInputBuffer();
     if (samplePipelineInputBuffer == null) {
       return false;
     }
@@ -171,11 +165,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       case C.RESULT_BUFFER_READ:
         samplePipelineInputBuffer.flip();
         if (samplePipelineInputBuffer.isEndOfStream()) {
-          samplePipeline.queueInputBuffer();
+          samplePipelineInput.queueInputBuffer();
+          isEnded = true;
           return false;
         }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        samplePipeline.queueInputBuffer();
+        samplePipelineInput.queueInputBuffer();
         return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");

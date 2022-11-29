@@ -26,6 +26,17 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
  */
 /* package */ interface SamplePipeline {
 
+  /** Input of a {@link SamplePipeline}. */
+  interface Input {
+
+    /** See {@link SamplePipeline#dequeueInputBuffer()}. */
+    @Nullable
+    DecoderInputBuffer dequeueInputBuffer();
+
+    /** See {@link SamplePipeline#queueInputBuffer()}. */
+    void queueInputBuffer();
+  }
+
   /** A listener for the sample pipeline events. */
   interface Listener {
 
@@ -62,9 +73,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
    * this method again.
    */
   boolean processData() throws TransformationException;
-
-  /** Returns whether the pipeline has ended. */
-  boolean isEnded();
 
   /** Releases all resources held by the pipeline. */
   void release();

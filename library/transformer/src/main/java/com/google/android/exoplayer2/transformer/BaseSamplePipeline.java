@@ -39,7 +39,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Nullable private DecoderInputBuffer inputBuffer;
   private boolean muxerWrapperTrackAdded;
-  private boolean isEnded;
 
   public BaseSamplePipeline(
       Format inputFormat,
@@ -79,11 +78,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public boolean processData() throws TransformationException {
     return feedMuxer() || processDataUpToMuxer();
-  }
-
-  @Override
-  public boolean isEnded() {
-    return isEnded;
   }
 
   @Nullable
@@ -148,7 +142,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (isMuxerInputEnded()) {
       muxerWrapper.endTrack(trackType);
-      isEnded = true;
       return false;
     }
 

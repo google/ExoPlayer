@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FO
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import android.os.Handler;
@@ -55,10 +54,9 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
     void onAllTracksRegistered();
 
-    SamplePipeline onTrackAdded(Format format, long streamStartPositionUs, long streamOffsetUs)
+    SamplePipeline.Input onTrackAdded(
+        Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException;
-
-    void onEnded();
 
     void onError(Exception e);
   }
@@ -111,6 +109,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
   public void start() {
     player.setMediaItem(mediaItem);
     player.prepare();
+    player.play();
   }
 
   public void release() {
@@ -168,13 +167,6 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
     }
 
     @Override
-    public void onPlaybackStateChanged(int state) {
-      if (state == Player.STATE_ENDED) {
-        listener.onEnded();
-      }
-    }
-
-    @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
       if (hasSentDuration) {
         return;
@@ -184,7 +176,6 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
       if (!window.isPlaceholder) {
         listener.onDurationMs(Util.usToMs(window.durationUs));
         hasSentDuration = true;
-        checkNotNull(player).play();
       }
     }
 
