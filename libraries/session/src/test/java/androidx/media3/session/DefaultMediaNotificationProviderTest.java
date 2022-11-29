@@ -628,6 +628,80 @@ public class DefaultMediaNotificationProviderTest {
     assertThat(isMediaMetadataArtistEqualToNotificationContentText).isTrue();
   }
 
+  /**
+   * {@link DefaultMediaNotificationProvider} is designed to be extendable. Public constructor
+   * should not be removed.
+   */
+  @Test
+  public void createsProviderUsingConstructor_idsNotSpecified_usesDefaultIds() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider(context);
+    MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            /* customLayout= */ ImmutableList.of(),
+            defaultActionFactory,
+            /* onNotificationChangedCallback= */ mock(MediaNotification.Provider.Callback.class));
+
+    assertThat(notification.notificationId).isEqualTo(DEFAULT_NOTIFICATION_ID);
+    assertThat(notification.notification.getChannelId()).isEqualTo(DEFAULT_CHANNEL_ID);
+    ShadowNotificationManager shadowNotificationManager =
+        Shadows.shadowOf(
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
+    assertHasNotificationChannel(
+        shadowNotificationManager.getNotificationChannels(),
+        /* channelId= */ DEFAULT_CHANNEL_ID,
+        /* channelName= */ context.getString(R.string.default_notification_channel_name));
+  }
+
+  /**
+   * Extends {@link DefaultMediaNotificationProvider} and overrides all known protected methods. If
+   * by accident we change the signature of the class in a way that affects inheritance, this test
+   * would no longer compile.
+   */
+  @Test
+  public void overridesProviderDefinition_compilesSuccessfully() {
+    Context context = ApplicationProvider.getApplicationContext();
+
+    DefaultMediaNotificationProvider unused =
+        new DefaultMediaNotificationProvider(context) {
+          @Override
+          public List<CommandButton> getMediaButtons(
+              Player.Commands playerCommands,
+              List<CommandButton> customLayout,
+              boolean showPauseButton) {
+            return super.getMediaButtons(playerCommands, customLayout, showPauseButton);
+          }
+
+          @Override
+          public int[] addNotificationActions(
+              MediaSession mediaSession,
+              List<CommandButton> mediaButtons,
+              NotificationCompat.Builder builder,
+              MediaNotification.ActionFactory actionFactory) {
+            return super.addNotificationActions(mediaSession, mediaButtons, builder, actionFactory);
+          }
+
+          @Override
+          public CharSequence getNotificationContentTitle(MediaMetadata metadata) {
+            return super.getNotificationContentTitle(metadata);
+          }
+
+          @Override
+          public CharSequence getNotificationContentText(MediaMetadata metadata) {
+            return super.getNotificationContentText(metadata);
+          }
+        };
+  }
+
   private static void assertHasNotificationChannel(
       List<Object> notificationChannels, String channelId, String channelName) {
     boolean found = false;
