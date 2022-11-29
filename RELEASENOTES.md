@@ -11,6 +11,8 @@
         ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
     *   Add `ExoPlayer.Builder.setPlaybackLooper` that sets a pre-existing
         playback thread for a new ExoPlayer instance.
+    *   Allow download manager helpers to be cleared
+        ([#10776](https://github.com/google/ExoPlayer/issues/10776)).
 *   Session:
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
