@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.MODEL;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
@@ -64,6 +65,7 @@ public final class DefaultCodec implements Codec {
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
   private final boolean decoderNeedsFrameDroppingWorkaround;
+  private final boolean requestedHdrToneMapping;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -104,7 +106,7 @@ public final class DefaultCodec implements Codec {
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
     try {
-      boolean requestedHdrToneMapping =
+      requestedHdrToneMapping =
           SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
@@ -162,6 +164,15 @@ public final class DefaultCodec implements Codec {
       // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
       return 5;
     }
+    if (requestedHdrToneMapping
+        && getName().equals("c2.qti.hevc.decoder")
+        && MODEL.equals("SM-F936B")) {
+      // This decoder gets stuck if too many frames are rendered without being processed when
+      // tone-mapping HDR10. This value is experimentally determined. See also b/260408846.
+      // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
+      return 12;
+    }
+
     // Otherwise don't limit the number of frames that can be pending at a time, to maximize
     // throughput.
     return UNLIMITED_PENDING_FRAME_COUNT;
