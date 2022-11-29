@@ -16,7 +16,7 @@ track 0:
     sampleRate = 48000
     encoderDelay = 576
     encoderPadding = 576
-    metadata = entries=[TSSE: description=null: value=Lavf58.29.100]
+    metadata = entries=[TSSE: description=null: values=[Lavf58.29.100]]
   sample 0:
     time = 958041
     flags = 1

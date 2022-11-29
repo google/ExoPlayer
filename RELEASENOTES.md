@@ -14,6 +14,9 @@
 *   Session:
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
 
 ### 1.0.0-beta03 (2022-11-22)
 
