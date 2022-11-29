@@ -52,7 +52,7 @@ public final class Id3DecoderTest {
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
-    assertThat(textInformationFrame.value).isEqualTo("mdialog_VINDICO1527664_start");
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("mdialog_VINDICO1527664_start");
 
     // Test UTF-16.
     rawId3 =
@@ -67,7 +67,21 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEqualTo("Hello World");
-    assertThat(textInformationFrame.value).isEmpty();
+    assertThat(textInformationFrame.values).containsExactly("");
+
+    // Test multiple values.
+    rawId3 =
+        buildSingleFrameTag(
+            "TXXX",
+            new byte[] {
+              1, 0, 72, 0, 101, 0, 108, 0, 108, 0, 111, 0, 32, 0, 87, 0, 111, 0, 114, 0, 108, 0,
+              100, 0, 0, 0, 70, 0, 111, 0, 111, 0, 0, 0, 66, 0, 97, 0, 114, 0, 0
+            });
+    metadata = decoder.decode(rawId3, rawId3.length);
+    assertThat(metadata.length()).isEqualTo(1);
+    textInformationFrame = (TextInformationFrame) metadata.get(0);
+    assertThat(textInformationFrame.description).isEqualTo("Hello World");
+    assertThat(textInformationFrame.values).containsExactly("Foo", "Bar").inOrder();
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TXXX", new byte[0]);
@@ -81,7 +95,7 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
-    assertThat(textInformationFrame.value).isEmpty();
+    assertThat(textInformationFrame.values).containsExactly("");
   }
 
   @Test
@@ -95,7 +109,15 @@ public final class Id3DecoderTest {
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TIT2");
     assertThat(textInformationFrame.description).isNull();
-    assertThat(textInformationFrame.value).isEqualTo("Hello World");
+    assertThat(textInformationFrame.values.size()).isEqualTo(1);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("Hello World");
+
+    // Test multiple values.
+    rawId3 = buildSingleFrameTag("TIT2", new byte[] {3, 70, 111, 111, 0, 66, 97, 114, 0});
+    metadata = decoder.decode(rawId3, rawId3.length);
+    assertThat(metadata.length()).isEqualTo(1);
+    textInformationFrame = (TextInformationFrame) metadata.get(0);
+    assertThat(textInformationFrame.values).containsExactly("Foo", "Bar").inOrder();
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TIT2", new byte[0]);
@@ -109,7 +131,7 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TIT2");
     assertThat(textInformationFrame.description).isNull();
-    assertThat(textInformationFrame.value).isEmpty();
+    assertThat(textInformationFrame.values).containsExactly("");
   }
 
   @Test
