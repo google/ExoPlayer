@@ -17,6 +17,9 @@ Release notes
 *   Session:
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.

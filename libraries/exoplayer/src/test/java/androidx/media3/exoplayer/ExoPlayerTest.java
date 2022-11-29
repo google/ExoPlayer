@@ -10408,7 +10408,9 @@ public final class ExoPlayerTest {
                 new Metadata(
                     new BinaryFrame(/* id= */ "", /* data= */ new byte[0]),
                     new TextInformationFrame(
-                        /* id= */ "TT2", /* description= */ null, /* value= */ "title")))
+                        /* id= */ "TT2",
+                        /* description= */ null,
+                        /* values= */ ImmutableList.of("title"))))
             .build();
 
     // Set multiple values together.

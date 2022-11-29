@@ -152,7 +152,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
-    metadata = entries=[TSSE: description=null: value=Lavf56.1.0]
+    metadata = entries=[TSSE: description=null: values=[Lavf56.1.0]]
     initializationData:
       data = length 2, hash 5F7
   sample 0:
