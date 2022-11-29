@@ -71,8 +71,8 @@ public final class EncoderUtil {
   }
 
   /**
-   * Returns the names of encoders that support HDR editing for the given format, or an empty list
-   * if the format is unknown or not supported for HDR encoding.
+   * Returns the names of encoders that support HDR editing for the given {@code mimeType} and
+   * {@code ColorInfo}, or an empty list if the format is unknown or not supported for HDR encoding.
    */
   public static ImmutableList<String> getSupportedEncoderNamesForHdrEditing(
       String mimeType, @Nullable ColorInfo colorInfo) {
@@ -80,13 +80,12 @@ public final class EncoderUtil {
       return ImmutableList.of();
     }
 
-    @ColorTransfer int colorTransfer = colorInfo.colorTransfer;
-    ImmutableList<Integer> profiles = getCodecProfilesForHdrFormat(mimeType, colorTransfer);
-    ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
-    ImmutableList<MediaCodecInfo> mediaCodecInfos =
-        EncoderSelector.DEFAULT.selectEncoderInfos(mimeType);
-    for (int i = 0; i < mediaCodecInfos.size(); i++) {
-      MediaCodecInfo mediaCodecInfo = mediaCodecInfos.get(i);
+    ImmutableList<MediaCodecInfo> encoders = getSupportedEncoders(mimeType);
+    ImmutableList<Integer> allowedColorProfiles =
+        getCodecProfilesForHdrFormat(mimeType, colorInfo.colorTransfer);
+    ImmutableList.Builder<String> resultBuilder = new ImmutableList.Builder<>();
+    for (int i = 0; i < encoders.size(); i++) {
+      MediaCodecInfo mediaCodecInfo = encoders.get(i);
       if (mediaCodecInfo.isAlias()
           || !isFeatureSupported(
               mediaCodecInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing)) {
@@ -94,7 +93,7 @@ public final class EncoderUtil {
       }
       for (MediaCodecInfo.CodecProfileLevel codecProfileLevel :
           mediaCodecInfo.getCapabilitiesForType(mimeType).profileLevels) {
-        if (profiles.contains(codecProfileLevel.profile)) {
+        if (allowedColorProfiles.contains(codecProfileLevel.profile)) {
           resultBuilder.add(mediaCodecInfo.getName());
         }
       }

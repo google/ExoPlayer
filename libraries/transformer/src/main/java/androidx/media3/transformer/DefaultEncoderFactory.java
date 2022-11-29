@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.transformer.TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
@@ -213,21 +214,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * VideoEncoderSettings#bitrate} set to request for a specific encoding bitrate. Bitrate settings
    * in {@link Format} are ignored when {@link VideoEncoderSettings#bitrate} or {@link
    * VideoEncoderSettings#enableHighQualityTargeting} is set.
-   *
-   * @param format The {@link Format} (of the output data) used to determine the underlying encoder
-   *     and its configuration values. {@link Format#sampleMimeType}, {@link Format#width} and
-   *     {@link Format#height} are set to those of the desired output video format. {@link
-   *     Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link Format#height},
-   *     therefore the video is always in landscape orientation. {@link Format#frameRate} is set to
-   *     the output video's frame rate, if available.
-   * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes MIME
-   *     types}.
-   * @return A {@link DefaultCodec} for video encoding.
-   * @throws TransformationException If no suitable {@link DefaultCodec} can be created.
    */
   @Override
-  public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-      throws TransformationException {
+  public DefaultCodec createForVideoEncoding(Format format) throws TransformationException {
     if (format.frameRate == Format.NO_VALUE) {
       format = format.buildUpon().setFrameRate(DEFAULT_FRAME_RATE).build();
     }
@@ -238,17 +227,12 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     checkArgument(format.height <= format.width);
     checkArgument(format.rotationDegrees == 0);
     checkNotNull(format.sampleMimeType);
-    checkArgument(!allowedMimeTypes.isEmpty());
     checkStateNotNull(videoEncoderSelector);
 
     @Nullable
     VideoEncoderQueryResult encoderAndClosestFormatSupport =
         findEncoderWithClosestSupportedFormat(
-            format,
-            requestedVideoEncoderSettings,
-            videoEncoderSelector,
-            allowedMimeTypes,
-            enableFallback);
+            format, requestedVideoEncoderSettings, videoEncoderSelector, enableFallback);
 
     if (encoderAndClosestFormatSupport == null) {
       throw createTransformationException(format);
@@ -312,13 +296,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
     if (Util.SDK_INT >= 31 && ColorInfo.isTransferHdr(format.colorInfo)) {
+      // TODO(b/260389841): Validate the picked encoder supports HDR editing.
       if (EncoderUtil.getSupportedColorFormats(encoderInfo, mimeType)
           .contains(MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010)) {
         mediaFormat.setInteger(
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010);
       } else {
-        throw createTransformationException(format);
+        throw createTransformationException(format, ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
       }
     } else {
       mediaFormat.setInteger(
@@ -382,15 +367,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       Format requestedFormat,
       VideoEncoderSettings videoEncoderSettings,
       EncoderSelector encoderSelector,
-      List<String> allowedMimeTypes,
       boolean enableFallback) {
-    String requestedMimeType = requestedFormat.sampleMimeType;
-    @Nullable
-    String mimeType = findFallbackMimeType(encoderSelector, requestedMimeType, allowedMimeTypes);
-    if (mimeType == null || (!enableFallback && !requestedMimeType.equals(mimeType))) {
-      return null;
-    }
-
+    String mimeType = checkNotNull(requestedFormat.sampleMimeType);
     ImmutableList<MediaCodecInfo> filteredEncoderInfos =
         encoderSelector.selectEncoderInfos(mimeType);
     if (filteredEncoderInfos.isEmpty()) {
@@ -681,36 +659,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds a {@linkplain MimeTypes MIME type} that is supported by the encoder and in the {@code
-   * allowedMimeTypes}.
-   */
-  @Nullable
-  private static String findFallbackMimeType(
-      EncoderSelector encoderSelector, String requestedMimeType, List<String> allowedMimeTypes) {
-    if (mimeTypeIsSupported(encoderSelector, requestedMimeType, allowedMimeTypes)) {
-      return requestedMimeType;
-    } else if (mimeTypeIsSupported(encoderSelector, MimeTypes.VIDEO_H265, allowedMimeTypes)) {
-      return MimeTypes.VIDEO_H265;
-    } else if (mimeTypeIsSupported(encoderSelector, MimeTypes.VIDEO_H264, allowedMimeTypes)) {
-      return MimeTypes.VIDEO_H264;
-    } else {
-      for (int i = 0; i < allowedMimeTypes.size(); i++) {
-        String allowedMimeType = allowedMimeTypes.get(i);
-        if (mimeTypeIsSupported(encoderSelector, allowedMimeType, allowedMimeTypes)) {
-          return allowedMimeType;
-        }
-      }
-    }
-    return null;
-  }
-
-  private static boolean mimeTypeIsSupported(
-      EncoderSelector encoderSelector, String mimeType, List<String> allowedMimeTypes) {
-    return !encoderSelector.selectEncoderInfos(mimeType).isEmpty()
-        && allowedMimeTypes.contains(mimeType);
-  }
-
-  /**
    * Computes the video bit rate using the Kush Gauge.
    *
    * <p>{@code kushGaugeBitrate = height * width * frameRate * 0.07 * motionFactor}.
@@ -732,12 +680,19 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
   @RequiresNonNull("#1.sampleMimeType")
   private static TransformationException createTransformationException(Format format) {
+    return createTransformationException(
+        format, TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+  }
+
+  @RequiresNonNull("#1.sampleMimeType")
+  private static TransformationException createTransformationException(
+      Format format, @TransformationException.ErrorCode int errorCode) {
     return TransformationException.createForCodec(
         new IllegalArgumentException("The requested encoding format is not supported."),
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
         format,
         /* mediaCodecName= */ null,
-        TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+        errorCode);
   }
 }

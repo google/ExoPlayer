@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.transformer.TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -84,9 +85,7 @@ public class DefaultEncoderFactoryTest {
     Format actualVideoFormat =
         new DefaultEncoderFactory.Builder(context)
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
 
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
@@ -97,22 +96,15 @@ public class DefaultEncoderFactoryTest {
   }
 
   @Test
-  public void createForVideoEncoding_withFallbackOnAndUnsupportedMimeType_configuresEncoder()
-      throws Exception {
+  public void createForVideoEncoding_withFallbackOnAndUnsupportedMimeType_throws() {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H265, 1920, 1080, 30);
-    Format actualVideoFormat =
-        new DefaultEncoderFactory.Builder(context)
-            .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
-            .getConfigurationFormat();
+    DefaultEncoderFactory encoderFactory = new DefaultEncoderFactory.Builder(context).build();
 
-    assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
-    assertThat(actualVideoFormat.width).isEqualTo(1920);
-    assertThat(actualVideoFormat.height).isEqualTo(1080);
-    // 1920 * 1080 * 30 * 0.07 * 2.
-    assertThat(actualVideoFormat.averageBitrate).isEqualTo(8_709_120);
+    TransformationException transformationException =
+        assertThrows(
+            TransformationException.class,
+            () -> encoderFactory.createForVideoEncoding(requestedVideoFormat));
+    assertThat(transformationException.errorCode).isEqualTo(ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -122,9 +114,7 @@ public class DefaultEncoderFactoryTest {
     Format actualVideoFormat =
         new DefaultEncoderFactory.Builder(context)
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
 
     assertThat(actualVideoFormat.width).isEqualTo(1920);
@@ -142,9 +132,7 @@ public class DefaultEncoderFactoryTest {
         new DefaultEncoderFactory.Builder(context)
             .setRequestedVideoEncoderSettings(VideoEncoderSettings.DEFAULT)
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
 
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
@@ -161,9 +149,7 @@ public class DefaultEncoderFactoryTest {
     Format actualVideoFormat =
         new DefaultEncoderFactory.Builder(context)
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
 
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
@@ -185,9 +171,7 @@ public class DefaultEncoderFactoryTest {
             .setRequestedVideoEncoderSettings(
                 new VideoEncoderSettings.Builder().setEnableHighQualityTargeting(true).build())
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
 
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
@@ -210,9 +194,7 @@ public class DefaultEncoderFactoryTest {
             .setRequestedVideoEncoderSettings(
                 new VideoEncoderSettings.Builder().setBitrate(10_000_000).build())
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
+            .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
 
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
@@ -230,9 +212,7 @@ public class DefaultEncoderFactoryTest {
     Codec videoEncoder =
         new DefaultEncoderFactory.Builder(context)
             .build()
-            .createForVideoEncoding(
-                requestedVideoFormat,
-                /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264));
+            .createForVideoEncoding(requestedVideoFormat);
 
     assertThat(videoEncoder).isInstanceOf(DefaultCodec.class);
     MediaFormat configurationMediaFormat =
@@ -245,36 +225,15 @@ public class DefaultEncoderFactoryTest {
   }
 
   @Test
-  public void createForVideoEncoding_withNoSupportedEncoder_throws() {
-    Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
-
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class,
-            () ->
-                new DefaultEncoderFactory.Builder(context)
-                    .build()
-                    .createForVideoEncoding(
-                        requestedVideoFormat,
-                        /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H265)));
-
-    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-    assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
-  }
-
-  @Test
   public void createForVideoEncoding_withNoAvailableEncoderFromEncoderSelector_throws() {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
     assertThrows(
         TransformationException.class,
         () ->
             new DefaultEncoderFactory.Builder(context)
-                .setVideoEncoderSelector(mimeType -> ImmutableList.of())
+                .setVideoEncoderSelector((mimeType) -> ImmutableList.of())
                 .build()
-                .createForVideoEncoding(
-                    requestedVideoFormat,
-                    /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264)));
+                .createForVideoEncoding(requestedVideoFormat));
   }
 
   private static Format createVideoFormat(String mimeType, int width, int height, int frameRate) {

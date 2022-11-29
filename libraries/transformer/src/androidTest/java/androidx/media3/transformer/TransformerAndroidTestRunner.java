@@ -454,9 +454,8 @@ public class TransformerAndroidTestRunner {
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      Codec videoEncoder = encoderFactory.createForVideoEncoding(format, allowedMimeTypes);
+    public Codec createForVideoEncoding(Format format) throws TransformationException {
+      Codec videoEncoder = encoderFactory.createForVideoEncoding(format);
       videoEncoderName = videoEncoder.getName();
       return videoEncoder;
     }
