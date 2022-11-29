@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
@@ -45,6 +46,7 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.Util;
+import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import com.google.common.collect.ImmutableList;
@@ -52,6 +54,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ final class TransformerInternal {
@@ -81,7 +85,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Internal messages.
   private static final int MSG_START = 0;
-  private static final int MSG_END = 1;
+  private static final int MSG_REGISTER_SAMPLE_PIPELINE = 1;
+  private static final int MSG_DEQUEUE_INPUT = 2;
+  private static final int MSG_QUEUE_INPUT = 3;
+  private static final int MSG_DRAIN_PIPELINES = 4;
+  private static final int MSG_END = 5;
+
+  private static final int DRAIN_PIPELINES_DELAY_MS = 10;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
@@ -97,14 +107,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final ExoPlayerAssetLoader exoPlayerAssetLoader;
+  private final List<SamplePipeline> samplePipelines;
+  private final ConditionVariable dequeueBufferConditionVariable;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable cancellingConditionVariable;
 
+  @Nullable private DecoderInputBuffer pendingInputBuffer;
+  private boolean isDrainingPipelines;
   private @Transformer.ProgressState int progressState;
   private long progressPositionMs;
   private long durationMs;
-  private boolean released;
   private @MonotonicNonNull RuntimeException cancelException;
+
+  private volatile boolean released;
 
   public TransformerInternal(
       Context context,
@@ -151,6 +166,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             internalLooper,
             componentListener,
             clock);
+    samplePipelines = new ArrayList<>();
+    dequeueBufferConditionVariable = new ConditionVariable();
     muxerWrapper =
         new MuxerWrapper(
             outputPath,
@@ -190,10 +207,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private boolean handleMessage(Message msg) {
+    // Handle end messages even if resources have been released to report release timeouts.
+    if (released && msg.what != MSG_END) {
+      return true;
+    }
     try {
       switch (msg.what) {
         case MSG_START:
           startInternal();
+          break;
+        case MSG_REGISTER_SAMPLE_PIPELINE:
+          samplePipelines.add((SamplePipeline) msg.obj);
+          break;
+        case MSG_DEQUEUE_INPUT:
+          dequeueInputInternal(/* samplePipelineIndex= */ msg.arg1);
+          break;
+        case MSG_QUEUE_INPUT:
+          queueInputInternal(/* samplePipelineIndex= */ msg.arg1);
+          break;
+        case MSG_DRAIN_PIPELINES:
+          drainPipelinesInternal();
           break;
         case MSG_END:
           endInternal(
@@ -203,6 +236,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         default:
           return false;
       }
+    } catch (TransformationException e) {
+      endInternal(END_REASON_ERROR, e);
     } catch (RuntimeException e) {
       endInternal(END_REASON_ERROR, TransformationException.createForUnexpected(e));
     }
@@ -213,6 +248,41 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     exoPlayerAssetLoader.start();
   }
 
+  private void dequeueInputInternal(int samplePipelineIndex) throws TransformationException {
+    SamplePipeline samplePipeline = samplePipelines.get(samplePipelineIndex);
+    // The sample pipeline is drained before dequeuing input. It can't be done before queuing
+    // input because, if the pipeline is full, dequeuing input would forever return a null buffer.
+    // Draining the pipeline at regular intervals would be inefficient because a low interval could
+    // result in many no-op operations, and a high interval could slow down data queuing.
+    while (samplePipeline.processData()) {}
+    pendingInputBuffer = samplePipeline.dequeueInputBuffer();
+    dequeueBufferConditionVariable.open();
+  }
+
+  private void queueInputInternal(int samplePipelineIndex) throws TransformationException {
+    DecoderInputBuffer pendingInputBuffer = checkStateNotNull(this.pendingInputBuffer);
+    samplePipelines.get(samplePipelineIndex).queueInputBuffer();
+    if (pendingInputBuffer.isEndOfStream() && !isDrainingPipelines) {
+      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
+      isDrainingPipelines = true;
+    }
+  }
+
+  private void drainPipelinesInternal() throws TransformationException {
+    for (int i = 0; i < samplePipelines.size(); i++) {
+      while (samplePipelines.get(i).processData()) {}
+    }
+
+    if (muxerWrapper.isEnded()) {
+      internalHandler
+          .obtainMessage(
+              MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* transformationException */ null)
+          .sendToTarget();
+    } else {
+      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
+    }
+  }
+
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
     @Nullable TransformationResult transformationResult = null;
@@ -220,21 +290,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable TransformationException releaseTransformationException = null;
     if (!released) {
       released = true;
+
+      // Make sure there is no dequeue action waiting on the asset loader thread to avoid a
+      // deadlock when releasing it.
+      pendingInputBuffer = null;
+      dequeueBufferConditionVariable.open();
       try {
         try {
           exoPlayerAssetLoader.release();
-          if (endReason == END_REASON_COMPLETED) {
-            transformationResult =
-                new TransformationResult.Builder()
-                    .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
-                    .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
-                    .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
-                    .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
-                    .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
-                    .build();
-          }
         } finally {
-          muxerWrapper.release(forCancellation);
+          try {
+            for (int i = 0; i < samplePipelines.size(); i++) {
+              samplePipelines.get(i).release();
+            }
+            if (endReason == END_REASON_COMPLETED) {
+              transformationResult =
+                  new TransformationResult.Builder()
+                      .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
+                      .setAverageAudioBitrate(
+                          muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
+                      .setAverageVideoBitrate(
+                          muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
+                      .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
+                      .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
+                      .build();
+            }
+          } finally {
+            muxerWrapper.release(forCancellation);
+          }
         }
       } catch (Muxer.MuxerException e) {
         releaseTransformationException =
@@ -273,6 +356,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
+
+    private int tracksAddedCount;
     private long lastProgressUpdateMs;
     private long lastProgressPositionMs;
 
@@ -315,10 +400,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public SamplePipeline onTrackAdded(
+    public SamplePipeline.Input onTrackAdded(
         Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException {
-      return getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
+      SamplePipeline samplePipeline =
+          getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
+      internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
+
+      int samplePipelineIndex = tracksAddedCount;
+      tracksAddedCount++;
+      return new SamplePipelineInput(samplePipelineIndex);
     }
 
     @Override
@@ -333,14 +424,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         transformationException = TransformationException.createForUnexpected(e);
       }
       onTransformationError(transformationException);
-    }
-
-    @Override
-    public void onEnded() {
-      internalHandler
-          .obtainMessage(
-              MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* transformationException */ null)
-          .sendToTarget();
     }
 
     // SamplePipeline.Listener implementation.
@@ -485,6 +568,42 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return true;
       }
       return false;
+    }
+
+    private class SamplePipelineInput implements SamplePipeline.Input {
+
+      private final int samplePipelineIndex;
+
+      public SamplePipelineInput(int samplePipelineIndex) {
+        this.samplePipelineIndex = samplePipelineIndex;
+      }
+
+      @Nullable
+      @Override
+      public DecoderInputBuffer dequeueInputBuffer() {
+        if (released) {
+          // Make sure there is no dequeue action waiting on the asset loader thread when it is
+          // being released to avoid a deadlock.
+          return null;
+        }
+        // TODO(b/252537210): Reduce the number of thread hops (for example by adding a queue at the
+        //  start of thesample pipelines). Having 2 thread hops per sample (one for dequeuing and
+        //  one for queuing) makes transmuxing slower than it used to be.
+        internalHandler
+            .obtainMessage(MSG_DEQUEUE_INPUT, samplePipelineIndex, /* unused */ 0)
+            .sendToTarget();
+        clock.onThreadBlocked();
+        dequeueBufferConditionVariable.blockUninterruptible();
+        dequeueBufferConditionVariable.close();
+        return pendingInputBuffer;
+      }
+
+      @Override
+      public void queueInputBuffer() {
+        internalHandler
+            .obtainMessage(MSG_QUEUE_INPUT, samplePipelineIndex, /* unused */ 0)
+            .sendToTarget();
+      }
     }
   }
 }
