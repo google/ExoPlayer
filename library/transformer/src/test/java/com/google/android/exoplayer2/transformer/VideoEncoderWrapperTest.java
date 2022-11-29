@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -165,7 +164,7 @@ public final class VideoEncoderWrapperTest {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes) {
+    public Codec createForAudioEncoding(Format format) {
       throw new UnsupportedOperationException();
     }
 

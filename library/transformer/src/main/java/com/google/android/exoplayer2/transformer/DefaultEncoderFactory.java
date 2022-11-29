@@ -172,23 +172,12 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   @Override
-  public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-      throws TransformationException {
+  public DefaultCodec createForAudioEncoding(Format format) throws TransformationException {
     // TODO(b/210591626) Add encoder selection for audio.
-    checkArgument(!allowedMimeTypes.isEmpty());
     checkNotNull(format.sampleMimeType);
-    if (!allowedMimeTypes.contains(format.sampleMimeType)) {
-      if (enableFallback) {
-        // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
-        // capabilities limitations.
-        format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
-      } else {
-        throw createTransformationException(format);
-      }
-    }
     MediaFormat mediaFormat =
         MediaFormat.createAudioFormat(
-            checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
+            format.sampleMimeType, format.sampleRate, format.channelCount);
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
 
     @Nullable

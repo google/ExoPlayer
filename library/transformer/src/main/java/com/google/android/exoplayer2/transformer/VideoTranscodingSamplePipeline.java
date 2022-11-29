@@ -461,13 +461,7 @@ import org.checkerframework.dataflow.qual.Pure;
           selectEncoderAndMuxerSupportedMimeType(
               requestedOutputMimeType, muxerSupportedMimeTypes, requestedEncoderFormat.colorInfo);
       if (supportedMimeType == null) {
-        throw TransformationException.createForCodec(
-            new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
-            /* isVideo= */ true,
-            /* isDecoder= */ false,
-            requestedEncoderFormat,
-            /* mediaCodecName= */ null,
-            TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+        throw createNoSupportedMimeTypeException(requestedEncoderFormat);
       }
 
       encoder =

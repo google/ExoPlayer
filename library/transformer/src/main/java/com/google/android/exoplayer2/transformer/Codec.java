@@ -22,9 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 /**
  * Provides a layer of abstraction for interacting with decoders and encoders.
@@ -70,19 +68,18 @@ public interface Codec {
     /**
      * Returns a {@link Codec} for audio encoding.
      *
-     * <p>This method must validate that the {@link Codec} is configured to produce one of the
-     * {@code allowedMimeTypes}. The {@linkplain Format#sampleMimeType sample MIME type} given in
-     * {@code format} is not necessarily allowed.
+     * <p>The caller should ensure the {@linkplain Format#sampleMimeType MIME type} is supported on
+     * the device before calling this method.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
-     *     encoder and its configuration values.
-     * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes
-     *     MIME types}.
-     * @return A {@link Codec} for audio encoding.
+     *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link
+     *     Format#sampleRate}, {@link Format#channelCount} and {@link Format#bitrate} are set to
+     *     those of the desired output video format.
+     * @return A {@link Codec} for encoding audio to the requested {@link Format#sampleMimeType MIME
+     *     type}.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
-    Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException;
+    Codec createForAudioEncoding(Format format) throws TransformationException;
 
     /**
      * Returns a {@link Codec} for video encoding.

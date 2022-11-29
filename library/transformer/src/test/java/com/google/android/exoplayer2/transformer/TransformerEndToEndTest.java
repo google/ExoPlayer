@@ -453,18 +453,25 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withAudioMuxerFormatUnsupported_completesWithError()
+  public void startTransformation_withAudioMuxerFormatUnsupported_completesSuccessfully()
       throws Exception {
-    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    // Test succeeds because MIME type fallback is mandatory.
+    Transformer.Listener mockListener = mock(Transformer.Listener.class);
+    TransformationRequest originalTransformationRequest =
+        new TransformationRequest.Builder().build();
+    TransformationRequest fallbackTransformationRequest =
+        new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).addListener(mockListener).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
 
     transformer.startTransformation(mediaItem, outputPath);
-    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+    TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-    assertThat(exception).hasMessageThat().contains("audio");
-    assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
+    verify(mockListener)
+        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
   }
 
   @Test

@@ -58,6 +58,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             : null;
   }
 
+  protected static TransformationException createNoSupportedMimeTypeException(
+      Format requestedEncoderFormat) {
+    return TransformationException.createForCodec(
+        new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
+        MimeTypes.isVideo(requestedEncoderFormat.sampleMimeType),
+        /* isDecoder= */ false,
+        requestedEncoderFormat,
+        /* mediaCodecName= */ null,
+        TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+  }
+
   @Nullable
   @Override
   public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
