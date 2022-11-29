@@ -19,6 +19,8 @@
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
+*   Cast extension
+    *   Bump Cast SDK version to 21.2.0.
 
 ### 1.0.0-beta03 (2022-11-22)
 
