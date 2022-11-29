@@ -16,6 +16,9 @@ Release notes
         playback thread for a new ExoPlayer instance.
     *   Allow download manager helpers to be cleared
         ([#10776](https://github.com/google/ExoPlayer/issues/10776)).
+*   Audio:
+    *   Use the compressed audio format bitrate to calculate the min buffer size
+        for `AudioTrack` in direct playbacks (passthrough).
 *   Session:
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
