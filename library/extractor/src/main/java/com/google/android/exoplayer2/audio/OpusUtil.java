@@ -27,6 +27,9 @@ public class OpusUtil {
   /** Opus streams are always 48000 Hz. */
   public static final int SAMPLE_RATE = 48_000;
 
+  /** Maximum achievable Opus bitrate. */
+  public static final int MAX_BYTES_PER_SECOND = 510 * 1000 / 8; // See RFC 6716. Section 2.1.1
+
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
   private static final int FULL_CODEC_INITIALIZATION_DATA_BUFFER_COUNT = 3;
 
@@ -59,6 +62,62 @@ public class OpusUtil {
     initializationData.add(buildNativeOrderByteArray(preSkipNanos));
     initializationData.add(buildNativeOrderByteArray(seekPreRollNanos));
     return initializationData;
+  }
+
+  /**
+   * Returns the number of audio samples in the given audio packet.
+   *
+   * <p>The buffer's position is not modified.
+   *
+   * @param buffer The audio packet.
+   * @return Returns the number of audio samples in the packet.
+   */
+  public static int parsePacketAudioSampleCount(ByteBuffer buffer) {
+    long packetDurationUs =
+        getPacketDurationUs(buffer.get(0), buffer.limit() > 1 ? buffer.get(1) : 0);
+    return (int) (packetDurationUs * SAMPLE_RATE / C.MICROS_PER_SECOND);
+  }
+
+  /**
+   * Returns the duration of the given audio packet.
+   *
+   * @param buffer The audio packet.
+   * @return Returns the duration of the given audio packet, in microseconds.
+   */
+  public static long getPacketDurationUs(byte[] buffer) {
+    return getPacketDurationUs(buffer[0], buffer.length > 1 ? buffer[1] : 0);
+  }
+
+  private static long getPacketDurationUs(byte packetByte0, byte packetByte1) {
+    // See RFC6716, Sections 3.1 and 3.2.
+    int toc = packetByte0 & 0xFF;
+    int frames;
+    switch (toc & 0x3) {
+      case 0:
+        frames = 1;
+        break;
+      case 1:
+      case 2:
+        frames = 2;
+        break;
+      default:
+        frames = packetByte1 & 0x3F;
+        break;
+    }
+
+    int config = toc >> 3;
+    int length = config & 0x3;
+    int frameDurationUs;
+    if (config >= 16) {
+      frameDurationUs = 2500 << length;
+    } else if (config >= 12) {
+      frameDurationUs = 10000 << (length & 0x1);
+    } else if (length == 3) {
+      frameDurationUs = 60000;
+    } else {
+      frameDurationUs = 10000 << length;
+    }
+    return (long) frames * frameDurationUs;
   }
 
   private static int getPreSkipSamples(byte[] header) {
