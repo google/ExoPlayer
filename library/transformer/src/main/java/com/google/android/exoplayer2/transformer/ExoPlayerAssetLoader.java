@@ -41,14 +41,13 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 /* package */ final class ExoPlayerAssetLoader {
 
   public interface Listener {
 
-    void onDurationMs(long durationMs);
+    void onDurationUs(long durationUs);
 
     void onTrackRegistered();
 
@@ -174,7 +173,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
-        listener.onDurationMs(Util.usToMs(window.durationUs));
+        listener.onDurationUs(window.durationUs);
         hasSentDuration = true;
       }
     }

@@ -116,7 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean isDrainingPipelines;
   private @Transformer.ProgressState int progressState;
   private long progressPositionMs;
-  private long durationMs;
+  private long durationUs;
   private @MonotonicNonNull RuntimeException cancelException;
 
   private volatile boolean released;
@@ -189,7 +189,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
     if (progressState == PROGRESS_STATE_AVAILABLE) {
-      progressHolder.progress = min((int) (progressPositionMs * 100 / durationMs), 99);
+      progressHolder.progress = min((int) (progressPositionMs * 100 / Util.usToMs(durationUs)), 99);
     }
     return progressState;
   }
@@ -371,17 +371,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // ExoPlayerAssetLoader.Listener implementation.
 
     @Override
-    public void onDurationMs(long durationMs) {
+    public void onDurationUs(long durationUs) {
       applicationHandler.post(
           () -> {
             // Make progress permanently unavailable if the duration is unknown, so that it doesn't
             // jump to a high value at the end of the transformation if the duration is set once the
             // media is entirely loaded.
             progressState =
-                durationMs <= 0 || durationMs == C.TIME_UNSET
+                durationUs <= 0 || durationUs == C.TIME_UNSET
                     ? PROGRESS_STATE_UNAVAILABLE
                     : PROGRESS_STATE_AVAILABLE;
-            TransformerInternal.this.durationMs = durationMs;
+            TransformerInternal.this.durationUs = durationUs;
           });
     }
 
