@@ -64,8 +64,7 @@ public final class DefaultCodec implements Codec {
   private final Format configurationFormat;
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
-  private final boolean decoderNeedsFrameDroppingWorkaround;
-  private final boolean requestedHdrToneMapping;
+  private final int maxPendingFrameCount;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -105,6 +104,7 @@ public final class DefaultCodec implements Codec {
     boolean isVideo = MimeTypes.isVideo(checkNotNull(configurationFormat.sampleMimeType));
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
+    boolean requestedHdrToneMapping;
     try {
       requestedHdrToneMapping =
           SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
@@ -135,7 +135,8 @@ public final class DefaultCodec implements Codec {
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
-    decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
+    maxPendingFrameCount =
+        getMaxPendingFrameCountInternal(context, mediaCodecName, requestedHdrToneMapping);
   }
 
   @Override
@@ -150,32 +151,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public int getMaxPendingFrameCount() {
-    if (decoderNeedsFrameDroppingWorkaround) {
-      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
-      // TODO(b/226330223): Investigate increasing this limit.
-      return 1;
-    }
-    if (Ascii.toUpperCase(getName()).startsWith("OMX.")) {
-      // Some OMX decoders don't correctly track their number of output buffers available, and get
-      // stuck if too many frames are rendered without being processed, so limit the number of
-      // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, b/229978305, and b/245491744.
-      //
-      // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
-      return 5;
-    }
-    if (requestedHdrToneMapping
-        && getName().equals("c2.qti.hevc.decoder")
-        && MODEL.equals("SM-F936B")) {
-      // This decoder gets stuck if too many frames are rendered without being processed when
-      // tone-mapping HDR10. This value is experimentally determined. See also b/260408846.
-      // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
-      return 12;
-    }
-
-    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
-    // throughput.
-    return UNLIMITED_PENDING_FRAME_COUNT;
+    return maxPendingFrameCount;
   }
 
   @Override
@@ -488,13 +464,40 @@ public final class DefaultCodec implements Codec {
     TraceUtil.endSection();
   }
 
-  private static boolean decoderNeedsFrameDroppingWorkaround(Context context) {
-    // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-    // bounds. From API 29, if the app targets API 29 or later, the {@link
-    // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is full.
-    // Frame dropping is never desired, so a workaround is needed for older API levels.
-    return SDK_INT < 29
-        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
+  private static int getMaxPendingFrameCountInternal(
+      Context context, String codecName, boolean requestedHdrToneMapping) {
+    if (SDK_INT < 29
+        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29) {
+      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+      // bounds. From API 29, if the app targets API 29 or later, the {@link
+      // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is
+      // full.
+      // Frame dropping is never desired, so a workaround is needed for older API levels.
+      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
+      // TODO(b/226330223): Investigate increasing this limit.
+      return 1;
+    }
+    if (Ascii.toUpperCase(codecName).startsWith("OMX.")) {
+      // Some OMX decoders don't correctly track their number of output buffers available, and get
+      // stuck if too many frames are rendered without being processed, so limit the number of
+      // pending frames to avoid getting stuck. This value is experimentally determined. See also
+      // b/213455700, b/230097284, b/229978305, and b/245491744.
+      //
+      // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
+      return 5;
+    }
+    if (requestedHdrToneMapping
+        && codecName.equals("c2.qti.hevc.decoder")
+        && MODEL.equals("SM-F936B")) {
+      // This decoder gets stuck if too many frames are rendered without being processed when
+      // tone-mapping HDR10. This value is experimentally determined. See also b/260408846.
+      // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
+      return 12;
+    }
+
+    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
+    // throughput.
+    return UNLIMITED_PENDING_FRAME_COUNT;
   }
 
   @RequiresApi(29)
