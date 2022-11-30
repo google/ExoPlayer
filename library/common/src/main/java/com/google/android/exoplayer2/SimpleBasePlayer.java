@@ -125,7 +125,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       private Size surfaceSize;
       private boolean newlyRenderedFirstFrame;
       private Metadata timedMetadata;
-      private ImmutableList<PlaylistItem> playlistItems;
+      private ImmutableList<MediaItemData> playlist;
       private Timeline timeline;
       private MediaMetadata playlistMetadata;
       private int currentMediaItemIndex;
@@ -171,7 +171,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         surfaceSize = Size.UNKNOWN;
         newlyRenderedFirstFrame = false;
         timedMetadata = new Metadata(/* presentationTimeUs= */ C.TIME_UNSET);
-        playlistItems = ImmutableList.of();
+        playlist = ImmutableList.of();
         timeline = Timeline.EMPTY;
         playlistMetadata = MediaMetadata.EMPTY;
         currentMediaItemIndex = 0;
@@ -217,7 +217,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         this.surfaceSize = state.surfaceSize;
         this.newlyRenderedFirstFrame = state.newlyRenderedFirstFrame;
         this.timedMetadata = state.timedMetadata;
-        this.playlistItems = state.playlistItems;
+        this.playlist = state.playlist;
         this.timeline = state.timeline;
         this.playlistMetadata = state.playlistMetadata;
         this.currentMediaItemIndex = state.currentMediaItemIndex;
@@ -568,21 +568,21 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the playlist items.
+       * Sets the list of {@link MediaItemData media items} in the playlist.
        *
-       * <p>All playlist items must have unique {@linkplain PlaylistItem.Builder#setUid UIDs}.
+       * <p>All items must have unique {@linkplain MediaItemData.Builder#setUid UIDs}.
        *
-       * @param playlistItems The list of playlist items.
+       * @param playlist The list of {@link MediaItemData media items} in the playlist.
        * @return This builder.
        */
       @CanIgnoreReturnValue
-      public Builder setPlaylist(List<PlaylistItem> playlistItems) {
+      public Builder setPlaylist(List<MediaItemData> playlist) {
         HashSet<Object> uids = new HashSet<>();
-        for (int i = 0; i < playlistItems.size(); i++) {
-          checkArgument(uids.add(playlistItems.get(i).uid));
+        for (int i = 0; i < playlist.size(); i++) {
+          checkArgument(uids.add(playlist.get(i).uid));
         }
-        this.playlistItems = ImmutableList.copyOf(playlistItems);
-        this.timeline = new PlaylistTimeline(this.playlistItems);
+        this.playlist = ImmutableList.copyOf(playlist);
+        this.timeline = new PlaylistTimeline(this.playlist);
         return this;
       }
 
@@ -601,8 +601,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       /**
        * Sets the current media item index.
        *
-       * <p>The media item index must be less than the number of {@linkplain #setPlaylist playlist
-       * items}, if set.
+       * <p>The media item index must be less than the number of {@linkplain #setPlaylist media
+       * items in the playlist}, if set.
        *
        * @param currentMediaItemIndex The current media item index.
        * @return This builder.
@@ -615,15 +615,15 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
       /**
        * Sets the current period index, or {@link C#INDEX_UNSET} to assume the first period of the
-       * current playlist item is played.
+       * current media item is played.
        *
        * <p>The period index must be less than the total number of {@linkplain
-       * PlaylistItem.Builder#setPeriods periods} in the playlist, if set, and the period at the
-       * specified index must be part of the {@linkplain #setCurrentMediaItemIndex current playlist
+       * MediaItemData.Builder#setPeriods periods} in the media item, if set, and the period at the
+       * specified index must be part of the {@linkplain #setCurrentMediaItemIndex current media
        * item}.
        *
        * @param currentPeriodIndex The current period index, or {@link C#INDEX_UNSET} to assume the
-       *     first period of the current playlist item is played.
+       *     first period of the current media item is played.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -640,7 +640,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * C#INDEX_UNSET}.
        *
        * <p>Ads indices can only be set if there is a corresponding {@link AdPlaybackState} defined
-       * in the current {@linkplain PlaylistItem.Builder#setPeriods period}.
+       * in the current {@linkplain MediaItemData.Builder#setPeriods period}.
        *
        * @param adGroupIndex The current ad group index, or {@link C#INDEX_UNSET} if no ad is
        *     playing.
@@ -866,9 +866,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public final boolean newlyRenderedFirstFrame;
     /** The most recent timed metadata. */
     public final Metadata timedMetadata;
-    /** The playlist items. */
-    public final ImmutableList<PlaylistItem> playlistItems;
-    /** The {@link Timeline} derived from the {@linkplain #playlistItems playlist items}. */
+    /** The media items in the playlist. */
+    public final ImmutableList<MediaItemData> playlist;
+    /** The {@link Timeline} derived from the {@link #playlist}. */
     public final Timeline timeline;
     /** The playlist {@link MediaMetadata}. */
     public final MediaMetadata playlistMetadata;
@@ -876,7 +876,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public final int currentMediaItemIndex;
     /**
      * The current period index, or {@link C#INDEX_UNSET} to assume the first period of the current
-     * playlist item is played.
+     * media item is played.
      */
     public final int currentPeriodIndex;
     /** The current ad group index, or {@link C#INDEX_UNSET} if no ad is playing. */
@@ -1002,7 +1002,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       this.surfaceSize = builder.surfaceSize;
       this.newlyRenderedFirstFrame = builder.newlyRenderedFirstFrame;
       this.timedMetadata = builder.timedMetadata;
-      this.playlistItems = builder.playlistItems;
+      this.playlist = builder.playlist;
       this.timeline = builder.timeline;
       this.playlistMetadata = builder.playlistMetadata;
       this.currentMediaItemIndex = builder.currentMediaItemIndex;
@@ -1059,7 +1059,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
           && surfaceSize.equals(state.surfaceSize)
           && newlyRenderedFirstFrame == state.newlyRenderedFirstFrame
           && timedMetadata.equals(state.timedMetadata)
-          && playlistItems.equals(state.playlistItems)
+          && playlist.equals(state.playlist)
           && playlistMetadata.equals(state.playlistMetadata)
           && currentMediaItemIndex == state.currentMediaItemIndex
           && currentPeriodIndex == state.currentPeriodIndex
@@ -1105,7 +1105,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       result = 31 * result + surfaceSize.hashCode();
       result = 31 * result + (newlyRenderedFirstFrame ? 1 : 0);
       result = 31 * result + timedMetadata.hashCode();
-      result = 31 * result + playlistItems.hashCode();
+      result = 31 * result + playlist.hashCode();
       result = 31 * result + playlistMetadata.hashCode();
       result = 31 * result + currentMediaItemIndex;
       result = 31 * result + currentPeriodIndex;
@@ -1125,28 +1125,28 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   private static final class PlaylistTimeline extends Timeline {
 
-    private final ImmutableList<PlaylistItem> playlistItems;
+    private final ImmutableList<MediaItemData> playlist;
     private final int[] firstPeriodIndexByWindowIndex;
     private final int[] windowIndexByPeriodIndex;
     private final HashMap<Object, Integer> periodIndexByUid;
 
-    public PlaylistTimeline(ImmutableList<PlaylistItem> playlistItems) {
-      int playlistItemCount = playlistItems.size();
-      this.playlistItems = playlistItems;
-      this.firstPeriodIndexByWindowIndex = new int[playlistItemCount];
+    public PlaylistTimeline(ImmutableList<MediaItemData> playlist) {
+      int mediaItemCount = playlist.size();
+      this.playlist = playlist;
+      this.firstPeriodIndexByWindowIndex = new int[mediaItemCount];
       int periodCount = 0;
-      for (int i = 0; i < playlistItemCount; i++) {
-        PlaylistItem playlistItem = playlistItems.get(i);
+      for (int i = 0; i < mediaItemCount; i++) {
+        MediaItemData mediaItemData = playlist.get(i);
         firstPeriodIndexByWindowIndex[i] = periodCount;
-        periodCount += getPeriodCountInPlaylistItem(playlistItem);
+        periodCount += getPeriodCountInMediaItem(mediaItemData);
       }
       this.windowIndexByPeriodIndex = new int[periodCount];
       this.periodIndexByUid = new HashMap<>();
       int periodIndex = 0;
-      for (int i = 0; i < playlistItemCount; i++) {
-        PlaylistItem playlistItem = playlistItems.get(i);
-        for (int j = 0; j < getPeriodCountInPlaylistItem(playlistItem); j++) {
-          periodIndexByUid.put(playlistItem.getPeriodUid(j), periodIndex);
+      for (int i = 0; i < mediaItemCount; i++) {
+        MediaItemData mediaItemData = playlist.get(i);
+        for (int j = 0; j < getPeriodCountInMediaItem(mediaItemData); j++) {
+          periodIndexByUid.put(mediaItemData.getPeriodUid(j), periodIndex);
           windowIndexByPeriodIndex[periodIndex] = i;
           periodIndex++;
         }
@@ -1155,7 +1155,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
     @Override
     public int getWindowCount() {
-      return playlistItems.size();
+      return playlist.size();
     }
 
     @Override
@@ -1184,7 +1184,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
     @Override
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
-      return playlistItems
+      return playlist
           .get(windowIndex)
           .getWindow(firstPeriodIndexByWindowIndex[windowIndex], window);
     }
@@ -1204,7 +1204,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       int windowIndex = windowIndexByPeriodIndex[periodIndex];
       int periodIndexInWindow = periodIndex - firstPeriodIndexByWindowIndex[windowIndex];
-      return playlistItems.get(windowIndex).getPeriod(windowIndex, periodIndexInWindow, period);
+      return playlist.get(windowIndex).getPeriod(windowIndex, periodIndexInWindow, period);
     }
 
     @Override
@@ -1217,21 +1217,22 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public Object getUidOfPeriod(int periodIndex) {
       int windowIndex = windowIndexByPeriodIndex[periodIndex];
       int periodIndexInWindow = periodIndex - firstPeriodIndexByWindowIndex[windowIndex];
-      return playlistItems.get(windowIndex).getPeriodUid(periodIndexInWindow);
+      return playlist.get(windowIndex).getPeriodUid(periodIndexInWindow);
     }
 
-    private static int getPeriodCountInPlaylistItem(PlaylistItem playlistItem) {
-      return playlistItem.periods.isEmpty() ? 1 : playlistItem.periods.size();
+    private static int getPeriodCountInMediaItem(MediaItemData mediaItemData) {
+      return mediaItemData.periods.isEmpty() ? 1 : mediaItemData.periods.size();
     }
   }
 
   /**
-   * An immutable description of a playlist item, containing both static setup information like
-   * {@link MediaItem} and dynamic data that is generally read from the media like the duration.
+   * An immutable description of an item in the playlist, containing both static setup information
+   * like {@link MediaItem} and dynamic data that is generally read from the media like the
+   * duration.
    */
-  protected static final class PlaylistItem {
+  protected static final class MediaItemData {
 
-    /** A builder for {@link PlaylistItem} objects. */
+    /** A builder for {@link MediaItemData} objects. */
     public static final class Builder {
 
       private Object uid;
@@ -1254,7 +1255,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       /**
        * Creates the builder.
        *
-       * @param uid The unique identifier of the playlist item within a playlist. This value will be
+       * @param uid The unique identifier of the media item within a playlist. This value will be
        *     set as {@link Timeline.Window#uid} for this item.
        */
       public Builder(Object uid) {
@@ -1276,31 +1277,31 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         periods = ImmutableList.of();
       }
 
-      private Builder(PlaylistItem playlistItem) {
-        this.uid = playlistItem.uid;
-        this.tracks = playlistItem.tracks;
-        this.mediaItem = playlistItem.mediaItem;
-        this.mediaMetadata = playlistItem.mediaMetadata;
-        this.manifest = playlistItem.manifest;
-        this.liveConfiguration = playlistItem.liveConfiguration;
-        this.presentationStartTimeMs = playlistItem.presentationStartTimeMs;
-        this.windowStartTimeMs = playlistItem.windowStartTimeMs;
-        this.elapsedRealtimeEpochOffsetMs = playlistItem.elapsedRealtimeEpochOffsetMs;
-        this.isSeekable = playlistItem.isSeekable;
-        this.isDynamic = playlistItem.isDynamic;
-        this.defaultPositionUs = playlistItem.defaultPositionUs;
-        this.durationUs = playlistItem.durationUs;
-        this.positionInFirstPeriodUs = playlistItem.positionInFirstPeriodUs;
-        this.isPlaceholder = playlistItem.isPlaceholder;
-        this.periods = playlistItem.periods;
+      private Builder(MediaItemData mediaItemData) {
+        this.uid = mediaItemData.uid;
+        this.tracks = mediaItemData.tracks;
+        this.mediaItem = mediaItemData.mediaItem;
+        this.mediaMetadata = mediaItemData.mediaMetadata;
+        this.manifest = mediaItemData.manifest;
+        this.liveConfiguration = mediaItemData.liveConfiguration;
+        this.presentationStartTimeMs = mediaItemData.presentationStartTimeMs;
+        this.windowStartTimeMs = mediaItemData.windowStartTimeMs;
+        this.elapsedRealtimeEpochOffsetMs = mediaItemData.elapsedRealtimeEpochOffsetMs;
+        this.isSeekable = mediaItemData.isSeekable;
+        this.isDynamic = mediaItemData.isDynamic;
+        this.defaultPositionUs = mediaItemData.defaultPositionUs;
+        this.durationUs = mediaItemData.durationUs;
+        this.positionInFirstPeriodUs = mediaItemData.positionInFirstPeriodUs;
+        this.isPlaceholder = mediaItemData.isPlaceholder;
+        this.periods = mediaItemData.periods;
       }
 
       /**
-       * Sets the unique identifier of this playlist item within a playlist.
+       * Sets the unique identifier of this media item within a playlist.
        *
        * <p>This value will be set as {@link Timeline.Window#uid} for this item.
        *
-       * @param uid The unique identifier of this playlist item within a playlist.
+       * @param uid The unique identifier of this media item within a playlist.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1310,9 +1311,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the {@link Tracks} of this playlist item.
+       * Sets the {@link Tracks} of this media item.
        *
-       * @param tracks The {@link Tracks} of this playlist item.
+       * @param tracks The {@link Tracks} of this media item.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1322,9 +1323,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the {@link MediaItem} for this playlist item.
+       * Sets the {@link MediaItem}.
        *
-       * @param mediaItem The {@link MediaItem} for this playlist item.
+       * @param mediaItem The {@link MediaItem}.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1354,9 +1355,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the manifest of the playlist item.
+       * Sets the manifest of the media item.
        *
-       * @param manifest The manifest of the playlist item, or null if not applicable.
+       * @param manifest The manifest of the media item, or null if not applicable.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1366,11 +1367,10 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the active {@link MediaItem.LiveConfiguration}, or null if the playlist item is not
-       * live.
+       * Sets the active {@link MediaItem.LiveConfiguration}, or null if the media item is not live.
        *
        * @param liveConfiguration The active {@link MediaItem.LiveConfiguration}, or null if the
-       *     playlist item is not live.
+       *     media item is not live.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1431,9 +1431,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets whether it's possible to seek within this playlist item.
+       * Sets whether it's possible to seek within this media item.
        *
-       * @param isSeekable Whether it's possible to seek within this playlist item.
+       * @param isSeekable Whether it's possible to seek within this media item.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1443,9 +1443,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets whether this playlist item may change over time, for example a moving live window.
+       * Sets whether this media item may change over time, for example a moving live window.
        *
-       * @param isDynamic Whether this playlist item may change over time, for example a moving live
+       * @param isDynamic Whether this media item may change over time, for example a moving live
        *     window.
        * @return This builder.
        */
@@ -1456,13 +1456,13 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the default position relative to the start of the playlist item at which to begin
+       * Sets the default position relative to the start of the media item at which to begin
        * playback, in microseconds.
        *
        * <p>The default position must be less or equal to the {@linkplain #setDurationUs duration},
        * is set.
        *
-       * @param defaultPositionUs The default position relative to the start of the playlist item at
+       * @param defaultPositionUs The default position relative to the start of the media item at
        *     which to begin playback, in microseconds.
        * @return This builder.
        */
@@ -1474,14 +1474,14 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the duration of the playlist item, in microseconds.
+       * Sets the duration of the media item, in microseconds.
        *
        * <p>If both this duration and all {@linkplain #setPeriods period} durations are set, the sum
        * of this duration and the {@linkplain #setPositionInFirstPeriodUs offset in the first
        * period} must match the total duration of all periods.
        *
-       * @param durationUs The duration of the playlist item, in microseconds, or {@link
-       *     C#TIME_UNSET} if unknown.
+       * @param durationUs The duration of the media item, in microseconds, or {@link C#TIME_UNSET}
+       *     if unknown.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1492,11 +1492,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the position of the start of this playlist item relative to the start of the first
-       * period belonging to it, in microseconds.
+       * Sets the position of the start of this media item relative to the start of the first period
+       * belonging to it, in microseconds.
        *
-       * @param positionInFirstPeriodUs The position of the start of this playlist item relative to
-       *     the start of the first period belonging to it, in microseconds.
+       * @param positionInFirstPeriodUs The position of the start of this media item relative to the
+       *     start of the first period belonging to it, in microseconds.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1507,11 +1507,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets whether this playlist item contains placeholder information because the real
-       * information has yet to be loaded.
+       * Sets whether this media item contains placeholder information because the real information
+       * has yet to be loaded.
        *
-       * @param isPlaceholder Whether this playlist item contains placeholder information because
-       *     the real information has yet to be loaded.
+       * @param isPlaceholder Whether this media item contains placeholder information because the
+       *     real information has yet to be loaded.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1521,15 +1521,14 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the list of {@linkplain PeriodData periods} in this playlist item.
+       * Sets the list of {@linkplain PeriodData periods} in this media item.
        *
        * <p>All periods must have unique {@linkplain PeriodData.Builder#setUid UIDs} and only the
        * last period is allowed to have an unset {@linkplain PeriodData.Builder#setDurationUs
        * duration}.
        *
-       * @param periods The list of {@linkplain PeriodData periods} in this playlist item, or an
-       *     empty list to assume a single period without ads and the same duration as the playlist
-       *     item.
+       * @param periods The list of {@linkplain PeriodData periods} in this media item, or an empty
+       *     list to assume a single period without ads and the same duration as the media item.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1545,17 +1544,17 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         return this;
       }
 
-      /** Builds the {@link PlaylistItem}. */
-      public PlaylistItem build() {
-        return new PlaylistItem(this);
+      /** Builds the {@link MediaItemData}. */
+      public MediaItemData build() {
+        return new MediaItemData(this);
       }
     }
 
-    /** The unique identifier of this playlist item. */
+    /** The unique identifier of this media item. */
     public final Object uid;
-    /** The {@link Tracks} of this playlist item. */
+    /** The {@link Tracks} of this media item. */
     public final Tracks tracks;
-    /** The {@link MediaItem} for this playlist item. */
+    /** The {@link MediaItem}. */
     public final MediaItem mediaItem;
     /**
      * The {@link MediaMetadata}, including static data from the {@link MediaItem#mediaMetadata
@@ -1565,9 +1564,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
      * {@link Format#metadata Formats}.
      */
     @Nullable public final MediaMetadata mediaMetadata;
-    /** The manifest of the playlist item, or null if not applicable. */
+    /** The manifest of the media item, or null if not applicable. */
     @Nullable public final Object manifest;
-    /** The active {@link MediaItem.LiveConfiguration}, or null if the playlist item is not live. */
+    /** The active {@link MediaItem.LiveConfiguration}, or null if the media item is not live. */
     @Nullable public final MediaItem.LiveConfiguration liveConfiguration;
     /**
      * The start time of the live presentation, in milliseconds since the Unix epoch, or {@link
@@ -1585,37 +1584,37 @@ public abstract class SimpleBasePlayer extends BasePlayer {
      * applicable.
      */
     public final long elapsedRealtimeEpochOffsetMs;
-    /** Whether it's possible to seek within this playlist item. */
+    /** Whether it's possible to seek within this media item. */
     public final boolean isSeekable;
-    /** Whether this playlist item may change over time, for example a moving live window. */
+    /** Whether this media item may change over time, for example a moving live window. */
     public final boolean isDynamic;
     /**
-     * The default position relative to the start of the playlist item at which to begin playback,
-     * in microseconds.
+     * The default position relative to the start of the media item at which to begin playback, in
+     * microseconds.
      */
     public final long defaultPositionUs;
-    /** The duration of the playlist item, in microseconds, or {@link C#TIME_UNSET} if unknown. */
+    /** The duration of the media item, in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public final long durationUs;
     /**
-     * The position of the start of this playlist item relative to the start of the first period
+     * The position of the start of this media item relative to the start of the first period
      * belonging to it, in microseconds.
      */
     public final long positionInFirstPeriodUs;
     /**
-     * Whether this playlist item contains placeholder information because the real information has
-     * yet to be loaded.
+     * Whether this media item contains placeholder information because the real information has yet
+     * to be loaded.
      */
     public final boolean isPlaceholder;
     /**
-     * The list of {@linkplain PeriodData periods} in this playlist item, or an empty list to assume
-     * a single period without ads and the same duration as the playlist item.
+     * The list of {@linkplain PeriodData periods} in this media item, or an empty list to assume a
+     * single period without ads and the same duration as the media item.
      */
     public final ImmutableList<PeriodData> periods;
 
     private final long[] periodPositionInWindowUs;
     private final MediaMetadata combinedMediaMetadata;
 
-    private PlaylistItem(Builder builder) {
+    private MediaItemData(Builder builder) {
       if (builder.liveConfiguration == null) {
         checkArgument(builder.presentationStartTimeMs == C.TIME_UNSET);
         checkArgument(builder.windowStartTimeMs == C.TIME_UNSET);
@@ -1665,26 +1664,26 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof PlaylistItem)) {
+      if (!(o instanceof MediaItemData)) {
         return false;
       }
-      PlaylistItem playlistItem = (PlaylistItem) o;
-      return this.uid.equals(playlistItem.uid)
-          && this.tracks.equals(playlistItem.tracks)
-          && this.mediaItem.equals(playlistItem.mediaItem)
-          && Util.areEqual(this.mediaMetadata, playlistItem.mediaMetadata)
-          && Util.areEqual(this.manifest, playlistItem.manifest)
-          && Util.areEqual(this.liveConfiguration, playlistItem.liveConfiguration)
-          && this.presentationStartTimeMs == playlistItem.presentationStartTimeMs
-          && this.windowStartTimeMs == playlistItem.windowStartTimeMs
-          && this.elapsedRealtimeEpochOffsetMs == playlistItem.elapsedRealtimeEpochOffsetMs
-          && this.isSeekable == playlistItem.isSeekable
-          && this.isDynamic == playlistItem.isDynamic
-          && this.defaultPositionUs == playlistItem.defaultPositionUs
-          && this.durationUs == playlistItem.durationUs
-          && this.positionInFirstPeriodUs == playlistItem.positionInFirstPeriodUs
-          && this.isPlaceholder == playlistItem.isPlaceholder
-          && this.periods.equals(playlistItem.periods);
+      MediaItemData mediaItemData = (MediaItemData) o;
+      return this.uid.equals(mediaItemData.uid)
+          && this.tracks.equals(mediaItemData.tracks)
+          && this.mediaItem.equals(mediaItemData.mediaItem)
+          && Util.areEqual(this.mediaMetadata, mediaItemData.mediaMetadata)
+          && Util.areEqual(this.manifest, mediaItemData.manifest)
+          && Util.areEqual(this.liveConfiguration, mediaItemData.liveConfiguration)
+          && this.presentationStartTimeMs == mediaItemData.presentationStartTimeMs
+          && this.windowStartTimeMs == mediaItemData.windowStartTimeMs
+          && this.elapsedRealtimeEpochOffsetMs == mediaItemData.elapsedRealtimeEpochOffsetMs
+          && this.isSeekable == mediaItemData.isSeekable
+          && this.isDynamic == mediaItemData.isDynamic
+          && this.defaultPositionUs == mediaItemData.defaultPositionUs
+          && this.durationUs == mediaItemData.durationUs
+          && this.positionInFirstPeriodUs == mediaItemData.positionInFirstPeriodUs
+          && this.isPlaceholder == mediaItemData.isPlaceholder
+          && this.periods.equals(mediaItemData.periods);
     }
 
     @Override
@@ -1733,7 +1732,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     }
 
     private Timeline.Period getPeriod(
-        int windowIndex, int periodIndexInPlaylistItem, Timeline.Period period) {
+        int windowIndex, int periodIndexInMediaItem, Timeline.Period period) {
       if (periods.isEmpty()) {
         period.set(
             /* id= */ uid,
@@ -1744,7 +1743,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
             AdPlaybackState.NONE,
             isPlaceholder);
       } else {
-        PeriodData periodData = periods.get(periodIndexInPlaylistItem);
+        PeriodData periodData = periods.get(periodIndexInMediaItem);
         Object periodId = periodData.uid;
         Object periodUid = Pair.create(uid, periodId);
         period.set(
@@ -1752,18 +1751,18 @@ public abstract class SimpleBasePlayer extends BasePlayer {
             periodUid,
             windowIndex,
             periodData.durationUs,
-            periodPositionInWindowUs[periodIndexInPlaylistItem],
+            periodPositionInWindowUs[periodIndexInMediaItem],
             periodData.adPlaybackState,
             periodData.isPlaceholder);
       }
       return period;
     }
 
-    private Object getPeriodUid(int periodIndexInPlaylistItem) {
+    private Object getPeriodUid(int periodIndexInMediaItem) {
       if (periods.isEmpty()) {
         return uid;
       }
-      Object periodId = periods.get(periodIndexInPlaylistItem).uid;
+      Object periodId = periods.get(periodIndexInMediaItem).uid;
       return Pair.create(uid, periodId);
     }
 
@@ -1787,7 +1786,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     }
   }
 
-  /** Data describing the properties of a period inside a {@link PlaylistItem}. */
+  /** Data describing the properties of a period inside a {@link MediaItemData}. */
   protected static final class PeriodData {
 
     /** A builder for {@link PeriodData} objects. */
@@ -1801,7 +1800,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       /**
        * Creates the builder.
        *
-       * @param uid The unique identifier of the period within its playlist item.
+       * @param uid The unique identifier of the period within its media item.
        */
       public Builder(Object uid) {
         this.uid = uid;
@@ -1818,9 +1817,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
 
       /**
-       * Sets the unique identifier of the period within its playlist item.
+       * Sets the unique identifier of the period within its media item.
        *
-       * @param uid The unique identifier of the period within its playlist item.
+       * @param uid The unique identifier of the period within its media item.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -1832,7 +1831,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       /**
        * Sets the total duration of the period, in microseconds, or {@link C#TIME_UNSET} if unknown.
        *
-       * <p>Only the last period in a playlist item can have an unknown duration.
+       * <p>Only the last period in a media item can have an unknown duration.
        *
        * @param durationUs The total duration of the period, in microseconds, or {@link
        *     C#TIME_UNSET} if unknown.
@@ -1878,11 +1877,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       }
     }
 
-    /** The unique identifier of the period within its playlist item. */
+    /** The unique identifier of the period within its media item. */
     public final Object uid;
     /**
      * The total duration of the period, in microseconds, or {@link C#TIME_UNSET} if unknown. Only
-     * the last period in a playlist item can have an unknown duration.
+     * the last period in a media item can have an unknown duration.
      */
     public final long durationUs;
     /**
@@ -2539,8 +2538,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
     if (timelineChanged) {
       @Player.TimelineChangeReason
-      int timelineChangeReason =
-          getTimelineChangeReason(previousState.playlistItems, newState.playlistItems);
+      int timelineChangeReason = getTimelineChangeReason(previousState.playlist, newState.playlist);
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newState.timeline, timelineChangeReason));
@@ -2567,7 +2565,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       MediaItem mediaItem =
           state.timeline.isEmpty()
               ? null
-              : state.playlistItems.get(state.currentMediaItemIndex).mediaItem;
+              : state.playlist.get(state.currentMediaItemIndex).mediaItem;
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
@@ -2795,15 +2793,15 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   private static Tracks getCurrentTracksInternal(State state) {
-    return state.playlistItems.isEmpty()
+    return state.playlist.isEmpty()
         ? Tracks.EMPTY
-        : state.playlistItems.get(state.currentMediaItemIndex).tracks;
+        : state.playlist.get(state.currentMediaItemIndex).tracks;
   }
 
   private static MediaMetadata getMediaMetadataInternal(State state) {
-    return state.playlistItems.isEmpty()
+    return state.playlist.isEmpty()
         ? MediaMetadata.EMPTY
-        : state.playlistItems.get(state.currentMediaItemIndex).combinedMediaMetadata;
+        : state.playlist.get(state.currentMediaItemIndex).combinedMediaMetadata;
   }
 
   private static int getCurrentPeriodIndexInternal(State state, Timeline.Window window) {
@@ -2817,7 +2815,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   private static @Player.TimelineChangeReason int getTimelineChangeReason(
-      List<PlaylistItem> previousPlaylist, List<PlaylistItem> newPlaylist) {
+      List<MediaItemData> previousPlaylist, List<MediaItemData> newPlaylist) {
     if (previousPlaylist.size() != newPlaylist.size()) {
       return Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED;
     }
@@ -2835,11 +2833,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       // We were asked to report a discontinuity.
       return newState.positionDiscontinuityReason;
     }
-    if (previousState.playlistItems.isEmpty()) {
-      // First change from an empty timeline is not reported as a discontinuity.
+    if (previousState.playlist.isEmpty()) {
+      // First change from an empty playlist is not reported as a discontinuity.
       return C.INDEX_UNSET;
     }
-    if (newState.playlistItems.isEmpty()) {
+    if (newState.playlist.isEmpty()) {
       // The playlist became empty.
       return Player.DISCONTINUITY_REASON_REMOVE;
     }
