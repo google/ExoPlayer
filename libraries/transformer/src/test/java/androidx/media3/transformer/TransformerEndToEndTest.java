@@ -898,6 +898,8 @@ public final class TransformerEndToEndTest {
 
   private static void removeEncodersAndDecoders() {
     ShadowMediaCodec.clearCodecs();
+    ShadowMediaCodecList.reset();
+    EncoderUtil.clearCachedEncoders();
   }
 
   private static String getDumpFileName(String originalFileName) {

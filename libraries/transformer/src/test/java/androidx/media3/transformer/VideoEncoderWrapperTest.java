@@ -32,10 +32,12 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
+import org.robolectric.shadows.ShadowMediaCodec;
 import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** Unit tests for {@link VideoTranscodingSamplePipeline.EncoderWrapper}. */
@@ -61,6 +63,13 @@ public final class VideoEncoderWrapperTest {
   public void registerTrack() {
     fallbackListener.registerTrack();
     createShadowH264Encoder();
+  }
+
+  @After
+  public void tearDown() {
+    ShadowMediaCodec.clearCodecs();
+    ShadowMediaCodecList.reset();
+    EncoderUtil.clearCachedEncoders();
   }
 
   @Test

@@ -28,11 +28,13 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
+import org.robolectric.shadows.ShadowMediaCodec;
 import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** Unit test for {@link DefaultEncoderFactory}. */
@@ -43,6 +45,13 @@ public class DefaultEncoderFactoryTest {
   @Before
   public void setUp() {
     createShadowH264Encoder();
+  }
+
+  @After
+  public void tearDown() {
+    ShadowMediaCodec.clearCodecs();
+    ShadowMediaCodecList.reset();
+    EncoderUtil.clearCachedEncoders();
   }
 
   private static void createShadowH264Encoder() {
