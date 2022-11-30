@@ -10,6 +10,8 @@ track 189:
   total output bytes = 1252
   sample count = 3
   format 0:
+    averageBitrate = 96000
+    peakBitrate = 96000
     id = 189
     sampleMimeType = audio/ac3
     channelCount = 1

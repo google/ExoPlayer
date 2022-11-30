@@ -7,6 +7,8 @@ track 0:
   total output bytes = 13281
   sample count = 8
   format 0:
+    averageBitrate = 384000
+    peakBitrate = 384000
     id = 0
     sampleMimeType = audio/ac3
     channelCount = 6
