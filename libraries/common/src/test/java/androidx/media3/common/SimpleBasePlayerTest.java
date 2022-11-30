@@ -110,15 +110,15 @@ public class SimpleBasePlayerTest {
             .setTimedMetadata(new Metadata())
             .setPlaylist(
                 ImmutableList.of(
-                    new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-                    new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                         .setPeriods(
                             ImmutableList.of(
                                 new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
                                     .setAdPlaybackState(
                                         new AdPlaybackState(
                                             /* adsId= */ new Object(),
-                                            /* adGroupTimesUs= */ 555,
+                                            /* adGroupTimesUs...= */ 555,
                                             666))
                                     .build()))
                         .build()))
@@ -142,9 +142,9 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void playlistItemBuildUpon_build_isEqual() {
-    SimpleBasePlayer.PlaylistItem playlistItem =
-        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+  public void mediaItemDataBuildUpon_build_isEqual() {
+    SimpleBasePlayer.MediaItemData mediaItemData =
+        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
             .setTracks(
                 new Tracks(
                     ImmutableList.of(
@@ -172,10 +172,10 @@ public class SimpleBasePlayerTest {
                     new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object()).build()))
             .build();
 
-    SimpleBasePlayer.PlaylistItem newPlaylistItem = playlistItem.buildUpon().build();
+    SimpleBasePlayer.MediaItemData newMediaItemData = mediaItemData.buildUpon().build();
 
-    assertThat(newPlaylistItem).isEqualTo(playlistItem);
-    assertThat(newPlaylistItem.hashCode()).isEqualTo(playlistItem.hashCode());
+    assertThat(newMediaItemData).isEqualTo(mediaItemData);
+    assertThat(newMediaItemData.hashCode()).isEqualTo(mediaItemData.hashCode());
   }
 
   @Test
@@ -185,7 +185,7 @@ public class SimpleBasePlayerTest {
             .setIsPlaceholder(true)
             .setDurationUs(600_000)
             .setAdPlaybackState(
-                new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs= */ 555, 666))
+                new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 555, 666))
             .build();
 
     SimpleBasePlayer.PeriodData newPeriodData = periodData.buildUpon().build();
@@ -220,16 +220,16 @@ public class SimpleBasePlayerTest {
     Size surfaceSize = new Size(480, 360);
     DeviceInfo deviceInfo =
         new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 3, /* maxVolume= */ 7);
-    ImmutableList<SimpleBasePlayer.PlaylistItem> playlist =
+    ImmutableList<SimpleBasePlayer.MediaItemData> playlist =
         ImmutableList.of(
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setPeriods(
                     ImmutableList.of(
                         new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
                             .setAdPlaybackState(
                                 new AdPlaybackState(
-                                    /* adsId= */ new Object(), /* adGroupTimesUs= */ 555, 666))
+                                    /* adsId= */ new Object(), /* adGroupTimesUs...= */ 555, 666))
                             .build()))
                 .build());
     MediaMetadata playlistMetadata = new MediaMetadata.Builder().setArtist("artist").build();
@@ -312,7 +312,7 @@ public class SimpleBasePlayerTest {
     assertThat(state.surfaceSize).isEqualTo(surfaceSize);
     assertThat(state.newlyRenderedFirstFrame).isTrue();
     assertThat(state.timedMetadata).isEqualTo(timedMetadata);
-    assertThat(state.playlistItems).isEqualTo(playlist);
+    assertThat(state.playlist).isEqualTo(playlist);
     assertThat(state.playlistMetadata).isEqualTo(playlistMetadata);
     assertThat(state.currentMediaItemIndex).isEqualTo(1);
     assertThat(state.currentPeriodIndex).isEqualTo(1);
@@ -369,8 +369,9 @@ public class SimpleBasePlayerTest {
             new SimpleBasePlayer.State.Builder()
                 .setPlaylist(
                     ImmutableList.of(
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build()))
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
+                            .build()))
                 .setCurrentMediaItemIndex(2)
                 .build());
   }
@@ -383,8 +384,9 @@ public class SimpleBasePlayerTest {
             new SimpleBasePlayer.State.Builder()
                 .setPlaylist(
                     ImmutableList.of(
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build()))
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
+                            .build()))
                 .setCurrentPeriodIndex(2)
                 .build());
   }
@@ -397,8 +399,9 @@ public class SimpleBasePlayerTest {
             new SimpleBasePlayer.State.Builder()
                 .setPlaylist(
                     ImmutableList.of(
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build()))
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
+                            .build()))
                 .setCurrentMediaItemIndex(0)
                 .setCurrentPeriodIndex(1)
                 .build());
@@ -412,14 +415,14 @@ public class SimpleBasePlayerTest {
             new SimpleBasePlayer.State.Builder()
                 .setPlaylist(
                     ImmutableList.of(
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                             .setPeriods(
                                 ImmutableList.of(
                                     new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
                                         .setAdPlaybackState(
                                             new AdPlaybackState(
                                                 /* adsId= */ new Object(),
-                                                /* adGroupTimesUs= */ 123))
+                                                /* adGroupTimesUs...= */ 123))
                                         .build()))
                             .build()))
                 .setCurrentAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 2)
@@ -434,14 +437,14 @@ public class SimpleBasePlayerTest {
             new SimpleBasePlayer.State.Builder()
                 .setPlaylist(
                     ImmutableList.of(
-                        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                             .setPeriods(
                                 ImmutableList.of(
                                     new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
                                         .setAdPlaybackState(
                                             new AdPlaybackState(
                                                     /* adsId= */ new Object(),
-                                                    /* adGroupTimesUs= */ 123)
+                                                    /* adGroupTimesUs...= */ 123)
                                                 .withAdCount(
                                                     /* adGroupIndex= */ 0, /* adCount= */ 2))
                                         .build()))
@@ -466,7 +469,7 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void stateBuilderBuild_multiplePlaylistItemsWithSameIds_throwsException() {
+  public void stateBuilderBuild_multipleMediaItemsWithSameIds_throwsException() {
     Object uid = new Object();
 
     assertThrows(
@@ -475,8 +478,8 @@ public class SimpleBasePlayerTest {
             new SimpleBasePlayer.State.Builder()
                 .setPlaylist(
                     ImmutableList.of(
-                        new SimpleBasePlayer.PlaylistItem.Builder(uid).build(),
-                        new SimpleBasePlayer.PlaylistItem.Builder(uid).build()))
+                        new SimpleBasePlayer.MediaItemData.Builder(uid).build(),
+                        new SimpleBasePlayer.MediaItemData.Builder(uid).build()))
                 .build());
   }
 
@@ -517,7 +520,7 @@ public class SimpleBasePlayerTest {
         new SimpleBasePlayer.State.Builder()
             .setPlaylist(
                 ImmutableList.of(
-                    new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build()))
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
             .setContentPositionMs(4000)
             .setPlayWhenReady(true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
             .setPlaybackState(Player.STATE_READY)
@@ -539,7 +542,7 @@ public class SimpleBasePlayerTest {
         new SimpleBasePlayer.State.Builder()
             .setPlaylist(
                 ImmutableList.of(
-                    new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build()))
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
             .setContentPositionMs(4000)
             .setPlaybackState(Player.STATE_BUFFERING)
             .build();
@@ -559,14 +562,14 @@ public class SimpleBasePlayerTest {
         new SimpleBasePlayer.State.Builder()
             .setPlaylist(
                 ImmutableList.of(
-                    new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                         .setPeriods(
                             ImmutableList.of(
                                 new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
                                     .setAdPlaybackState(
                                         new AdPlaybackState(
                                                 /* adsId= */ new Object(),
-                                                /* adGroupTimesUs= */ 123)
+                                                /* adGroupTimesUs...= */ 123)
                                             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2))
                                     .build()))
                         .build()))
@@ -593,14 +596,14 @@ public class SimpleBasePlayerTest {
         new SimpleBasePlayer.State.Builder()
             .setPlaylist(
                 ImmutableList.of(
-                    new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                         .setPeriods(
                             ImmutableList.of(
                                 new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
                                     .setAdPlaybackState(
                                         new AdPlaybackState(
                                                 /* adsId= */ new Object(),
-                                                /* adGroupTimesUs= */ 123)
+                                                /* adGroupTimesUs...= */ 123)
                                             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2))
                                     .build()))
                         .build()))
@@ -617,7 +620,7 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void playlistItemBuilderBuild_setsCorrectValues() {
+  public void mediaItemDataBuilderBuild_setsCorrectValues() {
     Object uid = new Object();
     Tracks tracks =
         new Tracks(
@@ -635,8 +638,8 @@ public class SimpleBasePlayerTest {
     ImmutableList<SimpleBasePlayer.PeriodData> periods =
         ImmutableList.of(new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object()).build());
 
-    SimpleBasePlayer.PlaylistItem playlistItem =
-        new SimpleBasePlayer.PlaylistItem.Builder(uid)
+    SimpleBasePlayer.MediaItemData mediaItemData =
+        new SimpleBasePlayer.MediaItemData.Builder(uid)
             .setTracks(tracks)
             .setMediaItem(mediaItem)
             .setMediaMetadata(mediaMetadata)
@@ -654,61 +657,61 @@ public class SimpleBasePlayerTest {
             .setPeriods(periods)
             .build();
 
-    assertThat(playlistItem.uid).isEqualTo(uid);
-    assertThat(playlistItem.tracks).isEqualTo(tracks);
-    assertThat(playlistItem.mediaItem).isEqualTo(mediaItem);
-    assertThat(playlistItem.mediaMetadata).isEqualTo(mediaMetadata);
-    assertThat(playlistItem.manifest).isEqualTo(manifest);
-    assertThat(playlistItem.liveConfiguration).isEqualTo(liveConfiguration);
-    assertThat(playlistItem.presentationStartTimeMs).isEqualTo(12);
-    assertThat(playlistItem.windowStartTimeMs).isEqualTo(23);
-    assertThat(playlistItem.elapsedRealtimeEpochOffsetMs).isEqualTo(10234);
-    assertThat(playlistItem.isSeekable).isTrue();
-    assertThat(playlistItem.isDynamic).isTrue();
-    assertThat(playlistItem.defaultPositionUs).isEqualTo(456_789);
-    assertThat(playlistItem.durationUs).isEqualTo(500_000);
-    assertThat(playlistItem.positionInFirstPeriodUs).isEqualTo(100_000);
-    assertThat(playlistItem.isPlaceholder).isTrue();
-    assertThat(playlistItem.periods).isEqualTo(periods);
+    assertThat(mediaItemData.uid).isEqualTo(uid);
+    assertThat(mediaItemData.tracks).isEqualTo(tracks);
+    assertThat(mediaItemData.mediaItem).isEqualTo(mediaItem);
+    assertThat(mediaItemData.mediaMetadata).isEqualTo(mediaMetadata);
+    assertThat(mediaItemData.manifest).isEqualTo(manifest);
+    assertThat(mediaItemData.liveConfiguration).isEqualTo(liveConfiguration);
+    assertThat(mediaItemData.presentationStartTimeMs).isEqualTo(12);
+    assertThat(mediaItemData.windowStartTimeMs).isEqualTo(23);
+    assertThat(mediaItemData.elapsedRealtimeEpochOffsetMs).isEqualTo(10234);
+    assertThat(mediaItemData.isSeekable).isTrue();
+    assertThat(mediaItemData.isDynamic).isTrue();
+    assertThat(mediaItemData.defaultPositionUs).isEqualTo(456_789);
+    assertThat(mediaItemData.durationUs).isEqualTo(500_000);
+    assertThat(mediaItemData.positionInFirstPeriodUs).isEqualTo(100_000);
+    assertThat(mediaItemData.isPlaceholder).isTrue();
+    assertThat(mediaItemData.periods).isEqualTo(periods);
   }
 
   @Test
-  public void playlistItemBuilderBuild_presentationStartTimeIfNotLive_throwsException() {
+  public void mediaItemDataBuilderBuild_presentationStartTimeIfNotLive_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setPresentationStartTimeMs(12)
                 .build());
   }
 
   @Test
-  public void playlistItemBuilderBuild_windowStartTimeIfNotLive_throwsException() {
+  public void mediaItemDataBuilderBuild_windowStartTimeIfNotLive_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setWindowStartTimeMs(12)
                 .build());
   }
 
   @Test
-  public void playlistItemBuilderBuild_elapsedEpochOffsetIfNotLive_throwsException() {
+  public void mediaItemDataBuilderBuild_elapsedEpochOffsetIfNotLive_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setElapsedRealtimeEpochOffsetMs(12)
                 .build());
   }
 
   @Test
   public void
-      playlistItemBuilderBuild_windowStartTimeLessThanPresentationStartTime_throwsException() {
+      mediaItemDataBuilderBuild_windowStartTimeLessThanPresentationStartTime_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setLiveConfiguration(MediaItem.LiveConfiguration.UNSET)
                 .setWindowStartTimeMs(12)
                 .setPresentationStartTimeMs(13)
@@ -716,13 +719,13 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void playlistItemBuilderBuild_multiplePeriodsWithSameUid_throwsException() {
+  public void mediaItemDataBuilderBuild_multiplePeriodsWithSameUid_throwsException() {
     Object uid = new Object();
 
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setPeriods(
                     ImmutableList.of(
                         new SimpleBasePlayer.PeriodData.Builder(uid).build(),
@@ -731,11 +734,11 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void playlistItemBuilderBuild_defaultPositionGreaterThanDuration_throwsException() {
+  public void mediaItemDataBuilderBuild_defaultPositionGreaterThanDuration_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setDefaultPositionUs(16)
                 .setDurationUs(15)
                 .build());
@@ -745,7 +748,7 @@ public class SimpleBasePlayerTest {
   public void periodDataBuilderBuild_setsCorrectValues() {
     Object uid = new Object();
     AdPlaybackState adPlaybackState =
-        new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs= */ 555, 666);
+        new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 555, 666);
 
     SimpleBasePlayer.PeriodData periodData =
         new SimpleBasePlayer.PeriodData.Builder(uid)
@@ -788,7 +791,7 @@ public class SimpleBasePlayerTest {
     SimpleBasePlayer.PositionSupplier contentPositionSupplier = () -> 456;
     SimpleBasePlayer.PositionSupplier contentBufferedPositionSupplier = () -> 499;
     SimpleBasePlayer.PositionSupplier totalBufferedPositionSupplier = () -> 567;
-    Object playlistItemUid = new Object();
+    Object mediaItemUid = new Object();
     Object periodUid = new Object();
     Tracks tracks =
         new Tracks(
@@ -804,10 +807,10 @@ public class SimpleBasePlayerTest {
     Size surfaceSize = new Size(480, 360);
     MediaItem.LiveConfiguration liveConfiguration =
         new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2000).build();
-    ImmutableList<SimpleBasePlayer.PlaylistItem> playlist =
+    ImmutableList<SimpleBasePlayer.MediaItemData> playlist =
         ImmutableList.of(
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-            new SimpleBasePlayer.PlaylistItem.Builder(playlistItemUid)
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+            new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid)
                 .setTracks(tracks)
                 .setMediaItem(mediaItem)
                 .setMediaMetadata(mediaMetadata)
@@ -829,7 +832,7 @@ public class SimpleBasePlayerTest {
                             .setDurationUs(600_000)
                             .setAdPlaybackState(
                                 new AdPlaybackState(
-                                    /* adsId= */ new Object(), /* adGroupTimesUs= */ 555, 666))
+                                    /* adsId= */ new Object(), /* adGroupTimesUs...= */ 555, 666))
                             .build()))
                 .build());
     State state =
@@ -948,7 +951,7 @@ public class SimpleBasePlayerTest {
     assertThat(window.liveConfiguration).isEqualTo(liveConfiguration);
     assertThat(window.manifest).isEqualTo(manifest);
     assertThat(window.mediaItem).isEqualTo(mediaItem);
-    assertThat(window.uid).isEqualTo(playlistItemUid);
+    assertThat(window.uid).isEqualTo(mediaItemUid);
     Timeline.Period period =
         timeline.getPeriod(/* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true);
     assertThat(period.durationUs).isEqualTo(C.TIME_UNSET);
@@ -974,10 +977,10 @@ public class SimpleBasePlayerTest {
     SimpleBasePlayer.PositionSupplier totalBufferedPositionSupplier = () -> 567;
     SimpleBasePlayer.PositionSupplier adPositionSupplier = () -> 321;
     SimpleBasePlayer.PositionSupplier adBufferedPositionSupplier = () -> 345;
-    ImmutableList<SimpleBasePlayer.PlaylistItem> playlist =
+    ImmutableList<SimpleBasePlayer.MediaItemData> playlist =
         ImmutableList.of(
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build(),
-            new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object())
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+            new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                 .setDurationUs(500_000)
                 .setPeriods(
                     ImmutableList.of(
@@ -986,7 +989,9 @@ public class SimpleBasePlayerTest {
                             .setDurationUs(600_000)
                             .setAdPlaybackState(
                                 new AdPlaybackState(
-                                        /* adsId= */ new Object(), /* adGroupTimesUs= */ 555, 666)
+                                        /* adsId= */ new Object(), /* adGroupTimesUs...= */
+                                        555,
+                                        666)
                                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)
                                     .withAdDurationsUs(
@@ -1051,8 +1056,8 @@ public class SimpleBasePlayerTest {
   public void invalidateState_updatesStateAndInformsListeners() throws Exception {
     Object mediaItemUid0 = new Object();
     MediaItem mediaItem0 = new MediaItem.Builder().setMediaId("0").build();
-    SimpleBasePlayer.PlaylistItem playlistItem0 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid0).setMediaItem(mediaItem0).build();
+    SimpleBasePlayer.MediaItemData mediaItemData0 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid0).setMediaItem(mediaItem0).build();
     State state1 =
         new State.Builder()
             .setAvailableCommands(new Commands.Builder().addAllCommands().build())
@@ -1078,7 +1083,7 @@ public class SimpleBasePlayerTest {
             .setDeviceInfo(DeviceInfo.UNKNOWN)
             .setDeviceVolume(0)
             .setIsDeviceMuted(false)
-            .setPlaylist(ImmutableList.of(playlistItem0))
+            .setPlaylist(ImmutableList.of(mediaItemData0))
             .setPlaylistMetadata(MediaMetadata.EMPTY)
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(8_000)
@@ -1094,8 +1099,8 @@ public class SimpleBasePlayerTest {
                     /* adaptiveSupported= */ true,
                     /* trackSupport= */ new int[] {C.FORMAT_HANDLED},
                     /* trackSelected= */ new boolean[] {true})));
-    SimpleBasePlayer.PlaylistItem playlistItem1 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid1)
+    SimpleBasePlayer.MediaItemData mediaItemData1 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid1)
             .setMediaItem(mediaItem1)
             .setMediaMetadata(mediaMetadata)
             .setTracks(tracks)
@@ -1156,7 +1161,7 @@ public class SimpleBasePlayerTest {
             .setSurfaceSize(surfaceSize)
             .setNewlyRenderedFirstFrame(true)
             .setTimedMetadata(timedMetadata)
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1))
             .setPlaylistMetadata(playlistMetadata)
             .setCurrentMediaItemIndex(1)
             .setContentPositionMs(12_000)
@@ -1297,20 +1302,20 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void invalidateState_withPlaylistItemDetailChange_reportsTimelineSourceUpdate() {
+  public void invalidateState_withMediaItemDetailChange_reportsTimelineSourceUpdate() {
     Object mediaItemUid0 = new Object();
-    SimpleBasePlayer.PlaylistItem playlistItem0 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid0).build();
+    SimpleBasePlayer.MediaItemData mediaItemData0 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid0).build();
     Object mediaItemUid1 = new Object();
-    SimpleBasePlayer.PlaylistItem playlistItem1 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid1).build();
+    SimpleBasePlayer.MediaItemData mediaItemData1 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid1).build();
     State state1 =
-        new State.Builder().setPlaylist(ImmutableList.of(playlistItem0, playlistItem1)).build();
-    SimpleBasePlayer.PlaylistItem playlistItem1Updated =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid1).setDurationUs(10_000).build();
+        new State.Builder().setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1)).build();
+    SimpleBasePlayer.MediaItemData mediaItemData1Updated =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid1).setDurationUs(10_000).build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1Updated))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1Updated))
             .build();
     AtomicBoolean returnState2 = new AtomicBoolean();
     SimpleBasePlayer player =
@@ -1336,21 +1341,21 @@ public class SimpleBasePlayerTest {
   public void invalidateState_withCurrentMediaItemRemoval_reportsDiscontinuityReasonRemoved() {
     Object mediaItemUid0 = new Object();
     MediaItem mediaItem0 = new MediaItem.Builder().setMediaId("0").build();
-    SimpleBasePlayer.PlaylistItem playlistItem0 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid0).setMediaItem(mediaItem0).build();
+    SimpleBasePlayer.MediaItemData mediaItemData0 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid0).setMediaItem(mediaItem0).build();
     Object mediaItemUid1 = new Object();
     MediaItem mediaItem1 = new MediaItem.Builder().setMediaId("1").build();
-    SimpleBasePlayer.PlaylistItem playlistItem1 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid1).setMediaItem(mediaItem1).build();
+    SimpleBasePlayer.MediaItemData mediaItemData1 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid1).setMediaItem(mediaItem1).build();
     State state1 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1))
             .setCurrentMediaItemIndex(1)
             .setContentPositionMs(5000)
             .build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0))
+            .setPlaylist(ImmutableList.of(mediaItemData0))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(2000)
             .build();
@@ -1402,24 +1407,24 @@ public class SimpleBasePlayerTest {
       invalidateState_withTransitionFromEndOfItem_reportsDiscontinuityReasonAutoTransition() {
     Object mediaItemUid0 = new Object();
     MediaItem mediaItem0 = new MediaItem.Builder().setMediaId("0").build();
-    SimpleBasePlayer.PlaylistItem playlistItem0 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid0)
+    SimpleBasePlayer.MediaItemData mediaItemData0 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid0)
             .setMediaItem(mediaItem0)
             .setDurationUs(50_000)
             .build();
     Object mediaItemUid1 = new Object();
     MediaItem mediaItem1 = new MediaItem.Builder().setMediaId("1").build();
-    SimpleBasePlayer.PlaylistItem playlistItem1 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid1).setMediaItem(mediaItem1).build();
+    SimpleBasePlayer.MediaItemData mediaItemData1 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid1).setMediaItem(mediaItem1).build();
     State state1 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(50)
             .build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1))
             .setCurrentMediaItemIndex(1)
             .setContentPositionMs(10)
             .build();
@@ -1469,24 +1474,24 @@ public class SimpleBasePlayerTest {
   public void invalidateState_withTransitionFromMiddleOfItem_reportsDiscontinuityReasonSkip() {
     Object mediaItemUid0 = new Object();
     MediaItem mediaItem0 = new MediaItem.Builder().setMediaId("0").build();
-    SimpleBasePlayer.PlaylistItem playlistItem0 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid0)
+    SimpleBasePlayer.MediaItemData mediaItemData0 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid0)
             .setMediaItem(mediaItem0)
             .setDurationUs(50_000)
             .build();
     Object mediaItemUid1 = new Object();
     MediaItem mediaItem1 = new MediaItem.Builder().setMediaId("1").build();
-    SimpleBasePlayer.PlaylistItem playlistItem1 =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid1).setMediaItem(mediaItem1).build();
+    SimpleBasePlayer.MediaItemData mediaItemData1 =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid1).setMediaItem(mediaItem1).build();
     State state1 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(20)
             .build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem0, playlistItem1))
+            .setPlaylist(ImmutableList.of(mediaItemData0, mediaItemData1))
             .setCurrentMediaItemIndex(1)
             .setContentPositionMs(10)
             .build();
@@ -1537,20 +1542,20 @@ public class SimpleBasePlayerTest {
   public void invalidateState_withRepeatingItem_reportsDiscontinuityReasonAutoTransition() {
     Object mediaItemUid = new Object();
     MediaItem mediaItem = new MediaItem.Builder().setMediaId("0").build();
-    SimpleBasePlayer.PlaylistItem playlistItem =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid)
+    SimpleBasePlayer.MediaItemData mediaItemData =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid)
             .setMediaItem(mediaItem)
             .setDurationUs(5_000_000)
             .build();
     State state1 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem))
+            .setPlaylist(ImmutableList.of(mediaItemData))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(5_000)
             .build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem))
+            .setPlaylist(ImmutableList.of(mediaItemData))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(0)
             .build();
@@ -1600,20 +1605,20 @@ public class SimpleBasePlayerTest {
   public void invalidateState_withDiscontinuityInsideItem_reportsDiscontinuityReasonInternal() {
     Object mediaItemUid = new Object();
     MediaItem mediaItem = new MediaItem.Builder().setMediaId("0").build();
-    SimpleBasePlayer.PlaylistItem playlistItem =
-        new SimpleBasePlayer.PlaylistItem.Builder(mediaItemUid)
+    SimpleBasePlayer.MediaItemData mediaItemData =
+        new SimpleBasePlayer.MediaItemData.Builder(mediaItemUid)
             .setMediaItem(mediaItem)
             .setDurationUs(5_000_000)
             .build();
     State state1 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem))
+            .setPlaylist(ImmutableList.of(mediaItemData))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(1_000)
             .build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem))
+            .setPlaylist(ImmutableList.of(mediaItemData))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(3_000)
             .build();
@@ -1661,17 +1666,17 @@ public class SimpleBasePlayerTest {
 
   @Test
   public void invalidateState_withMinorPositionDrift_doesNotReportsDiscontinuity() {
-    SimpleBasePlayer.PlaylistItem playlistItem =
-        new SimpleBasePlayer.PlaylistItem.Builder(/* uid= */ new Object()).build();
+    SimpleBasePlayer.MediaItemData mediaItemData =
+        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build();
     State state1 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem))
+            .setPlaylist(ImmutableList.of(mediaItemData))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(1_000)
             .build();
     State state2 =
         new State.Builder()
-            .setPlaylist(ImmutableList.of(playlistItem))
+            .setPlaylist(ImmutableList.of(mediaItemData))
             .setCurrentMediaItemIndex(0)
             .setContentPositionMs(1_500)
             .build();
