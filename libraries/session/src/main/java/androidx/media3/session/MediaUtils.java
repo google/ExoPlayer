@@ -351,7 +351,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     return builder
         .setTitle(metadata.title)
-        .setSubtitle(metadata.subtitle)
+        // The BT AVRPC service expects the subtitle of the media description to be the artist
+        // (see https://github.com/androidx/media/issues/148).
+        .setSubtitle(metadata.artist != null ? metadata.artist : metadata.subtitle)
         .setDescription(metadata.description)
         .setIconUri(metadata.artworkUri)
         .setMediaUri(item.requestMetadata.mediaUri)
