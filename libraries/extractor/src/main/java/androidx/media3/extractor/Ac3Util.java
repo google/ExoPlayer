@@ -80,6 +80,8 @@ public final class Ac3Util {
     public final int frameSize;
     /** Number of audio samples in the frame. */
     public final int sampleCount;
+    /** The bitrate of audio samples. */
+    public final int bitrate;
 
     private SyncFrameInfo(
         @Nullable String mimeType,
@@ -87,13 +89,15 @@ public final class Ac3Util {
         int channelCount,
         int sampleRate,
         int frameSize,
-        int sampleCount) {
+        int sampleCount,
+        int bitrate) {
       this.mimeType = mimeType;
       this.streamType = streamType;
       this.channelCount = channelCount;
       this.sampleRate = sampleRate;
       this.frameSize = frameSize;
       this.sampleCount = sampleCount;
+      this.bitrate = bitrate;
     }
   }
 
@@ -261,6 +265,7 @@ public final class Ac3Util {
     int sampleCount;
     boolean lfeon;
     int channelCount;
+    int bitrate;
     if (isEac3) {
       // Subsection E.1.2.
       data.skipBits(16); // syncword
@@ -293,6 +298,7 @@ public final class Ac3Util {
         sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
       }
       sampleCount = AUDIO_SAMPLES_PER_AUDIO_BLOCK * audioBlocks;
+      bitrate = calculateEac3Bitrate(frameSize, sampleRate, audioBlocks);
       acmod = data.readBits(3);
       lfeon = data.readBit();
       channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
@@ -448,6 +454,7 @@ public final class Ac3Util {
         mimeType = null;
       }
       int frmsizecod = data.readBits(6);
+      bitrate = BITRATE_BY_HALF_FRMSIZECOD[frmsizecod / 2] * 1000;
       frameSize = getAc3SyncframeSize(fscod, frmsizecod);
       data.skipBits(5 + 3); // bsid, bsmod
       acmod = data.readBits(3);
@@ -467,7 +474,7 @@ public final class Ac3Util {
       channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
     }
     return new SyncFrameInfo(
-        mimeType, streamType, channelCount, sampleRate, frameSize, sampleCount);
+        mimeType, streamType, channelCount, sampleRate, frameSize, sampleCount, bitrate);
   }
 
   /**
@@ -587,6 +594,16 @@ public final class Ac3Util {
     } else { // sampleRate == 48000
       return 4 * bitrate;
     }
+  }
+
+  /**
+   * Derived from the formula defined in F.6.2.2 to calculate data_rate for the (E-)AC3 bitstream.
+   * Note: The formula is based on frmsiz read from the spec. We already do some modifications to it
+   * when deriving frameSize from the read value. The formula used here is adapted to accommodate
+   * that modification.
+   */
+  private static int calculateEac3Bitrate(int frameSize, int sampleRate, int audioBlocks) {
+    return (frameSize * sampleRate) / (audioBlocks * 32);
   }
 
   private Ac3Util() {}

@@ -22,6 +22,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ParsableBitArray;
 import androidx.media3.common.util.ParsableByteArray;
@@ -209,14 +210,19 @@ public final class Ac3Reader implements ElementaryStreamReader {
         || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
         || !Util.areEqual(frameInfo.mimeType, format.sampleMimeType)) {
-      format =
+      Format.Builder formatBuilder =
           new Format.Builder()
               .setId(formatId)
               .setSampleMimeType(frameInfo.mimeType)
               .setChannelCount(frameInfo.channelCount)
               .setSampleRate(frameInfo.sampleRate)
               .setLanguage(language)
-              .build();
+              .setPeakBitrate(frameInfo.bitrate);
+      // AC3 has constant bitrate, so averageBitrate = peakBitrate
+      if (MimeTypes.AUDIO_AC3.equals(frameInfo.mimeType)) {
+        formatBuilder.setAverageBitrate(frameInfo.bitrate);
+      }
+      format = formatBuilder.build();
       output.format(format);
     }
     sampleSize = frameInfo.frameSize;
