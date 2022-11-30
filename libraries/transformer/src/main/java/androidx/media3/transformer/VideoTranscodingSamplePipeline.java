@@ -64,6 +64,12 @@ import org.checkerframework.dataflow.qual.Pure;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
+  /**
+   * The timestamp of the last buffer processed before {@linkplain
+   * FrameProcessor.Listener#onFrameProcessingEnded() frame processing has ended}.
+   */
+  private volatile long finalFramePresentationTimeUs;
+
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
@@ -109,6 +115,8 @@ import org.checkerframework.dataflow.qual.Pure;
             /* mediaCodecName= */ null,
             TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
       }
+
+      finalFramePresentationTimeUs = C.TIME_UNSET;
     }
 
     decoderInputBuffer =
@@ -151,6 +159,8 @@ import org.checkerframework.dataflow.qual.Pure;
           frameProcessorFactory.create(
               context,
               new FrameProcessor.Listener() {
+                private long lastProcessedFramePresentationTimeUs;
+
                 @Override
                 public void onOutputSizeChanged(int width, int height) {
                   try {
@@ -163,7 +173,8 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onOutputFrameAvailable(long presentationTimeUs) {
-                  // Do nothing as frames are released automatically.
+                  // Frames are released automatically.
+                  lastProcessedFramePresentationTimeUs = presentationTimeUs;
                 }
 
                 @Override
@@ -175,6 +186,8 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onFrameProcessingEnded() {
+                  VideoTranscodingSamplePipeline.this.finalFramePresentationTimeUs =
+                      lastProcessedFramePresentationTimeUs;
                   try {
                     encoderWrapper.signalEndOfInputStream();
                   } catch (TransformationException exception) {
@@ -264,6 +277,16 @@ import org.checkerframework.dataflow.qual.Pure;
       return null;
     }
     MediaCodec.BufferInfo bufferInfo = checkNotNull(encoderWrapper.getOutputBufferInfo());
+    if (finalFramePresentationTimeUs != C.TIME_UNSET
+        && bufferInfo.size > 0
+        && bufferInfo.presentationTimeUs == 0) {
+      // Internal ref b/235045165: Some encoder incorrectly set a zero presentation time on the
+      // penultimate buffer (before EOS), and sets the actual timestamp on the EOS buffer. Use the
+      // last processed frame presentation time instead.
+      // bufferInfo.presentationTimeUs should never be 0 because we apply streamOffsetUs to the
+      // buffer presentationTimeUs.
+      bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
+    }
     encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;
