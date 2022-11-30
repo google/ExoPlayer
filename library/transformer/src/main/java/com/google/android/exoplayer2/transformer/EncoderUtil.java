@@ -16,7 +16,6 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.round;
 
@@ -29,8 +28,10 @@ import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 import androidx.annotation.DoNotInline;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ColorTransfer;
 import com.google.android.exoplayer2.Format;
@@ -39,10 +40,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Ascii;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 
@@ -52,20 +51,29 @@ public final class EncoderUtil {
   /** A value to indicate the encoding level is not set. */
   public static final int LEVEL_UNSET = Format.NO_VALUE;
 
-  private static final Supplier<ImmutableListMultimap<String, MediaCodecInfo>>
-      MIME_TYPE_TO_ENCODERS = Suppliers.memoize(EncoderUtil::populateEncoderInfos);
+  @GuardedBy("EncoderUtil.class")
+  private static final ArrayListMultimap<String, MediaCodecInfo> mimeTypeToEncoders =
+      ArrayListMultimap.create();
 
   /**
    * Returns a list of {@linkplain MediaCodecInfo encoders} that support the given {@code mimeType},
    * or an empty list if there is none.
    */
-  public static ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
-    return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).get(Ascii.toLowerCase(mimeType));
+  public static synchronized ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
+    maybePopulateEncoderInfo();
+    return ImmutableList.copyOf(mimeTypeToEncoders.get(Ascii.toLowerCase(mimeType)));
   }
 
   /** Returns a list of video {@linkplain MimeTypes MIME types} that can be encoded. */
-  public static ImmutableSet<String> getSupportedVideoMimeTypes() {
-    return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).keySet();
+  public static synchronized ImmutableSet<String> getSupportedVideoMimeTypes() {
+    maybePopulateEncoderInfo();
+    return ImmutableSet.copyOf(mimeTypeToEncoders.keySet());
+  }
+
+  /** Clears the cached list of encoders. */
+  @VisibleForTesting
+  public static synchronized void clearCachedEncoders() {
+    mimeTypeToEncoders.clear();
   }
 
   /**
@@ -431,9 +439,10 @@ public final class EncoderUtil {
         : alignment * Math.round((float) size / alignment);
   }
 
-  private static ImmutableListMultimap<String, MediaCodecInfo> populateEncoderInfos() {
-    ImmutableListMultimap.Builder<String, MediaCodecInfo> encoderInfosBuilder =
-        new ImmutableListMultimap.Builder<>();
+  private static synchronized void maybePopulateEncoderInfo() {
+    if (!mimeTypeToEncoders.isEmpty()) {
+      return;
+    }
 
     MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     MediaCodecInfo[] allCodecInfos = mediaCodecList.getCodecInfos();
@@ -444,10 +453,9 @@ public final class EncoderUtil {
       }
       String[] supportedMimeTypes = mediaCodecInfo.getSupportedTypes();
       for (String mimeType : supportedMimeTypes) {
-        encoderInfosBuilder.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
+        mimeTypeToEncoders.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
       }
     }
-    return encoderInfosBuilder.build();
   }
 
   @RequiresApi(29)

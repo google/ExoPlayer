@@ -27,11 +27,13 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
+import org.robolectric.shadows.ShadowMediaCodec;
 import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** Unit test for {@link EncoderUtil}. */
@@ -62,6 +64,13 @@ public class EncoderUtilTest {
                     .setProfileLevels(new MediaCodecInfo.CodecProfileLevel[] {profileLevel})
                     .build())
             .build());
+  }
+
+  @After
+  public void tearDown() {
+    ShadowMediaCodecList.reset();
+    ShadowMediaCodec.clearCodecs();
+    EncoderUtil.clearCachedEncoders();
   }
 
   @Test
