@@ -7,6 +7,7 @@ track 1900:
   total output bytes = 216000
   sample count = 54
   format 0:
+    peakBitrate = 6000000
     id = 1/1900
     sampleMimeType = audio/eac3
     channelCount = 6
