@@ -49,6 +49,11 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
   }
 
   @Override
+  public boolean expectsDecodedData() {
+    return false;
+  }
+
+  @Override
   public void release() {}
 
   @Override

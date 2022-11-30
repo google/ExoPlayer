@@ -208,6 +208,11 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
+  public boolean expectsDecodedData() {
+    return false;
+  }
+
+  @Override
   public void release() {
     frameProcessor.release();
     decoder.release();

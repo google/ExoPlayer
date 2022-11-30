@@ -29,6 +29,9 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
   /** Input of a {@link SamplePipeline}. */
   interface Input {
 
+    /** See {@link SamplePipeline#expectsDecodedData()}. */
+    boolean expectsDecodedData();
+
     /** See {@link SamplePipeline#dequeueInputBuffer()}. */
     @Nullable
     DecoderInputBuffer dequeueInputBuffer();
@@ -55,6 +58,12 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
      */
     void onTransformationError(TransformationException exception);
   }
+
+  /**
+   * Returns whether the pipeline should be fed with decoded sample data. If false, encoded sample
+   * data should be queued.
+   */
+  boolean expectsDecodedData();
 
   /** Returns a buffer if the pipeline is ready to accept input, and {@code null} otherwise. */
   @Nullable

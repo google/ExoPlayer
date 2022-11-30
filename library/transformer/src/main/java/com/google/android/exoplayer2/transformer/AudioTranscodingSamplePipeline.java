@@ -41,14 +41,14 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
-  private final Codec decoder;
-  private final DecoderInputBuffer decoderInputBuffer;
+  private final DecoderInputBuffer inputBuffer;
   private final AudioProcessingPipeline audioProcessingPipeline;
   private final Codec encoder;
   private final AudioFormat encoderInputAudioFormat;
   private final DecoderInputBuffer encoderInputBuffer;
   private final DecoderInputBuffer encoderOutputBuffer;
 
+  private boolean hasPendingInputBuffer;
   private long nextEncoderInputBufferTimeUs;
   private long encoderBufferDurationRemainder;
 
@@ -58,7 +58,6 @@ import org.checkerframework.dataflow.qual.Pure;
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<AudioProcessor> audioProcessors,
-      Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       Listener listener,
@@ -72,11 +71,9 @@ import org.checkerframework.dataflow.qual.Pure;
         muxerWrapper,
         listener);
 
-    decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
+    inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
-
-    decoder = decoderFactory.createForAudioDecoding(inputFormat);
 
     if (transformationRequest.flattenForSlowMotion) {
       audioProcessors =
@@ -140,29 +137,33 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
+  public boolean expectsDecodedData() {
+    return true;
+  }
+
+  @Override
   public void release() {
     audioProcessingPipeline.reset();
-    decoder.release();
     encoder.release();
   }
 
   @Override
   @Nullable
-  protected DecoderInputBuffer dequeueInputBufferInternal() throws TransformationException {
-    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
+  protected DecoderInputBuffer dequeueInputBufferInternal() {
+    return hasPendingInputBuffer ? null : inputBuffer;
   }
 
   @Override
-  protected void queueInputBufferInternal() throws TransformationException {
-    decoder.queueInputBuffer(decoderInputBuffer);
+  protected void queueInputBufferInternal() {
+    hasPendingInputBuffer = true;
   }
 
   @Override
   protected boolean processDataUpToMuxer() throws TransformationException {
     if (audioProcessingPipeline.isOperational()) {
-      return feedEncoderFromProcessingPipeline() || feedProcessingPipelineFromDecoder();
+      return feedEncoderFromProcessingPipeline() || feedProcessingPipelineFromInput();
     } else {
-      return feedEncoderFromDecoder();
+      return feedEncoderFromInput();
     }
   }
 
@@ -195,27 +196,25 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   /**
-   * Attempts to pass decoder output data to the encoder, and returns whether it may be possible to
-   * pass more data immediately by calling this method again.
+   * Attempts to pass input data to the encoder.
+   *
+   * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
-  private boolean feedEncoderFromDecoder() throws TransformationException {
-    if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
+  private boolean feedEncoderFromInput() throws TransformationException {
+    if (!hasPendingInputBuffer || !encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
 
-    if (decoder.isEnded()) {
+    if (inputBuffer.isEndOfStream()) {
       queueEndOfStreamToEncoder();
+      hasPendingInputBuffer = false;
       return false;
     }
 
-    @Nullable ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
-    if (decoderOutputBuffer == null) {
-      return false;
-    }
-
-    feedEncoder(decoderOutputBuffer);
-    if (!decoderOutputBuffer.hasRemaining()) {
-      decoder.releaseOutputBuffer(/* render= */ false);
+    ByteBuffer inputData = checkNotNull(inputBuffer.data);
+    feedEncoder(inputData);
+    if (!inputData.hasRemaining()) {
+      hasPendingInputBuffer = false;
     }
     return true;
   }
@@ -223,7 +222,7 @@ import org.checkerframework.dataflow.qual.Pure;
   /**
    * Attempts to feed audio processor output data to the encoder.
    *
-   * @return Whether more data can be fed immediately, by calling this method again.
+   * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
   private boolean feedEncoderFromProcessingPipeline() throws TransformationException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
@@ -244,28 +243,28 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   /**
-   * Attempts to feed decoder output data to the {@link AudioProcessingPipeline}.
+   * Attempts to feed input data to the {@link AudioProcessingPipeline}.
    *
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
-  private boolean feedProcessingPipelineFromDecoder() throws TransformationException {
-    if (decoder.isEnded()) {
+  private boolean feedProcessingPipelineFromInput() {
+    if (!hasPendingInputBuffer) {
+      return false;
+    }
+
+    if (inputBuffer.isEndOfStream()) {
       audioProcessingPipeline.queueEndOfStream();
+      hasPendingInputBuffer = false;
       return false;
     }
     checkState(!audioProcessingPipeline.isEnded());
 
-    @Nullable ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
-    if (decoderOutputBuffer == null) {
+    ByteBuffer inputData = checkNotNull(inputBuffer.data);
+    audioProcessingPipeline.queueInput(inputData);
+    if (inputData.hasRemaining()) {
       return false;
     }
-
-    audioProcessingPipeline.queueInput(decoderOutputBuffer);
-    if (decoderOutputBuffer.hasRemaining()) {
-      return false;
-    }
-    // Decoder output buffer was fully consumed by the processing pipeline.
-    decoder.releaseOutputBuffer(/* render= */ false);
+    hasPendingInputBuffer = false;
     return true;
   }
 
