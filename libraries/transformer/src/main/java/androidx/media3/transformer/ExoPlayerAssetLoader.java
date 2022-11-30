@@ -69,6 +69,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
       boolean removeAudio,
       boolean removeVideo,
       MediaSource.Factory mediaSourceFactory,
+      Codec.DecoderFactory decoderFactory,
       Looper looper,
       Listener listener,
       Clock clock) {
@@ -89,7 +90,9 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
     ExoPlayer.Builder playerBuilder =
-        new ExoPlayer.Builder(context, new RenderersFactoryImpl(removeAudio, removeVideo, listener))
+        new ExoPlayer.Builder(
+                context,
+                new RenderersFactoryImpl(removeAudio, removeVideo, decoderFactory, listener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -120,14 +123,17 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     private final TransformerMediaClock mediaClock;
     private final boolean removeAudio;
     private final boolean removeVideo;
+    private final Codec.DecoderFactory decoderFactory;
     private final ExoPlayerAssetLoader.Listener assetLoaderListener;
 
     public RenderersFactoryImpl(
         boolean removeAudio,
         boolean removeVideo,
+        Codec.DecoderFactory decoderFactory,
         ExoPlayerAssetLoader.Listener assetLoaderListener) {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
+      this.decoderFactory = decoderFactory;
       this.assetLoaderListener = assetLoaderListener;
       mediaClock = new TransformerMediaClock();
     }
@@ -144,12 +150,14 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
       int index = 0;
       if (!removeAudio) {
         renderers[index] =
-            new ExoPlayerAssetLoaderRenderer(C.TRACK_TYPE_AUDIO, mediaClock, assetLoaderListener);
+            new ExoPlayerAssetLoaderRenderer(
+                C.TRACK_TYPE_AUDIO, decoderFactory, mediaClock, assetLoaderListener);
         index++;
       }
       if (!removeVideo) {
         renderers[index] =
-            new ExoPlayerAssetLoaderRenderer(C.TRACK_TYPE_VIDEO, mediaClock, assetLoaderListener);
+            new ExoPlayerAssetLoaderRenderer(
+                C.TRACK_TYPE_VIDEO, decoderFactory, mediaClock, assetLoaderListener);
         index++;
       }
       return renderers;

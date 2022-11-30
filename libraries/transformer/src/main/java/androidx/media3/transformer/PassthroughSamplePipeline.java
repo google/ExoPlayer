@@ -49,6 +49,11 @@ import androidx.media3.decoder.DecoderInputBuffer;
   }
 
   @Override
+  public boolean expectsDecodedData() {
+    return false;
+  }
+
+  @Override
   public void release() {}
 
   @Override

@@ -163,6 +163,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             removeAudio,
             removeVideo,
             mediaSourceFactory,
+            decoderFactory,
             internalLooper,
             componentListener,
             clock);
@@ -409,7 +410,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       int samplePipelineIndex = tracksAddedCount;
       tracksAddedCount++;
-      return new SamplePipelineInput(samplePipelineIndex);
+      return new SamplePipelineInput(samplePipelineIndex, samplePipeline.expectsDecodedData());
     }
 
     @Override
@@ -458,7 +459,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             transformationRequest,
             audioProcessors,
-            decoderFactory,
             encoderFactory,
             muxerWrapper,
             /* listener= */ this,
@@ -573,9 +573,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private class SamplePipelineInput implements SamplePipeline.Input {
 
       private final int samplePipelineIndex;
+      private final boolean expectsDecodedData;
 
-      public SamplePipelineInput(int samplePipelineIndex) {
+      public SamplePipelineInput(int samplePipelineIndex, boolean expectsDecodedData) {
         this.samplePipelineIndex = samplePipelineIndex;
+        this.expectsDecodedData = expectsDecodedData;
+      }
+
+      @Override
+      public boolean expectsDecodedData() {
+        return expectsDecodedData;
       }
 
       @Nullable

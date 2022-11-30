@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
+import android.media.MediaCodec;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -30,6 +31,7 @@ import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.MediaClock;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -38,6 +40,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final String TAG = "ExoPlayerAssetLoaderRenderer";
 
+  private final Codec.DecoderFactory decoderFactory;
   private final TransformerMediaClock mediaClock;
   private final ExoPlayerAssetLoader.Listener assetLoaderListener;
   private final DecoderInputBuffer decoderInputBuffer;
@@ -45,14 +48,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isTransformationRunning;
   private long streamStartPositionUs;
   private long streamOffsetUs;
+  private @MonotonicNonNull Codec decoder;
+  @Nullable private ByteBuffer pendingDecoderOutputBuffer;
   private SamplePipeline.@MonotonicNonNull Input samplePipelineInput;
   private boolean isEnded;
 
   public ExoPlayerAssetLoaderRenderer(
       int trackType,
+      Codec.DecoderFactory decoderFactory,
       TransformerMediaClock mediaClock,
       ExoPlayerAssetLoader.Listener assetLoaderListener) {
     super(trackType);
+    this.decoderFactory = decoderFactory;
     this.mediaClock = mediaClock;
     this.assetLoaderListener = assetLoaderListener;
     decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -99,7 +106,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         return;
       }
 
-      while (feedPipelineFromInput()) {}
+      if (samplePipelineInput.expectsDecodedData()) {
+        while (feedPipelineFromDecoder() || feedDecoderFromInput()) {}
+      } else {
+        while (feedPipelineFromInput()) {}
+      }
     } catch (TransformationException e) {
       isTransformationRunning = false;
       assetLoaderListener.onError(e);
@@ -128,6 +139,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     isTransformationRunning = false;
   }
 
+  @Override
+  protected void onReset() {
+    if (decoder != null) {
+      decoder.release();
+    }
+  }
+
   @EnsuresNonNullIf(expression = "samplePipelineInput", result = true)
   private boolean ensureConfigured() throws TransformationException {
     if (samplePipelineInput != null) {
@@ -143,6 +161,74 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     samplePipelineInput =
         assetLoaderListener.onTrackAdded(inputFormat, streamStartPositionUs, streamOffsetUs);
+    if (samplePipelineInput.expectsDecodedData()) {
+      decoder = decoderFactory.createForAudioDecoding(inputFormat);
+    }
+    return true;
+  }
+
+  /**
+   * Attempts to read decoded data and pass it to the sample pipeline.
+   *
+   * @return Whether it may be possible to read more data immediately by calling this method again.
+   * @throws TransformationException If an error occurs in the decoder or in the {@link
+   *     SamplePipeline}.
+   */
+  @RequiresNonNull("samplePipelineInput")
+  private boolean feedPipelineFromDecoder() throws TransformationException {
+    @Nullable
+    DecoderInputBuffer samplePipelineInputBuffer = samplePipelineInput.dequeueInputBuffer();
+    if (samplePipelineInputBuffer == null) {
+      return false;
+    }
+
+    Codec decoder = checkNotNull(this.decoder);
+    if (pendingDecoderOutputBuffer != null) {
+      if (pendingDecoderOutputBuffer.hasRemaining()) {
+        return false;
+      } else {
+        decoder.releaseOutputBuffer(/* render= */ false);
+        pendingDecoderOutputBuffer = null;
+      }
+    }
+
+    if (decoder.isEnded()) {
+      samplePipelineInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+      samplePipelineInput.queueInputBuffer();
+      isEnded = true;
+      return false;
+    }
+
+    pendingDecoderOutputBuffer = decoder.getOutputBuffer();
+    if (pendingDecoderOutputBuffer == null) {
+      return false;
+    }
+
+    samplePipelineInputBuffer.data = pendingDecoderOutputBuffer;
+    MediaCodec.BufferInfo bufferInfo = checkNotNull(decoder.getOutputBufferInfo());
+    samplePipelineInputBuffer.timeUs = bufferInfo.presentationTimeUs;
+    samplePipelineInputBuffer.setFlags(bufferInfo.flags);
+    samplePipelineInput.queueInputBuffer();
+    return true;
+  }
+
+  /**
+   * Attempts to read input data and pass it to the decoder.
+   *
+   * @return Whether it may be possible to read more data immediately by calling this method again.
+   * @throws TransformationException If an error occurs in the decoder.
+   */
+  private boolean feedDecoderFromInput() throws TransformationException {
+    Codec decoder = checkNotNull(this.decoder);
+    if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
+      return false;
+    }
+
+    if (!readInput(decoderInputBuffer)) {
+      return false;
+    }
+
+    decoder.queueInputBuffer(decoderInputBuffer);
     return true;
   }
 
@@ -159,18 +245,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    @ReadDataResult
-    int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
+    if (!readInput(samplePipelineInputBuffer)) {
+      return false;
+    }
+
+    samplePipelineInput.queueInputBuffer();
+    if (samplePipelineInputBuffer.isEndOfStream()) {
+      isEnded = true;
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Attempts to populate {@code buffer} with input data.
+   *
+   * @param buffer The buffer to populate.
+   * @return Whether the {@code buffer} has been populated.
+   */
+  private boolean readInput(DecoderInputBuffer buffer) {
+    @ReadDataResult int result = readSource(getFormatHolder(), buffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
-        samplePipelineInputBuffer.flip();
-        if (samplePipelineInputBuffer.isEndOfStream()) {
-          samplePipelineInput.queueInputBuffer();
-          isEnded = true;
-          return false;
+        buffer.flip();
+        if (!buffer.isEndOfStream()) {
+          mediaClock.updateTimeForTrackType(getTrackType(), buffer.timeUs);
         }
-        mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        samplePipelineInput.queueInputBuffer();
         return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
