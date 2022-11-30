@@ -277,7 +277,7 @@ public final class MediaCodecUtil {
    *     exists.
    */
   @Nullable
-  public static String getAlternativeCodecMimeType(Format format) {
+  public static String getAlternativeCodecMimeType(Format format, boolean mapDV7ToHevc) {
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
       // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       return MimeTypes.AUDIO_E_AC3;
@@ -292,7 +292,8 @@ public final class MediaCodecUtil {
       if (codecProfileAndLevel != null) {
         int profile = codecProfileAndLevel.first;
         if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
-            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
+            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt
+            || (mapDV7ToHevc && profile == CodecProfileLevel.DolbyVisionProfileDvheDtb)) {
           return MimeTypes.VIDEO_H265;
         } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
           return MimeTypes.VIDEO_H264;

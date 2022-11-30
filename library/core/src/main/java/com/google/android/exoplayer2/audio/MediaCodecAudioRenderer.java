@@ -395,7 +395,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
             mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
+    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format, /* mapDV7ToHevc*/ false);
     if (alternativeMimeType == null) {
       return ImmutableList.copyOf(decoderInfos);
     }

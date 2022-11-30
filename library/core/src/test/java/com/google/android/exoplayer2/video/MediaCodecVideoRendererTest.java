@@ -114,7 +114,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1) {
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc= */ false) {
           @Override
           protected @Capabilities int supportsFormat(
               MediaCodecSelector mediaCodecSelector, Format format) {
@@ -594,7 +595,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc= */ false);
     renderer.init(/* index= */ 0, PlayerId.UNSET);
 
     @Capabilities
@@ -679,7 +681,8 @@ public class MediaCodecVideoRendererTest {
             /* allowedJoiningTimeMs= */ 0,
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
-            /* maxDroppedFramesToNotify= */ 1);
+            /* maxDroppedFramesToNotify= */ 1,
+            /* mapDV7ToHevc= */ false);
     renderer.init(/* index= */ 0, PlayerId.UNSET);
 
     @Capabilities int capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);

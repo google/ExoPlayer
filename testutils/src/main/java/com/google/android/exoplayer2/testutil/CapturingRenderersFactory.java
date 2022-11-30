@@ -86,7 +86,8 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
           /* enableDecoderFallback= */ false,
           eventHandler,
           videoRendererEventListener,
-          DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY),
+          DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY,
+          /* mapDV7ToHevc= */ false),
       new MediaCodecAudioRenderer(
           context,
           mediaCodecAdapterFactory,
