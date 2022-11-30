@@ -7,6 +7,7 @@ track 330:
   total output bytes = 9928
   sample count = 19
   format 0:
+    peakBitrate = 128000
     id = 1031/330
     sampleMimeType = audio/eac3
     channelCount = 2
