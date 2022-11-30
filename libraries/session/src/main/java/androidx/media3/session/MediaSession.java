@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.annotation.VisibleForTesting.PRIVATE;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
@@ -501,6 +502,24 @@ public class MediaSession {
           /* trusted= */ false,
           /* cb= */ null,
           /* connectionHints= */ Bundle.EMPTY);
+    }
+
+    // TODO(b/259546357): Remove when ControllerInfo can be instantiated cleanly in tests.
+    /** Returns a {@link ControllerInfo} suitable for use when testing client code. */
+    @VisibleForTesting(otherwise = PRIVATE)
+    public static ControllerInfo createTestOnlyControllerInfo(
+        RemoteUserInfo remoteUserInfo,
+        int libraryVersion,
+        int interfaceVersion,
+        boolean trusted,
+        Bundle connectionHints) {
+      return new MediaSession.ControllerInfo(
+          remoteUserInfo,
+          libraryVersion,
+          interfaceVersion,
+          trusted,
+          /* cb= */ null,
+          connectionHints);
     }
   }
 
