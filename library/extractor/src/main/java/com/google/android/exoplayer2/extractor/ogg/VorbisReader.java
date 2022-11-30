@@ -43,6 +43,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
   @Nullable private VorbisUtil.VorbisIdHeader vorbisIdHeader;
   @Nullable private VorbisUtil.CommentHeader commentHeader;
 
+  public VorbisReader(long streamSerialNumber) {
+    super(streamSerialNumber);
+  }
+
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     try {
       return VorbisUtil.verifyVorbisHeaderCapturePattern(/* headerType= */ 0x01, data, true);
@@ -140,7 +144,11 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     }
 
     if (commentHeader == null) {
-      commentHeader = VorbisUtil.readVorbisCommentHeader(scratch);
+      // The comment header can be in a future page
+      if (VorbisUtil.verifyVorbisHeaderCapturePattern(/* headerType= */ 0x03, scratch, /* quiet= */ true)) {
+        scratch.setPosition(scratch.getPosition() - 7);
+        commentHeader = VorbisUtil.readVorbisCommentHeader(scratch);
+      }
       return null;
     }
     VorbisUtil.VorbisIdHeader vorbisIdHeader = this.vorbisIdHeader;

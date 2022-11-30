@@ -48,7 +48,7 @@ public final class OggPageHeaderTest {
                 new byte[] {'O', 'g', 'g', 'S'},
                 TestUtil.buildTestData(20, random)),
             /* simulateUnknownLength= */ false);
-    OggPageHeader oggHeader = new OggPageHeader();
+    OggPageHeader oggHeader = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> oggHeader.skipToNextPage(input));
 
@@ -61,7 +61,7 @@ public final class OggPageHeaderTest {
     FakeExtractorInput input =
         createInput(
             Bytes.concat(TestUtil.buildTestData(20, random)), /* simulateUnknownLength= */ false);
-    OggPageHeader oggHeader = new OggPageHeader();
+    OggPageHeader oggHeader = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> oggHeader.skipToNextPage(input));
 
@@ -78,7 +78,7 @@ public final class OggPageHeaderTest {
                 new byte[] {'O', 'g', 'g', 'S'},
                 TestUtil.buildTestData(20, random)),
             /* simulateUnknownLength= */ false);
-    OggPageHeader oggHeader = new OggPageHeader();
+    OggPageHeader oggHeader = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> oggHeader.skipToNextPage(input, 10));
 
@@ -92,7 +92,7 @@ public final class OggPageHeaderTest {
         getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/page_header");
 
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ true);
-    OggPageHeader header = new OggPageHeader();
+    OggPageHeader header = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ false));
 
@@ -113,7 +113,7 @@ public final class OggPageHeaderTest {
       throws Exception {
     FakeExtractorInput input =
         createInput(TestUtil.createByteArray(2, 2), /* simulateUnknownLength= */ false);
-    OggPageHeader header = new OggPageHeader();
+    OggPageHeader header = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ true));
 
@@ -127,7 +127,7 @@ public final class OggPageHeaderTest {
     // change from 'O' to 'o'
     data[0] = 'o';
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
-    OggPageHeader header = new OggPageHeader();
+    OggPageHeader header = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ true));
 
@@ -141,7 +141,7 @@ public final class OggPageHeaderTest {
     // change revision from 0 to 1
     data[4] = 0x01;
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
-    OggPageHeader header = new OggPageHeader();
+    OggPageHeader header = new OggPageHeader(-1L);
 
     boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ true));
 

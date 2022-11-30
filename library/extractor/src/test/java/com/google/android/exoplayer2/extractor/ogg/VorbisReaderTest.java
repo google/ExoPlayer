@@ -70,7 +70,7 @@ public final class VorbisReaderTest {
             .setSimulatePartialReads(true)
             .build();
 
-    VorbisReader reader = new VorbisReader();
+    VorbisReader reader = new VorbisReader(-1L);
     VorbisReader.VorbisSetup vorbisSetup = readSetupHeaders(reader, input);
 
     assertThat(vorbisSetup.idHeader).isNotNull();
@@ -104,7 +104,7 @@ public final class VorbisReaderTest {
 
   private static VorbisSetup readSetupHeaders(VorbisReader reader, ExtractorInput input)
       throws IOException {
-    OggPacket oggPacket = new OggPacket();
+    OggPacket oggPacket = new OggPacket(-1L);
     while (true) {
       try {
         if (!oggPacket.populate(input)) {

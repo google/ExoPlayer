@@ -36,6 +36,8 @@ import java.io.IOException;
   private static final int CAPTURE_PATTERN = 0x4f676753; // OggS
   private static final int CAPTURE_PATTERN_SIZE = 4;
 
+  private long expectedStreamSerialNumber;
+
   public int revision;
   public int type;
   /**
@@ -58,6 +60,10 @@ import java.io.IOException;
   public final int[] laces = new int[MAX_SEGMENT_COUNT];
 
   private final ParsableByteArray scratch = new ParsableByteArray(MAX_SEGMENT_COUNT);
+
+  public OggPageHeader(long streamSerialNumber) {
+    expectedStreamSerialNumber = streamSerialNumber;
+  }
 
   /** Resets all primitive member fields to zero. */
   public void reset() {
@@ -101,14 +107,25 @@ import java.io.IOException;
    */
   public boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
     Assertions.checkArgument(input.getPosition() == input.getPeekPosition());
-    scratch.reset(/* limit= */ CAPTURE_PATTERN_SIZE);
-    while ((limit == C.POSITION_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
+    scratch.reset(/* limit= */ EMPTY_PAGE_HEADER_SIZE);
+    while ((limit == C.POSITION_UNSET || input.getPosition() + EMPTY_PAGE_HEADER_SIZE < limit)
         && peekFullyQuietly(
-            input, scratch.getData(), 0, CAPTURE_PATTERN_SIZE, /* allowEndOfInput= */ true)) {
+            input, scratch.getData(), 0, EMPTY_PAGE_HEADER_SIZE, /* allowEndOfInput= */ true)) {
       scratch.setPosition(0);
       if (scratch.readUnsignedInt() == CAPTURE_PATTERN) {
-        input.resetPeekPosition();
-        return true;
+        if (expectedStreamSerialNumber == -1L) {
+          input.resetPeekPosition();
+          return true;
+        } else {
+          /* revision */ scratch.readUnsignedByte();
+          /* type */ scratch.readUnsignedByte();
+          /* granulePosition */  scratch.readLittleEndianLong();
+          long serial = scratch.readLittleEndianUnsignedInt();
+          if (serial == expectedStreamSerialNumber) {
+            input.resetPeekPosition();
+            return true;
+          }
+        }
       }
       // Advance one byte before looking for the capture pattern again.
       input.skipFully(1);

@@ -69,6 +69,7 @@ import java.io.IOException;
    */
   public DefaultOggSeeker(
       StreamReader streamReader,
+      long streamSerialNumber,
       long payloadStartPosition,
       long payloadEndPosition,
       long firstPayloadPageSize,
@@ -86,7 +87,7 @@ import java.io.IOException;
     } else {
       state = STATE_SEEK_TO_END;
     }
-    pageHeader = new OggPageHeader();
+    pageHeader = new OggPageHeader(streamSerialNumber);
   }
 
   @Override
