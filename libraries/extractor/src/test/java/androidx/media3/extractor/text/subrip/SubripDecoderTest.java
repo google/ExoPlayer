@@ -50,6 +50,7 @@ public final class SubripDecoderTest {
   public void decodeEmpty() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
@@ -60,6 +61,7 @@ public final class SubripDecoderTest {
   public void decodeTypical() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_FILE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -74,6 +76,7 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_WITH_BYTE_ORDER_MARK);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -88,6 +91,7 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_EXTRA_BLANK_LINE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -103,6 +107,7 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_MISSING_TIMECODE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -117,6 +122,7 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_MISSING_SEQUENCE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -131,6 +137,7 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_NEGATIVE_TIMESTAMPS);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -143,6 +150,7 @@ public final class SubripDecoderTest {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UNEXPECTED_END);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -155,6 +163,7 @@ public final class SubripDecoderTest {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UTF16LE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -168,6 +177,7 @@ public final class SubripDecoderTest {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UTF16BE);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -181,23 +191,19 @@ public final class SubripDecoderTest {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_WITH_TAGS);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
         .isEqualTo("This is the first subtitle.");
-
     assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
         .isEqualTo("This is the second subtitle.\nSecond subtitle with second line.");
-
     assertThat(subtitle.getCues(subtitle.getEventTime(4)).get(0).text.toString())
         .isEqualTo("This is the third subtitle.");
-
     assertThat(subtitle.getCues(subtitle.getEventTime(6)).get(0).text.toString())
         .isEqualTo("This { \\an2} is not a valid tag due to the space after the opening bracket.");
-
     assertThat(subtitle.getCues(subtitle.getEventTime(8)).get(0).text.toString())
         .isEqualTo("This is the fifth subtitle with multiple valid tags.");
-
     assertAlignmentCue(subtitle, 10, Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_START); // {/an1}
     assertAlignmentCue(subtitle, 12, Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_MIDDLE); // {/an2}
     assertAlignmentCue(subtitle, 14, Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_END); // {/an3}
@@ -215,6 +221,7 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_NO_HOURS_AND_MILLIS);
+
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
