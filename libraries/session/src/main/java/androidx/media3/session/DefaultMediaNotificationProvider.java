@@ -332,7 +332,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         try {
           builder.setLargeIcon(Futures.getDone(bitmapFuture));
         } catch (ExecutionException e) {
-          Log.w(TAG, "Failed to load bitmap", e);
+          Log.w(TAG, getBitmapLoadErrorMessage(e));
         }
       } else {
         pendingOnBitmapLoadedFutureCallback =
@@ -634,7 +634,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     @Override
     public void onFailure(Throwable t) {
       if (!discarded) {
-        Log.d(TAG, "Failed to load bitmap", t);
+        Log.w(TAG, getBitmapLoadErrorMessage(t));
       }
     }
   }
@@ -654,5 +654,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       }
       notificationManager.createNotificationChannel(channel);
     }
+  }
+
+  private static String getBitmapLoadErrorMessage(Throwable throwable) {
+    return "Failed to load bitmap: " + throwable.getMessage();
   }
 }
