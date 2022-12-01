@@ -43,6 +43,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.audio.SonicAudioProcessor;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.DefaultExtractorsFactory;
@@ -278,6 +279,23 @@ public final class TransformerEndToEndTest {
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silentaudio"));
+  }
+
+  @Test
+  public void startTransformation_adjustSampleRate_completesSuccessfully() throws Exception {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48000);
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .setAudioProcessors(ImmutableList.of(sonicAudioProcessor))
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".48000hz"));
   }
 
   @Test
