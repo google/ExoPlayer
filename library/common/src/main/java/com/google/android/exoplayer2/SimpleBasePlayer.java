@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.android.exoplayer2.util.Util.usToMs;
 import static java.lang.Math.max;
 
+import android.graphics.Rect;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Pair;
@@ -2039,6 +2040,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @Override
   public final void setPlayWhenReady(boolean playWhenReady) {
     verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
     if (!state.availableCommands.contains(Player.COMMAND_PLAY_PAUSE)) {
       return;
@@ -2091,8 +2093,20 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void prepare() {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_PREPARE)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handlePrepare(),
+        /* placeholderStateSupplier= */ () ->
+            state
+                .buildUpon()
+                .setPlayerError(null)
+                .setPlaybackState(state.timeline.isEmpty() ? STATE_ENDED : STATE_BUFFERING)
+                .build());
   }
 
   @Override
@@ -2117,8 +2131,15 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setRepeatMode(@Player.RepeatMode int repeatMode) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_REPEAT_MODE)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetRepeatMode(repeatMode),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setRepeatMode(repeatMode).build());
   }
 
   @Override
@@ -2130,8 +2151,16 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setShuffleModeEnabled(boolean shuffleModeEnabled) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_SHUFFLE_MODE)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetShuffleModeEnabled(shuffleModeEnabled),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setShuffleModeEnabled(shuffleModeEnabled).build());
   }
 
   @Override
@@ -2148,6 +2177,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void seekTo(int mediaItemIndex, long positionMs) {
+    // TODO: implement.
+    throw new IllegalStateException();
+  }
+
+  @Override
+  protected final void repeatCurrentMediaItem() {
     // TODO: implement.
     throw new IllegalStateException();
   }
@@ -2172,8 +2207,16 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_SPEED_AND_PITCH)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetPlaybackParameters(playbackParameters),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setPlaybackParameters(playbackParameters).build());
   }
 
   @Override
@@ -2184,14 +2227,30 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void stop() {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_STOP)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleStop(),
+        /* placeholderStateSupplier= */ () ->
+            state
+                .buildUpon()
+                .setPlaybackState(Player.STATE_IDLE)
+                .setTotalBufferedDurationMs(PositionSupplier.ZERO)
+                .setContentBufferedPositionMs(state.contentPositionMsSupplier)
+                .setAdBufferedPositionMs(state.adPositionMsSupplier)
+                .build());
   }
 
   @Override
   public final void stop(boolean reset) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    stop();
+    if (reset) {
+      clearMediaItems();
+    }
   }
 
   @Override
@@ -2214,8 +2273,16 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setTrackSelectionParameters(TrackSelectionParameters parameters) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetTrackSelectionParameters(parameters),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setTrackSelectionParameters(parameters).build());
   }
 
   @Override
@@ -2232,8 +2299,16 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setPlaylistMetadata(MediaMetadata mediaMetadata) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetPlaylistMetadata(mediaMetadata),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setPlaylistMetadata(mediaMetadata).build());
   }
 
   @Override
@@ -2325,8 +2400,15 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setVolume(float volume) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_VOLUME)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetVolume(volume),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setVolume(volume).build());
   }
 
   @Override
@@ -2336,57 +2418,121 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final void clearVideoSurface() {
-    // TODO: implement.
-    throw new IllegalStateException();
-  }
-
-  @Override
-  public final void clearVideoSurface(@Nullable Surface surface) {
-    // TODO: implement.
-    throw new IllegalStateException();
-  }
-
-  @Override
   public final void setVideoSurface(@Nullable Surface surface) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+      return;
+    }
+    if (surface == null) {
+      clearVideoSurface();
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetVideoOutput(surface),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setSurfaceSize(Size.UNKNOWN).build());
   }
 
   @Override
   public final void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
-    // TODO: implement.
-    throw new IllegalStateException();
-  }
-
-  @Override
-  public final void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+      return;
+    }
+    if (surfaceHolder == null) {
+      clearVideoSurface();
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetVideoOutput(surfaceHolder),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setSurfaceSize(getSurfaceHolderSize(surfaceHolder)).build());
   }
 
   @Override
   public final void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
-    // TODO: implement.
-    throw new IllegalStateException();
-  }
-
-  @Override
-  public final void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+      return;
+    }
+    if (surfaceView == null) {
+      clearVideoSurface();
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetVideoOutput(surfaceView),
+        /* placeholderStateSupplier= */ () ->
+            state
+                .buildUpon()
+                .setSurfaceSize(getSurfaceHolderSize(surfaceView.getHolder()))
+                .build());
   }
 
   @Override
   public final void setVideoTextureView(@Nullable TextureView textureView) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+      return;
+    }
+    if (textureView == null) {
+      clearVideoSurface();
+      return;
+    }
+    Size surfaceSize;
+    if (textureView.isAvailable()) {
+      surfaceSize = new Size(textureView.getWidth(), textureView.getHeight());
+    } else {
+      surfaceSize = Size.ZERO;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetVideoOutput(textureView),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setSurfaceSize(surfaceSize).build());
+  }
+
+  @Override
+  public final void clearVideoSurface() {
+    clearVideoOutput(/* videoOutput= */ null);
+  }
+
+  @Override
+  public final void clearVideoSurface(@Nullable Surface surface) {
+    clearVideoOutput(surface);
+  }
+
+  @Override
+  public final void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
+    clearVideoOutput(surfaceHolder);
+  }
+
+  @Override
+  public final void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
+    clearVideoOutput(surfaceView);
   }
 
   @Override
   public final void clearVideoTextureView(@Nullable TextureView textureView) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    clearVideoOutput(textureView);
+  }
+
+  private void clearVideoOutput(@Nullable Object videoOutput) {
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleClearVideoOutput(videoOutput),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setSurfaceSize(Size.ZERO).build());
   }
 
   @Override
@@ -2427,26 +2573,56 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void setDeviceVolume(int volume) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_SET_DEVICE_VOLUME)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetDeviceVolume(volume),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setDeviceVolume(volume).build());
   }
 
   @Override
   public final void increaseDeviceVolume() {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleIncreaseDeviceVolume(),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setDeviceVolume(state.deviceVolume + 1).build());
   }
 
   @Override
   public final void decreaseDeviceVolume() {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleDecreaseDeviceVolume(),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setDeviceVolume(max(0, state.deviceVolume - 1)).build());
   }
 
   @Override
   public final void setDeviceMuted(boolean muted) {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!state.availableCommands.contains(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetDeviceMuted(muted),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setIsDeviceMuted(muted).build());
   }
 
   /**
@@ -2500,19 +2676,214 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   /**
-   * Handles calls to set {@link State#playWhenReady}.
+   * Handles calls to {@link Player#setPlayWhenReady}, {@link Player#play} and {@link Player#pause}.
    *
-   * <p>Will only be called if {@link Player.Command#COMMAND_PLAY_PAUSE} is available.
+   * <p>Will only be called if {@link Player#COMMAND_PLAY_PAUSE} is available.
    *
    * @param playWhenReady The requested {@link State#playWhenReady}
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
    *     changes caused by this call.
-   * @see Player#setPlayWhenReady(boolean)
-   * @see Player#play()
-   * @see Player#pause()
    */
   @ForOverride
   protected ListenableFuture<?> handleSetPlayWhenReady(boolean playWhenReady) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#prepare}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_PREPARE} is available.
+   *
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handlePrepare() {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#stop}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_STOP} is available.
+   *
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleStop() {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setRepeatMode}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_REPEAT_MODE} is available.
+   *
+   * @param repeatMode The requested {@link RepeatMode}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetRepeatMode(@RepeatMode int repeatMode) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setShuffleModeEnabled}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_SHUFFLE_MODE} is available.
+   *
+   * @param shuffleModeEnabled Whether shuffle mode was requested to be enabled.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetShuffleModeEnabled(boolean shuffleModeEnabled) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setPlaybackParameters} or {@link Player#setPlaybackSpeed}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_SPEED_AND_PITCH} is available.
+   *
+   * @param playbackParameters The requested {@link PlaybackParameters}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetPlaybackParameters(PlaybackParameters playbackParameters) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setTrackSelectionParameters}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_TRACK_SELECTION_PARAMETERS} is available.
+   *
+   * @param trackSelectionParameters The requested {@link TrackSelectionParameters}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetTrackSelectionParameters(
+      TrackSelectionParameters trackSelectionParameters) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setPlaylistMetadata}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_MEDIA_ITEMS_METADATA} is available.
+   *
+   * @param playlistMetadata The requested {@linkplain MediaMetadata playlist metadata}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setVolume}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_VOLUME} is available.
+   *
+   * @param volume The requested audio volume, with 0 being silence and 1 being unity gain (signal
+   *     unchanged).
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetVolume(@FloatRange(from = 0, to = 1.0) float volume) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setDeviceVolume}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_DEVICE_VOLUME} is available.
+   *
+   * @param deviceVolume The requested device volume.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetDeviceVolume(@IntRange(from = 0) int deviceVolume) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#increaseDeviceVolume()}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
+   *
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#decreaseDeviceVolume()}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
+   *
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#setDeviceMuted}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
+   *
+   * @param muted Whether the device was requested to be muted.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to set the video output.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_VIDEO_SURFACE} is available.
+   *
+   * @param videoOutput The requested video output. This is either a {@link Surface}, {@link
+   *     SurfaceHolder}, {@link TextureView} or {@link SurfaceView}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetVideoOutput(Object videoOutput) {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to clear the video output.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_VIDEO_SURFACE} is available.
+   *
+   * @param videoOutput The video output to clear. If null any current output should be cleared. If
+   *     non-null, the output should only be cleared if it matches the provided argument. This is
+   *     either a {@link Surface}, {@link SurfaceHolder}, {@link TextureView} or {@link
+   *     SurfaceView}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleClearVideoOutput(@Nullable Object videoOutput) {
     throw new IllegalStateException();
   }
 
@@ -2973,5 +3344,13 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return MEDIA_ITEM_TRANSITION_REASON_SEEK;
     }
     return C.INDEX_UNSET;
+  }
+
+  private static Size getSurfaceHolderSize(SurfaceHolder surfaceHolder) {
+    if (!surfaceHolder.getSurface().isValid()) {
+      return Size.ZERO;
+    }
+    Rect surfaceFrame = surfaceHolder.getSurfaceFrame();
+    return new Size(surfaceFrame.width(), surfaceFrame.height());
   }
 }

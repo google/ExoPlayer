@@ -27,8 +27,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import android.graphics.SurfaceTexture;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.Surface;
+import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Player.Commands;
 import com.google.android.exoplayer2.Player.Listener;
@@ -1833,17 +1837,18 @@ public class SimpleBasePlayerTest {
             .setPlayWhenReady(
                 /* playWhenReady= */ true, Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE)
             .build();
-    AtomicBoolean stateUpdated = new AtomicBoolean();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
           @Override
           protected State getState() {
-            return stateUpdated.get() ? updatedState : state;
+            return playerState;
           }
 
           @Override
           protected ListenableFuture<?> handleSetPlayWhenReady(boolean playWhenReady) {
-            stateUpdated.set(true);
+            playerState = updatedState;
             return Futures.immediateVoidFuture();
           }
         };
@@ -1937,6 +1942,1506 @@ public class SimpleBasePlayerTest {
         };
 
     player.setPlayWhenReady(true);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener call.
+  @Test
+  public void prepare_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaybackState(Player.STATE_IDLE)
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .build();
+    State updatedState = state.buildUpon().setPlaybackState(Player.STATE_READY).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handlePrepare() {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.prepare();
+
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_READY);
+    verify(listener).onPlaybackStateChanged(Player.STATE_READY);
+    verify(listener)
+        .onPlayerStateChanged(/* playWhenReady= */ false, /* playbackState= */ Player.STATE_READY);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener call.
+  @Test
+  public void prepare_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaybackState(Player.STATE_IDLE)
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .build();
+    State updatedState = state.buildUpon().setPlaybackState(Player.STATE_READY).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handlePrepare() {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.prepare();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_BUFFERING);
+    verify(listener).onPlaybackStateChanged(Player.STATE_BUFFERING);
+    verify(listener)
+        .onPlayerStateChanged(
+            /* playWhenReady= */ false, /* playbackState= */ Player.STATE_BUFFERING);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_READY);
+    verify(listener).onPlaybackStateChanged(Player.STATE_READY);
+    verify(listener)
+        .onPlayerStateChanged(/* playWhenReady= */ false, /* playbackState= */ Player.STATE_READY);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void prepare_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_PREPARE).build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handlePrepare() {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.prepare();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener call.
+  @Test
+  public void stop_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaybackState(Player.STATE_READY)
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .build();
+    State updatedState = state.buildUpon().setPlaybackState(Player.STATE_IDLE).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleStop() {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.stop();
+
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_IDLE);
+    verify(listener).onPlaybackStateChanged(Player.STATE_IDLE);
+    verify(listener)
+        .onPlayerStateChanged(/* playWhenReady= */ false, /* playbackState= */ Player.STATE_IDLE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener call.
+  @Test
+  public void stop_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaybackState(Player.STATE_READY)
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .build();
+    // Additionally set the repeat mode to see a difference between the placeholder and new state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaybackState(Player.STATE_IDLE)
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleStop() {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.stop();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_IDLE);
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_OFF);
+    verify(listener).onPlaybackStateChanged(Player.STATE_IDLE);
+    verify(listener)
+        .onPlayerStateChanged(/* playWhenReady= */ false, /* playbackState= */ Player.STATE_IDLE);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ALL);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ALL);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void stop_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_STOP).build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleStop() {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.stop();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setRepeatMode_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    State updatedState = state.buildUpon().setRepeatMode(Player.REPEAT_MODE_ALL).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetRepeatMode(@Player.RepeatMode int repeatMode) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ALL);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ALL);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setRepeatMode_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a new repeat mode to see a difference between the placeholder and new state.
+    State updatedState = state.buildUpon().setRepeatMode(Player.REPEAT_MODE_ALL).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetRepeatMode(@Player.RepeatMode int repeatMode) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ONE);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ONE);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ALL);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ALL);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setRepeatMode_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_REPEAT_MODE)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetRepeatMode(@Player.RepeatMode int repeatMode) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setShuffleModeEnabled_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Also change the repeat mode to ensure the updated state is used.
+    State updatedState =
+        state.buildUpon().setShuffleModeEnabled(true).setRepeatMode(Player.REPEAT_MODE_ALL).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetShuffleModeEnabled(boolean shuffleModeEnabled) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setShuffleModeEnabled(true);
+
+    assertThat(player.getShuffleModeEnabled()).isTrue();
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ALL);
+    verify(listener).onShuffleModeEnabledChanged(true);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ALL);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setShuffleModeEnabled_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            // Always return the same state to revert the shuffle mode change. This allows to see a
+            // difference between the placeholder and new state.
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetShuffleModeEnabled(boolean shuffleModeEnabled) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setShuffleModeEnabled(true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getShuffleModeEnabled()).isTrue();
+    verify(listener).onShuffleModeEnabledChanged(true);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getShuffleModeEnabled()).isFalse();
+    verify(listener).onShuffleModeEnabledChanged(false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setShuffleModeEnabled_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_SHUFFLE_MODE)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetShuffleModeEnabled(boolean shuffleModeEnabled) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setShuffleModeEnabled(true);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setPlaybackParameters_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    State updatedState =
+        state.buildUpon().setPlaybackParameters(new PlaybackParameters(/* speed= */ 3f)).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlaybackParameters(
+              PlaybackParameters playbackParameters) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f));
+
+    assertThat(player.getPlaybackParameters()).isEqualTo(new PlaybackParameters(/* speed= */ 3f));
+    verify(listener).onPlaybackParametersChanged(new PlaybackParameters(/* speed= */ 3f));
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setPlaybackParameters_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a new repeat mode to see a difference between the placeholder and new state.
+    State updatedState =
+        state.buildUpon().setPlaybackParameters(new PlaybackParameters(/* speed= */ 3f)).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlaybackParameters(
+              PlaybackParameters playbackParameters) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getPlaybackParameters()).isEqualTo(new PlaybackParameters(/* speed= */ 2f));
+    verify(listener).onPlaybackParametersChanged(new PlaybackParameters(/* speed= */ 2f));
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getPlaybackParameters()).isEqualTo(new PlaybackParameters(/* speed= */ 3f));
+    verify(listener).onPlaybackParametersChanged(new PlaybackParameters(/* speed= */ 3f));
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setPlaybackParameters_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_SPEED_AND_PITCH)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlaybackParameters(
+              PlaybackParameters playbackParameters) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f));
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setTrackSelectionParameters_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    TrackSelectionParameters updatedParameters =
+        new TrackSelectionParameters.Builder(ApplicationProvider.getApplicationContext())
+            .setMaxVideoBitrate(3000)
+            .build();
+    State updatedState = state.buildUpon().setTrackSelectionParameters(updatedParameters).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetTrackSelectionParameters(
+              TrackSelectionParameters trackSelectionParameters) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setTrackSelectionParameters(
+        new TrackSelectionParameters.Builder(ApplicationProvider.getApplicationContext())
+            .setMaxVideoBitrate(1000)
+            .build());
+
+    assertThat(player.getTrackSelectionParameters()).isEqualTo(updatedParameters);
+    verify(listener).onTrackSelectionParametersChanged(updatedParameters);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setTrackSelectionParameters_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set new parameters to see a difference between the placeholder and new state.
+    TrackSelectionParameters updatedParameters =
+        new TrackSelectionParameters.Builder(ApplicationProvider.getApplicationContext())
+            .setMaxVideoBitrate(3000)
+            .build();
+    State updatedState = state.buildUpon().setTrackSelectionParameters(updatedParameters).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetTrackSelectionParameters(
+              TrackSelectionParameters trackSelectionParameters) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    TrackSelectionParameters requestedParameters =
+        new TrackSelectionParameters.Builder(ApplicationProvider.getApplicationContext())
+            .setMaxVideoBitrate(3000)
+            .build();
+    player.setTrackSelectionParameters(requestedParameters);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getTrackSelectionParameters()).isEqualTo(requestedParameters);
+    verify(listener).onTrackSelectionParametersChanged(requestedParameters);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getTrackSelectionParameters()).isEqualTo(updatedParameters);
+    verify(listener).onTrackSelectionParametersChanged(updatedParameters);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setTrackSelectionParameters_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetTrackSelectionParameters(
+              TrackSelectionParameters trackSelectionParameters) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setTrackSelectionParameters(
+        new TrackSelectionParameters.Builder(ApplicationProvider.getApplicationContext())
+            .setMaxVideoBitrate(1000)
+            .build());
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setPlaylistMetadata_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    MediaMetadata updatedMetadata = new MediaMetadata.Builder().setArtist("artist").build();
+    State updatedState = state.buildUpon().setPlaylistMetadata(updatedMetadata).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setPlaylistMetadata(new MediaMetadata.Builder().setTitle("title").build());
+
+    assertThat(player.getPlaylistMetadata()).isEqualTo(updatedMetadata);
+    verify(listener).onPlaylistMetadataChanged(updatedMetadata);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setPlaylistMetadata_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set new metadata to see a difference between the placeholder and new state.
+    MediaMetadata updatedMetadata = new MediaMetadata.Builder().setArtist("artist").build();
+    State updatedState = state.buildUpon().setPlaylistMetadata(updatedMetadata).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    MediaMetadata requestedMetadata = new MediaMetadata.Builder().setTitle("title").build();
+    player.setPlaylistMetadata(requestedMetadata);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getPlaylistMetadata()).isEqualTo(requestedMetadata);
+    verify(listener).onPlaylistMetadataChanged(requestedMetadata);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getPlaylistMetadata()).isEqualTo(updatedMetadata);
+    verify(listener).onPlaylistMetadataChanged(updatedMetadata);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setPlaylistMetadata_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setPlaylistMetadata(new MediaMetadata.Builder().setTitle("title").build());
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setVolume_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    State updatedState = state.buildUpon().setVolume(.8f).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetVolume(float volume) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setVolume(.5f);
+
+    assertThat(player.getVolume()).isEqualTo(.8f);
+    verify(listener).onVolumeChanged(.8f);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setVolume_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a new volume to see a difference between the placeholder and new state.
+    State updatedState = state.buildUpon().setVolume(.8f).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetVolume(float volume) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setVolume(.5f);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getVolume()).isEqualTo(.5f);
+    verify(listener).onVolumeChanged(.5f);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getVolume()).isEqualTo(.8f);
+    verify(listener).onVolumeChanged(.8f);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setVolume_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_SET_VOLUME).build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetVolume(float volume) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setVolume(.5f);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setDeviceVolume_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    State updatedState = state.buildUpon().setDeviceVolume(6).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetDeviceVolume(int volume) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setDeviceVolume(3);
+
+    assertThat(player.getDeviceVolume()).isEqualTo(6);
+    verify(listener).onDeviceVolumeChanged(6, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setDeviceVolume_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Set a new volume to see a difference between the placeholder and new state.
+    State updatedState = state.buildUpon().setDeviceVolume(6).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetDeviceVolume(int volume) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setDeviceVolume(3);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getDeviceVolume()).isEqualTo(3);
+    verify(listener).onDeviceVolumeChanged(3, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getDeviceVolume()).isEqualTo(6);
+    verify(listener).onDeviceVolumeChanged(6, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setDeviceVolume_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_DEVICE_VOLUME)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetDeviceVolume(int volume) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setDeviceVolume(3);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void increaseDeviceVolume_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setDeviceVolume(3)
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    State updatedState = state.buildUpon().setDeviceVolume(6).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.increaseDeviceVolume();
+
+    assertThat(player.getDeviceVolume()).isEqualTo(6);
+    verify(listener).onDeviceVolumeChanged(6, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void increaseDeviceVolume_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setDeviceVolume(3)
+            .build();
+    // Set a new volume to see a difference between the placeholder and new state.
+    State updatedState = state.buildUpon().setDeviceVolume(6).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.increaseDeviceVolume();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getDeviceVolume()).isEqualTo(4);
+    verify(listener).onDeviceVolumeChanged(4, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getDeviceVolume()).isEqualTo(6);
+    verify(listener).onDeviceVolumeChanged(6, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void increaseDeviceVolume_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.increaseDeviceVolume();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void decreaseDeviceVolume_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setDeviceVolume(3)
+            .build();
+    // Set a different one to the one requested to ensure the updated state is used.
+    State updatedState = state.buildUpon().setDeviceVolume(1).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.decreaseDeviceVolume();
+
+    assertThat(player.getDeviceVolume()).isEqualTo(1);
+    verify(listener).onDeviceVolumeChanged(1, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void decreaseDeviceVolume_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setDeviceVolume(3)
+            .build();
+    // Set a new volume to see a difference between the placeholder and new state.
+    State updatedState = state.buildUpon().setDeviceVolume(1).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.decreaseDeviceVolume();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getDeviceVolume()).isEqualTo(2);
+    verify(listener).onDeviceVolumeChanged(2, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getDeviceVolume()).isEqualTo(1);
+    verify(listener).onDeviceVolumeChanged(1, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void decreaseDeviceVolume_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.decreaseDeviceVolume();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setDeviceMuted_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Also change the volume to ensure the updated state is used.
+    State updatedState = state.buildUpon().setIsDeviceMuted(true).setDeviceVolume(6).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setDeviceMuted(true);
+
+    assertThat(player.isDeviceMuted()).isTrue();
+    assertThat(player.getDeviceVolume()).isEqualTo(6);
+    verify(listener).onDeviceVolumeChanged(6, /* muted= */ true);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setDeviceMuted_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            // Always return the same state to revert the muted change. This allows to see a
+            // difference between the placeholder and new state.
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setDeviceMuted(true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.isDeviceMuted()).isTrue();
+    verify(listener).onDeviceVolumeChanged(0, /* muted= */ true);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.isDeviceMuted()).isFalse();
+    verify(listener).onDeviceVolumeChanged(0, /* muted= */ false);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setDeviceMuted_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setDeviceMuted(true);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setVideoSurface_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setSurfaceSize(Size.ZERO)
+            .build();
+    Size updatedSize = new Size(/* width= */ 300, /* height= */ 200);
+    State updatedState = state.buildUpon().setSurfaceSize(updatedSize).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetVideoOutput(Object videoOutput) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setVideoSurface(new Surface(new SurfaceTexture(0)));
+
+    assertThat(player.getSurfaceSize()).isEqualTo(updatedSize);
+    verify(listener).onSurfaceSizeChanged(updatedSize.getWidth(), updatedSize.getHeight());
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setVideoSurface_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setSurfaceSize(Size.ZERO)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    Size updatedSize = new Size(/* width= */ 300, /* height= */ 200);
+    State updatedState = state.buildUpon().setSurfaceSize(updatedSize).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetVideoOutput(Object videoOutput) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setVideoSurface(new Surface(new SurfaceTexture(0)));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getSurfaceSize()).isEqualTo(Size.UNKNOWN);
+    verify(listener)
+        .onSurfaceSizeChanged(/* width= */ C.LENGTH_UNSET, /* height= */ C.LENGTH_UNSET);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getSurfaceSize()).isEqualTo(updatedSize);
+    verify(listener).onSurfaceSizeChanged(updatedSize.getWidth(), updatedSize.getHeight());
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setVideoSurface_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_VIDEO_SURFACE)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetVideoOutput(Object videoOutput) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setVideoSurface(new Surface(new SurfaceTexture(0)));
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void clearVideoSurface_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setSurfaceSize(new Size(/* width= */ 300, /* height= */ 200))
+            .build();
+    // Change something else in addition to ensure we actually use the updated state.
+    State updatedState =
+        state.buildUpon().setSurfaceSize(Size.ZERO).setRepeatMode(Player.REPEAT_MODE_ONE).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleClearVideoOutput(@Nullable Object videoOutput) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.clearVideoSurface();
+
+    assertThat(player.getSurfaceSize()).isEqualTo(Size.ZERO);
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ONE);
+    verify(listener).onSurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ONE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void clearVideoSurface_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setSurfaceSize(new Size(/* width= */ 300, /* height= */ 200))
+            .build();
+    // Change something else in addition to ensure we actually use the updated state.
+    State updatedState =
+        state.buildUpon().setSurfaceSize(Size.ZERO).setRepeatMode(Player.REPEAT_MODE_ONE).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleClearVideoOutput(@Nullable Object videoOutput) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.clearVideoSurface();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getSurfaceSize()).isEqualTo(Size.ZERO);
+    verify(listener).onSurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getSurfaceSize()).isEqualTo(Size.ZERO);
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ONE);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ONE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void clearVideoSurface_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_VIDEO_SURFACE)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleClearVideoOutput(@Nullable Object videoOutput) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.clearVideoSurface();
 
     assertThat(callForwarded.get()).isFalse();
   }
