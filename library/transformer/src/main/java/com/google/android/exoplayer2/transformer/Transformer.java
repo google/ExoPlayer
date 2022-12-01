@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
 import com.google.android.exoplayer2.effect.GlMatrixTransformation;
@@ -86,6 +87,7 @@ public final class Transformer {
     private ImmutableList<Effect> videoEffects;
     private boolean removeAudio;
     private boolean removeVideo;
+    private boolean forceSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
     private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
     private Codec.DecoderFactory decoderFactory;
@@ -124,6 +126,7 @@ public final class Transformer {
       this.videoEffects = transformer.videoEffects;
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
+      this.forceSilentAudio = transformer.forceSilentAudio;
       this.listeners = transformer.listeners;
       this.mediaSourceFactory = transformer.mediaSourceFactory;
       this.decoderFactory = transformer.decoderFactory;
@@ -415,6 +418,33 @@ public final class Transformer {
     }
 
     /**
+     * Sets whether to force silent audio for the output file, ignoring any existing audio.
+     *
+     * <p>This method is experimental and may be removed or changed without warning.
+     *
+     * <p>Audio properties/format:
+     *
+     * <ul>
+     *   <li>Duration will match duration of the input media.
+     *   <li>Sample mime type will match {@link TransformationRequest#audioMimeType}, or {@link
+     *       MimeTypes#AUDIO_AAC} if {@code null}.
+     *   <li>Sample rate will be 44100hz. This can be modified by passing a {@link
+     *       SonicAudioProcessor} to {@link #setAudioProcessors(List)}, using {@link
+     *       SonicAudioProcessor#setOutputSampleRateHz(int)}.
+     *   <li>Channel count will be 2. This can be modified by implementing a custom {@link
+     *       AudioProcessor} and passing it to {@link #setAudioProcessors(List)}.
+     * </ul>
+     *
+     * @param forceSilentAudio Whether to output silent audio for the output file.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder experimentalSetForceSilentAudio(boolean forceSilentAudio) {
+      this.forceSilentAudio = forceSilentAudio;
+      return this;
+    }
+
+    /**
      * Builds a {@link Transformer} instance.
      *
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
@@ -443,6 +473,7 @@ public final class Transformer {
           videoEffects,
           removeAudio,
           removeVideo,
+          forceSilentAudio,
           listeners,
           mediaSourceFactory,
           decoderFactory,
@@ -555,6 +586,7 @@ public final class Transformer {
   private final ImmutableList<Effect> videoEffects;
   private final boolean removeAudio;
   private final boolean removeVideo;
+  private final boolean forceSilentAudio;
   private final ListenerSet<Transformer.Listener> listeners;
   private final MediaSource.Factory mediaSourceFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
@@ -572,7 +604,8 @@ public final class Transformer {
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
-      ListenerSet<Transformer.Listener> listeners,
+      boolean forceSilentAudio,
+      ListenerSet<Listener> listeners,
       MediaSource.Factory mediaSourceFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -581,6 +614,10 @@ public final class Transformer {
       Looper looper,
       DebugViewProvider debugViewProvider,
       Clock clock) {
+    if (forceSilentAudio) {
+      removeAudio = true;
+    }
+    checkState(!removeVideo || !forceSilentAudio, "Silent only audio track needs a video track.");
     checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed.");
     this.context = context;
     this.transformationRequest = transformationRequest;
@@ -588,6 +625,7 @@ public final class Transformer {
     this.videoEffects = videoEffects;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
+    this.forceSilentAudio = forceSilentAudio;
     this.listeners = listeners;
     this.mediaSourceFactory = mediaSourceFactory;
     this.decoderFactory = decoderFactory;
@@ -726,6 +764,7 @@ public final class Transformer {
             videoEffects,
             removeAudio,
             removeVideo,
+            forceSilentAudio,
             mediaSourceFactory,
             decoderFactory,
             encoderFactory,

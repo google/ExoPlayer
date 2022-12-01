@@ -266,6 +266,21 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
+  public void startTransformation_silentAudio_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .experimentalSetForceSilentAudio(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silentaudio"));
+  }
+
+  @Test
   public void startTransformation_withMultipleListeners_callsEachOnCompletion() throws Exception {
     Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener2 = mock(Transformer.Listener.class);

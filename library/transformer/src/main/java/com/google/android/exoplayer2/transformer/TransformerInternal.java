@@ -97,6 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
+  private final boolean forceSilentAudio;
   private final Codec.DecoderFactory decoderFactory;
   private final Codec.EncoderFactory encoderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
@@ -114,6 +115,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Nullable private DecoderInputBuffer pendingInputBuffer;
   private boolean isDrainingPipelines;
+  private int silentSamplePipelineIndex;
   private @Transformer.ProgressState int progressState;
   private long progressPositionMs;
   private long durationUs;
@@ -131,6 +133,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
+      boolean forceSilentAudio,
       MediaSource.Factory mediaSourceFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -145,6 +148,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.transformationRequest = transformationRequest;
     this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
+    this.forceSilentAudio = forceSilentAudio;
     this.decoderFactory = decoderFactory;
     this.encoderFactory = encoderFactory;
     this.frameProcessorFactory = frameProcessorFactory;
@@ -168,6 +172,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             componentListener,
             clock);
     samplePipelines = new ArrayList<>();
+    silentSamplePipelineIndex = C.INDEX_UNSET;
     dequeueBufferConditionVariable = new ConditionVariable();
     muxerWrapper =
         new MuxerWrapper(
@@ -258,6 +263,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     while (samplePipeline.processData()) {}
     pendingInputBuffer = samplePipeline.dequeueInputBuffer();
     dequeueBufferConditionVariable.open();
+
+    if (forceSilentAudio) {
+      while (samplePipelines.get(silentSamplePipelineIndex).processData()) {}
+    }
   }
 
   private void queueInputInternal(int samplePipelineIndex) throws TransformationException {
@@ -391,6 +400,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       trackRegistered = true;
       muxerWrapper.registerTrack();
       fallbackListener.registerTrack();
+
+      if (forceSilentAudio) {
+        muxerWrapper.registerTrack();
+        fallbackListener.registerTrack();
+      }
     }
 
     @Override
@@ -410,6 +424,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       int samplePipelineIndex = tracksAddedCount;
       tracksAddedCount++;
+
+      if (forceSilentAudio) {
+        Format silentAudioFormat =
+            new Format.Builder()
+                .setSampleMimeType(MimeTypes.AUDIO_AAC)
+                .setSampleRate(44100)
+                .setChannelCount(2)
+                .build();
+        SamplePipeline audioSamplePipeline =
+            getSamplePipeline(silentAudioFormat, streamStartPositionUs, streamOffsetUs);
+        internalHandler
+            .obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, audioSamplePipeline)
+            .sendToTarget();
+        silentSamplePipelineIndex = tracksAddedCount;
+        tracksAddedCount++;
+      }
+
       return new SamplePipelineInput(samplePipelineIndex, samplePipeline.expectsDecodedData());
     }
 
@@ -459,6 +490,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             transformationRequest,
             audioProcessors,
+            forceSilentAudio ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
             /* listener= */ this,
@@ -509,6 +541,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!audioProcessors.isEmpty()) {
         return true;
       }
+      if (forceSilentAudio) {
+        return true;
+      }
+
       return false;
     }
 

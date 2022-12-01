@@ -41,6 +41,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
+  @Nullable private final SilentAudioGenerator silentAudioGenerator;
   private final DecoderInputBuffer inputBuffer;
   private final AudioProcessingPipeline audioProcessingPipeline;
   private final Codec encoder;
@@ -52,12 +53,14 @@ import org.checkerframework.dataflow.qual.Pure;
   private long nextEncoderInputBufferTimeUs;
   private long encoderBufferDurationRemainder;
 
+  // TODO(b/260618558): Move silent audio generation upstream of this component.
   public AudioTranscodingSamplePipeline(
       Format inputFormat,
       long streamStartPositionUs,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<AudioProcessor> audioProcessors,
+      long forceSilentAudioDurationUs,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       Listener listener,
@@ -70,6 +73,16 @@ import org.checkerframework.dataflow.qual.Pure;
         transformationRequest.flattenForSlowMotion,
         muxerWrapper,
         listener);
+
+    if (forceSilentAudioDurationUs != C.TIME_UNSET) {
+      silentAudioGenerator =
+          new SilentAudioGenerator(
+              forceSilentAudioDurationUs,
+              inputFormat.sampleRate,
+              Util.getPcmFrameSize(C.ENCODING_PCM_16BIT, inputFormat.channelCount));
+    } else {
+      silentAudioGenerator = null;
+    }
 
     inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -160,11 +173,17 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   protected boolean processDataUpToMuxer() throws TransformationException {
-    if (audioProcessingPipeline.isOperational()) {
-      return feedEncoderFromProcessingPipeline() || feedProcessingPipelineFromInput();
-    } else {
-      return feedEncoderFromInput();
+    if (!audioProcessingPipeline.isOperational()) {
+      return silentAudioGenerator == null ? feedEncoderFromInput() : feedEncoderFromSilence();
     }
+
+    if (feedEncoderFromProcessingPipeline()) {
+      return true;
+    }
+
+    return silentAudioGenerator == null
+        ? feedProcessingPipelineFromInput()
+        : feedProcessingPipelineFromSilence();
   }
 
   @Override
@@ -266,6 +285,45 @@ import org.checkerframework.dataflow.qual.Pure;
     }
     hasPendingInputBuffer = false;
     return true;
+  }
+
+  /**
+   * Attempts to pass silent audio to the encoder.
+   *
+   * @return Whether it may be possible to feed more data immediately by calling this method again.
+   */
+  private boolean feedEncoderFromSilence() throws TransformationException {
+    checkNotNull(silentAudioGenerator);
+    if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
+      return false;
+    }
+
+    if (silentAudioGenerator.isEnded()) {
+      queueEndOfStreamToEncoder();
+      return false;
+    }
+
+    ByteBuffer silence = silentAudioGenerator.getBuffer();
+    feedEncoder(silence);
+    return true;
+  }
+
+  /**
+   * Attempts to feed silent audio to the {@link AudioProcessingPipeline}.
+   *
+   * @return Whether it may be possible to feed more data immediately by calling this method again.
+   */
+  private boolean feedProcessingPipelineFromSilence() {
+    checkNotNull(silentAudioGenerator);
+    if (silentAudioGenerator.isEnded()) {
+      audioProcessingPipeline.queueEndOfStream();
+      return false;
+    }
+    checkState(!audioProcessingPipeline.isEnded());
+
+    ByteBuffer silence = silentAudioGenerator.getBuffer();
+    audioProcessingPipeline.queueInput(silence);
+    return !silence.hasRemaining();
   }
 
   /**
