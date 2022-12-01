@@ -22,6 +22,8 @@
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
+    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
+        of folder described by the metadata.
 *   Cast extension
     *   Bump Cast SDK version to 21.2.0.
 
