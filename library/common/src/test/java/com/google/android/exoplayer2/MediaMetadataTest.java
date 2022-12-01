@@ -64,6 +64,7 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.genre).isNull();
     assertThat(mediaMetadata.compilation).isNull();
     assertThat(mediaMetadata.station).isNull();
+    assertThat(mediaMetadata.mediaType).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -149,6 +150,7 @@ public class MediaMetadataTest {
         .setGenre("Pop")
         .setCompilation("Amazing songs.")
         .setStation("radio station")
+        .setMediaType(MediaMetadata.MEDIA_TYPE_MIXED)
         .setExtras(extras)
         .build();
   }
