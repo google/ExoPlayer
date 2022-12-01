@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
@@ -174,16 +175,10 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   protected boolean processDataUpToMuxer() throws TransformationException {
     if (!audioProcessingPipeline.isOperational()) {
-      return silentAudioGenerator == null ? feedEncoderFromInput() : feedEncoderFromSilence();
+      return feedEncoderFromInput();
     }
 
-    if (feedEncoderFromProcessingPipeline()) {
-      return true;
-    }
-
-    return silentAudioGenerator == null
-        ? feedProcessingPipelineFromInput()
-        : feedProcessingPipelineFromSilence();
+    return feedEncoderFromProcessingPipeline() || feedProcessingPipelineFromInput();
   }
 
   @Override
@@ -220,17 +215,19 @@ import org.checkerframework.dataflow.qual.Pure;
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
   private boolean feedEncoderFromInput() throws TransformationException {
-    if (!hasPendingInputBuffer || !encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
+    if ((!isInputSilent() && !hasPendingInputBuffer)
+        || !encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
 
-    if (inputBuffer.isEndOfStream()) {
+    if (isInputSilent() ? silentAudioGenerator.isEnded() : inputBuffer.isEndOfStream()) {
       queueEndOfStreamToEncoder();
       hasPendingInputBuffer = false;
       return false;
     }
 
-    ByteBuffer inputData = checkNotNull(inputBuffer.data);
+    ByteBuffer inputData =
+        isInputSilent() ? silentAudioGenerator.getBuffer() : checkNotNull(inputBuffer.data);
     feedEncoder(inputData);
     if (!inputData.hasRemaining()) {
       hasPendingInputBuffer = false;
@@ -267,63 +264,25 @@ import org.checkerframework.dataflow.qual.Pure;
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
   private boolean feedProcessingPipelineFromInput() {
-    if (!hasPendingInputBuffer) {
+    if (!isInputSilent() && !hasPendingInputBuffer) {
       return false;
     }
 
-    if (inputBuffer.isEndOfStream()) {
+    if (isInputSilent() ? silentAudioGenerator.isEnded() : inputBuffer.isEndOfStream()) {
       audioProcessingPipeline.queueEndOfStream();
       hasPendingInputBuffer = false;
       return false;
     }
     checkState(!audioProcessingPipeline.isEnded());
 
-    ByteBuffer inputData = checkNotNull(inputBuffer.data);
+    ByteBuffer inputData =
+        isInputSilent() ? silentAudioGenerator.getBuffer() : checkNotNull(inputBuffer.data);
     audioProcessingPipeline.queueInput(inputData);
     if (inputData.hasRemaining()) {
       return false;
     }
     hasPendingInputBuffer = false;
     return true;
-  }
-
-  /**
-   * Attempts to pass silent audio to the encoder.
-   *
-   * @return Whether it may be possible to feed more data immediately by calling this method again.
-   */
-  private boolean feedEncoderFromSilence() throws TransformationException {
-    checkNotNull(silentAudioGenerator);
-    if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
-      return false;
-    }
-
-    if (silentAudioGenerator.isEnded()) {
-      queueEndOfStreamToEncoder();
-      return false;
-    }
-
-    ByteBuffer silence = silentAudioGenerator.getBuffer();
-    feedEncoder(silence);
-    return true;
-  }
-
-  /**
-   * Attempts to feed silent audio to the {@link AudioProcessingPipeline}.
-   *
-   * @return Whether it may be possible to feed more data immediately by calling this method again.
-   */
-  private boolean feedProcessingPipelineFromSilence() {
-    checkNotNull(silentAudioGenerator);
-    if (silentAudioGenerator.isEnded()) {
-      audioProcessingPipeline.queueEndOfStream();
-      return false;
-    }
-    checkState(!audioProcessingPipeline.isEnded());
-
-    ByteBuffer silence = silentAudioGenerator.getBuffer();
-    audioProcessingPipeline.queueInput(silence);
-    return !silence.hasRemaining();
   }
 
   /**
@@ -399,5 +358,10 @@ import org.checkerframework.dataflow.qual.Pure;
       encoderBufferDurationRemainder -= denominator;
     }
     nextEncoderInputBufferTimeUs += bufferDurationUs;
+  }
+
+  @EnsuresNonNullIf(expression = "silentAudioGenerator", result = true)
+  private boolean isInputSilent() {
+    return silentAudioGenerator != null;
   }
 }
