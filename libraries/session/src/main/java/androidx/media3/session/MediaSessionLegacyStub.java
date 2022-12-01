@@ -1177,7 +1177,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           try {
             artworkBitmap = Futures.getDone(bitmapFuture);
           } catch (ExecutionException e) {
-            Log.w(TAG, "Failed to load bitmap", e);
+            Log.w(TAG, getBitmapLoadErrorMessage(e));
           }
         } else {
           pendingBitmapLoadCallback =
@@ -1199,7 +1199,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   if (this != pendingBitmapLoadCallback) {
                     return;
                   }
-                  Log.d(TAG, "Failed to load bitmap", t);
+                  Log.w(TAG, getBitmapLoadErrorMessage(t));
                 }
               };
           Futures.addCallback(
@@ -1269,5 +1269,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public boolean hasPendingMediaPlayPauseKey() {
       return hasMessages(MSG_DOUBLE_TAP_TIMED_OUT);
     }
+  }
+
+  private static String getBitmapLoadErrorMessage(Throwable throwable) {
+    return "Failed to load bitmap: " + throwable.getMessage();
   }
 }
