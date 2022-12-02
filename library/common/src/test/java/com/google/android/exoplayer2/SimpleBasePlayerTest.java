@@ -114,8 +114,6 @@ public class SimpleBasePlayerTest {
                 new DeviceInfo(
                     DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 3, /* maxVolume= */ 7))
             .setIsDeviceMuted(true)
-            .setAudioSessionId(78)
-            .setSkipSilenceEnabled(true)
             .setSurfaceSize(new Size(480, 360))
             .setNewlyRenderedFirstFrame(true)
             .setTimedMetadata(new Metadata())
@@ -276,8 +274,6 @@ public class SimpleBasePlayerTest {
             .setDeviceInfo(deviceInfo)
             .setDeviceVolume(5)
             .setIsDeviceMuted(true)
-            .setAudioSessionId(78)
-            .setSkipSilenceEnabled(true)
             .setSurfaceSize(surfaceSize)
             .setNewlyRenderedFirstFrame(true)
             .setTimedMetadata(timedMetadata)
@@ -318,8 +314,6 @@ public class SimpleBasePlayerTest {
     assertThat(state.deviceInfo).isEqualTo(deviceInfo);
     assertThat(state.deviceVolume).isEqualTo(5);
     assertThat(state.isDeviceMuted).isTrue();
-    assertThat(state.audioSessionId).isEqualTo(78);
-    assertThat(state.skipSilenceEnabled).isTrue();
     assertThat(state.surfaceSize).isEqualTo(surfaceSize);
     assertThat(state.newlyRenderedFirstFrame).isTrue();
     assertThat(state.timedMetadata).isEqualTo(timedMetadata);
@@ -872,8 +866,6 @@ public class SimpleBasePlayerTest {
             .setDeviceInfo(deviceInfo)
             .setDeviceVolume(5)
             .setIsDeviceMuted(true)
-            .setAudioSessionId(78)
-            .setSkipSilenceEnabled(true)
             .setSurfaceSize(surfaceSize)
             .setPlaylist(playlist)
             .setPlaylistMetadata(playlistMetadata)
@@ -1167,8 +1159,6 @@ public class SimpleBasePlayerTest {
             .setDeviceInfo(deviceInfo)
             .setDeviceVolume(5)
             .setIsDeviceMuted(true)
-            .setAudioSessionId(78)
-            .setSkipSilenceEnabled(true)
             .setSurfaceSize(surfaceSize)
             .setNewlyRenderedFirstFrame(true)
             .setTimedMetadata(timedMetadata)
@@ -1234,11 +1224,9 @@ public class SimpleBasePlayerTest {
     verify(listener).onMediaMetadataChanged(mediaMetadata);
     verify(listener).onTracksChanged(tracks);
     verify(listener).onPlaylistMetadataChanged(playlistMetadata);
-    verify(listener).onAudioSessionIdChanged(78);
     verify(listener).onRenderedFirstFrame();
     verify(listener).onMetadata(timedMetadata);
     verify(listener).onSurfaceSizeChanged(surfaceSize.getWidth(), surfaceSize.getHeight());
-    verify(listener).onSkipSilenceEnabledChanged(true);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener)
         .onPositionDiscontinuity(
@@ -1291,9 +1279,7 @@ public class SimpleBasePlayerTest {
                         Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
                         Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
                         Player.EVENT_AUDIO_ATTRIBUTES_CHANGED,
-                        Player.EVENT_AUDIO_SESSION_ID,
                         Player.EVENT_VOLUME_CHANGED,
-                        Player.EVENT_SKIP_SILENCE_ENABLED_CHANGED,
                         Player.EVENT_SURFACE_SIZE_CHANGED,
                         Player.EVENT_VIDEO_SIZE_CHANGED,
                         Player.EVENT_RENDERED_FIRST_FRAME,
@@ -1306,6 +1292,11 @@ public class SimpleBasePlayerTest {
     // Assert that we actually called all listeners.
     for (Method method : Player.Listener.class.getDeclaredMethods()) {
       if (method.getName().equals("onSeekProcessed")) {
+        continue;
+      }
+      if (method.getName().equals("onAudioSessionIdChanged")
+          || method.getName().equals("onSkipSilenceEnabledChanged")) {
+        // Skip listeners for ExoPlayer-specific states
         continue;
       }
       method.invoke(verify(listener), getAnyArguments(method));
