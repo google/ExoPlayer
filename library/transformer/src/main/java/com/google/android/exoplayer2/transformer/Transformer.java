@@ -752,7 +752,11 @@ public final class Transformer {
     TransformerInternalListener transformerInternalListener =
         new TransformerInternalListener(mediaItem);
     FallbackListener fallbackListener =
-        new FallbackListener(mediaItem, listeners, transformationRequest);
+        new FallbackListener(
+            mediaItem,
+            listeners,
+            clock.createHandler(looper, /* callback= */ null),
+            transformationRequest);
     transformerInternal =
         new TransformerInternal(
             context,

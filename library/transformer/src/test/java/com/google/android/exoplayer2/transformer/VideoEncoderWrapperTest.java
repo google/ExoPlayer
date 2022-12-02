@@ -50,6 +50,7 @@ public final class VideoEncoderWrapperTest {
       new FallbackListener(
           MediaItem.fromUri(Uri.EMPTY),
           new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, (listener, flags) -> {}),
+          Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null),
           emptyTransformationRequest);
   private final VideoTranscodingSamplePipeline.EncoderWrapper encoderWrapper =
       new VideoTranscodingSamplePipeline.EncoderWrapper(
