@@ -142,20 +142,29 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToMediaDescriptionCompat() {
+  public void convertToMediaDescriptionCompat_setsExpectedValues() {
     String mediaId = "testId";
     String title = "testTitle";
     String description = "testDesc";
     MediaMetadata metadata =
-        new MediaMetadata.Builder().setTitle(title).setDescription(description).build();
+        new MediaMetadata.Builder()
+            .setTitle(title)
+            .setDescription(description)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+            .build();
     MediaItem mediaItem =
         new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(metadata).build();
     MediaDescriptionCompat descriptionCompat =
-        MediaUtils.convertToMediaDescriptionCompat(mediaItem);
+        MediaUtils.convertToMediaDescriptionCompat(mediaItem, /* artworkBitmap= */ null);
 
     assertThat(descriptionCompat.getMediaId()).isEqualTo(mediaId);
     assertThat(descriptionCompat.getTitle()).isEqualTo(title);
     assertThat(descriptionCompat.getDescription()).isEqualTo(description);
+    assertThat(
+            descriptionCompat
+                .getExtras()
+                .getLong(androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT))
+        .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
   }
 
   @Test
@@ -196,7 +205,8 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToMediaMetadata_roundTrip_returnsEqualMediaItem() throws Exception {
+  public void convertToMediaMetadata_roundTripViaMediaMetadataCompat_returnsEqualMediaItemMetadata()
+      throws Exception {
     MediaItem testMediaItem = MediaTestUtils.createMediaItemWithArtworkData("testZZZ");
     MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
     @Nullable Bitmap testArtworkBitmap = null;
@@ -214,6 +224,46 @@ public final class MediaUtilsTest {
 
     assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
     assertThat(mediaMetadata.artworkData).isNotNull();
+  }
+
+  @Test
+  public void
+      convertToMediaMetadata_roundTripViaMediaDescriptionCompat_returnsEqualMediaItemMetadata()
+          throws Exception {
+    MediaItem testMediaItem = MediaTestUtils.createMediaItemWithArtworkData("testZZZ");
+    MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
+    @Nullable Bitmap testArtworkBitmap = null;
+    @Nullable
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.loadBitmapFromMetadata(testMediaMetadata);
+    if (bitmapFuture != null) {
+      testArtworkBitmap = bitmapFuture.get(10, SECONDS);
+    }
+    MediaDescriptionCompat mediaDescriptionCompat =
+        MediaUtils.convertToMediaDescriptionCompat(testMediaItem, testArtworkBitmap);
+
+    MediaMetadata mediaMetadata =
+        MediaUtils.convertToMediaMetadata(mediaDescriptionCompat, RatingCompat.RATING_NONE);
+
+    assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
+    assertThat(mediaMetadata.artworkData).isNotNull();
+  }
+
+  @Test
+  public void convertToMediaMetadataCompat_withMediaType_setsMediaType() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC).build())
+            .build();
+
+    MediaMetadataCompat mediaMetadataCompat =
+        MediaUtils.convertToMediaMetadataCompat(
+            mediaItem, /* durotionsMs= */ C.TIME_UNSET, /* artworkBitmap= */ null);
+
+    assertThat(
+            mediaMetadataCompat.getLong(
+                androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT))
+        .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
   }
 
   @Test

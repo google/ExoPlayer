@@ -339,15 +339,24 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.setIconBitmap(artworkBitmap);
     }
     @Nullable Bundle extras = metadata.extras;
-    if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
+    boolean hasFolderType =
+        metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE;
+    boolean hasMediaType = metadata.mediaType != null;
+    if (hasFolderType || hasMediaType) {
       if (extras == null) {
         extras = new Bundle();
       } else {
         extras = new Bundle(extras);
       }
-      extras.putLong(
-          MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE,
-          convertToExtraBtFolderType(metadata.folderType));
+      if (hasFolderType) {
+        extras.putLong(
+            MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE,
+            convertToExtraBtFolderType(checkNotNull(metadata.folderType)));
+      }
+      if (hasMediaType) {
+        extras.putLong(
+            MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, checkNotNull(metadata.mediaType));
+      }
     }
     return builder
         .setTitle(metadata.title)
@@ -418,6 +427,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.setFolderType(MediaMetadata.FOLDER_TYPE_MIXED);
     } else {
       builder.setFolderType(MediaMetadata.FOLDER_TYPE_NONE);
+    }
+
+    if (extras != null && extras.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT)) {
+      builder.setMediaType((int) extras.getLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT));
     }
 
     builder.setIsPlayable(playable);
@@ -494,6 +507,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               metadataCompat.getLong(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE)));
     } else {
       builder.setFolderType(MediaMetadata.FOLDER_TYPE_NONE);
+    }
+
+    if (metadataCompat.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT)) {
+      builder.setMediaType(
+          (int) metadataCompat.getLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT));
     }
 
     builder.setIsPlayable(true);
@@ -608,6 +626,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     RatingCompat overallRatingCompat = convertToRatingCompat(mediaItem.mediaMetadata.overallRating);
     if (overallRatingCompat != null) {
       builder.putRating(MediaMetadataCompat.METADATA_KEY_RATING, overallRatingCompat);
+    }
+
+    if (mediaItem.mediaMetadata.mediaType != null) {
+      builder.putLong(
+          MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, mediaItem.mediaMetadata.mediaType);
     }
 
     return builder.build();
