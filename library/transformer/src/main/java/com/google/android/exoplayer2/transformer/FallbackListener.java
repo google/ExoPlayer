@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.util.Util;
   private final MediaItem mediaItem;
   private final TransformationRequest originalTransformationRequest;
   private final ListenerSet<Transformer.Listener> transformerListeners;
+  private final HandlerWrapper transformerListenerHandler;
 
   private TransformationRequest fallbackTransformationRequest;
   private int trackCount;
@@ -40,16 +42,20 @@ import com.google.android.exoplayer2.util.Util;
    * Creates a new instance.
    *
    * @param mediaItem The {@link MediaItem} to transform.
-   * @param transformerListeners The {@linkplain Transformer.Listener listeners} to forward events
-   *     to.
+   * @param transformerListeners The {@linkplain Transformer.Listener listeners} to call {@link
+   *     Transformer.Listener#onFallbackApplied} on.
+   * @param transformerListenerHandler The {@link HandlerWrapper} to call {@link
+   *     Transformer.Listener#onFallbackApplied} events on.
    * @param originalTransformationRequest The original {@link TransformationRequest}.
    */
   public FallbackListener(
       MediaItem mediaItem,
       ListenerSet<Transformer.Listener> transformerListeners,
+      HandlerWrapper transformerListenerHandler,
       TransformationRequest originalTransformationRequest) {
     this.mediaItem = mediaItem;
     this.transformerListeners = transformerListeners;
+    this.transformerListenerHandler = transformerListenerHandler;
     this.originalTransformationRequest = originalTransformationRequest;
     this.fallbackTransformationRequest = originalTransformationRequest;
   }
@@ -104,15 +110,19 @@ import com.google.android.exoplayer2.util.Util;
       fallbackRequestBuilder.setEnableRequestSdrToneMapping(
           transformationRequest.enableRequestSdrToneMapping);
     }
-    fallbackTransformationRequest = fallbackRequestBuilder.build();
+    TransformationRequest newFallbackTransformationRequest = fallbackRequestBuilder.build();
+    fallbackTransformationRequest = newFallbackTransformationRequest;
 
     if (trackCount == 0 && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
-      transformerListeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener ->
-              listener.onFallbackApplied(
-                  mediaItem, originalTransformationRequest, fallbackTransformationRequest));
-      transformerListeners.flushEvents();
+      transformerListenerHandler.post(
+          () ->
+              transformerListeners.sendEvent(
+                  /* eventFlag= */ C.INDEX_UNSET,
+                  listener ->
+                      listener.onFallbackApplied(
+                          mediaItem,
+                          originalTransformationRequest,
+                          newFallbackTransformationRequest)));
     }
   }
 }
