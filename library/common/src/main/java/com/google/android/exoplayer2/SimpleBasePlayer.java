@@ -121,8 +121,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       private DeviceInfo deviceInfo;
       private int deviceVolume;
       private boolean isDeviceMuted;
-      private int audioSessionId;
-      private boolean skipSilenceEnabled;
       private Size surfaceSize;
       private boolean newlyRenderedFirstFrame;
       private Metadata timedMetadata;
@@ -167,8 +165,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         deviceInfo = DeviceInfo.UNKNOWN;
         deviceVolume = 0;
         isDeviceMuted = false;
-        audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-        skipSilenceEnabled = false;
         surfaceSize = Size.UNKNOWN;
         newlyRenderedFirstFrame = false;
         timedMetadata = new Metadata(/* presentationTimeUs= */ C.TIME_UNSET);
@@ -213,8 +209,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         this.deviceInfo = state.deviceInfo;
         this.deviceVolume = state.deviceVolume;
         this.isDeviceMuted = state.isDeviceMuted;
-        this.audioSessionId = state.audioSessionId;
-        this.skipSilenceEnabled = state.skipSilenceEnabled;
         this.surfaceSize = state.surfaceSize;
         this.newlyRenderedFirstFrame = state.newlyRenderedFirstFrame;
         this.timedMetadata = state.timedMetadata;
@@ -497,30 +491,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       @CanIgnoreReturnValue
       public Builder setIsDeviceMuted(boolean isDeviceMuted) {
         this.isDeviceMuted = isDeviceMuted;
-        return this;
-      }
-
-      /**
-       * Sets the audio session id.
-       *
-       * @param audioSessionId The audio session id.
-       * @return This builder.
-       */
-      @CanIgnoreReturnValue
-      public Builder setAudioSessionId(int audioSessionId) {
-        this.audioSessionId = audioSessionId;
-        return this;
-      }
-
-      /**
-       * Sets whether skipping silences in the audio stream is enabled.
-       *
-       * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
-       * @return This builder.
-       */
-      @CanIgnoreReturnValue
-      public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-        this.skipSilenceEnabled = skipSilenceEnabled;
         return this;
       }
 
@@ -854,10 +824,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public final int deviceVolume;
     /** Whether the device is muted. */
     public final boolean isDeviceMuted;
-    /** The audio session id. */
-    public final int audioSessionId;
-    /** Whether skipping silences in the audio stream is enabled. */
-    public final boolean skipSilenceEnabled;
     /** The size of the surface onto which the video is being rendered. */
     public final Size surfaceSize;
     /**
@@ -998,8 +964,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       this.deviceInfo = builder.deviceInfo;
       this.deviceVolume = builder.deviceVolume;
       this.isDeviceMuted = builder.isDeviceMuted;
-      this.audioSessionId = builder.audioSessionId;
-      this.skipSilenceEnabled = builder.skipSilenceEnabled;
       this.surfaceSize = builder.surfaceSize;
       this.newlyRenderedFirstFrame = builder.newlyRenderedFirstFrame;
       this.timedMetadata = builder.timedMetadata;
@@ -1055,8 +1019,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
           && deviceInfo.equals(state.deviceInfo)
           && deviceVolume == state.deviceVolume
           && isDeviceMuted == state.isDeviceMuted
-          && audioSessionId == state.audioSessionId
-          && skipSilenceEnabled == state.skipSilenceEnabled
           && surfaceSize.equals(state.surfaceSize)
           && newlyRenderedFirstFrame == state.newlyRenderedFirstFrame
           && timedMetadata.equals(state.timedMetadata)
@@ -1101,8 +1063,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       result = 31 * result + deviceInfo.hashCode();
       result = 31 * result + deviceVolume;
       result = 31 * result + (isDeviceMuted ? 1 : 0);
-      result = 31 * result + audioSessionId;
-      result = 31 * result + (skipSilenceEnabled ? 1 : 0);
       result = 31 * result + surfaceSize.hashCode();
       result = 31 * result + (newlyRenderedFirstFrame ? 1 : 0);
       result = 31 * result + timedMetadata.hashCode();
@@ -3009,11 +2969,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
           Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(newState.playbackParameters));
     }
-    if (previousState.skipSilenceEnabled != newState.skipSilenceEnabled) {
-      listeners.queueEvent(
-          Player.EVENT_SKIP_SILENCE_ENABLED_CHANGED,
-          listener -> listener.onSkipSilenceEnabledChanged(newState.skipSilenceEnabled));
-    }
     if (previousState.repeatMode != newState.repeatMode) {
       listeners.queueEvent(
           Player.EVENT_REPEAT_MODE_CHANGED,
@@ -3059,11 +3014,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       listeners.queueEvent(
           Player.EVENT_PLAYLIST_METADATA_CHANGED,
           listener -> listener.onPlaylistMetadataChanged(newState.playlistMetadata));
-    }
-    if (previousState.audioSessionId != newState.audioSessionId) {
-      listeners.queueEvent(
-          Player.EVENT_AUDIO_SESSION_ID,
-          listener -> listener.onAudioSessionIdChanged(newState.audioSessionId));
     }
     if (newState.newlyRenderedFirstFrame) {
       listeners.queueEvent(Player.EVENT_RENDERED_FIRST_FRAME, Listener::onRenderedFirstFrame);
