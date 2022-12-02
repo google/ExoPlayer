@@ -752,26 +752,26 @@ public class SampleQueue implements TrackOutput {
   private synchronized long discardSampleMetadataTo(
       long timeUs, boolean toKeyframe, boolean stopAtReadPosition) {
     if (length == 0 || timeUs < timesUs[relativeFirstIndex]) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
     int searchLength = stopAtReadPosition && readPosition != length ? readPosition + 1 : length;
     int discardCount = findSampleBefore(relativeFirstIndex, searchLength, timeUs, toKeyframe);
     if (discardCount == -1) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
     return discardSamples(discardCount);
   }
 
   public synchronized long discardSampleMetadataToRead() {
     if (readPosition == 0) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
     return discardSamples(readPosition);
   }
 
   private synchronized long discardSampleMetadataToEnd() {
     if (length == 0) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
     return discardSamples(length);
   }

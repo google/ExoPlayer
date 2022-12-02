@@ -426,7 +426,7 @@ public final class Mp3Extractor implements Extractor {
   private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput) throws IOException {
     if (seeker != null) {
       long dataEndPosition = seeker.getDataEndPosition();
-      if (dataEndPosition != C.POSITION_UNSET
+      if (dataEndPosition != C.INDEX_UNSET
           && extractorInput.getPeekPosition() > dataEndPosition - 4) {
         return true;
       }
@@ -452,7 +452,7 @@ public final class Mp3Extractor implements Extractor {
     @Nullable Seeker resultSeeker = null;
     if ((flags & FLAG_ENABLE_INDEX_SEEKING) != 0) {
       long durationUs;
-      long dataEndPosition = C.POSITION_UNSET;
+      long dataEndPosition = C.INDEX_UNSET;
       if (metadataSeeker != null) {
         durationUs = metadataSeeker.getDurationUs();
         dataEndPosition = metadataSeeker.getDataEndPosition();

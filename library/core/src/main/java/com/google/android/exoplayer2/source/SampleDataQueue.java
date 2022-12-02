@@ -146,11 +146,11 @@ import java.util.Arrays;
   /**
    * Advances the read position to the specified absolute position.
    *
-   * @param absolutePosition The new absolute read position. May be {@link C#POSITION_UNSET}, in
-   *     which case calling this method is a no-op.
+   * @param absolutePosition The new absolute read position. May be {@link C#INDEX_UNSET}, in which
+   *     case calling this method is a no-op.
    */
   public void discardDownstreamTo(long absolutePosition) {
-    if (absolutePosition == C.POSITION_UNSET) {
+    if (absolutePosition == C.INDEX_UNSET) {
       return;
     }
     while (absolutePosition >= firstAllocationNode.endPosition) {

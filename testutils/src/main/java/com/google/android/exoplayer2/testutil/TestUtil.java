@@ -426,7 +426,7 @@ public class TestUtil {
     extractor.seek(initialSeekLoadPosition, seekTimeUs);
 
     PositionHolder positionHolder = new PositionHolder();
-    positionHolder.position = C.POSITION_UNSET;
+    positionHolder.position = C.INDEX_UNSET;
     ExtractorInput extractorInput =
         TestUtil.getExtractorInputFromPosition(dataSource, initialSeekLoadPosition, uri);
     int extractorReadResult = Extractor.RESULT_CONTINUE;

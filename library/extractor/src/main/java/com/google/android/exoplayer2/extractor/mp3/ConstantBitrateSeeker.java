@@ -54,6 +54,6 @@ import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
 
   @Override
   public long getDataEndPosition() {
-    return C.POSITION_UNSET;
+    return C.INDEX_UNSET;
   }
 }
