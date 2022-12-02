@@ -2524,7 +2524,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs).isEqualTo(C.POSITION_UNSET);
+    assertThat(target.positionMs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -2546,7 +2546,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs).isEqualTo(C.POSITION_UNSET);
+    assertThat(target.positionMs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -12292,7 +12292,7 @@ public final class ExoPlayerTest {
 
     public PositionGrabbingMessageTarget() {
       mediaItemIndex = C.INDEX_UNSET;
-      positionMs = C.POSITION_UNSET;
+      positionMs = C.TIME_UNSET;
     }
 
     @Override
