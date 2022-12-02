@@ -17,7 +17,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
@@ -91,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int MSG_DRAIN_PIPELINES = 4;
   private static final int MSG_END = 5;
 
-  private static final int DRAIN_PIPELINES_DELAY_MS = 10;
+  private static final int DRAIN_PIPELINES_DELAY_MS = 50;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
@@ -223,13 +222,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           startInternal();
           break;
         case MSG_REGISTER_SAMPLE_PIPELINE:
-          samplePipelines.add((SamplePipeline) msg.obj);
+          registerSamplePipelineInternal((SamplePipeline) msg.obj);
           break;
         case MSG_DEQUEUE_INPUT:
           dequeueInputInternal(/* samplePipelineIndex= */ msg.arg1);
           break;
         case MSG_QUEUE_INPUT:
-          queueInputInternal(/* samplePipelineIndex= */ msg.arg1);
+          samplePipelines.get(/* samplePipelineIndex= */ msg.arg1).queueInputBuffer();
           break;
         case MSG_DRAIN_PIPELINES:
           drainPipelinesInternal();
@@ -254,27 +253,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     exoPlayerAssetLoader.start();
   }
 
+  private void registerSamplePipelineInternal(SamplePipeline samplePipeline) {
+    samplePipelines.add(samplePipeline);
+    if (!isDrainingPipelines) {
+      // Make sure pipelines are drained regularly to prevent them from getting stuck.
+      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
+      isDrainingPipelines = true;
+    }
+  }
+
   private void dequeueInputInternal(int samplePipelineIndex) throws TransformationException {
     SamplePipeline samplePipeline = samplePipelines.get(samplePipelineIndex);
-    // The sample pipeline is drained before dequeuing input. It can't be done before queuing
-    // input because, if the pipeline is full, dequeuing input would forever return a null buffer.
-    // Draining the pipeline at regular intervals would be inefficient because a low interval could
-    // result in many no-op operations, and a high interval could slow down data queuing.
+    // The sample pipeline is drained before dequeuing input to maximise the chances of having an
+    // input buffer to dequeue.
     while (samplePipeline.processData()) {}
     pendingInputBuffer = samplePipeline.dequeueInputBuffer();
     dequeueBufferConditionVariable.open();
 
     if (forceSilentAudio) {
       while (samplePipelines.get(silentSamplePipelineIndex).processData()) {}
-    }
-  }
-
-  private void queueInputInternal(int samplePipelineIndex) throws TransformationException {
-    DecoderInputBuffer pendingInputBuffer = checkStateNotNull(this.pendingInputBuffer);
-    samplePipelines.get(samplePipelineIndex).queueInputBuffer();
-    if (pendingInputBuffer.isEndOfStream() && !isDrainingPipelines) {
-      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
-      isDrainingPipelines = true;
     }
   }
 
@@ -630,7 +627,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           return null;
         }
         // TODO(b/252537210): Reduce the number of thread hops (for example by adding a queue at the
-        //  start of thesample pipelines). Having 2 thread hops per sample (one for dequeuing and
+        //  start of the sample pipelines). Having 2 thread hops per sample (one for dequeuing and
         //  one for queuing) makes transmuxing slower than it used to be.
         internalHandler
             .obtainMessage(MSG_DEQUEUE_INPUT, samplePipelineIndex, /* unused */ 0)
