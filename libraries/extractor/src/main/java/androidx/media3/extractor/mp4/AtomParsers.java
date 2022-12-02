@@ -1515,7 +1515,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             childAtomType == Atom.TYPE_esds
                 ? childPosition
                 : findBoxPosition(parent, Atom.TYPE_esds, childPosition, childAtomSize);
-        if (esdsAtomPosition != C.POSITION_UNSET) {
+        if (esdsAtomPosition != C.INDEX_UNSET) {
           esdsData = parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = esdsData.mimeType;
           @Nullable byte[] initializationDataBytes = esdsData.initializationData;
@@ -1623,7 +1623,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /**
    * Returns the position of the first box with the given {@code boxType} within {@code parent}, or
-   * {@link C#POSITION_UNSET} if no such box is found.
+   * {@link C#INDEX_UNSET} if no such box is found.
    *
    * @param parent The {@link ParsableByteArray} to search. The search will start from the {@link
    *     ParsableByteArray#getPosition() current position}.
@@ -1631,7 +1631,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param parentBoxPosition The position in {@code parent} of the box we are searching.
    * @param parentBoxSize The size of the parent box we are searching in bytes.
    * @return The position of the first box with the given {@code boxType} within {@code parent}, or
-   *     {@link C#POSITION_UNSET} if no such box is found.
+   *     {@link C#INDEX_UNSET} if no such box is found.
    */
   private static int findBoxPosition(
       ParsableByteArray parent, int boxType, int parentBoxPosition, int parentBoxSize)
@@ -1648,7 +1648,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       childAtomPosition += childAtomSize;
     }
-    return C.POSITION_UNSET;
+    return C.INDEX_UNSET;
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */
@@ -1736,7 +1736,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /* package */ static Pair<Integer, TrackEncryptionBox> parseCommonEncryptionSinfFromParent(
       ParsableByteArray parent, int position, int size) throws ParserException {
     int childPosition = position + Atom.HEADER_SIZE;
-    int schemeInformationBoxPosition = C.POSITION_UNSET;
+    int schemeInformationBoxPosition = C.INDEX_UNSET;
     int schemeInformationBoxSize = 0;
     @Nullable String schemeType = null;
     @Nullable Integer dataFormat = null;
@@ -1763,7 +1763,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         || C.CENC_TYPE_cbcs.equals(schemeType)) {
       ExtractorUtil.checkContainerInput(dataFormat != null, "frma atom is mandatory");
       ExtractorUtil.checkContainerInput(
-          schemeInformationBoxPosition != C.POSITION_UNSET, "schi atom is mandatory");
+          schemeInformationBoxPosition != C.INDEX_UNSET, "schi atom is mandatory");
       @Nullable
       TrackEncryptionBox encryptionBox =
           parseSchiFromParent(

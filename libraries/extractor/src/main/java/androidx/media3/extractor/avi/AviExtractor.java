@@ -144,8 +144,8 @@ public final class AviExtractor implements Extractor {
     chunkHeaderHolder = new ChunkHeaderHolder();
     extractorOutput = new DummyExtractorOutput();
     chunkReaders = new ChunkReader[0];
-    moviStart = C.POSITION_UNSET;
-    moviEnd = C.POSITION_UNSET;
+    moviStart = C.INDEX_UNSET;
+    moviEnd = C.INDEX_UNSET;
     hdrlSize = C.LENGTH_UNSET;
     durationUs = C.TIME_UNSET;
   }
@@ -156,7 +156,7 @@ public final class AviExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     this.state = STATE_SKIPPING_TO_HDRL;
     this.extractorOutput = output;
-    pendingReposition = C.POSITION_UNSET;
+    pendingReposition = C.INDEX_UNSET;
   }
 
   @Override
@@ -208,7 +208,7 @@ public final class AviExtractor implements Extractor {
         state = STATE_FINDING_MOVI_HEADER;
         return RESULT_CONTINUE;
       case STATE_FINDING_MOVI_HEADER:
-        if (moviStart != C.POSITION_UNSET && input.getPosition() != moviStart) {
+        if (moviStart != C.INDEX_UNSET && input.getPosition() != moviStart) {
           pendingReposition = moviStart;
           return RESULT_CONTINUE;
         }
@@ -275,7 +275,7 @@ public final class AviExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    pendingReposition = C.POSITION_UNSET;
+    pendingReposition = C.INDEX_UNSET;
     currentChunkReader = null;
     for (ChunkReader chunkReader : chunkReaders) {
       chunkReader.seekToPosition(position);
@@ -308,7 +308,7 @@ public final class AviExtractor implements Extractor {
   private boolean resolvePendingReposition(ExtractorInput input, PositionHolder seekPosition)
       throws IOException {
     boolean needSeek = false;
-    if (pendingReposition != C.POSITION_UNSET) {
+    if (pendingReposition != C.INDEX_UNSET) {
       long currentPosition = input.getPosition();
       if (pendingReposition < currentPosition
           || pendingReposition > currentPosition + RELOAD_MINIMUM_SEEK_DISTANCE) {
@@ -320,7 +320,7 @@ public final class AviExtractor implements Extractor {
         input.skipFully((int) (pendingReposition - currentPosition));
       }
     }
-    pendingReposition = C.POSITION_UNSET;
+    pendingReposition = C.INDEX_UNSET;
     return needSeek;
   }
 

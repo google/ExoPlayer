@@ -60,11 +60,13 @@ public final class C {
    */
   public static final long TIME_UNSET = Long.MIN_VALUE + 1;
 
-  /** Represents an unset or unknown index. */
+  /** Represents an unset or unknown index or byte position. */
   public static final int INDEX_UNSET = -1;
 
-  /** Represents an unset or unknown position. */
-  @UnstableApi public static final int POSITION_UNSET = -1;
+  /**
+   * @deprecated Use {@link #INDEX_UNSET}.
+   */
+  @Deprecated @UnstableApi public static final int POSITION_UNSET = INDEX_UNSET;
 
   /** Represents an unset or unknown rate. */
   public static final float RATE_UNSET = -Float.MAX_VALUE;

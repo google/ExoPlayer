@@ -218,7 +218,7 @@ public final class PsExtractorSeekTest {
     long initialSeekLoadPosition = seekPoints.first.position;
     psExtractor.seek(initialSeekLoadPosition, seekTimeUs);
 
-    positionHolder.position = C.POSITION_UNSET;
+    positionHolder.position = C.INDEX_UNSET;
     ExtractorInput extractorInput = getExtractorInputFromPosition(initialSeekLoadPosition);
     int extractorReadResult = Extractor.RESULT_CONTINUE;
     while (true) {

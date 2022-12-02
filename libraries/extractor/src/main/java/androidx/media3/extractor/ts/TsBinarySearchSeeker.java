@@ -96,8 +96,8 @@ import java.io.IOException;
         ParsableByteArray packetBuffer, long targetPcrTimeUs, long bufferStartOffset) {
       int limit = packetBuffer.limit();
 
-      long startOfLastPacketPosition = C.POSITION_UNSET;
-      long endOfLastPacketPosition = C.POSITION_UNSET;
+      long startOfLastPacketPosition = C.INDEX_UNSET;
+      long endOfLastPacketPosition = C.INDEX_UNSET;
       long lastPcrTimeUsInRange = C.TIME_UNSET;
 
       while (packetBuffer.bytesLeft() >= TsExtractor.TS_PACKET_SIZE) {

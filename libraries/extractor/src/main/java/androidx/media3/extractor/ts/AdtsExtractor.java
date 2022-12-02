@@ -132,7 +132,7 @@ public final class AdtsExtractor implements Extractor {
     reader = new AdtsReader(true);
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
     averageFrameSize = C.LENGTH_UNSET;
-    firstFramePosition = C.POSITION_UNSET;
+    firstFramePosition = C.INDEX_UNSET;
     // Allocate scratch space for an ID3 header. The same buffer is also used to read 4 byte values.
     scratch = new ParsableByteArray(ID3_HEADER_LENGTH);
     scratchBits = new ParsableBitArray(scratch.getData());
@@ -258,7 +258,7 @@ public final class AdtsExtractor implements Extractor {
     }
     input.resetPeekPosition();
     input.advancePeekPosition(firstFramePosition);
-    if (this.firstFramePosition == C.POSITION_UNSET) {
+    if (this.firstFramePosition == C.INDEX_UNSET) {
       this.firstFramePosition = firstFramePosition;
     }
     return firstFramePosition;

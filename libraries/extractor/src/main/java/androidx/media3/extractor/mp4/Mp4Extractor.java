@@ -304,7 +304,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long firstTimeUs;
     long firstOffset;
     long secondTimeUs = C.TIME_UNSET;
-    long secondOffset = C.POSITION_UNSET;
+    long secondOffset = C.INDEX_UNSET;
 
     // Note that the id matches the index in tracks.
     int mainTrackIndex = trackId != C.INDEX_UNSET ? trackId : firstVideoTrackIndex;

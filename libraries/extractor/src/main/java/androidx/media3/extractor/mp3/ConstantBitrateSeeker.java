@@ -54,6 +54,6 @@ import androidx.media3.extractor.MpegAudioUtil;
 
   @Override
   public long getDataEndPosition() {
-    return C.POSITION_UNSET;
+    return C.INDEX_UNSET;
   }
 }

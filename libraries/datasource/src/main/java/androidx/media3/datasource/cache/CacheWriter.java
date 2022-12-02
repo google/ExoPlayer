@@ -116,16 +116,16 @@ public final class CacheWriter {
       endPosition = dataSpec.position + dataSpec.length;
     } else {
       long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(cacheKey));
-      endPosition = contentLength == C.LENGTH_UNSET ? C.POSITION_UNSET : contentLength;
+      endPosition = contentLength == C.LENGTH_UNSET ? C.INDEX_UNSET : contentLength;
     }
     if (progressListener != null) {
       progressListener.onProgress(getLength(), bytesCached, /* newBytesCached= */ 0);
     }
 
-    while (endPosition == C.POSITION_UNSET || nextPosition < endPosition) {
+    while (endPosition == C.INDEX_UNSET || nextPosition < endPosition) {
       throwIfCanceled();
       long maxRemainingLength =
-          endPosition == C.POSITION_UNSET ? Long.MAX_VALUE : endPosition - nextPosition;
+          endPosition == C.INDEX_UNSET ? Long.MAX_VALUE : endPosition - nextPosition;
       long blockLength = cache.getCachedLength(cacheKey, nextPosition, maxRemainingLength);
       if (blockLength > 0) {
         nextPosition += blockLength;
@@ -225,7 +225,7 @@ public final class CacheWriter {
   }
 
   private long getLength() {
-    return endPosition == C.POSITION_UNSET ? C.LENGTH_UNSET : endPosition - dataSpec.position;
+    return endPosition == C.INDEX_UNSET ? C.LENGTH_UNSET : endPosition - dataSpec.position;
   }
 
   private void throwIfCanceled() throws InterruptedIOException {

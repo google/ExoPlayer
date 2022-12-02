@@ -128,7 +128,7 @@ public final class MediaParserExtractorAdapter implements ProgressiveMediaExtrac
     positionHolder.position = inputReaderAdapter.getAndResetSeekPosition();
     return !shouldContinue
         ? Extractor.RESULT_END_OF_INPUT
-        : positionHolder.position != C.POSITION_UNSET
+        : positionHolder.position != C.INDEX_UNSET
             ? Extractor.RESULT_SEEK
             : Extractor.RESULT_CONTINUE;
   }

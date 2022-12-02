@@ -89,8 +89,8 @@ import java.io.IOException;
 
     private TimestampSearchResult searchForScrValueInBuffer(
         ParsableByteArray packetBuffer, long targetScrTimeUs, long bufferStartOffset) {
-      int startOfLastPacketPosition = C.POSITION_UNSET;
-      int endOfLastPacketPosition = C.POSITION_UNSET;
+      int startOfLastPacketPosition = C.INDEX_UNSET;
+      int endOfLastPacketPosition = C.INDEX_UNSET;
       long lastScrTimeUsInRange = C.TIME_UNSET;
 
       while (packetBuffer.bytesLeft() >= 4) {

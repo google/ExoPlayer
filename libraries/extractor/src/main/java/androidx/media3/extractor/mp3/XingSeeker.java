@@ -114,7 +114,7 @@ import androidx.media3.extractor.SeekPoint;
     this.durationUs = durationUs;
     this.tableOfContents = tableOfContents;
     this.dataSize = dataSize;
-    dataEndPosition = dataSize == C.LENGTH_UNSET ? C.POSITION_UNSET : dataStartPosition + dataSize;
+    dataEndPosition = dataSize == C.LENGTH_UNSET ? C.INDEX_UNSET : dataStartPosition + dataSize;
   }
 
   @Override

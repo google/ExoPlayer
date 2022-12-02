@@ -659,11 +659,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int endTime = id3Data.readInt();
     long startOffset = id3Data.readUnsignedInt();
     if (startOffset == 0xFFFFFFFFL) {
-      startOffset = C.POSITION_UNSET;
+      startOffset = C.INDEX_UNSET;
     }
     long endOffset = id3Data.readUnsignedInt();
     if (endOffset == 0xFFFFFFFFL) {
-      endOffset = C.POSITION_UNSET;
+      endOffset = C.INDEX_UNSET;
     }
 
     ArrayList<Id3Frame> subFrames = new ArrayList<>();

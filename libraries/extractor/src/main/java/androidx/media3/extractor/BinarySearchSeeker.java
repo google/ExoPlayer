@@ -420,7 +420,7 @@ public abstract class BinarySearchSeeker {
     @interface Type {}
 
     public static final TimestampSearchResult NO_TIMESTAMP_IN_RANGE_RESULT =
-        new TimestampSearchResult(TYPE_NO_TIMESTAMP, C.TIME_UNSET, C.POSITION_UNSET);
+        new TimestampSearchResult(TYPE_NO_TIMESTAMP, C.TIME_UNSET, C.INDEX_UNSET);
 
     /** The type of the result. */
     private final @Type int type;

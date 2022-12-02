@@ -33,9 +33,9 @@ public final class ChapterFrame extends Id3Frame {
   public final String chapterId;
   public final int startTimeMs;
   public final int endTimeMs;
-  /** The byte offset of the start of the chapter, or {@link C#POSITION_UNSET} if not set. */
+  /** The byte offset of the start of the chapter, or {@link C#INDEX_UNSET} if not set. */
   public final long startOffset;
-  /** The byte offset of the end of the chapter, or {@link C#POSITION_UNSET} if not set. */
+  /** The byte offset of the end of the chapter, or {@link C#INDEX_UNSET} if not set. */
   public final long endOffset;
 
   private final Id3Frame[] subFrames;

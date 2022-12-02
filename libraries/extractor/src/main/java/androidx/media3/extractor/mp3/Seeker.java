@@ -35,7 +35,7 @@ import androidx.media3.extractor.SeekMap;
 
   /**
    * Returns the position (byte offset) in the stream that is immediately after audio data, or
-   * {@link C#POSITION_UNSET} if not known.
+   * {@link C#INDEX_UNSET} if not known.
    */
   long getDataEndPosition();
 
@@ -54,7 +54,7 @@ import androidx.media3.extractor.SeekMap;
     @Override
     public long getDataEndPosition() {
       // Position unset as we do not know the data end position. Note that returning 0 doesn't work.
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
   }
 }

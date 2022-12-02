@@ -75,8 +75,8 @@ public interface ProgressiveMediaExtractor {
   void disableSeekingOnMp3Streams();
 
   /**
-   * Returns the current read position in the input stream, or {@link C#POSITION_UNSET} if no input
-   * is available.
+   * Returns the current read position in the input stream, or {@link C#INDEX_UNSET} if no input is
+   * available.
    */
   long getCurrentInputPosition();
 

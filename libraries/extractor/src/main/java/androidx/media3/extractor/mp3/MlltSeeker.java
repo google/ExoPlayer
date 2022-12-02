@@ -125,6 +125,6 @@ import androidx.media3.extractor.metadata.id3.MlltFrame;
 
   @Override
   public long getDataEndPosition() {
-    return C.POSITION_UNSET;
+    return C.INDEX_UNSET;
   }
 }

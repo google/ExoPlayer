@@ -115,7 +115,7 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
 
   @Override
   public long getCurrentInputPosition() {
-    return extractorInput != null ? extractorInput.getPosition() : C.POSITION_UNSET;
+    return extractorInput != null ? extractorInput.getPosition() : C.INDEX_UNSET;
   }
 
   @Override
