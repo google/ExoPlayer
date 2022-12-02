@@ -56,7 +56,8 @@ public final class MediaTestUtils {
   public static MediaItem createMediaItem(String mediaId) {
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
+            .setFolderType(MediaMetadata.FOLDER_TYPE_TITLES)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_PLAYLIST)
             .setIsPlayable(true)
             .build();
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
@@ -65,7 +66,8 @@ public final class MediaTestUtils {
   public static MediaItem createMediaItemWithArtworkData(String mediaId) {
     MediaMetadata.Builder mediaMetadataBuilder =
         new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
+            .setFolderType(MediaMetadata.FOLDER_TYPE_TITLES)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_PLAYLIST)
             .setIsPlayable(true);
     try {
       byte[] artworkData =

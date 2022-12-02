@@ -19,6 +19,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -454,6 +455,15 @@ public final class MediaConstants {
   public static final String EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT =
       androidx.media.utils.MediaConstants
           .BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT;
+
+  /**
+   * {@link Bundle} key used to indicate the {@link MediaMetadata.MediaType} in the legacy {@link
+   * MediaDescriptionCompat} as a long {@link MediaDescriptionCompat#getExtras() extra} and as a
+   * long value in {@link android.support.v4.media.MediaMetadataCompat}.
+   */
+  @UnstableApi
+  public static final String EXTRAS_KEY_MEDIA_TYPE_COMPAT =
+      "androidx.media3.session.EXTRAS_KEY_MEDIA_TYPE_COMPAT";
 
   /* package */ static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
       "androidx.media3.session.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED";
