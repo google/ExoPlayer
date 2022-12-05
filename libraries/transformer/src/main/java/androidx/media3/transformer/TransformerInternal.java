@@ -200,6 +200,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void cancel() {
+    if (released) {
+      return;
+    }
     internalHandler
         .obtainMessage(
             MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* transformationException */ null)
@@ -333,6 +336,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         releaseTransformationException = TransformationException.createForUnexpected(e);
         cancelException = e;
       }
+      // Quit thread lazily so that all events that got triggered when releasing the AssetLoader are
+      // still delivered.
+      internalHandler.post(internalHandlerThread::quitSafely);
     }
 
     if (!forCancellation) {
@@ -352,7 +358,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
-    internalHandlerThread.quitSafely();
     cancellingConditionVariable.open();
   }
 
