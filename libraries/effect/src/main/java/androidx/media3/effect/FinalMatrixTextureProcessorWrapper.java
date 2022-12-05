@@ -44,6 +44,7 @@ import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -69,6 +70,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
+  private final Executor frameProcessorListenerExecutor;
   private final boolean sampleFromExternalTexture;
   private final ColorInfo colorInfo;
   private final boolean releaseFramesAutomatically;
@@ -101,6 +103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
       FrameProcessor.Listener frameProcessorListener,
+      Executor frameProcessorListenerExecutor,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
       ColorInfo colorInfo,
@@ -112,6 +115,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
     this.frameProcessorListener = frameProcessorListener;
+    this.frameProcessorListenerExecutor = frameProcessorListenerExecutor;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
     this.colorInfo = colorInfo;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
@@ -135,7 +139,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setErrorListener(ErrorListener errorListener) {
+  public void setErrorListener(Executor executor, ErrorListener errorListener) {
     // The FrameProcessor.Listener passed to the constructor is used for errors.
     throw new UnsupportedOperationException();
   }
@@ -145,7 +149,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long streamOffsetUs =
         checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
     long offsetPresentationTimeUs = presentationTimeUs + streamOffsetUs;
-    frameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs);
+    frameProcessorListenerExecutor.execute(
+        () -> frameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs));
     if (releaseFramesAutomatically) {
       renderFrameToSurfaces(
           inputTexture, presentationTimeUs, /* releaseTimeNs= */ offsetPresentationTimeUs * 1000);
@@ -177,7 +182,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     streamOffsetUsQueue.remove();
     if (streamOffsetUsQueue.isEmpty()) {
-      frameProcessorListener.onFrameProcessingEnded();
+      frameProcessorListenerExecutor.execute(frameProcessorListener::onFrameProcessingEnded);
     }
   }
 
@@ -234,7 +239,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         try {
           GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
         } catch (GlUtil.GlException e) {
-          frameProcessorListener.onFrameProcessingError(FrameProcessingException.from(e));
+          frameProcessorListenerExecutor.execute(
+              () ->
+                  frameProcessorListener.onFrameProcessingError(FrameProcessingException.from(e)));
         }
         this.outputEglSurface = null;
       }
@@ -253,8 +260,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
     } catch (FrameProcessingException | GlUtil.GlException e) {
-      frameProcessorListener.onFrameProcessingError(
-          FrameProcessingException.from(e, presentationTimeUs));
+      frameProcessorListenerExecutor.execute(
+          () ->
+              frameProcessorListener.onFrameProcessingError(
+                  FrameProcessingException.from(e, presentationTimeUs)));
     }
     maybeRenderFrameToDebugSurface(inputTexture, presentationTimeUs);
     inputListener.onInputFrameProcessed(inputTexture);
@@ -306,9 +315,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!Util.areEqual(
           this.outputSizeBeforeSurfaceTransformation, outputSizeBeforeSurfaceTransformation)) {
         this.outputSizeBeforeSurfaceTransformation = outputSizeBeforeSurfaceTransformation;
-        frameProcessorListener.onOutputSizeChanged(
-            outputSizeBeforeSurfaceTransformation.first,
-            outputSizeBeforeSurfaceTransformation.second);
+        frameProcessorListenerExecutor.execute(
+            () ->
+                frameProcessorListener.onOutputSizeChanged(
+                    outputSizeBeforeSurfaceTransformation.first,
+                    outputSizeBeforeSurfaceTransformation.second));
       }
     }
 

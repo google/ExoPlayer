@@ -21,6 +21,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Interface for a frame processor that applies changes to individual video frames.
@@ -45,6 +46,7 @@ public interface FrameProcessor {
      *
      * @param context A {@link Context}.
      * @param listener A {@link Listener}.
+     * @param executor The {@link Executor} on which the {@code listener} is invoked.
      * @param effects The {@link Effect} instances to apply to each frame.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param colorInfo The {@link ColorInfo} for input and output frames.
@@ -60,6 +62,7 @@ public interface FrameProcessor {
     FrameProcessor create(
         Context context,
         Listener listener,
+        Executor executor,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo colorInfo,
@@ -70,7 +73,8 @@ public interface FrameProcessor {
   /**
    * Listener for asynchronous frame processing events.
    *
-   * <p>All listener methods must be called from the same thread.
+   * <p>All listener methods must be called from the {@link Executor} passed in at {@linkplain
+   * Factory#create creation}.
    */
   interface Listener {
 

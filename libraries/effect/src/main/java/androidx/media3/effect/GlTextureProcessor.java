@@ -17,6 +17,7 @@ package androidx.media3.effect;
 
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
+import java.util.concurrent.Executor;
 
 /**
  * Processes frames from one OpenGL 2D texture to another.
@@ -113,14 +114,30 @@ public interface GlTextureProcessor {
     void onFrameProcessingError(FrameProcessingException e);
   }
 
-  /** Sets the {@link InputListener}. */
+  /**
+   * Sets the {@link InputListener}.
+   *
+   * <p>The {@link InputListener} should be invoked on the thread that owns the parent OpenGL
+   * context. For example, {@link GlEffectsFrameProcessor} invokes the {@link InputListener} methods
+   * on its internal thread.
+   */
   void setInputListener(InputListener inputListener);
 
-  /** Sets the {@link OutputListener}. */
+  /**
+   * Sets the {@link OutputListener}.
+   *
+   * <p>The {@link OutputListener} should be invoked on the thread that owns the parent OpenGL
+   * context. For example, {@link GlEffectsFrameProcessor} invokes the {@link OutputListener}
+   * methods on its internal thread.
+   */
   void setOutputListener(OutputListener outputListener);
 
-  /** Sets the {@link ErrorListener}. */
-  void setErrorListener(ErrorListener errorListener);
+  /**
+   * Sets the {@link ErrorListener}.
+   *
+   * <p>The {@link ErrorListener} is invoked on the provided {@link Executor}.
+   */
+  void setErrorListener(Executor executor, ErrorListener errorListener);
 
   /**
    * Processes an input frame if possible.

@@ -44,6 +44,7 @@ import androidx.media3.common.SurfaceInfo;
 import androidx.media3.test.utils.DecodeOneFrameUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -441,6 +442,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                         frameProcessingEnded = true;
                       }
                     },
+                    MoreExecutors.directExecutor(),
                     effects,
                     DebugViewProvider.NONE,
                     ColorInfo.SDR_BT709_LIMITED,

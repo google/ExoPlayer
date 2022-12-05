@@ -38,8 +38,10 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -59,17 +61,21 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      * <p>All {@link Effect} instances must be {@link GlEffect} instances.
      *
      * <p>Using HDR requires the {@code EXT_YUV_target} OpenGL extension.
+     *
+     * <p>Pass a {@link MoreExecutors#directExecutor() direct listenerExecutor} if invoking the
+     * {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is desired.
      */
     @Override
     public GlEffectsFrameProcessor create(
         Context context,
-        FrameProcessor.Listener listener,
+        Listener listener,
+        Executor listenerExecutor,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo colorInfo,
         boolean releaseFramesAutomatically)
         throws FrameProcessingException {
-
+      // TODO(b/261188041) Add tests to verify the Listener is invoked on the given Executor.
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
       Future<GlEffectsFrameProcessor> glFrameProcessorFuture =
@@ -78,6 +84,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                   createOpenGlObjectsAndFrameProcessor(
                       context,
                       listener,
+                      listenerExecutor,
                       effects,
                       debugViewProvider,
                       colorInfo,
@@ -96,7 +103,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   }
 
   /**
-   * Creates the OpenGL context, surfaces, textures, and framebuffers, initializes {@link
+   * Creates the OpenGL context, surfaces, textures, and frame buffers, initializes {@link
    * GlTextureProcessor} instances corresponding to the {@link GlEffect} instances, and returns a
    * new {@code GlEffectsFrameProcessor}.
    *
@@ -108,7 +115,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   @WorkerThread
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
-      FrameProcessor.Listener listener,
+      Listener listener,
+      Executor executor,
       List<Effect> effects,
       DebugViewProvider debugViewProvider,
       ColorInfo colorInfo,
@@ -133,12 +141,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             eglDisplay,
             eglContext,
             listener,
+            executor,
             debugViewProvider,
             colorInfo,
             releaseFramesAutomatically);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
-    chainTextureProcessorsWithListeners(textureProcessors, frameProcessingTaskExecutor, listener);
+    chainTextureProcessorsWithListeners(
+        textureProcessors, frameProcessingTaskExecutor, listener, executor);
 
     return new GlEffectsFrameProcessor(
         eglDisplay,
@@ -164,7 +174,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       List<Effect> effects,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      FrameProcessor.Listener listener,
+      Listener listener,
+      Executor executor,
       DebugViewProvider debugViewProvider,
       ColorInfo colorInfo,
       boolean releaseFramesAutomatically)
@@ -222,6 +233,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             matrixTransformationListBuilder.build(),
             rgbMatrixListBuilder.build(),
             listener,
+            executor,
             debugViewProvider,
             sampleFromExternalTexture,
             colorInfo,
@@ -236,7 +248,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private static void chainTextureProcessorsWithListeners(
       ImmutableList<GlTextureProcessor> textureProcessors,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      FrameProcessor.Listener frameProcessorListener) {
+      Listener frameProcessorListener,
+      Executor frameProcessorListenerExecutor) {
     for (int i = 0; i < textureProcessors.size() - 1; i++) {
       GlTextureProcessor producingGlTextureProcessor = textureProcessors.get(i);
       GlTextureProcessor consumingGlTextureProcessor = textureProcessors.get(i + 1);
@@ -246,7 +259,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
               consumingGlTextureProcessor,
               frameProcessingTaskExecutor);
       producingGlTextureProcessor.setOutputListener(chainingGlTextureProcessorListener);
-      producingGlTextureProcessor.setErrorListener(frameProcessorListener::onFrameProcessingError);
+      producingGlTextureProcessor.setErrorListener(
+          frameProcessorListenerExecutor, frameProcessorListener::onFrameProcessingError);
       consumingGlTextureProcessor.setInputListener(chainingGlTextureProcessorListener);
     }
   }

@@ -32,9 +32,11 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -313,6 +315,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                       @Override
                       public void onFrameProcessingEnded() {}
                     },
+                    MoreExecutors.directExecutor(),
                     ImmutableList.of(
                         (GlEffect)
                             (context, useHdr) ->
@@ -362,7 +365,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     }
 
     @Override
-    public void setErrorListener(ErrorListener errorListener) {}
+    public void setErrorListener(Executor executor, ErrorListener errorListener) {}
 
     @Override
     public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
