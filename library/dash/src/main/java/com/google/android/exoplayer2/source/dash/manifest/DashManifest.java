@@ -185,22 +185,9 @@ public class DashManifest implements FilterableManifest<DashManifest> {
           int bitrate = representation.format.bitrate;
           int imageWidth = representation.format.width;
           int imageHeight = representation.format.height;
-
           // get size XxY, e.g. 10x20, where 10 is column count and 20 is row count
-          int rows = 1;
-          int cols = 1;
-          for (int m = 0; m < representation.essentialProperties.size(); m++) {
-            Descriptor descriptor = representation.essentialProperties.get(m);
-            if ((Ascii.equalsIgnoreCase("http://dashif.org/thumbnail_tile", descriptor.schemeIdUri) || Ascii.equalsIgnoreCase("http://dashif.org/guidelines/thumbnail_tile", descriptor.schemeIdUri)) && descriptor.value != null) {
-              String size = descriptor.value;
-              String[] sizeSplit = size.split("x");
-              if (sizeSplit.length != 2) {
-                continue;
-              }
-              cols = Integer.parseInt(sizeSplit[0]);
-              rows = Integer.parseInt(sizeSplit[1]);
-            }
-          }
+          int tileCountHorizontal = representation.format.tileCountHorizontal;
+          int tileCountVertical = representation.format.tileCountVertical;
 
           long now = Util.getNowUnixTimeMs(C.TIME_UNSET);
           String baseUrl = castNonNull(baseUrlExclusionList.selectBaseUrl(representation.baseUrls)).url;
@@ -217,7 +204,7 @@ public class DashManifest implements FilterableManifest<DashManifest> {
           RangedUri rangedUri = index.getSegmentUrl(segmentNumber);
           DataSpec dataSpec = DashUtil.buildDataSpec(representation, baseUrl, rangedUri, /* flags= */ 0);
           Uri uri = dataSpec.uri;
-          ThumbnailDescription thumbnailDescription = new ThumbnailDescription(id, uri, bitrate, rows, cols, Util.usToMs(segmentStartTimeUs - (dynamic ? firstStartTimeUs : 0)), Util.usToMs(segmentDurationUs), imageWidth, imageHeight);
+          ThumbnailDescription thumbnailDescription = new ThumbnailDescription(id, uri, bitrate, tileCountHorizontal, tileCountVertical, Util.usToMs(segmentStartTimeUs - (dynamic ? firstStartTimeUs : 0)), Util.usToMs(segmentDurationUs), imageWidth, imageHeight);
           thumbnailDescriptions.add(thumbnailDescription);
         }
       }

@@ -92,7 +92,7 @@ public class DefaultThumbnailProvider implements ThumbnailProvider {
 
     if (position < thumbnailDescription.getStartTimeMs() || position > thumbnailDescription.getStartTimeMs() + thumbnailDescription.getDurationMs())  return null;
 
-    int count = thumbnailDescription.getColumns() * thumbnailDescription.getRows();
+    int count = thumbnailDescription.getTileCountHorizontal() * thumbnailDescription.getTileCountVertical();
 
     int durationPerImage = (int)(thumbnailDescription.getDurationMs() / count);
 
@@ -101,12 +101,12 @@ public class DefaultThumbnailProvider implements ThumbnailProvider {
     //handle special case if position == duration
     if (imageNumberToUseWithinTile > count-1) imageNumberToUseWithinTile = count-1;
 
-    int intRowToUse = (int)(imageNumberToUseWithinTile / thumbnailDescription.getColumns());
+    int intRowToUse = (int)(imageNumberToUseWithinTile / thumbnailDescription.getTileCountHorizontal());
 
-    int intColToUse = imageNumberToUseWithinTile - intRowToUse * thumbnailDescription.getColumns();
+    int intColToUse = imageNumberToUseWithinTile - intRowToUse * thumbnailDescription.getTileCountHorizontal();
 
-    double thumbnailWidth = (double) thumbnailDescription.getImageWidth() / thumbnailDescription.getColumns();
-    double thumbnailHeight = (double) thumbnailDescription.getImageHeight() / thumbnailDescription.getRows();
+    double thumbnailWidth = (double) thumbnailDescription.getImageWidth() / thumbnailDescription.getTileCountHorizontal();
+    double thumbnailHeight = (double) thumbnailDescription.getImageHeight() / thumbnailDescription.getTileCountVertical();
 
     int cropXLeft = (int)Math.round(intColToUse * thumbnailWidth);
     int cropYTop = (int)Math.round(intRowToUse * thumbnailHeight);

@@ -811,6 +811,8 @@ public class DashManifestParser extends DefaultHandler
     roleFlags |= parseRoleFlagsFromProperties(essentialProperties);
     roleFlags |= parseRoleFlagsFromProperties(supplementalProperties);
 
+    Pair<Integer,Integer> tileCounts = parseTileCountFromProperties(essentialProperties);
+
     Format.Builder formatBuilder =
         new Format.Builder()
             .setId(id)
@@ -820,7 +822,9 @@ public class DashManifestParser extends DefaultHandler
             .setPeakBitrate(bitrate)
             .setSelectionFlags(selectionFlags)
             .setRoleFlags(roleFlags)
-            .setLanguage(language);
+            .setLanguage(language)
+            .setTileCountHorizontal(tileCounts != null ? tileCounts.first : Format.NO_VALUE)
+            .setTileCountVertical(tileCounts != null ? tileCounts.second : Format.NO_VALUE);
 
     if (MimeTypes.isVideo(sampleMimeType)) {
       formatBuilder.setWidth(width).setHeight(height).setFrameRate(frameRate);
@@ -1627,6 +1631,31 @@ public class DashManifestParser extends DefaultHandler
       return defaultValue;
     }
     return attributeValue.split(",");
+  }
+
+  // Thumbnail tile information parsing
+
+  /**
+   * Parses given descriptors for thumbnail tile information
+   * @param essentialProperties List of descriptor that contain thumbnail tile information
+   * @return A pair of Integer values, where the first is the count of horizontal tiles
+   * and the second is the count of vertical tiles, or null if no thumbnail tile information is found.
+   */
+  @Nullable
+  protected Pair<Integer,Integer> parseTileCountFromProperties(List<Descriptor> essentialProperties) {
+    for (Descriptor descriptor : essentialProperties) {
+      if ((Ascii.equalsIgnoreCase("http://dashif.org/thumbnail_tile", descriptor.schemeIdUri) || Ascii.equalsIgnoreCase("http://dashif.org/guidelines/thumbnail_tile", descriptor.schemeIdUri)) && descriptor.value != null) {
+        String size = descriptor.value;
+        String[] sizeSplit = size.split("x");
+        if (sizeSplit.length != 2) {
+          continue;
+        }
+        int tileCountHorizontal = Integer.parseInt(sizeSplit[0]);
+        int tileCountVertical = Integer.parseInt(sizeSplit[1]);
+        return Pair.create(tileCountHorizontal, tileCountVertical);
+      }
+    }
+    return null;
   }
 
   // Utility methods.
