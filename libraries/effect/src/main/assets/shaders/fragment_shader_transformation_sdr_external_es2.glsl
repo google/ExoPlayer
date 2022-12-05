@@ -20,15 +20,18 @@
 // 2. Transforms the electrical colors to optical colors using the SMPTE 170M
 //    EOTF.
 // 3. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 4. Transforms the optical colors back to electrical ones if uApplyOetf == 1
-//    using the SMPTE 170M OETF.
+// 4. Output as requested by uOetfColorTransfer. Use COLOR_TRANSFER_LINEAR for
+//    outputting to intermediate shaders, or COLOR_TRANSFER_SDR_VIDEO to output
+//    electrical colors via an OETF (e.g. to an encoder).
 
 #extension GL_OES_EGL_image_external : require
 precision mediump float;
 uniform samplerExternalOES uTexSampler;
 uniform mat4 uRgbMatrix;
 varying vec2 vTexSamplingCoord;
-uniform int uApplyOetf;
+// C.java#ColorTransfer value.
+// Only COLOR_TRANSFER_LINEAR and COLOR_TRANSFER_SDR_VIDEO are allowed.
+uniform int uOetfColorTransfer;
 
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
@@ -61,12 +64,26 @@ float sdrOetfSingleChannel(float opticalChannel) {
 
 // Transforms optical SDR colors to electrical SDR using the SMPTE 170M OETF.
 vec3 sdrOetf(vec3 opticalColor) {
-  return uApplyOetf == 1
-    ? vec3(
+  return vec3(
       sdrOetfSingleChannel(opticalColor.r),
       sdrOetfSingleChannel(opticalColor.g),
-      sdrOetfSingleChannel(opticalColor.b))
-    : opticalColor;
+      sdrOetfSingleChannel(opticalColor.b));
+}
+
+// Applies the appropriate OETF to convert linear optical signals to nonlinear
+// electrical signals. Input and output are both normalized to [0, 1].
+highp vec3 applyOetf(highp vec3 linearColor) {
+  // LINT.IfChange(color_transfer_oetf)
+  const int COLOR_TRANSFER_LINEAR = 1;
+  const int COLOR_TRANSFER_SDR_VIDEO = 3;
+  if (uOetfColorTransfer == COLOR_TRANSFER_LINEAR) {
+    return linearColor;
+  } else if(uOetfColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
+    return sdrOetf(linearColor);
+  } else {
+    // Output red as an obviously visible error.
+    return vec3(1.0, 0.0, 0.0);
+  }
 }
 
 void main() {
@@ -75,5 +92,5 @@ void main() {
 
   vec4 transformedColors = uRgbMatrix * vec4(linearInputColor, 1);
 
-  gl_FragColor = vec4(sdrOetf(transformedColors.rgb), inputColor.a);
+  gl_FragColor = vec4(applyOetf(transformedColors.rgb), inputColor.a);
 }

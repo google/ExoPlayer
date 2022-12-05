@@ -286,7 +286,8 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                             (context, useHdr) ->
                                 new BlankFrameProducer(inputPresentationTimesUs, useHdr)),
                     DebugViewProvider.NONE,
-                    ColorInfo.SDR_BT709_LIMITED,
+                    /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     releaseFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {

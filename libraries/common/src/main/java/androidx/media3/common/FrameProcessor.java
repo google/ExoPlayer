@@ -45,9 +45,11 @@ public interface FrameProcessor {
      * Creates a new {@link FrameProcessor} instance.
      *
      * @param context A {@link Context}.
-     * @param effects The {@link Effect} instances to apply to each frame.
+     * @param effects The {@link Effect} instances to apply to each frame. Applied on the {@code
+     *     outputColorInfo}'s color space.
      * @param debugViewProvider A {@link DebugViewProvider}.
-     * @param colorInfo The {@link ColorInfo} for input and output frames.
+     * @param inputColorInfo The {@link ColorInfo} for input frames.
+     * @param outputColorInfo The {@link ColorInfo} for output frames.
      * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will render
      *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
      *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
@@ -63,7 +65,8 @@ public interface FrameProcessor {
         Context context,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        ColorInfo colorInfo,
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
         boolean releaseFramesAutomatically,
         Executor executor,
         Listener listener)

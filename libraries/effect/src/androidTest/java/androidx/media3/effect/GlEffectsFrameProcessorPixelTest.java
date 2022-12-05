@@ -418,7 +418,8 @@ public final class GlEffectsFrameProcessorPixelTest {
                     getApplicationContext(),
                     effects,
                     DebugViewProvider.NONE,
-                    ColorInfo.SDR_BT709_LIMITED,
+                    /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* releaseFramesAutomatically= */ true,
                     MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {
