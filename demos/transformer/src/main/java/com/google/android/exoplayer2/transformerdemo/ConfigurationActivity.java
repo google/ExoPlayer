@@ -72,7 +72,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
   public static final String ABORT_SLOW_TRANSFORMATION = "abort_slow_transformation";
   public static final String HDR_MODE = "hdr_mode";
-  public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
+  public static final String AUDIO_EFFECTS_SELECTIONS = "audio_effects_selections";
+  public static final String VIDEO_EFFECTS_SELECTIONS = "video_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
   public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
@@ -123,7 +124,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "HDR (HLG) H265 limited range video (encoding may fail)",
     "720p H264 video with no audio",
   };
-  private static final String[] DEMO_EFFECTS = {
+  private static final String[] AUDIO_EFFECTS = {
+    "High pitched", "Sample rate of 48000Hz", "Skip silence"
+  };
+  private static final String[] VIDEO_EFFECTS = {
     "Dizzy crop",
     "Edge detector (Media Pipe)",
     "Color filters",
@@ -171,8 +175,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
   private @MonotonicNonNull CheckBox abortSlowTransformationCheckBox;
   private @MonotonicNonNull Spinner hdrModeSpinner;
-  private @MonotonicNonNull Button selectDemoEffectsButton;
-  private boolean @MonotonicNonNull [] demoEffectsSelections;
+  private @MonotonicNonNull Button selectAudioEffectsButton;
+  private @MonotonicNonNull Button selectVideoEffectsButton;
+  private boolean @MonotonicNonNull [] audioEffectsSelections;
+  private boolean @MonotonicNonNull [] videoEffectsSelections;
   private @Nullable Uri localFileUri;
   private int inputUriPosition;
   private long trimStartMs;
@@ -274,9 +280,13 @@ public final class ConfigurationActivity extends AppCompatActivity {
     hdrModeSpinner.setAdapter(hdrModeAdapter);
     hdrModeAdapter.addAll(HDR_MODE_DESCRIPTIONS.keySet());
 
-    demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
-    selectDemoEffectsButton = findViewById(R.id.select_demo_effects_button);
-    selectDemoEffectsButton.setOnClickListener(this::selectDemoEffects);
+    audioEffectsSelections = new boolean[AUDIO_EFFECTS.length];
+    selectAudioEffectsButton = findViewById(R.id.select_audio_effects_button);
+    selectAudioEffectsButton.setOnClickListener(this::selectAudioEffects);
+
+    videoEffectsSelections = new boolean[VIDEO_EFFECTS.length];
+    selectVideoEffectsButton = findViewById(R.id.select_video_effects_button);
+    selectVideoEffectsButton.setOnClickListener(this::selectVideoEffects);
 
     localFilePickerLauncher =
         registerForActivityResult(
@@ -332,7 +342,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "enableDebugPreviewCheckBox",
     "abortSlowTransformationCheckBox",
     "hdrModeSpinner",
-    "demoEffectsSelections"
+    "audioEffectsSelections",
+    "videoEffectsSelections"
   })
   private void startTransformation(View view) {
     Intent transformerIntent = new Intent(/* packageContext= */ this, TransformerActivity.class);
@@ -373,7 +384,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBoolean(ABORT_SLOW_TRANSFORMATION, abortSlowTransformationCheckBox.isChecked());
     String selectedhdrMode = String.valueOf(hdrModeSpinner.getSelectedItem());
     bundle.putInt(HDR_MODE, checkNotNull(HDR_MODE_DESCRIPTIONS.get(selectedhdrMode)));
-    bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
+    bundle.putBooleanArray(AUDIO_EFFECTS_SELECTIONS, audioEffectsSelections);
+    bundle.putBooleanArray(VIDEO_EFFECTS_SELECTIONS, videoEffectsSelections);
     bundle.putInt(COLOR_FILTER_SELECTION, colorFilterSelection);
     bundle.putFloat(CONTRAST_VALUE, contrastValue);
     bundle.putFloat(RGB_ADJUSTMENT_RED_SCALE, rgbAdjustmentRedScale);
@@ -446,11 +458,21 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
   }
 
-  private void selectDemoEffects(View view) {
+  private void selectAudioEffects(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.select_demo_effects)
+        .setTitle(R.string.select_audio_effects)
         .setMultiChoiceItems(
-            DEMO_EFFECTS, checkNotNull(demoEffectsSelections), this::selectDemoEffect)
+            AUDIO_EFFECTS, checkNotNull(audioEffectsSelections), this::selectAudioEffect)
+        .setPositiveButton(android.R.string.ok, /* listener= */ null)
+        .create()
+        .show();
+  }
+
+  private void selectVideoEffects(View view) {
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.select_video_effects)
+        .setMultiChoiceItems(
+            VIDEO_EFFECTS, checkNotNull(videoEffectsSelections), this::selectVideoEffect)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
         .create()
         .show();
@@ -477,9 +499,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .show();
   }
 
-  @RequiresNonNull("demoEffectsSelections")
-  private void selectDemoEffect(DialogInterface dialog, int which, boolean isChecked) {
-    demoEffectsSelections[which] = isChecked;
+  @RequiresNonNull("audioEffectsSelections")
+  private void selectAudioEffect(DialogInterface dialog, int which, boolean isChecked) {
+    audioEffectsSelections[which] = isChecked;
+  }
+
+  @RequiresNonNull("videoEffectsSelections")
+  private void selectVideoEffect(DialogInterface dialog, int which, boolean isChecked) {
+    videoEffectsSelections[which] = isChecked;
     if (!isChecked) {
       return;
     }
@@ -612,7 +639,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
     "hdrModeSpinner",
-    "selectDemoEffectsButton"
+    "selectAudioEffectsButton",
+    "selectVideoEffectsButton"
   })
   private void onRemoveAudio(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -633,7 +661,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
     "hdrModeSpinner",
-    "selectDemoEffectsButton"
+    "selectAudioEffectsButton",
+    "selectVideoEffectsButton"
   })
   private void onRemoveVideo(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -653,7 +682,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
     "hdrModeSpinner",
-    "selectDemoEffectsButton"
+    "selectAudioEffectsButton",
+    "selectVideoEffectsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     forceSilentAudioCheckbox.setEnabled(isVideoEnabled);
@@ -664,7 +694,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateSpinner.setEnabled(isVideoEnabled);
     enableDebugPreviewCheckBox.setEnabled(isVideoEnabled);
     hdrModeSpinner.setEnabled(isVideoEnabled);
-    selectDemoEffectsButton.setEnabled(isVideoEnabled);
+    selectAudioEffectsButton.setEnabled(isAudioEnabled);
+    selectVideoEffectsButton.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);

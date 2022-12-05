@@ -32,7 +32,8 @@
   <string name="abort_slow_transformation" translatable="false">Abort slow transformation</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="hdr_mode" translatable="false">HDR mode</string>
-  <string name="select_demo_effects" translatable="false">Add demo effects</string>
+  <string name="select_audio_effects" translatable="false">Add audio effects</string>
+  <string name="select_video_effects" translatable="false">Add video effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
   <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
   <string name="transform" translatable="false">Transform</string>
