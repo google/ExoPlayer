@@ -23,9 +23,10 @@
 // 3. Applies an EOTF based on uEotfColorTransfer, yielding optical linear
 //    BT.2020 RGB.
 // 4. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 5. If uOetfColorTransfer is COLOR_TRANSFER_LINEAR, outputs linear colors as
-//    is to intermediate shaders. Otherwise, applies the HLG or PQ OETF, based
-// on uOetfColorTransfer, to provide the corresponding output electrical color.
+// 5. Output as requested by uOetfColorTransfer. Use COLOR_TRANSFER_LINEAR for
+//    outputting to intermediate shaders, or COLOR_TRANSFER_ST2084 /
+//    COLOR_TRANSFER_HLG to output electrical colors via an OETF (e.g. to an
+//    encoder).
 // The output will be red if an error has occurred.
 
 #extension GL_OES_EGL_image_external : require

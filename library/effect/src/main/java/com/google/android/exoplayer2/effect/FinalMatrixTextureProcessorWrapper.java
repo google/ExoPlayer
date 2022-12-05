@@ -70,7 +70,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
   private final boolean sampleFromExternalTexture;
-  private final ColorInfo colorInfo;
+  private final ColorInfo inputColorInfo;
+  private final ColorInfo outputColorInfo;
   private final boolean releaseFramesAutomatically;
   private final Executor frameProcessorListenerExecutor;
   private final FrameProcessor.Listener frameProcessorListener;
@@ -104,7 +105,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<RgbMatrix> rgbMatrices,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
-      ColorInfo colorInfo,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
       boolean releaseFramesAutomatically,
       Executor frameProcessorListenerExecutor,
       FrameProcessor.Listener frameProcessorListener) {
@@ -115,7 +117,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
-    this.colorInfo = colorInfo;
+    this.inputColorInfo = inputColorInfo;
+    this.outputColorInfo = outputColorInfo;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
     this.frameProcessorListenerExecutor = frameProcessorListenerExecutor;
     this.frameProcessorListener = frameProcessorListener;
@@ -336,13 +339,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
-      boolean colorInfoIsHdr = ColorInfo.isTransferHdr(colorInfo);
+      boolean outputTransferIsHdr = ColorInfo.isTransferHdr(outputColorInfo);
 
       outputEglSurface =
           GlUtil.createEglSurface(
               eglDisplay,
               outputSurfaceInfo.surface,
-              colorInfoIsHdr
+              outputTransferIsHdr
                   ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
                   : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
 
@@ -352,7 +355,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputSurfaceInfo.width, outputSurfaceInfo.height);
       if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
         debugSurfaceViewWrapper =
-            new SurfaceViewWrapper(eglDisplay, eglContext, colorInfoIsHdr, debugSurfaceView);
+            new SurfaceViewWrapper(eglDisplay, eglContext, outputTransferIsHdr, debugSurfaceView);
       }
       this.debugSurfaceView = debugSurfaceView;
     }
@@ -390,12 +393,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         matrixTransformationListBuilder.build();
     if (sampleFromExternalTexture) {
       matrixTextureProcessor =
-          MatrixTextureProcessor.createWithExternalSamplerApplyingEotfThenOetf(
-              context, expandedMatrixTransformations, rgbMatrices, colorInfo);
+          MatrixTextureProcessor.createWithExternalSampler(
+              context,
+              expandedMatrixTransformations,
+              rgbMatrices,
+              /* inputColorInfo= */ inputColorInfo,
+              /* outputColorInfo= */ outputColorInfo);
     } else {
       matrixTextureProcessor =
           MatrixTextureProcessor.createApplyingOetf(
-              context, expandedMatrixTransformations, rgbMatrices, colorInfo);
+              context, expandedMatrixTransformations, rgbMatrices, outputColorInfo);
     }
 
     matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
