@@ -75,7 +75,7 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/selected_file_text_view"
-    app:layout_constraintBottom_toTopOf="@+id/select_demo_effects_button">
+    app:layout_constraintBottom_toTopOf="@+id/select_audio_effects_button">
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -229,13 +229,24 @@
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
   <Button
-    android:id="@+id/select_demo_effects_button"
+    android:id="@+id/select_audio_effects_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="32dp"
     android:layout_marginStart="32dp"
     android:layout_marginEnd="32dp"
-    android:text="@string/select_demo_effects"
+    android:text="@string/select_audio_effects"
+    app:layout_constraintBottom_toTopOf="@+id/select_video_effects_button"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+  <Button
+    android:id="@+id/select_video_effects_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/select_video_effects"
     app:layout_constraintBottom_toTopOf="@+id/transform_button"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />

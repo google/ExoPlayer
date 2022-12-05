@@ -41,6 +41,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.Contrast;
@@ -52,6 +53,8 @@ import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
 import androidx.media3.effect.SingleColorLut;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
+import androidx.media3.exoplayer.audio.SonicAudioProcessor;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.DefaultMuxer;
@@ -283,7 +286,8 @@ public final class TransformerActivity extends AppCompatActivity {
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
                   .build());
 
-      transformerBuilder.setVideoEffects(createVideoEffectsListFromBundle(bundle));
+      transformerBuilder.setAudioProcessors(createAudioProcessorsFromBundle(bundle));
+      transformerBuilder.setVideoEffects(createVideoEffectsFromBundle(bundle));
 
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
@@ -325,10 +329,45 @@ public final class TransformerActivity extends AppCompatActivity {
     return file;
   }
 
-  private ImmutableList<Effect> createVideoEffectsListFromBundle(Bundle bundle) {
+  private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {
+    @Nullable
+    boolean[] selectedAudioEffects =
+        bundle.getBooleanArray(ConfigurationActivity.AUDIO_EFFECTS_SELECTIONS);
+
+    if (selectedAudioEffects == null) {
+      return ImmutableList.of();
+    }
+
+    ImmutableList.Builder<AudioProcessor> processors = new ImmutableList.Builder<>();
+
+    if (selectedAudioEffects[0] || selectedAudioEffects[1]) {
+      SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+      // High pitched
+      if (selectedAudioEffects[0]) {
+        sonicAudioProcessor.setPitch(2f);
+      }
+      // 48KHz sample rate.
+      if (selectedAudioEffects[1]) {
+        sonicAudioProcessor.setOutputSampleRateHz(48_000);
+      }
+      processors.add(sonicAudioProcessor);
+    }
+
+    // Skip silence
+    if (selectedAudioEffects[2]) {
+      SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
+          new SilenceSkippingAudioProcessor();
+      silenceSkippingAudioProcessor.setEnabled(true);
+      processors.add(silenceSkippingAudioProcessor);
+    }
+
+    return processors.build();
+  }
+
+  private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle) {
     @Nullable
     boolean[] selectedEffects =
-        bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
+        bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS);
     if (selectedEffects == null) {
       return ImmutableList.of();
     }
