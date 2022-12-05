@@ -59,6 +59,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SHOULD_REMOVE_AUDIO = "should_remove_audio";
   public static final String SHOULD_REMOVE_VIDEO = "should_remove_video";
   public static final String SHOULD_FLATTEN_FOR_SLOW_MOTION = "should_flatten_for_slow_motion";
+  public static final String FORCE_SILENT_AUDIO = "force_silent_audio";
   public static final String AUDIO_MIME_TYPE = "audio_mime_type";
   public static final String VIDEO_MIME_TYPE = "video_mime_type";
   public static final String RESOLUTION_HEIGHT = "resolution_height";
@@ -103,6 +104,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/sample_video_track_only.mp4",
   };
   private static final String[] PRESET_FILE_URI_DESCRIPTIONS = { // same order as PRESET_FILE_URIS
     "720p H264 video and AAC audio",
@@ -119,6 +121,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "480p DASH (non-square pixels)",
     "HDR (HDR10) H265 limited range video (encoding may fail)",
     "HDR (HLG) H265 limited range video (encoding may fail)",
+    "720p H264 video with no audio",
   };
   private static final String[] DEMO_EFFECTS = {
     "Dizzy crop",
@@ -157,6 +160,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
   private @MonotonicNonNull CheckBox flattenForSlowMotionCheckbox;
+  private @MonotonicNonNull CheckBox forceSilentAudioCheckbox;
   private @MonotonicNonNull Spinner audioMimeSpinner;
   private @MonotonicNonNull Spinner videoMimeSpinner;
   private @MonotonicNonNull Spinner resolutionHeightSpinner;
@@ -193,7 +197,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     findViewById(R.id.transform_button).setOnClickListener(this::startTransformation);
 
-    flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
+    selectPresetFileButton = findViewById(R.id.select_preset_file_button);
+    selectPresetFileButton.setOnClickListener(this::selectPresetFile);
+
+    selectLocalFileButton = findViewById(R.id.select_local_file_button);
+    selectLocalFileButton.setOnClickListener(this::selectLocalFile);
 
     selectedFileTextView = findViewById(R.id.selected_file_text_view);
     selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
@@ -204,11 +212,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     removeVideoCheckbox = findViewById(R.id.remove_video_checkbox);
     removeVideoCheckbox.setOnClickListener(this::onRemoveVideo);
 
-    selectPresetFileButton = findViewById(R.id.select_preset_file_button);
-    selectPresetFileButton.setOnClickListener(this::selectPresetFile);
+    flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
 
-    selectLocalFileButton = findViewById(R.id.select_local_file_button);
-    selectLocalFileButton.setOnClickListener(this::selectLocalFile);
+    forceSilentAudioCheckbox = findViewById(R.id.force_silent_audio_checkbox);
 
     ArrayAdapter<String> audioMimeAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
@@ -315,6 +321,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "removeAudioCheckbox",
     "removeVideoCheckbox",
     "flattenForSlowMotionCheckbox",
+    "forceSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -333,6 +340,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBoolean(SHOULD_REMOVE_AUDIO, removeAudioCheckbox.isChecked());
     bundle.putBoolean(SHOULD_REMOVE_VIDEO, removeVideoCheckbox.isChecked());
     bundle.putBoolean(SHOULD_FLATTEN_FOR_SLOW_MOTION, flattenForSlowMotionCheckbox.isChecked());
+    bundle.putBoolean(FORCE_SILENT_AUDIO, forceSilentAudioCheckbox.isChecked());
     String selectedAudioMimeType = String.valueOf(audioMimeSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedAudioMimeType)) {
       bundle.putString(AUDIO_MIME_TYPE, selectedAudioMimeType);
@@ -596,6 +604,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "removeVideoCheckbox",
+    "forceSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -616,6 +625,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "removeAudioCheckbox",
+    "forceSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -635,6 +645,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   }
 
   @RequiresNonNull({
+    "forceSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -645,6 +656,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "selectDemoEffectsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
+    forceSilentAudioCheckbox.setEnabled(isVideoEnabled);
     audioMimeSpinner.setEnabled(isAudioEnabled);
     videoMimeSpinner.setEnabled(isVideoEnabled);
     resolutionHeightSpinner.setEnabled(isVideoEnabled);

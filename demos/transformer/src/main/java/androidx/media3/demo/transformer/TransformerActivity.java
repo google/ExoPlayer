@@ -276,6 +276,8 @@ public final class TransformerActivity extends AppCompatActivity {
           .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+          .experimentalSetForceSilentAudio(
+              bundle.getBoolean(ConfigurationActivity.FORCE_SILENT_AUDIO))
           .setEncoderFactory(
               new DefaultEncoderFactory.Builder(this.getApplicationContext())
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
