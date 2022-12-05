@@ -159,6 +159,15 @@ import org.checkerframework.dataflow.qual.Pure;
       frameProcessor =
           frameProcessorFactory.create(
               context,
+              effectsListBuilder.build(),
+              debugViewProvider,
+              // HDR colors are only used if the MediaCodec encoder supports FEATURE_HdrEditing.
+              // This implies that the OpenGL EXT_YUV_target extension is supported and hence the
+              // default FrameProcessor, GlEffectsFrameProcessor, also supports HDR. Otherwise, tone
+              // mapping is applied, which ensures the decoder outputs SDR output for an HDR input.
+              encoderWrapper.getSupportedInputColor(),
+              /* releaseFramesAutomatically= */ true,
+              MoreExecutors.directExecutor(),
               new FrameProcessor.Listener() {
                 private long lastProcessedFramePresentationTimeUs;
 
@@ -195,16 +204,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     listener.onTransformationError(exception);
                   }
                 }
-              },
-              MoreExecutors.directExecutor(),
-              effectsListBuilder.build(),
-              debugViewProvider,
-              // HDR colors are only used if the MediaCodec encoder supports FEATURE_HdrEditing.
-              // This implies that the OpenGL EXT_YUV_target extension is supported and hence the
-              // default FrameProcessor, GlEffectsFrameProcessor, also supports HDR. Otherwise, tone
-              // mapping is applied, which ensures the decoder outputs SDR output for an HDR input.
-              encoderWrapper.getSupportedInputColor(),
-              /* releaseFramesAutomatically= */ true);
+              });
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);

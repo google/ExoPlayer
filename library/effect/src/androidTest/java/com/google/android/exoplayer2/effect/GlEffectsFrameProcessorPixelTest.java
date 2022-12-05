@@ -416,6 +416,11 @@ public final class GlEffectsFrameProcessorPixelTest {
             new GlEffectsFrameProcessor.Factory()
                 .create(
                     getApplicationContext(),
+                    effects,
+                    DebugViewProvider.NONE,
+                    ColorInfo.SDR_BT709_LIMITED,
+                    /* releaseFramesAutomatically= */ true,
+                    MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
@@ -441,12 +446,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                       public void onFrameProcessingEnded() {
                         frameProcessingEnded = true;
                       }
-                    },
-                    MoreExecutors.directExecutor(),
-                    effects,
-                    DebugViewProvider.NONE,
-                    ColorInfo.SDR_BT709_LIMITED,
-                    /* releaseFramesAutomatically= */ true));
+                    }));
     DecodeOneFrameUtil.decodeOneAssetFileFrame(
         INPUT_MP4_ASSET_STRING,
         new DecodeOneFrameUtil.Listener() {
