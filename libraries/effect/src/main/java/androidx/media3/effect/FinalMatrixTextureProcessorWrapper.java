@@ -69,11 +69,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
-  private final FrameProcessor.Listener frameProcessorListener;
-  private final Executor frameProcessorListenerExecutor;
   private final boolean sampleFromExternalTexture;
   private final ColorInfo colorInfo;
   private final boolean releaseFramesAutomatically;
+  private final Executor frameProcessorListenerExecutor;
+  private final FrameProcessor.Listener frameProcessorListener;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
   private final Queue<Pair<TextureInfo, Long>> availableFrames;
@@ -102,23 +102,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLContext eglContext,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
-      FrameProcessor.Listener frameProcessorListener,
-      Executor frameProcessorListenerExecutor,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
       ColorInfo colorInfo,
-      boolean releaseFramesAutomatically) {
+      boolean releaseFramesAutomatically,
+      Executor frameProcessorListenerExecutor,
+      FrameProcessor.Listener frameProcessorListener) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
-    this.frameProcessorListener = frameProcessorListener;
-    this.frameProcessorListenerExecutor = frameProcessorListenerExecutor;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
     this.colorInfo = colorInfo;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
+    this.frameProcessorListenerExecutor = frameProcessorListenerExecutor;
+    this.frameProcessorListener = frameProcessorListener;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();

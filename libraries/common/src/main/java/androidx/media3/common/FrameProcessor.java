@@ -45,8 +45,6 @@ public interface FrameProcessor {
      * Creates a new {@link FrameProcessor} instance.
      *
      * @param context A {@link Context}.
-     * @param listener A {@link Listener}.
-     * @param executor The {@link Executor} on which the {@code listener} is invoked.
      * @param effects The {@link Effect} instances to apply to each frame.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param colorInfo The {@link ColorInfo} for input and output frames.
@@ -55,18 +53,20 @@ public interface FrameProcessor {
      *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
      *     {@link FrameProcessor} will block until {@link #releaseOutputFrame(long)} is called, to
      *     render or drop the frame.
+     * @param executor The {@link Executor} on which the {@code listener} is invoked.
+     * @param listener A {@link Listener}.
      * @return A new instance.
      * @throws FrameProcessingException If a problem occurs while creating the {@link
      *     FrameProcessor}.
      */
     FrameProcessor create(
         Context context,
-        Listener listener,
-        Executor executor,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo colorInfo,
-        boolean releaseFramesAutomatically)
+        boolean releaseFramesAutomatically,
+        Executor executor,
+        Listener listener)
         throws FrameProcessingException;
   }
 

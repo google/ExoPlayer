@@ -281,6 +281,14 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
             new GlEffectsFrameProcessor.Factory()
                 .create(
                     getApplicationContext(),
+                    ImmutableList.of(
+                        (GlEffect)
+                            (context, useHdr) ->
+                                new BlankFrameProducer(inputPresentationTimesUs, useHdr)),
+                    DebugViewProvider.NONE,
+                    ColorInfo.SDR_BT709_LIMITED,
+                    releaseFramesAutomatically,
+                    MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
@@ -314,15 +322,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
 
                       @Override
                       public void onFrameProcessingEnded() {}
-                    },
-                    MoreExecutors.directExecutor(),
-                    ImmutableList.of(
-                        (GlEffect)
-                            (context, useHdr) ->
-                                new BlankFrameProducer(inputPresentationTimesUs, useHdr)),
-                    DebugViewProvider.NONE,
-                    ColorInfo.SDR_BT709_LIMITED,
-                    releaseFramesAutomatically));
+                    }));
 
     glEffectsFrameProcessor.setInputFrameInfo(
         new FrameInfo(WIDTH, HEIGHT, /* pixelWidthHeightRatio= */ 1, /* streamOffsetUs= */ 0));

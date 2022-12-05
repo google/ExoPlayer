@@ -68,12 +68,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     @Override
     public GlEffectsFrameProcessor create(
         Context context,
-        Listener listener,
-        Executor listenerExecutor,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo colorInfo,
-        boolean releaseFramesAutomatically)
+        boolean releaseFramesAutomatically,
+        Executor listenerExecutor,
+        Listener listener)
         throws FrameProcessingException {
       // TODO(b/261188041) Add tests to verify the Listener is invoked on the given Executor.
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
@@ -83,13 +83,13 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
               () ->
                   createOpenGlObjectsAndFrameProcessor(
                       context,
-                      listener,
-                      listenerExecutor,
                       effects,
                       debugViewProvider,
                       colorInfo,
                       releaseFramesAutomatically,
-                      singleThreadExecutorService));
+                      singleThreadExecutorService,
+                      listenerExecutor,
+                      listener));
 
       try {
         return glFrameProcessorFuture.get();
@@ -115,13 +115,13 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   @WorkerThread
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
-      Listener listener,
-      Executor executor,
       List<Effect> effects,
       DebugViewProvider debugViewProvider,
       ColorInfo colorInfo,
       boolean releaseFramesAutomatically,
-      ExecutorService singleThreadExecutorService)
+      ExecutorService singleThreadExecutorService,
+      Executor executor,
+      Listener listener)
       throws GlUtil.GlException, FrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
@@ -140,11 +140,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             effects,
             eglDisplay,
             eglContext,
-            listener,
-            executor,
             debugViewProvider,
             colorInfo,
-            releaseFramesAutomatically);
+            releaseFramesAutomatically,
+            executor,
+            listener);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainTextureProcessorsWithListeners(
@@ -174,11 +174,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       List<Effect> effects,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      Listener listener,
-      Executor executor,
       DebugViewProvider debugViewProvider,
       ColorInfo colorInfo,
-      boolean releaseFramesAutomatically)
+      boolean releaseFramesAutomatically,
+      Executor executor,
+      Listener listener)
       throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
         new ImmutableList.Builder<>();
@@ -232,12 +232,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             eglContext,
             matrixTransformationListBuilder.build(),
             rgbMatrixListBuilder.build(),
-            listener,
-            executor,
             debugViewProvider,
             sampleFromExternalTexture,
             colorInfo,
-            releaseFramesAutomatically));
+            releaseFramesAutomatically,
+            executor,
+            listener));
     return textureProcessorListBuilder.build();
   }
 
