@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -195,6 +196,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   }
                 }
               },
+              MoreExecutors.directExecutor(),
               effectsListBuilder.build(),
               debugViewProvider,
               // HDR colors are only used if the MediaCodec encoder supports FEATURE_HdrEditing.

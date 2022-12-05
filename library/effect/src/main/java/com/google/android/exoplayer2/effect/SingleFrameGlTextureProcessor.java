@@ -21,6 +21,8 @@ import android.util.Pair;
 import androidx.annotation.CallSuper;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -41,6 +43,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   private InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
+  private Executor errorListenerExecutor;
   private int inputWidth;
   private int inputHeight;
   private @MonotonicNonNull TextureInfo outputTexture;
@@ -57,6 +60,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = (frameProcessingException) -> {};
+    errorListenerExecutor = MoreExecutors.directExecutor();
   }
 
   /**
@@ -102,7 +106,8 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   }
 
   @Override
-  public final void setErrorListener(ErrorListener errorListener) {
+  public final void setErrorListener(Executor errorListenerExecutor, ErrorListener errorListener) {
+    this.errorListenerExecutor = errorListenerExecutor;
     this.errorListener = errorListener;
   }
 
@@ -127,10 +132,12 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
     } catch (FrameProcessingException | GlUtil.GlException | RuntimeException e) {
-      errorListener.onFrameProcessingError(
-          e instanceof FrameProcessingException
-              ? (FrameProcessingException) e
-              : new FrameProcessingException(e));
+      errorListenerExecutor.execute(
+          () ->
+              errorListener.onFrameProcessingError(
+                  e instanceof FrameProcessingException
+                      ? (FrameProcessingException) e
+                      : new FrameProcessingException(e)));
     }
   }
 
