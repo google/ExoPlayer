@@ -48,3 +48,9 @@ new DefaultDataSourceFactory(
     ...
     /* baseDataSourceFactory= */ new OkHttpDataSource.Factory(...));
 ```
+
+## Links
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

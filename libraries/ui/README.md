@@ -17,3 +17,11 @@ Alternatively, you can clone this GitHub project and depend on the module
 locally. Instructions for doing this can be found in the [top level README][].
 
 [top level README]: ../../README.md
+
+## Links
+
+<!-- TODO(b/204738828): Add link to UI media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

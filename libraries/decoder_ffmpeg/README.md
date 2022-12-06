@@ -116,3 +116,11 @@ then implement your own logic to use the renderer for a given track.
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 [ExoPlayer issue 2781]: https://github.com/google/ExoPlayer/issues/2781
 [Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
+
+## Links
+
+<!-- TODO(b/204738828): Add link to 'troubleshooting using extensions' media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

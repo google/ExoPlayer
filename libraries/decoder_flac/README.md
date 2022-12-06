@@ -95,3 +95,11 @@ Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibflacAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
+
+## Links
+
+<!-- TODO(b/204738828): Add link to 'troubleshooting decoding using extensions' media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

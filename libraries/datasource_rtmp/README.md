@@ -45,3 +45,9 @@ application code are required. Alternatively, if you know that your application
 doesn't need to handle any other protocols, you can update any
 `DataSource.Factory` instantiations in your application code to use
 `RtmpDataSource.Factory` directly.
+
+## Links
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
