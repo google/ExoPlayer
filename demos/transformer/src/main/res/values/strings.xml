@@ -70,4 +70,7 @@
   <string name="overlay_alpha">Alpha</string>
   <string name="overlay_uri">Uri</string>
   <string name="bitmap_overlay_settings">Specify bitmap overlay settings</string>
+  <string name="overlay_text">Text</string>
+  <string name="overlay_text_color">Text color</string>
+  <string name="text_overlay_settings">Specify text overlay settings</string>
 </resources>

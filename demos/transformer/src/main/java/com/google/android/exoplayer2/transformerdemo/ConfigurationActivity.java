@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -89,6 +90,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String HSL_ADJUSTMENTS_LIGHTNESS = "hsl_adjustments_lightness";
   public static final String BITMAP_OVERLAY_URI = "bitmap_overlay_uri";
   public static final String BITMAP_OVERLAY_ALPHA = "bitmap_overlay_alpha";
+  public static final String TEXT_OVERLAY_TEXT = "text_overlay_text";
+  public static final String TEXT_OVERLAY_TEXT_COLOR = "text_overlay_text_color";
+  public static final String TEXT_OVERLAY_ALPHA = "text_overlay_alpha";
   public static final int COLOR_FILTER_GRAYSCALE = 0;
   public static final int COLOR_FILTER_INVERTED = 1;
   public static final int COLOR_FILTER_SEPIA = 2;
@@ -143,6 +147,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Overlay logo & timer",
     "Zoom in start",
     "Custom Bitmap Overlay",
+    "Custom Text Overlay",
   };
   private static final ImmutableMap<String, @TransformationRequest.HdrMode Integer>
       HDR_MODE_DESCRIPTIONS =
@@ -153,6 +158,20 @@ public final class ConfigurationActivity extends AppCompatActivity {
                   "Force Interpret HDR as SDR",
                   TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
               .build();
+  private static final ImmutableMap<String, Integer> OVERLAY_COLORS =
+      new ImmutableMap.Builder<String, Integer>()
+          .put("BLACK", Color.BLACK)
+          .put("BLUE", Color.BLUE)
+          .put("CYAN", Color.CYAN)
+          .put("DKGRAY", Color.DKGRAY)
+          .put("GRAY", Color.GRAY)
+          .put("GREEN", Color.GREEN)
+          .put("LTGRAY", Color.LTGRAY)
+          .put("MAGENTA", Color.MAGENTA)
+          .put("RED", Color.RED)
+          .put("WHITE", Color.WHITE)
+          .put("YELLOW", Color.YELLOW)
+          .build();
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final int COLOR_FILTERS_INDEX = 2;
   private static final int RGB_ADJUSTMENTS_INDEX = 4;
@@ -160,6 +179,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final int CONTRAST_INDEX = 6;
   private static final int PERIODIC_VIGNETTE_INDEX = 7;
   private static final int BITMAP_OVERLAY_INDEX = 11;
+  private static final int TEXT_OVERLAY_INDEX = 12;
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
   private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
@@ -202,6 +222,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private float periodicVignetteOuterRadius;
   private @MonotonicNonNull String bitmapOverlayUri;
   private float bitmapOverlayAlpha;
+  private @MonotonicNonNull String textOverlayText;
+  private int textOverlayTextColor;
+  private float textOverlayAlpha;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -407,6 +430,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putFloat(PERIODIC_VIGNETTE_OUTER_RADIUS, periodicVignetteOuterRadius);
     bundle.putString(BITMAP_OVERLAY_URI, bitmapOverlayUri);
     bundle.putFloat(BITMAP_OVERLAY_ALPHA, bitmapOverlayAlpha);
+    bundle.putString(TEXT_OVERLAY_TEXT, textOverlayText);
+    bundle.putInt(TEXT_OVERLAY_TEXT_COLOR, textOverlayTextColor);
+    bundle.putFloat(TEXT_OVERLAY_ALPHA, textOverlayAlpha);
     transformerIntent.putExtras(bundle);
 
     @Nullable Uri intentUri;
@@ -539,6 +565,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
       case BITMAP_OVERLAY_INDEX:
         controlBitmapOverlaySettings();
         break;
+      case TEXT_OVERLAY_INDEX:
+        controlTextOverlaySettings();
+        break;
     }
   }
 
@@ -654,6 +683,33 @@ public final class ConfigurationActivity extends AppCompatActivity {
             (DialogInterface dialogInterface, int i) -> {
               bitmapOverlayUri = uriEditText.getText().toString();
               bitmapOverlayAlpha = alphaSlider.getValue();
+            })
+        .create()
+        .show();
+  }
+
+  private void controlTextOverlaySettings() {
+    View dialogView = getLayoutInflater().inflate(R.layout.text_overlay_options, /* root= */ null);
+    EditText textEditText = checkNotNull(dialogView.findViewById(R.id.text_overlay_text));
+
+    ArrayAdapter<String> textColorAdapter =
+        new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
+    textColorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    Spinner textColorSpinner = checkNotNull(dialogView.findViewById(R.id.text_overlay_text_color));
+    textColorSpinner.setAdapter(textColorAdapter);
+    textColorAdapter.addAll(OVERLAY_COLORS.keySet());
+
+    Slider alphaSlider = checkNotNull(dialogView.findViewById(R.id.text_overlay_alpha_slider));
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.bitmap_overlay_settings)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              textOverlayText = textEditText.getText().toString();
+              String selectedTextColor = String.valueOf(textColorSpinner.getSelectedItem());
+              textOverlayTextColor = checkNotNull(OVERLAY_COLORS.get(selectedTextColor));
+              textOverlayAlpha = alphaSlider.getValue();
             })
         .create()
         .show();
