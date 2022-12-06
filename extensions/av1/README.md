@@ -135,6 +135,8 @@ GL rendering mode has better performance, so should be preferred
 
 ## Links
 
-* [Javadoc][]
+*   [Troubleshooting using decoding extensions][]
+*   [Javadoc][]
 
+[Troubleshooting using decoding extensions]: https://exoplayer.dev/troubleshooting.html#how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

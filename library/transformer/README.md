@@ -18,13 +18,10 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 
-## Using the module
-
-Use of the Transformer module is documented in the
-[developer guide](https://exoplayer.dev/transforming-media.html).
-
 ## Links
 
+*   [Developer Guide][]
 *   [Javadoc][]
 
+[Developer Guide]: https://exoplayer.dev/transforming-media.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

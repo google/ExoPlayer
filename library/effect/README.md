@@ -17,3 +17,9 @@ Alternatively, you can clone this GitHub project and depend on the module
 locally. Instructions for doing this can be found in the [top level README][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
+
+## Links
+
+*   [Javadoc][]
+
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html
