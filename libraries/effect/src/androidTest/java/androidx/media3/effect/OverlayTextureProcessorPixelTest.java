@@ -64,6 +64,8 @@ public class OverlayTextureProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_default.png";
   public static final String OVERLAY_BITMAP_SCALED =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_scaled.png";
+  public static final String OVERLAY_BITMAP_TRANSLUCENT =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_translucent.png";
   public static final String OVERLAY_TEXT_DEFAULT =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_default.png";
   public static final String OVERLAY_TEXT_TRANSLATE =
@@ -156,6 +158,59 @@ public class OverlayTextureProcessorPixelTest {
     Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_SCALED);
+
+    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_translucentBitmapOverlay_blendsBitmapIntoFrame() throws Exception {
+    String testId = "drawFrame_translucentBitmapOverlay";
+    Bitmap bitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
+    OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0.5f).build();
+    BitmapOverlay translucentBitmapOverlay =
+        BitmapOverlay.createStaticBitmapOverlay(bitmap, overlaySettings);
+    overlayTextureProcessor =
+        new OverlayEffect(ImmutableList.of(translucentBitmapOverlay))
+            .toGlTextureProcessor(context, false);
+    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
+    Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_TRANSLUCENT);
+
+    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_transparentTextOverlay_blendsBitmapIntoFrame() throws Exception {
+    String testId = "drawFrame_transparentTextOverlay";
+    SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
+    OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0f).build();
+    overlayText.setSpan(
+        new ForegroundColorSpan(Color.GRAY),
+        /* start= */ 0,
+        /* end= */ 4,
+        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    TextOverlay staticTextOverlay =
+        TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
+    overlayTextureProcessor =
+        new OverlayEffect(ImmutableList.of(staticTextOverlay))
+            .toGlTextureProcessor(context, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
