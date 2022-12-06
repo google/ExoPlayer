@@ -40,6 +40,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final String TAG = "ExoPlayerAssetLoaderRenderer";
 
+  private final boolean flattenForSlowMotion;
   private final Codec.DecoderFactory decoderFactory;
   private final TransformerMediaClock mediaClock;
   private final ExoPlayerAssetLoader.Listener assetLoaderListener;
@@ -48,6 +49,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isTransformationRunning;
   private long streamStartPositionUs;
   private long streamOffsetUs;
+  private @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
   private @MonotonicNonNull Codec decoder;
   @Nullable private ByteBuffer pendingDecoderOutputBuffer;
   private SamplePipeline.@MonotonicNonNull Input samplePipelineInput;
@@ -55,10 +57,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public ExoPlayerAssetLoaderRenderer(
       int trackType,
+      boolean flattenForSlowMotion,
       Codec.DecoderFactory decoderFactory,
       TransformerMediaClock mediaClock,
       ExoPlayerAssetLoader.Listener assetLoaderListener) {
     super(trackType);
+    this.flattenForSlowMotion = flattenForSlowMotion;
     this.decoderFactory = decoderFactory;
     this.mediaClock = mediaClock;
     this.assetLoaderListener = assetLoaderListener;
@@ -161,6 +165,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     samplePipelineInput =
         assetLoaderListener.onTrackAdded(inputFormat, streamStartPositionUs, streamOffsetUs);
+    if (getTrackType() == C.TRACK_TYPE_VIDEO && flattenForSlowMotion) {
+      sefVideoSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
+    }
     if (samplePipelineInput.expectsDecodedData()) {
       decoder = decoderFactory.createForAudioDecoding(inputFormat);
     }
@@ -228,6 +235,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
+    if (shouldDropInputBuffer(decoderInputBuffer)) {
+      return true;
+    }
+
     decoder.queueInputBuffer(decoderInputBuffer);
     return true;
   }
@@ -247,6 +258,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (!readInput(samplePipelineInputBuffer)) {
       return false;
+    }
+
+    if (shouldDropInputBuffer(samplePipelineInputBuffer)) {
+      return true;
     }
 
     samplePipelineInput.queueInputBuffer();
@@ -278,5 +293,30 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       default:
         return false;
     }
+  }
+
+  /**
+   * Preprocesses an {@linkplain DecoderInputBuffer input buffer} queued to the pipeline and returns
+   * whether it should be dropped.
+   *
+   * <p>The input buffer is cleared if it should be dropped.
+   */
+  private boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
+    ByteBuffer inputBytes = checkNotNull(inputBuffer.data);
+
+    if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
+      return false;
+    }
+
+    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
+    boolean shouldDropInputBuffer =
+        sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
+    if (shouldDropInputBuffer) {
+      inputBytes.clear();
+    } else {
+      inputBuffer.timeUs =
+          streamOffsetUs + sefVideoSlowMotionFlattener.getSamplePresentationTimeUs();
+    }
+    return shouldDropInputBuffer;
   }
 }

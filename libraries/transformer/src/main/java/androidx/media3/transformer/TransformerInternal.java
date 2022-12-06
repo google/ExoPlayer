@@ -157,6 +157,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             mediaItem,
             removeAudio,
             removeVideo,
+            transformationRequest.flattenForSlowMotion,
             mediaSourceFactory,
             decoderFactory,
             internalLooper,
@@ -497,7 +498,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return new PassthroughSamplePipeline(
             inputFormat,
             streamStartPositionUs,
-            streamOffsetUs,
             transformationRequest,
             muxerWrapper,
             fallbackListener);
