@@ -334,6 +334,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             TransformationException.createForMuxer(e, ERROR_CODE_MUXING_FAILED);
       } catch (RuntimeException e) {
         releaseTransformationException = TransformationException.createForUnexpected(e);
+        // cancelException is not reported through a listener. It is thrown in cancel(), as this
+        // method is blocking.
         cancelException = e;
       }
       // Quit thread lazily so that all events that got triggered when releasing the AssetLoader are
