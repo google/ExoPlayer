@@ -173,7 +173,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
   @Override
   public DefaultCodec createForAudioEncoding(Format format) throws TransformationException {
-    // TODO(b/210591626) Add encoder selection for audio.
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat =
         MediaFormat.createAudioFormat(

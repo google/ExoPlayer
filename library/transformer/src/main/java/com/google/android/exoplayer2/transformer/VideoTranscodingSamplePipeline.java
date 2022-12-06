@@ -325,8 +325,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Format requestedFormat,
       Format supportedFormat,
       @TransformationRequest.HdrMode int supportedHdrMode) {
-    // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
-    //  implemented.
+    // TODO(b/259570024): Consider including bitrate in the revised fallback design.
     if (transformationRequest.hdrMode == supportedHdrMode
         && Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
         && (hasOutputFormatRotation
