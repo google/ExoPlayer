@@ -110,9 +110,9 @@ import org.checkerframework.dataflow.qual.Pure;
             /* mediaCodecName= */ null,
             TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
       }
-
-      finalFramePresentationTimeUs = C.TIME_UNSET;
     }
+
+    finalFramePresentationTimeUs = C.TIME_UNSET;
 
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
