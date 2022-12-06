@@ -20,11 +20,11 @@
 //    https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt,
 // 2. Applies a YUV to RGB conversion using the specified color transform
 //    uYuvToRgbColorTransform, yielding electrical (HLG or PQ) BT.2020 RGB,
-// 3. Applies an EOTF based on uEotfColorTransfer, yielding optical linear
+// 3. Applies an EOTF based on uInputColorTransfer, yielding optical linear
 //    BT.2020 RGB.
 // 4. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 5. Output as requested by uOetfColorTransfer. Use COLOR_TRANSFER_LINEAR for
-//    outputting to intermediate shaders, or COLOR_TRANSFER_ST2084 /
+// 5. Outputs as requested by uOutputColorTransfer. Use COLOR_TRANSFER_LINEAR
+//    for outputting to intermediate shaders, or COLOR_TRANSFER_ST2084 /
 //    COLOR_TRANSFER_HLG to output electrical colors via an OETF (e.g. to an
 //    encoder).
 // The output will be red if an error has occurred.
@@ -37,11 +37,11 @@ uniform mat3 uYuvToRgbColorTransform;
 uniform mat4 uRgbMatrix;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
-uniform int uEotfColorTransfer;
+uniform int uInputColorTransfer;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_LINEAR, COLOR_TRANSFER_ST2084, and COLOR_TRANSFER_HLG are
 // allowed.
-uniform int uOetfColorTransfer;
+uniform int uOutputColorTransfer;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
 
@@ -94,9 +94,9 @@ highp vec3 applyEotf(highp vec3 electricalColor) {
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
 
-  if (uEotfColorTransfer == COLOR_TRANSFER_ST2084) {
+  if (uInputColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqEotf(electricalColor);
-  } else if (uEotfColorTransfer == COLOR_TRANSFER_HLG) {
+  } else if (uInputColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgEotf(electricalColor);
   } else {
     // Output red as an obviously visible error.
@@ -151,11 +151,11 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   const int COLOR_TRANSFER_LINEAR = 1;
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
-  if(uOetfColorTransfer == COLOR_TRANSFER_ST2084) {
+  if (uOutputColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqOetf(linearColor);
-  } else if(uOetfColorTransfer == COLOR_TRANSFER_HLG) {
+  } else if (uOutputColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgOetf(linearColor);
-  } else if (uOetfColorTransfer == COLOR_TRANSFER_LINEAR) {
+  } else if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
     return linearColor;
   } else {
     // Output red as an obviously visible error.

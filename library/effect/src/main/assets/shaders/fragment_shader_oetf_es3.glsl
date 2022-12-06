@@ -17,9 +17,8 @@
 // 1. Samples optical linear BT.2020 RGB from a (non-external) texture with
 //    uTexSampler.
 // 2. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 3. Applies the HLG or PQ OETF to yield electrical (HLG or PQ) BT.2020 RGB,
-//    based on uOetfColorTransfer.
-// 4. Copies this converted texture color to the current output.
+// 3. Outputs electrical (HLG or PQ) BT.2020 RGB based on uOutputColorTransfer,
+//    via an OETF.
 // The output will be red if an error has occurred.
 
 precision mediump float;
@@ -28,7 +27,7 @@ in vec2 vTexSamplingCoord;
 out vec4 outColor;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
-uniform int uOetfColorTransfer;
+uniform int uOutputColorTransfer;
 uniform mat3 uColorTransform;
 uniform mat4 uRgbMatrix;
 
@@ -81,9 +80,9 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
-  if (uOetfColorTransfer == COLOR_TRANSFER_ST2084) {
+  if (uOutputColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqOetf(linearColor);
-  } else if (uOetfColorTransfer == COLOR_TRANSFER_HLG) {
+  } else if (uOutputColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgOetf(linearColor);
   } else {
     // Output red as an obviously visible error.
