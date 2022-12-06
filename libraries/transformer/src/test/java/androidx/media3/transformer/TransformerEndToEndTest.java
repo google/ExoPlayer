@@ -450,7 +450,7 @@ public final class TransformerEndToEndTest {
 
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+        .isEqualTo(TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @Test

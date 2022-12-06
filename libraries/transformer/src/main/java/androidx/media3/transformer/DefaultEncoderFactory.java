@@ -669,7 +669,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   @RequiresNonNull("#1.sampleMimeType")
   private static TransformationException createTransformationException(Format format) {
     return createTransformationException(
-        format, TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+        format, TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @RequiresNonNull("#1.sampleMimeType")

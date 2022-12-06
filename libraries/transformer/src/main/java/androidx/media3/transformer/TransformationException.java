@@ -68,7 +68,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
-        ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
+        ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
         ERROR_CODE_FRAME_PROCESSING_FAILED,
         ERROR_CODE_AUDIO_PROCESSING_FAILED,
@@ -148,12 +148,12 @@ public final class TransformationException extends Exception {
   /** Caused by a failure while trying to encode media samples. */
   public static final int ERROR_CODE_ENCODING_FAILED = 4002;
   /**
-   * Caused by the output format for a track not being supported.
+   * Caused by trying to encode content whose format is not supported. *
    *
-   * <p>Supported output formats are limited by the muxer's capabilities and the {@linkplain
-   * Codec.DecoderFactory encoders} available.
+   * <p>Supported output formats are limited by the {@linkplain Codec.DecoderFactory encoders}
+   * available.
    */
-  public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
+  public static final int ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED = 4003;
   /** Caused by the encoder not supporting HDR formats. */
   public static final int ERROR_CODE_HDR_ENCODING_UNSUPPORTED = 4004;
 
@@ -190,7 +190,7 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_HDR_DECODING_UNSUPPORTED", ERROR_CODE_HDR_DECODING_UNSUPPORTED)
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
-          .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
+          .put("ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED", ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED)
           .put("ERROR_CODE_HDR_ENCODING_UNSUPPORTED", ERROR_CODE_HDR_ENCODING_UNSUPPORTED)
           .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)

@@ -47,7 +47,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
         /* isDecoder= */ false,
         requestedEncoderFormat,
         /* mediaCodecName= */ null,
-        TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @Override
