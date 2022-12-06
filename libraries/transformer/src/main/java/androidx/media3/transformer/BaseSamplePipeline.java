@@ -33,7 +33,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final long streamStartPositionUs;
   private final long streamOffsetUs;
   private final MuxerWrapper muxerWrapper;
-  private final Listener listener;
   private final @C.TrackType int trackType;
   private final @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
 
@@ -45,12 +44,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long streamStartPositionUs,
       long streamOffsetUs,
       boolean flattenForSlowMotion,
-      MuxerWrapper muxerWrapper,
-      Listener listener) {
+      MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.streamOffsetUs = streamOffsetUs;
     this.muxerWrapper = muxerWrapper;
-    this.listener = listener;
     trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
     sefVideoSlowMotionFlattener =
         flattenForSlowMotion && trackType == C.TRACK_TYPE_VIDEO
@@ -79,7 +76,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void queueInputBuffer() throws TransformationException {
     DecoderInputBuffer inputBuffer = checkNotNull(this.inputBuffer);
-    listener.onInputBufferQueued(inputBuffer.timeUs - streamStartPositionUs);
     checkNotNull(inputBuffer.data);
     if (!shouldDropInputBuffer(inputBuffer)) {
       queueInputBufferInternal();

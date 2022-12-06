@@ -18,10 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
-import static java.lang.Math.min;
+import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -44,7 +41,6 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
-import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
@@ -89,6 +85,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int MSG_QUEUE_INPUT = 3;
   private static final int MSG_DRAIN_PIPELINES = 4;
   private static final int MSG_END = 5;
+  private static final int MSG_UPDATE_PROGRESS = 6;
 
   private static final int DRAIN_PIPELINES_DELAY_MS = 50;
 
@@ -103,21 +100,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Listener listener;
   private final DebugViewProvider debugViewProvider;
   private final Clock clock;
-  private final HandlerWrapper applicationHandler;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final ExoPlayerAssetLoader exoPlayerAssetLoader;
   private final List<SamplePipeline> samplePipelines;
   private final ConditionVariable dequeueBufferConditionVariable;
   private final MuxerWrapper muxerWrapper;
-  private final ConditionVariable cancellingConditionVariable;
+  private final ConditionVariable transformerConditionVariable;
 
   @Nullable private DecoderInputBuffer pendingInputBuffer;
   private boolean isDrainingPipelines;
   private int silentSamplePipelineIndex;
   private @Transformer.ProgressState int progressState;
-  private long progressPositionMs;
-  private long durationUs;
   private @MonotonicNonNull RuntimeException cancelException;
 
   private volatile boolean released;
@@ -138,7 +132,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Codec.EncoderFactory encoderFactory,
       FrameProcessor.Factory frameProcessorFactory,
       Muxer.Factory muxerFactory,
-      Looper applicationLooper,
       Listener listener,
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider,
@@ -154,7 +147,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.listener = listener;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
-    applicationHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
@@ -179,8 +171,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             outputParcelFileDescriptor,
             muxerFactory,
             /* errorConsumer= */ componentListener::onTransformationError);
-    cancellingConditionVariable = new ConditionVariable();
-    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+    transformerConditionVariable = new ConditionVariable();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper internalHandler =
@@ -193,9 +184,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
-    if (progressState == PROGRESS_STATE_AVAILABLE) {
-      progressHolder.progress = min((int) (progressPositionMs * 100 / Util.usToMs(durationUs)), 99);
+    if (released) {
+      return PROGRESS_STATE_NO_TRANSFORMATION;
     }
+    internalHandler.obtainMessage(MSG_UPDATE_PROGRESS, progressHolder).sendToTarget();
+    // TODO: figure out why calling clock.onThreadBlocked() here makes the tests fail.
+    transformerConditionVariable.blockUninterruptible();
+    transformerConditionVariable.close();
     return progressState;
   }
 
@@ -208,15 +203,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* transformationException */ null)
         .sendToTarget();
     clock.onThreadBlocked();
-    cancellingConditionVariable.blockUninterruptible();
+    transformerConditionVariable.blockUninterruptible();
+    transformerConditionVariable.close();
     if (cancelException != null) {
       throw cancelException;
     }
   }
 
   private boolean handleMessage(Message msg) {
-    // Handle end messages even if resources have been released to report release timeouts.
-    if (released && msg.what != MSG_END) {
+    // Some messages cannot be ignored when resources have been released. End messages must be
+    // handled to report release timeouts and to unblock the transformer condition variable in case
+    // of cancellation. Progress update messages must be handled to unblock the transformer
+    // condition variable.
+    if (released && msg.what != MSG_END && msg.what != MSG_UPDATE_PROGRESS) {
       return true;
     }
     try {
@@ -240,6 +239,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           endInternal(
               /* endReason= */ msg.arg1,
               /* transformationException= */ (TransformationException) msg.obj);
+          break;
+        case MSG_UPDATE_PROGRESS:
+          updateProgressInternal(/* progressHolder= */ (ProgressHolder) msg.obj);
           break;
         default:
           return false;
@@ -343,60 +345,53 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       internalHandler.post(internalHandlerThread::quitSafely);
     }
 
-    if (!forCancellation) {
-      TransformationException exception = transformationException;
-      if (exception == null) {
-        // We only report the exception caused by releasing the resources if there is no other
-        // exception. It is more intuitive to call the error callback only once and reporting the
-        // exception caused by releasing the resources can be confusing if it is a consequence of
-        // the first exception.
-        exception = releaseTransformationException;
-      }
-
-      if (exception != null) {
-        listener.onTransformationError(exception);
-      } else {
-        listener.onTransformationCompleted(checkNotNull(transformationResult));
-      }
+    if (forCancellation) {
+      transformerConditionVariable.open();
+      return;
     }
 
-    cancellingConditionVariable.open();
+    TransformationException exception = transformationException;
+    if (exception == null) {
+      // We only report the exception caused by releasing the resources if there is no other
+      // exception. It is more intuitive to call the error callback only once and reporting the
+      // exception caused by releasing the resources can be confusing if it is a consequence of the
+      // first exception.
+      exception = releaseTransformationException;
+    }
+
+    if (exception != null) {
+      listener.onTransformationError(exception);
+    } else {
+      listener.onTransformationCompleted(checkNotNull(transformationResult));
+    }
   }
 
-  private class ComponentListener
-      implements ExoPlayerAssetLoader.Listener, SamplePipeline.Listener {
+  private void updateProgressInternal(ProgressHolder progressHolder) {
+    progressState = exoPlayerAssetLoader.getProgress(progressHolder);
+    transformerConditionVariable.open();
+  }
 
-    private static final long MIN_DURATION_BETWEEN_PROGRESS_UPDATES_MS = 100;
+  private class ComponentListener implements ExoPlayerAssetLoader.Listener {
 
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
 
+    private long durationUs;
     private int tracksAddedCount;
-    private long lastProgressUpdateMs;
-    private long lastProgressPositionMs;
 
     private volatile boolean trackRegistered;
 
     public ComponentListener(MediaItem mediaItem, FallbackListener fallbackListener) {
       this.mediaItem = mediaItem;
       this.fallbackListener = fallbackListener;
+      durationUs = C.TIME_UNSET;
     }
 
     // ExoPlayerAssetLoader.Listener implementation.
 
     @Override
     public void onDurationUs(long durationUs) {
-      applicationHandler.post(
-          () -> {
-            // Make progress permanently unavailable if the duration is unknown, so that it doesn't
-            // jump to a high value at the end of the transformation if the duration is set once the
-            // media is entirely loaded.
-            progressState =
-                durationUs <= 0 || durationUs == C.TIME_UNSET
-                    ? PROGRESS_STATE_UNAVAILABLE
-                    : PROGRESS_STATE_AVAILABLE;
-            TransformerInternal.this.durationUs = durationUs;
-          });
+      this.durationUs = durationUs;
     }
 
     @Override
@@ -462,22 +457,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       onTransformationError(transformationException);
     }
 
-    // SamplePipeline.Listener implementation.
-
-    @Override
-    public void onInputBufferQueued(long positionUs) {
-      long positionMs = Util.usToMs(positionUs);
-      long elapsedTimeMs = clock.elapsedRealtime();
-      if (elapsedTimeMs > lastProgressUpdateMs + MIN_DURATION_BETWEEN_PROGRESS_UPDATES_MS
-          && positionMs > lastProgressPositionMs) {
-        lastProgressUpdateMs = elapsedTimeMs;
-        // Store positionMs in a variable to make sure the thread reads the latest value.
-        lastProgressPositionMs = positionMs;
-        applicationHandler.post(() -> progressPositionMs = positionMs);
-      }
-    }
-
-    @Override
     public void onTransformationError(TransformationException transformationException) {
       internalHandler
           .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, transformationException)
@@ -497,7 +476,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             forceSilentAudio ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
-            /* listener= */ this,
             fallbackListener);
       } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)
           && shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs)) {
@@ -512,7 +490,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             decoderFactory,
             encoderFactory,
             muxerWrapper,
-            /* listener= */ this,
+            /* errorConsumer= */ this::onTransformationError,
             fallbackListener,
             debugViewProvider);
       } else {
@@ -522,7 +500,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             transformationRequest,
             muxerWrapper,
-            /* listener= */ this,
             fallbackListener);
       }
     }

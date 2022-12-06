@@ -40,25 +40,6 @@ import androidx.media3.decoder.DecoderInputBuffer;
     void queueInputBuffer();
   }
 
-  /** A listener for the sample pipeline events. */
-  interface Listener {
-
-    /**
-     * Called when an input buffer is {@linkplain #queueInputBuffer() queued}.
-     *
-     * @param positionUs The position of the buffer queued from the stream start position, in
-     *     microseconds.
-     */
-    void onInputBufferQueued(long positionUs);
-
-    /**
-     * Called if an exception occurs in the sample pipeline.
-     *
-     * @param exception The {@link TransformationException} describing the exception.
-     */
-    void onTransformationError(TransformationException exception);
-  }
-
   /**
    * Returns whether the pipeline should be fed with decoded sample data. If false, encoded sample
    * data should be queued.

@@ -776,7 +776,6 @@ public final class Transformer {
             encoderFactory,
             frameProcessorFactory,
             muxerFactory,
-            looper,
             transformerInternalListener,
             fallbackListener,
             debugViewProvider,

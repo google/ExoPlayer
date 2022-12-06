@@ -64,7 +64,6 @@ import org.checkerframework.dataflow.qual.Pure;
       long forceSilentAudioDurationUs,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
-      Listener listener,
       FallbackListener fallbackListener)
       throws TransformationException {
     super(
@@ -72,8 +71,7 @@ import org.checkerframework.dataflow.qual.Pure;
         streamStartPositionUs,
         streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
-        muxerWrapper,
-        listener);
+        muxerWrapper);
 
     if (forceSilentAudioDurationUs != C.TIME_UNSET) {
       silentAudioGenerator =
