@@ -67,4 +67,7 @@
   <string name="hide_input_video">Hide input video</string>
   <string name="show_input_video">Show input video</string>
   <string name="force_silent_audio">Force silent audio</string>
+  <string name="overlay_alpha">Alpha</string>
+  <string name="overlay_uri">Uri</string>
+  <string name="bitmap_overlay_settings">Specify bitmap overlay settings</string>
 </resources>

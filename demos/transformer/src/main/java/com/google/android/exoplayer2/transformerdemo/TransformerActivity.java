@@ -43,10 +43,13 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
+import com.google.android.exoplayer2.effect.BitmapOverlay;
 import com.google.android.exoplayer2.effect.Contrast;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlTextureProcessor;
 import com.google.android.exoplayer2.effect.HslAdjustment;
+import com.google.android.exoplayer2.effect.OverlayEffect;
+import com.google.android.exoplayer2.effect.OverlaySettings;
 import com.google.android.exoplayer2.effect.RgbAdjustment;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
@@ -491,6 +494,20 @@ public final class TransformerActivity extends AppCompatActivity {
     }
     if (selectedEffects[10]) {
       effects.add(MatrixTransformationFactory.createZoomInTransition());
+    }
+    if (selectedEffects[11]) {
+      OverlaySettings overlaySettings =
+          new OverlaySettings.Builder()
+              .setAlpha(
+                  bundle.getFloat(
+                      ConfigurationActivity.BITMAP_OVERLAY_ALPHA, /* defaultValue= */ 1))
+              .build();
+
+      BitmapOverlay bitmapOverlay =
+          BitmapOverlay.createStaticBitmapOverlay(
+              Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
+              overlaySettings);
+      effects.add(new OverlayEffect(ImmutableList.of(bitmapOverlay)));
     }
     return effects.build();
   }

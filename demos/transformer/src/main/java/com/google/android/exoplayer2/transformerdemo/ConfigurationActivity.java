@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -86,6 +87,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String HSL_ADJUSTMENTS_HUE = "hsl_adjustments_hue";
   public static final String HSL_ADJUSTMENTS_SATURATION = "hsl_adjustments_saturation";
   public static final String HSL_ADJUSTMENTS_LIGHTNESS = "hsl_adjustments_lightness";
+  public static final String BITMAP_OVERLAY_URI = "bitmap_overlay_uri";
+  public static final String BITMAP_OVERLAY_ALPHA = "bitmap_overlay_alpha";
   public static final int COLOR_FILTER_GRAYSCALE = 0;
   public static final int COLOR_FILTER_INVERTED = 1;
   public static final int COLOR_FILTER_SEPIA = 2;
@@ -139,6 +142,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "3D spin",
     "Overlay logo & timer",
     "Zoom in start",
+    "Custom Bitmap Overlay",
   };
   private static final ImmutableMap<String, @TransformationRequest.HdrMode Integer>
       HDR_MODE_DESCRIPTIONS =
@@ -155,6 +159,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final int HSL_ADJUSTMENT_INDEX = 5;
   private static final int CONTRAST_INDEX = 6;
   private static final int PERIODIC_VIGNETTE_INDEX = 7;
+  private static final int BITMAP_OVERLAY_INDEX = 11;
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
   private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
@@ -195,6 +200,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private float periodicVignetteCenterY;
   private float periodicVignetteInnerRadius;
   private float periodicVignetteOuterRadius;
+  private @MonotonicNonNull String bitmapOverlayUri;
+  private float bitmapOverlayAlpha;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -398,6 +405,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
     bundle.putFloat(PERIODIC_VIGNETTE_OUTER_RADIUS, periodicVignetteOuterRadius);
+    bundle.putString(BITMAP_OVERLAY_URI, bitmapOverlayUri);
+    bundle.putFloat(BITMAP_OVERLAY_ALPHA, bitmapOverlayAlpha);
     transformerIntent.putExtras(bundle);
 
     @Nullable Uri intentUri;
@@ -527,6 +536,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
       case PERIODIC_VIGNETTE_INDEX:
         controlPeriodicVignetteSettings();
         break;
+      case BITMAP_OVERLAY_INDEX:
+        controlBitmapOverlaySettings();
+        break;
     }
   }
 
@@ -624,6 +636,24 @@ public final class ConfigurationActivity extends AppCompatActivity {
               List<Float> radiusRange = radiusRangeSlider.getValues();
               periodicVignetteInnerRadius = radiusRange.get(0);
               periodicVignetteOuterRadius = radiusRange.get(1);
+            })
+        .create()
+        .show();
+  }
+
+  private void controlBitmapOverlaySettings() {
+    View dialogView =
+        getLayoutInflater().inflate(R.layout.bitmap_overlay_options, /* root= */ null);
+    EditText uriEditText = checkNotNull(dialogView.findViewById(R.id.bitmap_overlay_uri));
+    Slider alphaSlider = checkNotNull(dialogView.findViewById(R.id.bitmap_overlay_alpha_slider));
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.bitmap_overlay_settings)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              bitmapOverlayUri = uriEditText.getText().toString();
+              bitmapOverlayAlpha = alphaSlider.getValue();
             })
         .create()
         .show();
