@@ -14,22 +14,28 @@ package com.google.android.exoplayer2.effect;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
+import androidx.annotation.FloatRange;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Contains information to control how an {@link TextureOverlay} is displayed on the screen. */
 public final class OverlaySettings {
   public final boolean useHdr;
+  public final float alpha;
   public final float[] matrix;
 
-  private OverlaySettings(boolean useHdr, float[] matrix) {
+  private OverlaySettings(boolean useHdr, float alpha, float[] matrix) {
     this.useHdr = useHdr;
+    this.alpha = alpha;
     this.matrix = matrix;
   }
 
   /** A builder for {@link OverlaySettings} instances. */
   public static final class Builder {
     private boolean useHdr;
+    private float alpha = 1;
     private float[] matrix;
 
     /** Creates a new {@link Builder}. */
@@ -61,9 +67,23 @@ public final class OverlaySettings {
       return this;
     }
 
+    /**
+     * Sets the alpha value of the overlay, altering its transparency.
+     *
+     * <p>Alpha values range from 0 (all transparent) to 1 (completely opaque).
+     *
+     * <p>Set to always return {@code 1} by default.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAlpha(@FloatRange(from = 0, to = 1) float alpha) {
+      checkArgument(0 <= alpha && alpha <= 1, "Alpha needs to be in the interval [0, 1].");
+      this.alpha = alpha;
+      return this;
+    }
+
     /** Creates an instance of {@link OverlaySettings}, using defaults if values are unset. */
     public OverlaySettings build() {
-      return new OverlaySettings(useHdr, matrix);
+      return new OverlaySettings(useHdr, alpha, matrix);
     }
   }
 }

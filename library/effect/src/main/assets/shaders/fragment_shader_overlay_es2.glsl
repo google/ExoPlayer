@@ -20,6 +20,9 @@ precision mediump float;
 uniform sampler2D uVideoTexSampler0;
 // Texture containing the overlay bitmap.
 uniform sampler2D uOverlayTexSampler1;
+// The alpha values for the texture.
+uniform float uOverlayAlpha1;
+
 varying vec2 vVideoTexSamplingCoord;
 varying vec2 vOverlayTexSamplingCoord1;
 
@@ -27,15 +30,18 @@ varying vec2 vOverlayTexSamplingCoord1;
 // (https://open.gl/textures) since it's not implemented until OpenGL ES 3.2.
 vec4 getClampToBorderOverlayColor() {
   if (vOverlayTexSamplingCoord1.x > 1.0 || vOverlayTexSamplingCoord1.x < 0.0
-    || vOverlayTexSamplingCoord1.y > 1.0 || vOverlayTexSamplingCoord1.y < 0.0){
+    || vOverlayTexSamplingCoord1.y > 1.0 || vOverlayTexSamplingCoord1.y < 0.0) {
     return vec4(0.0, 0.0, 0.0, 0.0);
   } else {
-    return vec4(texture2D(uOverlayTexSampler1, vOverlayTexSamplingCoord1));
+    vec4 overlayColor = vec4(
+      texture2D(uOverlayTexSampler1, vOverlayTexSamplingCoord1));
+    overlayColor.a = uOverlayAlpha1 * overlayColor.a;
+    return overlayColor;
   }
 }
 
 float getMixAlpha(float videoAlpha, float overlayAlpha) {
-  if (videoAlpha == 0.0){
+  if (videoAlpha == 0.0) {
     return 1.0;
   } else {
     return clamp(overlayAlpha/videoAlpha, 0.0, 1.0);

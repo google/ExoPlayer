@@ -99,13 +99,14 @@ import java.io.IOException;
             videoHeight / (float) overlayTextureSize.second,
             /* z= */ 1);
         glProgram.setFloatsUniform("uAspectRatioMatrix", aspectRatioMatrix);
-
         Matrix.invertM(
             overlayMatrix,
             MATRIX_OFFSET,
             overlay.getOverlaySettings(presentationTimeUs).matrix,
             MATRIX_OFFSET);
         glProgram.setFloatsUniform("uOverlayMatrix", overlayMatrix);
+        glProgram.setFloatUniform(
+            "uOverlayAlpha1", overlay.getOverlaySettings(presentationTimeUs).alpha);
 
       } else {
         glProgram.setSamplerTexIdUniform(
