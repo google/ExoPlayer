@@ -20,6 +20,11 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FO
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Handler;
@@ -62,6 +67,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
   private final MediaItem mediaItem;
   private final ExoPlayer player;
+
+  private @Transformer.ProgressState int progressState;
 
   public ExoPlayerAssetLoader(
       Context context,
@@ -106,16 +113,29 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
     player = playerBuilder.build();
     player.addListener(new PlayerListener(listener));
+
+    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
   public void start() {
     player.setMediaItem(mediaItem);
     player.prepare();
     player.play();
+    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+  }
+
+  public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
+    if (progressState == PROGRESS_STATE_AVAILABLE) {
+      long durationMs = player.getDuration();
+      long positionMs = player.getCurrentPosition();
+      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
+    }
+    return progressState;
   }
 
   public void release() {
     player.release();
+    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
   private static final class RenderersFactoryImpl implements RenderersFactory {
@@ -167,7 +187,6 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
   private final class PlayerListener implements Player.Listener {
 
     private final Listener listener;
-    private boolean hasSentDuration;
 
     public PlayerListener(Listener listener) {
       this.listener = listener;
@@ -175,14 +194,21 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
     @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
-      if (hasSentDuration) {
+      if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
+        long durationUs = window.durationUs;
+        // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
+        // to a high value at the end of the transformation if the duration is set once the media is
+        // entirely loaded.
+        progressState =
+            durationUs <= 0 || durationUs == C.TIME_UNSET
+                ? PROGRESS_STATE_UNAVAILABLE
+                : PROGRESS_STATE_AVAILABLE;
         listener.onDurationUs(window.durationUs);
-        hasSentDuration = true;
       }
     }
 
