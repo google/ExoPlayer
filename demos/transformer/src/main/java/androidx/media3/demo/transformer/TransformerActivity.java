@@ -44,10 +44,13 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlTextureProcessor;
 import androidx.media3.effect.HslAdjustment;
+import androidx.media3.effect.OverlayEffect;
+import androidx.media3.effect.OverlaySettings;
 import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
@@ -490,6 +493,20 @@ public final class TransformerActivity extends AppCompatActivity {
     }
     if (selectedEffects[10]) {
       effects.add(MatrixTransformationFactory.createZoomInTransition());
+    }
+    if (selectedEffects[11]) {
+      OverlaySettings overlaySettings =
+          new OverlaySettings.Builder()
+              .setAlpha(
+                  bundle.getFloat(
+                      ConfigurationActivity.BITMAP_OVERLAY_ALPHA, /* defaultValue= */ 1))
+              .build();
+
+      BitmapOverlay bitmapOverlay =
+          BitmapOverlay.createStaticBitmapOverlay(
+              Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
+              overlaySettings);
+      effects.add(new OverlayEffect(ImmutableList.of(bitmapOverlay)));
     }
     return effects.build();
   }
