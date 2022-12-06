@@ -27,3 +27,9 @@ Create a `CastPlayer` and use it to control a Cast receiver app. Since
 `CastPlayer` implements the `Player` interface, it can be passed to all media
 components that accept a `Player`, including the UI components provided by the
 UI module.
+
+## Links
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

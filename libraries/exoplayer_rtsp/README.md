@@ -27,3 +27,11 @@ and convert a RTSP `MediaItem` into a `RtspMediaSource` for playback.
 
 For advanced playback use cases, applications can build `RtspMediaSource`
 instances and pass them directly to the player.
+
+## Links
+
+<!-- TODO(b/204738828): Add link to RTSP media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

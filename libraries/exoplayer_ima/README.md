@@ -49,3 +49,11 @@ You can try the IMA module in the ExoPlayer demo app, which has test content in
 the "IMA sample ad tags" section of the sample chooser. The demo app's
 `PlayerActivity` also shows how to persist the `ImaAdsLoader` instance and the
 player position when backgrounded during ad playback.
+
+## Links
+
+<!-- TODO(b/204738828): Add link to Ad Insertion media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

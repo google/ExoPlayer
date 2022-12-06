@@ -33,3 +33,11 @@ the module and build `DashDownloader` instances to download DASH content.
 For advanced playback use cases, applications can build `DashMediaSource`
 instances and pass them directly to the player. For advanced download use cases,
 `DashDownloader` can be used directly.
+
+## Links
+
+<!-- TODO(b/204738828): Add link to DASH media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages

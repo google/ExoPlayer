@@ -32,3 +32,11 @@ the module and build `HlsDownloader` instances to download HLS content.
 For advanced playback use cases, applications can build `HlsMediaSource`
 instances and pass them directly to the player. For advanced download use cases,
 `HlsDownloader` can be used directly.
+
+## Links
+
+<!-- TODO(b/204738828): Add link to HLS media3 guide entry when it's published on developer.android.com -->
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
