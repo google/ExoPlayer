@@ -20,9 +20,9 @@
 // 2. Transforms the electrical colors to optical colors using the SMPTE 170M
 //    EOTF.
 // 3. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 4. Output as requested by uOetfColorTransfer. Use COLOR_TRANSFER_LINEAR for
-//    outputting to intermediate shaders, or COLOR_TRANSFER_SDR_VIDEO to output
-//    electrical colors via an OETF (e.g. to an encoder).
+// 4. Outputs as requested by uOutputColorTransfer. Use COLOR_TRANSFER_LINEAR
+//    for outputting to intermediate shaders, or COLOR_TRANSFER_SDR_VIDEO to
+//    output electrical colors via an OETF (e.g. to an encoder).
 
 #extension GL_OES_EGL_image_external : require
 precision mediump float;
@@ -31,7 +31,7 @@ uniform mat4 uRgbMatrix;
 varying vec2 vTexSamplingCoord;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_LINEAR and COLOR_TRANSFER_SDR_VIDEO are allowed.
-uniform int uOetfColorTransfer;
+uniform int uOutputColorTransfer;
 
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
@@ -76,9 +76,9 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer_oetf)
   const int COLOR_TRANSFER_LINEAR = 1;
   const int COLOR_TRANSFER_SDR_VIDEO = 3;
-  if (uOetfColorTransfer == COLOR_TRANSFER_LINEAR) {
+  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
     return linearColor;
-  } else if(uOetfColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
+  } else if (uOutputColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
     return sdrOetf(linearColor);
   } else {
     // Output red as an obviously visible error.

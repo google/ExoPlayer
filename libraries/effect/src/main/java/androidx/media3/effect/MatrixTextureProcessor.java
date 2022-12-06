@@ -226,12 +226,12 @@ import java.util.List;
       checkArgument(
           inputColorTransfer == C.COLOR_TRANSFER_HLG
               || inputColorTransfer == C.COLOR_TRANSFER_ST2084);
-      glProgram.setIntUniform("uEotfColorTransfer", inputColorTransfer);
+      glProgram.setIntUniform("uInputColorTransfer", inputColorTransfer);
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_HLG
               || outputColorTransfer == C.COLOR_TRANSFER_ST2084
               || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
-      glProgram.setIntUniform("uOetfColorTransfer", outputColorTransfer);
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
       checkArgument(
           outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020,
@@ -243,7 +243,7 @@ import java.util.List;
           outputColorTransfer == C.COLOR_TRANSFER_SDR
               || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
       // The SDR shader automatically applies an COLOR_TRANSFER_SDR EOTF.
-      glProgram.setIntUniform("uOetfColorTransfer", outputColorTransfer);
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     }
 
     return new MatrixTextureProcessor(
@@ -291,7 +291,7 @@ import java.util.List;
       @C.ColorTransfer int colorTransfer = outputColorInfo.colorTransfer;
       checkArgument(
           colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084);
-      glProgram.setIntUniform("uOetfColorTransfer", colorTransfer);
+      glProgram.setIntUniform("uOutputColorTransfer", colorTransfer);
     }
 
     return new MatrixTextureProcessor(
