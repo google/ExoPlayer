@@ -27,10 +27,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.Matrix;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
@@ -60,6 +64,10 @@ public class OverlayTextureProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_default.png";
   public static final String OVERLAY_BITMAP_SCALED =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_scaled.png";
+  public static final String OVERLAY_TEXT_DEFAULT =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_default.png";
+  public static final String OVERLAY_TEXT_TRANSLATE =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_translate.png";
 
   private final Context context = getApplicationContext();
 
@@ -148,6 +156,65 @@ public class OverlayTextureProcessorPixelTest {
     Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_SCALED);
+
+    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_textOverlay_blendsTextIntoFrame() throws Exception {
+    String testId = "drawFrame_textOverlay";
+    SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
+    overlayText.setSpan(
+        new ForegroundColorSpan(Color.GRAY),
+        /* start= */ 0,
+        /* end= */ 4,
+        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    TextOverlay staticTextOverlay = TextOverlay.createStaticTextOverlay(overlayText);
+    overlayTextureProcessor =
+        new OverlayEffect(ImmutableList.of(staticTextOverlay))
+            .toGlTextureProcessor(context, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
+    Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_DEFAULT);
+
+    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_translatedTextOverlay_blendsTextIntoFrame() throws Exception {
+    String testId = "drawFrame_translatedTextOverlay";
+    float[] translateMatrix = GlUtil.create4x4IdentityMatrix();
+    Matrix.translateM(translateMatrix, /* mOffset= */ 0, /* x= */ 0.5f, /* y= */ 0.5f, /* z= */ 1);
+    SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
+    overlayText.setSpan(
+        new ForegroundColorSpan(Color.GRAY),
+        /* start= */ 0,
+        /* end= */ 4,
+        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    OverlaySettings overlaySettings =
+        new OverlaySettings.Builder().setMatrix(translateMatrix).build();
+    TextOverlay staticTextOverlay =
+        TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
+    overlayTextureProcessor =
+        new OverlayEffect(ImmutableList.of(staticTextOverlay))
+            .toGlTextureProcessor(context, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
+    Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_TRANSLATE);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
