@@ -1,5 +1,34 @@
 [
   {
+    "name": "TEST DV",
+    "samples": [
+      {
+        "name": "TEST DV 5 HLS",
+        "uri": "http://media.developer.dolby.com/DolbyVision_Atmos/profile5_HLS/master.m3u8"
+      },
+      {
+        "name": "TEST DV 5 MP4 UHD",
+        "uri": "http://media.developer.dolby.com/DolbyVision_Atmos/mp4/iOS_P5_GlassBlowing2_3840x2160%4059.94fps_15200kbps.mp4"
+      },
+      {
+        "name": "TEST DV 5 MP4 FHD",
+        "uri": "http://media.developer.dolby.com/DolbyVision_Atmos/mp4/iOS_P5_GlassBlowing2_1920x1080%4059.94fps_15200kbps.mp4"
+      },
+      {
+        "name": "TEST DV 8.1 DASH",
+        "uri": "http://media.developer.dolby.com/DolbyVision_Atmos/profile8.1_DASH/p8.1.mpd"
+      },
+      {
+        "name": "TEST DV 8.1 MP4 FHD",
+        "uri": "http://media.developer.dolby.com/DolbyVision_Atmos/mp4/P81_GlassBlowing2_1920x1080%4059.94fps_15200kbps_fmp4.mp4"
+      },
+      {
+        "name": "TEST DV 8.1 MP4 UHD",
+        "uri": "http://media.developer.dolby.com/DolbyVision_Atmos/mp4/P81_GlassBlowing2_3840x2160%4059.94fps_15200kbps_fmp4.mp4"
+      }
+    ]
+  },
+  {
     "name": "Clear DASH",
     "samples": [
       {

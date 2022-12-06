@@ -36,6 +36,7 @@
       android:allowBackup="false"
       android:requestLegacyExternalStorage="true"
       android:name="androidx.multidex.MultiDexApplication"
+      android:usesCleartextTraffic="true"
       tools:targetApi="29">
 
     <activity android:name=".SampleChooserActivity"

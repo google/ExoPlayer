@@ -401,7 +401,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       // click events up to the StyledPlayerView by calling their own performClick method.
       surfaceView.setOnClickListener(componentListener);
       surfaceView.setClickable(false);
-      contentFrame.addView(surfaceView, 0);
+      //contentFrame.addView(surfaceView, 0); //Do it later in setPlayerView()
     } else {
       surfaceView = null;
     }
@@ -561,6 +561,10 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     } else {
       hideController();
     }
+  }
+
+  public void addPlayerView() {
+    contentFrame.addView(surfaceView, 0);
   }
 
   @Override

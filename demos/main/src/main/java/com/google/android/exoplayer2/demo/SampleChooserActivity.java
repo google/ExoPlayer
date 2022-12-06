@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
@@ -82,6 +83,7 @@ public class SampleChooserActivity extends AppCompatActivity
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
   private ExpandableListView sampleListView;
+  private CheckBox delayAddViewBox;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -92,6 +94,8 @@ public class SampleChooserActivity extends AppCompatActivity
 
     sampleListView.setAdapter(sampleAdapter);
     sampleListView.setOnChildClickListener(this);
+
+    delayAddViewBox = findViewById(R.id.delay_add_view);
 
     Intent intent = getIntent();
     String dataUri = intent.getDataString();
@@ -232,6 +236,7 @@ public class SampleChooserActivity extends AppCompatActivity
     intent.putExtra(
         IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA,
         isNonNullAndChecked(preferExtensionDecodersMenuItem));
+    intent.putExtra("DELAY_ADD_VIEW", delayAddViewBox.isChecked());
     IntentUtil.addToIntent(playlistHolder.mediaItems, intent);
     startActivity(intent);
     return true;

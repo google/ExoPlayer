@@ -86,6 +86,7 @@ public class PlayerActivity extends AppCompatActivity
   private boolean startAutoPlay;
   private int startItemIndex;
   private long startPosition;
+  private boolean isDelayAddView = false;
 
   // For ad playback only.
 
@@ -274,6 +275,7 @@ public class PlayerActivity extends AppCompatActivity
               .setMediaSourceFactory(createMediaSourceFactory());
       setRenderersFactory(
           playerBuilder, intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false));
+      isDelayAddView = intent.getBooleanExtra("DELAY_ADD_VIEW", false);
       player = playerBuilder.build();
       player.setTrackSelectionParameters(trackSelectionParameters);
       player.addListener(new PlayerEventListener());
@@ -471,6 +473,17 @@ public class PlayerActivity extends AppCompatActivity
       if (playbackState == Player.STATE_ENDED) {
         showControls();
       }
+
+      if (isDelayAddView) {
+        if (playbackState == Player.STATE_READY) { //Delayed add player
+          playerView.addPlayerView();
+        }
+      } else {
+        if (playbackState == Player.STATE_BUFFERING) {
+          playerView.addPlayerView();
+        }
+      }
+
       updateButtonVisibility();
     }
 
