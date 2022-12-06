@@ -17,7 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED;
+import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -113,7 +113,7 @@ public class DefaultEncoderFactoryTest {
         assertThrows(
             TransformationException.class,
             () -> encoderFactory.createForVideoEncoding(requestedVideoFormat));
-    assertThat(transformationException.errorCode).isEqualTo(ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+    assertThat(transformationException.errorCode).isEqualTo(ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @Test
