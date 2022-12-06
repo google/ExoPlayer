@@ -27,6 +27,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -55,6 +58,7 @@ import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
 import androidx.media3.effect.SingleColorLut;
+import androidx.media3.effect.TextOverlay;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
@@ -501,12 +505,29 @@ public final class TransformerActivity extends AppCompatActivity {
                   bundle.getFloat(
                       ConfigurationActivity.BITMAP_OVERLAY_ALPHA, /* defaultValue= */ 1))
               .build();
-
       BitmapOverlay bitmapOverlay =
           BitmapOverlay.createStaticBitmapOverlay(
               Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
               overlaySettings);
       effects.add(new OverlayEffect(ImmutableList.of(bitmapOverlay)));
+    }
+    if (selectedEffects[12]) {
+      OverlaySettings overlaySettings =
+          new OverlaySettings.Builder()
+              .setAlpha(
+                  bundle.getFloat(ConfigurationActivity.TEXT_OVERLAY_ALPHA, /* defaultValue= */ 1))
+              .build();
+      SpannableString overlayText =
+          new SpannableString(
+              checkNotNull(bundle.getString(ConfigurationActivity.TEXT_OVERLAY_TEXT)));
+      overlayText.setSpan(
+          new ForegroundColorSpan(bundle.getInt(ConfigurationActivity.TEXT_OVERLAY_TEXT_COLOR)),
+          /* start= */ 0,
+          overlayText.length(),
+          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      TextOverlay textOverlay = TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
+      // TODO(227625365): use the same OverlayEffect object for bitmap and text overlays.
+      effects.add(new OverlayEffect(ImmutableList.of(textOverlay)));
     }
     return effects.build();
   }
