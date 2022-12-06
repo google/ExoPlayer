@@ -16,7 +16,6 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
@@ -24,35 +23,20 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.nio.ByteBuffer;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /* package */ abstract class BaseSamplePipeline implements SamplePipeline {
 
   private final long streamStartPositionUs;
-  private final long streamOffsetUs;
   private final MuxerWrapper muxerWrapper;
   private final @C.TrackType int trackType;
-  private final @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
 
-  @Nullable private DecoderInputBuffer inputBuffer;
   private boolean muxerWrapperTrackAdded;
 
   public BaseSamplePipeline(
-      Format inputFormat,
-      long streamStartPositionUs,
-      long streamOffsetUs,
-      boolean flattenForSlowMotion,
-      MuxerWrapper muxerWrapper) {
+      Format inputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
-    this.streamOffsetUs = streamOffsetUs;
     this.muxerWrapper = muxerWrapper;
     trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
-    sefVideoSlowMotionFlattener =
-        flattenForSlowMotion && trackType == C.TRACK_TYPE_VIDEO
-            ? new SefSlowMotionFlattener(inputFormat)
-            : null;
   }
 
   protected static TransformationException createNoSupportedMimeTypeException(
@@ -66,31 +50,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
-  @Nullable
-  @Override
-  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
-    inputBuffer = dequeueInputBufferInternal();
-    return inputBuffer;
-  }
-
-  @Override
-  public void queueInputBuffer() throws TransformationException {
-    DecoderInputBuffer inputBuffer = checkNotNull(this.inputBuffer);
-    checkNotNull(inputBuffer.data);
-    if (!shouldDropInputBuffer(inputBuffer)) {
-      queueInputBufferInternal();
-    }
-  }
-
   @Override
   public boolean processData() throws TransformationException {
     return feedMuxer() || processDataUpToMuxer();
   }
-
-  @Nullable
-  protected abstract DecoderInputBuffer dequeueInputBufferInternal() throws TransformationException;
-
-  protected abstract void queueInputBufferInternal() throws TransformationException;
 
   protected abstract boolean processDataUpToMuxer() throws TransformationException;
 
@@ -103,30 +66,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected abstract void releaseMuxerInputBuffer() throws TransformationException;
 
   protected abstract boolean isMuxerInputEnded();
-
-  /**
-   * Preprocesses an {@linkplain DecoderInputBuffer input buffer} queued to the pipeline and returns
-   * whether it should be dropped.
-   */
-  @RequiresNonNull("#1.data")
-  private boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
-    ByteBuffer inputBytes = inputBuffer.data;
-
-    if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
-      return false;
-    }
-
-    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
-    boolean shouldDropInputBuffer =
-        sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
-    if (shouldDropInputBuffer) {
-      inputBytes.clear();
-    } else {
-      inputBuffer.timeUs =
-          streamOffsetUs + sefVideoSlowMotionFlattener.getSamplePresentationTimeUs();
-    }
-    return shouldDropInputBuffer;
-  }
 
   /**
    * Attempts to pass encoded data to the muxer, and returns whether it may be possible to pass more

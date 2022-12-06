@@ -31,16 +31,10 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
   public PassthroughSamplePipeline(
       Format format,
       long streamStartPositionUs,
-      long streamOffsetUs,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener) {
-    super(
-        format,
-        streamStartPositionUs,
-        streamOffsetUs,
-        transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
+    super(format, streamStartPositionUs, muxerWrapper);
     this.format = format;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
@@ -52,20 +46,20 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
   }
 
   @Override
-  public void release() {}
-
-  @Override
   @Nullable
-  protected DecoderInputBuffer dequeueInputBufferInternal() {
+  public DecoderInputBuffer dequeueInputBuffer() {
     return hasPendingBuffer ? null : buffer;
   }
 
   @Override
-  protected void queueInputBufferInternal() {
+  public void queueInputBuffer() {
     if (buffer.data != null && buffer.data.hasRemaining()) {
       hasPendingBuffer = true;
     }
   }
+
+  @Override
+  public void release() {}
 
   @Override
   protected boolean processDataUpToMuxer() {

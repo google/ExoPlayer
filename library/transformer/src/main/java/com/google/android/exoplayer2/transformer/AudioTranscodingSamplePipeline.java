@@ -66,12 +66,7 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws TransformationException {
-    super(
-        inputFormat,
-        streamStartPositionUs,
-        streamOffsetUs,
-        transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
+    super(inputFormat, streamStartPositionUs, muxerWrapper);
 
     if (forceSilentAudioDurationUs != C.TIME_UNSET) {
       silentAudioGenerator =
@@ -154,20 +149,20 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void release() {
-    audioProcessingPipeline.reset();
-    encoder.release();
-  }
-
-  @Override
   @Nullable
-  protected DecoderInputBuffer dequeueInputBufferInternal() {
+  public DecoderInputBuffer dequeueInputBuffer() {
     return hasPendingInputBuffer ? null : inputBuffer;
   }
 
   @Override
-  protected void queueInputBufferInternal() {
+  public void queueInputBuffer() {
     hasPendingInputBuffer = true;
+  }
+
+  @Override
+  public void release() {
+    audioProcessingPipeline.reset();
+    encoder.release();
   }
 
   @Override

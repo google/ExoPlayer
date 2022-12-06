@@ -87,13 +87,7 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
-    super(
-        inputFormat,
-        streamStartPositionUs,
-        streamOffsetUs,
-        transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
-
+    super(inputFormat, streamStartPositionUs, muxerWrapper);
     if (ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
       if (transformationRequest.hdrMode
           == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
@@ -230,24 +224,24 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void release() {
-    frameProcessor.release();
-    decoder.release();
-    encoderWrapper.release();
-  }
-
-  @Override
   @Nullable
-  protected DecoderInputBuffer dequeueInputBufferInternal() throws TransformationException {
+  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
     return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
   }
 
   @Override
-  protected void queueInputBufferInternal() throws TransformationException {
+  public void queueInputBuffer() throws TransformationException {
     if (decoderInputBuffer.isDecodeOnly()) {
       decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
     }
     decoder.queueInputBuffer(decoderInputBuffer);
+  }
+
+  @Override
+  public void release() {
+    frameProcessor.release();
+    decoder.release();
+    encoderWrapper.release();
   }
 
   @Override
