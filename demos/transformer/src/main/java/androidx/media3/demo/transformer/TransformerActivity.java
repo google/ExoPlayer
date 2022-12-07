@@ -347,21 +347,19 @@ public final class TransformerActivity extends AppCompatActivity {
 
     ImmutableList.Builder<AudioProcessor> processors = new ImmutableList.Builder<>();
 
-    if (selectedAudioEffects[0] || selectedAudioEffects[1]) {
+    if (selectedAudioEffects[ConfigurationActivity.HIGH_PITCHED_INDEX]
+        || selectedAudioEffects[ConfigurationActivity.SAMPLE_RATE_INDEX]) {
       SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
-      // High pitched
-      if (selectedAudioEffects[0]) {
+      if (selectedAudioEffects[ConfigurationActivity.HIGH_PITCHED_INDEX]) {
         sonicAudioProcessor.setPitch(2f);
       }
-      // 48KHz sample rate.
-      if (selectedAudioEffects[1]) {
+      if (selectedAudioEffects[ConfigurationActivity.SAMPLE_RATE_INDEX]) {
         sonicAudioProcessor.setOutputSampleRateHz(48_000);
       }
       processors.add(sonicAudioProcessor);
     }
 
-    // Skip silence
-    if (selectedAudioEffects[2]) {
+    if (selectedAudioEffects[ConfigurationActivity.SKIP_SILENCE_INDEX]) {
       SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
           new SilenceSkippingAudioProcessor();
       silenceSkippingAudioProcessor.setEnabled(true);
@@ -379,10 +377,10 @@ public final class TransformerActivity extends AppCompatActivity {
       return ImmutableList.of();
     }
     ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
-    if (selectedEffects[0]) {
+    if (selectedEffects[ConfigurationActivity.DIZZY_CROP_INDEX]) {
       effects.add(MatrixTransformationFactory.createDizzyCropEffect());
     }
-    if (selectedEffects[1]) {
+    if (selectedEffects[ConfigurationActivity.EDGE_DETECTOR_INDEX]) {
       try {
         Class<?> clazz = Class.forName("androidx.media3.demo.transformer.MediaPipeProcessor");
         Constructor<?> constructor =
@@ -414,7 +412,7 @@ public final class TransformerActivity extends AppCompatActivity {
         showToast(R.string.no_media_pipe_error);
       }
     }
-    if (selectedEffects[2]) {
+    if (selectedEffects[ConfigurationActivity.COLOR_FILTERS_INDEX]) {
       switch (bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION)) {
         case ConfigurationActivity.COLOR_FILTER_GRAYSCALE:
           effects.add(RgbFilter.createGrayscaleFilter());
@@ -440,7 +438,7 @@ public final class TransformerActivity extends AppCompatActivity {
                   + bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION));
       }
     }
-    if (selectedEffects[3]) {
+    if (selectedEffects[ConfigurationActivity.MAP_WHITE_TO_GREEN_LUT_INDEX]) {
       int length = 3;
       int[][][] mapWhiteToGreenLut = new int[length][length][length];
       int scale = 255 / (length - 1);
@@ -455,7 +453,7 @@ public final class TransformerActivity extends AppCompatActivity {
       mapWhiteToGreenLut[length - 1][length - 1][length - 1] = Color.GREEN;
       effects.add(SingleColorLut.createFromCube(mapWhiteToGreenLut));
     }
-    if (selectedEffects[4]) {
+    if (selectedEffects[ConfigurationActivity.RGB_ADJUSTMENTS_INDEX]) {
       effects.add(
           new RgbAdjustment.Builder()
               .setRedScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_RED_SCALE))
@@ -463,7 +461,7 @@ public final class TransformerActivity extends AppCompatActivity {
               .setBlueScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_BLUE_SCALE))
               .build());
     }
-    if (selectedEffects[5]) {
+    if (selectedEffects[ConfigurationActivity.HSL_ADJUSTMENT_INDEX]) {
       effects.add(
           new HslAdjustment.Builder()
               .adjustHue(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_HUE))
@@ -471,10 +469,10 @@ public final class TransformerActivity extends AppCompatActivity {
               .adjustLightness(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_LIGHTNESS))
               .build());
     }
-    if (selectedEffects[6]) {
+    if (selectedEffects[ConfigurationActivity.CONTRAST_INDEX]) {
       effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
     }
-    if (selectedEffects[7]) {
+    if (selectedEffects[ConfigurationActivity.PERIODIC_VIGNETTE_INDEX]) {
       effects.add(
           (GlEffect)
               (Context context, boolean useHdr) ->
@@ -489,16 +487,16 @@ public final class TransformerActivity extends AppCompatActivity {
                           ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
     }
-    if (selectedEffects[8]) {
+    if (selectedEffects[ConfigurationActivity.SPIN_3D_INDEX]) {
       effects.add(MatrixTransformationFactory.createSpin3dEffect());
     }
-    if (selectedEffects[9]) {
+    if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
       effects.add((GlEffect) BitmapOverlayProcessor::new);
     }
-    if (selectedEffects[10]) {
+    if (selectedEffects[ConfigurationActivity.ZOOM_IN_INDEX]) {
       effects.add(MatrixTransformationFactory.createZoomInTransition());
     }
-    if (selectedEffects[11]) {
+    if (selectedEffects[ConfigurationActivity.BITMAP_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
           new OverlaySettings.Builder()
               .setAlpha(
@@ -511,7 +509,7 @@ public final class TransformerActivity extends AppCompatActivity {
               overlaySettings);
       effects.add(new OverlayEffect(ImmutableList.of(bitmapOverlay)));
     }
-    if (selectedEffects[12]) {
+    if (selectedEffects[ConfigurationActivity.TEXT_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
           new OverlaySettings.Builder()
               .setAlpha(
