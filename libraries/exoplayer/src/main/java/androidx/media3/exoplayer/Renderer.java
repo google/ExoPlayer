@@ -18,12 +18,14 @@ package androidx.media3.exoplayer;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.media.MediaCodec;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.C;
+import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
@@ -84,8 +86,9 @@ public interface Renderer extends PlayerMessage.Target {
    * #MSG_SET_SCALING_MODE}, {@link #MSG_SET_CHANGE_FRAME_RATE_STRATEGY}, {@link
    * #MSG_SET_AUX_EFFECT_INFO}, {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER}, {@link
    * #MSG_SET_CAMERA_MOTION_LISTENER}, {@link #MSG_SET_SKIP_SILENCE_ENABLED}, {@link
-   * #MSG_SET_AUDIO_SESSION_ID} or {@link #MSG_SET_WAKEUP_LISTENER}. May also be an app-defined
-   * value (see {@link #MSG_CUSTOM_BASE}).
+   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER} or {@link
+   * #MSG_SET_VIDEO_OUTPUT_RESOLUTION}. May also be an app-defined value (see {@link
+   * #MSG_CUSTOM_BASE}).
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -103,7 +106,8 @@ public interface Renderer extends PlayerMessage.Target {
         MSG_SET_CAMERA_MOTION_LISTENER,
         MSG_SET_SKIP_SILENCE_ENABLED,
         MSG_SET_AUDIO_SESSION_ID,
-        MSG_SET_WAKEUP_LISTENER
+        MSG_SET_WAKEUP_LISTENER,
+        MSG_SET_VIDEO_OUTPUT_RESOLUTION
       })
   public @interface MessageType {}
   /**
@@ -205,6 +209,13 @@ public interface Renderer extends PlayerMessage.Target {
    * restore the default.
    */
   int MSG_SET_PREFERRED_AUDIO_DEVICE = 12;
+  /**
+   * The type of a message that can be passed to a video renderer to set the desired output
+   * resolution. The message payload should be a {@link Pair} containing the desired output width
+   * and height, in {@link Integer} instances. Use this method only when playing with video {@link
+   * Effect}.
+   */
+  int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 13;
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.

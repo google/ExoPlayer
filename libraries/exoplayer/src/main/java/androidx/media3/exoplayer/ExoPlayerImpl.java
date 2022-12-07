@@ -31,6 +31,7 @@ import static androidx.media3.exoplayer.Renderer.MSG_SET_SCALING_MODE;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_OUTPUT;
+import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_OUTPUT_RESOLUTION;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VOLUME;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -2956,6 +2957,8 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
       maybeNotifySurfaceSizeChanged(width, height);
+      sendRendererMessage(
+          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_OUTPUT_RESOLUTION, Pair.create(width, height));
     }
 
     @Override
