@@ -1937,6 +1937,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   private final Timeline.Period period;
 
   private @MonotonicNonNull State state;
+  private boolean released;
 
   /**
    * Creates the base class.
@@ -1999,7 +2000,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_PLAY_PAUSE)) {
+    if (!shouldHandleCommand(Player.COMMAND_PLAY_PAUSE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2053,7 +2054,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_PREPARE)) {
+    if (!shouldHandleCommand(Player.COMMAND_PREPARE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2091,7 +2092,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_REPEAT_MODE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_REPEAT_MODE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2111,7 +2112,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_SHUFFLE_MODE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_SHUFFLE_MODE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2167,7 +2168,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_SPEED_AND_PITCH)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_SPEED_AND_PITCH)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2187,7 +2188,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_STOP)) {
+    if (!shouldHandleCommand(Player.COMMAND_STOP)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2212,8 +2213,25 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void release() {
-    // TODO: implement.
-    throw new IllegalStateException();
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (released) { // TODO(b/261158047): Replace by !shouldHandleCommand(Player.COMMAND_RELEASE)
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleRelease(), /* placeholderStateSupplier= */ () -> state);
+    released = true;
+    listeners.release();
+    // Enforce some final state values in case getters are called after release.
+    this.state =
+        this.state
+            .buildUpon()
+            .setPlaybackState(Player.STATE_IDLE)
+            .setTotalBufferedDurationMs(PositionSupplier.ZERO)
+            .setContentBufferedPositionMs(state.contentPositionMsSupplier)
+            .setAdBufferedPositionMs(state.adPositionMsSupplier)
+            .build();
   }
 
   @Override
@@ -2233,7 +2251,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2259,7 +2277,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2360,7 +2378,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_VOLUME)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_VOLUME)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2379,7 +2397,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
     if (surface == null) {
@@ -2397,7 +2415,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
     if (surfaceHolder == null) {
@@ -2415,7 +2433,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
     if (surfaceView == null) {
@@ -2436,7 +2454,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
     if (textureView == null) {
@@ -2484,7 +2502,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_VIDEO_SURFACE)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2533,7 +2551,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_SET_DEVICE_VOLUME)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_DEVICE_VOLUME)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2546,7 +2564,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
+    if (!shouldHandleCommand(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2560,7 +2578,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
+    if (!shouldHandleCommand(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2574,7 +2592,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!state.availableCommands.contains(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
+    if (!shouldHandleCommand(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2593,7 +2611,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   protected final void invalidateState() {
     verifyApplicationThreadAndInitState();
-    if (!pendingOperations.isEmpty()) {
+    if (!pendingOperations.isEmpty() || released) {
       return;
     }
     updateStateAndInformListeners(getState());
@@ -2669,6 +2687,18 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleStop() {
+    throw new IllegalStateException();
+  }
+
+  /**
+   * Handles calls to {@link Player#release}.
+   *
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  // TODO(b/261158047): Add that this method will only be called if COMMAND_RELEASE is available.
+  @ForOverride
+  protected ListenableFuture<?> handleRelease() {
     throw new IllegalStateException();
   }
 
@@ -2842,6 +2872,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleClearVideoOutput(@Nullable Object videoOutput) {
     throw new IllegalStateException();
+  }
+
+  @RequiresNonNull("state")
+  private boolean shouldHandleCommand(@Player.Command int commandCode) {
+    return !released && state.availableCommands.contains(commandCode);
   }
 
   @SuppressWarnings("deprecation") // Calling deprecated listener methods.
@@ -3088,7 +3123,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
           () -> {
             castNonNull(state); // Already checked by method @RequiresNonNull pre-condition.
             pendingOperations.remove(pendingOperation);
-            if (pendingOperations.isEmpty()) {
+            if (pendingOperations.isEmpty() && !released) {
               updateStateAndInformListeners(getState());
             }
           },
