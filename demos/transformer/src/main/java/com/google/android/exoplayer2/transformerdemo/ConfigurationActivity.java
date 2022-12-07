@@ -93,9 +93,32 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String TEXT_OVERLAY_TEXT = "text_overlay_text";
   public static final String TEXT_OVERLAY_TEXT_COLOR = "text_overlay_text_color";
   public static final String TEXT_OVERLAY_ALPHA = "text_overlay_alpha";
+
+  // Video effect selections.
+  public static final int DIZZY_CROP_INDEX = 0;
+  public static final int EDGE_DETECTOR_INDEX = 1;
+  public static final int COLOR_FILTERS_INDEX = 2;
+  public static final int MAP_WHITE_TO_GREEN_LUT_INDEX = 3;
+  public static final int RGB_ADJUSTMENTS_INDEX = 4;
+  public static final int HSL_ADJUSTMENT_INDEX = 5;
+  public static final int CONTRAST_INDEX = 6;
+  public static final int PERIODIC_VIGNETTE_INDEX = 7;
+  public static final int SPIN_3D_INDEX = 8;
+  public static final int OVERLAY_LOGO_AND_TIMER_INDEX = 9;
+  public static final int ZOOM_IN_INDEX = 10;
+  public static final int BITMAP_OVERLAY_INDEX = 11;
+  public static final int TEXT_OVERLAY_INDEX = 12;
+
+  // Audio effect selections.
+  public static final int HIGH_PITCHED_INDEX = 0;
+  public static final int SAMPLE_RATE_INDEX = 1;
+  public static final int SKIP_SILENCE_INDEX = 2;
+
+  // Color filter options.
   public static final int COLOR_FILTER_GRAYSCALE = 0;
   public static final int COLOR_FILTER_INVERTED = 1;
   public static final int COLOR_FILTER_SEPIA = 2;
+
   public static final int FILE_PERMISSION_REQUEST_CODE = 1;
   private static final String[] PRESET_FILE_URIS = {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4",
@@ -173,13 +196,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
           .put("YELLOW", Color.YELLOW)
           .build();
   private static final String SAME_AS_INPUT_OPTION = "same as input";
-  private static final int COLOR_FILTERS_INDEX = 2;
-  private static final int RGB_ADJUSTMENTS_INDEX = 4;
-  private static final int HSL_ADJUSTMENT_INDEX = 5;
-  private static final int CONTRAST_INDEX = 6;
-  private static final int PERIODIC_VIGNETTE_INDEX = 7;
-  private static final int BITMAP_OVERLAY_INDEX = 11;
-  private static final int TEXT_OVERLAY_INDEX = 12;
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
   private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
