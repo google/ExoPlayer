@@ -136,7 +136,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean codecNeedsSetOutputSurfaceWorkaround;
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
 
-  @Nullable private Surface surface;
+  @Nullable private Surface displaySurface;
   @Nullable private PlaceholderSurface placeholderSurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   private @C.VideoScalingMode int scalingMode;
@@ -562,7 +562,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public boolean isReady() {
     if (super.isReady()
         && (renderedFirstFrameAfterReset
-            || (placeholderSurface != null && surface == placeholderSurface)
+            || (placeholderSurface != null && displaySurface == placeholderSurface)
             || getCodec() == null
             || tunneling)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
@@ -667,54 +667,54 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setOutput(@Nullable Object output) throws ExoPlaybackException {
-    // Handle unsupported (i.e., non-Surface) outputs by clearing the surface.
-    @Nullable Surface surface = output instanceof Surface ? (Surface) output : null;
+    // Handle unsupported (i.e., non-Surface) outputs by clearing the display surface.
+    @Nullable Surface displaySurface = output instanceof Surface ? (Surface) output : null;
 
-    if (surface == null) {
+    if (displaySurface == null) {
       // Use a placeholder surface if possible.
       if (placeholderSurface != null) {
-        surface = placeholderSurface;
+        displaySurface = placeholderSurface;
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
         if (codecInfo != null && shouldUsePlaceholderSurface(codecInfo)) {
           placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
-          surface = placeholderSurface;
+          displaySurface = placeholderSurface;
         }
       }
     }
 
-    // We only need to update the codec if the surface has changed.
-    if (this.surface != surface) {
-      this.surface = surface;
-      frameReleaseHelper.onSurfaceChanged(surface);
+    // We only need to update the codec if the display surface has changed.
+    if (this.displaySurface != displaySurface) {
+      this.displaySurface = displaySurface;
+      frameReleaseHelper.onSurfaceChanged(displaySurface);
       haveReportedFirstFrameRenderedForCurrentSurface = false;
 
       @State int state = getState();
       @Nullable MediaCodecAdapter codec = getCodec();
       if (codec != null) {
-        if (Util.SDK_INT >= 23 && surface != null && !codecNeedsSetOutputSurfaceWorkaround) {
-          setOutputSurfaceV23(codec, surface);
+        if (Util.SDK_INT >= 23 && displaySurface != null && !codecNeedsSetOutputSurfaceWorkaround) {
+          setOutputSurfaceV23(codec, displaySurface);
         } else {
           releaseCodec();
           maybeInitCodecOrBypass();
         }
       }
-      if (surface != null && surface != placeholderSurface) {
+      if (displaySurface != null && displaySurface != placeholderSurface) {
         // If we know the video size, report it again immediately.
         maybeRenotifyVideoSizeChanged();
-        // We haven't rendered to the new surface yet.
+        // We haven't rendered to the new display surface yet.
         clearRenderedFirstFrame();
         if (state == STATE_STARTED) {
           setJoiningDeadlineMs();
         }
       } else {
-        // The surface has been removed.
+        // The display surface has been removed.
         clearReportedVideoSize();
         clearRenderedFirstFrame();
       }
-    } else if (surface != null && surface != placeholderSurface) {
-      // The surface is set and unchanged. If we know the video size and/or have already rendered to
-      // the surface, report these again immediately.
+    } else if (displaySurface != null && displaySurface != placeholderSurface) {
+      // The display surface is set and unchanged. If we know the video size and/or have already
+      // rendered to the display surface, report these again immediately.
       maybeRenotifyVideoSizeChanged();
       maybeRenotifyRenderedFirstFrame();
     }
@@ -722,7 +722,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
-    return surface != null || shouldUsePlaceholderSurface(codecInfo);
+    return displaySurface != null || shouldUsePlaceholderSurface(codecInfo);
   }
 
   @Override
@@ -752,17 +752,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             codecOperatingRate,
             deviceNeedsNoPostProcessWorkaround,
             tunneling ? tunnelingAudioSessionId : C.AUDIO_SESSION_ID_UNSET);
-    if (surface == null) {
+    if (displaySurface == null) {
       if (!shouldUsePlaceholderSurface(codecInfo)) {
         throw new IllegalStateException();
       }
       if (placeholderSurface == null) {
         placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
       }
-      surface = placeholderSurface;
+      displaySurface = placeholderSurface;
     }
     return MediaCodecAdapter.Configuration.createForVideoDecoding(
-        codecInfo, mediaFormat, format, surface, crypto);
+        codecInfo, mediaFormat, format, displaySurface, crypto);
   }
 
   @Override
@@ -1066,7 +1066,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       earlyUs -= elapsedRealtimeNowUs - elapsedRealtimeUs;
     }
 
-    if (surface == placeholderSurface) {
+    if (displaySurface == placeholderSurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
@@ -1381,8 +1381,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @RequiresApi(17)
   private void releasePlaceholderSurface() {
-    if (surface == placeholderSurface) {
-      surface = null;
+    if (displaySurface == placeholderSurface) {
+      displaySurface = null;
     }
     placeholderSurface.release();
     placeholderSurface = null;
@@ -1414,14 +1414,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     renderedFirstFrameAfterEnable = true;
     if (!renderedFirstFrameAfterReset) {
       renderedFirstFrameAfterReset = true;
-      eventDispatcher.renderedFirstFrame(surface);
+      eventDispatcher.renderedFirstFrame(displaySurface);
       haveReportedFirstFrameRenderedForCurrentSurface = true;
     }
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
     if (haveReportedFirstFrameRenderedForCurrentSurface) {
-      eventDispatcher.renderedFirstFrame(surface);
+      eventDispatcher.renderedFirstFrame(displaySurface);
     }
   }
 
@@ -1629,7 +1629,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected MediaCodecDecoderException createDecoderException(
       Throwable cause, @Nullable MediaCodecInfo codecInfo) {
-    return new MediaCodecVideoDecoderException(cause, codecInfo, surface);
+    return new MediaCodecVideoDecoderException(cause, codecInfo, displaySurface);
   }
 
   /**
@@ -1758,8 +1758,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return deviceNeedsSetOutputSurfaceWorkaround;
   }
 
+  /** Returns the output surface. */
+  @Nullable
   protected Surface getSurface() {
-    return surface;
+    // TODO(b/260702159) Consider renaming the method to getOutputSurface().
+    return displaySurface;
   }
 
   protected static final class CodecMaxValues {
