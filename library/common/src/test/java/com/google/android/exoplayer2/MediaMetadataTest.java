@@ -49,6 +49,7 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.trackNumber).isNull();
     assertThat(mediaMetadata.totalTrackCount).isNull();
     assertThat(mediaMetadata.folderType).isNull();
+    assertThat(mediaMetadata.isBrowsable).isNull();
     assertThat(mediaMetadata.isPlayable).isNull();
     assertThat(mediaMetadata.recordingYear).isNull();
     assertThat(mediaMetadata.recordingMonth).isNull();
@@ -115,6 +116,61 @@ public class MediaMetadataTest {
     assertThat(fromBundle.extras.getString(EXTRAS_KEY)).isEqualTo(EXTRAS_VALUE);
   }
 
+  @Test
+  public void builderSetFolderType_toNone_setsIsBrowsableToFalse() {
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder().setFolderType(MediaMetadata.FOLDER_TYPE_NONE).build();
+
+    assertThat(mediaMetadata.isBrowsable).isFalse();
+  }
+
+  @Test
+  public void builderSetFolderType_toNotNone_setsIsBrowsableToTrueAndMatchingMediaType() {
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder().setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS).build();
+
+    assertThat(mediaMetadata.isBrowsable).isTrue();
+    assertThat(mediaMetadata.mediaType).isEqualTo(MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS);
+  }
+
+  @Test
+  public void
+      builderSetFolderType_toNotNoneWithManualMediaType_setsIsBrowsableToTrueAndDoesNotOverrideMediaType() {
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder()
+            .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_PODCASTS)
+            .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
+            .build();
+
+    assertThat(mediaMetadata.isBrowsable).isTrue();
+    assertThat(mediaMetadata.mediaType).isEqualTo(MediaMetadata.MEDIA_TYPE_FOLDER_PODCASTS);
+  }
+
+  @Test
+  public void builderSetIsBrowsable_toTrueWithoutMediaType_setsFolderTypeToMixed() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setIsBrowsable(true).build();
+
+    assertThat(mediaMetadata.folderType).isEqualTo(MediaMetadata.FOLDER_TYPE_MIXED);
+  }
+
+  @Test
+  public void builderSetIsBrowsable_toTrueWithMediaType_setsFolderTypeToMatchMediaType() {
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder()
+            .setIsBrowsable(true)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_ARTISTS)
+            .build();
+
+    assertThat(mediaMetadata.folderType).isEqualTo(MediaMetadata.FOLDER_TYPE_ARTISTS);
+  }
+
+  @Test
+  public void builderSetFolderType_toFalse_setsFolderTypeToNone() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setIsBrowsable(false).build();
+
+    assertThat(mediaMetadata.folderType).isEqualTo(MediaMetadata.FOLDER_TYPE_NONE);
+  }
+
   private static MediaMetadata getFullyPopulatedMediaMetadata() {
     Bundle extras = new Bundle();
     extras.putString(EXTRAS_KEY, EXTRAS_VALUE);
@@ -135,6 +191,7 @@ public class MediaMetadataTest {
         .setTrackNumber(4)
         .setTotalTrackCount(12)
         .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
+        .setIsBrowsable(true)
         .setIsPlayable(true)
         .setRecordingYear(2000)
         .setRecordingMonth(11)
