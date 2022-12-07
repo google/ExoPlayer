@@ -213,7 +213,7 @@ public final class MediaConstants {
    * {@link MediaBrowser#getLibraryRoot}, the preference applies to all playable items within the
    * browse tree.
    *
-   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#folderType
+   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#isBrowsable
    * browsable media item}, the preference applies to only the immediate playable children. It takes
    * precedence over preferences received with {@link MediaBrowser#getLibraryRoot}.
    *
@@ -238,7 +238,7 @@ public final class MediaConstants {
    * {@link MediaBrowser#getLibraryRoot}, the preference applies to all browsable items within the
    * browse tree.
    *
-   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#folderType
+   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#isBrowsable
    * browsable media item}, the preference applies to only the immediate browsable children. It
    * takes precedence over preferences received with {@link
    * MediaBrowser#getLibraryRoot(LibraryParams)}.

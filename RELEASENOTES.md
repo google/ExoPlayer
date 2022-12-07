@@ -29,6 +29,9 @@
         ID3 v2.4.
     *   Add `MediaMetadata.mediaType` to denote the type of content or the type
         of folder described by the metadata.
+    *   Add `MediaMetadata.isBrowsable` as a replacement for
+        `MediaMetadata.folderType`. The folder type will be deprecated in the
+        next release.
 *   Cast extension
     *   Bump Cast SDK version to 21.2.0.
 

@@ -123,8 +123,9 @@ public abstract class MediaLibraryService extends MediaSessionService {
      * An extended {@link MediaSession.Callback} for the {@link MediaLibrarySession}.
      *
      * <p>When you return {@link LibraryResult} with {@link MediaItem media items}, each item must
-     * have valid {@link MediaItem#mediaId} and specify {@link MediaMetadata#folderType} and {@link
-     * MediaMetadata#isPlayable} in its {@link MediaItem#mediaMetadata}.
+     * have valid {@link MediaItem#mediaId} and specify {@link MediaMetadata#isBrowsable} (or {@link
+     * MediaMetadata#folderType}) and {@link MediaMetadata#isPlayable} in its {@link
+     * MediaItem#mediaMetadata}.
      */
     public interface Callback extends MediaSession.Callback {
 

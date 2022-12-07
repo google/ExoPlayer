@@ -61,6 +61,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
     @Nullable private @FolderType Integer folderType;
+    @Nullable private Boolean isBrowsable;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer recordingYear;
     @Nullable private Integer recordingMonth;
@@ -97,6 +98,7 @@ public final class MediaMetadata implements Bundleable {
       this.trackNumber = mediaMetadata.trackNumber;
       this.totalTrackCount = mediaMetadata.totalTrackCount;
       this.folderType = mediaMetadata.folderType;
+      this.isBrowsable = mediaMetadata.isBrowsable;
       this.isPlayable = mediaMetadata.isPlayable;
       this.recordingYear = mediaMetadata.recordingYear;
       this.recordingMonth = mediaMetadata.recordingMonth;
@@ -246,10 +248,23 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** Sets the {@link FolderType}. */
+    /**
+     * Sets the {@link FolderType}.
+     *
+     * <p>This method will be deprecated. Use {@link #setIsBrowsable} to indicate if an item is a
+     * browsable folder and use {@link #setMediaType} to indicate the type of the folder.
+     */
     @CanIgnoreReturnValue
     public Builder setFolderType(@Nullable @FolderType Integer folderType) {
       this.folderType = folderType;
+      return this;
+    }
+
+    /** Sets whether the media is a browsable folder. */
+    @UnstableApi
+    @CanIgnoreReturnValue
+    public Builder setIsBrowsable(@Nullable Boolean isBrowsable) {
+      this.isBrowsable = isBrowsable;
       return this;
     }
 
@@ -490,6 +505,9 @@ public final class MediaMetadata implements Bundleable {
       }
       if (mediaMetadata.folderType != null) {
         setFolderType(mediaMetadata.folderType);
+      }
+      if (mediaMetadata.isBrowsable != null) {
+        setIsBrowsable(mediaMetadata.isBrowsable);
       }
       if (mediaMetadata.isPlayable != null) {
         setIsPlayable(mediaMetadata.isPlayable);
@@ -874,9 +892,16 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Integer trackNumber;
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
-  /** Optional {@link FolderType}. */
+  /**
+   * Optional {@link FolderType}.
+   *
+   * <p>This field will be deprecated. Use {@link #isBrowsable} to indicate if an item is a
+   * browsable folder and use {@link #mediaType} to indicate the type of the folder.
+   */
   @Nullable public final @FolderType Integer folderType;
-  /** Optional boolean for media playability. */
+  /** Optional boolean to indicate that the media is a browsable folder. */
+  @UnstableApi @Nullable public final Boolean isBrowsable;
+  /** Optional boolean to indicate that the media is playable. */
   @Nullable public final Boolean isPlayable;
   /**
    * @deprecated Use {@link #recordingYear} instead.
@@ -939,6 +964,22 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Bundle extras;
 
   private MediaMetadata(Builder builder) {
+    // Handle compatibility for deprecated fields.
+    @Nullable Boolean isBrowsable = builder.isBrowsable;
+    @Nullable Integer folderType = builder.folderType;
+    @Nullable Integer mediaType = builder.mediaType;
+    if (isBrowsable != null) {
+      if (!isBrowsable) {
+        folderType = FOLDER_TYPE_NONE;
+      } else if (folderType == null || folderType == FOLDER_TYPE_NONE) {
+        folderType = mediaType != null ? getFolderTypeFromMediaType(mediaType) : FOLDER_TYPE_MIXED;
+      }
+    } else if (folderType != null) {
+      isBrowsable = folderType != FOLDER_TYPE_NONE;
+      if (isBrowsable && mediaType == null) {
+        mediaType = getMediaTypeFromFolderType(folderType);
+      }
+    }
     this.title = builder.title;
     this.artist = builder.artist;
     this.albumTitle = builder.albumTitle;
@@ -953,7 +994,8 @@ public final class MediaMetadata implements Bundleable {
     this.artworkUri = builder.artworkUri;
     this.trackNumber = builder.trackNumber;
     this.totalTrackCount = builder.totalTrackCount;
-    this.folderType = builder.folderType;
+    this.folderType = folderType;
+    this.isBrowsable = isBrowsable;
     this.isPlayable = builder.isPlayable;
     this.year = builder.recordingYear;
     this.recordingYear = builder.recordingYear;
@@ -970,7 +1012,7 @@ public final class MediaMetadata implements Bundleable {
     this.genre = builder.genre;
     this.compilation = builder.compilation;
     this.station = builder.station;
-    this.mediaType = builder.mediaType;
+    this.mediaType = mediaType;
     this.extras = builder.extras;
   }
 
@@ -1003,6 +1045,7 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(trackNumber, that.trackNumber)
         && Util.areEqual(totalTrackCount, that.totalTrackCount)
         && Util.areEqual(folderType, that.folderType)
+        && Util.areEqual(isBrowsable, that.isBrowsable)
         && Util.areEqual(isPlayable, that.isPlayable)
         && Util.areEqual(recordingYear, that.recordingYear)
         && Util.areEqual(recordingMonth, that.recordingMonth)
@@ -1039,6 +1082,7 @@ public final class MediaMetadata implements Bundleable {
         trackNumber,
         totalTrackCount,
         folderType,
+        isBrowsable,
         isPlayable,
         recordingYear,
         recordingMonth,
@@ -1095,6 +1139,7 @@ public final class MediaMetadata implements Bundleable {
     FIELD_COMPILATION,
     FIELD_STATION,
     FIELD_MEDIA_TYPE,
+    FIELD_IS_BROWSABLE,
     FIELD_EXTRAS,
   })
   private @interface FieldNumber {}
@@ -1131,6 +1176,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_ARTWORK_DATA_TYPE = 29;
   private static final int FIELD_STATION = 30;
   private static final int FIELD_MEDIA_TYPE = 31;
+  private static final int FIELD_IS_BROWSABLE = 32;
   private static final int FIELD_EXTRAS = 1000;
 
   @UnstableApi
@@ -1167,6 +1213,9 @@ public final class MediaMetadata implements Bundleable {
     }
     if (folderType != null) {
       bundle.putInt(keyForField(FIELD_FOLDER_TYPE), folderType);
+    }
+    if (isBrowsable != null) {
+      bundle.putBoolean(keyForField(FIELD_IS_BROWSABLE), isBrowsable);
     }
     if (isPlayable != null) {
       bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
@@ -1255,6 +1304,9 @@ public final class MediaMetadata implements Bundleable {
     if (bundle.containsKey(keyForField(FIELD_FOLDER_TYPE))) {
       builder.setFolderType(bundle.getInt(keyForField(FIELD_FOLDER_TYPE)));
     }
+    if (bundle.containsKey(keyForField(FIELD_IS_BROWSABLE))) {
+      builder.setIsBrowsable(bundle.getBoolean(keyForField(FIELD_IS_BROWSABLE)));
+    }
     if (bundle.containsKey(keyForField(FIELD_IS_PLAYABLE))) {
       builder.setIsPlayable(bundle.getBoolean(keyForField(FIELD_IS_PLAYABLE)));
     }
@@ -1291,5 +1343,75 @@ public final class MediaMetadata implements Bundleable {
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  private static @FolderType int getFolderTypeFromMediaType(@MediaType int mediaType) {
+    switch (mediaType) {
+      case MEDIA_TYPE_ALBUM:
+      case MEDIA_TYPE_ARTIST:
+      case MEDIA_TYPE_AUDIO_BOOK:
+      case MEDIA_TYPE_AUDIO_BOOK_CHAPTER:
+      case MEDIA_TYPE_FOLDER_MOVIES:
+      case MEDIA_TYPE_FOLDER_NEWS:
+      case MEDIA_TYPE_FOLDER_RADIO_STATIONS:
+      case MEDIA_TYPE_FOLDER_TRAILERS:
+      case MEDIA_TYPE_FOLDER_VIDEOS:
+      case MEDIA_TYPE_GENRE:
+      case MEDIA_TYPE_MOVIE:
+      case MEDIA_TYPE_MUSIC:
+      case MEDIA_TYPE_NEWS:
+      case MEDIA_TYPE_PLAYLIST:
+      case MEDIA_TYPE_PODCAST:
+      case MEDIA_TYPE_PODCAST_EPISODE:
+      case MEDIA_TYPE_RADIO_STATION:
+      case MEDIA_TYPE_TRAILER:
+      case MEDIA_TYPE_TV_CHANNEL:
+      case MEDIA_TYPE_TV_SEASON:
+      case MEDIA_TYPE_TV_SERIES:
+      case MEDIA_TYPE_TV_SHOW:
+      case MEDIA_TYPE_VIDEO:
+      case MEDIA_TYPE_YEAR:
+        return FOLDER_TYPE_TITLES;
+      case MEDIA_TYPE_FOLDER_ALBUMS:
+        return FOLDER_TYPE_ALBUMS;
+      case MEDIA_TYPE_FOLDER_ARTISTS:
+        return FOLDER_TYPE_ARTISTS;
+      case MEDIA_TYPE_FOLDER_GENRES:
+        return FOLDER_TYPE_GENRES;
+      case MEDIA_TYPE_FOLDER_PLAYLISTS:
+        return FOLDER_TYPE_PLAYLISTS;
+      case MEDIA_TYPE_FOLDER_YEARS:
+        return FOLDER_TYPE_YEARS;
+      case MEDIA_TYPE_FOLDER_AUDIO_BOOKS:
+      case MEDIA_TYPE_FOLDER_MIXED:
+      case MEDIA_TYPE_FOLDER_TV_CHANNELS:
+      case MEDIA_TYPE_FOLDER_TV_SERIES:
+      case MEDIA_TYPE_FOLDER_TV_SHOWS:
+      case MEDIA_TYPE_FOLDER_PODCASTS:
+      case MEDIA_TYPE_MIXED:
+      default:
+        return FOLDER_TYPE_MIXED;
+    }
+  }
+
+  private static @MediaType int getMediaTypeFromFolderType(@FolderType int folderType) {
+    switch (folderType) {
+      case FOLDER_TYPE_ALBUMS:
+        return MEDIA_TYPE_FOLDER_ALBUMS;
+      case FOLDER_TYPE_ARTISTS:
+        return MEDIA_TYPE_FOLDER_ARTISTS;
+      case FOLDER_TYPE_GENRES:
+        return MEDIA_TYPE_FOLDER_GENRES;
+      case FOLDER_TYPE_PLAYLISTS:
+        return MEDIA_TYPE_FOLDER_PLAYLISTS;
+      case FOLDER_TYPE_TITLES:
+        return MEDIA_TYPE_MIXED;
+      case FOLDER_TYPE_YEARS:
+        return MEDIA_TYPE_FOLDER_YEARS;
+      case FOLDER_TYPE_MIXED:
+      case FOLDER_TYPE_NONE:
+      default:
+        return MEDIA_TYPE_FOLDER_MIXED;
+    }
   }
 }

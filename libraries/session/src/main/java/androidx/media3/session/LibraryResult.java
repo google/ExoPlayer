@@ -175,8 +175,8 @@ public final class LibraryResult<V> implements Bundleable {
   /**
    * Creates an instance with a media item and {@link #resultCode}{@code ==}{@link #RESULT_SUCCESS}.
    *
-   * <p>The {@link MediaItem#mediaMetadata} must specify {@link MediaMetadata#folderType} and {@link
-   * MediaMetadata#isPlayable} fields.
+   * <p>The {@link MediaItem#mediaMetadata} must specify {@link MediaMetadata#isBrowsable} (or
+   * {@link MediaMetadata#folderType}) and {@link MediaMetadata#isPlayable} fields.
    *
    * @param item The media item.
    * @param params The optional parameters to describe the media item.
@@ -192,7 +192,8 @@ public final class LibraryResult<V> implements Bundleable {
    * #RESULT_SUCCESS}.
    *
    * <p>The {@link MediaItem#mediaMetadata} of each item in the list must specify {@link
-   * MediaMetadata#folderType} and {@link MediaMetadata#isPlayable} fields.
+   * MediaMetadata#isBrowsable} (or {@link MediaMetadata#folderType}) and {@link
+   * MediaMetadata#isPlayable} fields.
    *
    * @param items The list of media items.
    * @param params The optional parameters to describe the list of media items.
@@ -255,7 +256,7 @@ public final class LibraryResult<V> implements Bundleable {
 
   private static void verifyMediaItem(MediaItem item) {
     checkNotEmpty(item.mediaId, "mediaId must not be empty");
-    checkArgument(item.mediaMetadata.folderType != null, "mediaMetadata must specify folderType");
+    checkArgument(item.mediaMetadata.isBrowsable != null, "mediaMetadata must specify isBrowsable");
     checkArgument(item.mediaMetadata.isPlayable != null, "mediaMetadata must specify isPlayable");
   }
 

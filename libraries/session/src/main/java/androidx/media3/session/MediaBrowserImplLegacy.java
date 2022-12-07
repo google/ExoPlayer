@@ -311,7 +311,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     String mediaId = browserCompat.getRoot();
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
+            .setIsBrowsable(true)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
             .setIsPlayable(false)
             .setExtras(browserCompat.getExtras())
             .build();
