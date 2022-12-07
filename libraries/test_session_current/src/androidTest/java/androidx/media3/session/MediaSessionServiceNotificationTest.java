@@ -138,7 +138,6 @@ public class MediaSessionServiceNotificationTest {
         .setTitle("Test Song Name")
         .setArtist("Test Artist Name")
         .setArtworkData(artworkData)
-        .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
         .setIsPlayable(true)
         .build();
   }
@@ -147,7 +146,6 @@ public class MediaSessionServiceNotificationTest {
     return new MediaMetadata.Builder()
         .setTitle("New Song Name")
         .setArtist("New Artist Name")
-        .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
         .setIsPlayable(true)
         .build();
   }

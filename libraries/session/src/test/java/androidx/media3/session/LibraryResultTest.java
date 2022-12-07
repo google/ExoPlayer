@@ -30,17 +30,14 @@ public class LibraryResultTest {
   @Test
   public void constructor_mediaItemWithoutMediaId_throwsIAE() {
     MediaMetadata metadata =
-        new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
-            .setIsPlayable(true)
-            .build();
+        new MediaMetadata.Builder().setIsBrowsable(true).setIsPlayable(true).build();
     MediaItem item = new MediaItem.Builder().setMediaMetadata(metadata).build();
     assertThrows(
         IllegalArgumentException.class, () -> LibraryResult.ofItem(item, /* params= */ null));
   }
 
   @Test
-  public void constructor_mediaItemWithoutFolderType_throwsIAE() {
+  public void constructor_mediaItemWithoutIsBrowsable_throwsIAE() {
     MediaMetadata metadata = new MediaMetadata.Builder().setIsPlayable(true).build();
     MediaItem item = new MediaItem.Builder().setMediaId("id").setMediaMetadata(metadata).build();
     assertThrows(
@@ -49,8 +46,7 @@ public class LibraryResultTest {
 
   @Test
   public void constructor_mediaItemWithoutIsPlayable_throwsIAE() {
-    MediaMetadata metadata =
-        new MediaMetadata.Builder().setFolderType(MediaMetadata.FOLDER_TYPE_MIXED).build();
+    MediaMetadata metadata = new MediaMetadata.Builder().setIsBrowsable(true).build();
     MediaItem item = new MediaItem.Builder().setMediaId("id").setMediaMetadata(metadata).build();
     assertThrows(
         IllegalArgumentException.class, () -> LibraryResult.ofItem(item, /* params= */ null));

@@ -42,7 +42,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.MediaMetadata;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.test.session.common.MediaBrowserConstants;
 import androidx.media3.test.session.common.TestUtils;
@@ -155,7 +154,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
 
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
     assertThat(result.value.mediaId).isEqualTo(mediaId);
-    assertThat(result.value.mediaMetadata.folderType).isEqualTo(MediaMetadata.FOLDER_TYPE_MIXED);
+    assertThat(result.value.mediaMetadata.isBrowsable).isTrue();
   }
 
   @Test

@@ -145,7 +145,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     MediaDescriptionCompat description = convertToMediaDescriptionCompat(item, artworkBitmap);
     MediaMetadata metadata = item.mediaMetadata;
     int flags = 0;
-    if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
+    if (metadata.isBrowsable != null && metadata.isBrowsable) {
       flags |= MediaBrowserCompat.MediaItem.FLAG_BROWSABLE;
     }
     if (metadata.isPlayable != null && metadata.isPlayable) {
@@ -375,11 +375,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (queueTitle == null) {
       return MediaMetadata.EMPTY;
     }
-    return new MediaMetadata.Builder()
-        .setTitle(queueTitle)
-        .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
-        .setIsPlayable(true)
-        .build();
+    return new MediaMetadata.Builder().setTitle(queueTitle).build();
   }
 
   public static MediaMetadata convertToMediaMetadata(
@@ -417,20 +413,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER);
     }
 
-    @Nullable Bundle extras = descriptionCompat.getExtras();
-    builder.setExtras(extras);
+    @Nullable Bundle compatExtras = descriptionCompat.getExtras();
+    @Nullable Bundle extras = compatExtras == null ? null : new Bundle(compatExtras);
 
     if (extras != null && extras.containsKey(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE)) {
       builder.setFolderType(
           convertToFolderType(extras.getLong(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE)));
-    } else if (browsable) {
-      builder.setFolderType(MediaMetadata.FOLDER_TYPE_MIXED);
-    } else {
-      builder.setFolderType(MediaMetadata.FOLDER_TYPE_NONE);
+      extras.remove(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE);
     }
+    builder.setIsBrowsable(browsable);
 
     if (extras != null && extras.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT)) {
       builder.setMediaType((int) extras.getLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT));
+      extras.remove(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT);
+    }
+    if (extras != null && !extras.isEmpty()) {
+      builder.setExtras(extras);
     }
 
     builder.setIsPlayable(playable);
@@ -501,12 +499,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
 
-    if (metadataCompat.containsKey(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE)) {
+    boolean isBrowsable =
+        metadataCompat.containsKey(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE);
+    builder.setIsBrowsable(isBrowsable);
+    if (isBrowsable) {
       builder.setFolderType(
           convertToFolderType(
               metadataCompat.getLong(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE)));
-    } else {
-      builder.setFolderType(MediaMetadata.FOLDER_TYPE_NONE);
     }
 
     if (metadataCompat.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT)) {
@@ -653,7 +652,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (extraBtFolderType == MediaDescriptionCompat.BT_FOLDER_TYPE_YEARS) {
       return MediaMetadata.FOLDER_TYPE_YEARS;
     } else {
-      return MediaMetadata.FOLDER_TYPE_NONE;
+      return MediaMetadata.FOLDER_TYPE_MIXED;
     }
   }
 

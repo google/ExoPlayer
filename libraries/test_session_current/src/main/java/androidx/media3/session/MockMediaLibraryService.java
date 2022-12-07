@@ -102,10 +102,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
       new MediaItem.Builder()
           .setMediaId(ROOT_ID)
           .setMediaMetadata(
-              new MediaMetadata.Builder()
-                  .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
-                  .setIsPlayable(false)
-                  .build())
+              new MediaMetadata.Builder().setIsBrowsable(true).setIsPlayable(false).build())
           .build();
   public static final LibraryParams ROOT_PARAMS =
       new LibraryParams.Builder().setExtras(ROOT_EXTRAS).build();
@@ -228,10 +225,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
             new MediaItem.Builder()
                 .setMediaId(customLibraryRoot)
                 .setMediaMetadata(
-                    new MediaMetadata.Builder()
-                        .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)
-                        .setIsPlayable(false)
-                        .build())
+                    new MediaMetadata.Builder().setIsBrowsable(true).setIsPlayable(false).build())
                 .build();
       }
       if (params != null) {
@@ -243,10 +237,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
               new MediaItem.Builder()
                   .setMediaId(ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY)
                   .setMediaMetadata(
-                      new MediaMetadata.Builder()
-                          .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
-                          .setIsPlayable(false)
-                          .build())
+                      new MediaMetadata.Builder().setIsBrowsable(true).setIsPlayable(false).build())
                   .build();
         }
       }
@@ -478,7 +469,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
   private MediaItem createBrowsableMediaItem(String mediaId) {
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
+            .setIsBrowsable(true)
             .setIsPlayable(false)
             .setArtworkData(getArtworkData(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
             .build();
@@ -501,7 +492,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
     extras.putInt(EXTRAS_KEY_COMPLETION_STATUS, EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
+            .setIsBrowsable(false)
             .setIsPlayable(true)
             .setExtras(extras)
             .build();
