@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -57,6 +58,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -2167,6 +2169,155 @@ public class SimpleBasePlayerTest {
     player.stop();
 
     assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void release_immediateHandling_updatesStateInformsListenersAndReturnsIdle() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaybackState(Player.STATE_READY)
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .build();
+    State updatedState = state.buildUpon().setRepeatMode(Player.REPEAT_MODE_ALL).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRelease() {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.release();
+
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_IDLE);
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ALL);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ALL);
+    verify(listener).onEvents(eq(player), any());
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void release_asyncHandling_returnsIdleAndIgnoredAsyncStateUpdate() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaybackState(Player.STATE_READY)
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .build();
+    // Additionally set the repeat mode to see a difference between the placeholder and new state.
+    State updatedState = state.buildUpon().setRepeatMode(Player.REPEAT_MODE_ALL).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRelease() {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.release();
+
+    // Verify initial change to IDLE without listener call.
+    assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_IDLE);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify no further update happened.
+    assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_OFF);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Ignore("b/261158047: Ignore test while Player.COMMAND_RELEASE doesn't exist.")
+  @Test
+  public void release_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            // TODO(b/261158047): Uncomment once test is no longer ignored.
+            // .setAvailableCommands(
+            //    new Commands.Builder().addAllCommands().remove(Player.COMMAND_RELEASE).build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRelease() {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.release();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void release_withSubsequentPlayerAction_ignoresSubsequentAction() {
+    AtomicBoolean releaseCalled = new AtomicBoolean();
+    AtomicBoolean getStateCalledAfterRelease = new AtomicBoolean();
+    AtomicBoolean handlePlayWhenReadyCalledAfterRelease = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            if (releaseCalled.get()) {
+              getStateCalledAfterRelease.set(true);
+            }
+            return new State.Builder()
+                .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+                .build();
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetPlayWhenReady(boolean playWhenReady) {
+            if (releaseCalled.get()) {
+              handlePlayWhenReadyCalledAfterRelease.set(true);
+            }
+            return Futures.immediateVoidFuture();
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRelease() {
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.release();
+    releaseCalled.set(true);
+    // Try triggering a regular player action and to invalidate the state manually.
+    player.setPlayWhenReady(true);
+    player.invalidateState();
+
+    assertThat(getStateCalledAfterRelease.get()).isFalse();
+    assertThat(handlePlayWhenReadyCalledAfterRelease.get()).isFalse();
   }
 
   @Test
