@@ -1720,6 +1720,7 @@ public class MediaController implements Player {
 
   @Override
   public Looper getApplicationLooper() {
+    // Don't verify application thread. We allow calls to this method from any thread.
     return applicationHandler.getLooper();
   }
 
@@ -1744,12 +1745,14 @@ public class MediaController implements Player {
 
   @Override
   public void addListener(Player.Listener listener) {
+    // Don't verify application thread. We allow calls to this method from any thread.
     checkNotNull(listener, "listener must not be null");
     impl.addListener(listener);
   }
 
   @Override
   public void removeListener(Player.Listener listener) {
+    verifyApplicationThread();
     checkNotNull(listener, "listener must not be null");
     impl.removeListener(listener);
   }

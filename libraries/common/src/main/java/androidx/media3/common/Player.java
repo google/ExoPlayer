@@ -49,6 +49,10 @@ import java.util.List;
  * A media player interface defining traditional high-level functionality, such as the ability to
  * play, pause, seek and query properties of the currently playing media.
  *
+ * <p>All methods must be called from a single {@linkplain #getApplicationLooper() application
+ * thread} unless indicated otherwise. Callbacks in registered listeners are called on the same
+ * thread.
+ *
  * <p>This interface includes some convenience methods that can be implemented by calling other
  * methods in the interface. {@link BasePlayer} implements these convenience methods so inheriting
  * {@link BasePlayer} is recommended when implementing the interface so that only the minimal set of
@@ -1543,6 +1547,8 @@ public interface Player {
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
    * player and on which player events are received.
+   *
+   * <p>This method can be called from any thread.
    */
   Looper getApplicationLooper();
 
@@ -1551,6 +1557,8 @@ public interface Player {
    *
    * <p>The listener's methods will be called on the thread associated with {@link
    * #getApplicationLooper()}.
+   *
+   * <p>This method can be called from any thread.
    *
    * @param listener The listener to register.
    */

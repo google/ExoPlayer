@@ -19,6 +19,7 @@ import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_N
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Looper;
 import android.os.RemoteException;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -26,7 +27,6 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.PollingCheck;
 import androidx.media3.test.session.common.SurfaceActivity;
 import androidx.test.core.app.ApplicationProvider;
@@ -37,8 +37,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link MediaController#setVideoSurface(Surface)}. */
@@ -46,13 +44,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class MediaControllerSurfaceTest {
   private static final String TAG = "MC_SurfaceTest";
-
-  private final HandlerThreadTestRule threadTestRule = new HandlerThreadTestRule(TAG);
-  private final MediaControllerTestRule controllerTestRule =
-      new MediaControllerTestRule(threadTestRule);
-
-  @Rule
-  public final TestRule chain = RuleChain.outerRule(threadTestRule).around(controllerTestRule);
 
   private SurfaceActivity activity;
   private RemoteMediaSession remoteSession;
@@ -76,93 +67,97 @@ public class MediaControllerSurfaceTest {
   }
 
   @Test
-  public void setVideoSurface() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoSurface() throws Throwable {
+    MediaController controller = createController();
     Surface testSurface = activity.getFirstSurfaceHolder().getSurface();
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(testSurface));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoSurface_withNull_clearsSurface() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoSurface_withNull_clearsSurface() throws Throwable {
+    MediaController controller = createController();
     Surface testSurface = activity.getFirstSurfaceHolder().getSurface();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(testSurface));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(null));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurface_withTheSameSurface() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurface_withTheSameSurface() throws Throwable {
+    MediaController controller = createController();
     Surface testSurface = activity.getFirstSurfaceHolder().getSurface();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(testSurface));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface(testSurface));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurface_withDifferentSurface_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurface_withDifferentSurface_doesNothing() throws Throwable {
+    MediaController controller = createController();
     Surface testSurface = activity.getFirstSurfaceHolder().getSurface();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(testSurface));
     Surface anotherSurface = activity.getSecondSurfaceHolder().getSurface();
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface(anotherSurface));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface(anotherSurface));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurface_withNull_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurface_withNull_doesNothing() throws Throwable {
+    MediaController controller = createController();
     Surface testSurface = activity.getFirstSurfaceHolder().getSurface();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(testSurface));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface(null));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoSurfaceHolder() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoSurfaceHolder() throws Throwable {
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(
+        () -> {
+          controller.setVideoSurfaceHolder(testSurfaceHolder);
+        });
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoSurfaceHolder_withNull_clearsSurfaceHolder() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoSurfaceHolder_withNull_clearsSurfaceHolder() throws Throwable {
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceHolder(null));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
   public void setVideoSurfaceHolder_whenSurfaceIsDestroyed_surfaceIsClearedFromPlayer()
       throws Throwable {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
 
     activityRule.runOnUiThread(
         () -> {
@@ -171,15 +166,14 @@ public class MediaControllerSurfaceTest {
         });
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
   public void setVideoSurfaceHolder_whenSurfaceIsCreated_surfaceIsSetToPlayer() throws Throwable {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
     activityRule.runOnUiThread(
         () -> {
           SurfaceView firstSurfaceView = activity.getFirstSurfaceView();
@@ -193,79 +187,75 @@ public class MediaControllerSurfaceTest {
         });
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceHolder_withTheSameSurfaceHolder() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceHolder_withTheSameSurfaceHolder() throws Throwable {
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.clearVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurfaceHolder(testSurfaceHolder));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceHolder_withDifferentSurfaceHolder_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceHolder_withDifferentSurfaceHolder_doesNothing() throws Throwable {
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
     SurfaceHolder anotherTestSurfaceHolder = activity.getSecondSurfaceHolder();
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.clearVideoSurfaceHolder(anotherTestSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurfaceHolder(anotherTestSurfaceHolder));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceHolder_withNull_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceHolder_withNull_doesNothing() throws Throwable {
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurfaceHolder(null));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurfaceHolder(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoSurfaceView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoSurfaceView() throws Throwable {
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoSurfaceView_withNull_clearsSurfaceView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoSurfaceView_withNull_clearsSurfaceView() throws Throwable {
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(null));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
   public void setVideoSurfaceView_whenSurfaceIsDestroyed_surfaceIsClearedFromPlayer()
       throws Throwable {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
 
     activityRule.runOnUiThread(
         () -> {
@@ -273,13 +263,14 @@ public class MediaControllerSurfaceTest {
         });
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
   public void setVideoSurfaceView_whenSurfaceIsCreated_surfaceIsSetToPlayer() throws Throwable {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
     activityRule.runOnUiThread(
         () -> {
           testSurfaceView.setVisibility(View.GONE);
@@ -291,74 +282,76 @@ public class MediaControllerSurfaceTest {
         });
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceView_withTheSameSurfaceView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceView_withTheSameSurfaceView() throws Throwable {
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.clearVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurfaceView(testSurfaceView));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceView_withDifferentSurfaceView_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceView_withDifferentSurfaceView_doesNothing() throws Throwable {
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
     SurfaceView anotherTestSurfaceView = activity.getSecondSurfaceView();
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.clearVideoSurfaceView(anotherTestSurfaceView));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurfaceView(anotherTestSurfaceView));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceView_withNull_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceView_withNull_doesNothing() throws Throwable {
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
     SurfaceView anotherTestSurfaceView = activity.getSecondSurfaceView();
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurfaceView(null));
+    activityRule.runOnUiThread(() -> controller.clearVideoSurfaceView(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoTextureView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoTextureView() throws Throwable {
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void setVideoTextureView_withNull_clearsTextureView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void setVideoTextureView_withNull_clearsTextureView() throws Throwable {
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(null));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
   public void setVideoTextureView_whenSurfaceTextureIsDestroyed_surfaceIsClearedFromPlayer()
       throws Throwable {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
 
     activityRule.runOnUiThread(
         () -> {
@@ -368,14 +361,15 @@ public class MediaControllerSurfaceTest {
         });
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
   public void setVideoTextureView_whenSurfaceTextureIsAvailable_surfaceIsSetToPlayer()
       throws Throwable {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
     activityRule.runOnUiThread(
         () -> {
           ViewGroup rootViewGroup = activity.getRootViewGroup();
@@ -391,89 +385,98 @@ public class MediaControllerSurfaceTest {
         });
 
     PollingCheck.waitFor(TIMEOUT_MS, () -> remoteSession.getMockPlayer().surfaceExists());
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoTextureView_withTheSameTextureView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoTextureView_withTheSameTextureView() throws Throwable {
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.clearVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.clearVideoTextureView(testTextureView));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoTextureView_withDifferentTextureView_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoTextureView_withDifferentTextureView_doesNothing() throws Throwable {
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
     TextureView anotherTestTextureView = activity.getSecondTextureView();
 
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.clearVideoTextureView(anotherTestTextureView));
+    activityRule.runOnUiThread(() -> controller.clearVideoTextureView(anotherTestTextureView));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoTextureView_withNull_doesNothing() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoTextureView_withNull_doesNothing() throws Throwable {
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoTextureView(null));
+    activityRule.runOnUiThread(() -> controller.clearVideoTextureView(null));
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isTrue();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceWithNoArguments_afterSetVideoSurface() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceWithNoArguments_afterSetVideoSurface() throws Throwable {
+    MediaController controller = createController();
     Surface testSurface = activity.getFirstSurfaceHolder().getSurface();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurface(testSurface));
+    activityRule.runOnUiThread(() -> controller.setVideoSurface(testSurface));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface());
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface());
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceWithNoArguments_afterSetVideoSurfaceHolder() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceWithNoArguments_afterSetVideoSurfaceHolder() throws Throwable {
+    MediaController controller = createController();
     SurfaceHolder testSurfaceHolder = activity.getFirstSurfaceHolder();
-    threadTestRule
-        .getHandler()
-        .postAndSync(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceHolder(testSurfaceHolder));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface());
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface());
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceWithNoArguments_afterSetVideoSurfaceView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceWithNoArguments_afterSetVideoSurfaceView() throws Throwable {
+    MediaController controller = createController();
     SurfaceView testSurfaceView = activity.getFirstSurfaceView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoSurfaceView(testSurfaceView));
+    activityRule.runOnUiThread(() -> controller.setVideoSurfaceView(testSurfaceView));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface());
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface());
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
   }
 
   @Test
-  public void clearVideoSurfaceWithNoArguments_afterSetVideoTextureView() throws Exception {
-    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+  public void clearVideoSurfaceWithNoArguments_afterSetVideoTextureView() throws Throwable {
+    MediaController controller = createController();
     TextureView testTextureView = activity.getFirstTextureView();
-    threadTestRule.getHandler().postAndSync(() -> controller.setVideoTextureView(testTextureView));
+    activityRule.runOnUiThread(() -> controller.setVideoTextureView(testTextureView));
 
-    threadTestRule.getHandler().postAndSync(() -> controller.clearVideoSurface());
+    activityRule.runOnUiThread(() -> controller.clearVideoSurface());
 
     assertThat(remoteSession.getMockPlayer().surfaceExists()).isFalse();
+    activityRule.runOnUiThread(controller::release);
+  }
+
+  private MediaController createController() throws Exception {
+    return new MediaController.Builder(activity, remoteSession.getToken())
+        .setApplicationLooper(Looper.getMainLooper())
+        .buildAsync()
+        .get();
   }
 }
