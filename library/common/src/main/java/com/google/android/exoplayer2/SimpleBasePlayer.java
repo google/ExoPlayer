@@ -1981,8 +1981,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final void removeListener(Listener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
+    verifyApplicationThreadAndInitState();
     listeners.remove(listener);
   }
 

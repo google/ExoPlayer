@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.Renderer.MessageType;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
 import com.google.android.exoplayer2.analytics.MediaMetricsListener;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -468,7 +469,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void removeAudioOffloadListener(AudioOffloadListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
+    verifyApplicationThread();
     audioOffloadListeners.remove(listener);
   }
 
@@ -1476,7 +1477,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void removeAnalyticsListener(AnalyticsListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
+    verifyApplicationThread();
     analyticsCollector.removeListener(checkNotNull(listener));
   }
 
@@ -1593,9 +1594,8 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void removeListener(Listener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
-    listeners.remove(listener);
+    verifyApplicationThread();
+    listeners.remove(checkNotNull(listener));
   }
 
   @Override
@@ -1678,8 +1678,14 @@ import java.util.concurrent.TimeoutException;
     return false;
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated methods.
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
+    listeners.setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);
+    if (analyticsCollector instanceof DefaultAnalyticsCollector) {
+      ((DefaultAnalyticsCollector) analyticsCollector)
+          .setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);
+    }
   }
 
   /**
