@@ -26,7 +26,6 @@ dependencies {
     implementation 'androidx.media:media:' + androidxMediaVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.recyclerview:recyclerview:' + androidxRecyclerViewVersion
-    implementation 'androidx.window:window-java:' + androidxWindowVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'test-utils')
