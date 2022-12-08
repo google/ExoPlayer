@@ -94,6 +94,20 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
     eventTimes = new SparseArray<>();
   }
 
+  /**
+   * Sets whether methods throw when using the wrong thread.
+   *
+   * <p>Do not use this method unless to support legacy use cases.
+   *
+   * @param throwsWhenUsingWrongThread Whether to throw when using the wrong thread.
+   * @deprecated Do not use this method and ensure all calls are made from the correct thread.
+   */
+  @SuppressWarnings("deprecation") // Calling deprecated method.
+  @Deprecated
+  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
+    listeners.setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);
+  }
+
   @Override
   @CallSuper
   public void addListener(AnalyticsListener listener) {
