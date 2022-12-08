@@ -12006,10 +12006,20 @@ public final class ExoPlayerTest {
 
   @Test
   @Config(sdk = Config.ALL_SDKS)
-  public void builder_inBackgroundThread_doesNotThrow() throws Exception {
+  public void builder_inBackgroundThreadWithAllowedAnyThreadMethods_doesNotThrow()
+      throws Exception {
     Thread builderThread =
         new Thread(
-            () -> new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
+            () -> {
+              ExoPlayer player =
+                  new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+              player.addListener(new Listener() {});
+              player.addAnalyticsListener(new AnalyticsListener() {});
+              player.addAudioOffloadListener(new ExoPlayer.AudioOffloadListener() {});
+              player.getClock();
+              player.getApplicationLooper();
+              player.getPlaybackLooper();
+            });
     AtomicReference<Throwable> builderThrow = new AtomicReference<>();
     builderThread.setUncaughtExceptionHandler((thread, throwable) -> builderThrow.set(throwable));
 
