@@ -54,7 +54,6 @@ project.ext {
     androidxTestRulesVersion = '1.4.0'
     androidxTestServicesStorageVersion = '1.4.0'
     androidxTestTruthVersion = '1.4.0'
-    androidxWindowVersion = '1.0.0'
     truthVersion = '1.1.3'
     okhttpVersion = '4.9.2'
     modulePrefix = ':'
