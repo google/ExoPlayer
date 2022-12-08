@@ -377,9 +377,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
 
-    private long durationUs;
     private int tracksAddedCount;
 
+    private volatile long durationUs;
     private volatile boolean trackRegistered;
 
     public ComponentListener(MediaItem mediaItem, FallbackListener fallbackListener) {
