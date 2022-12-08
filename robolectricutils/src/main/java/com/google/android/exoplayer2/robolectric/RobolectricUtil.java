@@ -94,7 +94,7 @@ public final class RobolectricUtil {
    */
   public static void runLooperUntil(Looper looper, Supplier<Boolean> condition)
       throws TimeoutException {
-    runLooperUntil(looper, condition, DEFAULT_TIMEOUT_MS * 1000000, Clock.DEFAULT);
+    runLooperUntil(looper, condition, DEFAULT_TIMEOUT_MS, Clock.DEFAULT);
   }
 
   /**
