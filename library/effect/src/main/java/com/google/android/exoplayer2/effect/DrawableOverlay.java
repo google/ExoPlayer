@@ -35,6 +35,9 @@ public abstract class DrawableOverlay extends BitmapOverlay {
   /**
    * Returns the overlay {@link Drawable} displayed at the specified timestamp.
    *
+   * <p>The drawable must have it's bounds set via {@link Drawable#setBounds} for drawable to be
+   * displayed on the frame.
+   *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
   public abstract Drawable getDrawable(long presentationTimeUs);
@@ -43,8 +46,7 @@ public abstract class DrawableOverlay extends BitmapOverlay {
   public Bitmap getBitmap(long presentationTimeUs) {
     Drawable overlayDrawable = getDrawable(presentationTimeUs);
     // TODO(b/227625365): Drawable doesn't implement the equals method, so investigate other methods
-    // of
-    //  detecting the need to redraw the bitmap.
+    //   of detecting the need to redraw the bitmap.
     if (!overlayDrawable.equals(lastDrawable)) {
       lastDrawable = overlayDrawable;
       lastBitmap =
@@ -59,9 +61,10 @@ public abstract class DrawableOverlay extends BitmapOverlay {
   }
 
   /**
-   * Creates a {@link TextOverlay} that shows the {@code overlayDrawable} with the same {@link
+   * Creates a {@link TextOverlay} that shows the {@link Drawable} with the same {@link
    * OverlaySettings} throughout the whole video.
    *
+   * @param drawable The {@link Drawable} to be displayed.
    * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
    *     the frames.
    */
@@ -71,6 +74,11 @@ public abstract class DrawableOverlay extends BitmapOverlay {
       @Override
       public Drawable getDrawable(long presentationTimeUs) {
         return drawable;
+      }
+
+      @Override
+      public OverlaySettings getOverlaySettings(long presentationTimeUs) {
+        return overlaySettings;
       }
     };
   }
