@@ -102,7 +102,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Clock clock;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
-  private final ExoPlayerAssetLoader exoPlayerAssetLoader;
+  private final AssetLoader assetLoader;
   private final List<SamplePipeline> samplePipelines;
   private final ConditionVariable dequeueBufferConditionVariable;
   private final MuxerWrapper muxerWrapper;
@@ -151,7 +151,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
     ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
-    exoPlayerAssetLoader =
+    assetLoader =
         new ExoPlayerAssetLoader(
             context,
             mediaItem,
@@ -256,7 +256,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void startInternal() {
-    exoPlayerAssetLoader.start();
+    assetLoader.start();
   }
 
   private void registerSamplePipelineInternal(SamplePipeline samplePipeline) {
@@ -310,7 +310,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       dequeueBufferConditionVariable.open();
       try {
         try {
-          exoPlayerAssetLoader.release();
+          assetLoader.release();
         } finally {
           try {
             for (int i = 0; i < samplePipelines.size(); i++) {
@@ -368,11 +368,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void updateProgressInternal(ProgressHolder progressHolder) {
-    progressState = exoPlayerAssetLoader.getProgress(progressHolder);
+    progressState = assetLoader.getProgress(progressHolder);
     transformerConditionVariable.open();
   }
 
-  private class ComponentListener implements ExoPlayerAssetLoader.Listener {
+  private class ComponentListener implements AssetLoader.Listener {
 
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
@@ -388,7 +388,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       durationUs = C.TIME_UNSET;
     }
 
-    // ExoPlayerAssetLoader.Listener implementation.
+    // AssetLoader.Listener implementation.
 
     @Override
     public void onDurationUs(long durationUs) {

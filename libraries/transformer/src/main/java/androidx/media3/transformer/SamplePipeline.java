@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 
 /**
@@ -24,7 +25,8 @@ import androidx.media3.decoder.DecoderInputBuffer;
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
-/* package */ interface SamplePipeline {
+@UnstableApi
+public interface SamplePipeline {
 
   /** Input of a {@link SamplePipeline}. */
   interface Input {

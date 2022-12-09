@@ -30,7 +30,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.media3.common.C;
-import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
@@ -48,22 +47,7 @@ import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.video.VideoRendererEventListener;
 
-/* package */ final class ExoPlayerAssetLoader {
-
-  public interface Listener {
-
-    void onDurationUs(long durationUs);
-
-    void onTrackRegistered();
-
-    void onAllTracksRegistered();
-
-    SamplePipeline.Input onTrackAdded(
-        Format format, long streamStartPositionUs, long streamOffsetUs)
-        throws TransformationException;
-
-    void onError(Exception e);
-  }
+/* package */ final class ExoPlayerAssetLoader implements AssetLoader {
 
   private final MediaItem mediaItem;
   private final ExoPlayer player;
@@ -119,6 +103,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
+  @Override
   public void start() {
     player.setMediaItem(mediaItem);
     player.prepare();
@@ -126,6 +111,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
   }
 
+  @Override
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
     if (progressState == PROGRESS_STATE_AVAILABLE) {
       long durationMs = player.getDuration();
@@ -135,6 +121,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     return progressState;
   }
 
+  @Override
   public void release() {
     player.release();
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
@@ -147,14 +134,14 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     private final boolean removeVideo;
     private final boolean flattenForSlowMotion;
     private final Codec.DecoderFactory decoderFactory;
-    private final ExoPlayerAssetLoader.Listener assetLoaderListener;
+    private final Listener assetLoaderListener;
 
     public RenderersFactoryImpl(
         boolean removeAudio,
         boolean removeVideo,
         boolean flattenForSlowMotion,
         Codec.DecoderFactory decoderFactory,
-        ExoPlayerAssetLoader.Listener assetLoaderListener) {
+        Listener assetLoaderListener) {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
       this.flattenForSlowMotion = flattenForSlowMotion;
@@ -199,10 +186,10 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 
   private final class PlayerListener implements Player.Listener {
 
-    private final Listener listener;
+    private final Listener assetLoaderListener;
 
-    public PlayerListener(Listener listener) {
-      this.listener = listener;
+    public PlayerListener(Listener assetLoaderListener) {
+      this.assetLoaderListener = assetLoaderListener;
     }
 
     @Override
@@ -221,18 +208,18 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
             durationUs <= 0 || durationUs == C.TIME_UNSET
                 ? PROGRESS_STATE_UNAVAILABLE
                 : PROGRESS_STATE_AVAILABLE;
-        listener.onDurationUs(window.durationUs);
+        assetLoaderListener.onDurationUs(window.durationUs);
       }
     }
 
     @Override
     public void onTracksChanged(Tracks tracks) {
-      listener.onAllTracksRegistered();
+      assetLoaderListener.onAllTracksRegistered();
     }
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      listener.onError(error);
+      assetLoaderListener.onError(error);
     }
   }
 }
