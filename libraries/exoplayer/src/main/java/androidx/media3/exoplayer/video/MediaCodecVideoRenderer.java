@@ -154,10 +154,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private long totalVideoFrameProcessingOffsetUs;
   private int videoFrameProcessingOffsetCount;
 
-  private int currentWidth;
-  private int currentHeight;
-  private int currentUnappliedRotationDegrees;
-  private float currentPixelWidthHeightRatio;
+  private VideoSize decodedVideoSize;
   @Nullable private VideoSize reportedVideoSize;
 
   private boolean tunneling;
@@ -336,10 +333,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
-    currentWidth = Format.NO_VALUE;
-    currentHeight = Format.NO_VALUE;
-    currentPixelWidthHeightRatio = Format.NO_VALUE;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
+    decodedVideoSize = VideoSize.UNKNOWN;
     tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
     clearReportedVideoSize();
   }
@@ -951,9 +946,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Must be applied each time the output format changes.
       codec.setVideoScalingMode(scalingMode);
     }
+    int width;
+    int height;
+    int unappliedRotationDegrees = 0;
+    float pixelWidthHeightRatio;
+
     if (tunneling) {
-      currentWidth = format.width;
-      currentHeight = format.height;
+      width = format.width;
+      height = format.height;
     } else {
       checkNotNull(mediaFormat);
       boolean hasCrop =
@@ -961,30 +961,32 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
               && mediaFormat.containsKey(KEY_CROP_LEFT)
               && mediaFormat.containsKey(KEY_CROP_BOTTOM)
               && mediaFormat.containsKey(KEY_CROP_TOP);
-      currentWidth =
+      width =
           hasCrop
               ? mediaFormat.getInteger(KEY_CROP_RIGHT) - mediaFormat.getInteger(KEY_CROP_LEFT) + 1
               : mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
-      currentHeight =
+      height =
           hasCrop
               ? mediaFormat.getInteger(KEY_CROP_BOTTOM) - mediaFormat.getInteger(KEY_CROP_TOP) + 1
               : mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
     }
-    currentPixelWidthHeightRatio = format.pixelWidthHeightRatio;
+    pixelWidthHeightRatio = format.pixelWidthHeightRatio;
     if (Util.SDK_INT >= 21) {
       // On API level 21 and above the decoder applies the rotation when rendering to the surface.
       // Hence currentUnappliedRotation should always be 0. For 90 and 270 degree rotations, we need
       // to flip the width, height and pixel aspect ratio to reflect the rotation that was applied.
       if (format.rotationDegrees == 90 || format.rotationDegrees == 270) {
-        int rotatedHeight = currentWidth;
-        currentWidth = currentHeight;
-        currentHeight = rotatedHeight;
-        currentPixelWidthHeightRatio = 1 / currentPixelWidthHeightRatio;
+        int rotatedHeight = width;
+        width = height;
+        height = rotatedHeight;
+        pixelWidthHeightRatio = 1 / pixelWidthHeightRatio;
       }
     } else {
       // On API level 20 and below the decoder does not apply the rotation.
-      currentUnappliedRotationDegrees = format.rotationDegrees;
+      unappliedRotationDegrees = format.rotationDegrees;
     }
+    decodedVideoSize =
+        new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     frameReleaseHelper.onFormatChanged(format.frameRate);
   }
 
@@ -1169,7 +1171,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /** Called when a buffer was processed in tunneling mode. */
   protected void onProcessedTunneledBuffer(long presentationTimeUs) throws ExoPlaybackException {
     updateOutputFormatForTime(presentationTimeUs);
-    maybeNotifyVideoSizeChanged();
+    maybeNotifyVideoSizeChanged(decodedVideoSize);
     decoderCounters.renderedOutputBufferCount++;
     maybeNotifyRenderedFirstFrame();
     onProcessedOutputBuffer(presentationTimeUs);
@@ -1340,7 +1342,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
   protected void renderOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
-    maybeNotifyVideoSizeChanged();
+    maybeNotifyVideoSizeChanged(decodedVideoSize);
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, true);
     TraceUtil.endSection();
@@ -1362,7 +1364,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @RequiresApi(21)
   protected void renderOutputBufferV21(
       MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
-    maybeNotifyVideoSizeChanged();
+    maybeNotifyVideoSizeChanged(decodedVideoSize);
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
@@ -1429,19 +1431,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     reportedVideoSize = null;
   }
 
-  private void maybeNotifyVideoSizeChanged() {
-    if ((currentWidth != Format.NO_VALUE || currentHeight != Format.NO_VALUE)
-        && (reportedVideoSize == null
-            || reportedVideoSize.width != currentWidth
-            || reportedVideoSize.height != currentHeight
-            || reportedVideoSize.unappliedRotationDegrees != currentUnappliedRotationDegrees
-            || reportedVideoSize.pixelWidthHeightRatio != currentPixelWidthHeightRatio)) {
-      reportedVideoSize =
-          new VideoSize(
-              currentWidth,
-              currentHeight,
-              currentUnappliedRotationDegrees,
-              currentPixelWidthHeightRatio);
+  /** Notifies the new video size. */
+  private void maybeNotifyVideoSizeChanged(VideoSize newOutputSize) {
+    if (!newOutputSize.equals(VideoSize.UNKNOWN) && !newOutputSize.equals(reportedVideoSize)) {
+      reportedVideoSize = newOutputSize;
       eventDispatcher.videoSizeChanged(reportedVideoSize);
     }
   }
