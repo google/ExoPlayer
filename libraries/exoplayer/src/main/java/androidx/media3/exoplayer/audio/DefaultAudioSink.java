@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.audio;
 
+import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.constrainValue;
 import static androidx.media3.exoplayer.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
@@ -1013,8 +1014,8 @@ public final class DefaultAudioSink implements AudioSink {
    * {@link #writeBuffer(ByteBuffer, long)}.
    */
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
-    if (!audioProcessingPipeline.isOperational() && inputBuffer != null) {
-      writeBuffer(inputBuffer, avSyncPresentationTimeUs);
+    if (!audioProcessingPipeline.isOperational()) {
+      writeBuffer(inputBuffer != null ? inputBuffer : EMPTY_BUFFER, avSyncPresentationTimeUs);
       return;
     }
 
