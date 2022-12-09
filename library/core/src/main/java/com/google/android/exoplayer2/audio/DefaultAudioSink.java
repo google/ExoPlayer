@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
+import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.constrainValue;
 import static java.lang.Math.max;
@@ -1002,8 +1003,8 @@ public final class DefaultAudioSink implements AudioSink {
    * {@link #writeBuffer(ByteBuffer, long)}.
    */
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
-    if (!audioProcessingPipeline.isOperational() && inputBuffer != null) {
-      writeBuffer(inputBuffer, avSyncPresentationTimeUs);
+    if (!audioProcessingPipeline.isOperational()) {
+      writeBuffer(inputBuffer != null ? inputBuffer : EMPTY_BUFFER, avSyncPresentationTimeUs);
       return;
     }
 
