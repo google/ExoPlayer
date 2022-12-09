@@ -43,7 +43,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final boolean flattenForSlowMotion;
   private final Codec.DecoderFactory decoderFactory;
   private final TransformerMediaClock mediaClock;
-  private final ExoPlayerAssetLoader.Listener assetLoaderListener;
+  private final AssetLoader.Listener assetLoaderListener;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private boolean isTransformationRunning;
@@ -60,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       boolean flattenForSlowMotion,
       Codec.DecoderFactory decoderFactory,
       TransformerMediaClock mediaClock,
-      ExoPlayerAssetLoader.Listener assetLoaderListener) {
+      AssetLoader.Listener assetLoaderListener) {
     super(trackType);
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.decoderFactory = decoderFactory;

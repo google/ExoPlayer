@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
-/* package */ interface SamplePipeline {
+public interface SamplePipeline {
 
   /** Input of a {@link SamplePipeline}. */
   interface Input {
