@@ -144,6 +144,18 @@ public class TransformationTestResult {
     if (transformationResult.videoFrameCount > 0) {
       jsonObject.put("videoFrameCount", transformationResult.videoFrameCount);
     }
+    if (transformationResult.audioDecoderName != null) {
+      jsonObject.put("audioDecoderName", transformationResult.audioDecoderName);
+    }
+    if (transformationResult.videoDecoderName != null) {
+      jsonObject.put("videoDecoderName", transformationResult.videoDecoderName);
+    }
+    if (transformationResult.audioEncoderName != null) {
+      jsonObject.put("audioEncoderName", transformationResult.audioEncoderName);
+    }
+    if (transformationResult.videoEncoderName != null) {
+      jsonObject.put("videoEncoderName", transformationResult.videoEncoderName);
+    }
     if (throughputFps != C.RATE_UNSET) {
       jsonObject.put("throughputFps", throughputFps);
     }

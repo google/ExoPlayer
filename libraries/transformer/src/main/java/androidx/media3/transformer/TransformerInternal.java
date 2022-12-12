@@ -94,8 +94,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
   private final boolean forceSilentAudio;
-  private final Codec.DecoderFactory decoderFactory;
-  private final Codec.EncoderFactory encoderFactory;
+  private final CapturingDecoderFactory decoderFactory;
+  private final CapturingEncoderFactory encoderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final Listener listener;
   private final DebugViewProvider debugViewProvider;
@@ -141,8 +141,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
     this.forceSilentAudio = forceSilentAudio;
-    this.decoderFactory = decoderFactory;
-    this.encoderFactory = encoderFactory;
+    this.decoderFactory = new CapturingDecoderFactory(decoderFactory);
+    this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.frameProcessorFactory = frameProcessorFactory;
     this.listener = listener;
     this.debugViewProvider = debugViewProvider;
@@ -316,6 +316,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             for (int i = 0; i < samplePipelines.size(); i++) {
               samplePipelines.get(i).release();
             }
+
+            // TODO(b/250564186): Create TransformationResult on END_REASON_ERROR as well.
             if (endReason == END_REASON_COMPLETED) {
               transformationResult =
                   new TransformationResult.Builder()
@@ -326,6 +328,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                           muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
                       .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
                       .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
+                      .setAudioDecoderName(decoderFactory.getAudioDecoderName())
+                      .setAudioEncoderName(encoderFactory.getAudioEncoderName())
+                      .setVideoDecoderName(decoderFactory.getVideoDecoderName())
+                      .setVideoEncoderName(encoderFactory.getVideoEncoderName())
                       .build();
             }
           } finally {

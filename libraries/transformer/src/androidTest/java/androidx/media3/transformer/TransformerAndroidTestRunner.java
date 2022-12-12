@@ -23,9 +23,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
@@ -155,7 +153,8 @@ public class TransformerAndroidTestRunner {
   }
 
   private final Context context;
-  private final CodecNameForwardingCodecFactory transformerCodecFactory;
+  private final CapturingDecoderFactory decoderFactory;
+  private final CapturingEncoderFactory encoderFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
   private final boolean requestCalculateSsim;
@@ -170,13 +169,13 @@ public class TransformerAndroidTestRunner {
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
-    this.transformerCodecFactory =
-        new CodecNameForwardingCodecFactory(transformer.decoderFactory, transformer.encoderFactory);
+    this.decoderFactory = new CapturingDecoderFactory(transformer.decoderFactory);
+    this.encoderFactory = new CapturingEncoderFactory(transformer.encoderFactory);
     this.transformer =
         transformer
             .buildUpon()
-            .setDecoderFactory(transformerCodecFactory)
-            .setEncoderFactory(transformerCodecFactory)
+            .setDecoderFactory(decoderFactory)
+            .setEncoderFactory(encoderFactory)
             .build();
     this.timeoutSeconds = timeoutSeconds;
     this.requestCalculateSsim = requestCalculateSsim;
@@ -209,7 +208,7 @@ public class TransformerAndroidTestRunner {
       resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
       throw e;
     } finally {
-      resultJson.put("codecDetails", transformerCodecFactory.getCodecNamesAsJsonObject());
+      resultJson.put("codecDetails", getCodecNamesAsJsonObject());
       AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
@@ -402,87 +401,20 @@ public class TransformerAndroidTestRunner {
     return false;
   }
 
-  /**
-   * A {@link Codec.EncoderFactory} that forwards all methods to another encoder factory, whilst
-   * providing visibility into the names of last codecs created by it.
-   */
-  private static class CodecNameForwardingCodecFactory
-      implements Codec.DecoderFactory, Codec.EncoderFactory {
-
-    /** The name of the last audio {@link Codec decoder} created. */
-    @Nullable public String audioDecoderName;
-    /** The name of the last video {@link Codec decoder} created. */
-    @Nullable public String videoDecoderName;
-    /** The name of the last audio {@link Codec encoder} created. */
-    @Nullable public String audioEncoderName;
-    /** The name of the last video {@link Codec encoder} created. */
-    @Nullable public String videoEncoderName;
-
-    private final Codec.DecoderFactory decoderFactory;
-    private final Codec.EncoderFactory encoderFactory;
-
-    public CodecNameForwardingCodecFactory(
-        Codec.DecoderFactory decoderFactory, Codec.EncoderFactory encoderFactory) {
-      this.decoderFactory = decoderFactory;
-      this.encoderFactory = encoderFactory;
+  private JSONObject getCodecNamesAsJsonObject() throws JSONException {
+    JSONObject detailsJson = new JSONObject();
+    if (decoderFactory.getAudioDecoderName() != null) {
+      detailsJson.put("audioDecoderName", decoderFactory.getAudioDecoderName());
     }
-
-    @Override
-    public Codec createForAudioDecoding(Format format) throws TransformationException {
-      Codec audioDecoder = decoderFactory.createForAudioDecoding(format);
-      audioDecoderName = audioDecoder.getName();
-      return audioDecoder;
+    if (decoderFactory.getVideoDecoderName() != null) {
+      detailsJson.put("videoDecoderName", decoderFactory.getVideoDecoderName());
     }
-
-    @Override
-    public Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean requestSdrToneMapping)
-        throws TransformationException {
-      Codec videoDecoder =
-          decoderFactory.createForVideoDecoding(format, outputSurface, requestSdrToneMapping);
-      videoDecoderName = videoDecoder.getName();
-      return videoDecoder;
+    if (encoderFactory.getAudioEncoderName() != null) {
+      detailsJson.put("audioEncoderName", encoderFactory.getAudioEncoderName());
     }
-
-    @Override
-    public Codec createForAudioEncoding(Format format) throws TransformationException {
-      Codec audioEncoder = encoderFactory.createForAudioEncoding(format);
-      audioEncoderName = audioEncoder.getName();
-      return audioEncoder;
+    if (encoderFactory.getVideoEncoderName() != null) {
+      detailsJson.put("videoEncoderName", encoderFactory.getVideoEncoderName());
     }
-
-    @Override
-    public Codec createForVideoEncoding(Format format) throws TransformationException {
-      Codec videoEncoder = encoderFactory.createForVideoEncoding(format);
-      videoEncoderName = videoEncoder.getName();
-      return videoEncoder;
-    }
-
-    @Override
-    public boolean audioNeedsEncoding() {
-      return encoderFactory.audioNeedsEncoding();
-    }
-
-    @Override
-    public boolean videoNeedsEncoding() {
-      return encoderFactory.videoNeedsEncoding();
-    }
-
-    public JSONObject getCodecNamesAsJsonObject() throws JSONException {
-      JSONObject detailsJson = new JSONObject();
-      if (audioDecoderName != null) {
-        detailsJson.put("audioDecoderName", audioDecoderName);
-      }
-      if (videoDecoderName != null) {
-        detailsJson.put("videoDecoderName", videoDecoderName);
-      }
-      if (audioEncoderName != null) {
-        detailsJson.put("audioEncoderName", audioEncoderName);
-      }
-      if (videoEncoderName != null) {
-        detailsJson.put("videoEncoderName", videoEncoderName);
-      }
-      return detailsJson;
-    }
+    return detailsJson;
   }
 }
