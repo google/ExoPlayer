@@ -26,6 +26,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
+import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -46,16 +48,12 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
 
   private static final String TAG = "Tx3gDecoder";
 
-  private static final char BOM_UTF16_BE = '\uFEFF';
-  private static final char BOM_UTF16_LE = '\uFFFE';
-
   private static final int TYPE_STYL = 0x7374796c;
   private static final int TYPE_TBOX = 0x74626f78;
   private static final String TX3G_SERIF = "Serif";
 
   private static final int SIZE_ATOM_HEADER = 8;
   private static final int SIZE_SHORT = 2;
-  private static final int SIZE_BOM_UTF16 = 2;
   private static final int SIZE_STYLE_RECORD = 12;
 
   private static final int FONT_FACE_BOLD = 0x0001;
@@ -171,13 +169,11 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     if (textLength == 0) {
       return "";
     }
-    if (parsableByteArray.bytesLeft() >= SIZE_BOM_UTF16) {
-      char firstChar = parsableByteArray.peekChar();
-      if (firstChar == BOM_UTF16_BE || firstChar == BOM_UTF16_LE) {
-        return parsableByteArray.readString(textLength, Charsets.UTF_16);
-      }
-    }
-    return parsableByteArray.readString(textLength, Charsets.UTF_8);
+    int textStartPosition = parsableByteArray.getPosition();
+    @Nullable Charset charset = parsableByteArray.readUtfCharsetFromBom();
+    int bomSize = parsableByteArray.getPosition() - textStartPosition;
+    return parsableByteArray.readString(
+        textLength - bomSize, charset != null ? charset : Charsets.UTF_8);
   }
 
   private void applyStyleRecord(ParsableByteArray parsableByteArray, SpannableStringBuilder cueText)
