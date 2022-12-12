@@ -19,6 +19,9 @@ Release notes
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
+*   Text:
+    *   SubRip: Add support for UTF-16 files if they start with a byte order
+        mark.
 *   Session:
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
