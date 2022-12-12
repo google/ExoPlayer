@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.base.Charsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,9 +76,10 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(data, length);
+    Charset charset = detectUtfCharset(subripData);
 
     @Nullable String currentLine;
-    while ((currentLine = subripData.readLine()) != null) {
+    while ((currentLine = subripData.readLine(charset)) != null) {
       if (currentLine.length() == 0) {
         // Skip blank lines.
         continue;
@@ -91,7 +94,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       }
 
       // Read and parse the timing line.
-      currentLine = subripData.readLine();
+      currentLine = subripData.readLine(charset);
       if (currentLine == null) {
         Log.w(TAG, "Unexpected end");
         break;
@@ -109,13 +112,13 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       // Read and parse the text and tags.
       textBuilder.setLength(0);
       tags.clear();
-      currentLine = subripData.readLine();
+      currentLine = subripData.readLine(charset);
       while (!TextUtils.isEmpty(currentLine)) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
         textBuilder.append(processLine(currentLine, tags));
-        currentLine = subripData.readLine();
+        currentLine = subripData.readLine(charset);
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
@@ -136,6 +139,15 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     Cue[] cuesArray = cues.toArray(new Cue[0]);
     long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
+  }
+
+  /**
+   * Determine UTF encoding of the byte array from a byte order mark (BOM), defaulting to UTF-8 if
+   * no BOM is found.
+   */
+  private Charset detectUtfCharset(ParsableByteArray data) {
+    @Nullable Charset charset = data.readUtfCharsetFromBom();
+    return charset != null ? charset : Charsets.UTF_8;
   }
 
   /**
