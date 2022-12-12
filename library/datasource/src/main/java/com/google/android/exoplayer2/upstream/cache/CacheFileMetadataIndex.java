@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.database.DatabaseIOException;
@@ -89,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } finally {
         writableDatabase.endTransaction();
       }
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -131,7 +130,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           writableDatabase.endTransaction();
         }
       }
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -156,7 +155,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         fileMetadata.put(name, new CacheFileMetadata(length, lastTouchTimestamp));
       }
       return fileMetadata;
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -181,7 +180,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       values.put(COLUMN_LENGTH, length);
       values.put(COLUMN_LAST_TOUCH_TIMESTAMP, lastTouchTimestamp);
       writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -200,7 +199,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -227,12 +226,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } finally {
         writableDatabase.endTransaction();
       }
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
 
-  private Cursor getCursor() {
+  private Cursor getCursor() throws Throwable {
     Assertions.checkNotNull(tableName);
     return databaseProvider
         .getReadableDatabase()

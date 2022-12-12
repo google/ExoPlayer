@@ -35,9 +35,10 @@ public interface DatabaseProvider {
    * method to fail, but future attempts may succeed if the problem is fixed.
    *
    * @throws SQLiteException If the database cannot be opened for writing.
+   * @throws Throwable If database inoperable.
    * @return A read/write database object.
    */
-  SQLiteDatabase getWritableDatabase();
+  SQLiteDatabase getWritableDatabase() throws Throwable;
 
   /**
    * Creates and/or opens a database. This will be the same object returned by {@link
@@ -50,7 +51,8 @@ public interface DatabaseProvider {
    * need to read from the database.
    *
    * @throws SQLiteException If the database cannot be opened.
+   * @throws Throwable If database inoperable.
    * @return A database object valid until {@link #getWritableDatabase()} is called.
    */
-  SQLiteDatabase getReadableDatabase();
+  SQLiteDatabase getReadableDatabase()  throws Throwable;
 }

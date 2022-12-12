@@ -19,9 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.GuardedBy;
@@ -187,7 +185,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       }
       cursor.moveToNext();
       return getDownloadForCurrentRow(cursor);
-    } catch (SQLiteException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -205,7 +203,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       putDownloadInternal(download, writableDatabase);
-    } catch (SQLiteException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -215,7 +213,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     ensureInitialized();
     try {
       databaseProvider.getWritableDatabase().delete(tableName, WHERE_ID_EQUALS, new String[] {id});
-    } catch (SQLiteException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -228,7 +226,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       values.put(COLUMN_STATE, Download.STATE_QUEUED);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(tableName, values, WHERE_STATE_IS_DOWNLOADING, /* whereArgs= */ null);
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -244,7 +242,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       values.put(COLUMN_FAILURE_REASON, Download.FAILURE_REASON_NONE);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(tableName, values, /* whereClause= */ null, /* whereArgs= */ null);
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -257,7 +255,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(tableName, values, WHERE_STATE_IS_TERMINAL, /* whereArgs= */ null);
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -274,7 +272,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
           values,
           WHERE_STATE_IS_TERMINAL + " AND " + WHERE_ID_EQUALS,
           new String[] {id});
-    } catch (SQLException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -306,7 +304,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
           }
         }
         initialized = true;
-      } catch (SQLException e) {
+      } catch (Throwable e) {
         throw new DatabaseIOException(e);
       }
     }
@@ -400,7 +398,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
               /* groupBy= */ null,
               /* having= */ null,
               sortOrder);
-    } catch (SQLiteException e) {
+    } catch (Throwable e) {
       throw new DatabaseIOException(e);
     }
   }

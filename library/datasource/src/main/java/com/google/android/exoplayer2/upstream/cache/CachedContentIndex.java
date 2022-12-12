@@ -25,7 +25,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
@@ -191,9 +190,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param uid The UID of the cache whose index is to be loaded.
    * @throws IOException If an error occurs initializing the index data.
+   * @throws Throwable If database inoperable.
    */
   @WorkerThread
-  public void initialize(long uid) throws IOException {
+  public void initialize(long uid) throws Throwable {
     storage.initialize(uid);
     if (previousStorage != null) {
       previousStorage.initialize(uid);
@@ -218,9 +218,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
    * @throws IOException If an error occurs storing the index data.
+   * @throws Throwable If database inoperable.
    */
   @WorkerThread
-  public void store() throws IOException {
+  public void store() throws Throwable {
     storage.storeIncremental(keyToContent);
     // Make ids that were removed since the index was last stored eligible for re-use.
     int removedIdCount = removedIds.size();
@@ -439,15 +440,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * Returns whether the persisted index exists.
      *
      * @throws IOException If an error occurs determining whether the persisted index exists.
+     * @throws Throwable If database inoperable.
      */
-    boolean exists() throws IOException;
+    boolean exists() throws Throwable;
 
     /**
      * Deletes the persisted index.
      *
      * @throws IOException If an error occurs deleting the index.
+     * @throws Throwable If database inoperable.
      */
-    void delete() throws IOException;
+    void delete() throws Throwable;
 
     /**
      * Loads the persisted index into {@code content} and {@code idToKey}, creating it if it doesn't
@@ -460,9 +463,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param content The key to content map to populate with persisted data.
      * @param idToKey The id to key map to populate with persisted data.
      * @throws IOException If an error occurs loading the index.
+     * @throws Throwable If database inoperable.
      */
     void load(HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey)
-        throws IOException;
+        throws Throwable;
 
     /**
      * Writes the persisted index, creating it if it doesn't already exist and replacing any
@@ -470,8 +474,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      *
      * @param content The key to content map to persist.
      * @throws IOException If an error occurs persisting the index.
+     * @throws Throwable If database inoperable.
      */
-    void storeFully(HashMap<String, CachedContent> content) throws IOException;
+    void storeFully(HashMap<String, CachedContent> content) throws Throwable;
 
     /**
      * Ensures incremental changes to the index since the initial {@link #initialize(long)} or last
@@ -480,8 +485,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      *
      * @param content The key to content map to persist.
      * @throws IOException If an error occurs persisting the index.
+     * @throws Throwable If database inoperable.
      */
-    void storeIncremental(HashMap<String, CachedContent> content) throws IOException;
+    void storeIncremental(HashMap<String, CachedContent> content) throws Throwable;
 
     /**
      * Called when a {@link CachedContent} is added or updated.
@@ -793,7 +799,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public boolean exists() throws DatabaseIOException {
+    public boolean exists() throws Throwable {
       return VersionTable.getVersion(
               databaseProvider.getReadableDatabase(),
               VersionTable.FEATURE_CACHE_CONTENT_METADATA,
@@ -843,7 +849,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             idToKey.put(cachedContent.id, cachedContent.key);
           }
         }
-      } catch (SQLiteException e) {
+      } catch (Throwable e) {
         content.clear();
         idToKey.clear();
         throw new DatabaseIOException(e);
@@ -851,7 +857,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public void storeFully(HashMap<String, CachedContent> content) throws IOException {
+    public void storeFully(HashMap<String, CachedContent> content) throws Throwable {
       try {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
         writableDatabase.beginTransactionNonExclusive();
@@ -892,7 +898,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } finally {
           writableDatabase.endTransaction();
         }
-      } catch (SQLException e) {
+      } catch (Throwable e) {
         throw new DatabaseIOException(e);
       }
     }
@@ -911,7 +917,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
-    private Cursor getCursor() {
+    private Cursor getCursor() throws Throwable {
       return databaseProvider
           .getReadableDatabase()
           .query(
@@ -966,7 +972,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } finally {
           writableDatabase.endTransaction();
         }
-      } catch (SQLException e) {
+      } catch (Throwable e) {
         throw new DatabaseIOException(e);
       }
     }

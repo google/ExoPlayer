@@ -37,7 +37,7 @@ public class VersionTableTest {
   private SQLiteDatabase database;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Throwable {
     databaseProvider = TestUtil.getInMemoryDatabaseProvider();
     database = databaseProvider.getWritableDatabase();
   }

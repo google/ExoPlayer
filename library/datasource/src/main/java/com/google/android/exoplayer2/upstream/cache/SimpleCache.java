@@ -298,7 +298,7 @@ public final class SimpleCache implements Cache {
     removeStaleSpans();
     try {
       contentIndex.store();
-    } catch (IOException e) {
+    } catch (Throwable e) {
       Log.e(TAG, "Storing index file failed", e);
     } finally {
       unlockFolder(cacheDir);
@@ -458,7 +458,7 @@ public final class SimpleCache implements Cache {
     addSpan(span);
     try {
       contentIndex.store();
-    } catch (IOException e) {
+    } catch (Throwable e) {
       throw new CacheException(e);
     }
     notifyAll();
@@ -536,7 +536,7 @@ public final class SimpleCache implements Cache {
     contentIndex.applyContentMetadataMutations(key, mutations);
     try {
       contentIndex.store();
-    } catch (IOException e) {
+    } catch (Throwable e) {
       throw new CacheException(e);
     }
   }
@@ -588,7 +588,7 @@ public final class SimpleCache implements Cache {
       } else {
         loadDirectory(cacheDir, /* isRoot= */ true, files, /* fileMetadata= */ null);
       }
-    } catch (IOException e) {
+    } catch (Throwable e) {
       String message = "Failed to initialize cache indices: " + cacheDir;
       Log.e(TAG, message, e);
       initializationException = new CacheException(message, e);
@@ -598,7 +598,7 @@ public final class SimpleCache implements Cache {
     contentIndex.removeEmpty();
     try {
       contentIndex.store();
-    } catch (IOException e) {
+    } catch (Throwable e) {
       Log.e(TAG, "Storing index file failed", e);
     }
   }
