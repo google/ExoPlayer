@@ -187,4 +187,22 @@ public class TransformationTest {
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING)));
   }
+
+  @Test
+  public void transformFrameRotation() throws Exception {
+    String testId = TAG + "_transformFrameRotation";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setRotationDegrees(45).build())
+            .build();
+
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(
+            /* testId= */ testId,
+            MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+  }
 }
