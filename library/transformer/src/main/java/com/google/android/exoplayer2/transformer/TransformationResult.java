@@ -20,8 +20,9 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.Objects;
 
-/** Information about the result of a successful transformation. */
+/** Information about the result of a transformation. */
 public final class TransformationResult {
 
   /** A builder for {@link TransformationResult} instances. */
@@ -31,6 +32,10 @@ public final class TransformationResult {
     private int averageAudioBitrate;
     private int averageVideoBitrate;
     private int videoFrameCount;
+    @Nullable private String audioDecoderName;
+    @Nullable private String audioEncoderName;
+    @Nullable private String videoDecoderName;
+    @Nullable private String videoEncoderName;
 
     public Builder() {
       durationMs = C.TIME_UNSET;
@@ -99,9 +104,45 @@ public final class TransformationResult {
       return this;
     }
 
+    /** Sets the name of the audio decoder used. */
+    @CanIgnoreReturnValue
+    public Builder setAudioDecoderName(@Nullable String audioDecoderName) {
+      this.audioDecoderName = audioDecoderName;
+      return this;
+    }
+
+    /** Sets the name of the audio encoder used. */
+    @CanIgnoreReturnValue
+    public Builder setAudioEncoderName(@Nullable String audioEncoderName) {
+      this.audioEncoderName = audioEncoderName;
+      return this;
+    }
+
+    /** Sets the name of the video decoder used. */
+    @CanIgnoreReturnValue
+    public Builder setVideoDecoderName(@Nullable String videoDecoderName) {
+      this.videoDecoderName = videoDecoderName;
+      return this;
+    }
+
+    /** Sets the name of the video encoder used. */
+    @CanIgnoreReturnValue
+    public Builder setVideoEncoderName(@Nullable String videoEncoderName) {
+      this.videoEncoderName = videoEncoderName;
+      return this;
+    }
+
     public TransformationResult build() {
       return new TransformationResult(
-          durationMs, fileSizeBytes, averageAudioBitrate, averageVideoBitrate, videoFrameCount);
+          durationMs,
+          fileSizeBytes,
+          averageAudioBitrate,
+          averageVideoBitrate,
+          videoFrameCount,
+          audioDecoderName,
+          audioEncoderName,
+          videoDecoderName,
+          videoEncoderName);
     }
   }
 
@@ -120,17 +161,34 @@ public final class TransformationResult {
   /** The number of video frames. */
   public final int videoFrameCount;
 
+  /** The name of the audio decoder used, or {@code null} if none were used. */
+  @Nullable public final String audioDecoderName;
+  /** The name of the audio encoder used, or {@code null} if none were used. */
+  @Nullable public final String audioEncoderName;
+  /** The name of the video decoder used, or {@code null} if none were used. */
+  @Nullable public final String videoDecoderName;
+  /** The name of the video encoder used, or {@code null} if none were used. */
+  @Nullable public final String videoEncoderName;
+
   private TransformationResult(
       long durationMs,
       long fileSizeBytes,
       int averageAudioBitrate,
       int averageVideoBitrate,
-      int videoFrameCount) {
+      int videoFrameCount,
+      @Nullable String audioDecoderName,
+      @Nullable String audioEncoderName,
+      @Nullable String videoDecoderName,
+      @Nullable String videoEncoderName) {
     this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
     this.averageVideoBitrate = averageVideoBitrate;
     this.videoFrameCount = videoFrameCount;
+    this.audioDecoderName = audioDecoderName;
+    this.audioEncoderName = audioEncoderName;
+    this.videoDecoderName = videoDecoderName;
+    this.videoEncoderName = videoEncoderName;
   }
 
   public Builder buildUpon() {
@@ -139,7 +197,11 @@ public final class TransformationResult {
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)
         .setAverageVideoBitrate(averageVideoBitrate)
-        .setVideoFrameCount(videoFrameCount);
+        .setVideoFrameCount(videoFrameCount)
+        .setAudioDecoderName(audioDecoderName)
+        .setAudioEncoderName(audioEncoderName)
+        .setVideoDecoderName(videoDecoderName)
+        .setVideoEncoderName(videoEncoderName);
   }
 
   @Override
@@ -155,7 +217,11 @@ public final class TransformationResult {
         && fileSizeBytes == result.fileSizeBytes
         && averageAudioBitrate == result.averageAudioBitrate
         && averageVideoBitrate == result.averageVideoBitrate
-        && videoFrameCount == result.videoFrameCount;
+        && videoFrameCount == result.videoFrameCount
+        && Objects.equals(audioDecoderName, result.audioDecoderName)
+        && Objects.equals(audioEncoderName, result.audioEncoderName)
+        && Objects.equals(videoDecoderName, result.videoDecoderName)
+        && Objects.equals(videoEncoderName, result.videoEncoderName);
   }
 
   @Override
@@ -165,6 +231,10 @@ public final class TransformationResult {
     result = 31 * result + averageAudioBitrate;
     result = 31 * result + averageVideoBitrate;
     result = 31 * result + videoFrameCount;
+    result = 31 * result + Objects.hashCode(audioDecoderName);
+    result = 31 * result + Objects.hashCode(audioEncoderName);
+    result = 31 * result + Objects.hashCode(videoDecoderName);
+    result = 31 * result + Objects.hashCode(videoEncoderName);
     return result;
   }
 }
