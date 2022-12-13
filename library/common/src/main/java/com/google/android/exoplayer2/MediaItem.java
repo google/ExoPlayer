@@ -1094,7 +1094,7 @@ public final class MediaItem implements Bundleable {
       private float minPlaybackSpeed;
       private float maxPlaybackSpeed;
 
-      /** Constructs an instance. */
+      /** Creates a new instance with default values. */
       public Builder() {
         this.targetOffsetMs = C.TIME_UNSET;
         this.minOffsetMs = C.TIME_UNSET;
@@ -1296,11 +1296,21 @@ public final class MediaItem implements Bundleable {
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putLong(keyForField(FIELD_TARGET_OFFSET_MS), targetOffsetMs);
-      bundle.putLong(keyForField(FIELD_MIN_OFFSET_MS), minOffsetMs);
-      bundle.putLong(keyForField(FIELD_MAX_OFFSET_MS), maxOffsetMs);
-      bundle.putFloat(keyForField(FIELD_MIN_PLAYBACK_SPEED), minPlaybackSpeed);
-      bundle.putFloat(keyForField(FIELD_MAX_PLAYBACK_SPEED), maxPlaybackSpeed);
+      if (targetOffsetMs != UNSET.targetOffsetMs) {
+        bundle.putLong(keyForField(FIELD_TARGET_OFFSET_MS), targetOffsetMs);
+      }
+      if (minOffsetMs != UNSET.minOffsetMs) {
+        bundle.putLong(keyForField(FIELD_MIN_OFFSET_MS), minOffsetMs);
+      }
+      if (maxOffsetMs != UNSET.maxOffsetMs) {
+        bundle.putLong(keyForField(FIELD_MAX_OFFSET_MS), maxOffsetMs);
+      }
+      if (minPlaybackSpeed != UNSET.minPlaybackSpeed) {
+        bundle.putFloat(keyForField(FIELD_MIN_PLAYBACK_SPEED), minPlaybackSpeed);
+      }
+      if (maxPlaybackSpeed != UNSET.maxPlaybackSpeed) {
+        bundle.putFloat(keyForField(FIELD_MAX_PLAYBACK_SPEED), maxPlaybackSpeed);
+      }
       return bundle;
     }
 
@@ -1309,13 +1319,17 @@ public final class MediaItem implements Bundleable {
         bundle ->
             new LiveConfiguration(
                 bundle.getLong(
-                    keyForField(FIELD_TARGET_OFFSET_MS), /* defaultValue= */ C.TIME_UNSET),
-                bundle.getLong(keyForField(FIELD_MIN_OFFSET_MS), /* defaultValue= */ C.TIME_UNSET),
-                bundle.getLong(keyForField(FIELD_MAX_OFFSET_MS), /* defaultValue= */ C.TIME_UNSET),
+                    keyForField(FIELD_TARGET_OFFSET_MS), /* defaultValue= */ UNSET.targetOffsetMs),
+                bundle.getLong(
+                    keyForField(FIELD_MIN_OFFSET_MS), /* defaultValue= */ UNSET.minOffsetMs),
+                bundle.getLong(
+                    keyForField(FIELD_MAX_OFFSET_MS), /* defaultValue= */ UNSET.maxOffsetMs),
                 bundle.getFloat(
-                    keyForField(FIELD_MIN_PLAYBACK_SPEED), /* defaultValue= */ C.RATE_UNSET),
+                    keyForField(FIELD_MIN_PLAYBACK_SPEED),
+                    /* defaultValue= */ UNSET.minPlaybackSpeed),
                 bundle.getFloat(
-                    keyForField(FIELD_MAX_PLAYBACK_SPEED), /* defaultValue= */ C.RATE_UNSET));
+                    keyForField(FIELD_MAX_PLAYBACK_SPEED),
+                    /* defaultValue= */ UNSET.maxPlaybackSpeed));
 
     private static String keyForField(@LiveConfiguration.FieldNumber int field) {
       return Integer.toString(field, Character.MAX_RADIX);
@@ -1554,7 +1568,7 @@ public final class MediaItem implements Bundleable {
       private boolean relativeToDefaultPosition;
       private boolean startsAtKeyFrame;
 
-      /** Constructs an instance. */
+      /** Creates a new instance with default values. */
       public Builder() {
         endPositionMs = C.TIME_END_OF_SOURCE;
       }
@@ -1727,11 +1741,22 @@ public final class MediaItem implements Bundleable {
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putLong(keyForField(FIELD_START_POSITION_MS), startPositionMs);
-      bundle.putLong(keyForField(FIELD_END_POSITION_MS), endPositionMs);
-      bundle.putBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), relativeToLiveWindow);
-      bundle.putBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), relativeToDefaultPosition);
-      bundle.putBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), startsAtKeyFrame);
+      if (startPositionMs != UNSET.startPositionMs) {
+        bundle.putLong(keyForField(FIELD_START_POSITION_MS), startPositionMs);
+      }
+      if (endPositionMs != UNSET.endPositionMs) {
+        bundle.putLong(keyForField(FIELD_END_POSITION_MS), endPositionMs);
+      }
+      if (relativeToLiveWindow != UNSET.relativeToLiveWindow) {
+        bundle.putBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), relativeToLiveWindow);
+      }
+      if (relativeToDefaultPosition != UNSET.relativeToDefaultPosition) {
+        bundle.putBoolean(
+            keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), relativeToDefaultPosition);
+      }
+      if (startsAtKeyFrame != UNSET.startsAtKeyFrame) {
+        bundle.putBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), startsAtKeyFrame);
+      }
       return bundle;
     }
 
@@ -1740,17 +1765,25 @@ public final class MediaItem implements Bundleable {
         bundle ->
             new ClippingConfiguration.Builder()
                 .setStartPositionMs(
-                    bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0))
+                    bundle.getLong(
+                        keyForField(FIELD_START_POSITION_MS),
+                        /* defaultValue= */ UNSET.startPositionMs))
                 .setEndPositionMs(
                     bundle.getLong(
                         keyForField(FIELD_END_POSITION_MS),
-                        /* defaultValue= */ C.TIME_END_OF_SOURCE))
+                        /* defaultValue= */ UNSET.endPositionMs))
                 .setRelativeToLiveWindow(
-                    bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), false))
+                    bundle.getBoolean(
+                        keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW),
+                        /* defaultValue= */ UNSET.relativeToLiveWindow))
                 .setRelativeToDefaultPosition(
-                    bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false))
+                    bundle.getBoolean(
+                        keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION),
+                        /* defaultValue= */ UNSET.relativeToDefaultPosition))
                 .setStartsAtKeyFrame(
-                    bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false))
+                    bundle.getBoolean(
+                        keyForField(FIELD_STARTS_AT_KEY_FRAME),
+                        /* defaultValue= */ UNSET.startsAtKeyFrame))
                 .buildClippingProperties();
 
     private static String keyForField(@ClippingConfiguration.FieldNumber int field) {
@@ -2033,11 +2066,21 @@ public final class MediaItem implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putString(keyForField(FIELD_MEDIA_ID), mediaId);
-    bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
-    bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
-    bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingConfiguration.toBundle());
-    bundle.putBundle(keyForField(FIELD_REQUEST_METADATA), requestMetadata.toBundle());
+    if (!mediaId.equals(DEFAULT_MEDIA_ID)) {
+      bundle.putString(keyForField(FIELD_MEDIA_ID), mediaId);
+    }
+    if (!liveConfiguration.equals(LiveConfiguration.UNSET)) {
+      bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
+    }
+    if (!mediaMetadata.equals(MediaMetadata.EMPTY)) {
+      bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
+    }
+    if (!clippingConfiguration.equals(ClippingConfiguration.UNSET)) {
+      bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingConfiguration.toBundle());
+    }
+    if (!requestMetadata.equals(RequestMetadata.EMPTY)) {
+      bundle.putBundle(keyForField(FIELD_REQUEST_METADATA), requestMetadata.toBundle());
+    }
     return bundle;
   }
 
