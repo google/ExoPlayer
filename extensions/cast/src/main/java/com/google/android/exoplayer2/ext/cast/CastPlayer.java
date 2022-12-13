@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static androidx.annotation.VisibleForTesting.PROTECTED;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
@@ -397,7 +398,12 @@ public final class CastPlayer extends BasePlayer {
   // don't implement onPositionDiscontinuity().
   @SuppressWarnings("deprecation")
   @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
+  @VisibleForTesting(otherwise = PROTECTED)
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.

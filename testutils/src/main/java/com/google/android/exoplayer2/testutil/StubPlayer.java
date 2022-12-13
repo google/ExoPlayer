@@ -145,7 +145,11 @@ public class StubPlayer extends BasePlayer {
   }
 
   @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     throw new UnsupportedOperationException();
   }
 

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static androidx.annotation.VisibleForTesting.PROTECTED;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
@@ -32,6 +33,7 @@ import android.view.TextureView;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -2136,13 +2138,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final void seekTo(int mediaItemIndex, long positionMs) {
-    // TODO: implement.
-    throw new IllegalStateException();
-  }
-
-  @Override
-  protected final void repeatCurrentMediaItem() {
+  @VisibleForTesting(otherwise = PROTECTED)
+  public final void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     // TODO: implement.
     throw new IllegalStateException();
   }
