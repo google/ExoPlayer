@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -470,16 +471,19 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public void onPlaybackStateChanged(@Player.State int playbackState) {
+      Log.e("DV_DEBUG", "onPlaybackStateChanged >> playbackState: "+playbackState);
       if (playbackState == Player.STATE_ENDED) {
         showControls();
       }
 
       if (isDelayAddView) {
         if (playbackState == Player.STATE_READY) { //Delayed add player
+          Log.e("DV_DEBUG", "onPlaybackStateChanged >> Calling playerView.addPlayerView() in Player.STATE_READY");
           playerView.addPlayerView();
         }
       } else {
         if (playbackState == Player.STATE_BUFFERING) {
+          Log.e("DV_DEBUG", "onPlaybackStateChanged >> Calling playerView.addPlayerView() in Player.STATE_BUFFERING");
           playerView.addPlayerView();
         }
       }
