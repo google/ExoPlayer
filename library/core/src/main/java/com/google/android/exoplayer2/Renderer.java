@@ -18,7 +18,6 @@ package com.google.android.exoplayer2;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.media.MediaCodec;
-import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -28,6 +27,7 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -207,9 +207,8 @@ public interface Renderer extends PlayerMessage.Target {
   int MSG_SET_PREFERRED_AUDIO_DEVICE = 12;
   /**
    * The type of a message that can be passed to a video renderer to set the desired output
-   * resolution. The message payload should be a {@link Pair} containing the desired output width
-   * and height, in {@link Integer} instances. Use this method only when playing with video {@link
-   * Effect}.
+   * resolution. The message payload should be a {@link Size} of the desired output width and
+   * height. Use this method only when playing with video {@link Effect}.
    */
   int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 13;
   /**

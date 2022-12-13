@@ -2946,7 +2946,7 @@ import java.util.concurrent.TimeoutException;
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
       maybeNotifySurfaceSizeChanged(width, height);
       sendRendererMessage(
-          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_OUTPUT_RESOLUTION, Pair.create(width, height));
+          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_OUTPUT_RESOLUTION, new Size(width, height));
     }
 
     @Override
