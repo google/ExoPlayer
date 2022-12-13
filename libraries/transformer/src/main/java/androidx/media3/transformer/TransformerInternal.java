@@ -128,6 +128,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean removeVideo,
       boolean forceSilentAudio,
       MediaSource.Factory mediaSourceFactory,
+      AssetLoader.Factory assetLoaderFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       FrameProcessor.Factory frameProcessorFactory,
@@ -152,17 +153,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Looper internalLooper = internalHandlerThread.getLooper();
     ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
     assetLoader =
-        new ExoPlayerAssetLoader(
-            context,
-            mediaItem,
-            removeAudio,
-            removeVideo,
-            transformationRequest.flattenForSlowMotion,
-            mediaSourceFactory,
-            decoderFactory,
-            internalLooper,
-            componentListener,
-            clock);
+        assetLoaderFactory
+            .setContext(context)
+            .setMediaItem(mediaItem)
+            .setRemoveAudio(removeAudio)
+            .setRemoveVideo(removeVideo)
+            .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setDecoderFactory(decoderFactory)
+            .setLooper(internalLooper)
+            .setListener(componentListener)
+            .setClock(clock)
+            .createAssetLoader();
     samplePipelines = new ArrayList<>();
     silentSamplePipelineIndex = C.INDEX_UNSET;
     dequeueBufferConditionVariable = new ConditionVariable();
