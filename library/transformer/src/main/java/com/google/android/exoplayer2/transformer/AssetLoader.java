@@ -16,7 +16,13 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import android.content.Context;
+import android.os.Looper;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
  * Provides media data to a {@linkplain Transformer}.
@@ -27,6 +33,82 @@ import com.google.android.exoplayer2.Format;
  * single asset loader, but outputting multiple tracks of the same type is not supported.
  */
 public interface AssetLoader {
+
+  /** A factory for {@link AssetLoader} instances. */
+  interface Factory {
+
+    /** Sets the context. */
+    @CanIgnoreReturnValue
+    Factory setContext(Context context);
+
+    /** Sets the {@link MediaItem} to load. */
+    @CanIgnoreReturnValue
+    Factory setMediaItem(MediaItem mediaItem);
+
+    /**
+     * Sets whether to remove the audio samples from the output (if any).
+     *
+     * <p>The audio and video cannot both be removed because the output would not contain any
+     * samples.
+     */
+    @CanIgnoreReturnValue
+    Factory setRemoveAudio(boolean removeAudio);
+
+    /**
+     * Sets whether to remove the video samples from the output (if any).
+     *
+     * <p>The audio and video cannot both be removed because the output would not contain any
+     * samples.
+     */
+    @CanIgnoreReturnValue
+    Factory setRemoveVideo(boolean removeVideo);
+
+    /**
+     * Sets whether the video samples should be flattened prior to decoding for media containing
+     * slow motion markers.
+     *
+     * <p>The audio samples are flattened after they are output by the {@link AssetLoader}, because
+     * this is done on decoded samples.
+     *
+     * <p>For more information on slow motion flattening, see {@link
+     * TransformationRequest.Builder#setFlattenForSlowMotion(boolean)}.
+     */
+    @CanIgnoreReturnValue
+    Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion);
+
+    /** Sets the {@link MediaSource.Factory} to be used to retrieve the samples. */
+    @CanIgnoreReturnValue
+    Factory setMediaSourceFactory(MediaSource.Factory mediaSourceFactory);
+
+    /** Sets the {@link Codec.DecoderFactory} to be used to decode the samples (if necessary). */
+    @CanIgnoreReturnValue
+    Factory setDecoderFactory(Codec.DecoderFactory decoderFactory);
+
+    /**
+     * Sets the {@link Looper} that's used to access the {@link AssetLoader} after it's been
+     * created.
+     */
+    @CanIgnoreReturnValue
+    Factory setLooper(Looper looper);
+
+    /** Sets the {@link Listener} on which the {@link AssetLoader} should notify of events. */
+    @CanIgnoreReturnValue
+    Factory setListener(AssetLoader.Listener listener);
+
+    /**
+     * The {@link Clock} to use.
+     *
+     * <p>Should always be {@link Clock#DEFAULT} except for testing.
+     */
+    @CanIgnoreReturnValue
+    Factory setClock(Clock clock);
+
+    /**
+     * Creates an {@link AssetLoader} instance. All the setters in this factory must be called
+     * before creating the {@link AssetLoader}.
+     */
+    AssetLoader createAssetLoader();
+  }
 
   /**
    * A listener of asset loader events.
