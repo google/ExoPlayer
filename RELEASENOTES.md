@@ -13,6 +13,8 @@
         playback thread for a new ExoPlayer instance.
     *   Allow download manager helpers to be cleared
         ([#10776](https://github.com/google/ExoPlayer/issues/10776)).
+    *   Add parameter to `BasePlayer.seekTo` to also indicate the command used
+        for seeking.
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).

@@ -823,16 +823,51 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  protected void repeatCurrentMediaItem() {
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     verifyApplicationThread();
-    seekToInternal(
-        getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET, /* repeatMediaItem= */ true);
-  }
-
-  @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
-    verifyApplicationThread();
-    seekToInternal(mediaItemIndex, positionMs, /* repeatMediaItem= */ false);
+    analyticsCollector.notifySeekStarted();
+    Timeline timeline = playbackInfo.timeline;
+    if (mediaItemIndex < 0
+        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
+      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
+    }
+    pendingOperationAcks++;
+    if (isPlayingAd()) {
+      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
+      // general because the midroll ad preceding the seek destination must be played before the
+      // content position can be played, if a different ad is playing at the moment.
+      Log.w(TAG, "seekTo ignored because an ad is playing");
+      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
+          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
+      playbackInfoUpdate.incrementPendingOperationAcks(1);
+      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
+      return;
+    }
+    @Player.State
+    int newPlaybackState =
+        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
+    int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
+    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
+    newPlaybackInfo =
+        maskTimelineAndPosition(
+            newPlaybackInfo,
+            timeline,
+            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
+    internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
+    updatePlaybackInfo(
+        newPlaybackInfo,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ true,
+        /* positionDiscontinuity= */ true,
+        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
+        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
+        oldMaskingMediaItemIndex,
+        isRepeatingCurrentItem);
   }
 
   @Override
@@ -2694,48 +2729,6 @@ import java.util.concurrent.TimeoutException;
         isPriorityTaskManagerRegistered = false;
       }
     }
-  }
-
-  private void seekToInternal(int mediaItemIndex, long positionMs, boolean repeatMediaItem) {
-    analyticsCollector.notifySeekStarted();
-    Timeline timeline = playbackInfo.timeline;
-    if (mediaItemIndex < 0
-        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
-    }
-    pendingOperationAcks++;
-    if (isPlayingAd()) {
-      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
-      // general because the midroll ad preceding the seek destination must be played before the
-      // content position can be played, if a different ad is playing at the moment.
-      Log.w(TAG, "seekTo ignored because an ad is playing");
-      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
-          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
-      playbackInfoUpdate.incrementPendingOperationAcks(1);
-      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
-      return;
-    }
-    @Player.State
-    int newPlaybackState =
-        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
-    int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
-    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
-    newPlaybackInfo =
-        maskTimelineAndPosition(
-            newPlaybackInfo,
-            timeline,
-            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
-    internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
-    updatePlaybackInfo(
-        newPlaybackInfo,
-        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ true,
-        /* positionDiscontinuity= */ true,
-        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
-        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
-        oldMaskingMediaItemIndex,
-        repeatMediaItem);
   }
 
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {
