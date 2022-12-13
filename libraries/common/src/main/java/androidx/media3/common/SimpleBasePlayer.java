@@ -15,6 +15,7 @@
  */
 package androidx.media3.common;
 
+import static androidx.annotation.VisibleForTesting.PROTECTED;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
@@ -32,6 +33,7 @@ import android.view.TextureView;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
@@ -2133,13 +2135,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final void seekTo(int mediaItemIndex, long positionMs) {
-    // TODO: implement.
-    throw new IllegalStateException();
-  }
-
-  @Override
-  protected final void repeatCurrentMediaItem() {
+  @VisibleForTesting(otherwise = PROTECTED)
+  public final void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     // TODO: implement.
     throw new IllegalStateException();
   }

@@ -15,6 +15,7 @@
  */
 package androidx.media3.cast;
 
+import static androidx.annotation.VisibleForTesting.PROTECTED;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.min;
@@ -399,7 +400,12 @@ public final class CastPlayer extends BasePlayer {
   // don't implement onPositionDiscontinuity().
   @SuppressWarnings("deprecation")
   @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
+  @VisibleForTesting(otherwise = PROTECTED)
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.
