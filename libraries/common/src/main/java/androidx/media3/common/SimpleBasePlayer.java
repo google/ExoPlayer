@@ -2200,6 +2200,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
                 .setTotalBufferedDurationMs(PositionSupplier.ZERO)
                 .setContentBufferedPositionMs(state.contentPositionMsSupplier)
                 .setAdBufferedPositionMs(state.adPositionMsSupplier)
+                .setIsLoading(false)
                 .build());
   }
 
@@ -2231,6 +2232,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
             .setTotalBufferedDurationMs(PositionSupplier.ZERO)
             .setContentBufferedPositionMs(state.contentPositionMsSupplier)
             .setAdBufferedPositionMs(state.adPositionMsSupplier)
+            .setIsLoading(false)
             .build();
   }
 

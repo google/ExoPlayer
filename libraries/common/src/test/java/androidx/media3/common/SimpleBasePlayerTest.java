@@ -2095,6 +2095,7 @@ public class SimpleBasePlayerTest {
             .setPlaylist(
                 ImmutableList.of(
                     new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .setIsLoading(true)
             .build();
     // Additionally set the repeat mode to see a difference between the placeholder and new state.
     State updatedState =
@@ -2102,6 +2103,7 @@ public class SimpleBasePlayerTest {
             .buildUpon()
             .setPlaybackState(Player.STATE_IDLE)
             .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .setIsLoading(false)
             .build();
     SettableFuture<?> future = SettableFuture.create();
     SimpleBasePlayer player =
@@ -2124,9 +2126,12 @@ public class SimpleBasePlayerTest {
     // Verify placeholder state and listener calls.
     assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_IDLE);
     assertThat(player.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_OFF);
+    assertThat(player.isLoading()).isFalse();
     verify(listener).onPlaybackStateChanged(Player.STATE_IDLE);
     verify(listener)
         .onPlayerStateChanged(/* playWhenReady= */ false, /* playbackState= */ Player.STATE_IDLE);
+    verify(listener).onIsLoadingChanged(false);
+    verify(listener).onLoadingChanged(false);
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -2211,6 +2216,7 @@ public class SimpleBasePlayerTest {
             .setPlaylist(
                 ImmutableList.of(
                     new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .setIsLoading(true)
             .build();
     // Additionally set the repeat mode to see a difference between the placeholder and new state.
     State updatedState = state.buildUpon().setRepeatMode(Player.REPEAT_MODE_ALL).build();
@@ -2232,8 +2238,9 @@ public class SimpleBasePlayerTest {
 
     player.release();
 
-    // Verify initial change to IDLE without listener call.
+    // Verify initial change to IDLE and !isLoading without listener call.
     assertThat(player.getPlaybackState()).isEqualTo(Player.STATE_IDLE);
+    assertThat(player.isLoading()).isFalse();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
