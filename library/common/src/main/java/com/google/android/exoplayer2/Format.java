@@ -1668,6 +1668,14 @@ public final class Format implements Bundleable {
         + Integer.toString(initialisationDataIndex, Character.MAX_RADIX);
   }
 
+  /**
+   * Utility method to get {@code defaultValue} if {@code value} is {@code null}. {@code
+   * defaultValue} can be {@code null}.
+   *
+   * <p>Note: Current implementations of getters in {@link Bundle}, for example {@link
+   * Bundle#getString(String, String)} does not allow the defaultValue to be {@code null}, hence the
+   * need for this method.
+   */
   @Nullable
   private static <T> T defaultIfNull(@Nullable T value, @Nullable T defaultValue) {
     return value != null ? value : defaultValue;
