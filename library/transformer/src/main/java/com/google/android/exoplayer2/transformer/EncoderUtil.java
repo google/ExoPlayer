@@ -64,8 +64,8 @@ public final class EncoderUtil {
     return ImmutableList.copyOf(mimeTypeToEncoders.get(Ascii.toLowerCase(mimeType)));
   }
 
-  /** Returns a list of video {@linkplain MimeTypes MIME types} that can be encoded. */
-  public static synchronized ImmutableSet<String> getSupportedVideoMimeTypes() {
+  /** Returns a list of {@linkplain MimeTypes MIME types} that can be encoded. */
+  public static synchronized ImmutableSet<String> getSupportedMimeTypes() {
     maybePopulateEncoderInfo();
     return ImmutableSet.copyOf(mimeTypeToEncoders.keySet());
   }
