@@ -16,19 +16,21 @@
 
 package androidx.media3.transformer;
 
+import androidx.media3.common.C;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /* package */ final class SilentAudioGenerator {
-  private static final int DEFAULT_BUFFER_SIZE = 4096;
+  private static final int DEFAULT_BUFFER_SIZE_FRAMES = 1024;
 
   private final ByteBuffer internalBuffer;
 
   private long remainingBytesToOutput;
 
   public SilentAudioGenerator(long totalDurationUs, long sampleRate, int frameSize) {
-    remainingBytesToOutput = (sampleRate * frameSize * totalDurationUs) / 1_000_000L;
-    internalBuffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE).order(ByteOrder.nativeOrder());
+    remainingBytesToOutput = frameSize * ((sampleRate * totalDurationUs) / C.MICROS_PER_SECOND);
+    internalBuffer =
+        ByteBuffer.allocate(DEFAULT_BUFFER_SIZE_FRAMES * frameSize).order(ByteOrder.nativeOrder());
     internalBuffer.flip();
   }
 
