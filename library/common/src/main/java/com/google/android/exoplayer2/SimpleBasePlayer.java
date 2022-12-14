@@ -2891,6 +2891,15 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     // Assign new state immediately such that all getters return the right values, but use a
     // snapshot of the previous and new state so that listener invocations are triggered correctly.
     this.state = newState;
+    if (newState.hasPositionDiscontinuity || newState.newlyRenderedFirstFrame) {
+      // Clear one-time events to avoid signalling them again later.
+      this.state =
+          this.state
+              .buildUpon()
+              .clearPositionDiscontinuity()
+              .setNewlyRenderedFirstFrame(false)
+              .build();
+    }
 
     boolean playWhenReadyChanged = previousState.playWhenReady != newState.playWhenReady;
     boolean playbackStateChanged = previousState.playbackState != newState.playbackState;
@@ -2917,7 +2926,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       PositionInfo positionInfo =
           getPositionInfo(
               newState,
-              /* useDiscontinuityPosition= */ state.hasPositionDiscontinuity,
+              /* useDiscontinuityPosition= */ newState.hasPositionDiscontinuity,
               window,
               period);
       listeners.queueEvent(
@@ -2931,9 +2940,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     if (mediaItemTransitionReason != C.INDEX_UNSET) {
       @Nullable
       MediaItem mediaItem =
-          state.timeline.isEmpty()
+          newState.timeline.isEmpty()
               ? null
-              : state.playlist.get(state.currentMediaItemIndex).mediaItem;
+              : newState.playlist.get(state.currentMediaItemIndex).mediaItem;
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));

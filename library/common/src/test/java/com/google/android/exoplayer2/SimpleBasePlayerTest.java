@@ -1704,6 +1704,82 @@ public class SimpleBasePlayerTest {
     verify(listener, never()).onMediaItemTransition(any(), anyInt());
   }
 
+  @SuppressWarnings("deprecation") // Verifying deprecated listener call.
+  @Test
+  public void invalidateStateAndOtherOperation_withDiscontinuity_reportsDiscontinuityOnlyOnce() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 0).build()))
+            .setPositionDiscontinuity(
+                Player.DISCONTINUITY_REASON_INTERNAL, /* discontinuityPositionMs= */ 2000)
+            .build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handlePrepare() {
+            // We just care about the placeholder state, so return an unfulfilled future.
+            return SettableFuture.create();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.invalidateState();
+    player.prepare();
+
+    // Assert listener calls (in particular getting only a single discontinuity).
+    verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_INTERNAL));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
+    verify(listener).onPlaybackStateChanged(Player.STATE_BUFFERING);
+    verify(listener).onPlayerStateChanged(/* playWhenReady= */ false, Player.STATE_BUFFERING);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener call.
+  @Test
+  public void
+      invalidateStateAndOtherOperation_withRenderedFirstFrame_reportsRenderedFirstFrameOnlyOnce() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 0).build()))
+            .setNewlyRenderedFirstFrame(true)
+            .build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handlePrepare() {
+            // We just care about the placeholder state, so return an unfulfilled future.
+            return SettableFuture.create();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.invalidateState();
+    player.prepare();
+
+    // Assert listener calls (in particular getting only a single rendered first frame).
+    verify(listener).onRenderedFirstFrame();
+    verify(listener).onPlaybackStateChanged(Player.STATE_BUFFERING);
+    verify(listener).onPlayerStateChanged(/* playWhenReady= */ false, Player.STATE_BUFFERING);
+    verifyNoMoreInteractions(listener);
+  }
+
   @Test
   public void invalidateState_duringAsyncMethodHandling_isIgnored() {
     State state1 =
