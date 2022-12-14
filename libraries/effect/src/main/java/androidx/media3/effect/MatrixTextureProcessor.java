@@ -24,6 +24,7 @@ import android.opengl.Matrix;
 import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
+import androidx.media3.common.Format;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
@@ -205,10 +206,6 @@ import java.util.List;
 
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (isInputTransferHdr) {
-      // TODO(b/239735341): Remove this after implementing in-app tone-mapping.
-      checkArgument(
-          outputColorInfo.colorSpace == C.COLOR_SPACE_BT2020,
-          "Converting from HDR to SDR is not yet supported.");
       checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
 
       // In HDR editing mode the decoder output is sampled in YUV.
@@ -227,18 +224,18 @@ import java.util.List;
           inputColorTransfer == C.COLOR_TRANSFER_HLG
               || inputColorTransfer == C.COLOR_TRANSFER_ST2084);
       glProgram.setIntUniform("uInputColorTransfer", inputColorTransfer);
+      // TODO(b/239735341): Add a setBooleanUniform method to GlProgram.
+      glProgram.setIntUniform(
+          "uApplyHdrToSdrToneMapping",
+          /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? 1 : 0);
       checkArgument(
-          outputColorTransfer == C.COLOR_TRANSFER_HLG
-              || outputColorTransfer == C.COLOR_TRANSFER_ST2084
-              || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
+          outputColorTransfer != Format.NO_VALUE && outputColorTransfer != C.COLOR_TRANSFER_SDR);
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
       checkArgument(
           outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020,
           "Converting from SDR to HDR is not supported.");
-      checkArgument(
-          inputColorInfo.colorSpace == C.COLOR_SPACE_BT709
-              || inputColorInfo.colorSpace == C.COLOR_SPACE_BT601);
+      checkArgument(inputColorInfo.colorSpace == outputColorInfo.colorSpace);
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_SDR
               || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
@@ -287,11 +284,17 @@ import java.util.List;
             : FRAGMENT_SHADER_TRANSFORMATION_SDR_OETF_ES2_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
+    @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (outputIsHdr) {
-      @C.ColorTransfer int colorTransfer = outputColorInfo.colorTransfer;
       checkArgument(
-          colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084);
-      glProgram.setIntUniform("uOutputColorTransfer", colorTransfer);
+          outputColorTransfer == C.COLOR_TRANSFER_HLG
+              || outputColorTransfer == C.COLOR_TRANSFER_ST2084);
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
+    } else {
+      checkArgument(
+          outputColorTransfer == C.COLOR_TRANSFER_SDR
+              || outputColorTransfer == C.COLOR_TRANSFER_GAMMA_2_2);
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     }
 
     return new MatrixTextureProcessor(

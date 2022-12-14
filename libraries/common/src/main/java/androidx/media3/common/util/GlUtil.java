@@ -31,6 +31,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
 import androidx.annotation.DoNotInline;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
@@ -190,7 +191,7 @@ public final class GlUtil {
    * Returns whether the {@value #EXTENSION_YUV_TARGET} extension is supported.
    *
    * <p>This extension allows sampling raw YUV values from an external texture, which is required
-   * for HDR.
+   * for HDR input.
    */
   public static boolean isYuvTargetExtensionSupported() {
     if (Util.SDK_INT < 17) {
@@ -232,27 +233,27 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static EGLContext createEglContext(EGLDisplay eglDisplay) throws GlException {
-    return createEglContext(eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+    return createEglContext(eglDisplay, /* openGlVersion= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
    * Creates a new {@link EGLContext} for the specified {@link EGLDisplay}.
    *
    * @param eglDisplay The {@link EGLDisplay} to create an {@link EGLContext} for.
+   * @param openGlVersion The version of OpenGL ES to configure. Accepts either {@code 2}, for
+   *     OpenGL ES 2.0, or {@code 3}, for OpenGL ES 3.0.
    * @param configAttributes The attributes to configure EGL with. Accepts either {@link
-   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}, which will request OpenGL ES 3.0, or {@link
-   *     #EGL_CONFIG_ATTRIBUTES_RGBA_8888}, which will request OpenGL ES 2.0.
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}, or {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
    */
   @RequiresApi(17)
-  public static EGLContext createEglContext(EGLDisplay eglDisplay, int[] configAttributes)
+  public static EGLContext createEglContext(
+      EGLDisplay eglDisplay, @IntRange(from = 2, to = 3) int openGlVersion, int[] configAttributes)
       throws GlException {
     checkArgument(
         Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_8888)
             || Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102));
-    return Api17.createEglContext(
-        eglDisplay,
-        /* version= */ Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102) ? 3 : 2,
-        configAttributes);
+    checkArgument(openGlVersion == 2 || openGlVersion == 3);
+    return Api17.createEglContext(eglDisplay, openGlVersion, configAttributes);
   }
 
   /**

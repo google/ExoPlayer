@@ -22,8 +22,10 @@
 //    uYuvToRgbColorTransform, yielding electrical (HLG or PQ) BT.2020 RGB,
 // 3. Applies an EOTF based on uInputColorTransfer, yielding optical linear
 //    BT.2020 RGB.
-// 4. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 5. Outputs as requested by uOutputColorTransfer. Use COLOR_TRANSFER_LINEAR
+// 4. Optionally applies a BT2020 to BT709 OOTF, if OpenGL tone-mapping is
+//    requested via uApplyHdrToSdrToneMapping.
+// 5. Applies a 4x4 RGB color matrix to change the pixel colors.
+// 6. Outputs as requested by uOutputColorTransfer. Use COLOR_TRANSFER_LINEAR
 //    for outputting to intermediate shaders, or COLOR_TRANSFER_ST2084 /
 //    COLOR_TRANSFER_HLG to output electrical colors via an OETF (e.g. to an
 //    encoder).
@@ -38,9 +40,10 @@ uniform mat4 uRgbMatrix;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
 uniform int uInputColorTransfer;
+uniform int uApplyHdrToSdrToneMapping;
 // C.java#ColorTransfer value.
-// Only COLOR_TRANSFER_LINEAR, COLOR_TRANSFER_ST2084, and COLOR_TRANSFER_HLG are
-// allowed.
+// Only COLOR_TRANSFER_LINEAR, COLOR_TRANSFER_GAMMA_2_2, COLOR_TRANSFER_ST2084,
+// and COLOR_TRANSFER_HLG are allowed.
 uniform int uOutputColorTransfer;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
@@ -48,7 +51,7 @@ out vec4 outColor;
 // TODO(b/227624622): Consider using mediump to save precision, if it won't lead
 //  to noticeable quantization errors.
 
-// HLG EOTF for one channel.
+// BT.2100 / BT.2020 HLG EOTF for one channel.
 highp float hlgEotfSingleChannel(highp float hlgChannel) {
   // Specification:
   // https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.inline.html#TRANSFER_HLG
@@ -104,7 +107,36 @@ highp vec3 applyEotf(highp vec3 electricalColor) {
   }
 }
 
-// HLG OETF for one channel.
+// Apply the HLG BT2020 to BT709 OOTF.
+highp vec3 applyHlgBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
+  // Reference ("HLG Reference OOTF" section):
+  // https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.2100-2-201807-I!!PDF-E.pdf
+  // Matrix values based on computeXYZMatrix(BT2020Primaries, BT2020WhitePoint)
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/libs/hwui/utils/HostColorSpace.cpp;l=200-232;drc=86bd214059cd6150304888a285941bf74af5b687
+  const mat3 RGB_TO_XYZ_BT2020 = mat3(
+       0.63695805f,  0.26270021f,  0.00000000f,
+       0.14461690f,  0.67799807f,  0.02807269f,
+       0.16888098f,  0.05930172f,  1.06098506f);
+  // Matrix values based on computeXYZMatrix(BT709Primaries, BT709WhitePoint)
+  const mat3 XYZ_TO_RGB_BT709 = mat3(
+       3.24096994f, -0.96924364f,  0.05563008f,
+      -1.53738318f,  1.87596750f, -0.20397696f,
+      -0.49861076f,  0.04155506f,  1.05697151f);
+  // hlgGamma is 1.2 + 0.42 * log10(nominalPeakLuminance/1000);
+  // nominalPeakLuminance was selected to use a 500 as a typical value, used
+  // in https://cs.android.com/android/platform/superproject/+/master:frameworks/native/libs/tonemap/tonemap.cpp;drc=7a577450e536aa1e99f229a0cb3d3531c82e8a8d;l=62,
+  // b/199162498#comment35, and
+  // https://www.microsoft.com/applied-sciences/uploads/projects/investigation-of-hdr-vs-tone-mapped-sdr/investigation-of-hdr-vs-tone-mapped-sdr.pdf.
+  const float hlgGamma = 1.0735674018211279;
+
+  vec3 linearXyzBt2020 = RGB_TO_XYZ_BT2020 * linearRgbBt2020;
+  vec3 linearXyzBt709 =
+      linearXyzBt2020 * pow(linearXyzBt2020[1], hlgGamma - 1.0);
+  vec3 linearRgbBt709 = clamp((XYZ_TO_RGB_BT709 * linearXyzBt709), 0.0, 1.0);
+  return linearRgbBt709;
+}
+
+// BT.2100 / BT.2020 HLG OETF for one channel.
 highp float hlgOetfSingleChannel(highp float linearChannel) {
   // Specification:
   // https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.inline.html#TRANSFER_HLG
@@ -144,17 +176,35 @@ highp vec3 pqOetf(highp vec3 linearColor) {
   return pow(temp, vec3(m2));
 }
 
+// BT.709 gamma 2.2 OETF for one channel.
+float gamma22OetfSingleChannel(highp float linearChannel) {
+    // Reference:
+    // https://developer.android.com/reference/android/hardware/DataSpace#TRANSFER_GAMMA2_2
+    return pow(linearChannel, (1.0 / 2.2));
+}
+
+// BT.709 gamma 2.2 OETF.
+vec3 gamma22Oetf(highp vec3 linearColor) {
+    return vec3(
+        gamma22OetfSingleChannel(linearColor.r),
+        gamma22OetfSingleChannel(linearColor.g),
+        gamma22OetfSingleChannel(linearColor.b));
+}
+
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
 // electrical signals. Input and output are both normalized to [0, 1].
 highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer_oetf)
   const int COLOR_TRANSFER_LINEAR = 1;
+  const int COLOR_TRANSFER_GAMMA_2_2 = 10;
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
   if (uOutputColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqOetf(linearColor);
   } else if (uOutputColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgOetf(linearColor);
+  } else if (uOutputColorTransfer == COLOR_TRANSFER_GAMMA_2_2) {
+    return gamma22Oetf(linearColor);
   } else if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
     return linearColor;
   } else {
@@ -170,7 +220,11 @@ vec3 yuvToRgb(vec3 yuv) {
 
 void main() {
   vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
-  vec4 opticalColor = vec4(applyEotf(yuvToRgb(srcYuv)), 1.0);
+  vec3 opticalColorBt2020 = applyEotf(yuvToRgb(srcYuv));
+  // TODO(b/239735341): Add support for PQ tone-mapping.
+  vec4 opticalColor = (uApplyHdrToSdrToneMapping == 1)
+      ? vec4(applyHlgBt2020ToBt709Ootf(opticalColorBt2020), 1.0)
+      : vec4(opticalColorBt2020, 1.0);
   vec4 transformedColors = uRgbMatrix * opticalColor;
   outColor = vec4(applyOetf(transformedColors.rgb), 1.0);
 }
