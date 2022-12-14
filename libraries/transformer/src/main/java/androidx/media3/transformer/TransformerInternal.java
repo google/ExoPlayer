@@ -160,7 +160,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             .setRemoveVideo(removeVideo)
             .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
             .setMediaSourceFactory(mediaSourceFactory)
-            .setDecoderFactory(decoderFactory)
+            .setDecoderFactory(this.decoderFactory)
             .setLooper(internalLooper)
             .setListener(componentListener)
             .setClock(clock)
