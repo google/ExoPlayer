@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.android.exoplayer2.util.Util.MODEL;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
@@ -40,8 +39,8 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
-import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -136,7 +135,8 @@ public final class DefaultCodec implements Codec {
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
     maxPendingFrameCount =
-        getMaxPendingFrameCountInternal(context, mediaCodecName, requestedHdrToneMapping);
+        Util.getMaxPendingFramesCountForMediaCodecEncoders(
+            context, mediaCodecName, requestedHdrToneMapping);
   }
 
   @Override
@@ -462,42 +462,6 @@ public final class DefaultCodec implements Codec {
     TraceUtil.beginSection("startCodec");
     codec.start();
     TraceUtil.endSection();
-  }
-
-  private static int getMaxPendingFrameCountInternal(
-      Context context, String codecName, boolean requestedHdrToneMapping) {
-    if (SDK_INT < 29
-        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29) {
-      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-      // bounds. From API 29, if the app targets API 29 or later, the {@link
-      // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is
-      // full.
-      // Frame dropping is never desired, so a workaround is needed for older API levels.
-      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
-      // TODO(b/226330223): Investigate increasing this limit.
-      return 1;
-    }
-    if (Ascii.toUpperCase(codecName).startsWith("OMX.")) {
-      // Some OMX decoders don't correctly track their number of output buffers available, and get
-      // stuck if too many frames are rendered without being processed, so limit the number of
-      // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, b/229978305, and b/245491744.
-      //
-      // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
-      return 5;
-    }
-    if (requestedHdrToneMapping
-        && codecName.equals("c2.qti.hevc.decoder")
-        && MODEL.equals("SM-F936B")) {
-      // This decoder gets stuck if too many frames are rendered without being processed when
-      // tone-mapping HDR10. This value is experimentally determined. See also b/260408846.
-      // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
-      return 12;
-    }
-
-    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
-    // throughput.
-    return UNLIMITED_PENDING_FRAME_COUNT;
   }
 
   @RequiresApi(29)

@@ -1103,6 +1103,12 @@ public final class C {
    */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
 
+  /**
+   * Represents applying no limit to the number of input frames a {@link MediaCodec} encoder
+   * accepts.
+   */
+  public static final int UNLIMITED_PENDING_FRAME_COUNT = Integer.MAX_VALUE;
+
   /** Video projection types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)

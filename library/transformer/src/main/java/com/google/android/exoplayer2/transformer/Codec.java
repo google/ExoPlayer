@@ -31,9 +31,6 @@ import java.nio.ByteBuffer;
  * buffers.
  */
 public interface Codec {
-  /** Default value for the pending frame count, which represents applying no limit. */
-  int UNLIMITED_PENDING_FRAME_COUNT = Integer.MAX_VALUE;
-
   /** A factory for {@linkplain Codec decoder} instances. */
   interface DecoderFactory {
 
@@ -134,10 +131,10 @@ public interface Codec {
 
   /**
    * Returns the maximum number of frames that may be pending in the output {@code Codec} at a time,
-   * or {@link #UNLIMITED_PENDING_FRAME_COUNT} if it's not necessary to enforce a limit.
+   * or {@link C#UNLIMITED_PENDING_FRAME_COUNT} if it's not necessary to enforce a limit.
    */
   default int getMaxPendingFrameCount() {
-    return UNLIMITED_PENDING_FRAME_COUNT;
+    return C.UNLIMITED_PENDING_FRAME_COUNT;
   }
 
   /**

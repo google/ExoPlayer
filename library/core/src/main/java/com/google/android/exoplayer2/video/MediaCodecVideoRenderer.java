@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -937,6 +938,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT >= 23 && tunneling) {
       tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(checkNotNull(getCodec()));
     }
+    frameProcessorManager.onCodecInitialized(name);
   }
 
   @Override
@@ -1137,13 +1139,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             && (shouldRenderFirstFrame
                 || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
     if (forceRenderOutputBuffer) {
-      long releaseTimeNs = System.nanoTime();
-      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
-      if (Util.SDK_INT >= 21) {
-        renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, releaseTimeNs);
+      // TODO(b/238302341): Handle releasing the force rendered frames in FrameProcessor.
+      boolean notifyFrameMetaDataListener;
+      if (frameProcessorManager.isEnabled()) {
+        notifyFrameMetaDataListener = false;
+        if (!frameProcessorManager.maybeRegisterFrame()) {
+          // TODO(b/238302341): Handle FrameProcessor is unable to accept the force rendered buffer.
+          //  Treat the frame as dropped for now.
+          return true;
+        }
       } else {
-        renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        notifyFrameMetaDataListener = true;
       }
+      renderOutputBufferNow(
+          codec, format, bufferIndex, presentationTimeUs, notifyFrameMetaDataListener);
       updateVideoFrameProcessingOffsetCounters(earlyUs);
       return true;
     }
@@ -1172,6 +1181,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       updateVideoFrameProcessingOffsetCounters(earlyUs);
       return true;
+    }
+
+    if (frameProcessorManager.isEnabled()) {
+      frameProcessorManager.releaseProcessedFrames();
+      if (frameProcessorManager.maybeRegisterFrame()) {
+        renderOutputBufferNow(
+            codec,
+            format,
+            bufferIndex,
+            presentationTimeUs,
+            /* notifyFrameMetadataListener= */ false);
+        return true;
+      }
+      return false;
     }
 
     if (Util.SDK_INT >= 21) {
@@ -1378,6 +1401,40 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderCounters.addVideoFrameProcessingOffset(processingOffsetUs);
     totalVideoFrameProcessingOffsetUs += processingOffsetUs;
     videoFrameProcessingOffsetCount++;
+  }
+
+  /**
+   * Renders the output buffer with the specified index now.
+   *
+   * @param codec The codec that owns the output buffer.
+   * @param format The {@link Format} associated with the buffer.
+   * @param index The index of the output buffer to drop.
+   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
+   * @param notifyFrameMetadataListener Whether to notify the {@link VideoFrameMetadataListener}.
+   */
+  private void renderOutputBufferNow(
+      MediaCodecAdapter codec,
+      Format format,
+      int index,
+      long presentationTimeUs,
+      boolean notifyFrameMetadataListener) {
+    // In previewing mode, use the presentation time as release time so that the SurfaceTexture is
+    // accompanied by the rendered frame's presentation time. Setting a realtime based release time
+    // is only relevant when rendering to a SurfaceView (that is when not using FrameProcessor) for
+    // better frame release. In previewing mode MediaCodec renders to FrameProcessor's input
+    // surface, which is not a SurfaceView.
+    long releaseTimeNs =
+        frameProcessorManager.isEnabled()
+            ? (presentationTimeUs + getOutputStreamOffsetUs()) * 1000
+            : System.nanoTime();
+    if (notifyFrameMetadataListener) {
+      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
+    }
+    if (Util.SDK_INT >= 21) {
+      renderOutputBufferV21(codec, index, presentationTimeUs, releaseTimeNs);
+    } else {
+      renderOutputBuffer(codec, index, presentationTimeUs);
+    }
   }
 
   /**
@@ -1686,12 +1743,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private @MonotonicNonNull Handler handler;
     @Nullable private FrameProcessor frameProcessor;
     @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
+    private int frameProcessorMaxPendingFrameCount;
     private boolean canEnableFrameProcessing;
 
     /** Creates a new instance. */
     public FrameProcessorManager(@UnderInitialization MediaCodecVideoRenderer renderer) {
       this.renderer = renderer;
       processedFrames = new ArrayDeque<>();
+      frameProcessorMaxPendingFrameCount = C.LENGTH_UNSET;
       canEnableFrameProcessing = true;
     }
 
@@ -1829,6 +1888,50 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
       }
       return mediaFormat;
+    }
+
+    /**
+     * Must be called when the codec is initialized.
+     *
+     * <p>Sets the {@code frameProcessorMaxPendingFrameCount} based on the {@code codecName}.
+     */
+    public void onCodecInitialized(String codecName) {
+      frameProcessorMaxPendingFrameCount =
+          Util.getMaxPendingFramesCountForMediaCodecEncoders(
+              renderer.context, codecName, /* requestedHdrToneMapping= */ false);
+    }
+
+    /**
+     * Tries to {@linkplain FrameProcessor#registerInputFrame register an input frame}.
+     *
+     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
+     * this method.
+     *
+     * @return Whether {@link MediaCodec} should render the frame to {@link FrameProcessor}.
+     */
+    public boolean maybeRegisterFrame() {
+      checkStateNotNull(frameProcessor);
+      checkState(frameProcessorMaxPendingFrameCount != C.LENGTH_UNSET);
+      if (frameProcessor.getPendingInputFrameCount() < frameProcessorMaxPendingFrameCount) {
+        frameProcessor.registerInputFrame();
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Releases the processed frames to the {@linkplain #setOutputSurfaceInfo output surface}.
+     *
+     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
+     * this method.
+     */
+    public void releaseProcessedFrames() {
+      while (!processedFrames.isEmpty()) {
+        processedFrames.poll();
+        // TODO(b/238302341): Add frame release logic.
+        checkNotNull(frameProcessor)
+            .releaseOutputFrame(FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY);
+      }
     }
 
     /**
