@@ -69,11 +69,7 @@ import org.checkerframework.dataflow.qual.Pure;
     super(inputFormat, streamStartPositionUs, muxerWrapper);
 
     if (forceSilentAudioDurationUs != C.TIME_UNSET) {
-      silentAudioGenerator =
-          new SilentAudioGenerator(
-              forceSilentAudioDurationUs,
-              inputFormat.sampleRate,
-              Util.getPcmFrameSize(C.ENCODING_PCM_16BIT, inputFormat.channelCount));
+      silentAudioGenerator = new SilentAudioGenerator(inputFormat, forceSilentAudioDurationUs);
     } else {
       silentAudioGenerator = null;
     }
