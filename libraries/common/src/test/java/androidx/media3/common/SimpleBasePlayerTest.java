@@ -128,7 +128,6 @@ public class SimpleBasePlayerTest {
                         .build()))
             .setPlaylistMetadata(new MediaMetadata.Builder().setArtist("artist").build())
             .setCurrentMediaItemIndex(1)
-            .setCurrentPeriodIndex(1)
             .setCurrentAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 2)
             .setContentPositionMs(() -> 456)
             .setAdPositionMs(() -> 6678)
@@ -275,7 +274,6 @@ public class SimpleBasePlayerTest {
             .setPlaylist(playlist)
             .setPlaylistMetadata(playlistMetadata)
             .setCurrentMediaItemIndex(1)
-            .setCurrentPeriodIndex(1)
             .setCurrentAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 2)
             .setContentPositionMs(contentPositionSupplier)
             .setAdPositionMs(adPositionSupplier)
@@ -315,7 +313,6 @@ public class SimpleBasePlayerTest {
     assertThat(state.playlist).isEqualTo(playlist);
     assertThat(state.playlistMetadata).isEqualTo(playlistMetadata);
     assertThat(state.currentMediaItemIndex).isEqualTo(1);
-    assertThat(state.currentPeriodIndex).isEqualTo(1);
     assertThat(state.currentAdGroupIndex).isEqualTo(1);
     assertThat(state.currentAdIndexInAdGroup).isEqualTo(2);
     assertThat(state.contentPositionMsSupplier).isEqualTo(contentPositionSupplier);
@@ -362,7 +359,32 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
-  public void stateBuilderBuild_currentWindowIndexExceedsPlaylistLength_throwsException() {
+  public void stateBuilderBuild_currentMediaItemIndexUnset_doesNotThrow() {
+    SimpleBasePlayer.State state =
+        new SimpleBasePlayer.State.Builder()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .setCurrentMediaItemIndex(C.INDEX_UNSET)
+            .build();
+
+    assertThat(state.currentMediaItemIndex).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
+  public void stateBuilderBuild_currentMediaItemIndexSetForEmptyPlaylist_doesNotThrow() {
+    SimpleBasePlayer.State state =
+        new SimpleBasePlayer.State.Builder()
+            .setPlaylist(ImmutableList.of())
+            .setCurrentMediaItemIndex(20)
+            .build();
+
+    assertThat(state.currentMediaItemIndex).isEqualTo(20);
+  }
+
+  @Test
+  public void stateBuilderBuild_currentMediaItemIndexExceedsPlaylistLength_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -373,37 +395,6 @@ public class SimpleBasePlayerTest {
                         new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
                             .build()))
                 .setCurrentMediaItemIndex(2)
-                .build());
-  }
-
-  @Test
-  public void stateBuilderBuild_currentPeriodIndexExceedsPlaylistLength_throwsException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            new SimpleBasePlayer.State.Builder()
-                .setPlaylist(
-                    ImmutableList.of(
-                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
-                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
-                            .build()))
-                .setCurrentPeriodIndex(2)
-                .build());
-  }
-
-  @Test
-  public void stateBuilderBuild_currentPeriodIndexInOtherMediaItem_throwsException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            new SimpleBasePlayer.State.Builder()
-                .setPlaylist(
-                    ImmutableList.of(
-                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
-                        new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object())
-                            .build()))
-                .setCurrentMediaItemIndex(0)
-                .setCurrentPeriodIndex(1)
                 .build());
   }
 
@@ -450,6 +441,16 @@ public class SimpleBasePlayerTest {
                                         .build()))
                             .build()))
                 .setCurrentAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2)
+                .build());
+  }
+
+  @Test
+  public void stateBuilderBuild_setAdAndEmptyPlaylist_throwsException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new SimpleBasePlayer.State.Builder()
+                .setCurrentAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 3)
                 .build());
   }
 
@@ -532,6 +533,27 @@ public class SimpleBasePlayerTest {
 
     assertThat(position1).isEqualTo(4000);
     assertThat(position2).isEqualTo(8000);
+  }
+
+  @Test
+  public void stateBuilderBuild_withUnsetPositionAndPlaying_returnsConstantContentPosition() {
+    SystemClock.setCurrentTimeMillis(10000);
+
+    SimpleBasePlayer.State state =
+        new SimpleBasePlayer.State.Builder()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build()))
+            .setContentPositionMs(C.TIME_UNSET)
+            .setPlayWhenReady(true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
+            .setPlaybackState(Player.STATE_READY)
+            .build();
+    long position1 = state.contentPositionMsSupplier.get();
+    SystemClock.setCurrentTimeMillis(12000);
+    long position2 = state.contentPositionMsSupplier.get();
+
+    assertThat(position1).isEqualTo(C.TIME_UNSET);
+    assertThat(position2).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -865,7 +887,6 @@ public class SimpleBasePlayerTest {
             .setPlaylist(playlist)
             .setPlaylistMetadata(playlistMetadata)
             .setCurrentMediaItemIndex(1)
-            .setCurrentPeriodIndex(1)
             .setContentPositionMs(contentPositionSupplier)
             .setContentBufferedPositionMs(contentBufferedPositionSupplier)
             .setTotalBufferedDurationMs(totalBufferedPositionSupplier)
@@ -1047,6 +1068,131 @@ public class SimpleBasePlayerTest {
     assertThat(player.getMediaMetadata()).isEqualTo(MediaMetadata.EMPTY);
     assertThat(player.getCurrentPeriodIndex()).isEqualTo(4);
     assertThat(player.getCurrentMediaItemIndex()).isEqualTo(4);
+  }
+
+  @Test
+  public void getCurrentMediaItemIndex_withUnsetIndexInState_returnsDefaultIndex() {
+    State state = new State.Builder().setCurrentMediaItemIndex(C.INDEX_UNSET).build();
+
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+        };
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+  }
+
+  @Test
+  public void getCurrentPeriodIndex_withUnsetIndexInState_returnsPeriodForCurrentPosition() {
+    State state =
+        new State.Builder()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 0).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setPeriods(
+                            ImmutableList.of(
+                                new SimpleBasePlayer.PeriodData.Builder(/* uid= */ "period0")
+                                    .setDurationUs(60_000_000)
+                                    .build(),
+                                new SimpleBasePlayer.PeriodData.Builder(/* uid= */ "period1")
+                                    .setDurationUs(5_000_000)
+                                    .build(),
+                                new SimpleBasePlayer.PeriodData.Builder(/* uid= */ "period2")
+                                    .setDurationUs(5_000_000)
+                                    .build()))
+                        .setPositionInFirstPeriodUs(50_000_000)
+                        .build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(12_000)
+            .build();
+
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+        };
+
+    assertThat(player.getCurrentPeriodIndex()).isEqualTo(2);
+  }
+
+  @Test
+  public void getCurrentPosition_withUnsetPositionInState_returnsDefaultPosition() {
+    State state =
+        new State.Builder()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 0)
+                        .setDefaultPositionUs(5_000_000)
+                        .build()))
+            .setContentPositionMs(C.TIME_UNSET)
+            .build();
+
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+        };
+
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+  }
+
+  @Test
+  public void getBufferedPosition_withUnsetBufferedPositionInState_returnsDefaultPosition() {
+    State state =
+        new State.Builder()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 0)
+                        .setDefaultPositionUs(5_000_000)
+                        .build()))
+            .setContentBufferedPositionMs(
+                SimpleBasePlayer.PositionSupplier.getConstant(C.TIME_UNSET))
+            .build();
+
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+        };
+
+    assertThat(player.getBufferedPosition()).isEqualTo(5000);
+  }
+
+  @Test
+  public void
+      getBufferedPosition_withUnsetBufferedPositionAndPositionInState_returnsDefaultPosition() {
+    State state =
+        new State.Builder()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 0)
+                        .setDefaultPositionUs(5_000_000)
+                        .build()))
+            .setContentPositionMs(C.TIME_UNSET)
+            .setContentBufferedPositionMs(
+                SimpleBasePlayer.PositionSupplier.getConstant(C.TIME_UNSET))
+            .build();
+
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+        };
+
+    assertThat(player.getBufferedPosition()).isEqualTo(5000);
   }
 
   @SuppressWarnings("deprecation") // Verifying deprecated listener call.

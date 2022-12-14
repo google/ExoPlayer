@@ -19,6 +19,7 @@ import static androidx.annotation.VisibleForTesting.PROTECTED;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.usToMs;
 import static java.lang.Math.max;
 
@@ -127,12 +128,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       private Timeline timeline;
       private MediaMetadata playlistMetadata;
       private int currentMediaItemIndex;
-      private int currentPeriodIndex;
       private int currentAdGroupIndex;
       private int currentAdIndexInAdGroup;
-      private long contentPositionMs;
+      @Nullable private Long contentPositionMs;
       private PositionSupplier contentPositionMsSupplier;
-      private long adPositionMs;
+      @Nullable private Long adPositionMs;
       private PositionSupplier adPositionMsSupplier;
       private PositionSupplier contentBufferedPositionMsSupplier;
       private PositionSupplier adBufferedPositionMsSupplier;
@@ -170,15 +170,14 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         playlist = ImmutableList.of();
         timeline = Timeline.EMPTY;
         playlistMetadata = MediaMetadata.EMPTY;
-        currentMediaItemIndex = 0;
-        currentPeriodIndex = C.INDEX_UNSET;
+        currentMediaItemIndex = C.INDEX_UNSET;
         currentAdGroupIndex = C.INDEX_UNSET;
         currentAdIndexInAdGroup = C.INDEX_UNSET;
-        contentPositionMs = C.TIME_UNSET;
-        contentPositionMsSupplier = PositionSupplier.ZERO;
-        adPositionMs = C.TIME_UNSET;
+        contentPositionMs = null;
+        contentPositionMsSupplier = PositionSupplier.getConstant(C.TIME_UNSET);
+        adPositionMs = null;
         adPositionMsSupplier = PositionSupplier.ZERO;
-        contentBufferedPositionMsSupplier = PositionSupplier.ZERO;
+        contentBufferedPositionMsSupplier = PositionSupplier.getConstant(C.TIME_UNSET);
         adBufferedPositionMsSupplier = PositionSupplier.ZERO;
         totalBufferedDurationMsSupplier = PositionSupplier.ZERO;
         hasPositionDiscontinuity = false;
@@ -215,12 +214,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         this.timeline = state.timeline;
         this.playlistMetadata = state.playlistMetadata;
         this.currentMediaItemIndex = state.currentMediaItemIndex;
-        this.currentPeriodIndex = state.currentPeriodIndex;
         this.currentAdGroupIndex = state.currentAdGroupIndex;
         this.currentAdIndexInAdGroup = state.currentAdIndexInAdGroup;
-        this.contentPositionMs = C.TIME_UNSET;
+        this.contentPositionMs = null;
         this.contentPositionMsSupplier = state.contentPositionMsSupplier;
-        this.adPositionMs = C.TIME_UNSET;
+        this.adPositionMs = null;
         this.adPositionMsSupplier = state.adPositionMsSupplier;
         this.contentBufferedPositionMsSupplier = state.contentBufferedPositionMsSupplier;
         this.adBufferedPositionMsSupplier = state.adBufferedPositionMsSupplier;
@@ -574,32 +572,13 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * <p>The media item index must be less than the number of {@linkplain #setPlaylist media
        * items in the playlist}, if set.
        *
-       * @param currentMediaItemIndex The current media item index.
+       * @param currentMediaItemIndex The current media item index, or {@link C#INDEX_UNSET} to
+       *     assume the default first item in the playlist.
        * @return This builder.
        */
       @CanIgnoreReturnValue
       public Builder setCurrentMediaItemIndex(int currentMediaItemIndex) {
         this.currentMediaItemIndex = currentMediaItemIndex;
-        return this;
-      }
-
-      /**
-       * Sets the current period index, or {@link C#INDEX_UNSET} to assume the first period of the
-       * current media item is played.
-       *
-       * <p>The period index must be less than the total number of {@linkplain
-       * MediaItemData.Builder#setPeriods periods} in the media item, if set, and the period at the
-       * specified index must be part of the {@linkplain #setCurrentMediaItemIndex current media
-       * item}.
-       *
-       * @param currentPeriodIndex The current period index, or {@link C#INDEX_UNSET} to assume the
-       *     first period of the current media item is played.
-       * @return This builder.
-       */
-      @CanIgnoreReturnValue
-      public Builder setCurrentPeriodIndex(int currentPeriodIndex) {
-        checkArgument(currentPeriodIndex == C.INDEX_UNSET || currentPeriodIndex >= 0);
-        this.currentPeriodIndex = currentPeriodIndex;
         return this;
       }
 
@@ -632,7 +611,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * <p>This position will be converted to an advancing {@link PositionSupplier} if the overall
        * state indicates an advancing playback position.
        *
-       * @param positionMs The current content playback position in milliseconds.
+       * <p>This method overrides any other {@link PositionSupplier} set via {@link
+       * #setContentPositionMs(PositionSupplier)}.
+       *
+       * @param positionMs The current content playback position in milliseconds, or {@link
+       *     C#TIME_UNSET} to indicate the default start position.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -648,23 +631,29 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * <p>The supplier is expected to return the updated position on every call if the playback is
        * advancing, for example by using {@link PositionSupplier#getExtrapolating}.
        *
+       * <p>This method overrides any other position set via {@link #setContentPositionMs(long)}.
+       *
        * @param contentPositionMsSupplier The {@link PositionSupplier} for the current content
-       *     playback position in milliseconds.
+       *     playback position in milliseconds, or {@link C#TIME_UNSET} to indicate the default
+       *     start position.
        * @return This builder.
        */
       @CanIgnoreReturnValue
       public Builder setContentPositionMs(PositionSupplier contentPositionMsSupplier) {
-        this.contentPositionMs = C.TIME_UNSET;
+        this.contentPositionMs = null;
         this.contentPositionMsSupplier = contentPositionMsSupplier;
         return this;
       }
 
       /**
-       * Sets the current ad playback position in milliseconds. The * value is unused if no ad is
+       * Sets the current ad playback position in milliseconds. The value is unused if no ad is
        * playing.
        *
        * <p>This position will be converted to an advancing {@link PositionSupplier} if the overall
        * state indicates an advancing ad playback position.
+       *
+       * <p>This method overrides any other {@link PositionSupplier} set via {@link
+       * #setAdPositionMs(PositionSupplier)}.
        *
        * @param positionMs The current ad playback position in milliseconds.
        * @return This builder.
@@ -682,13 +671,15 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * <p>The supplier is expected to return the updated position on every call if the playback is
        * advancing, for example by using {@link PositionSupplier#getExtrapolating}.
        *
+       * <p>This method overrides any other position set via {@link #setAdPositionMs(long)}.
+       *
        * @param adPositionMsSupplier The {@link PositionSupplier} for the current ad playback
        *     position in milliseconds. The value is unused if no ad is playing.
        * @return This builder.
        */
       @CanIgnoreReturnValue
       public Builder setAdPositionMs(PositionSupplier adPositionMsSupplier) {
-        this.adPositionMs = C.TIME_UNSET;
+        this.adPositionMs = null;
         this.adPositionMsSupplier = adPositionMsSupplier;
         return this;
       }
@@ -698,7 +689,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * playing content is buffered, in milliseconds.
        *
        * @param contentBufferedPositionMsSupplier The {@link PositionSupplier} for the estimated
-       *     position up to which the currently playing content is buffered, in milliseconds.
+       *     position up to which the currently playing content is buffered, in milliseconds, or
+       *     {@link C#TIME_UNSET} to indicate the default start position.
        * @return This builder.
        */
       @CanIgnoreReturnValue
@@ -838,18 +830,19 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public final Timeline timeline;
     /** The playlist {@link MediaMetadata}. */
     public final MediaMetadata playlistMetadata;
-    /** The current media item index. */
-    public final int currentMediaItemIndex;
     /**
-     * The current period index, or {@link C#INDEX_UNSET} to assume the first period of the current
-     * media item is played.
+     * The current media item index, or {@link C#INDEX_UNSET} to assume the default first item of
+     * the playlist is played.
      */
-    public final int currentPeriodIndex;
+    public final int currentMediaItemIndex;
     /** The current ad group index, or {@link C#INDEX_UNSET} if no ad is playing. */
     public final int currentAdGroupIndex;
     /** The current ad index in the ad group, or {@link C#INDEX_UNSET} if no ad is playing. */
     public final int currentAdIndexInAdGroup;
-    /** The {@link PositionSupplier} for the current content playback position in milliseconds. */
+    /**
+     * The {@link PositionSupplier} for the current content playback position in milliseconds, or
+     * {@link C#TIME_UNSET} to indicate the default start position.
+     */
     public final PositionSupplier contentPositionMsSupplier;
     /**
      * The {@link PositionSupplier} for the current ad playback position in milliseconds. The value
@@ -858,7 +851,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     public final PositionSupplier adPositionMsSupplier;
     /**
      * The {@link PositionSupplier} for the estimated position up to which the currently playing
-     * content is buffered, in milliseconds.
+     * content is buffered, in milliseconds, or {@link C#TIME_UNSET} to indicate the default start
+     * position.
      */
     public final PositionSupplier contentBufferedPositionMsSupplier;
     /**
@@ -887,22 +881,27 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         checkArgument(
             builder.playbackState == Player.STATE_IDLE
                 || builder.playbackState == Player.STATE_ENDED);
+        checkArgument(
+            builder.currentAdGroupIndex == C.INDEX_UNSET
+                && builder.currentAdIndexInAdGroup == C.INDEX_UNSET);
       } else {
-        checkArgument(builder.currentMediaItemIndex < builder.timeline.getWindowCount());
-        if (builder.currentPeriodIndex != C.INDEX_UNSET) {
-          checkArgument(builder.currentPeriodIndex < builder.timeline.getPeriodCount());
-          checkArgument(
-              builder.timeline.getPeriod(builder.currentPeriodIndex, new Timeline.Period())
-                      .windowIndex
-                  == builder.currentMediaItemIndex);
+        int mediaItemIndex = builder.currentMediaItemIndex;
+        if (mediaItemIndex == C.INDEX_UNSET) {
+          mediaItemIndex = 0; // TODO: Use shuffle order to find first index.
+        } else {
+          checkArgument(builder.currentMediaItemIndex < builder.timeline.getWindowCount());
         }
         if (builder.currentAdGroupIndex != C.INDEX_UNSET) {
+          Timeline.Period period = new Timeline.Period();
+          Timeline.Window window = new Timeline.Window();
+          long contentPositionMs =
+              builder.contentPositionMs != null
+                  ? builder.contentPositionMs
+                  : builder.contentPositionMsSupplier.get();
           int periodIndex =
-              builder.currentPeriodIndex != C.INDEX_UNSET
-                  ? builder.currentPeriodIndex
-                  : builder.timeline.getWindow(builder.currentMediaItemIndex, new Timeline.Window())
-                      .firstPeriodIndex;
-          Timeline.Period period = builder.timeline.getPeriod(periodIndex, new Timeline.Period());
+              getPeriodIndexFromWindowPosition(
+                  builder.timeline, mediaItemIndex, contentPositionMs, window, period);
+          builder.timeline.getPeriod(periodIndex, period);
           checkArgument(builder.currentAdGroupIndex < period.getAdGroupCount());
           int adCountInGroup = period.getAdCountInAdGroup(builder.currentAdGroupIndex);
           if (adCountInGroup != C.LENGTH_UNSET) {
@@ -918,11 +917,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         checkArgument(!builder.isLoading);
       }
       PositionSupplier contentPositionMsSupplier = builder.contentPositionMsSupplier;
-      if (builder.contentPositionMs != C.TIME_UNSET) {
+      if (builder.contentPositionMs != null) {
         if (builder.currentAdGroupIndex == C.INDEX_UNSET
             && builder.playWhenReady
             && builder.playbackState == Player.STATE_READY
-            && builder.playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE) {
+            && builder.playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE
+            && builder.contentPositionMs != C.TIME_UNSET) {
           contentPositionMsSupplier =
               PositionSupplier.getExtrapolating(
                   builder.contentPositionMs, builder.playbackParameters.speed);
@@ -931,7 +931,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         }
       }
       PositionSupplier adPositionMsSupplier = builder.adPositionMsSupplier;
-      if (builder.adPositionMs != C.TIME_UNSET) {
+      if (builder.adPositionMs != null) {
         if (builder.currentAdGroupIndex != C.INDEX_UNSET
             && builder.playWhenReady
             && builder.playbackState == Player.STATE_READY
@@ -970,7 +970,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       this.timeline = builder.timeline;
       this.playlistMetadata = builder.playlistMetadata;
       this.currentMediaItemIndex = builder.currentMediaItemIndex;
-      this.currentPeriodIndex = builder.currentPeriodIndex;
       this.currentAdGroupIndex = builder.currentAdGroupIndex;
       this.currentAdIndexInAdGroup = builder.currentAdIndexInAdGroup;
       this.contentPositionMsSupplier = contentPositionMsSupplier;
@@ -1024,7 +1023,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
           && playlist.equals(state.playlist)
           && playlistMetadata.equals(state.playlistMetadata)
           && currentMediaItemIndex == state.currentMediaItemIndex
-          && currentPeriodIndex == state.currentPeriodIndex
           && currentAdGroupIndex == state.currentAdGroupIndex
           && currentAdIndexInAdGroup == state.currentAdIndexInAdGroup
           && contentPositionMsSupplier.equals(state.contentPositionMsSupplier)
@@ -1068,7 +1066,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       result = 31 * result + playlist.hashCode();
       result = 31 * result + playlistMetadata.hashCode();
       result = 31 * result + currentMediaItemIndex;
-      result = 31 * result + currentPeriodIndex;
       result = 31 * result + currentAdGroupIndex;
       result = 31 * result + currentAdIndexInAdGroup;
       result = 31 * result + contentPositionMsSupplier.hashCode();
@@ -2198,7 +2195,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
                 .buildUpon()
                 .setPlaybackState(Player.STATE_IDLE)
                 .setTotalBufferedDurationMs(PositionSupplier.ZERO)
-                .setContentBufferedPositionMs(state.contentPositionMsSupplier)
+                .setContentBufferedPositionMs(
+                    PositionSupplier.getConstant(getContentPositionMsInternal(state)))
                 .setAdBufferedPositionMs(state.adPositionMsSupplier)
                 .setIsLoading(false)
                 .build());
@@ -2230,7 +2228,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
             .buildUpon()
             .setPlaybackState(Player.STATE_IDLE)
             .setTotalBufferedDurationMs(PositionSupplier.ZERO)
-            .setContentBufferedPositionMs(state.contentPositionMsSupplier)
+            .setContentBufferedPositionMs(
+                PositionSupplier.getConstant(getContentPositionMsInternal(state)))
             .setAdBufferedPositionMs(state.adPositionMsSupplier)
             .setIsLoading(false)
             .build();
@@ -2297,13 +2296,13 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @Override
   public final int getCurrentPeriodIndex() {
     verifyApplicationThreadAndInitState();
-    return getCurrentPeriodIndexInternal(state, window);
+    return getCurrentPeriodIndexInternal(state, window, period);
   }
 
   @Override
   public final int getCurrentMediaItemIndex() {
     verifyApplicationThreadAndInitState();
-    return state.currentMediaItemIndex;
+    return getCurrentMediaItemIndexInternal(state);
   }
 
   @Override
@@ -2359,14 +2358,13 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @Override
   public final long getContentPosition() {
     verifyApplicationThreadAndInitState();
-    return state.contentPositionMsSupplier.get();
+    return getContentPositionMsInternal(state);
   }
 
   @Override
   public final long getContentBufferedPosition() {
     verifyApplicationThreadAndInitState();
-    return max(
-        state.contentBufferedPositionMsSupplier.get(), state.contentPositionMsSupplier.get());
+    return max(getContentBufferedPositionMsInternal(state), getContentPositionMsInternal(state));
   }
 
   @Override
@@ -2939,7 +2937,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       MediaItem mediaItem =
           newState.timeline.isEmpty()
               ? null
-              : newState.playlist.get(state.currentMediaItemIndex).mediaItem;
+              : newState.playlist.get(getCurrentMediaItemIndexInternal(newState)).mediaItem;
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
@@ -3159,23 +3157,59 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   private static Tracks getCurrentTracksInternal(State state) {
     return state.playlist.isEmpty()
         ? Tracks.EMPTY
-        : state.playlist.get(state.currentMediaItemIndex).tracks;
+        : state.playlist.get(getCurrentMediaItemIndexInternal(state)).tracks;
   }
 
   private static MediaMetadata getMediaMetadataInternal(State state) {
     return state.playlist.isEmpty()
         ? MediaMetadata.EMPTY
-        : state.playlist.get(state.currentMediaItemIndex).combinedMediaMetadata;
+        : state.playlist.get(getCurrentMediaItemIndexInternal(state)).combinedMediaMetadata;
   }
 
-  private static int getCurrentPeriodIndexInternal(State state, Timeline.Window window) {
-    if (state.currentPeriodIndex != C.INDEX_UNSET) {
-      return state.currentPeriodIndex;
-    }
-    if (state.timeline.isEmpty()) {
+  private static int getCurrentMediaItemIndexInternal(State state) {
+    if (state.currentMediaItemIndex != C.INDEX_UNSET) {
       return state.currentMediaItemIndex;
     }
-    return state.timeline.getWindow(state.currentMediaItemIndex, window).firstPeriodIndex;
+    return 0; // TODO: Use shuffle order to get first item if playlist is not empty.
+  }
+
+  private static long getContentPositionMsInternal(State state) {
+    return getPositionOrDefaultInMediaItem(state.contentPositionMsSupplier.get(), state);
+  }
+
+  private static long getContentBufferedPositionMsInternal(State state) {
+    return getPositionOrDefaultInMediaItem(state.contentBufferedPositionMsSupplier.get(), state);
+  }
+
+  private static long getPositionOrDefaultInMediaItem(long positionMs, State state) {
+    if (positionMs != C.TIME_UNSET) {
+      return positionMs;
+    }
+    if (state.playlist.isEmpty()) {
+      return 0;
+    }
+    return usToMs(state.playlist.get(getCurrentMediaItemIndexInternal(state)).defaultPositionUs);
+  }
+
+  private static int getCurrentPeriodIndexInternal(
+      State state, Timeline.Window window, Timeline.Period period) {
+    int currentMediaItemIndex = getCurrentMediaItemIndexInternal(state);
+    if (state.timeline.isEmpty()) {
+      return currentMediaItemIndex;
+    }
+    return getPeriodIndexFromWindowPosition(
+        state.timeline, currentMediaItemIndex, getContentPositionMsInternal(state), window, period);
+  }
+
+  private static int getPeriodIndexFromWindowPosition(
+      Timeline timeline,
+      int windowIndex,
+      long windowPositionMs,
+      Timeline.Window window,
+      Timeline.Period period) {
+    Object periodUid =
+        timeline.getPeriodPositionUs(window, period, windowIndex, msToUs(windowPositionMs)).first;
+    return timeline.getIndexOfPeriod(periodUid);
   }
 
   private static @Player.TimelineChangeReason int getTimelineChangeReason(
@@ -3206,9 +3240,10 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return Player.DISCONTINUITY_REASON_REMOVE;
     }
     Object previousPeriodUid =
-        previousState.timeline.getUidOfPeriod(getCurrentPeriodIndexInternal(previousState, window));
+        previousState.timeline.getUidOfPeriod(
+            getCurrentPeriodIndexInternal(previousState, window, period));
     Object newPeriodUid =
-        newState.timeline.getUidOfPeriod(getCurrentPeriodIndexInternal(newState, window));
+        newState.timeline.getUidOfPeriod(getCurrentPeriodIndexInternal(newState, window, period));
     if (!newPeriodUid.equals(previousPeriodUid)
         || previousState.currentAdGroupIndex != newState.currentAdGroupIndex
         || previousState.currentAdIndexInAdGroup != newState.currentAdIndexInAdGroup) {
@@ -3244,7 +3279,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       State state, Object currentPeriodUid, Timeline.Period period) {
     return state.currentAdGroupIndex != C.INDEX_UNSET
         ? state.adPositionMsSupplier.get()
-        : state.contentPositionMsSupplier.get()
+        : getContentPositionMsInternal(state)
             - state.timeline.getPeriodByUid(currentPeriodUid, period).getPositionInWindowMs();
   }
 
@@ -3265,11 +3300,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       Timeline.Period period) {
     @Nullable Object windowUid = null;
     @Nullable Object periodUid = null;
-    int mediaItemIndex = state.currentMediaItemIndex;
+    int mediaItemIndex = getCurrentMediaItemIndexInternal(state);
     int periodIndex = C.INDEX_UNSET;
     @Nullable MediaItem mediaItem = null;
     if (!state.timeline.isEmpty()) {
-      periodIndex = getCurrentPeriodIndexInternal(state, window);
+      periodIndex = getCurrentPeriodIndexInternal(state, window, period);
       periodUid = state.timeline.getPeriod(periodIndex, period, /* setIds= */ true).uid;
       windowUid = state.timeline.getWindow(mediaItemIndex, window).uid;
       mediaItem = window.mediaItem;
@@ -3281,9 +3316,9 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       contentPositionMs =
           state.currentAdGroupIndex == C.INDEX_UNSET
               ? positionMs
-              : state.contentPositionMsSupplier.get();
+              : getContentPositionMsInternal(state);
     } else {
-      contentPositionMs = state.contentPositionMsSupplier.get();
+      contentPositionMs = getContentPositionMsInternal(state);
       positionMs =
           state.currentAdGroupIndex != C.INDEX_UNSET
               ? state.adPositionMsSupplier.get()
@@ -3314,8 +3349,10 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
     }
     Object previousWindowUid =
-        previousState.timeline.getWindow(previousState.currentMediaItemIndex, window).uid;
-    Object newWindowUid = newState.timeline.getWindow(newState.currentMediaItemIndex, window).uid;
+        previousState.timeline.getWindow(getCurrentMediaItemIndexInternal(previousState), window)
+            .uid;
+    Object newWindowUid =
+        newState.timeline.getWindow(getCurrentMediaItemIndexInternal(newState), window).uid;
     if (!previousWindowUid.equals(newWindowUid)) {
       if (positionDiscontinuityReason == DISCONTINUITY_REASON_AUTO_TRANSITION) {
         return MEDIA_ITEM_TRANSITION_REASON_AUTO;
@@ -3328,8 +3365,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     // Only mark changes within the current item as a transition if we are repeating automatically
     // or via a seek to next/previous.
     if (positionDiscontinuityReason == DISCONTINUITY_REASON_AUTO_TRANSITION
-        && previousState.contentPositionMsSupplier.get()
-            > newState.contentPositionMsSupplier.get()) {
+        && getContentPositionMsInternal(previousState) > getContentPositionMsInternal(newState)) {
       return MEDIA_ITEM_TRANSITION_REASON_REPEAT;
     }
     if (positionDiscontinuityReason == DISCONTINUITY_REASON_SEEK
