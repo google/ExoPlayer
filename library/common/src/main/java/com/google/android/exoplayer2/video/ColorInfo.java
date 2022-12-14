@@ -102,23 +102,13 @@ public final class ColorInfo implements Bundleable {
             || colorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
   }
 
-  /**
-   * The color space of the video. Valid values are {@link C#COLOR_SPACE_BT601}, {@link
-   * C#COLOR_SPACE_BT709}, {@link C#COLOR_SPACE_BT2020} or {@link Format#NO_VALUE} if unknown.
-   */
+  /** The {@link C.ColorSpace}. */
   public final @C.ColorSpace int colorSpace;
 
-  /**
-   * The color range of the video. Valid values are {@link C#COLOR_RANGE_LIMITED}, {@link
-   * C#COLOR_RANGE_FULL} or {@link Format#NO_VALUE} if unknown.
-   */
+  /** The {@link C.ColorRange}. */
   public final @C.ColorRange int colorRange;
 
-  /**
-   * The color transfer characteristics of the video. Valid values are {@link
-   * C#COLOR_TRANSFER_LINEAR}, {@link C#COLOR_TRANSFER_HLG}, {@link C#COLOR_TRANSFER_ST2084}, {@link
-   * C#COLOR_TRANSFER_SDR} or {@link Format#NO_VALUE} if unknown.
-   */
+  /** The {@link C.ColorTransfer}. */
   public final @C.ColorTransfer int colorTransfer;
 
   /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
@@ -144,6 +134,17 @@ public final class ColorInfo implements Bundleable {
     this.colorRange = colorRange;
     this.colorTransfer = colorTransfer;
     this.hdrStaticInfo = hdrStaticInfo;
+  }
+
+  /**
+   * Returns whether this instance is valid.
+   *
+   * <p>This instance is valid if no members are {@link Format#NO_VALUE}.
+   */
+  public boolean isValid() {
+    return colorSpace != Format.NO_VALUE
+        && colorRange != Format.NO_VALUE
+        && colorTransfer != Format.NO_VALUE;
   }
 
   @Override

@@ -36,8 +36,9 @@ uniform int uOutputColorTransfer;
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
 
-// Transforms a single channel from electrical to optical SDR.
-float sdrEotfSingleChannel(float electricalChannel) {
+// Transforms a single channel from optical to electrical SDR using the SMPTE 
+// 170M OETF.
+float smpte170mEotfSingleChannel(float electricalChannel) {
   // Specification:
   // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
   return electricalChannel < 0.0812
@@ -46,15 +47,15 @@ float sdrEotfSingleChannel(float electricalChannel) {
 }
 
 // Transforms electronical to optical SDR using the SMPTE 170M EOTF.
-vec3 sdrEotf(vec3 electricalColor) {
+vec3 smpte170mEotf(vec3 electricalColor) {
   return vec3(
-    sdrEotfSingleChannel(electricalColor.r),
-    sdrEotfSingleChannel(electricalColor.g),
-    sdrEotfSingleChannel(electricalColor.b));
+    smpte170mEotfSingleChannel(electricalColor.r),
+    smpte170mEotfSingleChannel(electricalColor.g),
+    smpte170mEotfSingleChannel(electricalColor.b));
 }
 
 // Transforms a single channel from optical to electrical SDR.
-float sdrOetfSingleChannel(float opticalChannel) {
+float smpte170mOetfSingleChannel(float opticalChannel) {
   // Specification:
   // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
   return opticalChannel < 0.018
@@ -63,11 +64,11 @@ float sdrOetfSingleChannel(float opticalChannel) {
 }
 
 // Transforms optical SDR colors to electrical SDR using the SMPTE 170M OETF.
-vec3 sdrOetf(vec3 opticalColor) {
+vec3 smpte170mOetf(vec3 opticalColor) {
   return vec3(
-      sdrOetfSingleChannel(opticalColor.r),
-      sdrOetfSingleChannel(opticalColor.g),
-      sdrOetfSingleChannel(opticalColor.b));
+      smpte170mOetfSingleChannel(opticalColor.r),
+      smpte170mOetfSingleChannel(opticalColor.g),
+      smpte170mOetfSingleChannel(opticalColor.b));
 }
 
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
@@ -79,7 +80,7 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
     return linearColor;
   } else if (uOutputColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
-    return sdrOetf(linearColor);
+    return smpte170mOetf(linearColor);
   } else {
     // Output red as an obviously visible error.
     return vec3(1.0, 0.0, 0.0);
@@ -88,7 +89,7 @@ highp vec3 applyOetf(highp vec3 linearColor) {
 
 void main() {
   vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
-  vec3 linearInputColor = sdrEotf(inputColor.rgb);
+  vec3 linearInputColor = smpte170mEotf(inputColor.rgb);
 
   vec4 transformedColors = uRgbMatrix * vec4(linearInputColor, 1);
 
