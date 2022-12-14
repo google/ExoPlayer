@@ -37,7 +37,8 @@ import java.nio.ByteOrder;
     long outputFrameCount = (format.sampleRate * totalDurationUs) / C.MICROS_PER_SECOND;
     remainingBytesToOutput = frameSize * outputFrameCount;
     internalBuffer =
-        ByteBuffer.allocate(DEFAULT_BUFFER_SIZE_FRAMES * frameSize).order(ByteOrder.nativeOrder());
+        ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE_FRAMES * frameSize)
+            .order(ByteOrder.nativeOrder());
     internalBuffer.flip();
   }
 
