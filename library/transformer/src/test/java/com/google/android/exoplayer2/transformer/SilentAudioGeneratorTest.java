@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +32,12 @@ public class SilentAudioGeneratorTest {
   public void numberOfBytesProduced_isCorrect() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            /* totalDurationUs= */ 3_000_000, /* sampleRate= */ 88_200, /* frameSize= */ 12);
+            new Format.Builder()
+                .setSampleRate(88_200)
+                .setPcmEncoding(C.ENCODING_PCM_16BIT)
+                .setChannelCount(6)
+                .build(),
+            /* totalDurationUs= */ 3_000_000);
     int bytesOutput = 0;
     while (!generator.isEnded()) {
       ByteBuffer output = generator.getBuffer();
@@ -47,7 +54,12 @@ public class SilentAudioGeneratorTest {
   public void lastBufferProduced_isCorrectSize() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            /* totalDurationUs= */ 1_000_000, /* sampleRate= */ 44_100, /* frameSize= */ 4);
+            new Format.Builder()
+                .setSampleRate(44_100)
+                .setPcmEncoding(C.ENCODING_PCM_16BIT)
+                .setChannelCount(2)
+                .build(),
+            /* totalDurationUs= */ 1_000_000);
 
     int currentBufferSize = 0;
     while (!generator.isEnded()) {
@@ -66,7 +78,12 @@ public class SilentAudioGeneratorTest {
   public void totalBytesLowerThanDefaultBufferSize_smallBufferProduced() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            /* totalDurationUs= */ 5_000, /* sampleRate= */ 48_000, /* frameSize= */ 4);
+            new Format.Builder()
+                .setSampleRate(48_000)
+                .setPcmEncoding(C.ENCODING_PCM_16BIT)
+                .setChannelCount(2)
+                .build(),
+            /* totalDurationUs= */ 5_000);
     // 5_000 * 48_000 * 4 / 1_000_000 = 960
     assertThat(generator.getBuffer().remaining()).isEqualTo(960);
   }
