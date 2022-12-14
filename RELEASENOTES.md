@@ -302,15 +302,15 @@ This release corresponds to the
     *   Query the platform (API 29+) or assume the audio encoding channel count
         for audio passthrough when the format audio channel count is unset,
         which occurs with HLS chunkless preparation
-        ([10204](https://github.com/google/ExoPlayer/issues/10204)).
+        ([#10204](https://github.com/google/ExoPlayer/issues/10204)).
     *   Configure `AudioTrack` with channel mask
         `AudioFormat.CHANNEL_OUT_7POINT1POINT4` if the decoder outputs 12
         channel PCM audio
-        ([#10322](#https://github.com/google/ExoPlayer/pull/10322).
+        ([#10322](#https://github.com/google/ExoPlayer/pull/10322)).
 *   DRM
     *   Ensure the DRM session is always correctly updated when seeking
         immediately after a format change
-        ([10274](https://github.com/google/ExoPlayer/issues/10274)).
+        ([#10274](https://github.com/google/ExoPlayer/issues/10274)).
 *   Text:
     *   Change `Player.getCurrentCues()` to return `CueGroup` instead of
         `List<Cue>`.
