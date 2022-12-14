@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -64,15 +65,27 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.util.DebugViewProvider;
+import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Decodes and renders video using {@link MediaCodec}.
@@ -84,6 +97,8 @@ import java.util.List;
  *   <li>Message with type {@link #MSG_SET_VIDEO_OUTPUT} to set the output. The message payload
  *       should be the target {@link Surface}, or null to clear the output. Other non-null payloads
  *       have the effect of clearing the output.
+ *   <li>Message with type {@link #MSG_SET_VIDEO_OUTPUT_RESOLUTION} to set the output resolution.
+ *       The message payload should be the output resolution in {@link Size}.
  *   <li>Message with type {@link #MSG_SET_SCALING_MODE} to set the video scaling mode. The message
  *       payload should be one of the integer scaling modes in {@link C.VideoScalingMode}. Note that
  *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
@@ -125,6 +140,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final Context context;
   private final VideoFrameReleaseHelper frameReleaseHelper;
   private final EventDispatcher eventDispatcher;
+  private final FrameProcessorManager frameProcessorManager;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsNoPostProcessWorkaround;
@@ -328,6 +344,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     this.context = context.getApplicationContext();
     frameReleaseHelper = new VideoFrameReleaseHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    frameProcessorManager = new FrameProcessorManager(this);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
@@ -612,6 +629,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     try {
       super.onReset();
     } finally {
+      if (frameProcessorManager.isEnabled()) {
+        frameProcessorManager.reset();
+      }
       if (placeholderSurface != null) {
         releasePlaceholderSurface();
       }
@@ -647,6 +667,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           }
         }
         break;
+      case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
+        Size outputResolution = (Size) checkNotNull(message);
+        if (displaySurface != null && frameProcessorManager.isEnabled()) {
+          frameProcessorManager.setOutputSurfaceInfo(displaySurface, outputResolution);
+        }
+        break;
       case MSG_SET_AUDIO_ATTRIBUTES:
       case MSG_SET_AUX_EFFECT_INFO:
       case MSG_SET_CAMERA_MOTION_LISTENER:
@@ -659,6 +685,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setOutput(@Nullable Object output) throws ExoPlaybackException {
+    // TODO(b/238302341) Handle output surface change in previewing.
     // Handle unsupported (i.e., non-Surface) outputs by clearing the display surface.
     @Nullable Surface displaySurface = output instanceof Surface ? (Surface) output : null;
 
@@ -753,8 +780,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       displaySurface = placeholderSurface;
     }
+
+    if (frameProcessorManager.isEnabled()) {
+      mediaFormat = frameProcessorManager.amendMediaFormatKeys(mediaFormat);
+    }
+
     return MediaCodecAdapter.Configuration.createForVideoDecoding(
-        codecInfo, mediaFormat, format, displaySurface, crypto);
+        codecInfo,
+        mediaFormat,
+        format,
+        frameProcessorManager.isEnabled()
+            ? frameProcessorManager.getInputSurface()
+            : displaySurface,
+        crypto);
   }
 
   @Override
@@ -878,6 +916,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * targetPlaybackSpeed);
   }
 
+  @CallSuper
+  @Override
+  protected void onReadyToInitializeCodec(Format format) throws ExoPlaybackException {
+    if (!frameProcessorManager.isEnabled()) {
+      frameProcessorManager.maybeEnable(format);
+    }
+  }
+
   @Override
   protected void onCodecInitialized(
       String name,
@@ -985,6 +1031,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decodedVideoSize =
         new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     frameReleaseHelper.onFormatChanged(format.frameRate);
+
+    if (frameProcessorManager.isEnabled()) {
+      frameProcessorManager.setInputFrameInfo(width, height, pixelWidthHeightRatio);
+    }
   }
 
   @Override
@@ -1620,6 +1670,185 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected MediaCodecDecoderException createDecoderException(
       Throwable cause, @Nullable MediaCodecInfo codecInfo) {
     return new MediaCodecVideoDecoderException(cause, codecInfo, displaySurface);
+  }
+
+  /** Manages {@link FrameProcessor} interactions. */
+  private static final class FrameProcessorManager {
+
+    private static final String FRAME_PROCESSOR_FACTORY_CLASS =
+        "com.google.android.exoplayer2.effect.GlEffectsFrameProcessor$Factory";
+
+    // TODO(b/238302341) Consider removing the reference to the containing class and make this class
+    //  non-static.
+    private final MediaCodecVideoRenderer renderer;
+    private final ArrayDeque<Long> processedFrames;
+
+    private @MonotonicNonNull Handler handler;
+    @Nullable private FrameProcessor frameProcessor;
+    @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
+    private boolean canEnableFrameProcessing;
+
+    /** Creates a new instance. */
+    public FrameProcessorManager(@UnderInitialization MediaCodecVideoRenderer renderer) {
+      this.renderer = renderer;
+      processedFrames = new ArrayDeque<>();
+      canEnableFrameProcessing = true;
+    }
+
+    /** Sets the {@linkplain Effect video effects}. */
+    public void setVideoEffects(List<Effect> videoEffects) {
+      if (this.videoEffects == null) {
+        this.videoEffects = new CopyOnWriteArrayList<>(videoEffects);
+        return;
+      }
+      this.videoEffects.clear();
+      this.videoEffects.addAll(videoEffects);
+    }
+
+    /** Returns whether frame processing is enabled. */
+    public boolean isEnabled() {
+      return frameProcessor != null;
+    }
+
+    /**
+     * Tries to enable frame processing.
+     *
+     * <p>Caller must ensure frame processing {@linkplain #isEnabled() is not enabled} before
+     * calling this method.
+     *
+     * @param inputFormat The {@link Format} that is input into the {@link FrameProcessor}.
+     * @return Whether frame processing is enabled.
+     * @throws ExoPlaybackException When enabling the {@link FrameProcessor} failed.
+     */
+    @CanIgnoreReturnValue
+    public boolean maybeEnable(Format inputFormat) throws ExoPlaybackException {
+      checkState(!isEnabled());
+      if (!canEnableFrameProcessing) {
+        return false;
+      }
+      if (videoEffects == null) {
+        canEnableFrameProcessing = false;
+        return false;
+      }
+
+      // Playback thread handler.
+      handler = Util.createHandlerForCurrentLooper();
+      try {
+        frameProcessor =
+            ((FrameProcessor.Factory)
+                    Class.forName(FRAME_PROCESSOR_FACTORY_CLASS).getConstructor().newInstance())
+                .create(
+                    renderer.context,
+                    checkNotNull(videoEffects),
+                    DebugViewProvider.NONE,
+                    inputFormat.colorInfo != null
+                        ? inputFormat.colorInfo
+                        : ColorInfo.SDR_BT709_LIMITED,
+                    /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    /* releaseFramesAutomatically= */ false,
+                    /* executor= */ handler::post,
+                    new FrameProcessor.Listener() {
+                      @Override
+                      public void onOutputSizeChanged(int width, int height) {
+                        // TODO(b/238302341) Handle output size change.
+                      }
+
+                      @Override
+                      public void onOutputFrameAvailable(long presentationTimeUs) {
+                        processedFrames.add(presentationTimeUs);
+                      }
+
+                      @Override
+                      public void onFrameProcessingError(FrameProcessingException exception) {
+                        renderer.setPendingPlaybackException(
+                            renderer.createRendererException(
+                                exception,
+                                inputFormat,
+                                // TODO(b/238302341) Add relevant error codes for frame processing.
+                                PlaybackException.ERROR_CODE_UNSPECIFIED));
+                      }
+
+                      @Override
+                      public void onFrameProcessingEnded() {
+                        throw new IllegalStateException();
+                      }
+                    });
+      } catch (Exception e) {
+        throw renderer.createRendererException(
+            e, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
+      }
+      setInputFrameInfo(inputFormat.width, inputFormat.height, inputFormat.pixelWidthHeightRatio);
+      return true;
+    }
+
+    /**
+     * Returns the {@linkplain FrameProcessor#getInputSurface input surface} of the {@link
+     * FrameProcessor}.
+     *
+     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
+     * this method.
+     */
+    public Surface getInputSurface() {
+      return checkNotNull(frameProcessor).getInputSurface();
+    }
+
+    /**
+     * Sets the output surface info.
+     *
+     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
+     * this method.
+     *
+     * @param outputSurface The {@link Surface} to which {@link FrameProcessor} outputs.
+     * @param outputResolution The {@link Size} of the output resolution.
+     */
+    public void setOutputSurfaceInfo(Surface outputSurface, Size outputResolution) {
+      checkNotNull(frameProcessor)
+          .setOutputSurfaceInfo(
+              new SurfaceInfo(
+                  outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
+    }
+
+    /**
+     * Sets the input surface info.
+     *
+     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
+     * this method.
+     */
+    public void setInputFrameInfo(int width, int height, float pixelWidthHeightRatio) {
+      checkNotNull(frameProcessor)
+          .setInputFrameInfo(
+              new FrameInfo(
+                  width, height, pixelWidthHeightRatio, renderer.getOutputStreamOffsetUs()));
+    }
+
+    /** Sets the necessary {@link MediaFormat} keys for frame processing. */
+    @SuppressWarnings("InlinedApi")
+    public MediaFormat amendMediaFormatKeys(MediaFormat mediaFormat) {
+      if (Util.SDK_INT >= 29
+          && renderer.context.getApplicationContext().getApplicationInfo().targetSdkVersion >= 29) {
+        mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
+      }
+      return mediaFormat;
+    }
+
+    /**
+     * Releases the resources.
+     *
+     * <p>Caller must ensure frame processing {@linkplain #isEnabled() is not enabled} before
+     * calling this method.
+     */
+    public void reset() {
+      checkNotNull(frameProcessor).release();
+      frameProcessor = null;
+      if (handler != null) {
+        handler.removeCallbacksAndMessages(/* token= */ null);
+      }
+      if (videoEffects != null) {
+        videoEffects.clear();
+      }
+      processedFrames.clear();
+      canEnableFrameProcessing = true;
+    }
   }
 
   /**
