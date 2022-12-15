@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.util.Assertions;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,18 +29,31 @@ public class TransformationTestResult {
 
   /** A builder for {@link TransformationTestResult}. */
   public static class Builder {
-    private final TransformationResult transformationResult;
-
+    @Nullable private TransformationResult transformationResult;
     @Nullable private String filePath;
-    @Nullable private Exception analysisException;
     private long elapsedTimeMs;
     private double ssim;
+    @Nullable private Exception testException;
+    @Nullable private Exception analysisException;
 
     /** Creates a new {@link Builder}. */
-    public Builder(TransformationResult transformationResult) {
-      this.transformationResult = transformationResult;
+    public Builder() {
       this.elapsedTimeMs = C.TIME_UNSET;
       this.ssim = SSIM_UNSET;
+    }
+
+    /**
+     * Sets the {@link TransformationResult} of the transformation.
+     *
+     * <p>This field must be set.
+     *
+     * @param transformationResult The {@link TransformationResult}.
+     * @return This {@link Builder}
+     */
+    @CanIgnoreReturnValue
+    public Builder setTransformationResult(TransformationResult transformationResult) {
+      this.transformationResult = transformationResult;
+      return this;
     }
 
     /**
@@ -86,6 +100,20 @@ public class TransformationTestResult {
     }
 
     /**
+     * Sets an {@link Exception} that occurred during the test.
+     *
+     * <p>{@code null} represents an unset or unknown value.
+     *
+     * @param testException The {@link Exception} thrown during the test.
+     * @return This {@link Builder}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setTestException(@Nullable Exception testException) {
+      this.testException = testException;
+      return this;
+    }
+
+    /**
      * Sets an {@link Exception} that occurred during post-transformation analysis.
      *
      * <p>{@code null} represents an unset or unknown value.
@@ -102,7 +130,12 @@ public class TransformationTestResult {
     /** Builds the {@link TransformationTestResult} instance. */
     public TransformationTestResult build() {
       return new TransformationTestResult(
-          transformationResult, filePath, elapsedTimeMs, ssim, analysisException);
+          Assertions.checkNotNull(transformationResult),
+          filePath,
+          elapsedTimeMs,
+          ssim,
+          testException,
+          analysisException);
     }
   }
 
@@ -120,6 +153,12 @@ public class TransformationTestResult {
   public final long elapsedTimeMs;
   /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
   public final double ssim;
+
+  /**
+   * The {@link Exception} that was thrown during the test, or {@code null} if nothing was thrown.
+   */
+  @Nullable public final Exception testException;
+
   /**
    * The {@link Exception} that was thrown during post-transformation analysis, or {@code null} if
    * nothing was thrown.
@@ -165,6 +204,9 @@ public class TransformationTestResult {
     if (ssim != TransformationTestResult.SSIM_UNSET) {
       jsonObject.put("ssim", ssim);
     }
+    if (testException != null) {
+      jsonObject.put("testException", AndroidTestUtil.exceptionAsJsonObject(testException));
+    }
     if (analysisException != null) {
       jsonObject.put("analysisException", AndroidTestUtil.exceptionAsJsonObject(analysisException));
     }
@@ -176,11 +218,13 @@ public class TransformationTestResult {
       @Nullable String filePath,
       long elapsedTimeMs,
       double ssim,
+      @Nullable Exception testException,
       @Nullable Exception analysisException) {
     this.transformationResult = transformationResult;
     this.filePath = filePath;
     this.elapsedTimeMs = elapsedTimeMs;
     this.ssim = ssim;
+    this.testException = testException;
     this.analysisException = analysisException;
     this.throughputFps =
         elapsedTimeMs != C.TIME_UNSET && transformationResult.videoFrameCount > 0

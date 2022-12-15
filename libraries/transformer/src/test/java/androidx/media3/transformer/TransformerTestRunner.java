@@ -85,7 +85,9 @@ public final class TransformerTestRunner {
 
           @Override
           public void onTransformationError(
-              MediaItem inputMediaItem, TransformationException exception) {
+              MediaItem inputMediaItem,
+              TransformationResult result,
+              TransformationException exception) {
             transformationException.set(exception);
           }
         });

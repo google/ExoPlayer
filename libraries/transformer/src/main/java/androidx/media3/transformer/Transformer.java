@@ -535,7 +535,8 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Use {@link #onTransformationError(MediaItem, TransformationException)}.
+     * @deprecated Use {@link #onTransformationError(MediaItem, TransformationResult,
+     *     TransformationException)}.
      */
     @Deprecated
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {
@@ -543,13 +544,24 @@ public final class Transformer {
     }
 
     /**
+     * @deprecated Use {@link #onTransformationError(MediaItem, TransformationResult,
+     *     TransformationException)}.
+     */
+    @Deprecated
+    default void onTransformationError(
+        MediaItem inputMediaItem, TransformationException exception) {
+      onTransformationError(inputMediaItem, new TransformationResult.Builder().build(), exception);
+    }
+
+    /**
      * Called if an exception occurs during the transformation.
      *
      * @param inputMediaItem The {@link MediaItem} for which the exception occurs.
+     * @param result The {@link TransformationResult} of the transformation.
      * @param exception The {@link TransformationException} describing the exception.
      */
     default void onTransformationError(
-        MediaItem inputMediaItem, TransformationException exception) {}
+        MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {}
 
     /**
      * Called when fallback to an alternative {@link TransformationRequest} is necessary to comply
@@ -880,13 +892,14 @@ public final class Transformer {
     }
 
     @Override
-    public void onTransformationError(TransformationException exception) {
+    public void onTransformationError(
+        TransformationResult result, TransformationException exception) {
       handler.post(
           () -> {
             transformerInternal = null;
             listeners.queueEvent(
                 /* eventFlag= */ C.INDEX_UNSET,
-                listener -> listener.onTransformationError(mediaItem, exception));
+                listener -> listener.onTransformationError(mediaItem, result, exception));
             listeners.flushEvents();
           });
     }

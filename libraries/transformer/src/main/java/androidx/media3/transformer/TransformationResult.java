@@ -38,6 +38,7 @@ public final class TransformationResult {
     @Nullable private String audioEncoderName;
     @Nullable private String videoDecoderName;
     @Nullable private String videoEncoderName;
+    @Nullable private TransformationException transformationException;
 
     public Builder() {
       durationMs = C.TIME_UNSET;
@@ -53,7 +54,7 @@ public final class TransformationResult {
      */
     @CanIgnoreReturnValue
     public Builder setDurationMs(long durationMs) {
-      checkArgument(durationMs > 0 || durationMs == C.TIME_UNSET);
+      checkArgument(durationMs >= 0 || durationMs == C.TIME_UNSET);
       this.durationMs = durationMs;
       return this;
     }
@@ -134,6 +135,14 @@ public final class TransformationResult {
       return this;
     }
 
+    /** Sets the {@link TransformationException} that caused the transformation to fail. */
+    @CanIgnoreReturnValue
+    public Builder setTransformationException(
+        @Nullable TransformationException transformationException) {
+      this.transformationException = transformationException;
+      return this;
+    }
+
     public TransformationResult build() {
       return new TransformationResult(
           durationMs,
@@ -144,7 +153,8 @@ public final class TransformationResult {
           audioDecoderName,
           audioEncoderName,
           videoDecoderName,
-          videoEncoderName);
+          videoEncoderName,
+          transformationException);
     }
   }
 
@@ -162,7 +172,6 @@ public final class TransformationResult {
   public final int averageVideoBitrate;
   /** The number of video frames. */
   public final int videoFrameCount;
-
   /** The name of the audio decoder used, or {@code null} if none were used. */
   @Nullable public final String audioDecoderName;
   /** The name of the audio encoder used, or {@code null} if none were used. */
@@ -171,6 +180,11 @@ public final class TransformationResult {
   @Nullable public final String videoDecoderName;
   /** The name of the video encoder used, or {@code null} if none were used. */
   @Nullable public final String videoEncoderName;
+  /**
+   * The {@link TransformationException} that caused the transformation to fail, or {@code null} if
+   * the transformation was a success.
+   */
+  @Nullable public final TransformationException transformationException;
 
   private TransformationResult(
       long durationMs,
@@ -181,7 +195,8 @@ public final class TransformationResult {
       @Nullable String audioDecoderName,
       @Nullable String audioEncoderName,
       @Nullable String videoDecoderName,
-      @Nullable String videoEncoderName) {
+      @Nullable String videoEncoderName,
+      @Nullable TransformationException transformationException) {
     this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
@@ -191,6 +206,7 @@ public final class TransformationResult {
     this.audioEncoderName = audioEncoderName;
     this.videoDecoderName = videoDecoderName;
     this.videoEncoderName = videoEncoderName;
+    this.transformationException = transformationException;
   }
 
   public Builder buildUpon() {
@@ -203,7 +219,8 @@ public final class TransformationResult {
         .setAudioDecoderName(audioDecoderName)
         .setAudioEncoderName(audioEncoderName)
         .setVideoDecoderName(videoDecoderName)
-        .setVideoEncoderName(videoEncoderName);
+        .setVideoEncoderName(videoEncoderName)
+        .setTransformationException(transformationException);
   }
 
   @Override
@@ -223,7 +240,8 @@ public final class TransformationResult {
         && Objects.equals(audioDecoderName, result.audioDecoderName)
         && Objects.equals(audioEncoderName, result.audioEncoderName)
         && Objects.equals(videoDecoderName, result.videoDecoderName)
-        && Objects.equals(videoEncoderName, result.videoEncoderName);
+        && Objects.equals(videoEncoderName, result.videoEncoderName)
+        && Objects.equals(transformationException, result.transformationException);
   }
 
   @Override
@@ -237,6 +255,7 @@ public final class TransformationResult {
     result = 31 * result + Objects.hashCode(audioEncoderName);
     result = 31 * result + Objects.hashCode(videoDecoderName);
     result = 31 * result + Objects.hashCode(videoEncoderName);
+    result = 31 * result + Objects.hashCode(transformationException);
     return result;
   }
 }

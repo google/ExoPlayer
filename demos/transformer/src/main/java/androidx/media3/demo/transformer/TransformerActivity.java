@@ -311,13 +311,15 @@ public final class TransformerActivity extends AppCompatActivity {
             new Transformer.Listener() {
               @Override
               public void onTransformationCompleted(
-                  MediaItem mediaItem, TransformationResult transformationResult) {
+                  MediaItem mediaItem, TransformationResult result) {
                 TransformerActivity.this.onTransformationCompleted(filePath, mediaItem);
               }
 
               @Override
               public void onTransformationError(
-                  MediaItem mediaItem, TransformationException exception) {
+                  MediaItem mediaItem,
+                  TransformationResult result,
+                  TransformationException exception) {
                 TransformerActivity.this.onTransformationError(exception);
               }
             })

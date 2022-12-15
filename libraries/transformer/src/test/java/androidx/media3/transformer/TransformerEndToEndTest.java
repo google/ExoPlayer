@@ -337,9 +337,9 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    verify(mockListener1).onTransformationError(mediaItem, exception);
-    verify(mockListener2).onTransformationError(mediaItem, exception);
-    verify(mockListener3).onTransformationError(mediaItem, exception);
+    verify(mockListener1).onTransformationError(eq(mediaItem), any(), eq(exception));
+    verify(mockListener2).onTransformationError(eq(mediaItem), any(), eq(exception));
+    verify(mockListener3).onTransformationError(eq(mediaItem), any(), eq(exception));
   }
 
   @Test
