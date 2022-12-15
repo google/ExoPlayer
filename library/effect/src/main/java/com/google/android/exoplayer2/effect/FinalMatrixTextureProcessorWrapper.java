@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -84,7 +85,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private MatrixTextureProcessor matrixTextureProcessor;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private InputListener inputListener;
-  private @MonotonicNonNull Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation;
+  private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
 
   private volatile boolean outputSizeOrRotationChanged;
@@ -313,7 +314,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         || this.outputSizeBeforeSurfaceTransformation == null) {
       this.inputWidth = inputWidth;
       this.inputHeight = inputHeight;
-      Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation =
+      Size outputSizeBeforeSurfaceTransformation =
           MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
       if (!Util.areEqual(
           this.outputSizeBeforeSurfaceTransformation, outputSizeBeforeSurfaceTransformation)) {
@@ -321,8 +322,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         frameProcessorListenerExecutor.execute(
             () ->
                 frameProcessorListener.onOutputSizeChanged(
-                    outputSizeBeforeSurfaceTransformation.first,
-                    outputSizeBeforeSurfaceTransformation.second));
+                    outputSizeBeforeSurfaceTransformation.getWidth(),
+                    outputSizeBeforeSurfaceTransformation.getHeight()));
       }
     }
 
@@ -406,9 +407,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
-    checkState(outputSize.first == outputSurfaceInfo.width);
-    checkState(outputSize.second == outputSurfaceInfo.height);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    checkState(outputSize.getWidth() == outputSurfaceInfo.width);
+    checkState(outputSize.getHeight() == outputSurfaceInfo.height);
     return matrixTextureProcessor;
   }
 

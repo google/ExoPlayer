@@ -33,7 +33,6 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.DecodeOneFrameUtil;
@@ -42,6 +41,7 @@ import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.FrameProcessor;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
@@ -547,14 +547,14 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     @Override
-    public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+    public Size configure(int inputWidth, int inputHeight) {
       adjustedTransformationMatrix = new Matrix();
       adjustedTransformationMatrix.postRotate(degrees);
       float inputAspectRatio = (float) inputWidth / inputHeight;
       adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
       adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
 
-      return Pair.create(inputWidth, inputHeight);
+      return new Size(inputWidth, inputHeight);
     }
 
     @Override

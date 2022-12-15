@@ -33,10 +33,10 @@ import android.graphics.Color;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Size;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -110,12 +110,12 @@ public final class RgbAdjustmentPixelTest {
     String testId = "drawFrame_identityMatrix";
     RgbMatrix identityMatrix = new RgbAdjustment.Builder().build();
     matrixTextureProcessor = identityMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -129,13 +129,14 @@ public final class RgbAdjustmentPixelTest {
     RgbMatrix removeColorMatrix =
         new RgbAdjustment.Builder().setRedScale(0).setGreenScale(0).setBlueScale(0).build();
     matrixTextureProcessor = removeColorMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
-        createArgb8888BitmapWithSolidColor(outputSize.first, outputSize.second, Color.BLACK);
+        createArgb8888BitmapWithSolidColor(
+            outputSize.getWidth(), outputSize.getHeight(), Color.BLACK);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -148,12 +149,12 @@ public final class RgbAdjustmentPixelTest {
     String testId = "drawFrame_redOnlyFilter";
     RgbMatrix redOnlyMatrix = new RgbAdjustment.Builder().setBlueScale(0).setGreenScale(0).build();
     matrixTextureProcessor = redOnlyMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ONLY_RED_CHANNEL_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -166,12 +167,12 @@ public final class RgbAdjustmentPixelTest {
     String testId = "drawFrame_increaseRedChannel";
     RgbMatrix increaseRedMatrix = new RgbAdjustment.Builder().setRedScale(5).build();
     matrixTextureProcessor = increaseRedMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -186,12 +187,12 @@ public final class RgbAdjustmentPixelTest {
         new RgbAdjustment.Builder().setRedScale(5).setGreenScale(5).setBlueScale(5).build();
     matrixTextureProcessor =
         increaseBrightnessMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -211,13 +212,14 @@ public final class RgbAdjustmentPixelTest {
             /* matrixTransformations= */ ImmutableList.of(),
             /* rgbMatrices= */ ImmutableList.of(noRed, noGreen, noBlue),
             /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
-        createArgb8888BitmapWithSolidColor(outputSize.first, outputSize.second, Color.BLACK);
+        createArgb8888BitmapWithSolidColor(
+            outputSize.getWidth(), outputSize.getHeight(), Color.BLACK);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -236,12 +238,12 @@ public final class RgbAdjustmentPixelTest {
             /* matrixTransformations= */ ImmutableList.of(),
             /* rgbMatrices= */ ImmutableList.of(noGreen, noBlue),
             /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ONLY_RED_CHANNEL_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -262,12 +264,12 @@ public final class RgbAdjustmentPixelTest {
             /* matrixTransformations= */ ImmutableList.of(),
             /* rgbMatrices= */ ImmutableList.of(scaleRedMatrix, scaleRedByInverseMatrix),
             /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =

@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import android.util.Pair;
 import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.Size;
 
 /** Creates overlays from OpenGL textures. */
 public abstract class TextureOverlay {
@@ -37,7 +37,7 @@ public abstract class TextureOverlay {
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
-  public abstract Pair<Integer, Integer> getTextureSize(long presentationTimeUs);
+  public abstract Size getTextureSize(long presentationTimeUs);
 
   /**
    * Returns the {@link OverlaySettings} controlling how the overlay is displayed at the specified

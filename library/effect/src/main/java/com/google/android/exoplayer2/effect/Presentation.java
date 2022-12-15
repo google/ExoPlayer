@@ -21,9 +21,9 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Matrix;
-import android.util.Pair;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Size;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -179,7 +179,7 @@ public final class Presentation implements MatrixTransformation {
   }
 
   @Override
-  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+  public Size configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
@@ -204,7 +204,7 @@ public final class Presentation implements MatrixTransformation {
       }
       outputHeight = requestedHeightPixels;
     }
-    return Pair.create(Math.round(outputWidth), Math.round(outputHeight));
+    return new Size(Math.round(outputWidth), Math.round(outputHeight));
   }
 
   @Override

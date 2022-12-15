@@ -21,12 +21,12 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -354,7 +354,7 @@ import java.util.List;
   }
 
   @Override
-  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+  public Size configure(int inputWidth, int inputHeight) {
     return MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
   }
 

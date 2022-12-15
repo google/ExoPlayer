@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.util.Size;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,10 +38,10 @@ public final class ScaleToFitTransformationTest {
     ScaleToFitTransformation scaleToFitTransformation =
         new ScaleToFitTransformation.Builder().build();
 
-    Pair<Integer, Integer> outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(inputWidth);
-    assertThat(outputSize.second).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -53,10 +53,10 @@ public final class ScaleToFitTransformationTest {
             .setScale(/* scaleX= */ .5f, /* scaleY= */ 1f)
             .build();
 
-    Pair<Integer, Integer> outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(Math.round(inputWidth * .5f));
-    assertThat(outputSize.second).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * .5f));
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -66,10 +66,10 @@ public final class ScaleToFitTransformationTest {
     ScaleToFitTransformation scaleToFitTransformation =
         new ScaleToFitTransformation.Builder().setScale(/* scaleX= */ 2f, /* scaleY= */ 1f).build();
 
-    Pair<Integer, Integer> outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(inputWidth * 2);
-    assertThat(outputSize.second).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth * 2);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -79,10 +79,10 @@ public final class ScaleToFitTransformationTest {
     ScaleToFitTransformation scaleToFitTransformation =
         new ScaleToFitTransformation.Builder().setScale(/* scaleX= */ 1f, /* scaleY= */ 2f).build();
 
-    Pair<Integer, Integer> outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(inputWidth);
-    assertThat(outputSize.second).isEqualTo(inputHeight * 2);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight * 2);
   }
 
   @Test
@@ -92,10 +92,10 @@ public final class ScaleToFitTransformationTest {
     ScaleToFitTransformation scaleToFitTransformation =
         new ScaleToFitTransformation.Builder().setRotationDegrees(90).build();
 
-    Pair<Integer, Integer> outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(inputHeight);
-    assertThat(outputSize.second).isEqualTo(inputWidth);
+    assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
+    assertThat(outputSize.getHeight()).isEqualTo(inputWidth);
   }
 
   @Test
@@ -106,9 +106,9 @@ public final class ScaleToFitTransformationTest {
         new ScaleToFitTransformation.Builder().setRotationDegrees(45).build();
     long expectedOutputWidthHeight = 247;
 
-    Pair<Integer, Integer> outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(expectedOutputWidthHeight);
-    assertThat(outputSize.second).isEqualTo(expectedOutputWidthHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);
+    assertThat(outputSize.getHeight()).isEqualTo(expectedOutputWidthHeight);
   }
 }
