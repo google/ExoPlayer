@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -57,9 +56,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public interface Listener {
 
-    void onTransformationCompleted(TransformationResult transformationResult);
+    void onTransformationCompleted(TransformationResult result);
 
-    void onTransformationError(TransformationException exception);
+    void onTransformationError(TransformationResult result, TransformationException exception);
   }
 
   /**
@@ -300,7 +299,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
-    @Nullable TransformationResult transformationResult = null;
+    TransformationResult.Builder transformationResultBuilder =
+        new TransformationResult.Builder()
+            .setAudioDecoderName(decoderFactory.getAudioDecoderName())
+            .setVideoDecoderName(decoderFactory.getVideoDecoderName())
+            .setAudioEncoderName(encoderFactory.getAudioEncoderName())
+            .setVideoEncoderName(encoderFactory.getVideoEncoderName());
+
     boolean forCancellation = endReason == END_REASON_CANCELLED;
     @Nullable TransformationException releaseTransformationException = null;
     if (!released) {
@@ -315,26 +320,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           assetLoader.release();
         } finally {
           try {
-            for (int i = 0; i < samplePipelines.size(); i++) {
-              samplePipelines.get(i).release();
+            if (endReason == END_REASON_COMPLETED) {
+              transformationResultBuilder
+                  .setDurationMs(muxerWrapper.getDurationMs())
+                  .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
+                  .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
+                  .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
+                  .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO));
             }
 
-            // TODO(b/250564186): Create TransformationResult on END_REASON_ERROR as well.
-            if (endReason == END_REASON_COMPLETED) {
-              transformationResult =
-                  new TransformationResult.Builder()
-                      .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
-                      .setAverageAudioBitrate(
-                          muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
-                      .setAverageVideoBitrate(
-                          muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
-                      .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
-                      .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
-                      .setAudioDecoderName(decoderFactory.getAudioDecoderName())
-                      .setAudioEncoderName(encoderFactory.getAudioEncoderName())
-                      .setVideoDecoderName(decoderFactory.getVideoDecoderName())
-                      .setVideoEncoderName(encoderFactory.getVideoEncoderName())
-                      .build();
+            for (int i = 0; i < samplePipelines.size(); i++) {
+              samplePipelines.get(i).release();
             }
           } finally {
             muxerWrapper.release(forCancellation);
@@ -369,9 +365,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (exception != null) {
-      listener.onTransformationError(exception);
+      listener.onTransformationError(
+          transformationResultBuilder.setTransformationException(exception).build(), exception);
     } else {
-      listener.onTransformationCompleted(checkNotNull(transformationResult));
+      listener.onTransformationCompleted(transformationResultBuilder.build());
     }
   }
 

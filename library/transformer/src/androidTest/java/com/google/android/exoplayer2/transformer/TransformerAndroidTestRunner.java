@@ -39,7 +39,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
@@ -153,8 +152,6 @@ public class TransformerAndroidTestRunner {
   }
 
   private final Context context;
-  private final CapturingDecoderFactory decoderFactory;
-  private final CapturingEncoderFactory encoderFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
   private final boolean requestCalculateSsim;
@@ -169,14 +166,7 @@ public class TransformerAndroidTestRunner {
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
-    this.decoderFactory = new CapturingDecoderFactory(transformer.decoderFactory);
-    this.encoderFactory = new CapturingEncoderFactory(transformer.encoderFactory);
-    this.transformer =
-        transformer
-            .buildUpon()
-            .setDecoderFactory(decoderFactory)
-            .setEncoderFactory(encoderFactory)
-            .build();
+    this.transformer = transformer;
     this.timeoutSeconds = timeoutSeconds;
     this.requestCalculateSsim = requestCalculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
@@ -184,7 +174,7 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Transforms the {@code uriString}, saving a summary of the transformation to the application
+   * Transforms the {@link MediaItem}, saving a summary of the transformation to the application
    * cache.
    *
    * @param testId A unique identifier for the transformer test run.
@@ -200,35 +190,35 @@ public class TransformerAndroidTestRunner {
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, mediaItem);
       resultJson.put("transformationResult", transformationTestResult.asJsonObject());
+      if (transformationTestResult.testException != null) {
+        throw transformationTestResult.testException;
+      }
       if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
         throw transformationTestResult.analysisException;
       }
       return transformationTestResult;
-    } catch (Exception e) {
-      resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
+    } catch (UnsupportedOperationException | InterruptedException | IOException e) {
+      resultJson.put(
+          "transformationResult",
+          new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
       throw e;
     } finally {
-      resultJson.put("codecDetails", getCodecNamesAsJsonObject());
       AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
 
   /**
-   * Transforms the {@code uriString}.
+   * Transforms the {@link MediaItem}.
    *
    * @param testId An identifier for the test.
    * @param mediaItem The {@link MediaItem} to transform.
    * @return The {@link TransformationTestResult}.
-   * @throws IOException If an error occurs opening the output file for writing
-   * @throws TimeoutException If the transformation takes longer than the {@link #timeoutSeconds}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
-   * @throws TransformationException If an exception occurs as a result of the transformation.
-   * @throws IllegalArgumentException If the path is invalid.
-   * @throws IllegalStateException If an unexpected exception occurs when starting a transformation.
+   * @throws IOException If an error occurs opening the output file for writing.
    */
   private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
-      throws InterruptedException, IOException, TimeoutException, TransformationException {
+      throws InterruptedException, IOException {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
         && requestCalculateSsim) {
       throw new UnsupportedOperationException(
@@ -266,8 +256,11 @@ public class TransformerAndroidTestRunner {
 
                   @Override
                   public void onTransformationError(
-                      MediaItem inputMediaItem, TransformationException exception) {
+                      MediaItem inputMediaItem,
+                      TransformationResult result,
+                      TransformationException exception) {
                     transformationExceptionReference.set(exception);
+                    transformationResultReference.set(result);
                     countDownLatch.countDown();
                   }
 
@@ -302,45 +295,54 @@ public class TransformerAndroidTestRunner {
               }
             });
 
-    if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
-      throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
-    }
-    long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
+    // Block here until timeout reached or latch is counted down.
+    boolean timeoutReached = !countDownLatch.await(timeoutSeconds, SECONDS);
+
+    TransformationTestResult.Builder testResultBuilder =
+        new TransformationTestResult.Builder()
+            .setElapsedTimeMs(SystemClock.DEFAULT.elapsedRealtime() - startTimeMs);
 
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
-    if (unexpectedException != null) {
-      throw new IllegalStateException(
-          "Unexpected exception starting the transformer.", unexpectedException);
-    }
-
     @Nullable
     TransformationException transformationException = transformationExceptionReference.get();
-    if (transformationException != null) {
-      throw transformationException;
+
+    @Nullable Exception testException = null;
+    if (timeoutReached) {
+      testException =
+          new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
+    } else if (unexpectedException != null) {
+      testException =
+          new IllegalStateException(
+              "Unexpected exception starting the transformer.", unexpectedException);
+    } else if (transformationException != null) {
+      testException = transformationException;
     }
 
-    // If both exceptions are null, the Transformation must have succeeded, and a
-    // transformationResult will be available.
-    TransformationResult transformationResult =
-        checkNotNull(transformationResultReference.get())
-            .buildUpon()
-            .setFileSizeBytes(outputVideoFile.length())
-            .build();
+    if (testException != null) {
+      return testResultBuilder
+          .setTransformationResult(checkNotNull(transformationResultReference.get()))
+          .setTestException(testException)
+          .build();
+    }
 
-    TransformationTestResult.Builder resultBuilder =
-        new TransformationTestResult.Builder(transformationResult)
-            .setFilePath(outputVideoFile.getPath())
-            .setElapsedTimeMs(elapsedTimeMs);
+    // No exceptions raised, transformation has succeeded.
+    testResultBuilder
+        .setTransformationResult(
+            checkNotNull(transformationResultReference.get())
+                .buildUpon()
+                .setFileSizeBytes(outputVideoFile.length())
+                .build())
+        .setFilePath(outputVideoFile.getPath());
 
     if (!requestCalculateSsim) {
-      return resultBuilder.build();
+      return testResultBuilder.build();
     }
     if (fallbackResolutionApplied.get()) {
       Log.i(
           TAG,
           testId
               + ": Skipping SSIM calculation because an encoder resolution fallback was applied.");
-      return resultBuilder.build();
+      return testResultBuilder.build();
     }
     try {
       double ssim =
@@ -348,7 +350,7 @@ public class TransformerAndroidTestRunner {
               context,
               /* referenceVideoPath= */ checkNotNull(mediaItem.localConfiguration).uri.toString(),
               /* distortedVideoPath= */ outputVideoFile.getPath());
-      resultBuilder.setSsim(ssim);
+      testResultBuilder.setSsim(ssim);
     } catch (InterruptedException interruptedException) {
       // InterruptedException is a special unexpected case because it is not related to Ssim
       // calculation, so it should be thrown, rather than processed as part of the
@@ -366,11 +368,11 @@ public class TransformerAndroidTestRunner {
                 ? (Exception) analysisFailure
                 : new IllegalStateException(analysisFailure);
 
-        resultBuilder.setAnalysisException(analysisException);
+        testResultBuilder.setAnalysisException(analysisException);
         Log.e(TAG, testId + ": SSIM calculation failed.", analysisException);
       }
     }
-    return resultBuilder.build();
+    return testResultBuilder.build();
   }
 
   /** Returns whether the context is connected to the network. */
@@ -399,22 +401,5 @@ public class TransformerAndroidTestRunner {
       }
     }
     return false;
-  }
-
-  private JSONObject getCodecNamesAsJsonObject() throws JSONException {
-    JSONObject detailsJson = new JSONObject();
-    if (decoderFactory.getAudioDecoderName() != null) {
-      detailsJson.put("audioDecoderName", decoderFactory.getAudioDecoderName());
-    }
-    if (decoderFactory.getVideoDecoderName() != null) {
-      detailsJson.put("videoDecoderName", decoderFactory.getVideoDecoderName());
-    }
-    if (encoderFactory.getAudioEncoderName() != null) {
-      detailsJson.put("audioEncoderName", encoderFactory.getAudioEncoderName());
-    }
-    if (encoderFactory.getVideoEncoderName() != null) {
-      detailsJson.put("videoEncoderName", encoderFactory.getVideoEncoderName());
-    }
-    return detailsJson;
   }
 }
