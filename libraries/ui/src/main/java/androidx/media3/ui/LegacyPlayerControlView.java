@@ -28,6 +28,7 @@ import static androidx.media3.common.Player.EVENT_POSITION_DISCONTINUITY;
 import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
 import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
+import static androidx.media3.common.util.Util.getDrawable;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -498,11 +499,16 @@ public class LegacyPlayerControlView extends FrameLayout {
     buttonAlphaDisabled =
         (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_disabled) / 100;
 
-    repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_repeat_off);
-    repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_repeat_one);
-    repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_repeat_all);
-    shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_shuffle_on);
-    shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_shuffle_off);
+    repeatOffButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_legacy_controls_repeat_off);
+    repeatOneButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_legacy_controls_repeat_one);
+    repeatAllButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_legacy_controls_repeat_all);
+    shuffleOnButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_legacy_controls_shuffle_on);
+    shuffleOffButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_legacy_controls_shuffle_off);
     repeatOffButtonContentDescription =
         resources.getString(R.string.exo_controls_repeat_off_description);
     repeatOneButtonContentDescription =
