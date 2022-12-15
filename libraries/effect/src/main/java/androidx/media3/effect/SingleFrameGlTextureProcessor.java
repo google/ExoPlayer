@@ -17,10 +17,10 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkState;
 
-import android.util.Pair;
 import androidx.annotation.CallSuper;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Executor;
@@ -75,7 +75,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
    * @param inputHeight The input height, in pixels.
    * @return The output width and height of frames processed through {@link #drawFrame(int, long)}.
    */
-  public abstract Pair<Integer, Integer> configure(int inputWidth, int inputHeight);
+  public abstract Size configure(int inputWidth, int inputHeight);
 
   /**
    * Draws one frame.
@@ -147,17 +147,17 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   private void configureOutputTexture(int inputWidth, int inputHeight) throws GlUtil.GlException {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
-    Pair<Integer, Integer> outputSize = configure(inputWidth, inputHeight);
+    Size outputSize = configure(inputWidth, inputHeight);
     if (outputTexture == null
-        || outputSize.first != outputTexture.width
-        || outputSize.second != outputTexture.height) {
+        || outputSize.getWidth() != outputTexture.width
+        || outputSize.getHeight() != outputTexture.height) {
       if (outputTexture != null) {
         GlUtil.deleteTexture(outputTexture.texId);
       }
-      int outputTexId = GlUtil.createTexture(outputSize.first, outputSize.second, useHdr);
+      int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight(), useHdr);
       int outputFboId = GlUtil.createFboForTexture(outputTexId);
       outputTexture =
-          new TextureInfo(outputTexId, outputFboId, outputSize.first, outputSize.second);
+          new TextureInfo(outputTexId, outputFboId, outputSize.getWidth(), outputSize.getHeight());
     }
   }
 

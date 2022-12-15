@@ -33,7 +33,6 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
-import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
@@ -42,6 +41,7 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
+import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.DecodeOneFrameUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -547,14 +547,14 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     @Override
-    public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+    public Size configure(int inputWidth, int inputHeight) {
       adjustedTransformationMatrix = new Matrix();
       adjustedTransformationMatrix.postRotate(degrees);
       float inputAspectRatio = (float) inputWidth / inputHeight;
       adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
       adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
 
-      return Pair.create(inputWidth, inputHeight);
+      return new Size(inputWidth, inputHeight);
     }
 
     @Override

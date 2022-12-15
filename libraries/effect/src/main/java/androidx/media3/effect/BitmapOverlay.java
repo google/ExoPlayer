@@ -21,9 +21,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
@@ -55,8 +55,8 @@ public abstract class BitmapOverlay extends TextureOverlay {
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
   @Override
-  public Pair<Integer, Integer> getTextureSize(long presentationTimeUs) {
-    return Pair.create(checkNotNull(lastBitmap).getWidth(), checkNotNull(lastBitmap).getHeight());
+  public Size getTextureSize(long presentationTimeUs) {
+    return new Size(checkNotNull(lastBitmap).getWidth(), checkNotNull(lastBitmap).getHeight());
   }
 
   @Override

@@ -35,9 +35,9 @@ import android.opengl.Matrix;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -107,13 +107,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(/* textureOverlays= */ ImmutableList.of())
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -129,13 +129,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(scaledBitmapOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_DEFAULT);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -155,13 +155,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(staticBitmapOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_SCALED);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -179,13 +179,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(translucentBitmapOverlay))
             .toGlTextureProcessor(context, false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_TRANSLUCENT);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -208,13 +208,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(staticTextOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -235,13 +235,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(staticTextOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_DEFAULT);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -267,13 +267,13 @@ public class OverlayTextureProcessorPixelTest {
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(staticTextOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_TRANSLATE);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =

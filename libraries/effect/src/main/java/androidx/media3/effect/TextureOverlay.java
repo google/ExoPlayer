@@ -15,8 +15,8 @@
  */
 package androidx.media3.effect;
 
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 
 /** Creates overlays from OpenGL textures. */
@@ -39,7 +39,7 @@ public abstract class TextureOverlay {
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
-  public abstract Pair<Integer, Integer> getTextureSize(long presentationTimeUs);
+  public abstract Size getTextureSize(long presentationTimeUs);
 
   /**
    * Returns the {@link OverlaySettings} controlling how the overlay is displayed at the specified

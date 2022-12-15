@@ -18,10 +18,10 @@ package androidx.media3.effect;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import java.io.IOException;
 
 /** Applies a {@link Contrast} to each frame in the fragment shader. */
@@ -65,8 +65,8 @@ import java.io.IOException;
   }
 
   @Override
-  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
-    return Pair.create(inputWidth, inputHeight);
+  public Size configure(int inputWidth, int inputHeight) {
+    return new Size(inputWidth, inputHeight);
   }
 
   @Override

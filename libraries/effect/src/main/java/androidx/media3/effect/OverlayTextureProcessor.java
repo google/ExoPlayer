@@ -20,10 +20,10 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 
@@ -76,10 +76,10 @@ import java.io.IOException;
   }
 
   @Override
-  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+  public Size configure(int inputWidth, int inputHeight) {
     videoWidth = inputWidth;
     videoHeight = inputHeight;
-    return Pair.create(inputWidth, inputHeight);
+    return new Size(inputWidth, inputHeight);
   }
 
   @Override
@@ -90,13 +90,13 @@ import java.io.IOException;
         TextureOverlay overlay = overlays.get(0);
         glProgram.setSamplerTexIdUniform(
             "uOverlayTexSampler1", overlay.getTextureId(presentationTimeUs), /* texUnitIndex= */ 1);
-        Pair<Integer, Integer> overlayTextureSize = overlay.getTextureSize(presentationTimeUs);
+        Size overlayTextureSize = overlay.getTextureSize(presentationTimeUs);
         GlUtil.setToIdentity(aspectRatioMatrix);
         Matrix.scaleM(
             aspectRatioMatrix,
             MATRIX_OFFSET,
-            videoWidth / (float) overlayTextureSize.first,
-            videoHeight / (float) overlayTextureSize.second,
+            videoWidth / (float) overlayTextureSize.getWidth(),
+            videoHeight / (float) overlayTextureSize.getHeight(),
             /* z= */ 1);
         glProgram.setFloatsUniform("uAspectRatioMatrix", aspectRatioMatrix);
         Matrix.invertM(

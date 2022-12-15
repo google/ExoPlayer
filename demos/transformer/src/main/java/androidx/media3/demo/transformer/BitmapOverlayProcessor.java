@@ -28,11 +28,11 @@ import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import androidx.media3.effect.SingleFrameGlTextureProcessor;
 import java.io.IOException;
 import java.util.Locale;
@@ -111,7 +111,7 @@ import java.util.Locale;
   }
 
   @Override
-  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+  public Size configure(int inputWidth, int inputHeight) {
     if (inputWidth > inputHeight) {
       bitmapScaleX = inputWidth / (float) inputHeight;
       bitmapScaleY = 1f;
@@ -123,7 +123,7 @@ import java.util.Locale;
     glProgram.setFloatUniform("uScaleX", bitmapScaleX);
     glProgram.setFloatUniform("uScaleY", bitmapScaleY);
 
-    return Pair.create(inputWidth, inputHeight);
+    return new Size(inputWidth, inputHeight);
   }
 
   @Override

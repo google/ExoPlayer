@@ -32,9 +32,9 @@ import android.graphics.Color;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -101,13 +101,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromCube(cubeIdentityLut)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -122,13 +122,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromCube(cubeIdentityLut)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -143,13 +143,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromBitmap(bitmapLut)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -164,13 +164,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromBitmap(bitmapLut)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -185,13 +185,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromBitmap(bitmapLut)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -208,13 +208,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromCube(mapWhiteToGreen)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(LUT_MAP_WHITE_TO_GREEN_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -229,13 +229,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromBitmap(invertedLutBitmap)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -250,13 +250,13 @@ public class SingleColorLutPixelTest {
     colorLutProcessor =
         SingleColorLut.createFromBitmap(grayscaleLutBitmap)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.first, outputSize.second);
+    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
     colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =

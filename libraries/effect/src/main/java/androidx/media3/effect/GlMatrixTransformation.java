@@ -17,8 +17,8 @@ package androidx.media3.effect;
 
 import android.content.Context;
 import android.opengl.Matrix;
-import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 
@@ -43,8 +43,8 @@ public interface GlMatrixTransformation extends GlEffect {
    * @param inputHeight The input frame height, in pixels.
    * @return The output frame width and height, in pixels.
    */
-  default Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
-    return Pair.create(inputWidth, inputHeight);
+  default Size configure(int inputWidth, int inputHeight) {
+    return new Size(inputWidth, inputHeight);
   }
 
   /**
