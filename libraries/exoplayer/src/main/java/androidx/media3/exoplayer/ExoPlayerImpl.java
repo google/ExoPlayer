@@ -2599,6 +2599,8 @@ import java.util.concurrent.TimeoutException;
       surfaceSize = new Size(width, height);
       listeners.sendEvent(
           EVENT_SURFACE_SIZE_CHANGED, listener -> listener.onSurfaceSizeChanged(width, height));
+      sendRendererMessage(
+          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_OUTPUT_RESOLUTION, new Size(width, height));
     }
   }
 
@@ -2956,8 +2958,6 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
       maybeNotifySurfaceSizeChanged(width, height);
-      sendRendererMessage(
-          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_OUTPUT_RESOLUTION, new Size(width, height));
     }
 
     @Override

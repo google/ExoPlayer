@@ -699,7 +699,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setOutput(@Nullable Object output) throws ExoPlaybackException {
-    // TODO(b/238302341) Handle output surface change in previewing.
     // Handle unsupported (i.e., non-Surface) outputs by clearing the display surface.
     @Nullable Surface displaySurface = output instanceof Surface ? (Surface) output : null;
 
@@ -724,7 +723,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
       @State int state = getState();
       @Nullable MediaCodecAdapter codec = getCodec();
-      if (codec != null) {
+      // When FrameProcessorManager is enabled, set FrameProcessorManager's display surface when
+      // surface's resolution is set on receiving MSG_SET_VIDEO_OUTPUT_RESOLUTION.
+      if (codec != null && !frameProcessorManager.isEnabled()) {
         if (Util.SDK_INT >= 23 && displaySurface != null && !codecNeedsSetOutputSurfaceWorkaround) {
           setOutputSurfaceV23(codec, displaySurface);
         } else {
@@ -738,12 +739,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // We haven't rendered to the new display surface yet.
         clearRenderedFirstFrame();
         if (state == STATE_STARTED) {
+          // Set joining deadline to report MediaCodecVideoRenderer is ready.
           setJoiningDeadlineMs();
         }
       } else {
         // The display surface has been removed.
         clearReportedVideoSize();
         clearRenderedFirstFrame();
+        if (frameProcessorManager.isEnabled()) {
+          frameProcessorManager.clearOutputSurfaceInfo();
+        }
       }
     } else if (displaySurface != null && displaySurface != placeholderSurface) {
       // The display surface is set and unchanged. If we know the video size and/or have already
@@ -1811,6 +1816,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      */
     private @MonotonicNonNull Pair<Long, Format> currentFrameFormat;
 
+    @Nullable private Pair<Surface, Size> currentSurfaceAndSize;
+
     private int frameProcessorMaxPendingFrameCount;
     private boolean canEnableFrameProcessing;
 
@@ -1961,12 +1968,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * @param outputResolution The {@link Size} of the output resolution.
      */
     public void setOutputSurfaceInfo(Surface outputSurface, Size outputResolution) {
+      if (currentSurfaceAndSize != null
+          && currentSurfaceAndSize.first.equals(outputSurface)
+          && currentSurfaceAndSize.second.equals(outputResolution)) {
+        return;
+      }
       checkNotNull(frameProcessor)
           .setOutputSurfaceInfo(
               new SurfaceInfo(
                   outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
+      currentSurfaceAndSize = Pair.create(outputSurface, outputResolution);
     }
 
+    /**
+     * Clears the set output surface info.
+     *
+     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
+     * this method.
+     */
+    public void clearOutputSurfaceInfo() {
+      checkNotNull(frameProcessor).setOutputSurfaceInfo(null);
+      currentSurfaceAndSize = null;
+    }
     /**
      * Sets the input surface info.
      *
