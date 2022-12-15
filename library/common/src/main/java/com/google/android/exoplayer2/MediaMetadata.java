@@ -1174,22 +1174,51 @@ public final class MediaMetadata implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putCharSequence(keyForField(FIELD_TITLE), title);
-    bundle.putCharSequence(keyForField(FIELD_ARTIST), artist);
-    bundle.putCharSequence(keyForField(FIELD_ALBUM_TITLE), albumTitle);
-    bundle.putCharSequence(keyForField(FIELD_ALBUM_ARTIST), albumArtist);
-    bundle.putCharSequence(keyForField(FIELD_DISPLAY_TITLE), displayTitle);
-    bundle.putCharSequence(keyForField(FIELD_SUBTITLE), subtitle);
-    bundle.putCharSequence(keyForField(FIELD_DESCRIPTION), description);
-    bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
-    bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
-    bundle.putCharSequence(keyForField(FIELD_WRITER), writer);
-    bundle.putCharSequence(keyForField(FIELD_COMPOSER), composer);
-    bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
-    bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
-    bundle.putCharSequence(keyForField(FIELD_COMPILATION), compilation);
-    bundle.putCharSequence(keyForField(FIELD_STATION), station);
-
+    if (title != null) {
+      bundle.putCharSequence(keyForField(FIELD_TITLE), title);
+    }
+    if (artist != null) {
+      bundle.putCharSequence(keyForField(FIELD_ARTIST), artist);
+    }
+    if (albumTitle != null) {
+      bundle.putCharSequence(keyForField(FIELD_ALBUM_TITLE), albumTitle);
+    }
+    if (albumArtist != null) {
+      bundle.putCharSequence(keyForField(FIELD_ALBUM_ARTIST), albumArtist);
+    }
+    if (displayTitle != null) {
+      bundle.putCharSequence(keyForField(FIELD_DISPLAY_TITLE), displayTitle);
+    }
+    if (subtitle != null) {
+      bundle.putCharSequence(keyForField(FIELD_SUBTITLE), subtitle);
+    }
+    if (description != null) {
+      bundle.putCharSequence(keyForField(FIELD_DESCRIPTION), description);
+    }
+    if (artworkData != null) {
+      bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
+    }
+    if (artworkUri != null) {
+      bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
+    }
+    if (writer != null) {
+      bundle.putCharSequence(keyForField(FIELD_WRITER), writer);
+    }
+    if (composer != null) {
+      bundle.putCharSequence(keyForField(FIELD_COMPOSER), composer);
+    }
+    if (conductor != null) {
+      bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
+    }
+    if (genre != null) {
+      bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
+    }
+    if (compilation != null) {
+      bundle.putCharSequence(keyForField(FIELD_COMPILATION), compilation);
+    }
+    if (station != null) {
+      bundle.putCharSequence(keyForField(FIELD_STATION), station);
+    }
     if (userRating != null) {
       bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
     }
