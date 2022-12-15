@@ -345,7 +345,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     this.context = context.getApplicationContext();
     frameReleaseHelper = new VideoFrameReleaseHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    frameProcessorManager = new FrameProcessorManager(this);
+    frameProcessorManager = new FrameProcessorManager(frameReleaseHelper, /* renderer= */ this);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
@@ -566,6 +566,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else {
       joiningDeadlineMs = C.TIME_UNSET;
     }
+  }
+
+  @Override
+  public boolean isEnded() {
+    boolean isEnded = super.isEnded();
+    if (frameProcessorManager.isEnabled()) {
+      isEnded &= frameProcessorManager.releasedLastFrame();
+    }
+    return isEnded;
   }
 
   @Override
@@ -815,6 +824,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         newFormat,
         discardReasons != 0 ? REUSE_RESULT_NO : evaluation.result,
         discardReasons);
+  }
+
+  @CallSuper
+  @Override
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    super.render(positionUs, elapsedRealtimeUs);
+    if (frameProcessorManager.isEnabled()) {
+      frameProcessorManager.releaseProcessedFrames(positionUs, elapsedRealtimeUs);
+    }
   }
 
   @CallSuper
@@ -1091,7 +1109,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     if (bufferPresentationTimeUs != lastBufferPresentationTimeUs) {
-      frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
+      if (!frameProcessorManager.isEnabled()) {
+        frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
+      } // else, update the frameReleaseHelper when releasing the processed frames.
       this.lastBufferPresentationTimeUs = bufferPresentationTimeUs;
     }
 
@@ -1104,18 +1124,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     // Note: Use of double rather than float is intentional for accuracy in the calculations below.
-    double playbackSpeed = getPlaybackSpeed();
     boolean isStarted = getState() == STATE_STARTED;
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
-
-    // Calculate how early we are. In other words, the realtime duration that needs to elapse whilst
-    // the renderer is started before the frame should be rendered. A negative value means that
-    // we're already late.
-    long earlyUs = (long) ((bufferPresentationTimeUs - positionUs) / playbackSpeed);
-    if (isStarted) {
-      // Account for the elapsed time since the start of this iteration of the rendering loop.
-      earlyUs -= elapsedRealtimeNowUs - elapsedRealtimeUs;
-    }
+    long earlyUs =
+        calculateEarlyTimeUs(
+            positionUs,
+            elapsedRealtimeUs,
+            elapsedRealtimeNowUs,
+            bufferPresentationTimeUs,
+            isStarted);
 
     if (displaySurface == placeholderSurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
@@ -1143,7 +1160,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       boolean notifyFrameMetaDataListener;
       if (frameProcessorManager.isEnabled()) {
         notifyFrameMetaDataListener = false;
-        if (!frameProcessorManager.maybeRegisterFrame()) {
+        if (!frameProcessorManager.maybeRegisterFrame(format, presentationTimeUs, isLastBuffer)) {
           // TODO(b/238302341): Handle FrameProcessor is unable to accept the force rendered buffer.
           //  Treat the frame as dropped for now.
           return true;
@@ -1167,7 +1184,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     // Apply a timestamp adjustment, if there is one.
     long adjustedReleaseTimeNs = frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
-    earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+    if (!frameProcessorManager.isEnabled()) {
+      earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+    } // else, use the unadjusted earlyUs in previewing use cases.
 
     boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs, isLastBuffer)
@@ -1184,8 +1203,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     if (frameProcessorManager.isEnabled()) {
-      frameProcessorManager.releaseProcessedFrames();
-      if (frameProcessorManager.maybeRegisterFrame()) {
+      frameProcessorManager.releaseProcessedFrames(positionUs, elapsedRealtimeUs);
+      if (frameProcessorManager.maybeRegisterFrame(format, presentationTimeUs, isLastBuffer)) {
         renderOutputBufferNow(
             codec,
             format,
@@ -1228,6 +1247,42 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     // We're either not playing, or it's not time to render the frame yet.
     return false;
+  }
+
+  /**
+   * Calculates the time interval between the current player position and the buffer presentation
+   * time.
+   *
+   * @param positionUs The current media time in microseconds, measured at the start of the current
+   *     iteration of the rendering loop.
+   * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
+   *     start of the current iteration of the rendering loop.
+   * @param elapsedRealtimeNowUs {@link SystemClock#elapsedRealtime()} in microseconds, measured
+   *     before calling this method.
+   * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds,
+   *     with {@linkplain #getOutputStreamOffsetUs() stream offset added}.
+   * @param isStarted Whether the playback is in {@link #STATE_STARTED}.
+   * @return The calculated early time, in microseconds.
+   */
+  private long calculateEarlyTimeUs(
+      long positionUs,
+      long elapsedRealtimeUs,
+      long elapsedRealtimeNowUs,
+      long bufferPresentationTimeUs,
+      boolean isStarted) {
+    // Note: Use of double rather than float is intentional for accuracy in the calculations below.
+    double playbackSpeed = getPlaybackSpeed();
+
+    // Calculate how early we are. In other words, the realtime duration that needs to elapse whilst
+    // the renderer is started before the frame should be rendered. A negative value means that
+    // we're already late.
+    long earlyUs = (long) ((bufferPresentationTimeUs - positionUs) / playbackSpeed);
+    if (isStarted) {
+      // Account for the elapsed time since the start of this iteration of the rendering loop.
+      earlyUs -= elapsedRealtimeNowUs - elapsedRealtimeUs;
+    }
+
+    return earlyUs;
   }
 
   private void notifyFrameMetadataListener(
@@ -1734,24 +1789,52 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     private static final String FRAME_PROCESSOR_FACTORY_CLASS =
         "com.google.android.exoplayer2.effect.GlEffectsFrameProcessor$Factory";
+    /** The threshold for releasing a processed frame. */
+    private static final long EARLY_THRESHOLD_US = 50_000;
 
+    private final VideoFrameReleaseHelper frameReleaseHelper;
     // TODO(b/238302341) Consider removing the reference to the containing class and make this class
     //  non-static.
     private final MediaCodecVideoRenderer renderer;
-    private final ArrayDeque<Long> processedFrames;
+    private final ArrayDeque<Long> processedFramesTimestampsUs;
+    private final ArrayDeque<Pair<Long, Format>> pendingFrameFormats;
 
     private @MonotonicNonNull Handler handler;
     @Nullable private FrameProcessor frameProcessor;
     @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
+    /**
+     * The current frame {@link Format} and the earliest presentationTimeUs that associates to it.
+     */
+    private @MonotonicNonNull Pair<Long, Format> currentFrameFormat;
+
     private int frameProcessorMaxPendingFrameCount;
     private boolean canEnableFrameProcessing;
 
+    /**
+     * Whether the last frame of the current stream is decoded and registered to {@link
+     * FrameProcessor}.
+     */
+    private boolean registeredLastFrame;
+
+    /** Whether the last frame of the current stream is processed by the {@link FrameProcessor}. */
+    private boolean processedLastFrame;
+
+    /** Whether the last frame of the current stream is released to the output {@link Surface}. */
+    private boolean releasedLastFrame;
+
+    private long lastCodecBufferPresentationTimestampUs;
+
     /** Creates a new instance. */
-    public FrameProcessorManager(@UnderInitialization MediaCodecVideoRenderer renderer) {
+    public FrameProcessorManager(
+        VideoFrameReleaseHelper frameReleaseHelper,
+        @UnderInitialization MediaCodecVideoRenderer renderer) {
+      this.frameReleaseHelper = frameReleaseHelper;
       this.renderer = renderer;
-      processedFrames = new ArrayDeque<>();
+      processedFramesTimestampsUs = new ArrayDeque<>();
+      pendingFrameFormats = new ArrayDeque<>();
       frameProcessorMaxPendingFrameCount = C.LENGTH_UNSET;
       canEnableFrameProcessing = true;
+      lastCodecBufferPresentationTimestampUs = C.TIME_UNSET;
     }
 
     /** Sets the {@linkplain Effect video effects}. */
@@ -1767,6 +1850,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     /** Returns whether frame processing is enabled. */
     public boolean isEnabled() {
       return frameProcessor != null;
+    }
+
+    /** Whether the {@link FrameProcessor} has released the last frame in the current stream. */
+    public boolean releasedLastFrame() {
+      return releasedLastFrame;
     }
 
     /**
@@ -1814,7 +1902,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
                       @Override
                       public void onOutputFrameAvailable(long presentationTimeUs) {
-                        processedFrames.add(presentationTimeUs);
+                        if (registeredLastFrame) {
+                          checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
+                        }
+                        processedFramesTimestampsUs.add(presentationTimeUs);
+                        // TODO(b/257464707) Support extensively modified media.
+                        if (registeredLastFrame
+                            && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
+                          processedLastFrame = true;
+                        }
                       }
 
                       @Override
@@ -1878,6 +1974,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           .setInputFrameInfo(
               new FrameInfo(
                   width, height, pixelWidthHeightRatio, renderer.getOutputStreamOffsetUs()));
+
+      if (registeredLastFrame) {
+        registeredLastFrame = false;
+        processedLastFrame = false;
+        releasedLastFrame = false;
+      }
     }
 
     /** Sets the necessary {@link MediaFormat} keys for frame processing. */
@@ -1907,13 +2009,29 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
      * this method.
      *
+     * @param format The {@link Format} associated with the frame.
+     * @param isLastBuffer Whether the buffer is the last from the deocder to register.
      * @return Whether {@link MediaCodec} should render the frame to {@link FrameProcessor}.
      */
-    public boolean maybeRegisterFrame() {
+    public boolean maybeRegisterFrame(
+        Format format, long presentationTimestampUs, boolean isLastBuffer) {
       checkStateNotNull(frameProcessor);
       checkState(frameProcessorMaxPendingFrameCount != C.LENGTH_UNSET);
+      checkState(!registeredLastFrame);
       if (frameProcessor.getPendingInputFrameCount() < frameProcessorMaxPendingFrameCount) {
         frameProcessor.registerInputFrame();
+
+        if (currentFrameFormat == null) {
+          currentFrameFormat = Pair.create(presentationTimestampUs, format);
+        } else if (!Util.areEqual(format, currentFrameFormat.second)) {
+          // TODO(b/258213806) Remove format comparison for better performance.
+          pendingFrameFormats.add(Pair.create(presentationTimestampUs, format));
+        }
+
+        if (isLastBuffer) {
+          registeredLastFrame = true;
+          lastCodecBufferPresentationTimestampUs = presentationTimestampUs;
+        }
         return true;
       }
       return false;
@@ -1925,12 +2043,54 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
      * this method.
      */
-    public void releaseProcessedFrames() {
-      while (!processedFrames.isEmpty()) {
-        processedFrames.poll();
-        // TODO(b/238302341): Add frame release logic.
-        checkNotNull(frameProcessor)
-            .releaseOutputFrame(FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY);
+    public void releaseProcessedFrames(long positionUs, long elapsedRealtimeUs) {
+      checkStateNotNull(frameProcessor);
+      // Locking the entire releasing flow may block the FrameProcessor thread running
+      // onOutputFrameAvailable().
+      while (!processedFramesTimestampsUs.isEmpty()) {
+        long bufferPresentationTimeUs = checkNotNull(processedFramesTimestampsUs.peek());
+        long earlyUs =
+            renderer.calculateEarlyTimeUs(
+                positionUs,
+                elapsedRealtimeUs,
+                SystemClock.elapsedRealtime() * 1000,
+                bufferPresentationTimeUs,
+                renderer.getState() == STATE_STARTED);
+
+        // Only release frames that are reasonably close to presentation.
+        // This way frameReleaseHelper.onNextFrame() is called only once for each frame.
+        if (earlyUs > EARLY_THRESHOLD_US) {
+          break;
+        }
+
+        frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
+        long unadjustedFrameReleaseTimeNs = System.nanoTime() + earlyUs * 1000;
+        long adjustedFrameReleaseTimeNs =
+            frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
+        earlyUs = (adjustedFrameReleaseTimeNs - System.nanoTime()) / 1000;
+
+        // TODO(b/238302341) Handle very late buffers and drop to key frame. Need to flush
+        //  FrameProcessor input frames in this case.
+        boolean isLastFrame = processedLastFrame && processedFramesTimestampsUs.size() == 1;
+        if (renderer.shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastFrame)) {
+          frameProcessor.releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
+          processedFramesTimestampsUs.remove();
+          continue;
+        }
+
+        if (!pendingFrameFormats.isEmpty()
+            && bufferPresentationTimeUs > pendingFrameFormats.peek().first) {
+          currentFrameFormat = pendingFrameFormats.remove();
+        }
+        long framePresentationTimeUs =
+            bufferPresentationTimeUs - renderer.getOutputStreamOffsetUs();
+        renderer.notifyFrameMetadataListener(
+            framePresentationTimeUs, adjustedFrameReleaseTimeNs, currentFrameFormat.second);
+        frameProcessor.releaseOutputFrame(adjustedFrameReleaseTimeNs);
+        processedFramesTimestampsUs.remove();
+        if (isLastFrame) {
+          releasedLastFrame = true;
+        }
       }
     }
 
@@ -1949,7 +2109,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       if (videoEffects != null) {
         videoEffects.clear();
       }
-      processedFrames.clear();
+      processedFramesTimestampsUs.clear();
       canEnableFrameProcessing = true;
     }
   }
