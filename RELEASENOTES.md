@@ -18,6 +18,8 @@ Release notes
         ([#10776](https://github.com/google/ExoPlayer/issues/10776)).
     *   Add parameter to `BasePlayer.seekTo` to also indicate the command used
         for seeking.
+    *   Use theme when loading drawables on API 21+
+        ([#220](https://github.com/androidx/media/issues/220)).
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
