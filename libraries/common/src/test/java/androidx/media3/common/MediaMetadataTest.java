@@ -107,13 +107,27 @@ public class MediaMetadataTest {
   }
 
   @Test
-  public void roundTripViaBundle_yieldsEqualInstance() {
+  public void createMinimalMediaMetadata_roundTripViaBundle_yieldsEqualInstance() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().build();
+
+    MediaMetadata mediaMetadataFromBundle =
+        MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
+
+    assertThat(mediaMetadataFromBundle).isEqualTo(mediaMetadata);
+    // Extras is not implemented in MediaMetadata.equals(Object o).
+    assertThat(mediaMetadataFromBundle.extras).isNull();
+  }
+
+  @Test
+  public void createFullyPopulatedMediaMetadata_roundTripViaBundle_yieldsEqualInstance() {
     MediaMetadata mediaMetadata = getFullyPopulatedMediaMetadata();
 
-    MediaMetadata fromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
-    assertThat(fromBundle).isEqualTo(mediaMetadata);
+    MediaMetadata mediaMetadataFromBundle =
+        MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
+
+    assertThat(mediaMetadataFromBundle).isEqualTo(mediaMetadata);
     // Extras is not implemented in MediaMetadata.equals(Object o).
-    assertThat(fromBundle.extras.getString(EXTRAS_KEY)).isEqualTo(EXTRAS_VALUE);
+    assertThat(mediaMetadataFromBundle.extras.getString(EXTRAS_KEY)).isEqualTo(EXTRAS_VALUE);
   }
 
   @Test
