@@ -34,6 +34,7 @@ import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TRACKS_CHANGED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static com.google.android.exoplayer2.util.Util.getDrawable;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -53,7 +54,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -535,11 +538,11 @@ public class StyledPlayerControlView extends FrameLayout {
     settingTexts[SETTINGS_PLAYBACK_SPEED_POSITION] =
         resources.getString(R.string.exo_controls_playback_speed);
     settingIcons[SETTINGS_PLAYBACK_SPEED_POSITION] =
-        resources.getDrawable(R.drawable.exo_styled_controls_speed);
+        getDrawable(context, resources, R.drawable.exo_styled_controls_speed);
     settingTexts[SETTINGS_AUDIO_TRACK_SELECTION_POSITION] =
         resources.getString(R.string.exo_track_selection_title_audio);
     settingIcons[SETTINGS_AUDIO_TRACK_SELECTION_POSITION] =
-        resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
+        getDrawable(context, resources, R.drawable.exo_styled_controls_audiotrack);
     settingsAdapter = new SettingsAdapter(settingTexts, settingIcons);
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
     settingsView =
@@ -559,8 +562,10 @@ public class StyledPlayerControlView extends FrameLayout {
     needToHideBars = true;
 
     trackNameProvider = new DefaultTrackNameProvider(getResources());
-    subtitleOnButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_subtitle_on);
-    subtitleOffButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_subtitle_off);
+    subtitleOnButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_subtitle_on);
+    subtitleOffButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_subtitle_off);
     subtitleOnContentDescription =
         resources.getString(R.string.exo_controls_cc_enabled_description);
     subtitleOffContentDescription =
@@ -571,14 +576,20 @@ public class StyledPlayerControlView extends FrameLayout {
         new PlaybackSpeedAdapter(
             resources.getStringArray(R.array.exo_controls_playback_speeds), PLAYBACK_SPEEDS);
 
-    fullScreenExitDrawable = resources.getDrawable(R.drawable.exo_styled_controls_fullscreen_exit);
+    fullScreenExitDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_fullscreen_exit);
     fullScreenEnterDrawable =
-        resources.getDrawable(R.drawable.exo_styled_controls_fullscreen_enter);
-    repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_repeat_off);
-    repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_repeat_one);
-    repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_repeat_all);
-    shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_shuffle_on);
-    shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_shuffle_off);
+        getDrawable(context, resources, R.drawable.exo_styled_controls_fullscreen_enter);
+    repeatOffButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_repeat_off);
+    repeatOneButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_repeat_one);
+    repeatAllButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_repeat_all);
+    shuffleOnButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_shuffle_on);
+    shuffleOffButtonDrawable =
+        getDrawable(context, resources, R.drawable.exo_styled_controls_shuffle_off);
     fullScreenExitContentDescription =
         resources.getString(R.string.exo_controls_fullscreen_exit_description);
     fullScreenEnterContentDescription =
@@ -961,17 +972,20 @@ public class StyledPlayerControlView extends FrameLayout {
       return;
     }
     if (playPauseButton != null) {
-      if (shouldShowPauseButton()) {
-        ((ImageView) playPauseButton)
-            .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_pause));
-        playPauseButton.setContentDescription(
-            resources.getString(R.string.exo_controls_pause_description));
-      } else {
-        ((ImageView) playPauseButton)
-            .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_play));
-        playPauseButton.setContentDescription(
-            resources.getString(R.string.exo_controls_play_description));
-      }
+      boolean shouldShowPauseButton = shouldShowPauseButton();
+      @DrawableRes
+      int drawableRes =
+          shouldShowPauseButton
+              ? R.drawable.exo_styled_controls_pause
+              : R.drawable.exo_styled_controls_play;
+      @StringRes
+      int stringRes =
+          shouldShowPauseButton
+              ? R.string.exo_controls_pause_description
+              : R.string.exo_controls_play_description;
+      ((ImageView) playPauseButton)
+          .setImageDrawable(getDrawable(getContext(), resources, drawableRes));
+      playPauseButton.setContentDescription(resources.getString(stringRes));
     }
   }
 

@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.Player.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
+import static com.google.android.exoplayer2.util.Util.getDrawable;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -488,11 +489,11 @@ public class PlayerControlView extends FrameLayout {
     buttonAlphaDisabled =
         (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_disabled) / 100;
 
-    repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
-    repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
-    repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_all);
-    shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_on);
-    shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_off);
+    repeatOffButtonDrawable = getDrawable(context, resources, R.drawable.exo_controls_repeat_off);
+    repeatOneButtonDrawable = getDrawable(context, resources, R.drawable.exo_controls_repeat_one);
+    repeatAllButtonDrawable = getDrawable(context, resources, R.drawable.exo_controls_repeat_all);
+    shuffleOnButtonDrawable = getDrawable(context, resources, R.drawable.exo_controls_shuffle_on);
+    shuffleOffButtonDrawable = getDrawable(context, resources, R.drawable.exo_controls_shuffle_off);
     repeatOffButtonContentDescription =
         resources.getString(R.string.exo_controls_repeat_off_description);
     repeatOneButtonContentDescription =
