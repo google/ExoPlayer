@@ -297,10 +297,7 @@ public class TransformerAndroidTestRunner {
 
     // Block here until timeout reached or latch is counted down.
     boolean timeoutReached = !countDownLatch.await(timeoutSeconds, SECONDS);
-
-    TransformationTestResult.Builder testResultBuilder =
-        new TransformationTestResult.Builder()
-            .setElapsedTimeMs(SystemClock.DEFAULT.elapsedRealtime() - startTimeMs);
+    long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
 
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
     @Nullable
@@ -319,20 +316,21 @@ public class TransformerAndroidTestRunner {
     }
 
     if (testException != null) {
-      return testResultBuilder
-          .setTransformationResult(checkNotNull(transformationResultReference.get()))
+      return new TransformationTestResult.Builder(checkNotNull(transformationResultReference.get()))
+          .setElapsedTimeMs(elapsedTimeMs)
           .setTestException(testException)
           .build();
     }
 
     // No exceptions raised, transformation has succeeded.
-    testResultBuilder
-        .setTransformationResult(
-            checkNotNull(transformationResultReference.get())
-                .buildUpon()
-                .setFileSizeBytes(outputVideoFile.length())
-                .build())
-        .setFilePath(outputVideoFile.getPath());
+    TransformationTestResult.Builder testResultBuilder =
+        new TransformationTestResult.Builder(
+                checkNotNull(transformationResultReference.get())
+                    .buildUpon()
+                    .setFileSizeBytes(outputVideoFile.length())
+                    .build())
+            .setElapsedTimeMs(elapsedTimeMs)
+            .setFilePath(outputVideoFile.getPath());
 
     if (!requestCalculateSsim) {
       return testResultBuilder.build();
