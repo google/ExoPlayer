@@ -2558,7 +2558,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     private void handleFrameRendered(long presentationTimeUs) {
-      if (this != tunnelingOnFrameRenderedListener) {
+      if (this != tunnelingOnFrameRenderedListener || getCodec() == null) {
         // Stale event.
         return;
       }
