@@ -921,31 +921,100 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void illegalSeekPositionDoesThrow() throws Exception {
-    final IllegalSeekPositionException[] exception = new IllegalSeekPositionException[1];
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForPlaybackState(Player.STATE_BUFFERING)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(ExoPlayer player) {
-                    try {
-                      player.seekTo(/* mediaItemIndex= */ 100, /* positionMs= */ 0);
-                    } catch (IllegalSeekPositionException e) {
-                      exception[0] = e;
-                    }
-                  }
-                })
-            .waitForPlaybackState(Player.STATE_ENDED)
-            .build();
-    new ExoPlayerTestRunner.Builder(context)
-        .setActionSchedule(actionSchedule)
-        .build()
-        .start()
-        .blockUntilActionScheduleFinished(TIMEOUT_MS)
-        .blockUntilEnded(TIMEOUT_MS);
-    assertThat(exception[0]).isNotNull();
+  public void seekTo_indexLargerThanPlaylist_isIgnored() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItem(MediaItem.fromUri("http://test"));
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 1000);
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    player.release();
+  }
+
+  @Test
+  public void addMediaItems_indexLargerThanPlaylist_addsToEndOfPlaylist() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItem(MediaItem.fromUri("http://test"));
+    ImmutableList<MediaItem> addedItems =
+        ImmutableList.of(MediaItem.fromUri("http://new1"), MediaItem.fromUri("http://new2"));
+
+    player.addMediaItems(/* index= */ 5000, addedItems);
+
+    assertThat(player.getMediaItemCount()).isEqualTo(3);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(addedItems.get(0));
+    assertThat(player.getMediaItemAt(2)).isEqualTo(addedItems.get(1));
+    player.release();
+  }
+
+  @Test
+  public void removeMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItems(
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+    player.removeMediaItems(/* fromIndex= */ 5000, /* toIndex= */ 6000);
+
+    assertThat(player.getMediaItemCount()).isEqualTo(2);
+    player.release();
+  }
+
+  @Test
+  public void removeMediaItems_toIndexLargerThanPlaylist_removesUpToEndOfPlaylist()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItems(
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000);
+
+    assertThat(player.getMediaItemCount()).isEqualTo(1);
+    assertThat(player.getMediaItemAt(0).localConfiguration.uri.toString())
+        .isEqualTo("http://item1");
+    player.release();
+  }
+
+  @Test
+  public void moveMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ImmutableList<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    player.setMediaItems(items);
+
+    player.moveMediaItems(/* fromIndex= */ 5000, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(items.get(0));
+    assertThat(player.getMediaItemAt(1)).isEqualTo(items.get(1));
+    player.release();
+  }
+
+  @Test
+  public void moveMediaItems_toIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ImmutableList<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    player.setMediaItems(items);
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(items.get(1));
+    assertThat(player.getMediaItemAt(1)).isEqualTo(items.get(0));
+    player.release();
+  }
+
+  @Test
+  public void moveMediaItems_newIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ImmutableList<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    player.setMediaItems(items);
+
+    player.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1, /* newIndex= */ 5000);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(items.get(1));
+    assertThat(player.getMediaItemAt(1)).isEqualTo(items.get(0));
+    player.release();
   }
 
   @Test

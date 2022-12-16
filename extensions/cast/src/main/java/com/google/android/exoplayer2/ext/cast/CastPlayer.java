@@ -43,7 +43,6 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
@@ -294,7 +293,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
-    Assertions.checkArgument(index >= 0);
+    checkArgument(index >= 0);
     int uid = MediaQueueItem.INVALID_ITEM_ID;
     if (index < currentTimeline.getWindowCount()) {
       uid = (int) currentTimeline.getWindow(/* windowIndex= */ index, window).uid;
@@ -304,14 +303,11 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    Assertions.checkArgument(
-        fromIndex >= 0
-            && fromIndex <= toIndex
-            && toIndex <= currentTimeline.getWindowCount()
-            && newIndex >= 0
-            && newIndex < currentTimeline.getWindowCount());
-    newIndex = min(newIndex, currentTimeline.getWindowCount() - (toIndex - fromIndex));
-    if (fromIndex == toIndex || fromIndex == newIndex) {
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newIndex >= 0);
+    int playlistSize = currentTimeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    newIndex = min(newIndex, playlistSize - (toIndex - fromIndex));
+    if (fromIndex >= playlistSize || fromIndex == toIndex || fromIndex == newIndex) {
       // Do nothing.
       return;
     }
@@ -324,9 +320,10 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
-    Assertions.checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
-    toIndex = min(toIndex, currentTimeline.getWindowCount());
-    if (fromIndex == toIndex) {
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
+    int playlistSize = currentTimeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    if (fromIndex >= playlistSize || fromIndex == toIndex) {
       // Do nothing.
       return;
     }
@@ -404,6 +401,10 @@ public final class CastPlayer extends BasePlayer {
       long positionMs,
       @Player.Command int seekCommand,
       boolean isRepeatingCurrentItem) {
+    checkArgument(mediaItemIndex >= 0);
+    if (!currentTimeline.isEmpty() && mediaItemIndex >= currentTimeline.getWindowCount()) {
+      return;
+    }
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.

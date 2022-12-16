@@ -1669,7 +1669,8 @@ public interface Player {
   /**
    * Moves the media item at the current index to the new index.
    *
-   * @param currentIndex The current index of the media item to move.
+   * @param currentIndex The current index of the media item to move. If the index is larger than
+   *     the size of the playlist, the request is ignored.
    * @param newIndex The new index of the media item. If the new index is larger than the size of
    *     the playlist the item is moved to the end of the playlist.
    */
@@ -1678,8 +1679,10 @@ public interface Player {
   /**
    * Moves the media item range to the new index.
    *
-   * @param fromIndex The start of the range to move.
-   * @param toIndex The first item not to be included in the range (exclusive).
+   * @param fromIndex The start of the range to move. If the index is larger than the size of the
+   *     playlist, the request is ignored.
+   * @param toIndex The first item not to be included in the range (exclusive). If the index is
+   *     larger than the size of the playlist, items up to the end of the playlist are moved.
    * @param newIndex The new index of the first media item of the range. If the new index is larger
    *     than the size of the remaining playlist after removing the range, the range is moved to the
    *     end of the playlist.
@@ -1689,16 +1692,18 @@ public interface Player {
   /**
    * Removes the media item at the given index of the playlist.
    *
-   * @param index The index at which to remove the media item.
+   * @param index The index at which to remove the media item. If the index is larger than the size
+   *     of the playlist, the request is ignored.
    */
   void removeMediaItem(int index);
 
   /**
    * Removes a range of media items from the playlist.
    *
-   * @param fromIndex The index at which to start removing media items.
+   * @param fromIndex The index at which to start removing media items. If the index is larger than
+   *     the size of the playlist, the request is ignored.
    * @param toIndex The index of the first item to be kept (exclusive). If the index is larger than
-   *     the size of the playlist, media items to the end of the playlist are removed.
+   *     the size of the playlist, media items up to the end of the playlist are removed.
    */
   void removeMediaItems(int fromIndex, int toIndex);
 
@@ -1879,9 +1884,8 @@ public interface Player {
    * For other streams it will typically be the start.
    *
    * @param mediaItemIndex The index of the {@link MediaItem} whose associated default position
-   *     should be seeked to.
-   * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
-   *     {@code mediaItemIndex} is not within the bounds of the current timeline.
+   *     should be seeked to. If the index is larger than the size of the playlist, the request is
+   *     ignored.
    */
   void seekToDefaultPosition(int mediaItemIndex);
 
@@ -1896,11 +1900,10 @@ public interface Player {
   /**
    * Seeks to a position specified in milliseconds in the specified {@link MediaItem}.
    *
-   * @param mediaItemIndex The index of the {@link MediaItem}.
+   * @param mediaItemIndex The index of the {@link MediaItem}. If the index is larger than the size
+   *     of the playlist, the request is ignored.
    * @param positionMs The seek position in the specified {@link MediaItem}, or {@link C#TIME_UNSET}
    *     to seek to the media item's default position.
-   * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
-   *     {@code mediaItemIndex} is not within the bounds of the current timeline.
    */
   void seekTo(int mediaItemIndex, long positionMs);
 
