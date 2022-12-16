@@ -29,6 +29,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLE
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
@@ -82,7 +83,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -612,7 +612,6 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     verifyApplicationThread();
-    index = min(index, mediaSourceHolderSnapshots.size());
     addMediaSources(index, createMediaSources(mediaItems));
   }
 
@@ -637,7 +636,8 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaSources(int index, List<MediaSource> mediaSources) {
     verifyApplicationThread();
-    Assertions.checkArgument(index >= 0);
+    checkArgument(index >= 0);
+    index = min(index, mediaSourceHolderSnapshots.size());
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
     List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
@@ -663,7 +663,13 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     verifyApplicationThread();
-    toIndex = min(toIndex, mediaSourceHolderSnapshots.size());
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
+    int playlistSize = mediaSourceHolderSnapshots.size();
+    toIndex = min(toIndex, playlistSize);
+    if (fromIndex >= playlistSize || fromIndex == toIndex) {
+      // Do nothing.
+      return;
+    }
     PlaybackInfo newPlaybackInfo = removeMediaItemsInternal(fromIndex, toIndex);
     boolean positionDiscontinuity =
         !newPlaybackInfo.periodId.periodUid.equals(playbackInfo.periodId.periodUid);
@@ -682,14 +688,16 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newFromIndex) {
     verifyApplicationThread();
-    Assertions.checkArgument(
-        fromIndex >= 0
-            && fromIndex <= toIndex
-            && toIndex <= mediaSourceHolderSnapshots.size()
-            && newFromIndex >= 0);
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newFromIndex >= 0);
+    int playlistSize = mediaSourceHolderSnapshots.size();
+    toIndex = min(toIndex, playlistSize);
+    newFromIndex = min(newFromIndex, playlistSize - (toIndex - fromIndex));
+    if (fromIndex >= playlistSize || fromIndex == toIndex || fromIndex == newFromIndex) {
+      // Do nothing.
+      return;
+    }
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
-    newFromIndex = min(newFromIndex, mediaSourceHolderSnapshots.size() - (toIndex - fromIndex));
     Util.moveItems(mediaSourceHolderSnapshots, fromIndex, toIndex, newFromIndex);
     Timeline newTimeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
@@ -818,11 +826,11 @@ import java.util.concurrent.TimeoutException;
       @Player.Command int seekCommand,
       boolean isRepeatingCurrentItem) {
     verifyApplicationThread();
+    checkArgument(mediaItemIndex >= 0);
     analyticsCollector.notifySeekStarted();
     Timeline timeline = playbackInfo.timeline;
-    if (mediaItemIndex < 0
-        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
+    if (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount()) {
+      return;
     }
     pendingOperationAcks++;
     if (isPlayingAd()) {
@@ -2250,8 +2258,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   private PlaybackInfo removeMediaItemsInternal(int fromIndex, int toIndex) {
-    Assertions.checkArgument(
-        fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolderSnapshots.size());
     int currentIndex = getCurrentMediaItemIndex();
     Timeline oldTimeline = getCurrentTimeline();
     int currentMediaSourceCount = mediaSourceHolderSnapshots.size();
@@ -2290,7 +2296,7 @@ import java.util.concurrent.TimeoutException;
 
   private PlaybackInfo maskTimelineAndPosition(
       PlaybackInfo playbackInfo, Timeline timeline, @Nullable Pair<Object, Long> periodPositionUs) {
-    Assertions.checkArgument(timeline.isEmpty() || periodPositionUs != null);
+    checkArgument(timeline.isEmpty() || periodPositionUs != null);
     Timeline oldTimeline = playbackInfo.timeline;
     // Mask the timeline.
     playbackInfo = playbackInfo.copyWithTimeline(timeline);
