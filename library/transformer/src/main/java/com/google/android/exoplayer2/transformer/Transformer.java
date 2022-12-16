@@ -428,7 +428,7 @@ public final class Transformer {
      */
     @CanIgnoreReturnValue
     @VisibleForTesting
-    /* package */ Builder setClock(Clock clock) {
+    public Builder setClock(Clock clock) {
       this.clock = clock;
       this.listeners = listeners.copy(looper, clock, (listener, flags) -> {});
       return this;

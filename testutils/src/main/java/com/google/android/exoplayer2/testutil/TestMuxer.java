@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.testutil;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.testutil.DumpableFormat;
-import com.google.android.exoplayer2.testutil.Dumper;
+import com.google.android.exoplayer2.transformer.Muxer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
