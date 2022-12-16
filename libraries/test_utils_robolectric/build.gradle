@@ -20,6 +20,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'org.robolectric:robolectric:' + robolectricVersion
     implementation project(modulePrefix + 'lib-exoplayer')
+    implementation project(modulePrefix + ':lib-transformer')
     implementation project(modulePrefix + 'test-utils')
 }
 
