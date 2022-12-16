@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -47,7 +48,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
-import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -311,13 +311,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void seekToInternal(int mediaItemIndex, long positionMs) {
+    checkArgument(mediaItemIndex >= 0);
     int currentMediaItemIndex = getCurrentMediaItemIndex();
     Timeline currentTimeline = controllerInfo.playerInfo.timeline;
-    if (currentMediaItemIndex != mediaItemIndex
-        && (mediaItemIndex < 0 || mediaItemIndex >= currentTimeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(currentTimeline, mediaItemIndex, positionMs);
-    }
-    if (isPlayingAd()) {
+    if ((!currentTimeline.isEmpty() && mediaItemIndex >= currentTimeline.getWindowCount())
+        || isPlayingAd()) {
       return;
     }
     int newMediaItemIndex = currentMediaItemIndex;
@@ -687,6 +685,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
+    checkArgument(index >= 0);
     if (mediaItems.isEmpty()) {
       return;
     }
@@ -732,9 +731,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
     int windowCount = getCurrentTimeline().getWindowCount();
     toIndex = min(toIndex, windowCount);
-    if (fromIndex >= toIndex) {
+    if (fromIndex >= windowCount || fromIndex == toIndex) {
       return;
     }
 
@@ -787,15 +787,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newIndex >= 0);
     QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
     int size = queueTimeline.getWindowCount();
     toIndex = min(toIndex, size);
-    if (fromIndex >= toIndex) {
-      return;
-    }
     int moveItemsSize = toIndex - fromIndex;
     int lastItemIndexAfterRemove = size - moveItemsSize - 1;
-    newIndex = min(newIndex, lastItemIndexAfterRemove);
+    newIndex = min(newIndex, lastItemIndexAfterRemove + 1);
+    if (fromIndex >= size || fromIndex == toIndex || fromIndex == newIndex) {
+      return;
+    }
 
     int currentMediaItemIndex = getCurrentMediaItemIndex();
     int currentMediaItemIndexAfterRemove =

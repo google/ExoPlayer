@@ -463,6 +463,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return;
     }
+    checkArgument(mediaItemIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_SEEK_TO_MEDIA_ITEM,
@@ -499,6 +500,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return;
     }
+    checkArgument(mediaItemIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_SEEK_TO_MEDIA_ITEM,
@@ -938,6 +940,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(index >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_CHANGE_MEDIA_ITEMS,
@@ -969,6 +972,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(index >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1038,6 +1042,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(index >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1051,6 +1056,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1073,19 +1079,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void removeMediaItemsInternal(int fromIndex, int toIndex) {
-    int clippedToIndex = min(toIndex, playerInfo.timeline.getWindowCount());
-
-    checkArgument(
-        fromIndex >= 0
-            && clippedToIndex >= fromIndex
-            && clippedToIndex <= playerInfo.timeline.getWindowCount());
-
     Timeline oldTimeline = playerInfo.timeline;
+    int playlistSize = playerInfo.timeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    if (fromIndex >= playlistSize || fromIndex == toIndex) {
+      return;
+    }
 
     List<Window> newWindows = new ArrayList<>();
     List<Period> newPeriods = new ArrayList<>();
     for (int i = 0; i < oldTimeline.getWindowCount(); i++) {
-      if (i < fromIndex || i >= clippedToIndex) {
+      if (i < fromIndex || i >= toIndex) {
         newWindows.add(oldTimeline.getWindow(i, new Window()));
       }
     }
@@ -1097,7 +1101,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     int oldPeriodIndex = playerInfo.sessionPositionInfo.positionInfo.periodIndex;
     int newPeriodIndex = oldPeriodIndex;
     boolean currentItemRemoved =
-        getCurrentMediaItemIndex() >= fromIndex && getCurrentMediaItemIndex() < clippedToIndex;
+        getCurrentMediaItemIndex() >= fromIndex && getCurrentMediaItemIndex() < toIndex;
     Window window = new Window();
     if (oldTimeline.isEmpty()) {
       // No masking required. Just forwarding command to session.
@@ -1117,17 +1121,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                   toIndex);
           if (oldNextMediaItemIndex == C.INDEX_UNSET) {
             newMediaItemIndex = newTimeline.getFirstWindowIndex(getShuffleModeEnabled());
-          } else if (oldNextMediaItemIndex >= clippedToIndex) {
-            newMediaItemIndex = oldNextMediaItemIndex - (clippedToIndex - fromIndex);
+          } else if (oldNextMediaItemIndex >= toIndex) {
+            newMediaItemIndex = oldNextMediaItemIndex - (toIndex - fromIndex);
           } else {
             newMediaItemIndex = oldNextMediaItemIndex;
           }
           newPeriodIndex = newTimeline.getWindow(newMediaItemIndex, window).firstPeriodIndex;
-        } else if (oldMediaItemIndex >= clippedToIndex) {
-          newMediaItemIndex -= (clippedToIndex - fromIndex);
+        } else if (oldMediaItemIndex >= toIndex) {
+          newMediaItemIndex -= (toIndex - fromIndex);
           newPeriodIndex =
               getNewPeriodIndexWithoutRemovedPeriods(
-                  oldTimeline, oldPeriodIndex, fromIndex, clippedToIndex);
+                  oldTimeline, oldPeriodIndex, fromIndex, toIndex);
         }
       }
 
@@ -1191,8 +1195,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       final boolean transitionsToEnded =
           newPlayerInfo.playbackState != Player.STATE_IDLE
               && newPlayerInfo.playbackState != Player.STATE_ENDED
-              && fromIndex < clippedToIndex
-              && clippedToIndex == oldTimeline.getWindowCount()
+              && fromIndex < toIndex
+              && toIndex == oldTimeline.getWindowCount()
               && getCurrentMediaItemIndex() >= fromIndex;
       if (transitionsToEnded) {
         newPlayerInfo =
@@ -1207,7 +1211,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           Player.DISCONTINUITY_REASON_REMOVE,
           /* mediaItemTransition= */ playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex
                   >= fromIndex
-              && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < clippedToIndex,
+              && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < toIndex,
           Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
     }
   }
@@ -1217,18 +1221,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
-
-    checkArgument(
-        currentIndex >= 0 && currentIndex < playerInfo.timeline.getWindowCount() && newIndex >= 0);
+    checkArgument(currentIndex >= 0 && newIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.moveMediaItem(controllerStub, seq, currentIndex, newIndex));
 
-    int clippedNewIndex = min(newIndex, playerInfo.timeline.getWindowCount() - 1);
-
     moveMediaItemsInternal(
-        /* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, clippedNewIndex);
+        /* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
   }
 
   @Override
@@ -1236,22 +1236,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
-
-    checkArgument(
-        fromIndex >= 0
-            && fromIndex <= toIndex
-            && toIndex <= playerInfo.timeline.getWindowCount()
-            && newIndex >= 0);
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.moveMediaItems(controllerStub, seq, fromIndex, toIndex, newIndex));
 
-    int clippedNewIndex =
-        min(newIndex, playerInfo.timeline.getWindowCount() - (toIndex - fromIndex));
-
-    moveMediaItemsInternal(fromIndex, toIndex, clippedNewIndex);
+    moveMediaItemsInternal(fromIndex, toIndex, newIndex);
   }
 
   @Override
@@ -1899,16 +1891,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void moveMediaItemsInternal(int fromIndex, int toIndex, int newIndex) {
-    if (fromIndex == 0 && toIndex == playerInfo.timeline.getWindowCount()) {
+    Timeline oldTimeline = playerInfo.timeline;
+    int playlistSize = playerInfo.timeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    newIndex = min(newIndex, playlistSize - (toIndex - fromIndex));
+    if (fromIndex >= playlistSize || fromIndex == toIndex || fromIndex == newIndex) {
       return;
     }
-
-    Timeline oldTimeline = playerInfo.timeline;
 
     List<Window> newWindows = new ArrayList<>();
     List<Period> newPeriods = new ArrayList<>();
 
-    for (int i = 0; i < oldTimeline.getWindowCount(); i++) {
+    for (int i = 0; i < playlistSize; i++) {
       newWindows.add(oldTimeline.getWindow(i, new Window()));
     }
     Util.moveItems(newWindows, fromIndex, toIndex, newIndex);
@@ -1968,11 +1962,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private void seekToInternal(int windowIndex, long positionMs) {
     Timeline timeline = playerInfo.timeline;
-    if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
-    }
-
-    if (isPlayingAd()) {
+    if ((!timeline.isEmpty() && windowIndex >= timeline.getWindowCount()) || isPlayingAd()) {
       return;
     }
 
