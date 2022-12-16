@@ -102,7 +102,7 @@ public final class VideoEncoderSettings {
     /**
      * Sets {@link VideoEncoderSettings#bitrate}. The default value is {@link #NO_VALUE}.
      *
-     * <p>Can not be set if enabling {@link #setEnableHighQualityTargeting(boolean)}.
+     * <p>Can not be set if enabling {@link #experimentalSetEnableHighQualityTargeting(boolean)}.
      *
      * @param bitrate The {@link VideoEncoderSettings#bitrate}.
      * @return This builder.
@@ -182,6 +182,8 @@ public final class VideoEncoderSettings {
     /**
      * Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.
      *
+     * <p>This method is experimental and may be removed or changed without warning.
+     *
      * <p>Default value is {@code false}.
      *
      * <p>Requires {@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_VBR}.
@@ -189,7 +191,7 @@ public final class VideoEncoderSettings {
      * <p>Can not be enabled alongside setting a custom bitrate with {@link #setBitrate(int)}.
      */
     @CanIgnoreReturnValue
-    public Builder setEnableHighQualityTargeting(boolean enableHighQualityTargeting) {
+    public Builder experimentalSetEnableHighQualityTargeting(boolean enableHighQualityTargeting) {
       this.enableHighQualityTargeting = enableHighQualityTargeting;
       return this;
     }

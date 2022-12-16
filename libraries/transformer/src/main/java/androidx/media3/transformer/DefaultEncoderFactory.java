@@ -427,7 +427,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
                   requestedFormat.frameRate);
       // Resets the flag after getting a targeted bitrate, so that supportedEncodingSetting can have
       // bitrate set.
-      supportedEncodingSettingBuilder.setEnableHighQualityTargeting(false);
+      supportedEncodingSettingBuilder.experimentalSetEnableHighQualityTargeting(false);
     }
     int closestSupportedBitrate =
         EncoderUtil.getSupportedBitrateRange(pickedEncoderInfo, mimeType).clamp(requestedBitrate);
