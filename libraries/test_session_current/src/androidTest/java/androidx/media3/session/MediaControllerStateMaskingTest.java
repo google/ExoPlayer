@@ -46,6 +46,7 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -2955,6 +2956,162 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(positionDiscontinuityReported.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(reportedStateChangeToEndedAtSameTimeAsDiscontinuity.get()).isTrue();
+  }
+
+  @Test
+  public void seekTo_indexLargerThanPlaylist_isIgnored() throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    AtomicInteger mediaItemIndexAfterSeek = new AtomicInteger();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItem(MediaItem.fromUri("http://test"));
+
+              controller.seekTo(/* windowIndex= */ 1, /* positionMs= */ 1000);
+
+              mediaItemIndexAfterSeek.set(controller.getCurrentMediaItemIndex());
+            });
+
+    assertThat(mediaItemIndexAfterSeek.get()).isEqualTo(0);
+  }
+
+  @Test
+  public void addMediaItems_indexLargerThanPlaylist_addsToEndOfPlaylist() throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> addedItems =
+        ImmutableList.of(MediaItem.fromUri("http://new1"), MediaItem.fromUri("http://new2"));
+    ArrayList<MediaItem> mediaItemsAfterAdd = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItem(MediaItem.fromUri("http://test"));
+
+              controller.addMediaItems(/* index= */ 5000, addedItems);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                mediaItemsAfterAdd.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(mediaItemsAfterAdd).hasSize(3);
+    assertThat(mediaItemsAfterAdd.get(1)).isEqualTo(addedItems.get(0));
+    assertThat(mediaItemsAfterAdd.get(2)).isEqualTo(addedItems.get(1));
+  }
+
+  @Test
+  public void removeMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    AtomicInteger mediaItemCountAfterRemove = new AtomicInteger();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(
+                  ImmutableList.of(
+                      MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+              controller.removeMediaItems(/* fromIndex= */ 5000, /* toIndex= */ 6000);
+
+              mediaItemCountAfterRemove.set(controller.getMediaItemCount());
+            });
+
+    assertThat(mediaItemCountAfterRemove.get()).isEqualTo(2);
+  }
+
+  @Test
+  public void removeMediaItems_toIndexLargerThanPlaylist_removesUpToEndOfPlaylist()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    AtomicInteger mediaItemCountAfterRemove = new AtomicInteger();
+    AtomicReference<MediaItem> remainingItemAfterRemove = new AtomicReference<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(
+                  ImmutableList.of(
+                      MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+              controller.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000);
+
+              mediaItemCountAfterRemove.set(controller.getMediaItemCount());
+              remainingItemAfterRemove.set(controller.getMediaItemAt(0));
+            });
+
+    assertThat(mediaItemCountAfterRemove.get()).isEqualTo(1);
+    assertThat(remainingItemAfterRemove.get().localConfiguration.uri.toString())
+        .isEqualTo("http://item1");
+  }
+
+  @Test
+  public void moveMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    ArrayList<MediaItem> itemsAfterMove = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(items);
+
+              controller.moveMediaItems(
+                  /* fromIndex= */ 5000, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                itemsAfterMove.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(itemsAfterMove).isEqualTo(items);
+  }
+
+  @Test
+  public void moveMediaItems_toIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    ArrayList<MediaItem> itemsAfterMove = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(items);
+
+              controller.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                itemsAfterMove.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(itemsAfterMove).containsExactly(items.get(1), items.get(0)).inOrder();
+  }
+
+  @Test
+  public void moveMediaItems_newIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    ArrayList<MediaItem> itemsAfterMove = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(items);
+
+              controller.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1, /* newIndex= */ 5000);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                itemsAfterMove.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(itemsAfterMove).containsExactly(items.get(1), items.get(0)).inOrder();
   }
 
   private void assertMoveMediaItems(
