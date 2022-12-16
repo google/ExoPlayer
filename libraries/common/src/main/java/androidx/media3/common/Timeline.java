@@ -158,7 +158,7 @@ public abstract class Timeline implements Bundleable {
 
     private static final Object FAKE_WINDOW_UID = new Object();
 
-    private static final MediaItem EMPTY_MEDIA_ITEM =
+    private static final MediaItem PLACEHOLDER_MEDIA_ITEM =
         new MediaItem.Builder()
             .setMediaId("androidx.media3.common.Timeline")
             .setUri(Uri.EMPTY)
@@ -258,7 +258,7 @@ public abstract class Timeline implements Bundleable {
     /** Creates window. */
     public Window() {
       uid = SINGLE_WINDOW_UID;
-      mediaItem = EMPTY_MEDIA_ITEM;
+      mediaItem = PLACEHOLDER_MEDIA_ITEM;
     }
 
     /** Sets the data held by this window. */
@@ -281,7 +281,7 @@ public abstract class Timeline implements Bundleable {
         int lastPeriodIndex,
         long positionInFirstPeriodUs) {
       this.uid = uid;
-      this.mediaItem = mediaItem != null ? mediaItem : EMPTY_MEDIA_ITEM;
+      this.mediaItem = mediaItem != null ? mediaItem : PLACEHOLDER_MEDIA_ITEM;
       this.tag =
           mediaItem != null && mediaItem.localConfiguration != null
               ? mediaItem.localConfiguration.tag
