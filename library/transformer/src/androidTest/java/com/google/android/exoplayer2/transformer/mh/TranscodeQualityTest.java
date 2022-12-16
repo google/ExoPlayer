@@ -59,7 +59,7 @@ public final class TranscodeQualityTest {
                 new DefaultEncoderFactory.Builder(context)
                     .setRequestedVideoEncoderSettings(
                         new VideoEncoderSettings.Builder()
-                            .setEnableHighQualityTargeting(true)
+                            .experimentalSetEnableHighQualityTargeting(true)
                             .build())
                     .build())
             .setRemoveAudio(true)

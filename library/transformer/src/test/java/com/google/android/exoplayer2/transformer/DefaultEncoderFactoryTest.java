@@ -178,7 +178,9 @@ public class DefaultEncoderFactoryTest {
     Format actualVideoFormat =
         new DefaultEncoderFactory.Builder(context)
             .setRequestedVideoEncoderSettings(
-                new VideoEncoderSettings.Builder().setEnableHighQualityTargeting(true).build())
+                new VideoEncoderSettings.Builder()
+                    .experimentalSetEnableHighQualityTargeting(true)
+                    .build())
             .build()
             .createForVideoEncoding(requestedVideoFormat)
             .getConfigurationFormat();
