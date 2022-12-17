@@ -62,6 +62,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      *
      * <p>Using HDR {@code inputColorInfo} or {@code outputColorInfo} requires OpenGL ES 3.0.
      *
+     * <p>If outputting HDR content to a display, {@code EGL_GL_COLORSPACE_BT2020_PQ_EXT} is
+     * required, and {@link ColorInfo#colorTransfer outputColorInfo.colorTransfer} must be {@link
+     * C#COLOR_TRANSFER_ST2084}.
+     *
      * <p>Pass a {@link MoreExecutors#directExecutor() direct listenerExecutor} if invoking the
      * {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is desired.
      */
@@ -160,6 +164,19 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
     EGLContext eglContext = GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
     GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+
+    // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
+    // require the BT2020 PQ GL extension.
+    if (!releaseFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
+      // Display hardware supports PQ only.
+      checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
+      if (Util.SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
+        GlUtil.destroyEglContext(eglDisplay, eglContext);
+        // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
+        // GL extension is supported.
+        throw new FrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
+      }
+    }
 
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(

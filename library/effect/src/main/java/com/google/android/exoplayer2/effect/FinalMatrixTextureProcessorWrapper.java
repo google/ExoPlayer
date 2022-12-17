@@ -340,15 +340,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
-      boolean outputTransferIsHdr = ColorInfo.isTransferHdr(outputColorInfo);
-
       outputEglSurface =
           GlUtil.createEglSurface(
               eglDisplay,
               outputSurfaceInfo.surface,
-              outputTransferIsHdr
-                  ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
-                  : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+              outputColorInfo.colorTransfer,
+              // Frames are only released automatically when outputting to an encoder.
+              /* isEncoderInputSurface= */ releaseFramesAutomatically);
 
       @Nullable
       SurfaceView debugSurfaceView =
@@ -356,7 +354,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputSurfaceInfo.width, outputSurfaceInfo.height);
       if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
         debugSurfaceViewWrapper =
-            new SurfaceViewWrapper(eglDisplay, eglContext, outputTransferIsHdr, debugSurfaceView);
+            new SurfaceViewWrapper(
+                eglDisplay, eglContext, ColorInfo.isTransferHdr(outputColorInfo), debugSurfaceView);
       }
       this.debugSurfaceView = debugSurfaceView;
     }
@@ -474,13 +473,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       if (eglSurface == null) {
+        // Screen output supports only BT.2020 PQ (ST2084).
         eglSurface =
             GlUtil.createEglSurface(
                 eglDisplay,
                 surface,
-                useHdr
-                    ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
-                    : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+                useHdr ? C.COLOR_TRANSFER_ST2084 : C.COLOR_TRANSFER_SDR,
+                /* isEncoderInputSurface= */ false);
       }
       EGLSurface eglSurface = this.eglSurface;
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);

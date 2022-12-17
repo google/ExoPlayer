@@ -1885,6 +1885,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         return false;
       }
 
+      ColorInfo inputColorInfo;
+      ColorInfo outputColorInfo;
+      if (inputFormat.colorInfo != null) {
+        inputColorInfo = inputFormat.colorInfo;
+        outputColorInfo =
+            inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG
+                // SurfaceView only supports BT2020 PQ input, converting HLG to PQ.
+                ? inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build()
+                : inputColorInfo;
+      } else {
+        inputColorInfo = ColorInfo.SDR_BT709_LIMITED;
+        outputColorInfo = ColorInfo.SDR_BT709_LIMITED;
+      }
+
       // Playback thread handler.
       handler = Util.createHandlerForCurrentLooper();
       try {
@@ -1895,10 +1909,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     renderer.context,
                     checkNotNull(videoEffects),
                     DebugViewProvider.NONE,
-                    inputFormat.colorInfo != null
-                        ? inputFormat.colorInfo
-                        : ColorInfo.SDR_BT709_LIMITED,
-                    /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    inputColorInfo,
+                    outputColorInfo,
                     /* releaseFramesAutomatically= */ false,
                     /* executor= */ handler::post,
                     new FrameProcessor.Listener() {
