@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.test.utils;
+package androidx.media3.transformer;
 
 import androidx.media3.common.Format;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.transformer.Muxer;
+import androidx.media3.test.utils.DumpableFormat;
+import androidx.media3.test.utils.Dumper;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,6 @@ import java.util.List;
  * testing purposes) and delegates the actual muxing operations to another {@link Muxer} created
  * using the factory provided.
  */
-@UnstableApi
 public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
   private final Muxer muxer;
