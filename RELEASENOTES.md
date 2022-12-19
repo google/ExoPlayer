@@ -41,6 +41,11 @@ Release notes
     *   Add `MediaMetadata.isBrowsable` as a replacement for
         `MediaMetadata.folderType`. The folder type will be deprecated in the
         next release.
+*   Transformer:
+    *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
+        Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
+        `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
+        instead.
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.

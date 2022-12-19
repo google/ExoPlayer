@@ -533,10 +533,11 @@ public final class TransformerEndToEndTest {
     MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
+    AssetLoader.Factory assetLoaderFactory = new ExoPlayerAssetLoader.Factory(mediaSourceFactory);
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
-            .setMediaSourceFactory(mediaSourceFactory)
+            .setAssetLoaderFactory(assetLoaderFactory)
             .setMuxerFactory(muxerFactory)
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);

@@ -22,7 +22,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.exoplayer.source.MediaSource;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
@@ -36,10 +35,15 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 @UnstableApi
 public interface AssetLoader {
 
-  /** A factory for {@link AssetLoader} instances. */
+  /**
+   * A factory for {@link AssetLoader} instances.
+   *
+   * <p>The setters in this interface will be called with the values used to build and start the
+   * {@link Transformer}.
+   */
   interface Factory {
 
-    /** Sets the context. */
+    /** Sets the {@link Context}. */
     @CanIgnoreReturnValue
     Factory setContext(Context context);
 
@@ -78,10 +82,6 @@ public interface AssetLoader {
     @CanIgnoreReturnValue
     Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion);
 
-    /** Sets the {@link MediaSource.Factory} to be used to retrieve the samples. */
-    @CanIgnoreReturnValue
-    Factory setMediaSourceFactory(MediaSource.Factory mediaSourceFactory);
-
     /** Sets the {@link Codec.DecoderFactory} to be used to decode the samples (if necessary). */
     @CanIgnoreReturnValue
     Factory setDecoderFactory(Codec.DecoderFactory decoderFactory);
@@ -113,7 +113,7 @@ public interface AssetLoader {
   }
 
   /**
-   * A listener of asset loader events.
+   * A listener of {@link AssetLoader} events.
    *
    * <p>This listener is typically used in the following way:
    *
