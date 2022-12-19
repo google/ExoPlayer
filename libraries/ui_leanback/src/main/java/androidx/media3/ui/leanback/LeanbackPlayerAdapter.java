@@ -164,8 +164,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   }
 
   @Override
-  public void seekTo(long positionMs) {
-    player.seekTo(player.getCurrentMediaItemIndex(), positionMs);
+  public void seekTo(long positionInMs) {
+    player.seekTo(player.getCurrentMediaItemIndex(), positionInMs);
   }
 
   @Override
