@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -56,7 +57,9 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1400,6 +1403,7 @@ public class SimpleBasePlayerTest {
                 /* adIndexInAdGroup= */ C.INDEX_UNSET),
             Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onMediaItemTransition(mediaItem1, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+    verify(listener).onSeekProcessed();
     verify(listener)
         .onEvents(
             player,
@@ -1439,9 +1443,6 @@ public class SimpleBasePlayerTest {
     verifyNoMoreInteractions(listener);
     // Assert that we actually called all listeners.
     for (Method method : Player.Listener.class.getDeclaredMethods()) {
-      if (method.getName().equals("onSeekProcessed")) {
-        continue;
-      }
       if (method.getName().equals("onAudioSessionIdChanged")
           || method.getName().equals("onSkipSilenceEnabledChanged")) {
         // Skip listeners for ExoPlayer-specific states
@@ -3813,6 +3814,3545 @@ public class SimpleBasePlayerTest {
         };
 
     player.clearVideoSurface();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void addMediaItems_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.addMediaItems(
+        /* index= */ 1,
+        ImmutableList.of(
+            new MediaItem.Builder().setMediaId("3").build(),
+            new MediaItem.Builder().setMediaId("4").build()));
+
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void addMediaItems_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(3)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.addMediaItems(
+        /* index= */ 1,
+        ImmutableList.of(
+            new MediaItem.Builder().setMediaId("3").build(),
+            new MediaItem.Builder().setMediaId("4").build()));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(3);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(4);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    assertThat(window.isPlaceholder).isFalse();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 2, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("4");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 3, window);
+    assertThat(window.uid).isEqualTo(2);
+    assertThat(window.isPlaceholder).isFalse();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(3);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      addMediaItems_asyncHandlingWhileAdIsPlaying_usesPlaceholderStateAndInformsListeners() {
+    SimpleBasePlayer.PeriodData adPeriodData =
+        new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
+            .setAdPlaybackState(
+                new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 123))
+            .build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setPeriods(ImmutableList.of(adPeriodData))
+                        .build()))
+            .setCurrentAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setPeriods(ImmutableList.of(adPeriodData))
+                        .build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.addMediaItem(/* index= */ 0, new MediaItem.Builder().setMediaId("id").build());
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentAdGroupIndex()).isEqualTo(0);
+    assertThat(player.getCurrentAdIndexInAdGroup()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("id");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(1);
+    assertThat(window.isPlaceholder).isFalse();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentAdGroupIndex()).isEqualTo(0);
+    assertThat(player.getCurrentAdIndexInAdGroup()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void addMediaItems_asyncHandlingFromEmpty_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setContentPositionMs(5000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(5_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("3").build();
+
+    player.addMediaItems(
+        ImmutableList.of(newMediaItem, new MediaItem.Builder().setMediaId("2").build()));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      addMediaItems_asyncHandlingFromEmptyWithPreviouslySetPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.addMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("3").build(), newMediaItem));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      addMediaItems_asyncHandlingFromEmptyWithPreviouslySetPositionExceedingNewPlaylistSize_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(5000)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(0)
+            .setContentPositionMs(1000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(1_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("3").build();
+
+    player.addMediaItems(
+        ImmutableList.of(newMediaItem, new MediaItem.Builder().setMediaId("2").build()));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(1000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(1000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      addMediaItems_asyncHandlingFromEmptyWithPreviouslySetIndexAndDefaultPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setContentPositionMs(5000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(5_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.addMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("3").build(), newMediaItem));
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void addMediaItems_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.addMediaItem(new MediaItem.Builder().setMediaId("id").build());
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void addMediaItems_withInvalidIndex_addsToEndOfPlaylist() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicInteger indexInHandleMethod = new AtomicInteger(C.INDEX_UNSET);
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
+            indexInHandleMethod.set(index);
+            return SettableFuture.create();
+          }
+        };
+
+    player.addMediaItem(/* index= */ 5000, new MediaItem.Builder().setMediaId("new").build());
+
+    assertThat(indexInHandleMethod.get()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("new");
+  }
+
+  @Test
+  public void moveMediaItems_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build()))
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .setCurrentMediaItemIndex(2)
+            .build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleMoveMediaItems(
+              int fromIndex, int toIndex, int newIndex) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3, /* newIndex= */ 0);
+
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void moveMediaItems_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build()))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .setCurrentMediaItemIndex(2)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleMoveMediaItems(
+              int fromIndex, int toIndex, int newIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3, /* newIndex= */ 0);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(2);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(3);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(2);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(3);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 2, window);
+    assertThat(window.uid).isEqualTo(1);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(2);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      moveMediaItems_asyncHandlingWhileAdIsPlaying_usesPlaceholderStateAndInformsListeners() {
+    SimpleBasePlayer.PeriodData adPeriodData =
+        new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
+            .setAdPlaybackState(
+                new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 123))
+            .build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setPeriods(ImmutableList.of(adPeriodData))
+                        .build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build()))
+            .setCurrentAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setPeriods(ImmutableList.of(adPeriodData))
+                        .build()))
+            .setCurrentMediaItemIndex(2)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleMoveMediaItems(
+              int fromIndex, int toIndex, int newIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3, /* newIndex= */ 0);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentAdGroupIndex()).isEqualTo(0);
+    assertThat(player.getCurrentAdIndexInAdGroup()).isEqualTo(0);
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(2);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(3);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(2);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(3);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 2, window);
+    assertThat(window.uid).isEqualTo(1);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentAdGroupIndex()).isEqualTo(0);
+    assertThat(player.getCurrentAdIndexInAdGroup()).isEqualTo(0);
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(2);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void moveMediaItems_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleMoveMediaItems(
+              int fromIndex, int toIndex, int newIndex) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, /* newIndex= */ 0);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void moveMediaItems_withInvalidIndices_usesValidIndexRange() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build()))
+            .build();
+    AtomicInteger fromIndexInHandleMethod = new AtomicInteger(C.INDEX_UNSET);
+    AtomicInteger toIndexInHandleMethod = new AtomicInteger(C.INDEX_UNSET);
+    AtomicInteger newIndexInHandleMethod = new AtomicInteger(C.INDEX_UNSET);
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleMoveMediaItems(
+              int fromIndex, int toIndex, int newIndex) {
+            fromIndexInHandleMethod.set(fromIndex);
+            toIndexInHandleMethod.set(toIndex);
+            newIndexInHandleMethod.set(newIndex);
+            return SettableFuture.create();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2500, /* newIndex= */ 0);
+    assertThat(fromIndexInHandleMethod.get()).isEqualTo(1);
+    assertThat(toIndexInHandleMethod.get()).isEqualTo(3);
+    assertThat(newIndexInHandleMethod.get()).isEqualTo(0);
+
+    player.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 2, /* newIndex= */ 6000);
+    assertThat(fromIndexInHandleMethod.get()).isEqualTo(0);
+    assertThat(toIndexInHandleMethod.get()).isEqualTo(2);
+    assertThat(newIndexInHandleMethod.get()).isEqualTo(1);
+
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(3);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(2);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 2, window);
+    assertThat(window.uid).isEqualTo(3);
+    verify(listener, times(2))
+        .onTimelineChanged(any(), eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void removeMediaItems_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build()))
+            .setCurrentMediaItemIndex(3)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3);
+
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void removeMediaItems_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build()))
+            .setCurrentMediaItemIndex(3)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 5).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4).build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(4);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      removeMediaItems_asyncHandlingWhileAdIsPlaying_usesPlaceholderStateAndInformsListeners() {
+    SimpleBasePlayer.PeriodData adPeriodData =
+        new SimpleBasePlayer.PeriodData.Builder(/* uid= */ new Object())
+            .setAdPlaybackState(
+                new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 123))
+            .build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4)
+                        .setPeriods(ImmutableList.of(adPeriodData))
+                        .build()))
+            .setCurrentAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .setCurrentMediaItemIndex(3)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 5).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4)
+                        .setPeriods(ImmutableList.of(adPeriodData))
+                        .build()))
+            .setCurrentMediaItemIndex(1)
+            .setCurrentAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentAdGroupIndex()).isEqualTo(0);
+    assertThat(player.getCurrentAdIndexInAdGroup()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(4);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentAdGroupIndex()).isEqualTo(0);
+    assertThat(player.getCurrentAdIndexInAdGroup()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void
+      removeMediaItems_asyncHandlingRemovingCurrentItemWithSubsequentMatch_usesPlaceholderStateAndInformsListeners() {
+    MediaItem lastMediaItem = new MediaItem.Builder().setMediaId("id").build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4)
+                        .setMediaItem(lastMediaItem)
+                        .build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 5).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 4)
+                        .setMediaItem(lastMediaItem)
+                        .build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.uid).isEqualTo(4);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(lastMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void
+      removeMediaItems_asyncHandlingRemovingCurrentItemWithoutSubsequentMatch_usesPlaceholderStateAndInformsListeners() {
+    MediaItem firstMediaItem = new MediaItem.Builder().setMediaId("id").build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setMediaItem(firstMediaItem)
+                        .build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build()))
+            .setCurrentMediaItemIndex(1)
+            .setPlaybackState(Player.STATE_READY)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setMediaItem(firstMediaItem)
+                        .build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 5).build()))
+            .setCurrentMediaItemIndex(0)
+            .setPlaybackState(Player.STATE_ENDED)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(1);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            firstMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPlaybackStateChanged(Player.STATE_ENDED);
+    verify(listener).onPlayerStateChanged(/* playWhenReady= */ false, Player.STATE_ENDED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void
+      removeMediaItems_asyncHandlingRemovingEntirePlaylist_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build()))
+            .setCurrentMediaItemIndex(1)
+            .setPlaybackState(Player.STATE_READY)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(ImmutableList.of())
+            .setCurrentMediaItemIndex(C.INDEX_UNSET)
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .setPlaybackState(Player.STATE_ENDED)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.clearMediaItems();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            /* mediaItem= */ null, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPlaybackStateChanged(Player.STATE_ENDED);
+    verify(listener).onPlayerStateChanged(/* playWhenReady= */ false, Player.STATE_ENDED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener).onRepeatModeChanged(Player.REPEAT_MODE_ALL);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void removeMediaItems_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.removeMediaItem(/* index= */ 0);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void removeMediaItems_withInvalidIndex_removesToEndOfPlaylist() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicInteger fromIndexInHandleMethod = new AtomicInteger(C.INDEX_UNSET);
+    AtomicInteger toIndexInHandleMethod = new AtomicInteger(C.INDEX_UNSET);
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
+            fromIndexInHandleMethod.set(fromIndex);
+            toIndexInHandleMethod.set(toIndex);
+            return SettableFuture.create();
+          }
+        };
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 5000);
+
+    assertThat(fromIndexInHandleMethod.get()).isEqualTo(1);
+    assertThat(toIndexInHandleMethod.get()).isEqualTo(2);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(1);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.uid).isEqualTo(1);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void setMediaItems_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("new").build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3)
+                        .setMediaItem(newMediaItem)
+                        .build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(
+        ImmutableList.of(
+            new MediaItem.Builder().setMediaId("2").build(),
+            new MediaItem.Builder().setMediaId("3").build()));
+
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithIndexAndPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.setMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("3").build(), newMediaItem),
+        /* startIndex= */ 1,
+        /* startPositionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithIndexAndPositionFromEmpty_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.setMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("1").build(), newMediaItem),
+        /* startIndex= */ 1,
+        /* startPositionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("1");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithIndexAndDefaultPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(3_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.setMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("1").build(), newMediaItem),
+        /* startIndex= */ 1,
+        /* startPositionMs= */ C.TIME_UNSET);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("1");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithEmptyPlaylistAndIndexAndPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(ImmutableList.of())
+            .setCurrentMediaItemIndex(20)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* startIndex= */ 20, /* startPositionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(20);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verify(listener)
+        .onTimelineChanged(Timeline.EMPTY, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            /* mediaItem= */ null, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(20);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithEmptyPlaylistAndIndexAndDefaultPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    State updatedState =
+        state.buildUpon().setPlaylist(ImmutableList.of()).setCurrentMediaItemIndex(20).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(
+        ImmutableList.of(), /* startIndex= */ 20, /* startPositionMs= */ C.TIME_UNSET);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(20);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verify(listener)
+        .onTimelineChanged(Timeline.EMPTY, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            /* mediaItem= */ null, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(20);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void setMediaItems_asyncHandlingWithResetTrue_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(0)
+            .setContentPositionMs(5000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(5_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("3").build();
+
+    player.setMediaItems(
+        ImmutableList.of(newMediaItem, new MediaItem.Builder().setMediaId("2").build()),
+        /* resetPosition= */ true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetTrueFromEmpty_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(0)
+            .setContentPositionMs(5000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(5_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("3").build();
+
+    player.setMediaItems(
+        ImmutableList.of(newMediaItem, new MediaItem.Builder().setMediaId("2").build()),
+        /* resetPosition= */ true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetTrueToEmpty_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(ImmutableList.of())
+            .setCurrentMediaItemIndex(C.INDEX_UNSET)
+            .setContentPositionMs(C.TIME_UNSET)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* resetPosition= */ true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verify(listener)
+        .onTimelineChanged(Timeline.EMPTY, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(
+            /* mediaItem= */ null, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetTrueFromEmptyToEmpty_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setCurrentMediaItemIndex(C.INDEX_UNSET)
+            .setContentPositionMs(C.TIME_UNSET)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* resetPosition= */ true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void setMediaItems_asyncHandlingWithResetFalse_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.setMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("3").build(), newMediaItem),
+        /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyWithSetPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.setMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("3").build(), newMediaItem),
+        /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyWithSetPositionExceedingPlaylistSize_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(5000)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(0)
+            .setContentPositionMs(1000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(1_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("3").build();
+
+    player.setMediaItems(
+        ImmutableList.of(newMediaItem, new MediaItem.Builder().setMediaId("2").build()),
+        /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(1000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(1000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyWithIndexAndDefaultPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setContentPositionMs(5000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(5_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+
+    player.setMediaItems(
+        ImmutableList.of(new MediaItem.Builder().setMediaId("3").build(), newMediaItem),
+        /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyWithDefaultIndexAndPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 3).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setContentPositionMs(5000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+
+          @Override
+          protected MediaItemData getPlaceholderMediaItemData(MediaItem mediaItem) {
+            return super.getPlaceholderMediaItemData(mediaItem)
+                .buildUpon()
+                .setDefaultPositionUs(5_000_000)
+                .build();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("3").build();
+
+    player.setMediaItems(
+        ImmutableList.of(newMediaItem, new MediaItem.Builder().setMediaId("2").build()),
+        /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("3");
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.mediaId).isEqualTo("2");
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5000);
+    assertThat(player.getCurrentTimeline()).isEqualTo(updatedState.timeline);
+    verify(listener)
+        .onTimelineChanged(updatedState.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseToEmpty_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    State updatedState =
+        state
+            .buildUpon()
+            .setPlaylist(ImmutableList.of())
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verify(listener)
+        .onTimelineChanged(Timeline.EMPTY, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(
+            /* mediaItem= */ null, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyToEmptyWithSetPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .setContentPositionMs(3000)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyToEmptyWithIndexAndDefaultPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setCurrentMediaItemIndex(1)
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void
+      setMediaItems_asyncHandlingWithResetFalseFromEmptyToEmptyWithDefaultIndexAndPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setMediaItems(ImmutableList.of(), /* resetPosition= */ false);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setMediaItems_withoutAvailableCommandForEmptyPlaylist_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setMediaItems(ImmutableList.of());
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setMediaItems_withoutAvailableCommandForSingleItemPlaylist_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .removeAll(Player.COMMAND_CHANGE_MEDIA_ITEMS, Player.COMMAND_SET_MEDIA_ITEM)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setMediaItems(ImmutableList.of(new MediaItem.Builder().setMediaId("new").build()));
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void setMediaItems_withJustSetMediaItemCommandForSingleItemPlaylist_isForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().add(Player.COMMAND_SET_MEDIA_ITEM).build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setMediaItems(ImmutableList.of(new MediaItem.Builder().setMediaId("new").build()));
+
+    assertThat(callForwarded.get()).isTrue();
+  }
+
+  @Test
+  public void setMediaItems_withJustChangeMediaItemsCommandForSingleItemPlaylist_isForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().add(Player.COMMAND_CHANGE_MEDIA_ITEMS).build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setMediaItems(ImmutableList.of(new MediaItem.Builder().setMediaId("new").build()));
+
+    assertThat(callForwarded.get()).isTrue();
+  }
+
+  @Test
+  public void setMediaItems_withoutAvailableCommandForMultiItemPlaylist_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetMediaItems(
+              List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setMediaItems(
+        ImmutableList.of(
+            new MediaItem.Builder().setMediaId("1").build(),
+            new MediaItem.Builder().setMediaId("2").build()));
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void seekTo_immediateHandling_updatesStateAndInformsListeners() {
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2)
+                        .setMediaItem(newMediaItem)
+                        .build()))
+            .build();
+    State updatedState =
+        state.buildUpon().setCurrentMediaItemIndex(1).setContentPositionMs(3000).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 3000);
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void seekTo_asyncHandlingWithIndexAndPosition_usesPlaceholderStateAndInformsListeners() {
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2)
+                        .setMediaItem(newMediaItem)
+                        .build()))
+            .setContentPositionMs(8000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(2000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state.buildUpon().setCurrentMediaItemIndex(1).setContentPositionMs(3005).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getBufferedPosition()).isEqualTo(3000);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
+    verify(listener).onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3005);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithIndexAndDefaultPosition_usesPlaceholderStateAndInformsListeners() {
+    MediaItem newMediaItem = new MediaItem.Builder().setMediaId("2").build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2)
+                        .setMediaItem(newMediaItem)
+                        .setDefaultPositionUs(3_000_000)
+                        .build()))
+            .setContentPositionMs(8000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(2000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state.buildUpon().setCurrentMediaItemIndex(1).setContentPositionMs(3005).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ C.TIME_UNSET);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getBufferedPosition()).isEqualTo(3000);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
+    verify(listener).onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3005);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithIndexAndPositionAndEmptyPlaylist_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(ImmutableList.of())
+            .setContentPositionMs(8000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(2000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state.buildUpon().setCurrentMediaItemIndex(1).setContentPositionMs(3005).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getBufferedPosition()).isEqualTo(3000);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(3005);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithIndexAndDefaultPositionAndEmptyPlaylist_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(ImmutableList.of())
+            .setContentPositionMs(8000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(2000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState =
+        state.buildUpon().setCurrentMediaItemIndex(1).setContentPositionMs(100).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ C.TIME_UNSET);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getBufferedPosition()).isEqualTo(0);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(100);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithSeekBackInCurrentItem_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .setContentPositionMs(8000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(2000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState = state.buildUpon().setContentPositionMs(3005).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* positionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getBufferedPosition()).isEqualTo(3000);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(3005);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithSeekToCurrentPosition_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .setContentPositionMs(3000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(7000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState = state.buildUpon().setContentPositionMs(3005).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* positionMs= */ 3000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(3000);
+    assertThat(player.getBufferedPosition()).isEqualTo(10000);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(7000);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(3005);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithSeekForwardInCurrentItem_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build()))
+            .setContentPositionMs(3000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(7000))
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState = state.buildUpon().setContentPositionMs(7005).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* positionMs= */ 7000);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(7000);
+    assertThat(player.getBufferedPosition()).isEqualTo(10000);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(3000);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(7005);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @SuppressWarnings("deprecation") // Verifying deprecated listener calls.
+  @Test
+  public void
+      seekTo_asyncHandlingWithRepeatOfCurrentItem_usesPlaceholderStateAndInformsListeners() {
+    MediaItem mediaItem = new MediaItem.Builder().setMediaId("id").build();
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1)
+                        .setMediaItem(mediaItem)
+                        .build()))
+            .setContentPositionMs(8000)
+            .setContentBufferedPositionMs(SimpleBasePlayer.PositionSupplier.getConstant(10000))
+            .setTotalBufferedDurationMs(SimpleBasePlayer.PositionSupplier.getConstant(2000))
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .build();
+    // Change updated state slightly to see a difference to the placeholder state.
+    State updatedState = state.buildUpon().setContentPositionMs(5).build();
+    SettableFuture<?> future = SettableFuture.create();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.seekToNext();
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+    assertThat(player.getBufferedPosition()).isEqualTo(0);
+    assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener).onMediaItemTransition(mediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+    verify(listener).onSeekProcessed();
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(5);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void seekTo_withoutAvailableCommandForSeekToMediaItem_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_TO_MEDIA_ITEM)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 4000);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekTo_withoutAvailableCommandForSeekInCurrentMediaItem_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekTo(/* positionMs= */ 4000);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekToDefaultPosition_withoutAvailableCommandForSeekToMediaItem_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_TO_MEDIA_ITEM)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 1);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void
+      seekToDefaultPosition_withoutAvailableCommandForSeekToDefaultPosition_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_TO_DEFAULT_POSITION)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekToDefaultPosition();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekBack_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_SEEK_BACK).build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekBack();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekToPrevious_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_TO_PREVIOUS)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekToPrevious();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekToPreviousMediaItem_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .setCurrentMediaItemIndex(1)
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekToPreviousMediaItem();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekForward_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_SEEK_FORWARD).build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekForward();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekToNext_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_SEEK_TO_NEXT).build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekToNext();
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
+  public void seekToNextMediaItem_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
+                    .build())
+            .setPlaylist(
+                ImmutableList.of(
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 1).build(),
+                    new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ 2).build()))
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSeek(
+              int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.seekToNextMediaItem();
 
     assertThat(callForwarded.get()).isFalse();
   }
