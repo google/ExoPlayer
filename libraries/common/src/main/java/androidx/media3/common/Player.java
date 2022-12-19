@@ -2094,7 +2094,7 @@ public interface Player {
    * setPlaybackParameters(getPlaybackParameters().withSpeed(speed))}.
    *
    * @param speed The linear factor by which playback will be sped up. Must be higher than 0. 1 is
-   *     normal speed, 2 is twice as fast, 0.5 is half normal speed...
+   *     normal speed, 2 is twice as fast, 0.5 is half normal speed.
    */
   void setPlaybackSpeed(@FloatRange(from = 0, fromInclusive = false) float speed);
 
