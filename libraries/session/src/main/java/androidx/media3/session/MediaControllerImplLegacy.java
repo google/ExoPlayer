@@ -25,6 +25,7 @@ import static java.lang.Math.min;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -76,7 +77,10 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -93,6 +97,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final SessionToken token;
   private final ListenerSet<Listener> listeners;
   private final ControllerCompatCallback controllerCompatCallback;
+  private final BitmapLoader bitmapLoader;
 
   @Nullable private MediaControllerCompat controllerCompat;
   @Nullable private MediaBrowserCompat browserCompat;
@@ -106,7 +111,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Context context,
       @UnderInitialization MediaController instance,
       SessionToken token,
-      Looper applicationLooper) {
+      Looper applicationLooper,
+      BitmapLoader bitmapLoader) {
     // Initialize default values.
     legacyPlayerInfo = new LegacyPlayerInfo();
     pendingLegacyPlayerInfo = new LegacyPlayerInfo();
@@ -122,6 +128,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.instance = instance;
     controllerCompatCallback = new ControllerCompatCallback(applicationLooper);
     this.token = token;
+    this.bitmapLoader = bitmapLoader;
   }
 
   /* package */ MediaController getInstance() {
@@ -716,11 +723,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         /* mediaItemTransitionReason= */ null);
 
     if (isPrepared()) {
-      for (int i = 0; i < mediaItems.size(); i++) {
-        MediaItem mediaItem = mediaItems.get(i);
-        controllerCompat.addQueueItem(
-            MediaUtils.convertToMediaDescriptionCompat(mediaItem), index + i);
-      }
+      addQueueItems(mediaItems, index);
     }
   }
 
@@ -1340,15 +1343,61 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     // Add all other items to the playlist if supported.
     if (getAvailableCommands().contains(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
+      List<MediaItem> adjustedMediaItems = new ArrayList<>();
       for (int i = 0; i < queueTimeline.getWindowCount(); i++) {
         if (i == currentIndex || queueTimeline.getQueueId(i) != QueueItem.UNKNOWN_ID) {
           // Skip the current item (added above) and all items already known to the session.
           continue;
         }
-        MediaItem mediaItem = queueTimeline.getWindow(/* windowIndex= */ i, window).mediaItem;
-        controllerCompat.addQueueItem(
-            MediaUtils.convertToMediaDescriptionCompat(mediaItem), /* index= */ i);
+        adjustedMediaItems.add(queueTimeline.getWindow(/* windowIndex= */ i, window).mediaItem);
       }
+      addQueueItems(adjustedMediaItems, /* startIndex= */ 0);
+    }
+  }
+
+  private void addQueueItems(List<MediaItem> mediaItems, int startIndex) {
+    List<@NullableType ListenableFuture<Bitmap>> bitmapFutures = new ArrayList<>();
+    final AtomicInteger resultCount = new AtomicInteger(0);
+    Runnable handleBitmapFuturesTask =
+        () -> {
+          int completedBitmapFutureCount = resultCount.incrementAndGet();
+          if (completedBitmapFutureCount == mediaItems.size()) {
+            handleBitmapFuturesAllCompletedAndAddQueueItems(
+                bitmapFutures, mediaItems, /* startIndex= */ startIndex);
+          }
+        };
+
+    for (int i = 0; i < mediaItems.size(); i++) {
+      MediaItem mediaItem = mediaItems.get(i);
+      MediaMetadata metadata = mediaItem.mediaMetadata;
+      if (metadata.artworkData == null) {
+        bitmapFutures.add(null);
+        handleBitmapFuturesTask.run();
+      } else {
+        ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.decodeBitmap(metadata.artworkData);
+        bitmapFutures.add(bitmapFuture);
+        bitmapFuture.addListener(handleBitmapFuturesTask, getInstance().applicationHandler::post);
+      }
+    }
+  }
+
+  private void handleBitmapFuturesAllCompletedAndAddQueueItems(
+      List<@NullableType ListenableFuture<Bitmap>> bitmapFutures,
+      List<MediaItem> mediaItems,
+      int startIndex) {
+    for (int i = 0; i < bitmapFutures.size(); i++) {
+      @Nullable ListenableFuture<Bitmap> future = bitmapFutures.get(i);
+      @Nullable Bitmap bitmap = null;
+      if (future != null) {
+        try {
+          bitmap = Futures.getDone(future);
+        } catch (CancellationException | ExecutionException e) {
+          Log.d(TAG, "Failed to get bitmap");
+        }
+      }
+      controllerCompat.addQueueItem(
+          MediaUtils.convertToMediaDescriptionCompat(mediaItems.get(i), bitmap),
+          /* index= */ startIndex + i);
     }
   }
 
