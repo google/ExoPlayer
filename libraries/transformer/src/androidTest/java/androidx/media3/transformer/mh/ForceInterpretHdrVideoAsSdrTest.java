@@ -15,10 +15,10 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10_FORMAT;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 
 import android.content.Context;
@@ -54,7 +54,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
         testId,
-        /* decodingFormat= */ MP4_REMOTE_1080P_4_SECOND_HDR10_FORMAT,
+        /* decodingFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
         /* encodingFormat= */ null)) {
       return;
     }
@@ -71,7 +71,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
@@ -90,7 +90,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
         testId,
-        /* decodingFormat= */ MP4_REMOTE_1080P_5_SECOND_HLG10_FORMAT,
+        /* decodingFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
         /* encodingFormat= */ null)) {
       return;
     }
@@ -107,7 +107,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
