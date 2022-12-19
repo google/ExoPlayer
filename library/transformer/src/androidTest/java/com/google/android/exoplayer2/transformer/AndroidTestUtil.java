@@ -93,8 +93,8 @@ public final class AndroidTestUtil {
           .setFrameRate(30.472f)
           .build();
 
-  public static final String MP4_REMOTE_1080P_5_SECOND_HLG10 = "asset:///media/mp4/hlg-1080p.mp4";
-  public static final Format MP4_REMOTE_1080P_5_SECOND_HLG10_FORMAT =
+  public static final String MP4_ASSET_1080P_5_SECOND_HLG10 = "asset:///media/mp4/hlg-1080p.mp4";
+  public static final Format MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H265)
           .setWidth(1920)
@@ -107,8 +107,8 @@ public final class AndroidTestUtil {
                   C.COLOR_TRANSFER_HLG,
                   /* hdrStaticInfo= */ null))
           .build();
-  public static final String MP4_REMOTE_1080P_4_SECOND_HDR10 = "asset:///media/mp4/hdr10-1080p.mp4";
-  public static final Format MP4_REMOTE_1080P_4_SECOND_HDR10_FORMAT =
+  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 = "asset:///media/mp4/hdr10-1080p.mp4";
+  public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H265)
           .setWidth(1920)
