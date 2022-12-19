@@ -24,11 +24,13 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -40,21 +42,146 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
-/* package */ final class ExoPlayerAssetLoader implements AssetLoader {
+/** An {@link AssetLoader} implementation that uses an {@link ExoPlayer} to load samples. */
+public final class ExoPlayerAssetLoader implements AssetLoader {
+
+  /** An {@link AssetLoader.Factory} for {@link ExoPlayerAssetLoader} instances. */
+  public static final class Factory implements AssetLoader.Factory {
+
+    @Nullable private Context context;
+    @Nullable private MediaItem mediaItem;
+    private boolean removeAudio;
+    private boolean removeVideo;
+    private boolean flattenVideoForSlowMotion;
+    @Nullable private MediaSource.Factory mediaSourceFactory;
+    @Nullable private Codec.DecoderFactory decoderFactory;
+    @Nullable private Looper looper;
+    @Nullable private AssetLoader.Listener listener;
+    @Nullable private Clock clock;
+
+    /**
+     * Creates an instance.
+     *
+     * <p>The {@link ExoPlayerAssetLoader} instances produced use a {@link
+     * DefaultMediaSourceFactory} built with the context provided in {@linkplain
+     * #setContext(Context)}.
+     */
+    public Factory() {}
+
+    /**
+     * Creates an instance.
+     *
+     * @param mediaSourceFactory The {@link MediaSource.Factory} to be used to retrieve the samples
+     *     to transform.
+     */
+    public Factory(MediaSource.Factory mediaSourceFactory) {
+      this.mediaSourceFactory = mediaSourceFactory;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setContext(Context context) {
+      this.context = context;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
+      this.mediaItem = mediaItem;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
+      this.removeAudio = removeAudio;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
+      this.removeVideo = removeVideo;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
+      this.flattenVideoForSlowMotion = flattenVideoForSlowMotion;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setDecoderFactory(Codec.DecoderFactory decoderFactory) {
+      this.decoderFactory = decoderFactory;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setLooper(Looper looper) {
+      this.looper = looper;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setListener(AssetLoader.Listener listener) {
+      this.listener = listener;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setClock(Clock clock) {
+      this.clock = clock;
+      return this;
+    }
+
+    @Override
+    public AssetLoader createAssetLoader() {
+      Context context = checkStateNotNull(this.context);
+      if (mediaSourceFactory == null) {
+        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+        if (flattenVideoForSlowMotion) {
+          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
+        }
+        mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
+      }
+      return new ExoPlayerAssetLoader(
+          context,
+          checkStateNotNull(mediaItem),
+          removeAudio,
+          removeVideo,
+          flattenVideoForSlowMotion,
+          mediaSourceFactory,
+          checkStateNotNull(decoderFactory),
+          checkStateNotNull(looper),
+          checkStateNotNull(listener),
+          checkStateNotNull(clock));
+    }
+  }
 
   private final MediaItem mediaItem;
   private final ExoPlayer player;
 
   private @Transformer.ProgressState int progressState;
 
-  public ExoPlayerAssetLoader(
+  private ExoPlayerAssetLoader(
       Context context,
       MediaItem mediaItem,
       boolean removeAudio,

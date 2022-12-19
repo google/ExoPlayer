@@ -34,9 +34,6 @@ import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
 import com.google.android.exoplayer2.effect.GlMatrixTransformation;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -53,7 +50,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A transformer to transform media inputs.
@@ -89,7 +85,6 @@ public final class Transformer {
     private boolean removeVideo;
     private boolean forceSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
-    private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
     private AssetLoader.Factory assetLoaderFactory;
     private Codec.DecoderFactory decoderFactory;
     private Codec.EncoderFactory encoderFactory;
@@ -130,7 +125,6 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.forceSilentAudio = transformer.forceSilentAudio;
       this.listeners = transformer.listeners;
-      this.mediaSourceFactory = transformer.mediaSourceFactory;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
       this.decoderFactory = transformer.decoderFactory;
       this.encoderFactory = transformer.encoderFactory;
@@ -289,21 +283,6 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder removeAllListeners() {
       this.listeners.clear();
-      return this;
-    }
-
-    /**
-     * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform.
-     *
-     * <p>The default value is a {@link DefaultMediaSourceFactory} built with the context provided
-     * in {@linkplain #Builder(Context) the constructor}.
-     *
-     * @param mediaSourceFactory A {@link MediaSource.Factory}.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
-      this.mediaSourceFactory = mediaSourceFactory;
       return this;
     }
 
@@ -476,13 +455,6 @@ public final class Transformer {
       if (transformationRequest.videoMimeType != null) {
         checkSampleMimeType(transformationRequest.videoMimeType);
       }
-      if (mediaSourceFactory == null) {
-        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-        if (transformationRequest.flattenForSlowMotion) {
-          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
-        }
-        mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
-      }
       return new Transformer(
           context,
           transformationRequest,
@@ -492,7 +464,6 @@ public final class Transformer {
           removeVideo,
           forceSilentAudio,
           listeners,
-          mediaSourceFactory,
           assetLoaderFactory,
           decoderFactory,
           encoderFactory,
@@ -618,7 +589,6 @@ public final class Transformer {
   private final boolean removeVideo;
   private final boolean forceSilentAudio;
   private final ListenerSet<Transformer.Listener> listeners;
-  private final MediaSource.Factory mediaSourceFactory;
   private final AssetLoader.Factory assetLoaderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final Muxer.Factory muxerFactory;
@@ -637,7 +607,6 @@ public final class Transformer {
       boolean removeVideo,
       boolean forceSilentAudio,
       ListenerSet<Listener> listeners,
-      MediaSource.Factory mediaSourceFactory,
       AssetLoader.Factory assetLoaderFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -659,7 +628,6 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.forceSilentAudio = forceSilentAudio;
     this.listeners = listeners;
-    this.mediaSourceFactory = mediaSourceFactory;
     this.assetLoaderFactory = assetLoaderFactory;
     this.decoderFactory = decoderFactory;
     this.encoderFactory = encoderFactory;
@@ -802,7 +770,6 @@ public final class Transformer {
             removeAudio,
             removeVideo,
             forceSilentAudio,
-            mediaSourceFactory,
             assetLoaderFactory,
             decoderFactory,
             encoderFactory,

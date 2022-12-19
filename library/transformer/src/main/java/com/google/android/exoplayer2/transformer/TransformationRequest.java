@@ -140,10 +140,10 @@ public final class TransformationRequest {
      *   <li>The recording frame rate of the video is 120 or 240 fps.
      * </ul>
      *
-     * <p>If specifying a {@link MediaSource.Factory} using {@link
-     * Transformer.Builder#setMediaSourceFactory(MediaSource.Factory)}, make sure that {@link
-     * Mp4Extractor#FLAG_READ_SEF_DATA} is set on the {@link Mp4Extractor} used. Otherwise, the slow
-     * motion metadata will be ignored and the input won't be flattened.
+     * <p>If using an {@link ExoPlayerAssetLoader.Factory} with a provided {@link
+     * MediaSource.Factory}, make sure that {@link Mp4Extractor#FLAG_READ_SEF_DATA} is set on the
+     * {@link Mp4Extractor} used. Otherwise, the slow motion metadata will be ignored and the input
+     * won't be flattened.
      *
      * <p>Using slow motion flattening together with {@link
      * com.google.android.exoplayer2.MediaItem.ClippingConfiguration} is not supported yet.

@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -126,7 +125,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean removeAudio,
       boolean removeVideo,
       boolean forceSilentAudio,
-      MediaSource.Factory mediaSourceFactory,
       AssetLoader.Factory assetLoaderFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -158,7 +156,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
             .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
-            .setMediaSourceFactory(mediaSourceFactory)
             .setDecoderFactory(this.decoderFactory)
             .setLooper(internalLooper)
             .setListener(componentListener)
