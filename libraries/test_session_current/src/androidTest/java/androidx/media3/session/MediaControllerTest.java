@@ -24,6 +24,7 @@ import static androidx.media3.test.session.common.MediaSessionConstants.KEY_AVAI
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
+import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -984,11 +985,18 @@ public class MediaControllerTest {
   @Test
   public void getBufferedPosition_withPeriodicUpdate_updatedWithoutCallback() throws Exception {
     long testBufferedPosition = 999L;
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlayWhenReady(true)
+            .setPlaybackSuppressionReason(Player.PLAYBACK_SUPPRESSION_REASON_NONE)
+            .setPlaybackState(Player.STATE_READY)
+            .setIsLoading(true)
+            .build();
+    remoteSession.setPlayer(playerConfig);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    remoteSession.setSessionPositionUpdateDelayMs(10L);
+
     remoteSession.getMockPlayer().setBufferedPosition(testBufferedPosition);
-
-    remoteSession.setSessionPositionUpdateDelayMs(0L);
-
     PollingCheck.waitFor(
         TIMEOUT_MS,
         () -> {
@@ -996,6 +1004,31 @@ public class MediaControllerTest {
               threadTestRule.getHandler().postAndSync(controller::getBufferedPosition);
           return bufferedPosition == testBufferedPosition;
         });
+  }
+
+  @Test
+  public void getBufferedPosition_whilePausedAndNotLoading_isNotUpdatedPeriodically()
+      throws Exception {
+    long testBufferedPosition = 999L;
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlayWhenReady(false)
+            .setPlaybackSuppressionReason(Player.PLAYBACK_SUPPRESSION_REASON_NONE)
+            .setPlaybackState(Player.STATE_READY)
+            .setIsLoading(false)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    remoteSession.setSessionPositionUpdateDelayMs(10L);
+
+    remoteSession.getMockPlayer().setBufferedPosition(testBufferedPosition);
+    Thread.sleep(NO_RESPONSE_TIMEOUT_MS);
+    AtomicLong bufferedPositionAfterDelay = new AtomicLong();
+    threadTestRule
+        .getHandler()
+        .postAndSync(() -> bufferedPositionAfterDelay.set(controller.getBufferedPosition()));
+
+    assertThat(bufferedPositionAfterDelay.get()).isNotEqualTo(testBufferedPosition);
   }
 
   @Test

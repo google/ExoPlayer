@@ -121,6 +121,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   @Nullable private final BroadcastReceiver broadcastReceiver;
   private final Handler applicationHandler;
   private final BitmapLoader bitmapLoader;
+  private final Runnable periodicSessionPositionInfoUpdateRunnable;
 
   @Nullable private PlayerListener playerListener;
   @Nullable private MediaSession.Listener mediaSessionListener;
@@ -246,8 +247,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                 /* oldPlayerWrapper= */ null, /* newPlayerWrapper= */ playerWrapper));
 
     sessionPositionUpdateDelayMs = DEFAULT_SESSION_POSITION_UPDATE_DELAY_MS;
-    applicationHandler.postDelayed(
-        thisRef::notifyPeriodicSessionPositionInfoChangesOnHandler, sessionPositionUpdateDelayMs);
+    periodicSessionPositionInfoUpdateRunnable =
+        thisRef::notifyPeriodicSessionPositionInfoChangesOnHandler;
+    postOrRun(applicationHandler, thisRef::schedulePeriodicSessionPositionInfoChanges);
   }
 
   public void setPlayer(Player player) {
@@ -567,10 +569,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   protected void setSessionPositionUpdateDelayMsOnHandler(long updateDelayMs) {
     verifyApplicationThread();
     sessionPositionUpdateDelayMs = updateDelayMs;
-
-    applicationHandler.removeCallbacks(this::notifyPeriodicSessionPositionInfoChangesOnHandler);
-    applicationHandler.postDelayed(
-        this::notifyPeriodicSessionPositionInfoChangesOnHandler, updateDelayMs);
+    schedulePeriodicSessionPositionInfoChanges();
   }
 
   @Nullable
@@ -718,9 +717,15 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     SessionPositionInfo sessionPositionInfo = playerWrapper.createSessionPositionInfoForBundling();
     dispatchRemoteControllerTaskWithoutReturn(
         (callback, seq) -> callback.onPeriodicSessionPositionInfoChanged(seq, sessionPositionInfo));
-    if (sessionPositionUpdateDelayMs > 0) {
+    schedulePeriodicSessionPositionInfoChanges();
+  }
+
+  private void schedulePeriodicSessionPositionInfoChanges() {
+    applicationHandler.removeCallbacks(periodicSessionPositionInfoUpdateRunnable);
+    if (sessionPositionUpdateDelayMs > 0
+        && (playerWrapper.isPlaying() || playerWrapper.isLoading())) {
       applicationHandler.postDelayed(
-          this::notifyPeriodicSessionPositionInfoChangesOnHandler, sessionPositionUpdateDelayMs);
+          periodicSessionPositionInfoUpdateRunnable, sessionPositionUpdateDelayMs);
     }
   }
 
@@ -859,6 +864,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onIsPlayingChanged(seq, isPlaying));
+      session.schedulePeriodicSessionPositionInfoChanges();
     }
 
     @Override
@@ -877,6 +883,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onIsLoadingChanged(seq, isLoading));
+      session.schedulePeriodicSessionPositionInfoChanges();
     }
 
     @Override
