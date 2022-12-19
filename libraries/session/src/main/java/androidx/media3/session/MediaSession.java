@@ -504,7 +504,6 @@ public class MediaSession {
           /* connectionHints= */ Bundle.EMPTY);
     }
 
-    // TODO(b/259546357): Remove when ControllerInfo can be instantiated cleanly in tests.
     /** Returns a {@link ControllerInfo} suitable for use when testing client code. */
     @VisibleForTesting(otherwise = PRIVATE)
     public static ControllerInfo createTestOnlyControllerInfo(
