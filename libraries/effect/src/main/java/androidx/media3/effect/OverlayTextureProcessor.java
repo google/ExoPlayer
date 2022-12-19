@@ -24,16 +24,13 @@ import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 
-/** Applies one or more {@link TextureOverlay}s onto each frame. */
+/** Applies zero or more {@link TextureOverlay}s onto each frame. */
 /* package */ final class OverlayTextureProcessor extends SingleFrameGlTextureProcessor {
 
-  private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_overlay_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_overlay_es2.glsl";
   private static final int MATRIX_OFFSET = 0;
-  private static final int TRANSPARENT_TEXTURE_WIDTH_HEIGHT = 1;
 
   private final GlProgram glProgram;
   private final ImmutableList<TextureOverlay> overlays;
@@ -56,16 +53,19 @@ import java.io.IOException;
       throws FrameProcessingException {
     super(useHdr);
     checkArgument(!useHdr, "OverlayTextureProcessor does not support HDR colors yet.");
+    // TODO: If the limit on the number of overlays ever becomes and issue, investigate expanding it
+    //  in relation to common device limits.
     checkArgument(
-        overlays.size() <= 1,
-        "OverlayTextureProcessor does not support multiple overlays in the same processor yet.");
+        overlays.size() <= 8,
+        "OverlayTextureProcessor does not more than 8 overlays in the same processor yet.");
     this.overlays = overlays;
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
     overlayMatrix = GlUtil.create4x4IdentityMatrix();
 
     try {
-      glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-    } catch (GlUtil.GlException | IOException e) {
+      glProgram =
+          new GlProgram(createVertexShader(overlays.size()), createFragmentShader(overlays.size()));
+    } catch (GlUtil.GlException e) {
       throw new FrameProcessingException(e);
     }
 
@@ -87,30 +87,32 @@ import java.io.IOException;
     try {
       glProgram.use();
       if (!overlays.isEmpty()) {
-        TextureOverlay overlay = overlays.get(0);
-        glProgram.setSamplerTexIdUniform(
-            "uOverlayTexSampler1", overlay.getTextureId(presentationTimeUs), /* texUnitIndex= */ 1);
-        Size overlayTextureSize = overlay.getTextureSize(presentationTimeUs);
-        GlUtil.setToIdentity(aspectRatioMatrix);
-        Matrix.scaleM(
-            aspectRatioMatrix,
-            MATRIX_OFFSET,
-            videoWidth / (float) overlayTextureSize.getWidth(),
-            videoHeight / (float) overlayTextureSize.getHeight(),
-            /* z= */ 1);
-        glProgram.setFloatsUniform("uAspectRatioMatrix", aspectRatioMatrix);
-        Matrix.invertM(
-            overlayMatrix,
-            MATRIX_OFFSET,
-            overlay.getOverlaySettings(presentationTimeUs).matrix,
-            MATRIX_OFFSET);
-        glProgram.setFloatsUniform("uOverlayMatrix", overlayMatrix);
-        glProgram.setFloatUniform(
-            "uOverlayAlpha1", overlay.getOverlaySettings(presentationTimeUs).alpha);
-
-      } else {
-        glProgram.setSamplerTexIdUniform(
-            "uOverlayTexSampler1", createTransparentTexture(), /* texUnitIndex= */ 1);
+        for (int texUnitIndex = 1; texUnitIndex <= overlays.size(); texUnitIndex++) {
+          TextureOverlay overlay = overlays.get(texUnitIndex - 1);
+          glProgram.setSamplerTexIdUniform(
+              Util.formatInvariant("uOverlayTexSampler%d", texUnitIndex),
+              overlay.getTextureId(presentationTimeUs),
+              texUnitIndex);
+          GlUtil.setToIdentity(aspectRatioMatrix);
+          Matrix.scaleM(
+              aspectRatioMatrix,
+              MATRIX_OFFSET,
+              videoWidth / (float) overlay.getTextureSize(presentationTimeUs).getWidth(),
+              videoHeight / (float) overlay.getTextureSize(presentationTimeUs).getHeight(),
+              /* z= */ 1);
+          glProgram.setFloatsUniform(
+              Util.formatInvariant("uAspectRatioMatrix%d", texUnitIndex), aspectRatioMatrix);
+          Matrix.invertM(
+              overlayMatrix,
+              MATRIX_OFFSET,
+              overlay.getOverlaySettings(presentationTimeUs).matrix,
+              MATRIX_OFFSET);
+          glProgram.setFloatsUniform(
+              Util.formatInvariant("uOverlayMatrix%d", texUnitIndex), overlayMatrix);
+          glProgram.setFloatUniform(
+              Util.formatInvariant("uOverlayAlpha%d", texUnitIndex),
+              overlay.getOverlaySettings(presentationTimeUs).alpha);
+        }
       }
       glProgram.setSamplerTexIdUniform("uVideoTexSampler0", inputTexId, /* texUnitIndex= */ 0);
       glProgram.bindAttributesAndUniforms();
@@ -122,20 +124,6 @@ import java.io.IOException;
     }
   }
 
-  private int createTransparentTexture() throws FrameProcessingException {
-    try {
-      int textureId =
-          GlUtil.createTexture(
-              TRANSPARENT_TEXTURE_WIDTH_HEIGHT,
-              TRANSPARENT_TEXTURE_WIDTH_HEIGHT,
-              /* useHighPrecisionColorComponents= */ false);
-      GlUtil.checkGlError();
-      return textureId;
-    } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
-    }
-  }
-
   @Override
   public void release() throws FrameProcessingException {
     super.release();
@@ -144,5 +132,109 @@ import java.io.IOException;
     } catch (GlUtil.GlException e) {
       throw new FrameProcessingException(e);
     }
+  }
+
+  private static String createVertexShader(int numOverlays) {
+    StringBuilder shader =
+        new StringBuilder()
+            .append("#version 100\n")
+            .append("attribute vec4 aFramePosition;\n")
+            .append("varying vec2 vVideoTexSamplingCoord0;\n");
+
+    for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
+      shader
+          .append(Util.formatInvariant("uniform mat4 uAspectRatioMatrix%d;\n", texUnitIndex))
+          .append(Util.formatInvariant("uniform mat4 uOverlayMatrix%d;\n", texUnitIndex))
+          .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%d;\n", texUnitIndex));
+    }
+
+    shader
+        .append("vec2 getTexSamplingCoord(vec2 ndcPosition){\n")
+        .append("  return vec2(ndcPosition.x * 0.5 + 0.5, ndcPosition.y * 0.5 + 0.5);\n")
+        .append("}\n")
+        .append("void main() {\n")
+        .append("  gl_Position = aFramePosition;\n")
+        .append("  vVideoTexSamplingCoord0 = getTexSamplingCoord(aFramePosition.xy);\n");
+
+    for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
+      shader
+          .append(Util.formatInvariant("  vec4 aOverlayPosition%d = \n", texUnitIndex))
+          .append(
+              Util.formatInvariant(
+                  "    uAspectRatioMatrix%d * uOverlayMatrix%d * aFramePosition;\n",
+                  texUnitIndex, texUnitIndex))
+          .append(
+              Util.formatInvariant(
+                  "  vOverlayTexSamplingCoord%d = getTexSamplingCoord(aOverlayPosition%d.xy);\n",
+                  texUnitIndex, texUnitIndex));
+    }
+
+    shader.append("}\n");
+
+    return shader.toString();
+  }
+
+  private static String createFragmentShader(int numOverlays) {
+    StringBuilder shader =
+        new StringBuilder()
+            .append("#version 100\n")
+            .append("precision mediump float;\n")
+            .append("uniform sampler2D uVideoTexSampler0;\n")
+            .append("varying vec2 vVideoTexSamplingCoord0;\n")
+            .append("// Manually implementing the CLAMP_TO_BORDER texture wrapping option\n")
+            .append(
+                "// (https://open.gl/textures) since it's not implemented until OpenGL ES 3.2.\n")
+            .append("vec4 getClampToBorderOverlayColor(\n")
+            .append("    sampler2D texSampler, vec2 texSamplingCoord, float alpha){\n")
+            .append("  if (texSamplingCoord.x > 1.0 || texSamplingCoord.x < 0.0\n")
+            .append("      || texSamplingCoord.y > 1.0 || texSamplingCoord.y < 0.0) {\n")
+            .append("    return vec4(0.0, 0.0, 0.0, 0.0);\n")
+            .append("  } else {\n")
+            .append("    vec4 overlayColor = vec4(texture2D(texSampler, texSamplingCoord));\n")
+            .append("    overlayColor.a = alpha * overlayColor.a;\n")
+            .append("    return overlayColor;\n")
+            .append("  }\n")
+            .append("}\n")
+            .append("\n")
+            .append("float getMixAlpha(float videoAlpha, float overlayAlpha) {\n")
+            .append("  if (videoAlpha == 0.0) {\n")
+            .append("    return 1.0;\n")
+            .append("  } else {\n")
+            .append("    return clamp(overlayAlpha/videoAlpha, 0.0, 1.0);\n")
+            .append("  }\n")
+            .append("}\n");
+
+    for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
+      shader
+          .append(Util.formatInvariant("uniform sampler2D uOverlayTexSampler%d;\n", texUnitIndex))
+          .append(Util.formatInvariant("uniform float uOverlayAlpha%d;\n", texUnitIndex))
+          .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%d;\n", texUnitIndex));
+    }
+
+    shader
+        .append("void main() {\n")
+        .append(
+            "  vec4 videoColor = vec4(texture2D(uVideoTexSampler0, vVideoTexSamplingCoord0));\n")
+        .append("  vec4 fragColor = videoColor;\n");
+
+    for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
+      shader
+          .append(
+              Util.formatInvariant(
+                  "  vec4 overlayColor%d = getClampToBorderOverlayColor(\n", texUnitIndex))
+          .append(
+              Util.formatInvariant(
+                  "    uOverlayTexSampler%d, vOverlayTexSamplingCoord%d, uOverlayAlpha%d);\n",
+                  texUnitIndex, texUnitIndex, texUnitIndex))
+          .append("  fragColor = mix(\n")
+          .append(
+              Util.formatInvariant(
+                  "    fragColor, overlayColor%d, getMixAlpha(videoColor.a, overlayColor%d.a));\n",
+                  texUnitIndex, texUnitIndex));
+    }
+
+    shader.append("  gl_FragColor = fragColor;\n").append("}\n");
+
+    return shader.toString();
   }
 }
