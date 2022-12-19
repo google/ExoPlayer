@@ -29,6 +29,8 @@ Release notes
     *   SubRip: Add support for UTF-16 files if they start with a byte order
         mark.
 *   Session:
+    *   Add abstract `SimpleBasePlayer` to help implement the `Player` interface
+        for custom players.
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
 *   Metadata:
