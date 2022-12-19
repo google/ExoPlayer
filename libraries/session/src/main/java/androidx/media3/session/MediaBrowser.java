@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.Consumer;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
@@ -57,6 +58,7 @@ public final class MediaBrowser extends MediaController {
     private Bundle connectionHints;
     private Listener listener;
     private Looper applicationLooper;
+    private @MonotonicNonNull BitmapLoader bitmapLoader;
 
     /**
      * Creates a builder for {@link MediaBrowser}.
@@ -122,6 +124,21 @@ public final class MediaBrowser extends MediaController {
     }
 
     /**
+     * Sets a {@link BitmapLoader} for the {@link MediaBrowser} to decode bitmaps from compressed
+     * binary data. If not set, a {@link CacheBitmapLoader} that wraps a {@link SimpleBitmapLoader}
+     * will be used.
+     *
+     * @param bitmapLoader The bitmap loader.
+     * @return The builder to allow chaining.
+     */
+    @UnstableApi
+    @CanIgnoreReturnValue
+    public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
+      this.bitmapLoader = checkNotNull(bitmapLoader);
+      return this;
+    }
+
+    /**
      * Builds a {@link MediaBrowser} asynchronously.
      *
      * <p>The browser instance can be obtained like the following example:
@@ -149,8 +166,12 @@ public final class MediaBrowser extends MediaController {
      */
     public ListenableFuture<MediaBrowser> buildAsync() {
       MediaControllerHolder<MediaBrowser> holder = new MediaControllerHolder<>(applicationLooper);
+      if (token.isLegacySession() && bitmapLoader == null) {
+        bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+      }
       MediaBrowser browser =
-          new MediaBrowser(context, token, connectionHints, listener, applicationLooper, holder);
+          new MediaBrowser(
+              context, token, connectionHints, listener, applicationLooper, holder, bitmapLoader);
       postOrRun(new Handler(applicationLooper), () -> holder.setController(browser));
       return holder;
     }
@@ -215,8 +236,16 @@ public final class MediaBrowser extends MediaController {
       Bundle connectionHints,
       Listener listener,
       Looper applicationLooper,
-      ConnectionCallback connectionCallback) {
-    super(context, token, connectionHints, listener, applicationLooper, connectionCallback);
+      ConnectionCallback connectionCallback,
+      @Nullable BitmapLoader bitmapLoader) {
+    super(
+        context,
+        token,
+        connectionHints,
+        listener,
+        applicationLooper,
+        connectionCallback,
+        bitmapLoader);
   }
 
   @Override
@@ -226,10 +255,13 @@ public final class MediaBrowser extends MediaController {
       Context context,
       SessionToken token,
       Bundle connectionHints,
-      Looper applicationLooper) {
+      Looper applicationLooper,
+      @Nullable BitmapLoader bitmapLoader) {
     MediaBrowserImpl impl;
     if (token.isLegacySession()) {
-      impl = new MediaBrowserImplLegacy(context, this, token, applicationLooper);
+      impl =
+          new MediaBrowserImplLegacy(
+              context, this, token, applicationLooper, checkNotNull(bitmapLoader));
     } else {
       impl = new MediaBrowserImplBase(context, this, token, connectionHints, applicationLooper);
     }

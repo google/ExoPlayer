@@ -46,7 +46,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -309,23 +308,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parcel.recycle();
     }
     return result;
-  }
-
-  /**
-   * Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}.
-   *
-   * @deprecated Use {@link #convertToMediaDescriptionCompat(MediaItem, Bitmap)} instead.
-   */
-  @Deprecated
-  public static MediaDescriptionCompat convertToMediaDescriptionCompat(MediaItem item) {
-    MediaMetadata metadata = item.mediaMetadata;
-    @Nullable Bitmap artworkBitmap = null;
-    if (metadata.artworkData != null) {
-      artworkBitmap =
-          BitmapFactory.decodeByteArray(metadata.artworkData, 0, metadata.artworkData.length);
-    }
-
-    return convertToMediaDescriptionCompat(item, artworkBitmap);
   }
 
   /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat} */

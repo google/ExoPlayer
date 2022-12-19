@@ -57,8 +57,9 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       Context context,
       @UnderInitialization MediaBrowser instance,
       SessionToken token,
-      Looper applicationLooper) {
-    super(context, instance, token, applicationLooper);
+      Looper applicationLooper,
+      BitmapLoader bitmapLoader) {
+    super(context, instance, token, applicationLooper, bitmapLoader);
     this.instance = instance;
   }
 
