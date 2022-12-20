@@ -32,6 +32,7 @@ public class TransformationTestResult {
     @Nullable private String filePath;
     private long elapsedTimeMs;
     private double ssim;
+    @Nullable private FallbackDetails fallbackDetails;
     @Nullable private Exception testException;
     @Nullable private Exception analysisException;
 
@@ -86,6 +87,21 @@ public class TransformationTestResult {
     }
 
     /**
+     * Sets an {@link FallbackDetails} object that describes the fallbacks that occurred during
+     * post-transformation analysis.
+     *
+     * <p>{@code null} represents no fallback was applied.
+     *
+     * @param fallbackDetails The {@link FallbackDetails}.
+     * @return This {@link Builder}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setFallbackDetails(@Nullable FallbackDetails fallbackDetails) {
+      this.fallbackDetails = fallbackDetails;
+      return this;
+    }
+
+    /**
      * Sets an {@link Exception} that occurred during the test.
      *
      * <p>{@code null} represents an unset or unknown value.
@@ -116,7 +132,13 @@ public class TransformationTestResult {
     /** Builds the {@link TransformationTestResult} instance. */
     public TransformationTestResult build() {
       return new TransformationTestResult(
-          transformationResult, filePath, elapsedTimeMs, ssim, testException, analysisException);
+          transformationResult,
+          filePath,
+          elapsedTimeMs,
+          ssim,
+          fallbackDetails,
+          testException,
+          analysisException);
     }
   }
 
@@ -134,7 +156,11 @@ public class TransformationTestResult {
   public final long elapsedTimeMs;
   /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
   public final double ssim;
-
+  /**
+   * The {@link FallbackDetails} describing the fallbacks that occurred doing transformation, or
+   * {@code null} if no fallback occurred.
+   */
+  @Nullable public final FallbackDetails fallbackDetails;
   /**
    * The {@link Exception} that was thrown during the test, or {@code null} if nothing was thrown.
    */
@@ -185,6 +211,9 @@ public class TransformationTestResult {
     if (ssim != TransformationTestResult.SSIM_UNSET) {
       jsonObject.put("ssim", ssim);
     }
+    if (fallbackDetails != null) {
+      jsonObject.put("fallbackDetails", fallbackDetails.asJsonObject());
+    }
     if (testException != null) {
       jsonObject.put("testException", AndroidTestUtil.exceptionAsJsonObject(testException));
     }
@@ -199,12 +228,14 @@ public class TransformationTestResult {
       @Nullable String filePath,
       long elapsedTimeMs,
       double ssim,
+      @Nullable FallbackDetails fallbackDetails,
       @Nullable Exception testException,
       @Nullable Exception analysisException) {
     this.transformationResult = transformationResult;
     this.filePath = filePath;
     this.elapsedTimeMs = elapsedTimeMs;
     this.ssim = ssim;
+    this.fallbackDetails = fallbackDetails;
     this.testException = testException;
     this.analysisException = analysisException;
     this.throughputFps =
