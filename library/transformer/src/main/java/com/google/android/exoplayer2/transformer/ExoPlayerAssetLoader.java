@@ -21,7 +21,7 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FO
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
-import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
@@ -227,7 +227,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     player = playerBuilder.build();
     player.addListener(new PlayerListener(listener));
 
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
+    progressState = PROGRESS_STATE_NOT_STARTED;
   }
 
   @Override
@@ -251,7 +251,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
   @Override
   public void release() {
     player.release();
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
+    progressState = PROGRESS_STATE_NOT_STARTED;
   }
 
   private static final class RenderersFactoryImpl implements RenderersFactory {

@@ -551,32 +551,32 @@ public final class Transformer {
   }
 
   /**
-   * Progress state. One of {@link #PROGRESS_STATE_WAITING_FOR_AVAILABILITY}, {@link
-   * #PROGRESS_STATE_AVAILABLE}, {@link #PROGRESS_STATE_UNAVAILABLE}, {@link
-   * #PROGRESS_STATE_NO_TRANSFORMATION}
+   * Progress state. One of {@link #PROGRESS_STATE_NOT_STARTED}, {@link
+   * #PROGRESS_STATE_WAITING_FOR_AVAILABILITY}, {@link #PROGRESS_STATE_AVAILABLE} or {@link
+   * #PROGRESS_STATE_UNAVAILABLE}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
+    PROGRESS_STATE_NOT_STARTED,
     PROGRESS_STATE_WAITING_FOR_AVAILABILITY,
     PROGRESS_STATE_AVAILABLE,
-    PROGRESS_STATE_UNAVAILABLE,
-    PROGRESS_STATE_NO_TRANSFORMATION
+    PROGRESS_STATE_UNAVAILABLE
   })
   public @interface ProgressState {}
-
+  /** Indicates that the corresponding operation hasn't been started. */
+  public static final int PROGRESS_STATE_NOT_STARTED = 0;
   /**
-   * Indicates that the progress is unavailable for the current transformation, but might become
-   * available.
+   * @deprecated Use {@link #PROGRESS_STATE_NOT_STARTED} instead.
    */
-  public static final int PROGRESS_STATE_WAITING_FOR_AVAILABILITY = 0;
+  @Deprecated public static final int PROGRESS_STATE_NO_TRANSFORMATION = PROGRESS_STATE_NOT_STARTED;
+  /** Indicates that the progress is currently unavailable, but might become available. */
+  public static final int PROGRESS_STATE_WAITING_FOR_AVAILABILITY = 1;
   /** Indicates that the progress is available. */
-  public static final int PROGRESS_STATE_AVAILABLE = 1;
-  /** Indicates that the progress is permanently unavailable for the current transformation. */
-  public static final int PROGRESS_STATE_UNAVAILABLE = 2;
-  /** Indicates that there is no current transformation. */
-  public static final int PROGRESS_STATE_NO_TRANSFORMATION = 4;
+  public static final int PROGRESS_STATE_AVAILABLE = 2;
+  /** Indicates that the progress is permanently unavailable. */
+  public static final int PROGRESS_STATE_UNAVAILABLE = 3;
 
   @VisibleForTesting /* package */ final Codec.DecoderFactory decoderFactory;
   @VisibleForTesting /* package */ final Codec.EncoderFactory encoderFactory;
@@ -795,8 +795,7 @@ public final class Transformer {
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
    * <p>After a transformation {@linkplain Listener#onTransformationCompleted(MediaItem,
-   * TransformationResult) completes}, this method returns {@link
-   * #PROGRESS_STATE_NO_TRANSFORMATION}.
+   * TransformationResult) completes}, this method returns {@link #PROGRESS_STATE_NOT_STARTED}.
    *
    * @param progressHolder A {@link ProgressHolder}, updated to hold the percentage progress if
    *     {@link #PROGRESS_STATE_AVAILABLE available}.
@@ -806,7 +805,7 @@ public final class Transformer {
   public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
     return transformerInternal == null
-        ? PROGRESS_STATE_NO_TRANSFORMATION
+        ? PROGRESS_STATE_NOT_STARTED
         : transformerInternal.getProgress(progressHolder);
   }
 

@@ -96,7 +96,7 @@ mainHandler.post(
      public void run() {
        @ProgressState int progressState = transformer.getProgress(progressHolder);
        updateProgressInUi(progressState, progressHolder);
-       if (progressState != PROGRESS_STATE_NO_TRANSFORMATION) {
+       if (progressState != PROGRESS_STATE_NOT_STARTED) {
          mainHandler.postDelayed(/* r= */ this, /* delayMillis= */ 500);
        }
      }

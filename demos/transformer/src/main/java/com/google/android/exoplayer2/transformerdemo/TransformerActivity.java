@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformerdemo;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
@@ -211,8 +212,7 @@ public final class TransformerActivity extends AppCompatActivity {
           @Override
           public void run() {
             if (transformer != null
-                && transformer.getProgress(progressHolder)
-                    != Transformer.PROGRESS_STATE_NO_TRANSFORMATION) {
+                && transformer.getProgress(progressHolder) != PROGRESS_STATE_NOT_STARTED) {
               progressIndicator.setProgress(progressHolder.progress);
               informationTextView.setText(
                   getString(
