@@ -18,6 +18,7 @@ package androidx.media3.demo.transformer;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 
 import android.app.Activity;
 import android.content.Context;
@@ -211,8 +212,7 @@ public final class TransformerActivity extends AppCompatActivity {
           @Override
           public void run() {
             if (transformer != null
-                && transformer.getProgress(progressHolder)
-                    != Transformer.PROGRESS_STATE_NO_TRANSFORMATION) {
+                && transformer.getProgress(progressHolder) != PROGRESS_STATE_NOT_STARTED) {
               progressIndicator.setProgress(progressHolder.progress);
               informationTextView.setText(
                   getString(

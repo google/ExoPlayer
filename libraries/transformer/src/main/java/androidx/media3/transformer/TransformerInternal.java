@@ -17,7 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
+import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -184,7 +184,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
     if (released) {
-      return PROGRESS_STATE_NO_TRANSFORMATION;
+      return PROGRESS_STATE_NOT_STARTED;
     }
     internalHandler.obtainMessage(MSG_UPDATE_PROGRESS, progressHolder).sendToTarget();
     // TODO: figure out why calling clock.onThreadBlocked() here makes the tests fail.

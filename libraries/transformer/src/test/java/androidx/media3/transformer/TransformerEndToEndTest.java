@@ -17,7 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
+import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static com.google.common.truth.Truth.assertThat;
@@ -658,8 +658,8 @@ public final class TransformerEndToEndTest {
                   return;
                 }
                 break;
-              case PROGRESS_STATE_NO_TRANSFORMATION:
-                if (progressState != PROGRESS_STATE_NO_TRANSFORMATION) {
+              case PROGRESS_STATE_NOT_STARTED:
+                if (progressState != PROGRESS_STATE_NOT_STARTED) {
                   foundInconsistentState.set(true);
                   return;
                 }
@@ -689,7 +689,7 @@ public final class TransformerEndToEndTest {
           @Override
           public void handleMessage(Message msg) {
             @Transformer.ProgressState int progressState = transformer.getProgress(progressHolder);
-            if (progressState == PROGRESS_STATE_NO_TRANSFORMATION) {
+            if (progressState == PROGRESS_STATE_NOT_STARTED) {
               return;
             }
             if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY
@@ -724,8 +724,8 @@ public final class TransformerEndToEndTest {
     TransformerTestRunner.runUntilCompleted(transformer);
     @Transformer.ProgressState int stateAfterTransform = transformer.getProgress(progressHolder);
 
-    assertThat(stateBeforeTransform).isEqualTo(Transformer.PROGRESS_STATE_NO_TRANSFORMATION);
-    assertThat(stateAfterTransform).isEqualTo(Transformer.PROGRESS_STATE_NO_TRANSFORMATION);
+    assertThat(stateBeforeTransform).isEqualTo(PROGRESS_STATE_NOT_STARTED);
+    assertThat(stateAfterTransform).isEqualTo(PROGRESS_STATE_NOT_STARTED);
   }
 
   @Test
@@ -750,8 +750,8 @@ public final class TransformerEndToEndTest {
                   return;
                 }
                 break;
-              case PROGRESS_STATE_NO_TRANSFORMATION:
-                if (progressState != PROGRESS_STATE_NO_TRANSFORMATION) {
+              case PROGRESS_STATE_NOT_STARTED:
+                if (progressState != PROGRESS_STATE_NOT_STARTED) {
                   foundInconsistentState.set(true);
                   return;
                 }
