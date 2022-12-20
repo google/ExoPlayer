@@ -24,6 +24,7 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
@@ -36,7 +37,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.json.JSONObject;
@@ -233,13 +233,14 @@ public class TransformerAndroidTestRunner {
               + mediaItemUri);
     }
 
+    AtomicReference<@NullableType FallbackDetails> fallbackDetailsReference =
+        new AtomicReference<>();
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
         new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
     AtomicReference<@NullableType TransformationResult> transformationResultReference =
         new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
-    AtomicBoolean fallbackResolutionApplied = new AtomicBoolean(false);
     long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
     Transformer testTransformer =
@@ -272,10 +273,16 @@ public class TransformerAndroidTestRunner {
                     // Note: As TransformationRequest only reports the output height but not the
                     // output width, it's not possible to check whether the encoder has changed
                     // the output aspect ratio.
-                    if (originalTransformationRequest.outputHeight
-                        != fallbackTransformationRequest.outputHeight) {
-                      fallbackResolutionApplied.set(true);
-                    }
+                    fallbackDetailsReference.set(
+                        new FallbackDetails(
+                            originalTransformationRequest.outputHeight,
+                            fallbackTransformationRequest.outputHeight,
+                            originalTransformationRequest.audioMimeType,
+                            fallbackTransformationRequest.audioMimeType,
+                            originalTransformationRequest.videoMimeType,
+                            fallbackTransformationRequest.videoMimeType,
+                            originalTransformationRequest.hdrMode,
+                            fallbackTransformationRequest.hdrMode));
                   }
                 })
             .build();
@@ -318,6 +325,7 @@ public class TransformerAndroidTestRunner {
     if (testException != null) {
       return new TransformationTestResult.Builder(checkNotNull(transformationResultReference.get()))
           .setElapsedTimeMs(elapsedTimeMs)
+          .setFallbackDetails(fallbackDetailsReference.get())
           .setTestException(testException)
           .build();
     }
@@ -330,12 +338,14 @@ public class TransformerAndroidTestRunner {
                     .setFileSizeBytes(outputVideoFile.length())
                     .build())
             .setElapsedTimeMs(elapsedTimeMs)
+            .setFallbackDetails(fallbackDetailsReference.get())
             .setFilePath(outputVideoFile.getPath());
 
     if (!requestCalculateSsim) {
       return testResultBuilder.build();
     }
-    if (fallbackResolutionApplied.get()) {
+    if (fallbackDetailsReference.get() != null
+        && checkNotNull(fallbackDetailsReference.get()).fallbackOutputHeight != C.LENGTH_UNSET) {
       Log.i(
           TAG,
           testId
