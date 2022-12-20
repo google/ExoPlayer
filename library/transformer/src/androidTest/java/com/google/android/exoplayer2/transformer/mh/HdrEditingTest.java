@@ -183,7 +183,7 @@ public class HdrEditingTest {
                         .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
-                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR);
+                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
                   }
                 })
             .build();
@@ -236,7 +236,7 @@ public class HdrEditingTest {
                         .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
-                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR);
+                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
                   }
                 })
             .build();

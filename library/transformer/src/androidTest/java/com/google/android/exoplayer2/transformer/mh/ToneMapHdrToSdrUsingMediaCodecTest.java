@@ -38,11 +38,12 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for applying an {@linkplain
- * TransformationRequest#HDR_MODE_TONE_MAP_HDR_TO_SDR HDR to SDR tone mapping edit}.
+ * TransformationRequest#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC HDR to SDR tone mapping
+ * edit}.
  */
 @RunWith(AndroidJUnit4.class)
-public class HdrToSdrToneMapTest {
-  public static final String TAG = "HdrToSdrToneMapTest";
+public class ToneMapHdrToSdrUsingMediaCodecTest {
+  public static final String TAG = "ToneMapHdrToSdrUsingMediaCodecTest";
 
   @Test
   public void transform_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {
@@ -53,7 +54,7 @@ public class HdrToSdrToneMapTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
                     .build())
             .addListener(
                 new Transformer.Listener() {
@@ -98,7 +99,7 @@ public class HdrToSdrToneMapTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
                     .build())
             .addListener(
                 new Transformer.Listener() {
@@ -143,7 +144,7 @@ public class HdrToSdrToneMapTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
                     .setRotationDegrees(180)
                     .build())
             .addListener(
@@ -189,7 +190,7 @@ public class HdrToSdrToneMapTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
                     .setRotationDegrees(180)
                     .build())
             .addListener(

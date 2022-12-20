@@ -176,7 +176,12 @@ public final class ConfigurationActivity extends AppCompatActivity {
       HDR_MODE_DESCRIPTIONS =
           new ImmutableMap.Builder<String, @TransformationRequest.HdrMode Integer>()
               .put("Keep HDR", TransformationRequest.HDR_MODE_KEEP_HDR)
-              .put("Tone-map HDR to SDR", TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+              .put(
+                  "MediaCodec tone-map HDR to SDR",
+                  TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
+              .put(
+                  "OpenGL tone-map HDR to SDR",
+                  TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
               .put(
                   "Force Interpret HDR as SDR",
                   TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)

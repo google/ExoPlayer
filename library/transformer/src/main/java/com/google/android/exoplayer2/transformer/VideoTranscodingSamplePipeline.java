@@ -16,6 +16,10 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
+import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_KEEP_HDR;
+import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
@@ -88,9 +92,10 @@ import org.checkerframework.dataflow.qual.Pure;
       DebugViewProvider debugViewProvider)
       throws TransformationException {
     super(inputFormat, streamStartPositionUs, muxerWrapper);
+
+    boolean isGlToneMapping = false;
     if (ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
-      if (transformationRequest.hdrMode
-          == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
+      if (transformationRequest.hdrMode == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
               new IllegalArgumentException("Interpreting HDR video as SDR is not supported."),
@@ -101,6 +106,18 @@ import org.checkerframework.dataflow.qual.Pure;
               TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
         }
         inputFormat = inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+      } else if (transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL) {
+        if (SDK_INT < 29) {
+          throw TransformationException.createForCodec(
+              new IllegalArgumentException(
+                  "OpenGL-based HDR to SDR tone mapping is not supported."),
+              /* isVideo= */ true,
+              /* isDecoder= */ true,
+              inputFormat,
+              /* mediaCodecName= */ null,
+              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
+        }
+        isGlToneMapping = true;
       } else if (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround()) {
         throw TransformationException.createForCodec(
             new IllegalArgumentException("HDR editing and tone mapping is not supported."),
@@ -149,19 +166,30 @@ import org.checkerframework.dataflow.qual.Pure;
             transformationRequest,
             fallbackListener);
 
-    // HDR colors are only used if the MediaCodec encoder supports FEATURE_HdrEditing.
-    // This implies that the OpenGL EXT_YUV_target extension is supported and hence the
-    // default FrameProcessor, GlEffectsFrameProcessor, also supports HDR. Otherwise, tone
-    // mapping is applied, which ensures the decoder outputs SDR output for an HDR input.
-    ColorInfo encoderSupportedInputColor = encoderWrapper.getSupportedInputColor();
+    ColorInfo encoderInputColor = encoderWrapper.getSupportedInputColor();
+    // If not tone mapping using OpenGL, the decoder will output the encoderInputColor,
+    // possibly by tone mapping.
+    ColorInfo frameProcessorInputColor =
+        isGlToneMapping ? checkNotNull(inputFormat.colorInfo) : encoderInputColor;
+    // For consistency with the Android platform, OpenGL tone mapping outputs colors with
+    // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
+    // C.COLOR_TRANSFER_SDR to the encoder.
+    ColorInfo frameProcessorOutputColor =
+        isGlToneMapping
+            ? new ColorInfo(
+                C.COLOR_SPACE_BT709,
+                C.COLOR_RANGE_LIMITED,
+                C.COLOR_TRANSFER_GAMMA_2_2,
+                /* hdrStaticInfo= */ null)
+            : encoderInputColor;
     try {
       frameProcessor =
           frameProcessorFactory.create(
               context,
               effectsListBuilder.build(),
               debugViewProvider,
-              /* inputColorInfo= */ encoderSupportedInputColor,
-              /* outputColorInfo= */ encoderSupportedInputColor,
+              frameProcessorInputColor,
+              frameProcessorOutputColor,
               /* releaseFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
               new FrameProcessor.Listener() {
@@ -209,12 +237,12 @@ import org.checkerframework.dataflow.qual.Pure;
         new FrameInfo(
             decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio, streamOffsetUs));
 
-    boolean isToneMappingRequired =
+    boolean isDecoderToneMappingRequired =
         ColorInfo.isTransferHdr(inputFormat.colorInfo)
-            && !ColorInfo.isTransferHdr(encoderWrapper.getSupportedInputColor());
+            && !ColorInfo.isTransferHdr(frameProcessorInputColor);
     decoder =
         decoderFactory.createForVideoDecoding(
-            inputFormat, frameProcessor.getInputSurface(), isToneMappingRequired);
+            inputFormat, frameProcessor.getInputSurface(), isDecoderToneMappingRequired);
     maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
 
@@ -432,7 +460,7 @@ import org.checkerframework.dataflow.qual.Pure;
     /** Returns the {@link ColorInfo} expected from the input surface. */
     public ColorInfo getSupportedInputColor() {
       boolean isHdrEditingEnabled =
-          transformationRequest.hdrMode == TransformationRequest.HDR_MODE_KEEP_HDR
+          transformationRequest.hdrMode == HDR_MODE_KEEP_HDR
               && !supportedEncoderNamesForHdrEditing.isEmpty();
       boolean isInputToneMapped =
           !isHdrEditingEnabled && ColorInfo.isTransferHdr(inputFormat.colorInfo);
@@ -504,10 +532,12 @@ import org.checkerframework.dataflow.qual.Pure;
       boolean isInputToneMapped =
           ColorInfo.isTransferHdr(inputFormat.colorInfo)
               && !ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo);
+      // HdrMode fallback is only supported from HDR_MODE_KEEP_HDR to
+      // HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC.
       @TransformationRequest.HdrMode
-      int hdrMode =
-          isInputToneMapped
-              ? TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR
+      int supportedFallbackHdrMode =
+          isInputToneMapped && transformationRequest.hdrMode == HDR_MODE_KEEP_HDR
+              ? HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
               : transformationRequest.hdrMode;
 
       fallbackListener.onTransformationRequestFinalized(
@@ -516,7 +546,7 @@ import org.checkerframework.dataflow.qual.Pure;
               /* hasOutputFormatRotation= */ flipOrientation,
               requestedEncoderFormat,
               encoderSupportedFormat,
-              hdrMode));
+              supportedFallbackHdrMode));
 
       encoderSurfaceInfo =
           new SurfaceInfo(
