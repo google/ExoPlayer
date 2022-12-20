@@ -292,7 +292,7 @@ public final class GlUtil {
       throws GlException {
     int[] configAttributes;
     int[] windowAttributes;
-    if (colorTransfer == C.COLOR_TRANSFER_SDR) {
+    if (colorTransfer == C.COLOR_TRANSFER_SDR || colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2) {
       configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_8888;
       windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
     } else if (colorTransfer == C.COLOR_TRANSFER_ST2084) {
