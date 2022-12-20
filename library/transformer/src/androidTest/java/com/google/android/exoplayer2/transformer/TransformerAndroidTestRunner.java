@@ -306,6 +306,7 @@ public class TransformerAndroidTestRunner {
     boolean timeoutReached = !countDownLatch.await(timeoutSeconds, SECONDS);
     long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
 
+    @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
     @Nullable
     TransformationException transformationException = transformationExceptionReference.get();
@@ -325,7 +326,7 @@ public class TransformerAndroidTestRunner {
     if (testException != null) {
       return new TransformationTestResult.Builder(checkNotNull(transformationResultReference.get()))
           .setElapsedTimeMs(elapsedTimeMs)
-          .setFallbackDetails(fallbackDetailsReference.get())
+          .setFallbackDetails(fallbackDetails)
           .setTestException(testException)
           .build();
     }
@@ -338,14 +339,13 @@ public class TransformerAndroidTestRunner {
                     .setFileSizeBytes(outputVideoFile.length())
                     .build())
             .setElapsedTimeMs(elapsedTimeMs)
-            .setFallbackDetails(fallbackDetailsReference.get())
+            .setFallbackDetails(fallbackDetails)
             .setFilePath(outputVideoFile.getPath());
 
     if (!requestCalculateSsim) {
       return testResultBuilder.build();
     }
-    if (fallbackDetailsReference.get() != null
-        && checkNotNull(fallbackDetailsReference.get()).fallbackOutputHeight != C.LENGTH_UNSET) {
+    if (fallbackDetails != null && fallbackDetails.fallbackOutputHeight != C.LENGTH_UNSET) {
       Log.i(
           TAG,
           testId
