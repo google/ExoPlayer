@@ -69,7 +69,7 @@ import java.util.List;
  */
 public interface Player {
 
-  /** A set of {@link Event events}. */
+  /** A set of {@linkplain Event events}. */
   final class Events {
 
     private final FlagSet flags;
@@ -77,7 +77,7 @@ public interface Player {
     /**
      * Creates an instance.
      *
-     * @param flags The {@link FlagSet} containing the {@link Event events}.
+     * @param flags The {@link FlagSet} containing the {@linkplain Event events}.
      */
     @UnstableApi
     public Events(FlagSet flags) {
@@ -95,10 +95,10 @@ public interface Player {
     }
 
     /**
-     * Returns whether any of the given {@link Event events} occurred.
+     * Returns whether any of the given {@linkplain Event events} occurred.
      *
-     * @param events The {@link Event events}.
-     * @return Whether any of the {@link Event events} occurred.
+     * @param events The {@linkplain Event events}.
+     * @return Whether any of the {@linkplain Event events} occurred.
      */
     public boolean containsAny(@Event int... events) {
       return flags.containsAny(events);
@@ -210,6 +210,7 @@ public interface Player {
 
     /** Creates an instance. */
     @UnstableApi
+    @SuppressWarnings("deprecation") // Setting deprecated windowIndex field
     public PositionInfo(
         @Nullable Object windowUid,
         int mediaItemIndex,
@@ -349,7 +350,7 @@ public interface Player {
   }
 
   /**
-   * A set of {@link Command commands}.
+   * A set of {@linkplain Command commands}.
    *
    * <p>Instances are immutable.
    */
@@ -433,9 +434,9 @@ public interface Player {
       }
 
       /**
-       * Adds {@link Command commands}.
+       * Adds {@linkplain Command commands}.
        *
-       * @param commands The {@link Command commands} to add.
+       * @param commands The {@linkplain Command commands} to add.
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
@@ -448,7 +449,7 @@ public interface Player {
       /**
        * Adds {@link Commands}.
        *
-       * @param commands The set of {@link Command commands} to add.
+       * @param commands The set of {@linkplain Command commands} to add.
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
@@ -459,7 +460,7 @@ public interface Player {
       }
 
       /**
-       * Adds all existing {@link Command commands}.
+       * Adds all existing {@linkplain Command commands}.
        *
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
@@ -498,9 +499,9 @@ public interface Player {
       }
 
       /**
-       * Removes {@link Command commands}.
+       * Removes {@linkplain Command commands}.
        *
-       * @param commands The {@link Command commands} to remove.
+       * @param commands The {@linkplain Command commands} to remove.
        * @return This builder.
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
@@ -634,7 +635,8 @@ public interface Player {
      * <p>State changes and events that happen within one {@link Looper} message queue iteration are
      * reported together and only after all individual callbacks were triggered.
      *
-     * <p>Only state changes represented by {@link Event events} are reported through this method.
+     * <p>Only state changes represented by {@linkplain Event events} are reported through this
+     * method.
      *
      * <p>Listeners should prefer this method over individual callbacks in the following cases:
      *
@@ -782,7 +784,7 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param playbackState The new playback {@link State state}.
+     * @param playbackState The new playback {@link State}.
      */
     default void onPlaybackStateChanged(@State int playbackState) {}
 
@@ -793,7 +795,7 @@ public interface Player {
      * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param reason The {@link PlayWhenReadyChangeReason reason} for the change.
+     * @param reason The {@link PlayWhenReadyChangeReason} for the change.
      */
     default void onPlayWhenReadyChanged(
         boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {}
@@ -835,7 +837,7 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param shuffleModeEnabled Whether shuffling of {@link MediaItem media items} is enabled.
+     * @param shuffleModeEnabled Whether shuffling of {@linkplain MediaItem media items} is enabled.
      */
     default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
@@ -1040,10 +1042,10 @@ public interface Player {
     default void onRenderedFirstFrame() {}
 
     /**
-     * Called when there is a change in the {@link Cue Cues}.
+     * Called when there is a change in the {@linkplain Cue cues}.
      *
-     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
-     * in the cues. You should only implement one or the other.
+     * <p>Both this method and {@link #onCues(CueGroup)} are called when there is a change in the
+     * cues. You should only implement one or the other.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -1057,8 +1059,8 @@ public interface Player {
     /**
      * Called when there is a change in the {@link CueGroup}.
      *
-     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
-     * in the cues. You should only implement one or the other.
+     * <p>Both this method and {@link #onCues(List)} are called when there is a change in the cues.
+     * You should only implement one or the other.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -1405,21 +1407,47 @@ public interface Player {
   int EVENT_DEVICE_VOLUME_CHANGED = 30;
 
   /**
-   * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
-   * #COMMAND_PREPARE}, {@link #COMMAND_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
-   * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link
-   * #COMMAND_SEEK_TO_PREVIOUS}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
-   * #COMMAND_SEEK_TO_NEXT}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link #COMMAND_SEEK_BACK}, {@link
-   * #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
-   * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
-   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_TIMELINE}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
-   * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
-   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
-   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
-   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS}, {@link #COMMAND_GET_TRACKS} or {@link
-   * #COMMAND_SET_MEDIA_ITEM}.
+   * Commands that indicate which method calls are currently permitted on a particular {@code
+   * Player} instance, and which corresponding {@link Player.Listener} methods will be invoked.
+   *
+   * <p>The currently available commands can be inspected with {@link #getAvailableCommands()} and
+   * {@link #isCommandAvailable(int)}.
+   *
+   * <p>One of the following values:
+   *
+   * <ul>
+   *   <li>{@link #COMMAND_PLAY_PAUSE}
+   *   <li>{@link #COMMAND_PREPARE}
+   *   <li>{@link #COMMAND_STOP}
+   *   <li>{@link #COMMAND_SEEK_TO_DEFAULT_POSITION}
+   *   <li>{@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}
+   *   <li>{@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}
+   *   <li>{@link #COMMAND_SEEK_TO_PREVIOUS}
+   *   <li>{@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}
+   *   <li>{@link #COMMAND_SEEK_TO_NEXT}
+   *   <li>{@link #COMMAND_SEEK_TO_MEDIA_ITEM}
+   *   <li>{@link #COMMAND_SEEK_BACK}
+   *   <li>{@link #COMMAND_SEEK_FORWARD}
+   *   <li>{@link #COMMAND_SET_SPEED_AND_PITCH}
+   *   <li>{@link #COMMAND_SET_SHUFFLE_MODE}
+   *   <li>{@link #COMMAND_SET_REPEAT_MODE}
+   *   <li>{@link #COMMAND_GET_CURRENT_MEDIA_ITEM}
+   *   <li>{@link #COMMAND_GET_TIMELINE}
+   *   <li>{@link #COMMAND_GET_MEDIA_ITEMS_METADATA}
+   *   <li>{@link #COMMAND_SET_MEDIA_ITEMS_METADATA}
+   *   <li>{@link #COMMAND_SET_MEDIA_ITEM}
+   *   <li>{@link #COMMAND_CHANGE_MEDIA_ITEMS}
+   *   <li>{@link #COMMAND_GET_AUDIO_ATTRIBUTES}
+   *   <li>{@link #COMMAND_GET_VOLUME}
+   *   <li>{@link #COMMAND_GET_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_SET_VOLUME}
+   *   <li>{@link #COMMAND_SET_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_SET_VIDEO_SURFACE}
+   *   <li>{@link #COMMAND_GET_TEXT}
+   *   <li>{@link #COMMAND_SET_TRACK_SELECTION_PARAMETERS}
+   *   <li>{@link #COMMAND_GET_TRACKS}
+   * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1465,11 +1493,11 @@ public interface Player {
   int COMMAND_PLAY_PAUSE = 1;
   /** Command to prepare the player. */
   int COMMAND_PREPARE = 2;
-  /** Command to stop playback or release the player. */
+  /** Command to stop playback. */
   int COMMAND_STOP = 3;
   /** Command to seek to the default position of the current {@link MediaItem}. */
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 4;
-  /** Command to seek anywhere into the current {@link MediaItem}. */
+  /** Command to seek anywhere inside the current {@link MediaItem}. */
   int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 5;
   /**
    * @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead.
@@ -1482,7 +1510,10 @@ public interface Player {
    */
   @UnstableApi @Deprecated
   int COMMAND_SEEK_TO_PREVIOUS_WINDOW = COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
-  /** Command to seek to an earlier position in the current or previous {@link MediaItem}. */
+  /**
+   * Command to seek to an earlier position in the current {@link MediaItem} or the default position
+   * of the previous {@link MediaItem}.
+   */
   int COMMAND_SEEK_TO_PREVIOUS = 7;
   /** Command to seek to the default position of the next {@link MediaItem}. */
   int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 8;
@@ -1490,7 +1521,10 @@ public interface Player {
    * @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead.
    */
   @UnstableApi @Deprecated int COMMAND_SEEK_TO_NEXT_WINDOW = COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
-  /** Command to seek to a later position in the current or next {@link MediaItem}. */
+  /**
+   * Command to seek to a later position in the current {@link MediaItem} or the default position of
+   * the next {@link MediaItem}.
+   */
   int COMMAND_SEEK_TO_NEXT = 9;
   /** Command to seek anywhere in any {@link MediaItem}. */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 10;
@@ -1498,9 +1532,9 @@ public interface Player {
    * @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead.
    */
   @UnstableApi @Deprecated int COMMAND_SEEK_TO_WINDOW = COMMAND_SEEK_TO_MEDIA_ITEM;
-  /** Command to seek back by a fixed increment into the current {@link MediaItem}. */
+  /** Command to seek back by a fixed increment inside the current {@link MediaItem}. */
   int COMMAND_SEEK_BACK = 11;
-  /** Command to seek forward by a fixed increment into the current {@link MediaItem}. */
+  /** Command to seek forward by a fixed increment inside the current {@link MediaItem}. */
   int COMMAND_SEEK_FORWARD = 12;
   /** Command to set the playback speed and pitch. */
   int COMMAND_SET_SPEED_AND_PITCH = 13;
@@ -1512,13 +1546,15 @@ public interface Player {
   int COMMAND_GET_CURRENT_MEDIA_ITEM = 16;
   /** Command to get the information about the current timeline. */
   int COMMAND_GET_TIMELINE = 17;
-  /** Command to get the {@link MediaItem MediaItems} metadata. */
+  /** Command to get metadata related to the playlist and current {@link MediaItem}. */
+  // TODO(b/263132691): Rename this to COMMAND_GET_METADATA
   int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
-  /** Command to set the {@link MediaItem MediaItems} metadata. */
+  /** Command to set the playlist metadata. */
+  // TODO(b/263132691): Rename this to COMMAND_SET_PLAYLIST_METADATA
   int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
-  /** Command to set a {@link MediaItem MediaItem}. */
+  /** Command to set a {@link MediaItem}. */
   int COMMAND_SET_MEDIA_ITEM = 31;
-  /** Command to change the {@link MediaItem MediaItems} in the playlist. */
+  /** Command to change the {@linkplain MediaItem media items} in the playlist. */
   int COMMAND_CHANGE_MEDIA_ITEMS = 20;
   /** Command to get the player current {@link AudioAttributes}. */
   int COMMAND_GET_AUDIO_ATTRIBUTES = 21;
@@ -1528,7 +1564,7 @@ public interface Player {
   int COMMAND_GET_DEVICE_VOLUME = 23;
   /** Command to set the player volume. */
   int COMMAND_SET_VOLUME = 24;
-  /** Command to set the device volume and mute it. */
+  /** Command to set the device volume. */
   int COMMAND_SET_DEVICE_VOLUME = 25;
   /** Command to increase and decrease the device volume and mute it. */
   int COMMAND_ADJUST_DEVICE_VOLUME = 26;
@@ -1573,17 +1609,17 @@ public interface Player {
   void removeListener(Listener listener);
 
   /**
-   * Clears the playlist, adds the specified {@link MediaItem MediaItems} and resets the position to
-   * the default position.
+   * Clears the playlist, adds the specified {@linkplain MediaItem media items} and resets the
+   * position to the default position.
    *
-   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param mediaItems The new {@linkplain MediaItem media items}.
    */
   void setMediaItems(List<MediaItem> mediaItems);
 
   /**
-   * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
+   * Clears the playlist and adds the specified {@linkplain MediaItem media items}.
    *
-   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param mediaItems The new {@linkplain MediaItem media items}.
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
    *     by {@link #getCurrentMediaItemIndex()} and {@link #getCurrentPosition()}.
@@ -1591,9 +1627,9 @@ public interface Player {
   void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition);
 
   /**
-   * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
+   * Clears the playlist and adds the specified {@linkplain MediaItem media items}.
    *
-   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param mediaItems The new {@linkplain MediaItem media items}.
    * @param startIndex The {@link MediaItem} index to start playback from. If {@link C#INDEX_UNSET}
    *     is passed, the current position is not reset.
    * @param startPositionMs The position in milliseconds to start playback from. If {@link
@@ -1650,7 +1686,7 @@ public interface Player {
   /**
    * Adds a list of media items to the end of the playlist.
    *
-   * @param mediaItems The {@link MediaItem MediaItems} to add.
+   * @param mediaItems The {@linkplain MediaItem media items} to add.
    */
   void addMediaItems(List<MediaItem> mediaItems);
 
@@ -1659,7 +1695,7 @@ public interface Player {
    *
    * @param index The index at which to add the media items. If the index is larger than the size of
    *     the playlist, the media items are added to the end of the playlist.
-   * @param mediaItems The {@link MediaItem MediaItems} to add.
+   * @param mediaItems The {@linkplain MediaItem media items} to add.
    */
   void addMediaItems(int index, List<MediaItem> mediaItems);
 
@@ -1756,9 +1792,9 @@ public interface Player {
   void prepare();
 
   /**
-   * Returns the current {@link State playback state} of the player.
+   * Returns the current {@linkplain State playback state} of the player.
    *
-   * @return The current {@link State playback state}.
+   * @return The current {@linkplain State playback state}.
    * @see Listener#onPlaybackStateChanged(int)
    */
   @State
@@ -1768,7 +1804,7 @@ public interface Player {
    * Returns the reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code
    * true}, or {@link #PLAYBACK_SUPPRESSION_REASON_NONE} if playback is not suppressed.
    *
-   * @return The current {@link PlaybackSuppressionReason playback suppression reason}.
+   * @return The current {@link PlaybackSuppressionReason}.
    * @see Listener#onPlaybackSuppressionReasonChanged(int)
    */
   @PlaybackSuppressionReason
@@ -1806,11 +1842,11 @@ public interface Player {
 
   /**
    * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to
-   * {@code setPlayWhenReady(true)}.
+   * {@link #setPlayWhenReady(boolean) setPlayWhenReady(true)}.
    */
   void play();
 
-  /** Pauses playback. Equivalent to {@code setPlayWhenReady(false)}. */
+  /** Pauses playback. Equivalent to {@link #setPlayWhenReady(boolean) setPlayWhenReady(false)}. */
   void pause();
 
   /**
@@ -2265,7 +2301,7 @@ public interface Player {
   @Nullable
   MediaItem getCurrentMediaItem();
 
-  /** Returns the number of {@link MediaItem media items} in the playlist. */
+  /** Returns the number of {@linkplain MediaItem media items} in the playlist. */
   int getMediaItemCount();
 
   /** Returns the {@link MediaItem} at the given index. */
@@ -2298,7 +2334,7 @@ public interface Player {
 
   /**
    * Returns an estimate of the total buffered duration from the current position, in milliseconds.
-   * This includes pre-buffered data for subsequent ads and {@link MediaItem media items}.
+   * This includes pre-buffered data for subsequent ads and {@linkplain MediaItem media items}.
    */
   long getTotalBufferedDuration();
 
