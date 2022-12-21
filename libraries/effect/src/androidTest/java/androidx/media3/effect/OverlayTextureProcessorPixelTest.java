@@ -62,6 +62,8 @@ public class OverlayTextureProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   public static final String OVERLAY_BITMAP_DEFAULT =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_default.png";
+  public static final String OVERLAY_BITMAP_ANCHORED =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_anchored.png";
   public static final String OVERLAY_BITMAP_SCALED =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_scaled.png";
   public static final String OVERLAY_BITMAP_TRANSLUCENT =
@@ -162,6 +164,33 @@ public class OverlayTextureProcessorPixelTest {
     Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_SCALED);
+
+    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_anchoredBitmapOverlay_blendsBitmapIntoTopLeftOfFrame() throws Exception {
+    String testId = "drawFrame_anchoredBitmapOverlay";
+    Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
+    float[] translateMatrix = GlUtil.create4x4IdentityMatrix();
+    Matrix.translateM(translateMatrix, /* mOffset= */ 0, /* x= */ -1f, /* y= */ 1f, /* z= */ 1);
+    OverlaySettings overlaySettings =
+        new OverlaySettings.Builder().setMatrix(translateMatrix).setAnchor(-1f, 1f).build();
+    BitmapOverlay staticBitmapOverlay =
+        BitmapOverlay.createStaticBitmapOverlay(overlayBitmap, overlaySettings);
+    overlayTextureProcessor =
+        new OverlayEffect(ImmutableList.of(staticBitmapOverlay))
+            .toGlTextureProcessor(context, /* useHdr= */ false);
+    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_ANCHORED);
 
     overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =

@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
@@ -36,6 +37,8 @@ import com.google.common.collect.ImmutableList;
   private final ImmutableList<TextureOverlay> overlays;
   private final float[] aspectRatioMatrix;
   private final float[] overlayMatrix;
+  private final float[] anchorMatrix;
+  private final float[] transformationMatrix;
 
   private int videoWidth;
   private int videoHeight;
@@ -61,7 +64,8 @@ import com.google.common.collect.ImmutableList;
     this.overlays = overlays;
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
     overlayMatrix = GlUtil.create4x4IdentityMatrix();
-
+    anchorMatrix = GlUtil.create4x4IdentityMatrix();
+    transformationMatrix = GlUtil.create4x4IdentityMatrix();
     try {
       glProgram =
           new GlProgram(createVertexShader(overlays.size()), createFragmentShader(overlays.size()));
@@ -89,10 +93,12 @@ import com.google.common.collect.ImmutableList;
       if (!overlays.isEmpty()) {
         for (int texUnitIndex = 1; texUnitIndex <= overlays.size(); texUnitIndex++) {
           TextureOverlay overlay = overlays.get(texUnitIndex - 1);
+
           glProgram.setSamplerTexIdUniform(
               Util.formatInvariant("uOverlayTexSampler%d", texUnitIndex),
               overlay.getTextureId(presentationTimeUs),
               texUnitIndex);
+
           GlUtil.setToIdentity(aspectRatioMatrix);
           Matrix.scaleM(
               aspectRatioMatrix,
@@ -100,15 +106,40 @@ import com.google.common.collect.ImmutableList;
               videoWidth / (float) overlay.getTextureSize(presentationTimeUs).getWidth(),
               videoHeight / (float) overlay.getTextureSize(presentationTimeUs).getHeight(),
               /* z= */ 1);
-          glProgram.setFloatsUniform(
-              Util.formatInvariant("uAspectRatioMatrix%d", texUnitIndex), aspectRatioMatrix);
           Matrix.invertM(
               overlayMatrix,
               MATRIX_OFFSET,
               overlay.getOverlaySettings(presentationTimeUs).matrix,
               MATRIX_OFFSET);
+          Pair<Float, Float> overlayAnchor = overlay.getOverlaySettings(presentationTimeUs).anchor;
+          GlUtil.setToIdentity(anchorMatrix);
+          Matrix.translateM(
+              anchorMatrix,
+              /* mOffset= */ 0,
+              overlayAnchor.first
+                  * overlay.getTextureSize(presentationTimeUs).getWidth()
+                  / videoWidth,
+              overlayAnchor.second
+                  * overlay.getTextureSize(presentationTimeUs).getHeight()
+                  / videoHeight,
+              /* z= */ 1);
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              overlayMatrix,
+              MATRIX_OFFSET,
+              anchorMatrix,
+              MATRIX_OFFSET);
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              aspectRatioMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET);
           glProgram.setFloatsUniform(
-              Util.formatInvariant("uOverlayMatrix%d", texUnitIndex), overlayMatrix);
+              Util.formatInvariant("uTransformationMatrix%d", texUnitIndex), transformationMatrix);
+
           glProgram.setFloatUniform(
               Util.formatInvariant("uOverlayAlpha%d", texUnitIndex),
               overlay.getOverlaySettings(presentationTimeUs).alpha);
@@ -143,9 +174,8 @@ import com.google.common.collect.ImmutableList;
 
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
-          .append(Util.formatInvariant("uniform mat4 uAspectRatioMatrix%d;\n", texUnitIndex))
-          .append(Util.formatInvariant("uniform mat4 uOverlayMatrix%d;\n", texUnitIndex))
-          .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%d;\n", texUnitIndex));
+          .append(Util.formatInvariant("uniform mat4 uTransformationMatrix%s;\n", texUnitIndex))
+          .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%s;\n", texUnitIndex));
     }
 
     shader
@@ -160,9 +190,7 @@ import com.google.common.collect.ImmutableList;
       shader
           .append(Util.formatInvariant("  vec4 aOverlayPosition%d = \n", texUnitIndex))
           .append(
-              Util.formatInvariant(
-                  "    uAspectRatioMatrix%d * uOverlayMatrix%d * aFramePosition;\n",
-                  texUnitIndex, texUnitIndex))
+              Util.formatInvariant("  uTransformationMatrix%s * aFramePosition;\n", texUnitIndex))
           .append(
               Util.formatInvariant(
                   "  vOverlayTexSamplingCoord%d = getTexSamplingCoord(aOverlayPosition%d.xy);\n",
