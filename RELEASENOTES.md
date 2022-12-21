@@ -56,6 +56,8 @@ Release notes
         instead.
 *   Cast extension
     *   Bump Cast SDK version to 21.2.0.
+*   IMA extension
+    *   Bump IMA SDK version to 3.29.0.
 
 ### 1.0.0-beta03 (2022-11-22)
 
