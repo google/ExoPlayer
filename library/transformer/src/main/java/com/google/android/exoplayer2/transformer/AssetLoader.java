@@ -117,8 +117,7 @@ public interface AssetLoader {
    *
    * <ul>
    *   <li>{@linkplain #onDurationUs(long)} Report} the duration of the input media.
-   *   <li>{@linkplain #onTrackRegistered() Register} each output track.
-   *   <li>{@linkplain #onAllTracksRegistered() Signal} that all the tracks have been registered.
+   *   <li>{@linkplain #onTrackCount(int) Report} the number of output tracks.
    *   <li>{@linkplain #onTrackAdded(Format, long, long) Add} the information for each track.
    * </ul>
    *
@@ -129,25 +128,16 @@ public interface AssetLoader {
     /** Called when the duration of the input media is known. */
     void onDurationUs(long durationUs);
 
-    /**
-     * Called to register a single output track of sample data.
-     *
-     * <p>Must be called for each track that will be output.
-     *
-     * <p>Must be called on the same thread as {@link #onTrackAdded(Format, long, long)}.
-     */
-    void onTrackRegistered();
-
-    /** Called when all the tracks have been {@linkplain #onTrackRegistered() registered}. */
-    void onAllTracksRegistered();
+    /** Called when the number of tracks output by the asset loader is known. */
+    void onTrackCount(int trackCount);
 
     /**
-     * Called when the information on a {@linkplain #onTrackRegistered() registered} track is known.
+     * Called when the information on a track is known.
      *
-     * <p>Must be called after the duration has been {@linkplain #onDurationUs(long) reported} and
-     * all the tracks have been {@linkplain #onAllTracksRegistered registered}.
+     * <p>Must be called after the {@linkplain #onDurationUs(long) duration} and the {@linkplain
+     * #onTrackCount(int) track count} have been reported.
      *
-     * <p>Must be called on the same thread as {@link #onTrackRegistered()}.
+     * <p>Must be called once per {@linkplain #onTrackCount(int) declared} track.
      *
      * @param format The {@link Format} of the input media (prior to video slow motion flattening or
      *     to decoding).

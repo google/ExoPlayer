@@ -129,7 +129,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
-    assetLoaderListener.onTrackRegistered();
     mediaClock.updateTimeForTrackType(getTrackType(), 0L);
   }
 

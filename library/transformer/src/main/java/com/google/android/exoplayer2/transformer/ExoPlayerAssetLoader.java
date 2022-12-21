@@ -341,7 +341,14 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     @Override
     public void onTracksChanged(Tracks tracks) {
-      assetLoaderListener.onAllTracksRegistered();
+      int trackCount = 0;
+      if (tracks.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
+        trackCount++;
+      }
+      if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+        trackCount++;
+      }
+      assetLoaderListener.onTrackCount(trackCount);
     }
 
     @Override
