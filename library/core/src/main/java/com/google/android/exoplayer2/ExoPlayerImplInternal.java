@@ -527,7 +527,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
           reselectTracksInternal();
           break;
         case MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL:
-          handlePlaybackParameters((PlaybackParameters) msg.obj, /* acknowledgeCommand= */ false);
+          PlaybackParameters updatedParameters = (PlaybackParameters) msg.obj;
+          reportPlaybackParametersUpdateInternally(updatedParameters, updatedParameters.speed);
           break;
         case MSG_SEND_MESSAGE:
           sendMessageInternal((PlayerMessage) msg.obj);
@@ -2290,6 +2291,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       playbackInfo = playbackInfo.copyWithPlaybackParameters(playbackParameters);
     }
+    reportPlaybackParametersUpdateInternally(playbackParameters, currentPlaybackSpeed);
+  }
+
+  private void reportPlaybackParametersUpdateInternally(PlaybackParameters playbackParameters, float currentPlaybackSpeed)
+      throws ExoPlaybackException {
     updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
     for (Renderer renderer : renderers) {
       if (renderer != null) {
