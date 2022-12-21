@@ -49,6 +49,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ final class TransformerInternal {
@@ -378,15 +379,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
+    private final AtomicInteger trackCount;
 
     private int tracksAddedCount;
 
     private volatile long durationUs;
-    private volatile boolean trackRegistered;
 
     public ComponentListener(MediaItem mediaItem, FallbackListener fallbackListener) {
       this.mediaItem = mediaItem;
       this.fallbackListener = fallbackListener;
+      trackCount = new AtomicInteger();
       durationUs = C.TIME_UNSET;
     }
 
@@ -398,28 +400,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public void onTrackRegistered() {
-      trackRegistered = true;
-      muxerWrapper.registerTrack();
-      fallbackListener.registerTrack();
-
-      if (forceSilentAudio) {
-        muxerWrapper.registerTrack();
-        fallbackListener.registerTrack();
-      }
-    }
-
-    @Override
-    public void onAllTracksRegistered() {
-      if (!trackRegistered) {
+    public void onTrackCount(int trackCount) {
+      if (trackCount == 0) {
         onError(new IllegalStateException("The output does not contain any tracks."));
       }
+      this.trackCount.set(trackCount);
     }
 
     @Override
     public SamplePipeline.Input onTrackAdded(
         Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException {
+      if (tracksAddedCount == 0) {
+        if (forceSilentAudio) {
+          trackCount.incrementAndGet();
+        }
+        for (int i = 0; i < trackCount.get(); i++) {
+          muxerWrapper.registerTrack();
+          fallbackListener.registerTrack();
+        }
+      }
+
       SamplePipeline samplePipeline =
           getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
