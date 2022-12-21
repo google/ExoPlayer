@@ -107,12 +107,17 @@ public class MediaMetadataTest {
   }
 
   @Test
-  public void createMinimalMediaMetadata_roundTripViaBundle_yieldsEqualInstance() {
+  public void toBundleSkipsDefaultValues_fromBundleRestoresThem() {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().build();
 
-    MediaMetadata mediaMetadataFromBundle =
-        MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
+    Bundle mediaMetadataBundle = mediaMetadata.toBundle();
 
+    // check Bundle created above, contains no keys.
+    assertThat(mediaMetadataBundle.keySet()).isEmpty();
+
+    MediaMetadata mediaMetadataFromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
+
+    // check object retrieved from mediaMetadataBundle is equal to mediaMetadata.
     assertThat(mediaMetadataFromBundle).isEqualTo(mediaMetadata);
     // Extras is not implemented in MediaMetadata.equals(Object o).
     assertThat(mediaMetadataFromBundle.extras).isNull();
