@@ -40,7 +40,7 @@ public class FallbackListenerTest {
   private static final MediaItem PLACEHOLDER_MEDIA_ITEM = MediaItem.fromUri(Uri.EMPTY);
 
   @Test
-  public void onTransformationRequestFinalized_withoutTrackRegistration_throwsException() {
+  public void onTransformationRequestFinalized_withoutTrackCountSet_throwsException() {
     TransformationRequest transformationRequest = new TransformationRequest.Builder().build();
     FallbackListener fallbackListener =
         new FallbackListener(
@@ -52,13 +52,13 @@ public class FallbackListenerTest {
   }
 
   @Test
-  public void onTransformationRequestFinalized_afterTrackRegistration_completesSuccessfully() {
+  public void onTransformationRequestFinalized_afterTrackCountSet_completesSuccessfully() {
     TransformationRequest transformationRequest = new TransformationRequest.Builder().build();
     FallbackListener fallbackListener =
         new FallbackListener(
             PLACEHOLDER_MEDIA_ITEM, createListenerSet(), createHandler(), transformationRequest);
 
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
     ShadowLooper.idleMainLooper();
   }
@@ -76,7 +76,7 @@ public class FallbackListenerTest {
             createHandler(),
             originalRequest);
 
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(unchangedRequest);
     ShadowLooper.idleMainLooper();
 
@@ -97,7 +97,7 @@ public class FallbackListenerTest {
             createHandler(),
             originalRequest);
 
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(audioFallbackRequest);
     ShadowLooper.idleMainLooper();
 
@@ -127,8 +127,7 @@ public class FallbackListenerTest {
             createHandler(),
             originalRequest);
 
-    fallbackListener.registerTrack();
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(2);
     fallbackListener.onTransformationRequestFinalized(audioFallbackRequest);
     fallbackListener.onTransformationRequestFinalized(videoFallbackRequest);
     ShadowLooper.idleMainLooper();

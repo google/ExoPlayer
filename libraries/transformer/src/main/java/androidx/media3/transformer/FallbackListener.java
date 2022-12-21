@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
 
+import androidx.annotation.IntRange;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.HandlerWrapper;
@@ -61,13 +62,13 @@ import androidx.media3.common.util.Util;
   }
 
   /**
-   * Registers an output track.
+   * Sets the number of output tracks.
    *
-   * <p>All tracks must be registered before a transformation request is {@linkplain
+   * <p>The track count must be set before a transformation request is {@linkplain
    * #onTransformationRequestFinalized(TransformationRequest) finalized}.
    */
-  public void registerTrack() {
-    trackCount++;
+  public void setTrackCount(@IntRange(from = 1) int trackCount) {
+    this.trackCount = trackCount;
   }
 
   /**
@@ -82,8 +83,8 @@ import androidx.media3.common.util.Util;
    * TransformationRequest)} once this method has been called for each track.
    *
    * @param transformationRequest The final {@link TransformationRequest} for a track.
-   * @throws IllegalStateException If called for more tracks than registered using {@link
-   *     #registerTrack()}.
+   * @throws IllegalStateException If called for more tracks than declared in {@link
+   *     #setTrackCount(int)}.
    */
   public void onTransformationRequestFinalized(TransformationRequest transformationRequest) {
     checkState(trackCount-- > 0);
