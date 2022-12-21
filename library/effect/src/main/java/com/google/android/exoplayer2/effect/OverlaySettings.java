@@ -16,6 +16,7 @@ package com.google.android.exoplayer2.effect;
  */
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
+import android.util.Pair;
 import androidx.annotation.FloatRange;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -25,11 +26,13 @@ public final class OverlaySettings {
   public final boolean useHdr;
   public final float alpha;
   public final float[] matrix;
+  public final Pair<Float, Float> anchor;
 
-  private OverlaySettings(boolean useHdr, float alpha, float[] matrix) {
+  private OverlaySettings(boolean useHdr, float alpha, float[] matrix, Pair<Float, Float> anchor) {
     this.useHdr = useHdr;
     this.alpha = alpha;
     this.matrix = matrix;
+    this.anchor = anchor;
   }
 
   /** A builder for {@link OverlaySettings} instances. */
@@ -37,10 +40,12 @@ public final class OverlaySettings {
     private boolean useHdr;
     private float alpha = 1;
     private float[] matrix;
+    private Pair<Float, Float> anchor;
 
     /** Creates a new {@link Builder}. */
     public Builder() {
       matrix = GlUtil.create4x4IdentityMatrix();
+      anchor = Pair.create(0f, 0f);
     }
 
     /**
@@ -81,9 +86,33 @@ public final class OverlaySettings {
       return this;
     }
 
+    /**
+     * Sets the coordinates for the anchor point of the overlay.
+     *
+     * <p>The anchor point is the point inside the overlay that the overlay is positioned from.
+     *
+     * <p>The coordinates are specified in Normalised Device Coordinates (NDCs). Set to always
+     * return {@code (0,0)} (the center) by default.
+     *
+     * @param x the NDC x-coordinate.
+     * @param y the NDC y-coordinate.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAnchor(
+        @FloatRange(from = -1, to = 1) float x, @FloatRange(from = -1, to = 1) float y) {
+      checkArgument(
+          -1 <= x && x <= 1,
+          "x needs to be specified in terms of NDCs which lie in the interval [-1, 1].");
+      checkArgument(
+          -1 <= y && y <= 1,
+          "y needs to be specified in terms of NDCs which lie in the interval [-1, 1].");
+      this.anchor = Pair.create(x, y);
+      return this;
+    }
+
     /** Creates an instance of {@link OverlaySettings}, using defaults if values are unset. */
     public OverlaySettings build() {
-      return new OverlaySettings(useHdr, alpha, matrix);
+      return new OverlaySettings(useHdr, alpha, matrix, anchor);
     }
   }
 }
