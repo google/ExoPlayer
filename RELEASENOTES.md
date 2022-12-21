@@ -25,6 +25,11 @@
         `Subtitle.getEventTime` if a subtitle file contains no cues.
     *   SubRip: Add support for UTF-16 files if they start with a byte order
         mark.
+*   UI:
+    *   Fix the deprecated
+        `PlayerView.setControllerVisibilityListener(PlayerControlView.VisibilityListener)`
+        to ensure visibility changes are passed to the registered listener
+        ([#229](https://github.com/androidx/media/issues/229)).
 *   Session:
     *   Add abstract `SimpleBasePlayer` to help implement the `Player` interface
         for custom players.
