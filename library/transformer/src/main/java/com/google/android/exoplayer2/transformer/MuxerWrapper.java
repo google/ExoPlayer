@@ -25,6 +25,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.os.ParcelFileDescriptor;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -99,18 +100,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Registers an output track.
+   * Sets the number of output tracks.
    *
-   * <p>All tracks must be registered before any track format is {@linkplain #addTrackFormat(Format)
+   * <p>The track count must be set before any track format is {@linkplain #addTrackFormat(Format)
    * added}.
    *
    * @throws IllegalStateException If a track format was {@linkplain #addTrackFormat(Format) added}
    *     before calling this method.
    */
-  public void registerTrack() {
+  public void setTrackCount(@IntRange(from = 1) int trackCount) {
     checkState(
-        trackFormatCount == 0, "Tracks cannot be registered after track formats have been added.");
-    trackCount++;
+        trackFormatCount == 0,
+        "The track count cannot be set after track formats have been added.");
+    this.trackCount = trackCount;
   }
 
   /** Returns whether the sample {@linkplain MimeTypes MIME type} is supported. */
@@ -130,7 +132,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Adds a track format to the muxer.
    *
-   * <p>The tracks must all be {@linkplain #registerTrack() registered} before any format is added
+   * <p>The number of tracks must be {@linkplain #setTrackCount(int) set} before any format is added
    * and all the formats must be added before samples are {@linkplain #writeSample(int, ByteBuffer,
    * boolean, long) written}.
    *
@@ -141,7 +143,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     track.
    */
   public void addTrackFormat(Format format) throws Muxer.MuxerException {
-    checkState(trackCount > 0, "All tracks should be registered before the formats are added.");
+    checkState(trackCount > 0, "The track count should be set before the formats are added.");
     checkState(trackFormatCount < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
     boolean isAudio = MimeTypes.isAudio(sampleMimeType);
@@ -175,8 +177,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
    *     {@linkplain #addTrackFormat(Format) received a format} for every {@linkplain
-   *     #registerTrack() registered track}, or if it should write samples of other track types
-   *     first to ensure a good interleaving.
+   *     #setTrackCount(int) track}, or if it should write samples of other track types first to
+   *     ensure a good interleaving.
    * @throws IllegalStateException If the muxer doesn't have any {@linkplain #endTrack(int)
    *     non-ended} track of the given track type.
    * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
@@ -302,8 +304,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param trackType The track type, defined by the {@code TRACK_TYPE_*} constants in {@link C}.
    * @return Whether the muxer can write a sample of the given track type. This is {@code false} if
    *     the muxer hasn't {@link #addTrackFormat(Format) received a format} for every {@link
-   *     #registerTrack() registered track}, or if it should write samples of other track types
-   *     first to ensure a good interleaving.
+   *     #setTrackCount(int) track}, or if it should write samples of other track types first to
+   *     ensure a good interleaving.
    * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
    *     track of the given track type.
    */

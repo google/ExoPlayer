@@ -405,6 +405,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         onError(new IllegalStateException("The output does not contain any tracks."));
       }
       this.trackCount.set(trackCount);
+      if (forceSilentAudio) {
+        this.trackCount.incrementAndGet();
+      }
     }
 
     @Override
@@ -412,12 +415,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException {
       if (tracksAddedCount == 0) {
-        if (forceSilentAudio) {
-          trackCount.incrementAndGet();
-        }
-        for (int i = 0; i < trackCount.get(); i++) {
-          muxerWrapper.registerTrack();
-        }
+        // Call setTrackCount() methods here so that they are called from the same thread as the
+        // MuxerWrapper and FallbackListener methods called when building the sample pipelines.
+        muxerWrapper.setTrackCount(trackCount.get());
         fallbackListener.setTrackCount(trackCount.get());
       }
 
