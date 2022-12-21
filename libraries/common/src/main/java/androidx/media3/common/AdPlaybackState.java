@@ -507,9 +507,8 @@ public final class AdPlaybackState implements Bundleable {
     @SuppressWarnings("nullness:type.argument")
     private static AdGroup fromBundle(Bundle bundle) {
       long timeUs = bundle.getLong(keyForField(FIELD_TIME_US));
-      int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
-      int originalCount =
-          bundle.getInt(keyForField(FIELD_ORIGINAL_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
+      int count = bundle.getInt(keyForField(FIELD_COUNT));
+      int originalCount = bundle.getInt(keyForField(FIELD_ORIGINAL_COUNT));
       @Nullable
       ArrayList<@NullableType Uri> uriList = bundle.getParcelableArrayList(keyForField(FIELD_URIS));
       @Nullable
@@ -1152,10 +1151,18 @@ public final class AdPlaybackState implements Bundleable {
     for (AdGroup adGroup : adGroups) {
       adGroupBundleList.add(adGroup.toBundle());
     }
-    bundle.putParcelableArrayList(keyForField(FIELD_AD_GROUPS), adGroupBundleList);
-    bundle.putLong(keyForField(FIELD_AD_RESUME_POSITION_US), adResumePositionUs);
-    bundle.putLong(keyForField(FIELD_CONTENT_DURATION_US), contentDurationUs);
-    bundle.putInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT), removedAdGroupCount);
+    if (!adGroupBundleList.isEmpty()) {
+      bundle.putParcelableArrayList(keyForField(FIELD_AD_GROUPS), adGroupBundleList);
+    }
+    if (adResumePositionUs != NONE.adResumePositionUs) {
+      bundle.putLong(keyForField(FIELD_AD_RESUME_POSITION_US), adResumePositionUs);
+    }
+    if (contentDurationUs != NONE.contentDurationUs) {
+      bundle.putLong(keyForField(FIELD_CONTENT_DURATION_US), contentDurationUs);
+    }
+    if (removedAdGroupCount != NONE.removedAdGroupCount) {
+      bundle.putInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT), removedAdGroupCount);
+    }
     return bundle;
   }
 
@@ -1180,10 +1187,15 @@ public final class AdPlaybackState implements Bundleable {
       }
     }
     long adResumePositionUs =
-        bundle.getLong(keyForField(FIELD_AD_RESUME_POSITION_US), /* defaultValue= */ 0);
+        bundle.getLong(
+            keyForField(FIELD_AD_RESUME_POSITION_US), /* defaultValue= */ NONE.adResumePositionUs);
     long contentDurationUs =
-        bundle.getLong(keyForField(FIELD_CONTENT_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
-    int removedAdGroupCount = bundle.getInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT));
+        bundle.getLong(
+            keyForField(FIELD_CONTENT_DURATION_US), /* defaultValue= */ NONE.contentDurationUs);
+    int removedAdGroupCount =
+        bundle.getInt(
+            keyForField(FIELD_REMOVED_AD_GROUP_COUNT),
+            /* defaultValue= */ NONE.removedAdGroupCount);
     return new AdPlaybackState(
         /* adsId= */ null, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
