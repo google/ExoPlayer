@@ -417,8 +417,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
         for (int i = 0; i < trackCount.get(); i++) {
           muxerWrapper.registerTrack();
-          fallbackListener.registerTrack();
         }
+        fallbackListener.setTrackCount(trackCount.get());
       }
 
       SamplePipeline samplePipeline =

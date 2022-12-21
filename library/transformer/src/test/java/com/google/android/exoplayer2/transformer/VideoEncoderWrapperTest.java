@@ -61,8 +61,8 @@ public final class VideoEncoderWrapperTest {
           fallbackListener);
 
   @Before
-  public void registerTrack() {
-    fallbackListener.registerTrack();
+  public void setUp() {
+    fallbackListener.setTrackCount(1);
     createShadowH264Encoder();
   }
 
