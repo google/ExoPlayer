@@ -868,8 +868,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   /**
    * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
-   * <p>Removes any listener set by {@link
-   * #setControllerVisibilityListener(StyledPlayerControlView.VisibilityListener)}.
+   * <p>If {@code listener} is non-null then any listener set by {@link
+   * #setControllerVisibilityListener(StyledPlayerControlView.VisibilityListener)} is removed.
    *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
@@ -877,14 +877,16 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   @SuppressWarnings("deprecation") // Clearing the legacy listener.
   public void setControllerVisibilityListener(@Nullable ControllerVisibilityListener listener) {
     this.controllerVisibilityListener = listener;
-    setControllerVisibilityListener((StyledPlayerControlView.VisibilityListener) null);
+    if (listener != null) {
+      setControllerVisibilityListener((StyledPlayerControlView.VisibilityListener) null);
+    }
   }
 
   /**
    * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
-   * <p>Removes any listener set by {@link
-   * #setControllerVisibilityListener(ControllerVisibilityListener)}.
+   * <p>If {@code listener} is non-null then any listener set by {@link
+   * #setControllerVisibilityListener(ControllerVisibilityListener)} is removed.
    *
    * @deprecated Use {@link #setControllerVisibilityListener(ControllerVisibilityListener)} instead.
    */
@@ -903,8 +905,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     this.legacyControllerVisibilityListener = listener;
     if (listener != null) {
       controller.addVisibilityListener(listener);
+      setControllerVisibilityListener((ControllerVisibilityListener) null);
     }
-    setControllerVisibilityListener((ControllerVisibilityListener) null);
   }
 
   /**
