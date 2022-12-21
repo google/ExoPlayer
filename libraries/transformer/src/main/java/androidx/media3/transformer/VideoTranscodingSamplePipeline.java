@@ -348,19 +348,25 @@ import org.checkerframework.dataflow.qual.Pure;
       Format supportedFormat,
       @TransformationRequest.HdrMode int supportedHdrMode) {
     // TODO(b/259570024): Consider including bitrate in the revised fallback design.
-    if (transformationRequest.hdrMode == supportedHdrMode
-        && Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
-        && (hasOutputFormatRotation
-            ? requestedFormat.width == supportedFormat.width
-            : requestedFormat.height == supportedFormat.height)) {
-      return transformationRequest;
+
+    TransformationRequest.Builder supportedRequestBuilder = transformationRequest.buildUpon();
+    if (transformationRequest.hdrMode != supportedHdrMode) {
+      supportedRequestBuilder.setHdrMode(supportedHdrMode);
     }
-    return transformationRequest
-        .buildUpon()
-        .setVideoMimeType(supportedFormat.sampleMimeType)
-        .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
-        .setHdrMode(supportedHdrMode)
-        .build();
+
+    if (!Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)) {
+      supportedRequestBuilder.setVideoMimeType(supportedFormat.sampleMimeType);
+    }
+
+    if (hasOutputFormatRotation) {
+      if (requestedFormat.width != supportedFormat.width) {
+        supportedRequestBuilder.setResolution(/* outputHeight= */ supportedFormat.width);
+      }
+    } else if (requestedFormat.height != supportedFormat.height) {
+      supportedRequestBuilder.setResolution(supportedFormat.height);
+    }
+
+    return supportedRequestBuilder.build();
   }
 
   private static boolean deviceNeedsNoToneMappingWorkaround() {
