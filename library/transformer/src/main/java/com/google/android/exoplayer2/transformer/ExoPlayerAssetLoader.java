@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FO
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
+import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
@@ -348,7 +349,15 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
         trackCount++;
       }
-      assetLoaderListener.onTrackCount(trackCount);
+      if (trackCount == 0) {
+        assetLoaderListener.onError(
+            new PlaybackException(
+                "The asset loader has no track to output.",
+                /* cause= */ null,
+                ERROR_CODE_FAILED_RUNTIME_CHECK));
+      } else {
+        assetLoaderListener.onTrackCount(trackCount);
+      }
     }
 
     @Override

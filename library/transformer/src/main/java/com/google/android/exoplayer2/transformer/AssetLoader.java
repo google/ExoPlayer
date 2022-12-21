@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
 import android.os.Looper;
+import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Clock;
@@ -129,7 +130,7 @@ public interface AssetLoader {
     void onDurationUs(long durationUs);
 
     /** Called when the number of tracks output by the asset loader is known. */
-    void onTrackCount(int trackCount);
+    void onTrackCount(@IntRange(from = 1) int trackCount);
 
     /**
      * Called when the information on a track is known.
