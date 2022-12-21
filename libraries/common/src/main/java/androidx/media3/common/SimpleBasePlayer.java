@@ -549,7 +549,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       public Builder setPlaylist(List<MediaItemData> playlist) {
         HashSet<Object> uids = new HashSet<>();
         for (int i = 0; i < playlist.size(); i++) {
-          checkArgument(uids.add(playlist.get(i).uid));
+          checkArgument(uids.add(playlist.get(i).uid), "Duplicate MediaItemData UID in playlist");
         }
         this.playlist = ImmutableList.copyOf(playlist);
         this.timeline = new PlaylistTimeline(this.playlist);
@@ -882,16 +882,20 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       if (builder.timeline.isEmpty()) {
         checkArgument(
             builder.playbackState == Player.STATE_IDLE
-                || builder.playbackState == Player.STATE_ENDED);
+                || builder.playbackState == Player.STATE_ENDED,
+            "Empty playlist only allowed in STATE_IDLE or STATE_ENDED");
         checkArgument(
             builder.currentAdGroupIndex == C.INDEX_UNSET
-                && builder.currentAdIndexInAdGroup == C.INDEX_UNSET);
+                && builder.currentAdIndexInAdGroup == C.INDEX_UNSET,
+            "Ads not allowed if playlist is empty");
       } else {
         int mediaItemIndex = builder.currentMediaItemIndex;
         if (mediaItemIndex == C.INDEX_UNSET) {
           mediaItemIndex = 0; // TODO: Use shuffle order to find first index.
         } else {
-          checkArgument(builder.currentMediaItemIndex < builder.timeline.getWindowCount());
+          checkArgument(
+              builder.currentMediaItemIndex < builder.timeline.getWindowCount(),
+              "currentMediaItemIndex must be less than playlist.size()");
         }
         if (builder.currentAdGroupIndex != C.INDEX_UNSET) {
           Timeline.Period period = new Timeline.Period();
@@ -904,19 +908,25 @@ public abstract class SimpleBasePlayer extends BasePlayer {
               getPeriodIndexFromWindowPosition(
                   builder.timeline, mediaItemIndex, contentPositionMs, window, period);
           builder.timeline.getPeriod(periodIndex, period);
-          checkArgument(builder.currentAdGroupIndex < period.getAdGroupCount());
+          checkArgument(
+              builder.currentAdGroupIndex < period.getAdGroupCount(),
+              "PeriodData has less ad groups than adGroupIndex");
           int adCountInGroup = period.getAdCountInAdGroup(builder.currentAdGroupIndex);
           if (adCountInGroup != C.LENGTH_UNSET) {
-            checkArgument(builder.currentAdIndexInAdGroup < adCountInGroup);
+            checkArgument(
+                builder.currentAdIndexInAdGroup < adCountInGroup,
+                "Ad group has less ads than adIndexInGroupIndex");
           }
         }
       }
       if (builder.playerError != null) {
-        checkArgument(builder.playbackState == Player.STATE_IDLE);
+        checkArgument(
+            builder.playbackState == Player.STATE_IDLE, "Player error only allowed in STATE_IDLE");
       }
       if (builder.playbackState == Player.STATE_IDLE
           || builder.playbackState == Player.STATE_ENDED) {
-        checkArgument(!builder.isLoading);
+        checkArgument(
+            !builder.isLoading, "isLoading only allowed when not in STATE_IDLE or STATE_ENDED");
       }
       PositionSupplier contentPositionMsSupplier = builder.contentPositionMsSupplier;
       if (builder.contentPositionMs != null) {
@@ -1494,9 +1504,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       public Builder setPeriods(List<PeriodData> periods) {
         int periodCount = periods.size();
         for (int i = 0; i < periodCount - 1; i++) {
-          checkArgument(periods.get(i).durationUs != C.TIME_UNSET);
+          checkArgument(
+              periods.get(i).durationUs != C.TIME_UNSET, "Periods other than last need a duration");
           for (int j = i + 1; j < periodCount; j++) {
-            checkArgument(!periods.get(i).uid.equals(periods.get(j).uid));
+            checkArgument(
+                !periods.get(i).uid.equals(periods.get(j).uid),
+                "Duplicate PeriodData UIDs in period list");
           }
         }
         this.periods = ImmutableList.copyOf(periods);
@@ -1575,16 +1588,26 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
     private MediaItemData(Builder builder) {
       if (builder.liveConfiguration == null) {
-        checkArgument(builder.presentationStartTimeMs == C.TIME_UNSET);
-        checkArgument(builder.windowStartTimeMs == C.TIME_UNSET);
-        checkArgument(builder.elapsedRealtimeEpochOffsetMs == C.TIME_UNSET);
+        checkArgument(
+            builder.presentationStartTimeMs == C.TIME_UNSET,
+            "presentationStartTimeMs can only be set if liveConfiguration != null");
+        checkArgument(
+            builder.windowStartTimeMs == C.TIME_UNSET,
+            "windowStartTimeMs can only be set if liveConfiguration != null");
+        checkArgument(
+            builder.elapsedRealtimeEpochOffsetMs == C.TIME_UNSET,
+            "elapsedRealtimeEpochOffsetMs can only be set if liveConfiguration != null");
       } else if (builder.presentationStartTimeMs != C.TIME_UNSET
           && builder.windowStartTimeMs != C.TIME_UNSET) {
-        checkArgument(builder.windowStartTimeMs >= builder.presentationStartTimeMs);
+        checkArgument(
+            builder.windowStartTimeMs >= builder.presentationStartTimeMs,
+            "windowStartTimeMs can't be less than presentationStartTimeMs");
       }
       int periodCount = builder.periods.size();
       if (builder.durationUs != C.TIME_UNSET) {
-        checkArgument(builder.defaultPositionUs <= builder.durationUs);
+        checkArgument(
+            builder.defaultPositionUs <= builder.durationUs,
+            "defaultPositionUs can't be greater than durationUs");
       }
       this.uid = builder.uid;
       this.tracks = builder.tracks;
@@ -2782,7 +2805,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetPlayWhenReady(boolean playWhenReady) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_PLAY_PAUSE");
   }
 
   /**
@@ -2795,7 +2818,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handlePrepare() {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_PREPARE");
   }
 
   /**
@@ -2808,7 +2831,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleStop() {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_STOP");
   }
 
   /**
@@ -2820,7 +2843,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   // TODO(b/261158047): Add that this method will only be called if COMMAND_RELEASE is available.
   @ForOverride
   protected ListenableFuture<?> handleRelease() {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_RELEASE");
   }
 
   /**
@@ -2834,7 +2857,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetRepeatMode(@RepeatMode int repeatMode) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_REPEAT_MODE");
   }
 
   /**
@@ -2848,7 +2871,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetShuffleModeEnabled(boolean shuffleModeEnabled) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_SHUFFLE_MODE");
   }
 
   /**
@@ -2862,7 +2885,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetPlaybackParameters(PlaybackParameters playbackParameters) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_SPEED_AND_PITCH");
   }
 
   /**
@@ -2877,7 +2900,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleSetTrackSelectionParameters(
       TrackSelectionParameters trackSelectionParameters) {
-    throw new IllegalStateException();
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_SET_TRACK_SELECTION_PARAMETERS");
   }
 
   /**
@@ -2891,7 +2915,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
-    throw new IllegalStateException();
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_SET_MEDIA_ITEMS_METADATA");
   }
 
   /**
@@ -2906,7 +2931,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetVolume(@FloatRange(from = 0, to = 1.0) float volume) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_VOLUME");
   }
 
   /**
@@ -2920,7 +2945,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetDeviceVolume(@IntRange(from = 0) int deviceVolume) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_DEVICE_VOLUME");
   }
 
   /**
@@ -2933,7 +2958,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleIncreaseDeviceVolume() {
-    throw new IllegalStateException();
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME");
   }
 
   /**
@@ -2946,7 +2972,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleDecreaseDeviceVolume() {
-    throw new IllegalStateException();
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME");
   }
 
   /**
@@ -2960,7 +2987,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
-    throw new IllegalStateException();
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME");
   }
 
   /**
@@ -2975,7 +3003,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleSetVideoOutput(Object videoOutput) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_VIDEO_SURFACE");
   }
 
   /**
@@ -2992,7 +3020,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleClearVideoOutput(@Nullable Object videoOutput) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_VIDEO_SURFACE");
   }
 
   /**
@@ -3013,7 +3041,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleSetMediaItems(
       List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_MEDIA_ITEM(S)");
   }
 
   /**
@@ -3029,7 +3057,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleAddMediaItems(int index, List<MediaItem> mediaItems) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_CHANGE_MEDIA_ITEMS");
   }
 
   /**
@@ -3049,7 +3077,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleMoveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_CHANGE_MEDIA_ITEMS");
   }
 
   /**
@@ -3066,7 +3094,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
    */
   @ForOverride
   protected ListenableFuture<?> handleRemoveMediaItems(int fromIndex, int toIndex) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle COMMAND_CHANGE_MEDIA_ITEMS");
   }
 
   /**
@@ -3087,7 +3115,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleSeek(
       int mediaItemIndex, long positionMs, @Player.Command int seekCommand) {
-    throw new IllegalStateException();
+    throw new IllegalStateException("Missing implementation to handle one of the COMMAND_SEEK_*");
   }
 
   @RequiresNonNull("state")
