@@ -401,8 +401,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onTrackCount(int trackCount) {
-      if (trackCount == 0) {
-        onError(new IllegalStateException("The output does not contain any tracks."));
+      if (trackCount <= 0) {
+        onError(new IllegalStateException("AssetLoader instances must provide at least 1 track."));
+        return;
       }
       this.trackCount.set(trackCount);
       if (forceSilentAudio) {

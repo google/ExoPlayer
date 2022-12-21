@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 
 import android.content.Context;
 import android.os.Looper;
+import androidx.annotation.IntRange;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Clock;
@@ -131,7 +132,7 @@ public interface AssetLoader {
     void onDurationUs(long durationUs);
 
     /** Called when the number of tracks output by the asset loader is known. */
-    void onTrackCount(int trackCount);
+    void onTrackCount(@IntRange(from = 1) int trackCount);
 
     /**
      * Called when the information on a track is known.

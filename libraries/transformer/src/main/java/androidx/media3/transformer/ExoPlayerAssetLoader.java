@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
@@ -350,7 +351,15 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
         trackCount++;
       }
-      assetLoaderListener.onTrackCount(trackCount);
+      if (trackCount == 0) {
+        assetLoaderListener.onError(
+            new PlaybackException(
+                "The asset loader has no track to output.",
+                /* cause= */ null,
+                ERROR_CODE_FAILED_RUNTIME_CHECK));
+      } else {
+        assetLoaderListener.onTrackCount(trackCount);
+      }
     }
 
     @Override
