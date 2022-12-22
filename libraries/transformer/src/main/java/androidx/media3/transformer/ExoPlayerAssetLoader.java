@@ -237,7 +237,6 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
   public void start() {
     player.setMediaItem(mediaItem);
     player.prepare();
-    player.play();
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
   }
 
@@ -357,9 +356,13 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
                 "The asset loader has no track to output.",
                 /* cause= */ null,
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
+        return;
       } else {
         assetLoaderListener.onTrackCount(trackCount);
       }
+      // Start the renderers after having registered all the tracks to make sure the AssetLoader
+      // listener callbacks are called in the right order.
+      player.play();
     }
 
     @Override
