@@ -35,6 +35,7 @@
       android:largeHeap="true"
       android:allowBackup="false"
       android:requestLegacyExternalStorage="true"
+      android:supportsRtl="true"
       android:name="androidx.multidex.MultiDexApplication"
       tools:targetApi="29">
 
