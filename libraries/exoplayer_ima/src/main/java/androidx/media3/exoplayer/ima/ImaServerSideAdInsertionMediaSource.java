@@ -36,6 +36,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Pair;
 import android.view.ViewGroup;
 import androidx.annotation.IntDef;
@@ -495,7 +496,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     this.applicationAdEventListener = applicationAdEventListener;
     this.applicationAdErrorListener = applicationAdErrorListener;
     componentListener = new ComponentListener();
-    mainHandler = Util.createHandlerForCurrentLooper();
+    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
+    mainHandler = new Handler(Looper.getMainLooper());
     Uri streamRequestUri = checkNotNull(mediaItem.localConfiguration).uri;
     isLiveStream = ImaServerSideAdInsertionUriBuilder.isLiveStream(streamRequestUri);
     adsId = ImaServerSideAdInsertionUriBuilder.getAdsId(streamRequestUri);
@@ -572,8 +574,11 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     super.releaseSourceInternal();
     if (loader != null) {
       loader.release();
-      player.removeListener(componentListener);
-      mainHandler.post(() -> setStreamManager(/* streamManager= */ null));
+      mainHandler.post(
+          () -> {
+            player.removeListener(componentListener);
+            setStreamManager(/* streamManager= */ null);
+          });
       loader = null;
     }
   }
