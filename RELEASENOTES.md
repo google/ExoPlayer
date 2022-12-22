@@ -33,6 +33,9 @@ Release notes
         `PlayerView.setControllerVisibilityListener(PlayerControlView.VisibilityListener)`
         to ensure visibility changes are passed to the registered listener
         ([#229](https://github.com/androidx/media/issues/229)).
+    *   Fix the ordering of the center player controls in `PlayerView` when
+        using a right-to-left (RTL) layout
+        ([#227](https://github.com/androidx/media/issues/227)).
 *   Session:
     *   Add abstract `SimpleBasePlayer` to help implement the `Player` interface
         for custom players.
