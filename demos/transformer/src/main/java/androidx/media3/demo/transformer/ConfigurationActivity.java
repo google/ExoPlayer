@@ -104,8 +104,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final int CONTRAST_INDEX = 6;
   public static final int PERIODIC_VIGNETTE_INDEX = 7;
   public static final int SPIN_3D_INDEX = 8;
-  public static final int OVERLAY_LOGO_AND_TIMER_INDEX = 9;
-  public static final int ZOOM_IN_INDEX = 10;
+  public static final int ZOOM_IN_INDEX = 9;
+  public static final int OVERLAY_LOGO_AND_TIMER_INDEX = 10;
   public static final int BITMAP_OVERLAY_INDEX = 11;
   public static final int TEXT_OVERLAY_INDEX = 12;
 
@@ -167,8 +167,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Contrast",
     "Periodic vignette",
     "3D spin",
-    "Overlay logo & timer",
     "Zoom in start",
+    "Overlay logo & timer",
     "Custom Bitmap Overlay",
     "Custom Text Overlay",
   };

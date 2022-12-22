@@ -25,7 +25,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spannable;
@@ -46,10 +48,12 @@ import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor;
+import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.Contrast;
+import androidx.media3.effect.DrawableOverlay;
 import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlTextureProcessor;
 import androidx.media3.effect.HslAdjustment;
@@ -60,6 +64,7 @@ import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
 import androidx.media3.effect.SingleColorLut;
 import androidx.media3.effect.TextOverlay;
+import androidx.media3.effect.TextureOverlay;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
@@ -191,14 +196,18 @@ public final class TransformerActivity extends AppCompatActivity {
     Uri uri = checkNotNull(intent.getData());
     try {
       externalCacheFile = createExternalCacheFile("transformer-output.mp4");
-      String filePath = externalCacheFile.getAbsolutePath();
-      @Nullable Bundle bundle = intent.getExtras();
-      MediaItem mediaItem = createMediaItem(bundle, uri);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+    String filePath = externalCacheFile.getAbsolutePath();
+    @Nullable Bundle bundle = intent.getExtras();
+    MediaItem mediaItem = createMediaItem(bundle, uri);
+    try {
       Transformer transformer = createTransformer(bundle, filePath);
       transformationStopwatch.start();
       transformer.startTransformation(mediaItem, filePath);
       this.transformer = transformer;
-    } catch (IOException e) {
+    } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);
     }
     inputCardView.setVisibility(View.GONE);
@@ -253,7 +262,8 @@ public final class TransformerActivity extends AppCompatActivity {
     "progressViewGroup",
     "debugFrame",
   })
-  private Transformer createTransformer(@Nullable Bundle bundle, String filePath) {
+  private Transformer createTransformer(@Nullable Bundle bundle, String filePath)
+      throws PackageManager.NameNotFoundException {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
     if (bundle != null) {
       TransformationRequest.Builder requestBuilder = new TransformationRequest.Builder();
@@ -371,7 +381,8 @@ public final class TransformerActivity extends AppCompatActivity {
     return processors.build();
   }
 
-  private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle) {
+  private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle)
+      throws PackageManager.NameNotFoundException {
     @Nullable
     boolean[] selectedEffects =
         bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS);
@@ -492,11 +503,32 @@ public final class TransformerActivity extends AppCompatActivity {
     if (selectedEffects[ConfigurationActivity.SPIN_3D_INDEX]) {
       effects.add(MatrixTransformationFactory.createSpin3dEffect());
     }
-    if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
-      effects.add((GlEffect) BitmapOverlayProcessor::new);
-    }
     if (selectedEffects[ConfigurationActivity.ZOOM_IN_INDEX]) {
       effects.add(MatrixTransformationFactory.createZoomInTransition());
+    }
+
+    effects.add(createOverlayEffectFromBundle(bundle, selectedEffects));
+    return effects.build();
+  }
+
+  private OverlayEffect createOverlayEffectFromBundle(Bundle bundle, boolean[] selectedEffects)
+      throws PackageManager.NameNotFoundException {
+    ImmutableList.Builder<TextureOverlay> overlays = new ImmutableList.Builder<>();
+    if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
+      float[] logoPositioningMatrix = GlUtil.create4x4IdentityMatrix();
+      Matrix.translateM(
+          logoPositioningMatrix, /* mOffset= */ 0, /* x= */ -0.95f, /* y= */ -0.95f, /* z= */ 1);
+      OverlaySettings logoSettings =
+          new OverlaySettings.Builder()
+              .setMatrix(logoPositioningMatrix)
+              .setAnchor(/* x= */ -1f, /* y= */ -1f)
+              .build();
+      Drawable logo = getPackageManager().getApplicationIcon(getPackageName());
+      logo.setBounds(
+          /* left= */ 0, /* top= */ 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight());
+      TextureOverlay logoOverlay = DrawableOverlay.createStaticDrawableOverlay(logo, logoSettings);
+      TextureOverlay timerOverlay = new TimerOverlay();
+      overlays.add(logoOverlay, timerOverlay);
     }
     if (selectedEffects[ConfigurationActivity.BITMAP_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
@@ -509,7 +541,7 @@ public final class TransformerActivity extends AppCompatActivity {
           BitmapOverlay.createStaticBitmapOverlay(
               Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
               overlaySettings);
-      effects.add(new OverlayEffect(ImmutableList.of(bitmapOverlay)));
+      overlays.add(bitmapOverlay);
     }
     if (selectedEffects[ConfigurationActivity.TEXT_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
@@ -526,10 +558,9 @@ public final class TransformerActivity extends AppCompatActivity {
           overlayText.length(),
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       TextOverlay textOverlay = TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
-      // TODO(227625365): use the same OverlayEffect object for bitmap and text overlays.
-      effects.add(new OverlayEffect(ImmutableList.of(textOverlay)));
+      overlays.add(textOverlay);
     }
-    return effects.build();
+    return new OverlayEffect(overlays.build());
   }
 
   @RequiresNonNull({
