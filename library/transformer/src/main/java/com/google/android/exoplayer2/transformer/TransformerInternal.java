@@ -16,8 +16,11 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
+import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -413,7 +416,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public SamplePipeline.Input onTrackAdded(
-        Format format, long streamStartPositionUs, long streamOffsetUs)
+        Format format,
+        @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
+        long streamStartPositionUs,
+        long streamOffsetUs)
         throws TransformationException {
       if (tracksAddedCount == 0) {
         // Call setTrackCount() methods here so that they are called from the same thread as the
@@ -423,7 +429,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       SamplePipeline samplePipeline =
-          getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
+          getSamplePipeline(format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
       int samplePipelineIndex = tracksAddedCount;
@@ -437,7 +443,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 .setChannelCount(2)
                 .build();
         SamplePipeline audioSamplePipeline =
-            getSamplePipeline(silentAudioFormat, streamStartPositionUs, streamOffsetUs);
+            getSamplePipeline(
+                silentAudioFormat,
+                SUPPORTED_OUTPUT_TYPE_DECODED,
+                streamStartPositionUs,
+                streamOffsetUs);
         internalHandler
             .obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, audioSamplePipeline)
             .sendToTarget();
@@ -469,9 +479,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private SamplePipeline getSamplePipeline(
-        Format inputFormat, long streamStartPositionUs, long streamOffsetUs)
+        Format inputFormat,
+        @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
+        long streamStartPositionUs,
+        long streamOffsetUs)
         throws TransformationException {
-      if (MimeTypes.isAudio(inputFormat.sampleMimeType) && shouldTranscodeAudio(inputFormat)) {
+      checkState(supportedOutputTypes != 0);
+      boolean isAudio = MimeTypes.isAudio(inputFormat.sampleMimeType);
+      boolean shouldTranscode =
+          isAudio
+              ? shouldTranscodeAudio(inputFormat)
+              : shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
+      boolean assetLoaderNeverDecodes = (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) == 0;
+      checkState(!shouldTranscode || !assetLoaderNeverDecodes);
+      boolean assetLoaderAlwaysDecodes =
+          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) == 0;
+      boolean shouldUseTranscodingPipeline = shouldTranscode || assetLoaderAlwaysDecodes;
+      if (isAudio && shouldUseTranscodingPipeline) {
         return new AudioTranscodingSamplePipeline(
             inputFormat,
             streamStartPositionUs,
@@ -482,8 +506,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             encoderFactory,
             muxerWrapper,
             fallbackListener);
-      } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)
-          && shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs)) {
+      } else if (shouldUseTranscodingPipeline) {
         return new VideoTranscodingSamplePipeline(
             context,
             inputFormat,

@@ -16,13 +16,20 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.os.Looper;
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Provides media data to a {@linkplain Transformer}.
@@ -119,7 +126,7 @@ public interface AssetLoader {
    * <ul>
    *   <li>{@linkplain #onDurationUs(long)} Report} the duration of the input media.
    *   <li>{@linkplain #onTrackCount(int) Report} the number of output tracks.
-   *   <li>{@linkplain #onTrackAdded(Format, long, long) Add} the information for each track.
+   *   <li>{@linkplain #onTrackAdded(Format, int, long, long) Add} the information for each track.
    * </ul>
    *
    * <p>This listener can be called from any thread.
@@ -142,6 +149,8 @@ public interface AssetLoader {
      *
      * @param format The {@link Format} of the input media (prior to video slow motion flattening or
      *     to decoding).
+     * @param supportedOutputTypes The output {@linkplain SupportedOutputTypes types} supported by
+     *     this asset loader for the track added. At least one output type must be supported.
      * @param streamStartPositionUs The start position of the stream (offset by {@code
      *     streamOffsetUs}), in microseconds.
      * @param streamOffsetUs The offset that will be added to the timestamps to make sure they are
@@ -152,7 +161,10 @@ public interface AssetLoader {
      *     SamplePipeline.Input}.
      */
     SamplePipeline.Input onTrackAdded(
-        Format format, long streamStartPositionUs, long streamOffsetUs)
+        Format format,
+        @SupportedOutputTypes int supportedOutputTypes,
+        long streamStartPositionUs,
+        long streamOffsetUs)
         throws TransformationException;
 
     /**
@@ -161,6 +173,25 @@ public interface AssetLoader {
      */
     void onError(Exception e);
   }
+
+  /**
+   * Supported output types of an asset loader. Possible flag values are {@link
+   * #SUPPORTED_OUTPUT_TYPE_ENCODED} and {@link #SUPPORTED_OUTPUT_TYPE_DECODED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef(
+      flag = true,
+      value = {
+        SUPPORTED_OUTPUT_TYPE_ENCODED,
+        SUPPORTED_OUTPUT_TYPE_DECODED,
+      })
+  @interface SupportedOutputTypes {}
+  /** Indicates that the asset loader can output encoded samples. */
+  int SUPPORTED_OUTPUT_TYPE_ENCODED = 1;
+  /** Indicates that the asset loader can output decoded samples. */
+  int SUPPORTED_OUTPUT_TYPE_DECODED = 1 << 1;
 
   /** Starts the asset loader. */
   void start();
