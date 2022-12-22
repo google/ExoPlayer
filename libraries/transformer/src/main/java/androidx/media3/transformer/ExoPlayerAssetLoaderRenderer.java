@@ -19,6 +19,8 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
+import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -162,8 +164,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
+    @AssetLoader.SupportedOutputTypes
+    int supportedOutputTypes = SUPPORTED_OUTPUT_TYPE_ENCODED | SUPPORTED_OUTPUT_TYPE_DECODED;
     samplePipelineInput =
-        assetLoaderListener.onTrackAdded(inputFormat, streamStartPositionUs, streamOffsetUs);
+        assetLoaderListener.onTrackAdded(
+            inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
     if (getTrackType() == C.TRACK_TYPE_VIDEO && flattenForSlowMotion) {
       sefVideoSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }

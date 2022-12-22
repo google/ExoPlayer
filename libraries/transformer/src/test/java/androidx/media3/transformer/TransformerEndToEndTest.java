@@ -16,6 +16,10 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUntil;
+import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
+import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
@@ -40,8 +44,10 @@ import android.os.ParcelFileDescriptor;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
@@ -230,7 +236,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_concurrentTransformations_throwsError() throws Exception {
+  public void startTransformation_concurrentTransformations_throwsError() {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
 
@@ -631,6 +637,42 @@ public final class TransformerEndToEndTest {
     countDownLatch.await();
 
     assertThat(illegalStateException.get()).isNotNull();
+  }
+
+  @Test
+  public void startTransformation_withAssetLoaderAlwaysDecoding_pipelineExpectsDecoded()
+      throws Exception {
+    AtomicReference<SamplePipeline.Input> samplePipelineInputRef = new AtomicReference<>();
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .setAssetLoaderFactory(
+                new FakeAssetLoader.Factory(SUPPORTED_OUTPUT_TYPE_DECODED, samplePipelineInputRef))
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    runLooperUntil(transformer.getApplicationLooper(), () -> samplePipelineInputRef.get() != null);
+
+    assertThat(samplePipelineInputRef.get().expectsDecodedData()).isTrue();
+  }
+
+  @Test
+  public void startTransformation_withAssetLoaderNotDecodingAndDecodingNeeded_completesWithError()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .setAudioProcessors(ImmutableList.of(new SonicAudioProcessor()))
+            .setAssetLoaderFactory(
+                new FakeAssetLoader.Factory(
+                    SUPPORTED_OUTPUT_TYPE_ENCODED, /* samplePipelineInputRef= */ null))
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException transformationException =
+        TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(transformationException).hasCauseThat().isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -1037,5 +1079,121 @@ public final class TransformerEndToEndTest {
         extractor.release();
       }
     }
+  }
+
+  private static final class FakeAssetLoader implements AssetLoader {
+
+    public static final class Factory implements AssetLoader.Factory {
+
+      private final @SupportedOutputTypes int supportedOutputTypes;
+      @Nullable private final AtomicReference<SamplePipeline.Input> samplePipelineInputRef;
+
+      @Nullable private AssetLoader.Listener listener;
+
+      public Factory(
+          @SupportedOutputTypes int supportedOutputTypes,
+          @Nullable AtomicReference<SamplePipeline.Input> samplePipelineInputRef) {
+        this.supportedOutputTypes = supportedOutputTypes;
+        this.samplePipelineInputRef = samplePipelineInputRef;
+      }
+
+      @Override
+      public AssetLoader.Factory setContext(Context context) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setDecoderFactory(Codec.DecoderFactory decoderFactory) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setLooper(Looper looper) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setListener(Listener listener) {
+        this.listener = listener;
+        return this;
+      }
+
+      @Override
+      public AssetLoader.Factory setClock(Clock clock) {
+        return this;
+      }
+
+      @Override
+      public AssetLoader createAssetLoader() {
+        return new FakeAssetLoader(
+            checkNotNull(listener), supportedOutputTypes, samplePipelineInputRef);
+      }
+    }
+
+    private final AssetLoader.Listener listener;
+    private final @SupportedOutputTypes int supportedOutputTypes;
+    @Nullable private final AtomicReference<SamplePipeline.Input> samplePipelineInputRef;
+
+    public FakeAssetLoader(
+        Listener listener,
+        @SupportedOutputTypes int supportedOutputTypes,
+        @Nullable AtomicReference<SamplePipeline.Input> samplePipelineInputRef) {
+      this.listener = listener;
+      this.supportedOutputTypes = supportedOutputTypes;
+      this.samplePipelineInputRef = samplePipelineInputRef;
+    }
+
+    @Override
+    public void start() {
+      listener.onDurationUs(10_000_000);
+      listener.onTrackCount(1);
+      Format format =
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.AUDIO_AAC)
+              .setSampleRate(44100)
+              .setChannelCount(2)
+              .build();
+      try {
+        SamplePipeline.Input samplePipelineInput =
+            listener.onTrackAdded(
+                format,
+                supportedOutputTypes,
+                /* streamStartPositionUs= */ 0,
+                /* streamOffsetUs= */ 0);
+        if (samplePipelineInputRef != null) {
+          samplePipelineInputRef.set(samplePipelineInput);
+        }
+      } catch (TransformationException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
+    @Override
+    public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
+      return 0;
+    }
+
+    @Override
+    public void release() {}
   }
 }
