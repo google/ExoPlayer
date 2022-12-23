@@ -83,7 +83,11 @@ import com.google.common.collect.ImmutableList;
   public Size configure(int inputWidth, int inputHeight) {
     videoWidth = inputWidth;
     videoHeight = inputHeight;
-    return new Size(inputWidth, inputHeight);
+    Size videoSize = new Size(inputWidth, inputHeight);
+    for (TextureOverlay overlay : overlays) {
+      overlay.configure(videoSize);
+    }
+    return videoSize;
   }
 
   @Override

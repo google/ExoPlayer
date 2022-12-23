@@ -42,6 +42,16 @@ public abstract class TextureOverlay {
   public abstract Size getTextureSize(long presentationTimeUs);
 
   /**
+   * Set up resources for the overlay given the input video’s dimensions.
+   *
+   * <p>This method will be called before drawing the first frame and before drawing subsequent
+   * frames with different input dimensions.
+   *
+   * @param videoSize The width and height of the input video, in pixels.
+   */
+  public void configure(Size videoSize) {}
+
+  /**
    * Returns the {@link OverlaySettings} controlling how the overlay is displayed at the specified
    * timestamp.
    *
