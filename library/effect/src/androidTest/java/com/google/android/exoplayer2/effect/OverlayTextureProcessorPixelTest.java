@@ -150,14 +150,33 @@ public class OverlayTextureProcessorPixelTest {
   }
 
   @Test
-  public void drawFrame_scaledBitmapOverlay_blendsBitmapIntoFrame() throws Exception {
+  public void drawFrame_scaledBitmapOverlay_letterboxStretchesOverlay() throws Exception {
     String testId = "drawFrame_scaledBitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     float[] scaleMatrix = GlUtil.create4x4IdentityMatrix();
-    Matrix.scaleM(scaleMatrix, /* mOffset= */ 0, /* x= */ 3, /* y= */ 3, /* z= */ 1);
     OverlaySettings overlaySettings = new OverlaySettings.Builder().setMatrix(scaleMatrix).build();
     BitmapOverlay staticBitmapOverlay =
-        BitmapOverlay.createStaticBitmapOverlay(overlayBitmap, overlaySettings);
+        new BitmapOverlay() {
+          @Override
+          public Bitmap getBitmap(long presentationTimeUs) {
+            return overlayBitmap;
+          }
+
+          @Override
+          public void configure(Size videoSize) {
+            Matrix.scaleM(
+                scaleMatrix,
+                /* mOffset= */ 0,
+                /* x= */ videoSize.getWidth() / (float) overlayBitmap.getWidth(),
+                /* y= */ 1,
+                /* z= */ 1);
+          }
+
+          @Override
+          public OverlaySettings getOverlaySettings(long presentationTimeUs) {
+            return overlaySettings;
+          }
+        };
     overlayTextureProcessor =
         new OverlayEffect(ImmutableList.of(staticBitmapOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
