@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -49,6 +48,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 /* package */ final class MuxerWrapper {
 
+  public interface Listener {
+    void onTrackEnded(@C.TrackType int trackType, int averageBitrate, int sampleCount);
+
+    void onEnded(long durationMs, long fileSizeBytes);
+
+    void onTransformationError(TransformationException transformationException);
+  }
+
   /**
    * The maximum difference between the track positions, in microseconds.
    *
@@ -60,7 +67,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private final String outputPath;
   @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final Muxer.Factory muxerFactory;
-  private final Consumer<TransformationException> errorConsumer;
+  private final Listener listener;
   private final SparseIntArray trackTypeToIndex;
   private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
@@ -81,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable String outputPath,
       @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
       Muxer.Factory muxerFactory,
-      Consumer<TransformationException> errorConsumer) {
+      Listener listener) {
     if (outputPath == null && outputParcelFileDescriptor == null) {
       throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
     }
@@ -89,7 +96,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.outputPath = outputPath;
     this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
-    this.errorConsumer = errorConsumer;
+    this.listener = listener;
 
     trackTypeToIndex = new SparseIntArray();
     trackTypeToSampleCount = new SparseIntArray();
@@ -216,10 +223,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param trackType The {@link C.TrackType track type}.
    */
   public void endTrack(@C.TrackType int trackType) {
+    listener.onTrackEnded(
+        trackType,
+        getTrackAverageBitrate(trackType),
+        trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0));
+
     trackTypeToIndex.delete(trackType);
     if (trackTypeToIndex.size() == 0) {
       abortScheduledExecutorService.shutdownNow();
-      isEnded = true;
+      if (!isEnded) {
+        isEnded = true;
+        listener.onEnded(getDurationMs(), getCurrentOutputSizeBytes());
+      }
     }
   }
 
@@ -244,58 +259,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (muxer != null) {
       muxer.release(forCancellation);
     }
-  }
-
-  /**
-   * Returns the average bitrate of data written to the track of the provided {@code trackType}, or
-   * {@link C#RATE_UNSET_INT} if there is no track data.
-   */
-  public int getTrackAverageBitrate(@C.TrackType int trackType) {
-    long trackDurationUs = trackTypeToTimeUs.get(trackType, /* valueIfKeyNotFound= */ -1);
-    long trackBytes = trackTypeToBytesWritten.get(trackType, /* valueIfKeyNotFound= */ -1);
-    if (trackDurationUs <= 0 || trackBytes <= 0) {
-      return C.RATE_UNSET_INT;
-    }
-    // The number of bytes written is not a timestamp, however this utility method provides
-    // overflow-safe multiplication & division.
-    return (int)
-        Util.scaleLargeTimestamp(
-            /* timestamp= */ trackBytes,
-            /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
-            /* divisor= */ trackDurationUs);
-  }
-
-  /** Returns the number of samples written to the track of the provided {@code trackType}. */
-  public int getTrackSampleCount(@C.TrackType int trackType) {
-    return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
-  }
-
-  /**
-   * Returns the duration of the longest track in milliseconds, or {@link C#TIME_UNSET} if there is
-   * no track.
-   */
-  public long getDurationMs() {
-    if (trackTypeToTimeUs.size() == 0) {
-      return C.TIME_UNSET;
-    }
-    return Util.usToMs(maxValue(trackTypeToTimeUs));
-  }
-
-  /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
-  public long getCurrentOutputSizeBytes() {
-    long fileSize = C.LENGTH_UNSET;
-
-    if (outputPath != null) {
-      fileSize = new File(outputPath).length();
-    } else if (outputParcelFileDescriptor != null) {
-      fileSize = outputParcelFileDescriptor.getStatSize();
-    }
-
-    if (fileSize <= 0) {
-      fileSize = C.LENGTH_UNSET;
-    }
-
-    return fileSize;
   }
 
   /**
@@ -340,7 +303,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              errorConsumer.accept(
+              listener.onTransformationError(
                   TransformationException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "
@@ -362,5 +325,48 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         muxer = muxerFactory.create(outputParcelFileDescriptor);
       }
     }
+  }
+
+  /**
+   * Returns the duration of the longest track in milliseconds, or {@link C#TIME_UNSET} if there is
+   * no track.
+   */
+  private long getDurationMs() {
+    if (trackTypeToTimeUs.size() == 0) {
+      return C.TIME_UNSET;
+    }
+    return Util.usToMs(maxValue(trackTypeToTimeUs));
+  }
+
+  /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
+  private long getCurrentOutputSizeBytes() {
+    long fileSize = C.LENGTH_UNSET;
+
+    if (outputPath != null) {
+      fileSize = new File(outputPath).length();
+    } else if (outputParcelFileDescriptor != null) {
+      fileSize = outputParcelFileDescriptor.getStatSize();
+    }
+
+    return fileSize > 0 ? fileSize : C.LENGTH_UNSET;
+  }
+
+  /**
+   * Returns the average bitrate of data written to the track of the provided {@code trackType}, or
+   * {@link C#RATE_UNSET_INT} if there is no track data.
+   */
+  private int getTrackAverageBitrate(@C.TrackType int trackType) {
+    long trackDurationUs = trackTypeToTimeUs.get(trackType, /* valueIfKeyNotFound= */ -1);
+    long trackBytes = trackTypeToBytesWritten.get(trackType, /* valueIfKeyNotFound= */ -1);
+    if (trackDurationUs <= 0 || trackBytes <= 0) {
+      return C.RATE_UNSET_INT;
+    }
+    // The number of bytes written is not a timestamp, however this utility method provides
+    // overflow-safe multiplication & division.
+    return (int)
+        Util.scaleLargeTimestamp(
+            /* timestamp= */ trackBytes,
+            /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
+            /* divisor= */ trackDurationUs);
   }
 }

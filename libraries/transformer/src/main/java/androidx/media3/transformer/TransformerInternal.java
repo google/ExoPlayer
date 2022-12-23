@@ -109,6 +109,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ConditionVariable dequeueBufferConditionVariable;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
+  private final TransformationResult.Builder transformationResultBuilder;
 
   @Nullable private DecoderInputBuffer pendingInputBuffer;
   private boolean isDrainingPipelines;
@@ -169,12 +170,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     silentSamplePipelineIndex = C.INDEX_UNSET;
     dequeueBufferConditionVariable = new ConditionVariable();
     muxerWrapper =
-        new MuxerWrapper(
-            outputPath,
-            outputParcelFileDescriptor,
-            muxerFactory,
-            /* errorConsumer= */ componentListener::onTransformationError);
+        new MuxerWrapper(outputPath, outputParcelFileDescriptor, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();
+    transformationResultBuilder = new TransformationResult.Builder();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper internalHandler =
@@ -288,24 +286,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       while (samplePipelines.get(i).processData()) {}
     }
 
-    if (muxerWrapper.isEnded()) {
-      internalHandler
-          .obtainMessage(
-              MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* transformationException */ null)
-          .sendToTarget();
-    } else {
+    if (!muxerWrapper.isEnded()) {
       internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
     }
   }
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
-    TransformationResult.Builder transformationResultBuilder =
-        new TransformationResult.Builder()
-            .setAudioDecoderName(decoderFactory.getAudioDecoderName())
-            .setVideoDecoderName(decoderFactory.getVideoDecoderName())
-            .setAudioEncoderName(encoderFactory.getAudioEncoderName())
-            .setVideoEncoderName(encoderFactory.getVideoEncoderName());
+    transformationResultBuilder
+        .setAudioDecoderName(decoderFactory.getAudioDecoderName())
+        .setVideoDecoderName(decoderFactory.getVideoDecoderName())
+        .setAudioEncoderName(encoderFactory.getAudioEncoderName())
+        .setVideoEncoderName(encoderFactory.getVideoEncoderName());
 
     boolean forCancellation = endReason == END_REASON_CANCELLED;
     @Nullable TransformationException releaseTransformationException = null;
@@ -321,15 +313,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           assetLoader.release();
         } finally {
           try {
-            if (endReason == END_REASON_COMPLETED) {
-              transformationResultBuilder
-                  .setDurationMs(muxerWrapper.getDurationMs())
-                  .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
-                  .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
-                  .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
-                  .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO));
-            }
-
             for (int i = 0; i < samplePipelines.size(); i++) {
               samplePipelines.get(i).release();
             }
@@ -378,7 +361,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     transformerConditionVariable.open();
   }
 
-  private class ComponentListener implements AssetLoader.Listener {
+  private class ComponentListener implements AssetLoader.Listener, MuxerWrapper.Listener {
 
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
@@ -393,6 +376,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.fallbackListener = fallbackListener;
       trackCount = new AtomicInteger();
       durationUs = C.TIME_UNSET;
+    }
+
+    // AssetLoader.Listener and MuxerWrapper.Listener implementation.
+
+    @Override
+    public void onTransformationError(TransformationException transformationException) {
+      internalHandler
+          .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, transformationException)
+          .sendToTarget();
     }
 
     // AssetLoader.Listener implementation.
@@ -472,11 +464,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       onTransformationError(transformationException);
     }
 
-    public void onTransformationError(TransformationException transformationException) {
+    // MuxerWrapper.Listener implementation.
+
+    @Override
+    public void onTrackEnded(@C.TrackType int trackType, int averageBitrate, int sampleCount) {
+      if (trackType == C.TRACK_TYPE_AUDIO) {
+        transformationResultBuilder.setAverageAudioBitrate(averageBitrate);
+      } else if (trackType == C.TRACK_TYPE_VIDEO) {
+        transformationResultBuilder
+            .setVideoFrameCount(sampleCount)
+            .setAverageVideoBitrate(averageBitrate);
+      }
+    }
+
+    @Override
+    public void onEnded(long durationMs, long fileSizeBytes) {
+      transformationResultBuilder.setDurationMs(durationMs).setFileSizeBytes(fileSizeBytes);
+
       internalHandler
-          .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, transformationException)
+          .obtainMessage(
+              MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* transformationException */ null)
           .sendToTarget();
     }
+
+    // Private methods.
 
     private SamplePipeline getSamplePipeline(
         Format inputFormat,
