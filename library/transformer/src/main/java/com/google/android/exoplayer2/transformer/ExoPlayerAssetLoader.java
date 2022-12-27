@@ -20,11 +20,13 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FO
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
-import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_UNSPECIFIED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
@@ -349,10 +351,9 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
         trackCount++;
       }
       if (trackCount == 0) {
-        assetLoaderListener.onError(
-            new PlaybackException(
-                "The asset loader has no track to output.",
-                /* cause= */ null,
+        assetLoaderListener.onTransformationError(
+            TransformationException.createForAssetLoader(
+                new IllegalStateException("The asset loader has no track to output."),
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
         return;
       } else {
@@ -365,7 +366,13 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      assetLoaderListener.onError(error);
+      @TransformationException.ErrorCode
+      int errorCode =
+          checkNotNull(
+              TransformationException.NAME_TO_ERROR_CODE.getOrDefault(
+                  error.getErrorCodeName(), ERROR_CODE_UNSPECIFIED));
+      assetLoaderListener.onTransformationError(
+          TransformationException.createForAssetLoader(error, errorCode));
     }
   }
 }

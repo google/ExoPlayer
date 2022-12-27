@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -33,7 +34,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -397,7 +397,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public void onTrackCount(int trackCount) {
       if (trackCount <= 0) {
-        onError(new IllegalStateException("AssetLoader instances must provide at least 1 track."));
+        onTransformationError(
+            TransformationException.createForAssetLoader(
+                new IllegalStateException("AssetLoader instances must provide at least 1 track."),
+                ERROR_CODE_FAILED_RUNTIME_CHECK));
         return;
       }
       this.trackCount.set(trackCount);
@@ -448,20 +451,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       return new SamplePipelineInput(samplePipelineIndex, samplePipeline.expectsDecodedData());
-    }
-
-    @Override
-    public void onError(Exception e) {
-      TransformationException transformationException;
-      if (e instanceof TransformationException) {
-        transformationException = (TransformationException) e;
-      } else if (e instanceof PlaybackException) {
-        transformationException =
-            TransformationException.createForPlaybackException((PlaybackException) e);
-      } else {
-        transformationException = TransformationException.createForUnexpected(e);
-      }
-      onTransformationError(transformationException);
     }
 
     // MuxerWrapper.Listener implementation.
