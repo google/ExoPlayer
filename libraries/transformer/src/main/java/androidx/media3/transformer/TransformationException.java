@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
-import androidx.media3.common.PlaybackException;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
@@ -109,8 +108,8 @@ public final class TransformationException extends Exception {
   /**
    * Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.
    *
-   * <p>For example, this can happen when the player is expecting a piece of media, but the server
-   * returns a paywall HTML page, with content type "text/html".
+   * <p>For example, this can happen when the {@link AssetLoader} is expecting a piece of media, but
+   * the server returns a paywall HTML page, with content type "text/html".
    */
   public static final int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE = 2003;
   /** Caused by an HTTP server returning an unexpected HTTP response status code. */
@@ -123,8 +122,8 @@ public final class TransformationException extends Exception {
    */
   public static final int ERROR_CODE_IO_NO_PERMISSION = 2006;
   /**
-   * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
-   * https://) when the app's Network Security Configuration does not permit it.
+   * Caused by the {@link AssetLoader} trying to access cleartext HTTP traffic (meaning http://
+   * rather than https://) when the app's Network Security Configuration does not permit it.
    */
   public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2007;
   /** Caused by reading data out of the data bound. */
@@ -172,7 +171,7 @@ public final class TransformationException extends Exception {
   /** Caused by a failure while muxing media samples. */
   public static final int ERROR_CODE_MUXING_FAILED = 7001;
 
-  private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
+  /* package */ static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
           .put("ERROR_CODE_FAILED_RUNTIME_CHECK", ERROR_CODE_FAILED_RUNTIME_CHECK)
           .put("ERROR_CODE_IO_UNSPECIFIED", ERROR_CODE_IO_UNSPECIFIED)
@@ -197,11 +196,6 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
 
-  /** Returns the {@code errorCode} for a given name. */
-  private static @ErrorCode int getErrorCodeForName(String errorCodeName) {
-    return NAME_TO_ERROR_CODE.getOrDefault(errorCodeName, ERROR_CODE_UNSPECIFIED);
-  }
-
   /** Returns the name of a given {@code errorCode}. */
   public static String getErrorCodeName(@ErrorCode int errorCode) {
     return NAME_TO_ERROR_CODE.inverse().getOrDefault(errorCode, "invalid error code");
@@ -213,6 +207,17 @@ public final class TransformationException extends Exception {
    */
   public String getErrorCodeName() {
     return getErrorCodeName(errorCode);
+  }
+
+  /**
+   * Creates an instance for an {@link AssetLoader} related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  public static TransformationException createForAssetLoader(Throwable cause, int errorCode) {
+    return new TransformationException("Asset loader error", cause, errorCode);
   }
 
   /**
@@ -322,21 +327,6 @@ public final class TransformationException extends Exception {
           "Unexpected runtime error", cause, ERROR_CODE_FAILED_RUNTIME_CHECK);
     }
     return new TransformationException("Unexpected error", cause, ERROR_CODE_UNSPECIFIED);
-  }
-
-  /**
-   * Creates an instance for a {@link PlaybackException}.
-   *
-   * <p>If there is a corresponding {@link TransformationException.ErrorCode} for the {@link
-   * PlaybackException.ErrorCode}, this error code and the same message are used for the created
-   * instance. Otherwise, this is equivalent to {@link #createForUnexpected(Exception)}.
-   */
-  /* package */ static TransformationException createForPlaybackException(
-      PlaybackException exception) {
-    @ErrorCode int errorCode = getErrorCodeForName(exception.getErrorCodeName());
-    return errorCode == ERROR_CODE_UNSPECIFIED
-        ? createForUnexpected(exception)
-        : new TransformationException(exception.getMessage(), exception, errorCode);
   }
 
   /** An error code which identifies the cause of the transformation failure. */

@@ -119,7 +119,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     } catch (TransformationException e) {
       isTransformationRunning = false;
-      assetLoaderListener.onError(e);
+      assetLoaderListener.onTransformationError(e);
     }
   }
 
