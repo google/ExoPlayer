@@ -498,10 +498,9 @@ public final class Transformer {
      * Called when the transformation is completed successfully.
      *
      * @param inputMediaItem The {@link MediaItem} for which the transformation is completed.
-     * @param transformationResult The {@link TransformationResult} of the transformation.
+     * @param result The {@link TransformationResult} of the transformation.
      */
-    default void onTransformationCompleted(
-        MediaItem inputMediaItem, TransformationResult transformationResult) {
+    default void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
       onTransformationCompleted(inputMediaItem);
     }
 
@@ -510,9 +509,7 @@ public final class Transformer {
      *     TransformationException)}.
      */
     @Deprecated
-    default void onTransformationError(MediaItem inputMediaItem, Exception exception) {
-      onTransformationError(inputMediaItem, (TransformationException) exception);
-    }
+    default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
 
     /**
      * @deprecated Use {@link #onTransformationError(MediaItem, TransformationResult,
@@ -521,7 +518,7 @@ public final class Transformer {
     @Deprecated
     default void onTransformationError(
         MediaItem inputMediaItem, TransformationException exception) {
-      onTransformationError(inputMediaItem, new TransformationResult.Builder().build(), exception);
+      onTransformationError(inputMediaItem, (Exception) exception);
     }
 
     /**
@@ -532,7 +529,9 @@ public final class Transformer {
      * @param exception The {@link TransformationException} describing the exception.
      */
     default void onTransformationError(
-        MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {}
+        MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {
+      onTransformationError(inputMediaItem, exception);
+    }
 
     /**
      * Called when fallback to an alternative {@link TransformationRequest} is necessary to comply
