@@ -325,7 +325,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withMultipleListeners_callsEachOnError() throws Exception {
+  public void startTransformation_withMultipleListeners_callsEachOnError() {
     Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
@@ -428,8 +428,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withAudioEncoderFormatUnsupported_completesWithError()
-      throws Exception {
+  public void startTransformation_withAudioEncoderFormatUnsupported_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
             .setTransformationRequest(
@@ -450,8 +449,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withAudioDecoderFormatUnsupported_completesWithError()
-      throws Exception {
+  public void startTransformation_withAudioDecoderFormatUnsupported_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
             .setTransformationRequest(
@@ -471,7 +469,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withIoError_completesWithError() throws Exception {
+  public void startTransformation_withIoError_completesWithError() {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri("asset:///non-existing-path.mp4");
 
@@ -527,7 +525,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withSlowOutputSampleRate_completesWithError() throws Exception {
+  public void startTransformation_withSlowOutputSampleRate_completesWithError() {
     MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
@@ -650,8 +648,7 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_withAssetLoaderNotDecodingAndDecodingNeeded_completesWithError()
-      throws Exception {
+  public void startTransformation_withAssetLoaderNotDecodingAndDecodingNeeded_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
             .setAudioProcessors(ImmutableList.of(new SonicAudioProcessor()))
