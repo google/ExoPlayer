@@ -121,14 +121,6 @@ public interface AssetLoader {
   /**
    * A listener of {@link AssetLoader} events.
    *
-   * <p>This listener is typically used in the following way:
-   *
-   * <ul>
-   *   <li>{@linkplain #onDurationUs(long)} Report} the duration of the input media.
-   *   <li>{@linkplain #onTrackCount(int) Report} the number of output tracks.
-   *   <li>{@linkplain #onTrackAdded(Format, int, long, long) Add} the information for each track.
-   * </ul>
-   *
    * <p>This listener can be called from any thread.
    */
   interface Listener {

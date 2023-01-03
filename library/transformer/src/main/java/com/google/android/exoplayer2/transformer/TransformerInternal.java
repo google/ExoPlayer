@@ -100,6 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final CapturingEncoderFactory encoderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final Listener listener;
+  private final HandlerWrapper applicationHandler;
   private final DebugViewProvider debugViewProvider;
   private final Clock clock;
   private final HandlerThread internalHandlerThread;
@@ -137,6 +138,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Muxer.Factory muxerFactory,
       Listener listener,
       FallbackListener fallbackListener,
+      HandlerWrapper applicationHandler,
       DebugViewProvider debugViewProvider,
       Clock clock) {
     this.context = context;
@@ -148,6 +150,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.frameProcessorFactory = frameProcessorFactory;
     this.listener = listener;
+    this.applicationHandler = applicationHandler;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
     internalHandlerThread = new HandlerThread("Transformer:Internal");
@@ -349,10 +352,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (exception != null) {
-      listener.onTransformationError(
-          transformationResultBuilder.setTransformationException(exception).build(), exception);
+      TransformationException finalException = exception;
+      applicationHandler.post(
+          () ->
+              listener.onTransformationError(
+                  transformationResultBuilder.setTransformationException(finalException).build(),
+                  finalException));
     } else {
-      listener.onTransformationCompleted(transformationResultBuilder.build());
+      applicationHandler.post(
+          () -> listener.onTransformationCompleted(transformationResultBuilder.build()));
     }
   }
 

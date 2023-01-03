@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
 import com.google.android.exoplayer2.effect.GlMatrixTransformation;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -693,8 +692,10 @@ public final class Transformer {
    *
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
-   * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
-   * track types are ignored. For adaptive bitrate {@linkplain MediaSource media sources}, the
+   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
+   *
+   * <p>The output can contain at most one video track and one audio track. Other track types are
+   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
    * highest bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform.
@@ -716,8 +717,10 @@ public final class Transformer {
    *
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
-   * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
-   * track types are ignored. For adaptive bitrate {@linkplain MediaSource media sources}, the
+   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
+   *
+   * <p>The output can contain at most one video track and one audio track. Other track types are
+   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
    * highest bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform.
@@ -751,12 +754,9 @@ public final class Transformer {
     }
     TransformerInternalListener transformerInternalListener =
         new TransformerInternalListener(mediaItem);
+    HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
     FallbackListener fallbackListener =
-        new FallbackListener(
-            mediaItem,
-            listeners,
-            clock.createHandler(looper, /* callback= */ null),
-            transformationRequest);
+        new FallbackListener(mediaItem, listeners, applicationHandler, transformationRequest);
     transformerInternal =
         new TransformerInternal(
             context,
@@ -776,6 +776,7 @@ public final class Transformer {
             muxerFactory,
             transformerInternalListener,
             fallbackListener,
+            applicationHandler,
             debugViewProvider,
             clock);
     transformerInternal.start();
@@ -834,37 +835,29 @@ public final class Transformer {
   private final class TransformerInternalListener implements TransformerInternal.Listener {
 
     private final MediaItem mediaItem;
-    private final HandlerWrapper handler;
 
     public TransformerInternalListener(MediaItem mediaItem) {
       this.mediaItem = mediaItem;
-      handler = clock.createHandler(looper, /* callback= */ null);
     }
 
     @Override
     public void onTransformationCompleted(TransformationResult transformationResult) {
       // TODO(b/213341814): Add event flags for Transformer events.
-      handler.post(
-          () -> {
-            transformerInternal = null;
-            listeners.queueEvent(
-                /* eventFlag= */ C.INDEX_UNSET,
-                listener -> listener.onTransformationCompleted(mediaItem, transformationResult));
-            listeners.flushEvents();
-          });
+      transformerInternal = null;
+      listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET,
+          listener -> listener.onTransformationCompleted(mediaItem, transformationResult));
+      listeners.flushEvents();
     }
 
     @Override
     public void onTransformationError(
         TransformationResult result, TransformationException exception) {
-      handler.post(
-          () -> {
-            transformerInternal = null;
-            listeners.queueEvent(
-                /* eventFlag= */ C.INDEX_UNSET,
-                listener -> listener.onTransformationError(mediaItem, result, exception));
-            listeners.flushEvents();
-          });
+      transformerInternal = null;
+      listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET,
+          listener -> listener.onTransformationError(mediaItem, result, exception));
+      listeners.flushEvents();
     }
   }
 }

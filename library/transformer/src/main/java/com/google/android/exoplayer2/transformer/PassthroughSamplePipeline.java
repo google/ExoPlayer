@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
-/** Pipeline that passes through the samples without any re-encoding or transformation. */
+/** Pipeline that muxes encoded samples without any transcoding or transformation. */
 /* package */ final class PassthroughSamplePipeline extends BaseSamplePipeline {
 
   private final DecoderInputBuffer buffer;

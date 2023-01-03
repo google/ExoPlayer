@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /**
- * Pipeline for processing {@link DecoderInputBuffer DecoderInputBuffers}.
+ * Pipeline for processing media data.
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
