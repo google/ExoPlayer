@@ -18,6 +18,7 @@ package androidx.media3.demo.transformer;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 
 import android.app.Activity;
@@ -383,12 +384,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle)
       throws PackageManager.NameNotFoundException {
-    @Nullable
     boolean[] selectedEffects =
-        bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS);
-    if (selectedEffects == null) {
-      return ImmutableList.of();
-    }
+        checkStateNotNull(bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS));
     ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
     if (selectedEffects[ConfigurationActivity.DIZZY_CROP_INDEX]) {
       effects.add(MatrixTransformationFactory.createDizzyCropEffect());
@@ -507,13 +504,18 @@ public final class TransformerActivity extends AppCompatActivity {
       effects.add(MatrixTransformationFactory.createZoomInTransition());
     }
 
-    effects.add(createOverlayEffectFromBundle(bundle, selectedEffects));
+    @Nullable OverlayEffect overlayEffect = createOverlayEffectFromBundle(bundle, selectedEffects);
+    if (overlayEffect != null) {
+      effects.add(overlayEffect);
+    }
+
     return effects.build();
   }
 
+  @Nullable
   private OverlayEffect createOverlayEffectFromBundle(Bundle bundle, boolean[] selectedEffects)
       throws PackageManager.NameNotFoundException {
-    ImmutableList.Builder<TextureOverlay> overlays = new ImmutableList.Builder<>();
+    ImmutableList.Builder<TextureOverlay> overlaysBuilder = new ImmutableList.Builder<>();
     if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
       float[] logoPositioningMatrix = GlUtil.create4x4IdentityMatrix();
       Matrix.translateM(
@@ -528,7 +530,7 @@ public final class TransformerActivity extends AppCompatActivity {
           /* left= */ 0, /* top= */ 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight());
       TextureOverlay logoOverlay = DrawableOverlay.createStaticDrawableOverlay(logo, logoSettings);
       TextureOverlay timerOverlay = new TimerOverlay();
-      overlays.add(logoOverlay, timerOverlay);
+      overlaysBuilder.add(logoOverlay, timerOverlay);
     }
     if (selectedEffects[ConfigurationActivity.BITMAP_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
@@ -541,7 +543,7 @@ public final class TransformerActivity extends AppCompatActivity {
           BitmapOverlay.createStaticBitmapOverlay(
               Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
               overlaySettings);
-      overlays.add(bitmapOverlay);
+      overlaysBuilder.add(bitmapOverlay);
     }
     if (selectedEffects[ConfigurationActivity.TEXT_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
@@ -558,9 +560,11 @@ public final class TransformerActivity extends AppCompatActivity {
           overlayText.length(),
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       TextOverlay textOverlay = TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
-      overlays.add(textOverlay);
+      overlaysBuilder.add(textOverlay);
     }
-    return new OverlayEffect(overlays.build());
+
+    ImmutableList<TextureOverlay> overlays = overlaysBuilder.build();
+    return overlays.isEmpty() ? null : new OverlayEffect(overlays);
   }
 
   @RequiresNonNull({
