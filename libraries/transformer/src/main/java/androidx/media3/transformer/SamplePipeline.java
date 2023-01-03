@@ -21,7 +21,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 
 /**
- * Pipeline for processing {@link DecoderInputBuffer DecoderInputBuffers}.
+ * Pipeline for processing media data.
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */

@@ -248,7 +248,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Attempts to read input data and pass the input data to the sample pipeline.
+   * Attempts to read input data and pass it to the sample pipeline.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
    */

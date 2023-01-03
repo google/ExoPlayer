@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
 
-/** Pipeline that passes through the samples without any re-encoding or transformation. */
+/** Pipeline that muxes encoded samples without any transcoding or transformation. */
 /* package */ final class PassthroughSamplePipeline extends BaseSamplePipeline {
 
   private final DecoderInputBuffer buffer;
