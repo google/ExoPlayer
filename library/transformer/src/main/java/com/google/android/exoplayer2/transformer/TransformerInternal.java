@@ -505,7 +505,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) == 0;
       boolean shouldUseTranscodingPipeline = shouldTranscode || assetLoaderAlwaysDecodes;
       if (isAudio && shouldUseTranscodingPipeline) {
-        return new AudioTranscodingSamplePipeline(
+        return new AudioSamplePipeline(
             inputFormat,
             streamStartPositionUs,
             streamOffsetUs,
@@ -516,7 +516,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             muxerWrapper,
             fallbackListener);
       } else if (shouldUseTranscodingPipeline) {
-        return new VideoTranscodingSamplePipeline(
+        return new VideoSamplePipeline(
             context,
             inputFormat,
             streamStartPositionUs,
@@ -530,7 +530,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             fallbackListener,
             debugViewProvider);
       } else {
-        return new PassthroughSamplePipeline(
+        return new EncodedSamplePipeline(
             inputFormat,
             streamStartPositionUs,
             transformationRequest,

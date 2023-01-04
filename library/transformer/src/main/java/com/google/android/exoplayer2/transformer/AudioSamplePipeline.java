@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw audio samples. */
-/* package */ final class AudioTranscodingSamplePipeline extends SamplePipeline {
+/* package */ final class AudioSamplePipeline extends SamplePipeline {
 
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
@@ -53,7 +53,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private long encoderBufferDurationRemainder;
 
   // TODO(b/260618558): Move silent audio generation upstream of this component.
-  public AudioTranscodingSamplePipeline(
+  public AudioSamplePipeline(
       Format inputFormat,
       long streamStartPositionUs,
       long streamOffsetUs,
