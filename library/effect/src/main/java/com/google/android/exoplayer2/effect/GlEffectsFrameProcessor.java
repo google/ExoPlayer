@@ -25,6 +25,7 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -364,6 +365,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     finalTextureProcessorWrapper = (FinalMatrixTextureProcessorWrapper) getLast(textureProcessors);
     allTextureProcessors = textureProcessors;
     previousStreamOffsetUs = C.TIME_UNSET;
+  }
+
+  /** Returns the task executor that runs frame processing tasks. */
+  @VisibleForTesting
+  /* package */ FrameProcessingTaskExecutor getTaskExecutor() {
+    return frameProcessingTaskExecutor;
   }
 
   @Override
