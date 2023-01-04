@@ -112,12 +112,11 @@ public class MediaMetadataTest {
 
     Bundle mediaMetadataBundle = mediaMetadata.toBundle();
 
-    // check Bundle created above, contains no keys.
+    // Check that default values are skipped when bundling.
     assertThat(mediaMetadataBundle.keySet()).isEmpty();
 
     MediaMetadata mediaMetadataFromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
 
-    // check object retrieved from mediaMetadataBundle is equal to mediaMetadata.
     assertThat(mediaMetadataFromBundle).isEqualTo(mediaMetadata);
     // Extras is not implemented in MediaMetadata.equals(Object o).
     assertThat(mediaMetadataFromBundle.extras).isNull();
