@@ -453,27 +453,59 @@ public abstract class Timeline implements Bundleable {
     private static final int FIELD_LAST_PERIOD_INDEX = 12;
     private static final int FIELD_POSITION_IN_FIRST_PERIOD_US = 13;
 
-    private final Bundle toBundle(boolean excludeMediaItem) {
+    /**
+     * Returns a {@link Bundle} representing the information stored in this object.
+     *
+     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
+     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
+     * instance will be {@code null}.
+     *
+     * @param excludeMediaItem Whether to exclude {@link #mediaItem} of window.
+     */
+    public Bundle toBundle(boolean excludeMediaItem) {
       Bundle bundle = new Bundle();
-      bundle.putBundle(
-          keyForField(FIELD_MEDIA_ITEM),
-          excludeMediaItem ? MediaItem.EMPTY.toBundle() : mediaItem.toBundle());
-      bundle.putLong(keyForField(FIELD_PRESENTATION_START_TIME_MS), presentationStartTimeMs);
-      bundle.putLong(keyForField(FIELD_WINDOW_START_TIME_MS), windowStartTimeMs);
-      bundle.putLong(
-          keyForField(FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS), elapsedRealtimeEpochOffsetMs);
-      bundle.putBoolean(keyForField(FIELD_IS_SEEKABLE), isSeekable);
-      bundle.putBoolean(keyForField(FIELD_IS_DYNAMIC), isDynamic);
+      if (!excludeMediaItem) {
+        bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      }
+      if (presentationStartTimeMs != C.TIME_UNSET) {
+        bundle.putLong(keyForField(FIELD_PRESENTATION_START_TIME_MS), presentationStartTimeMs);
+      }
+      if (windowStartTimeMs != C.TIME_UNSET) {
+        bundle.putLong(keyForField(FIELD_WINDOW_START_TIME_MS), windowStartTimeMs);
+      }
+      if (elapsedRealtimeEpochOffsetMs != C.TIME_UNSET) {
+        bundle.putLong(
+            keyForField(FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS), elapsedRealtimeEpochOffsetMs);
+      }
+      if (isSeekable) {
+        bundle.putBoolean(keyForField(FIELD_IS_SEEKABLE), isSeekable);
+      }
+      if (isDynamic) {
+        bundle.putBoolean(keyForField(FIELD_IS_DYNAMIC), isDynamic);
+      }
+
       @Nullable MediaItem.LiveConfiguration liveConfiguration = this.liveConfiguration;
       if (liveConfiguration != null) {
         bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
       }
-      bundle.putBoolean(keyForField(FIELD_IS_PLACEHOLDER), isPlaceholder);
-      bundle.putLong(keyForField(FIELD_DEFAULT_POSITION_US), defaultPositionUs);
-      bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
-      bundle.putInt(keyForField(FIELD_FIRST_PERIOD_INDEX), firstPeriodIndex);
-      bundle.putInt(keyForField(FIELD_LAST_PERIOD_INDEX), lastPeriodIndex);
-      bundle.putLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), positionInFirstPeriodUs);
+      if (isPlaceholder) {
+        bundle.putBoolean(keyForField(FIELD_IS_PLACEHOLDER), isPlaceholder);
+      }
+      if (defaultPositionUs != 0) {
+        bundle.putLong(keyForField(FIELD_DEFAULT_POSITION_US), defaultPositionUs);
+      }
+      if (durationUs != C.TIME_UNSET) {
+        bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
+      }
+      if (firstPeriodIndex != 0) {
+        bundle.putInt(keyForField(FIELD_FIRST_PERIOD_INDEX), firstPeriodIndex);
+      }
+      if (lastPeriodIndex != 0) {
+        bundle.putInt(keyForField(FIELD_LAST_PERIOD_INDEX), lastPeriodIndex);
+      }
+      if (positionInFirstPeriodUs != 0) {
+        bundle.putLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), positionInFirstPeriodUs);
+      }
       return bundle;
     }
 
@@ -502,7 +534,7 @@ public abstract class Timeline implements Bundleable {
       @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
       @Nullable
       MediaItem mediaItem =
-          mediaItemBundle != null ? MediaItem.CREATOR.fromBundle(mediaItemBundle) : null;
+          mediaItemBundle != null ? MediaItem.CREATOR.fromBundle(mediaItemBundle) : MediaItem.EMPTY;
       long presentationStartTimeMs =
           bundle.getLong(
               keyForField(FIELD_PRESENTATION_START_TIME_MS), /* defaultValue= */ C.TIME_UNSET);
@@ -929,15 +961,24 @@ public abstract class Timeline implements Bundleable {
      * <p>It omits the {@link #id} and {@link #uid} fields so these fields of an instance restored
      * by {@link #CREATOR} will always be {@code null}.
      */
-    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
-      bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
-      bundle.putLong(keyForField(FIELD_POSITION_IN_WINDOW_US), positionInWindowUs);
-      bundle.putBoolean(keyForField(FIELD_PLACEHOLDER), isPlaceholder);
-      bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATE), adPlaybackState.toBundle());
+      if (windowIndex != 0) {
+        bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
+      }
+      if (durationUs != C.TIME_UNSET) {
+        bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
+      }
+      if (positionInWindowUs != 0) {
+        bundle.putLong(keyForField(FIELD_POSITION_IN_WINDOW_US), positionInWindowUs);
+      }
+      if (isPlaceholder) {
+        bundle.putBoolean(keyForField(FIELD_PLACEHOLDER), isPlaceholder);
+      }
+      if (!adPlaybackState.equals(AdPlaybackState.NONE)) {
+        bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATE), adPlaybackState.toBundle());
+      }
       return bundle;
     }
 
@@ -954,7 +995,8 @@ public abstract class Timeline implements Bundleable {
           bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
       long positionInWindowUs =
           bundle.getLong(keyForField(FIELD_POSITION_IN_WINDOW_US), /* defaultValue= */ 0);
-      boolean isPlaceholder = bundle.getBoolean(keyForField(FIELD_PLACEHOLDER));
+      boolean isPlaceholder =
+          bundle.getBoolean(keyForField(FIELD_PLACEHOLDER), /* defaultValue= */ false);
       @Nullable
       Bundle adPlaybackStateBundle = bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATE));
       AdPlaybackState adPlaybackState =
