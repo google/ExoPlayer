@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw audio samples. */
-/* package */ final class AudioTranscodingSamplePipeline extends BaseSamplePipeline {
+/* package */ final class AudioTranscodingSamplePipeline extends SamplePipeline {
 
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 

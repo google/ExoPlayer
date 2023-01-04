@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw video frames. */
-/* package */ final class VideoTranscodingSamplePipeline extends BaseSamplePipeline {
+/* package */ final class VideoTranscodingSamplePipeline extends SamplePipeline {
 
   private final FrameProcessor frameProcessor;
   private final ColorInfo frameProcessorInputColor;
@@ -255,11 +255,6 @@ import org.checkerframework.dataflow.qual.Pure;
   public void release() {
     frameProcessor.release();
     encoderWrapper.release();
-  }
-
-  @Override
-  protected boolean processDataUpToMuxer() {
-    return false;
   }
 
   @Override
