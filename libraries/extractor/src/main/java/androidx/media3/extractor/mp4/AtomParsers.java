@@ -43,6 +43,7 @@ import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.HevcConfig;
 import androidx.media3.extractor.OpusUtil;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
+import androidx.media3.extractor.mp4.Atom.LeafAtom;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
@@ -308,9 +309,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     Pair<Long, String> mdhdData =
         parseMdhd(checkNotNull(mdia.getLeafAtomOfType(Atom.TYPE_mdhd)).data);
+    LeafAtom stsd = stbl.getLeafAtomOfType(Atom.TYPE_stsd);
+    if (stsd == null) {
+      throw ParserException.createForMalformedContainer(
+          "Malformed sample table (stbl) missing sample description (stsd)", /* cause= */ null);
+    }
     StsdData stsdData =
         parseStsd(
-            checkNotNull(stbl.getLeafAtomOfType(Atom.TYPE_stsd)).data,
+            stsd.data,
             tkhdData.id,
             tkhdData.rotationDegrees,
             mdhdData.second,
