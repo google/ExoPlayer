@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw video frames. */
-/* package */ final class VideoTranscodingSamplePipeline extends SamplePipeline {
+/* package */ final class VideoSamplePipeline extends SamplePipeline {
 
   private final FrameProcessor frameProcessor;
   private final ColorInfo frameProcessorInputColor;
@@ -68,7 +68,7 @@ import org.checkerframework.dataflow.qual.Pure;
    */
   private volatile long finalFramePresentationTimeUs;
 
-  public VideoTranscodingSamplePipeline(
+  public VideoSamplePipeline(
       Context context,
       Format inputFormat,
       long streamStartPositionUs,
@@ -208,7 +208,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onFrameProcessingEnded() {
-                  VideoTranscodingSamplePipeline.this.finalFramePresentationTimeUs =
+                  VideoSamplePipeline.this.finalFramePresentationTimeUs =
                       lastProcessedFramePresentationTimeUs;
                   try {
                     encoderWrapper.signalEndOfInputStream();

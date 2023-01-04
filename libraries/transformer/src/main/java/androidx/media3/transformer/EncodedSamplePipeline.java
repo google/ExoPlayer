@@ -21,14 +21,14 @@ import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
 
 /** Pipeline that muxes encoded samples without any transcoding or transformation. */
-/* package */ final class PassthroughSamplePipeline extends SamplePipeline {
+/* package */ final class EncodedSamplePipeline extends SamplePipeline {
 
   private final DecoderInputBuffer buffer;
   private final Format format;
 
   private boolean hasPendingBuffer;
 
-  public PassthroughSamplePipeline(
+  public EncodedSamplePipeline(
       Format format,
       long streamStartPositionUs,
       TransformationRequest transformationRequest,
