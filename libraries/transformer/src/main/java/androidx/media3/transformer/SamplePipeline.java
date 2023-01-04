@@ -16,49 +16,12 @@
 
 package androidx.media3.transformer;
 
-import androidx.annotation.Nullable;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.decoder.DecoderInputBuffer;
-
 /**
  * Pipeline for processing media data.
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
-@UnstableApi
-public interface SamplePipeline {
-
-  /** Input of a {@link SamplePipeline}. */
-  interface Input {
-
-    /** See {@link SamplePipeline#expectsDecodedData()}. */
-    boolean expectsDecodedData();
-
-    /** See {@link SamplePipeline#dequeueInputBuffer()}. */
-    @Nullable
-    DecoderInputBuffer dequeueInputBuffer();
-
-    /** See {@link SamplePipeline#queueInputBuffer()}. */
-    void queueInputBuffer();
-  }
-
-  /**
-   * Returns whether the pipeline should be fed with decoded sample data. If false, encoded sample
-   * data should be queued.
-   */
-  boolean expectsDecodedData();
-
-  /** Returns a buffer if the pipeline is ready to accept input, and {@code null} otherwise. */
-  @Nullable
-  DecoderInputBuffer dequeueInputBuffer() throws TransformationException;
-
-  /**
-   * Informs the pipeline that its input buffer contains new input.
-   *
-   * <p>Should be called after filling the input buffer from {@link #dequeueInputBuffer()} with new
-   * input.
-   */
-  void queueInputBuffer() throws TransformationException;
+/* package */ interface SamplePipeline extends SampleConsumer {
 
   /**
    * Processes the input data and returns whether it may be possible to process more data by calling

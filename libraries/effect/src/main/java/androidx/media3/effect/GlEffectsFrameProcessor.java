@@ -334,13 +334,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final FinalMatrixTextureProcessorWrapper finalTextureProcessorWrapper;
   private final ImmutableList<GlTextureProcessor> allTextureProcessors;
 
-  private @MonotonicNonNull FrameInfo nextInputFrameInfo;
-  private boolean inputStreamEnded;
   /**
    * Offset compared to original media presentation time that has been added to incoming frame
    * timestamps, in microseconds.
    */
   private long previousStreamOffsetUs;
+
+  private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
+  private volatile boolean inputStreamEnded;
 
   private GlEffectsFrameProcessor(
       EGLDisplay eglDisplay,

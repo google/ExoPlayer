@@ -51,6 +51,11 @@ import androidx.media3.decoder.DecoderInputBuffer;
   }
 
   @Override
+  public boolean expectsDecodedData() {
+    return true;
+  }
+
+  @Override
   public boolean processData() throws TransformationException {
     return feedMuxer() || processDataUpToMuxer();
   }

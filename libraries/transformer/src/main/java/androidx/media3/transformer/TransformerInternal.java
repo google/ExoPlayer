@@ -29,9 +29,11 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
+import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
@@ -83,8 +85,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Internal messages.
   private static final int MSG_START = 0;
   private static final int MSG_REGISTER_SAMPLE_PIPELINE = 1;
-  private static final int MSG_DEQUEUE_INPUT = 2;
-  private static final int MSG_QUEUE_INPUT = 3;
+  private static final int MSG_DEQUEUE_BUFFER = 2;
+  private static final int MSG_QUEUE_BUFFER = 3;
   private static final int MSG_DRAIN_PIPELINES = 4;
   private static final int MSG_END = 5;
   private static final int MSG_UPDATE_PROGRESS = 6;
@@ -230,11 +232,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         case MSG_REGISTER_SAMPLE_PIPELINE:
           registerSamplePipelineInternal((SamplePipeline) msg.obj);
           break;
-        case MSG_DEQUEUE_INPUT:
-          dequeueInputInternal(/* samplePipelineIndex= */ msg.arg1);
+        case MSG_DEQUEUE_BUFFER:
+          dequeueBufferInternal(/* samplePipelineIndex= */ msg.arg1);
           break;
-        case MSG_QUEUE_INPUT:
-          samplePipelines.get(/* samplePipelineIndex= */ msg.arg1).queueInputBuffer();
+        case MSG_QUEUE_BUFFER:
+          samplePipelines.get(/* index= */ msg.arg1).queueInputBuffer();
           break;
         case MSG_DRAIN_PIPELINES:
           drainPipelinesInternal();
@@ -271,7 +273,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void dequeueInputInternal(int samplePipelineIndex) throws TransformationException {
+  private void dequeueBufferInternal(int samplePipelineIndex) throws TransformationException {
     SamplePipeline samplePipeline = samplePipelines.get(samplePipelineIndex);
     // The sample pipeline is drained before dequeuing input to maximise the chances of having an
     // input buffer to dequeue.
@@ -418,7 +420,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public SamplePipeline.Input onTrackAdded(
+    public SampleConsumer onTrackAdded(
         Format format,
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
@@ -434,7 +436,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       SamplePipeline samplePipeline =
           getSamplePipeline(format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
-
       int samplePipelineIndex = tracksAddedCount;
       tracksAddedCount++;
 
@@ -458,7 +459,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         tracksAddedCount++;
       }
 
-      return new SamplePipelineInput(samplePipelineIndex, samplePipeline.expectsDecodedData());
+      return new SampleConsumerImpl(samplePipelineIndex, samplePipeline);
     }
 
     // MuxerWrapper.Listener implementation.
@@ -523,7 +524,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             transformationRequest,
             videoEffects,
             frameProcessorFactory,
-            decoderFactory,
             encoderFactory,
             muxerWrapper,
             /* errorConsumer= */ this::onTransformationError,
@@ -622,19 +622,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
 
-    private class SamplePipelineInput implements SamplePipeline.Input {
+    private class SampleConsumerImpl implements SampleConsumer {
 
       private final int samplePipelineIndex;
-      private final boolean expectsDecodedData;
+      private final SamplePipeline samplePipeline;
 
-      public SamplePipelineInput(int samplePipelineIndex, boolean expectsDecodedData) {
+      public SampleConsumerImpl(int samplePipelineIndex, SamplePipeline samplePipeline) {
         this.samplePipelineIndex = samplePipelineIndex;
-        this.expectsDecodedData = expectsDecodedData;
+        this.samplePipeline = samplePipeline;
       }
 
       @Override
       public boolean expectsDecodedData() {
-        return expectsDecodedData;
+        return samplePipeline.expectsDecodedData();
       }
 
       @Nullable
@@ -649,7 +649,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         //  start of the sample pipelines). Having 2 thread hops per sample (one for dequeuing and
         //  one for queuing) makes transmuxing slower than it used to be.
         internalHandler
-            .obtainMessage(MSG_DEQUEUE_INPUT, samplePipelineIndex, /* unused */ 0)
+            .obtainMessage(MSG_DEQUEUE_BUFFER, samplePipelineIndex, /* unused */ 0)
             .sendToTarget();
         clock.onThreadBlocked();
         dequeueBufferConditionVariable.blockUninterruptible();
@@ -660,8 +660,33 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Override
       public void queueInputBuffer() {
         internalHandler
-            .obtainMessage(MSG_QUEUE_INPUT, samplePipelineIndex, /* unused */ 0)
+            .obtainMessage(MSG_QUEUE_BUFFER, samplePipelineIndex, /* unused */ 0)
             .sendToTarget();
+      }
+
+      @Override
+      public Surface getInputSurface() {
+        return samplePipeline.getInputSurface();
+      }
+
+      @Override
+      public ColorInfo getExpectedColorInfo() {
+        return samplePipeline.getExpectedColorInfo();
+      }
+
+      @Override
+      public int getPendingVideoFrameCount() {
+        return samplePipeline.getPendingVideoFrameCount();
+      }
+
+      @Override
+      public void registerVideoFrame() {
+        samplePipeline.registerVideoFrame();
+      }
+
+      @Override
+      public void signalEndOfVideoInput() {
+        samplePipeline.signalEndOfVideoInput();
       }
     }
   }
