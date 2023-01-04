@@ -377,12 +377,18 @@ public class MediaItemTest {
   }
 
   @Test
-  public void createDefaultClippingConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+  public void
+      createDefaultClippingConfigurationInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
     MediaItem.ClippingConfiguration clippingConfiguration =
         new MediaItem.ClippingConfiguration.Builder().build();
 
+    Bundle clippingConfigurationBundle = clippingConfiguration.toBundle();
+
+    // Check that default values are skipped when bundling.
+    assertThat(clippingConfigurationBundle.keySet()).isEmpty();
+
     MediaItem.ClippingConfiguration clippingConfigurationFromBundle =
-        MediaItem.ClippingConfiguration.CREATOR.fromBundle(clippingConfiguration.toBundle());
+        MediaItem.ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
 
     assertThat(clippingConfigurationFromBundle).isEqualTo(clippingConfiguration);
   }
@@ -560,12 +566,18 @@ public class MediaItemTest {
   }
 
   @Test
-  public void createDefaultLiveConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+  public void
+      createDefaultLiveConfigurationInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
     MediaItem.LiveConfiguration liveConfiguration =
         new MediaItem.LiveConfiguration.Builder().build();
 
+    Bundle liveConfigurationBundle = liveConfiguration.toBundle();
+
+    // Check that default values are skipped when bundling.
+    assertThat(liveConfigurationBundle.keySet()).isEmpty();
+
     MediaItem.LiveConfiguration liveConfigurationFromBundle =
-        MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfiguration.toBundle());
+        MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
 
     assertThat(liveConfigurationFromBundle).isEqualTo(liveConfiguration);
   }
@@ -834,8 +846,13 @@ public class MediaItemTest {
   }
 
   @Test
-  public void createDefaultMediaItemInstance_roundTripViaBundle_yieldsEqualInstance() {
+  public void createDefaultMediaItemInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
     MediaItem mediaItem = new MediaItem.Builder().build();
+
+    Bundle mediaItemBundle = mediaItem.toBundle();
+
+    // Check that default values are skipped when bundling.
+    assertThat(mediaItemBundle.keySet()).isEmpty();
 
     MediaItem mediaItemFromBundle = MediaItem.CREATOR.fromBundle(mediaItem.toBundle());
 
