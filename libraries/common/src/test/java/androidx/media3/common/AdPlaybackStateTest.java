@@ -421,13 +421,12 @@ public class AdPlaybackStateTest {
 
     Bundle adPlaybackStateWithNoAdsBundle = adPlaybackStateWithNoAds.toBundle();
 
-    // check Bundle created above, contains no keys.
+    // Check that default values are skipped when bundling.
     assertThat(adPlaybackStateWithNoAdsBundle.keySet()).isEmpty();
 
     AdPlaybackState adPlaybackStateWithNoAdsFromBundle =
         AdPlaybackState.CREATOR.fromBundle(adPlaybackStateWithNoAdsBundle);
 
-    // check object retrieved from adPlaybackStateWithNoAdsBundle is equal to AdPlaybackState.NONE
     assertThat(adPlaybackStateWithNoAdsFromBundle.adsId).isEqualTo(adPlaybackStateWithNoAds.adsId);
     assertThat(adPlaybackStateWithNoAdsFromBundle.adGroupCount)
         .isEqualTo(adPlaybackStateWithNoAds.adGroupCount);
