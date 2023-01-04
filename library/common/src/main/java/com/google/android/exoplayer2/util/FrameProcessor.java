@@ -119,7 +119,11 @@ public interface FrameProcessor {
   /** Indicates the frame should be dropped after {@link #releaseOutputFrame(long)} is invoked. */
   long DROP_OUTPUT_FRAME = -2;
 
-  /** Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from. */
+  /**
+   * Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from.
+   *
+   * <p>Can be called on any thread.
+   */
   Surface getInputSurface();
 
   /**
@@ -141,6 +145,8 @@ public interface FrameProcessor {
    *
    * <p>Must be called before rendering a frame to the frame processor's input surface.
    *
+   * <p>Can be called on any thread.
+   *
    * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
    *     #setInputFrameInfo(FrameInfo)}.
    */
@@ -149,6 +155,8 @@ public interface FrameProcessor {
   /**
    * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
+   *
+   * <p>Can be called on any thread.
    */
   int getPendingInputFrameCount();
 
@@ -192,6 +200,8 @@ public interface FrameProcessor {
 
   /**
    * Informs the {@code FrameProcessor} that no further input frames should be accepted.
+   *
+   * <p>Can be called on any thread.
    *
    * @throws IllegalStateException If called more than once.
    */

@@ -49,23 +49,15 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
-/**
- * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
- */
+/** Pipeline to process, re-encode and mux raw video frames. */
 /* package */ final class VideoTranscodingSamplePipeline extends BaseSamplePipeline {
 
-  private final int maxPendingFrameCount;
-
-  private final DecoderInputBuffer decoderInputBuffer;
-  private final Codec decoder;
-  private final ArrayList<Long> decodeOnlyPresentationTimestamps;
-
   private final FrameProcessor frameProcessor;
+  private final ColorInfo frameProcessorInputColor;
 
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
@@ -84,7 +76,6 @@ import org.checkerframework.dataflow.qual.Pure;
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
       FrameProcessor.Factory frameProcessorFactory,
-      Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       Consumer<TransformationException> errorConsumer,
@@ -131,11 +122,8 @@ import org.checkerframework.dataflow.qual.Pure;
 
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
-    decoderInputBuffer =
-        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
-    decodeOnlyPresentationTimestamps = new ArrayList<>();
 
     // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
     int decodedWidth =
@@ -169,7 +157,7 @@ import org.checkerframework.dataflow.qual.Pure;
     ColorInfo encoderInputColor = encoderWrapper.getSupportedInputColor();
     // If not tone mapping using OpenGL, the decoder will output the encoderInputColor,
     // possibly by tone mapping.
-    ColorInfo frameProcessorInputColor =
+    frameProcessorInputColor =
         isGlToneMapping ? checkNotNull(inputFormat.colorInfo) : encoderInputColor;
     // For consistency with the Android platform, OpenGL tone mapping outputs colors with
     // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
@@ -236,57 +224,42 @@ import org.checkerframework.dataflow.qual.Pure;
     frameProcessor.setInputFrameInfo(
         new FrameInfo(
             decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio, streamOffsetUs));
-
-    boolean isDecoderToneMappingRequired =
-        ColorInfo.isTransferHdr(inputFormat.colorInfo)
-            && !ColorInfo.isTransferHdr(frameProcessorInputColor);
-    decoder =
-        decoderFactory.createForVideoDecoding(
-            inputFormat, frameProcessor.getInputSurface(), isDecoderToneMappingRequired);
-    maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
 
   @Override
-  public boolean expectsDecodedData() {
-    return false;
+  public Surface getInputSurface() {
+    return frameProcessor.getInputSurface();
   }
 
   @Override
-  @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
-    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
+  public ColorInfo getExpectedColorInfo() {
+    return frameProcessorInputColor;
   }
 
   @Override
-  public void queueInputBuffer() throws TransformationException {
-    if (decoderInputBuffer.isDecodeOnly()) {
-      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
-    }
-    decoder.queueInputBuffer(decoderInputBuffer);
+  public void registerVideoFrame() {
+    frameProcessor.registerInputFrame();
+  }
+
+  @Override
+  public int getPendingVideoFrameCount() {
+    return frameProcessor.getPendingInputFrameCount();
+  }
+
+  @Override
+  public void signalEndOfVideoInput() {
+    frameProcessor.signalEndOfInput();
   }
 
   @Override
   public void release() {
     frameProcessor.release();
-    decoder.release();
     encoderWrapper.release();
   }
 
   @Override
-  protected boolean processDataUpToMuxer() throws TransformationException {
-    if (decoder.isEnded()) {
-      return false;
-    }
-
-    boolean processedData = false;
-    while (maybeProcessDecoderOutput()) {
-      processedData = true;
-    }
-    if (decoder.isEnded()) {
-      frameProcessor.signalEndOfInput();
-    }
-    // If the decoder produced output, signal that it may be possible to process data again.
-    return processedData;
+  protected boolean processDataUpToMuxer() {
+    return false;
   }
 
   @Override
@@ -375,46 +348,6 @@ import org.checkerframework.dataflow.qual.Pure;
         && (
         /* Pixel 6 */ Build.ID.startsWith("TP1A")
             || Build.ID.startsWith(/* Pixel Watch */ "rwd9.220429.053"));
-  }
-
-  /**
-   * Feeds at most one decoder output frame to the next step of the pipeline.
-   *
-   * @return Whether a frame was processed.
-   * @throws TransformationException If a problem occurs while processing the frame.
-   */
-  private boolean maybeProcessDecoderOutput() throws TransformationException {
-    @Nullable MediaCodec.BufferInfo decoderOutputBufferInfo = decoder.getOutputBufferInfo();
-    if (decoderOutputBufferInfo == null) {
-      return false;
-    }
-
-    if (isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
-      decoder.releaseOutputBuffer(/* render= */ false);
-      return true;
-    }
-
-    if (maxPendingFrameCount != C.UNLIMITED_PENDING_FRAME_COUNT
-        && frameProcessor.getPendingInputFrameCount() == maxPendingFrameCount) {
-      return false;
-    }
-
-    frameProcessor.registerInputFrame();
-    decoder.releaseOutputBuffer(/* render= */ true);
-    return true;
-  }
-
-  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
-    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
-    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
-    int size = decodeOnlyPresentationTimestamps.size();
-    for (int i = 0; i < size; i++) {
-      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
-        decodeOnlyPresentationTimestamps.remove(i);
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

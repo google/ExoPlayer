@@ -35,7 +35,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Pipeline to apply audio processing to raw audio samples, encode them and mux them. */
+/** Pipeline to process, re-encode and mux raw audio samples. */
 /* package */ final class AudioTranscodingSamplePipeline extends BaseSamplePipeline {
 
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
@@ -135,11 +135,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
     // Use the same stream offset as the input stream for encoder input buffers.
     nextEncoderInputBufferTimeUs = streamOffsetUs;
-  }
-
-  @Override
-  public boolean expectsDecodedData() {
-    return true;
   }
 
   @Override

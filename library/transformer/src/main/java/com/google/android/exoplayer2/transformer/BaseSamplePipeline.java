@@ -51,6 +51,11 @@ import com.google.android.exoplayer2.util.MimeTypes;
   }
 
   @Override
+  public boolean expectsDecodedData() {
+    return true;
+  }
+
+  @Override
   public boolean processData() throws TransformationException {
     return feedMuxer() || processDataUpToMuxer();
   }

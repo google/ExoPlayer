@@ -68,7 +68,7 @@ public class ExoPlayerAssetLoaderTest {
           }
 
           @Override
-          public SamplePipeline.Input onTrackAdded(
+          public SampleConsumer onTrackAdded(
               Format format,
               @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
               long streamStartPositionUs,
@@ -81,7 +81,7 @@ public class ExoPlayerAssetLoaderTest {
                   new IllegalStateException("onTrackAdded() called before onTrackCount()"));
             }
             isTrackAdded.set(true);
-            return new FakeSamplePipelineInput();
+            return new FakeSampleConsumer();
           }
 
           @Override
@@ -130,7 +130,7 @@ public class ExoPlayerAssetLoaderTest {
         .createAssetLoader();
   }
 
-  private static final class FakeSamplePipelineInput implements SamplePipeline.Input {
+  private static final class FakeSampleConsumer implements SampleConsumer {
 
     @Override
     public boolean expectsDecodedData() {

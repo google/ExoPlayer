@@ -633,18 +633,18 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_withAssetLoaderAlwaysDecoding_pipelineExpectsDecoded()
       throws Exception {
-    AtomicReference<SamplePipeline.Input> samplePipelineInputRef = new AtomicReference<>();
+    AtomicReference<SampleConsumer> sampleConsumerRef = new AtomicReference<>();
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
             .setAssetLoaderFactory(
-                new FakeAssetLoader.Factory(SUPPORTED_OUTPUT_TYPE_DECODED, samplePipelineInputRef))
+                new FakeAssetLoader.Factory(SUPPORTED_OUTPUT_TYPE_DECODED, sampleConsumerRef))
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.startTransformation(mediaItem, outputPath);
-    runLooperUntil(transformer.getApplicationLooper(), () -> samplePipelineInputRef.get() != null);
+    runLooperUntil(transformer.getApplicationLooper(), () -> sampleConsumerRef.get() != null);
 
-    assertThat(samplePipelineInputRef.get().expectsDecodedData()).isTrue();
+    assertThat(sampleConsumerRef.get().expectsDecodedData()).isTrue();
   }
 
   @Test
@@ -654,7 +654,7 @@ public final class TransformerEndToEndTest {
             .setAudioProcessors(ImmutableList.of(new SonicAudioProcessor()))
             .setAssetLoaderFactory(
                 new FakeAssetLoader.Factory(
-                    SUPPORTED_OUTPUT_TYPE_ENCODED, /* samplePipelineInputRef= */ null))
+                    SUPPORTED_OUTPUT_TYPE_ENCODED, /* sampleConsumerRef= */ null))
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
 
@@ -1077,15 +1077,15 @@ public final class TransformerEndToEndTest {
     public static final class Factory implements AssetLoader.Factory {
 
       private final @SupportedOutputTypes int supportedOutputTypes;
-      @Nullable private final AtomicReference<SamplePipeline.Input> samplePipelineInputRef;
+      @Nullable private final AtomicReference<SampleConsumer> sampleConsumerRef;
 
       @Nullable private AssetLoader.Listener listener;
 
       public Factory(
           @SupportedOutputTypes int supportedOutputTypes,
-          @Nullable AtomicReference<SamplePipeline.Input> samplePipelineInputRef) {
+          @Nullable AtomicReference<SampleConsumer> sampleConsumerRef) {
         this.supportedOutputTypes = supportedOutputTypes;
-        this.samplePipelineInputRef = samplePipelineInputRef;
+        this.sampleConsumerRef = sampleConsumerRef;
       }
 
       @Override
@@ -1136,22 +1136,21 @@ public final class TransformerEndToEndTest {
 
       @Override
       public AssetLoader createAssetLoader() {
-        return new FakeAssetLoader(
-            checkNotNull(listener), supportedOutputTypes, samplePipelineInputRef);
+        return new FakeAssetLoader(checkNotNull(listener), supportedOutputTypes, sampleConsumerRef);
       }
     }
 
     private final AssetLoader.Listener listener;
     private final @SupportedOutputTypes int supportedOutputTypes;
-    @Nullable private final AtomicReference<SamplePipeline.Input> samplePipelineInputRef;
+    @Nullable private final AtomicReference<SampleConsumer> sampleConsumerRef;
 
     public FakeAssetLoader(
         Listener listener,
         @SupportedOutputTypes int supportedOutputTypes,
-        @Nullable AtomicReference<SamplePipeline.Input> samplePipelineInputRef) {
+        @Nullable AtomicReference<SampleConsumer> sampleConsumerRef) {
       this.listener = listener;
       this.supportedOutputTypes = supportedOutputTypes;
-      this.samplePipelineInputRef = samplePipelineInputRef;
+      this.sampleConsumerRef = sampleConsumerRef;
     }
 
     @Override
@@ -1165,14 +1164,14 @@ public final class TransformerEndToEndTest {
               .setChannelCount(2)
               .build();
       try {
-        SamplePipeline.Input samplePipelineInput =
+        SampleConsumer sampleConsumer =
             listener.onTrackAdded(
                 format,
                 supportedOutputTypes,
                 /* streamStartPositionUs= */ 0,
                 /* streamOffsetUs= */ 0);
-        if (samplePipelineInputRef != null) {
-          samplePipelineInputRef.set(samplePipelineInput);
+        if (sampleConsumerRef != null) {
+          sampleConsumerRef.set(sampleConsumer);
         }
       } catch (TransformationException e) {
         throw new IllegalStateException(e);

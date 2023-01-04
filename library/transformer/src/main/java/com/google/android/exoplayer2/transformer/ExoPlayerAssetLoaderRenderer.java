@@ -33,7 +33,10 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -47,6 +50,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final TransformerMediaClock mediaClock;
   private final AssetLoader.Listener assetLoaderListener;
   private final DecoderInputBuffer decoderInputBuffer;
+  private final List<Long> decodeOnlyPresentationTimestamps;
 
   private boolean isTransformationRunning;
   private long streamStartPositionUs;
@@ -54,7 +58,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
   private @MonotonicNonNull Codec decoder;
   @Nullable private ByteBuffer pendingDecoderOutputBuffer;
-  private SamplePipeline.@MonotonicNonNull Input samplePipelineInput;
+  private int maxDecoderPendingFrameCount;
+  private @MonotonicNonNull SampleConsumer sampleConsumer;
   private boolean isEnded;
 
   public ExoPlayerAssetLoaderRenderer(
@@ -69,6 +74,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.mediaClock = mediaClock;
     this.assetLoaderListener = assetLoaderListener;
     decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
+    decodeOnlyPresentationTimestamps = new ArrayList<>();
   }
 
   @Override
@@ -112,10 +118,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         return;
       }
 
-      if (samplePipelineInput.expectsDecodedData()) {
-        while (feedPipelineFromDecoder() || feedDecoderFromInput()) {}
+      if (sampleConsumer.expectsDecodedData()) {
+        if (getTrackType() == C.TRACK_TYPE_AUDIO) {
+          while (feedConsumerAudioFromDecoder() || feedDecoderFromInput()) {}
+        } else if (getTrackType() == C.TRACK_TYPE_VIDEO) {
+          while (feedConsumerVideoFromDecoder() || feedDecoderFromInput()) {}
+        } else {
+          throw new IllegalStateException();
+        }
       } else {
-        while (feedPipelineFromInput()) {}
+        while (feedConsumerFromInput()) {}
       }
     } catch (TransformationException e) {
       isTransformationRunning = false;
@@ -151,9 +163,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  @EnsuresNonNullIf(expression = "samplePipelineInput", result = true)
+  @EnsuresNonNullIf(expression = "sampleConsumer", result = true)
   private boolean ensureConfigured() throws TransformationException {
-    if (samplePipelineInput != null) {
+    if (sampleConsumer != null) {
       return true;
     }
 
@@ -166,30 +178,42 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     @AssetLoader.SupportedOutputTypes
     int supportedOutputTypes = SUPPORTED_OUTPUT_TYPE_ENCODED | SUPPORTED_OUTPUT_TYPE_DECODED;
-    samplePipelineInput =
+    sampleConsumer =
         assetLoaderListener.onTrackAdded(
             inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
     if (getTrackType() == C.TRACK_TYPE_VIDEO && flattenForSlowMotion) {
       sefVideoSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
-    if (samplePipelineInput.expectsDecodedData()) {
-      decoder = decoderFactory.createForAudioDecoding(inputFormat);
+    if (sampleConsumer.expectsDecodedData()) {
+      if (getTrackType() == C.TRACK_TYPE_AUDIO) {
+        decoder = decoderFactory.createForAudioDecoding(inputFormat);
+      } else if (getTrackType() == C.TRACK_TYPE_VIDEO) {
+        boolean isDecoderToneMappingRequired =
+            ColorInfo.isTransferHdr(inputFormat.colorInfo)
+                && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedColorInfo());
+        decoder =
+            decoderFactory.createForVideoDecoding(
+                inputFormat,
+                checkNotNull(sampleConsumer.getInputSurface()),
+                isDecoderToneMappingRequired);
+        maxDecoderPendingFrameCount = decoder.getMaxPendingFrameCount();
+      } else {
+        throw new IllegalStateException();
+      }
     }
     return true;
   }
 
   /**
-   * Attempts to read decoded data and pass it to the sample pipeline.
+   * Attempts to get decoded audio data and pass it to the sample consumer.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If an error occurs in the decoder or in the {@link
-   *     SamplePipeline}.
+   * @throws TransformationException If an error occurs in the decoder.
    */
-  @RequiresNonNull("samplePipelineInput")
-  private boolean feedPipelineFromDecoder() throws TransformationException {
-    @Nullable
-    DecoderInputBuffer samplePipelineInputBuffer = samplePipelineInput.dequeueInputBuffer();
-    if (samplePipelineInputBuffer == null) {
+  @RequiresNonNull("sampleConsumer")
+  private boolean feedConsumerAudioFromDecoder() throws TransformationException {
+    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.dequeueInputBuffer();
+    if (sampleConsumerInputBuffer == null) {
       return false;
     }
 
@@ -204,8 +228,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     if (decoder.isEnded()) {
-      samplePipelineInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      samplePipelineInput.queueInputBuffer();
+      sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+      sampleConsumer.queueInputBuffer();
       isEnded = true;
       return false;
     }
@@ -215,11 +239,46 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    samplePipelineInputBuffer.data = pendingDecoderOutputBuffer;
+    sampleConsumerInputBuffer.data = pendingDecoderOutputBuffer;
     MediaCodec.BufferInfo bufferInfo = checkNotNull(decoder.getOutputBufferInfo());
-    samplePipelineInputBuffer.timeUs = bufferInfo.presentationTimeUs;
-    samplePipelineInputBuffer.setFlags(bufferInfo.flags);
-    samplePipelineInput.queueInputBuffer();
+    sampleConsumerInputBuffer.timeUs = bufferInfo.presentationTimeUs;
+    sampleConsumerInputBuffer.setFlags(bufferInfo.flags);
+    sampleConsumer.queueInputBuffer();
+    return true;
+  }
+
+  /**
+   * Attempts to get decoded video data and pass it to the sample consumer.
+   *
+   * @return Whether it may be possible to read more data immediately by calling this method again.
+   * @throws TransformationException If an error occurs in the decoder.
+   */
+  @RequiresNonNull("sampleConsumer")
+  private boolean feedConsumerVideoFromDecoder() throws TransformationException {
+    Codec decoder = checkNotNull(this.decoder);
+    if (decoder.isEnded()) {
+      sampleConsumer.signalEndOfVideoInput();
+      isEnded = true;
+      return false;
+    }
+
+    @Nullable MediaCodec.BufferInfo decoderOutputBufferInfo = decoder.getOutputBufferInfo();
+    if (decoderOutputBufferInfo == null) {
+      return false;
+    }
+
+    if (isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
+      decoder.releaseOutputBuffer(/* render= */ false);
+      return true;
+    }
+
+    if (maxDecoderPendingFrameCount != C.UNLIMITED_PENDING_FRAME_COUNT
+        && sampleConsumer.getPendingVideoFrameCount() == maxDecoderPendingFrameCount) {
+      return false;
+    }
+
+    sampleConsumer.registerVideoFrame();
+    decoder.releaseOutputBuffer(/* render= */ true);
     return true;
   }
 
@@ -243,33 +302,35 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
 
+    if (decoderInputBuffer.isDecodeOnly()) {
+      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
+    }
     decoder.queueInputBuffer(decoderInputBuffer);
     return true;
   }
 
   /**
-   * Attempts to read input data and pass it to the sample pipeline.
+   * Attempts to read input data and pass it to the sample consumer.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
    */
-  @RequiresNonNull("samplePipelineInput")
-  private boolean feedPipelineFromInput() {
-    @Nullable
-    DecoderInputBuffer samplePipelineInputBuffer = samplePipelineInput.dequeueInputBuffer();
-    if (samplePipelineInputBuffer == null) {
+  @RequiresNonNull("sampleConsumer")
+  private boolean feedConsumerFromInput() {
+    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.dequeueInputBuffer();
+    if (sampleConsumerInputBuffer == null) {
       return false;
     }
 
-    if (!readInput(samplePipelineInputBuffer)) {
+    if (!readInput(sampleConsumerInputBuffer)) {
       return false;
     }
 
-    if (shouldDropInputBuffer(samplePipelineInputBuffer)) {
+    if (shouldDropInputBuffer(sampleConsumerInputBuffer)) {
       return true;
     }
 
-    samplePipelineInput.queueInputBuffer();
-    if (samplePipelineInputBuffer.isEndOfStream()) {
+    sampleConsumer.queueInputBuffer();
+    if (sampleConsumerInputBuffer.isEndOfStream()) {
       isEnded = true;
       return false;
     }
@@ -300,8 +361,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Preprocesses an {@linkplain DecoderInputBuffer input buffer} queued to the pipeline and returns
-   * whether it should be dropped.
+   * Preprocesses an encoded {@linkplain DecoderInputBuffer input buffer} and returns whether it
+   * should be dropped.
    *
    * <p>The input buffer is cleared if it should be dropped.
    */
@@ -322,5 +383,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           streamOffsetUs + sefVideoSlowMotionFlattener.getSamplePresentationTimeUs();
     }
     return shouldDropInputBuffer;
+  }
+
+  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
+    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
+    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
+    int size = decodeOnlyPresentationTimestamps.size();
+    for (int i = 0; i < size; i++) {
+      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
+        decodeOnlyPresentationTimestamps.remove(i);
+        return true;
+      }
+    }
+    return false;
   }
 }

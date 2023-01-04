@@ -147,12 +147,11 @@ public interface AssetLoader {
      *     streamOffsetUs}), in microseconds.
      * @param streamOffsetUs The offset that will be added to the timestamps to make sure they are
      *     non-negative, in microseconds.
-     * @return The {@link SamplePipeline.Input} describing the type of sample data expected, and to
-     *     which to pass this data.
-     * @throws TransformationException If an error occurs configuring the {@link
-     *     SamplePipeline.Input}.
+     * @return The {@link SampleConsumer} describing the type of sample data expected, and to which
+     *     to pass this data.
+     * @throws TransformationException If an error occurs configuring the {@link SampleConsumer}.
      */
-    SamplePipeline.Input onTrackAdded(
+    SampleConsumer onTrackAdded(
         Format format,
         @SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
