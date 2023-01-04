@@ -17,6 +17,7 @@ package androidx.media3.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem.LiveConfiguration;
 import androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder;
@@ -267,7 +268,9 @@ public class TimelineTest {
                 /* durationUs= */ 2,
                 /* defaultPositionUs= */ 22,
                 /* windowOffsetInFirstPeriodUs= */ 222,
-                ImmutableList.of(AdPlaybackState.NONE),
+                ImmutableList.of(
+                    new AdPlaybackState(
+                        /* adsId= */ null, /* adGroupTimesUs...= */ 10_000, 20_000)),
                 new MediaItem.Builder().setMediaId("mediaId2").build()),
             new TimelineWindowDefinition(
                 /* periodCount= */ 3,
@@ -335,6 +338,31 @@ public class TimelineTest {
   }
 
   @Test
+  public void window_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    Timeline.Window window = new Timeline.Window();
+    // Please refrain from altering these default values since doing so would cause issues with
+    // backwards compatibility.
+    window.presentationStartTimeMs = C.TIME_UNSET;
+    window.windowStartTimeMs = C.TIME_UNSET;
+    window.elapsedRealtimeEpochOffsetMs = C.TIME_UNSET;
+    window.durationUs = C.TIME_UNSET;
+    window.mediaItem = new MediaItem.Builder().build();
+
+    Bundle windowBundle = window.toBundle();
+
+    // Check that default values are skipped when bundling. MediaItem key is not added to the bundle
+    // only when excludeMediaItem is true.
+    assertThat(windowBundle.keySet()).hasSize(1);
+    assertThat(window.toBundle(/* excludeMediaItem= */ true).keySet()).isEmpty();
+
+    Timeline.Window restoredWindow = Timeline.Window.CREATOR.fromBundle(windowBundle);
+
+    assertThat(restoredWindow.manifest).isNull();
+    TimelineAsserts.assertWindowEqualsExceptUidAndManifest(
+        /* expectedWindow= */ window, /* actualWindow= */ restoredWindow);
+  }
+
+  @Test
   public void roundTripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
     Timeline.Window window = new Timeline.Window();
     window.uid = new Object();
@@ -365,6 +393,26 @@ public class TimelineTest {
     assertThat(restoredWindow.manifest).isNull();
     TimelineAsserts.assertWindowEqualsExceptUidAndManifest(
         /* expectedWindow= */ window, /* actualWindow= */ restoredWindow);
+  }
+
+  @Test
+  public void period_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    Timeline.Period period = new Timeline.Period();
+    // Please refrain from altering these default values since doing so would cause issues with
+    // backwards compatibility.
+    period.durationUs = C.TIME_UNSET;
+
+    Bundle periodBundle = period.toBundle();
+
+    // Check that default values are skipped when bundling.
+    assertThat(periodBundle.keySet()).isEmpty();
+
+    Timeline.Period restoredPeriod = Timeline.Period.CREATOR.fromBundle(periodBundle);
+
+    assertThat(restoredPeriod.id).isNull();
+    assertThat(restoredPeriod.uid).isNull();
+    TimelineAsserts.assertPeriodEqualsExceptIds(
+        /* expectedPeriod= */ period, /* actualPeriod= */ restoredPeriod);
   }
 
   @Test
