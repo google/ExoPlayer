@@ -17,6 +17,9 @@
         for seeking.
     *   Use theme when loading drawables on API 21+
         ([#220](https://github.com/androidx/media/issues/220)).
+    *   Throw a ParserException instead of a NullPointerException if the sample
+    *   table (stbl) is missing a required sample description (stsd) when
+    *   parsing trak atoms.
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
