@@ -21,7 +21,7 @@ import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
 
 /** Pipeline that muxes encoded samples without any transcoding or transformation. */
-/* package */ final class PassthroughSamplePipeline extends BaseSamplePipeline {
+/* package */ final class PassthroughSamplePipeline extends SamplePipeline {
 
   private final DecoderInputBuffer buffer;
   private final Format format;
@@ -60,11 +60,6 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   @Override
   public void release() {}
-
-  @Override
-  protected boolean processDataUpToMuxer() {
-    return false;
-  }
 
   @Override
   protected Format getMuxerInputFormat() {
