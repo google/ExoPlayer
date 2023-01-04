@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static java.lang.Math.floor;
 import static java.lang.Math.max;
 import static java.lang.Math.round;
 
@@ -224,49 +225,33 @@ public final class EncoderUtil {
   @Nullable
   public static Size getSupportedResolution(
       MediaCodecInfo encoderInfo, String mimeType, int width, int height) {
-    MediaCodecInfo.VideoCapabilities videoEncoderCapabilities =
+    MediaCodecInfo.VideoCapabilities videoCapabilities =
         encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
-    int widthAlignment = videoEncoderCapabilities.getWidthAlignment();
-    int heightAlignment = videoEncoderCapabilities.getHeightAlignment();
+    int widthAlignment = videoCapabilities.getWidthAlignment();
+    int heightAlignment = videoCapabilities.getHeightAlignment();
 
     // Fix size alignment.
-    width = alignResolution(width, widthAlignment);
-    height = alignResolution(height, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, width, height)) {
-      return new Size(width, height);
-    }
-
-    // Try three-fourths (e.g. 1440 -> 1080).
-    int newWidth = alignResolution(width * 3 / 4, widthAlignment);
-    int newHeight = alignResolution(height * 3 / 4, heightAlignment);
+    int newWidth = alignResolution(width, widthAlignment);
+    int newHeight = alignResolution(height, heightAlignment);
     if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
       return new Size(newWidth, newHeight);
     }
 
-    // Try two-thirds (e.g. 4k -> 1440).
-    newWidth = alignResolution(width * 2 / 3, widthAlignment);
-    newHeight = alignResolution(height * 2 / 3, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, width, height)) {
-      return new Size(newWidth, newHeight);
-    }
-
-    // Try half (e.g. 4k -> 1080).
-    newWidth = alignResolution(width / 2, widthAlignment);
-    newHeight = alignResolution(height / 2, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
-      return new Size(newWidth, newHeight);
-    }
-
-    // Try one-third (e.g. 4k -> 720).
-    newWidth = alignResolution(width / 3, widthAlignment);
-    newHeight = alignResolution(height / 3, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
-      return new Size(newWidth, newHeight);
+    float[] reductionFactors =
+        new float[] {
+          0.95f, 0.9f, 0.85f, 0.8f, 0.75f, 0.7f, 2f / 3f, 0.6f, 0.55f, 0.5f, 0.4f, 1f / 3f
+        };
+    for (float reductionFactor : reductionFactors) {
+      newWidth = alignResolution(round(width * reductionFactor), widthAlignment);
+      newHeight = alignResolution(round(height * reductionFactor), heightAlignment);
+      if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
+        return new Size(newWidth, newHeight);
+      }
     }
 
     // Fix frame being too wide or too tall.
-    width = videoEncoderCapabilities.getSupportedWidths().clamp(width);
-    int adjustedHeight = videoEncoderCapabilities.getSupportedHeightsFor(width).clamp(height);
+    width = videoCapabilities.getSupportedWidths().clamp(width);
+    int adjustedHeight = videoCapabilities.getSupportedHeightsFor(width).clamp(height);
     if (adjustedHeight != height) {
       width =
           alignResolution((int) round((double) width * adjustedHeight / height), widthAlignment);
@@ -435,8 +420,8 @@ public final class EncoderUtil {
       shouldRoundDown = true;
     }
     return shouldRoundDown
-        ? (int) (alignment * Math.floor((float) size / alignment))
-        : alignment * Math.round((float) size / alignment);
+        ? (int) (alignment * floor((float) size / alignment))
+        : alignment * round((float) size / alignment);
   }
 
   private static synchronized void maybePopulateEncoderInfo() {
