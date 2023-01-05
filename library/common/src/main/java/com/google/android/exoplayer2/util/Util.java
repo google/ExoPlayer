@@ -2805,6 +2805,15 @@ public final class Util {
         : resources.getDrawable(drawableRes);
   }
 
+  /**
+   * Returns a string representation of the integer using radix value {@link Character#MAX_RADIX}.
+   *
+   * @param i An integer to be converted to String.
+   */
+  public static String intToStringMaxRadix(int i) {
+    return Integer.toString(i, Character.MAX_RADIX);
+  }
+
   @Nullable
   private static String getSystemProperty(String name) {
     try {

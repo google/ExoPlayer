@@ -20,16 +20,13 @@ import static java.util.Collections.max;
 import static java.util.Collections.min;
 
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -56,16 +53,8 @@ public final class TrackSelectionOverride implements Bundleable {
   /** The indices of tracks in a {@link TrackGroup} to be selected. */
   public final ImmutableList<Integer> trackIndices;
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    FIELD_TRACK_GROUP,
-    FIELD_TRACKS,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_TRACK_GROUP = 0;
-  private static final int FIELD_TRACKS = 1;
+  private static final String FIELD_TRACK_GROUP = Util.intToStringMaxRadix(0);
+  private static final String FIELD_TRACKS = Util.intToStringMaxRadix(1);
 
   /**
    * Constructs an instance to force {@code trackIndex} in {@code trackGroup} to be selected.
@@ -120,21 +109,17 @@ public final class TrackSelectionOverride implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putBundle(keyForField(FIELD_TRACK_GROUP), mediaTrackGroup.toBundle());
-    bundle.putIntArray(keyForField(FIELD_TRACKS), Ints.toArray(trackIndices));
+    bundle.putBundle(FIELD_TRACK_GROUP, mediaTrackGroup.toBundle());
+    bundle.putIntArray(FIELD_TRACKS, Ints.toArray(trackIndices));
     return bundle;
   }
 
   /** Object that can restore {@code TrackSelectionOverride} from a {@link Bundle}. */
   public static final Creator<TrackSelectionOverride> CREATOR =
       bundle -> {
-        Bundle trackGroupBundle = checkNotNull(bundle.getBundle(keyForField(FIELD_TRACK_GROUP)));
+        Bundle trackGroupBundle = checkNotNull(bundle.getBundle(FIELD_TRACK_GROUP));
         TrackGroup mediaTrackGroup = TrackGroup.CREATOR.fromBundle(trackGroupBundle);
-        int[] tracks = checkNotNull(bundle.getIntArray(keyForField(FIELD_TRACKS)));
+        int[] tracks = checkNotNull(bundle.getIntArray(FIELD_TRACKS));
         return new TrackSelectionOverride(mediaTrackGroup, Ints.asList(tracks));
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

@@ -17,11 +17,9 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -31,10 +29,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1275,41 +1269,29 @@ public final class MediaItem implements Bundleable {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      FIELD_TARGET_OFFSET_MS,
-      FIELD_MIN_OFFSET_MS,
-      FIELD_MAX_OFFSET_MS,
-      FIELD_MIN_PLAYBACK_SPEED,
-      FIELD_MAX_PLAYBACK_SPEED
-    })
-    private @interface FieldNumber {}
-
-    private static final int FIELD_TARGET_OFFSET_MS = 0;
-    private static final int FIELD_MIN_OFFSET_MS = 1;
-    private static final int FIELD_MAX_OFFSET_MS = 2;
-    private static final int FIELD_MIN_PLAYBACK_SPEED = 3;
-    private static final int FIELD_MAX_PLAYBACK_SPEED = 4;
+    private static final String FIELD_TARGET_OFFSET_MS = Util.intToStringMaxRadix(0);
+    private static final String FIELD_MIN_OFFSET_MS = Util.intToStringMaxRadix(1);
+    private static final String FIELD_MAX_OFFSET_MS = Util.intToStringMaxRadix(2);
+    private static final String FIELD_MIN_PLAYBACK_SPEED = Util.intToStringMaxRadix(3);
+    private static final String FIELD_MAX_PLAYBACK_SPEED = Util.intToStringMaxRadix(4);
 
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       if (targetOffsetMs != UNSET.targetOffsetMs) {
-        bundle.putLong(keyForField(FIELD_TARGET_OFFSET_MS), targetOffsetMs);
+        bundle.putLong(FIELD_TARGET_OFFSET_MS, targetOffsetMs);
       }
       if (minOffsetMs != UNSET.minOffsetMs) {
-        bundle.putLong(keyForField(FIELD_MIN_OFFSET_MS), minOffsetMs);
+        bundle.putLong(FIELD_MIN_OFFSET_MS, minOffsetMs);
       }
       if (maxOffsetMs != UNSET.maxOffsetMs) {
-        bundle.putLong(keyForField(FIELD_MAX_OFFSET_MS), maxOffsetMs);
+        bundle.putLong(FIELD_MAX_OFFSET_MS, maxOffsetMs);
       }
       if (minPlaybackSpeed != UNSET.minPlaybackSpeed) {
-        bundle.putFloat(keyForField(FIELD_MIN_PLAYBACK_SPEED), minPlaybackSpeed);
+        bundle.putFloat(FIELD_MIN_PLAYBACK_SPEED, minPlaybackSpeed);
       }
       if (maxPlaybackSpeed != UNSET.maxPlaybackSpeed) {
-        bundle.putFloat(keyForField(FIELD_MAX_PLAYBACK_SPEED), maxPlaybackSpeed);
+        bundle.putFloat(FIELD_MAX_PLAYBACK_SPEED, maxPlaybackSpeed);
       }
       return bundle;
     }
@@ -1318,22 +1300,13 @@ public final class MediaItem implements Bundleable {
     public static final Creator<LiveConfiguration> CREATOR =
         bundle ->
             new LiveConfiguration(
-                bundle.getLong(
-                    keyForField(FIELD_TARGET_OFFSET_MS), /* defaultValue= */ UNSET.targetOffsetMs),
-                bundle.getLong(
-                    keyForField(FIELD_MIN_OFFSET_MS), /* defaultValue= */ UNSET.minOffsetMs),
-                bundle.getLong(
-                    keyForField(FIELD_MAX_OFFSET_MS), /* defaultValue= */ UNSET.maxOffsetMs),
+                bundle.getLong(FIELD_TARGET_OFFSET_MS, /* defaultValue= */ UNSET.targetOffsetMs),
+                bundle.getLong(FIELD_MIN_OFFSET_MS, /* defaultValue= */ UNSET.minOffsetMs),
+                bundle.getLong(FIELD_MAX_OFFSET_MS, /* defaultValue= */ UNSET.maxOffsetMs),
                 bundle.getFloat(
-                    keyForField(FIELD_MIN_PLAYBACK_SPEED),
-                    /* defaultValue= */ UNSET.minPlaybackSpeed),
+                    FIELD_MIN_PLAYBACK_SPEED, /* defaultValue= */ UNSET.minPlaybackSpeed),
                 bundle.getFloat(
-                    keyForField(FIELD_MAX_PLAYBACK_SPEED),
-                    /* defaultValue= */ UNSET.maxPlaybackSpeed));
-
-    private static String keyForField(@LiveConfiguration.FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
+                    FIELD_MAX_PLAYBACK_SPEED, /* defaultValue= */ UNSET.maxPlaybackSpeed));
   }
 
   /** Properties for a text track. */
@@ -1720,42 +1693,29 @@ public final class MediaItem implements Bundleable {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      FIELD_START_POSITION_MS,
-      FIELD_END_POSITION_MS,
-      FIELD_RELATIVE_TO_LIVE_WINDOW,
-      FIELD_RELATIVE_TO_DEFAULT_POSITION,
-      FIELD_STARTS_AT_KEY_FRAME
-    })
-    private @interface FieldNumber {}
-
-    private static final int FIELD_START_POSITION_MS = 0;
-    private static final int FIELD_END_POSITION_MS = 1;
-    private static final int FIELD_RELATIVE_TO_LIVE_WINDOW = 2;
-    private static final int FIELD_RELATIVE_TO_DEFAULT_POSITION = 3;
-    private static final int FIELD_STARTS_AT_KEY_FRAME = 4;
+    private static final String FIELD_START_POSITION_MS = Util.intToStringMaxRadix(0);
+    private static final String FIELD_END_POSITION_MS = Util.intToStringMaxRadix(1);
+    private static final String FIELD_RELATIVE_TO_LIVE_WINDOW = Util.intToStringMaxRadix(2);
+    private static final String FIELD_RELATIVE_TO_DEFAULT_POSITION = Util.intToStringMaxRadix(3);
+    private static final String FIELD_STARTS_AT_KEY_FRAME = Util.intToStringMaxRadix(4);
 
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       if (startPositionMs != UNSET.startPositionMs) {
-        bundle.putLong(keyForField(FIELD_START_POSITION_MS), startPositionMs);
+        bundle.putLong(FIELD_START_POSITION_MS, startPositionMs);
       }
       if (endPositionMs != UNSET.endPositionMs) {
-        bundle.putLong(keyForField(FIELD_END_POSITION_MS), endPositionMs);
+        bundle.putLong(FIELD_END_POSITION_MS, endPositionMs);
       }
       if (relativeToLiveWindow != UNSET.relativeToLiveWindow) {
-        bundle.putBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), relativeToLiveWindow);
+        bundle.putBoolean(FIELD_RELATIVE_TO_LIVE_WINDOW, relativeToLiveWindow);
       }
       if (relativeToDefaultPosition != UNSET.relativeToDefaultPosition) {
-        bundle.putBoolean(
-            keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), relativeToDefaultPosition);
+        bundle.putBoolean(FIELD_RELATIVE_TO_DEFAULT_POSITION, relativeToDefaultPosition);
       }
       if (startsAtKeyFrame != UNSET.startsAtKeyFrame) {
-        bundle.putBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), startsAtKeyFrame);
+        bundle.putBoolean(FIELD_STARTS_AT_KEY_FRAME, startsAtKeyFrame);
       }
       return bundle;
     }
@@ -1766,29 +1726,21 @@ public final class MediaItem implements Bundleable {
             new ClippingConfiguration.Builder()
                 .setStartPositionMs(
                     bundle.getLong(
-                        keyForField(FIELD_START_POSITION_MS),
-                        /* defaultValue= */ UNSET.startPositionMs))
+                        FIELD_START_POSITION_MS, /* defaultValue= */ UNSET.startPositionMs))
                 .setEndPositionMs(
-                    bundle.getLong(
-                        keyForField(FIELD_END_POSITION_MS),
-                        /* defaultValue= */ UNSET.endPositionMs))
+                    bundle.getLong(FIELD_END_POSITION_MS, /* defaultValue= */ UNSET.endPositionMs))
                 .setRelativeToLiveWindow(
                     bundle.getBoolean(
-                        keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW),
+                        FIELD_RELATIVE_TO_LIVE_WINDOW,
                         /* defaultValue= */ UNSET.relativeToLiveWindow))
                 .setRelativeToDefaultPosition(
                     bundle.getBoolean(
-                        keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION),
+                        FIELD_RELATIVE_TO_DEFAULT_POSITION,
                         /* defaultValue= */ UNSET.relativeToDefaultPosition))
                 .setStartsAtKeyFrame(
                     bundle.getBoolean(
-                        keyForField(FIELD_STARTS_AT_KEY_FRAME),
-                        /* defaultValue= */ UNSET.startsAtKeyFrame))
+                        FIELD_STARTS_AT_KEY_FRAME, /* defaultValue= */ UNSET.startsAtKeyFrame))
                 .buildClippingProperties();
-
-    private static String keyForField(@ClippingConfiguration.FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
   }
 
   /**
@@ -1906,27 +1858,21 @@ public final class MediaItem implements Bundleable {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({FIELD_MEDIA_URI, FIELD_SEARCH_QUERY, FIELD_EXTRAS})
-    private @interface FieldNumber {}
-
-    private static final int FIELD_MEDIA_URI = 0;
-    private static final int FIELD_SEARCH_QUERY = 1;
-    private static final int FIELD_EXTRAS = 2;
+    private static final String FIELD_MEDIA_URI = Util.intToStringMaxRadix(0);
+    private static final String FIELD_SEARCH_QUERY = Util.intToStringMaxRadix(1);
+    private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(2);
 
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       if (mediaUri != null) {
-        bundle.putParcelable(keyForField(FIELD_MEDIA_URI), mediaUri);
+        bundle.putParcelable(FIELD_MEDIA_URI, mediaUri);
       }
       if (searchQuery != null) {
-        bundle.putString(keyForField(FIELD_SEARCH_QUERY), searchQuery);
+        bundle.putString(FIELD_SEARCH_QUERY, searchQuery);
       }
       if (extras != null) {
-        bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+        bundle.putBundle(FIELD_EXTRAS, extras);
       }
       return bundle;
     }
@@ -1935,14 +1881,10 @@ public final class MediaItem implements Bundleable {
     public static final Creator<RequestMetadata> CREATOR =
         bundle ->
             new RequestMetadata.Builder()
-                .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
-                .setSearchQuery(bundle.getString(keyForField(FIELD_SEARCH_QUERY)))
-                .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)))
+                .setMediaUri(bundle.getParcelable(FIELD_MEDIA_URI))
+                .setSearchQuery(bundle.getString(FIELD_SEARCH_QUERY))
+                .setExtras(bundle.getBundle(FIELD_EXTRAS))
                 .build();
-
-    private static String keyForField(@RequestMetadata.FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
   }
 
   /**
@@ -2038,24 +1980,11 @@ public final class MediaItem implements Bundleable {
   }
 
   // Bundleable implementation.
-
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_MEDIA_ID,
-    FIELD_LIVE_CONFIGURATION,
-    FIELD_MEDIA_METADATA,
-    FIELD_CLIPPING_PROPERTIES,
-    FIELD_REQUEST_METADATA
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_MEDIA_ID = 0;
-  private static final int FIELD_LIVE_CONFIGURATION = 1;
-  private static final int FIELD_MEDIA_METADATA = 2;
-  private static final int FIELD_CLIPPING_PROPERTIES = 3;
-  private static final int FIELD_REQUEST_METADATA = 4;
+  private static final String FIELD_MEDIA_ID = Util.intToStringMaxRadix(0);
+  private static final String FIELD_LIVE_CONFIGURATION = Util.intToStringMaxRadix(1);
+  private static final String FIELD_MEDIA_METADATA = Util.intToStringMaxRadix(2);
+  private static final String FIELD_CLIPPING_PROPERTIES = Util.intToStringMaxRadix(3);
+  private static final String FIELD_REQUEST_METADATA = Util.intToStringMaxRadix(4);
 
   /**
    * {@inheritDoc}
@@ -2067,19 +1996,19 @@ public final class MediaItem implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     if (!mediaId.equals(DEFAULT_MEDIA_ID)) {
-      bundle.putString(keyForField(FIELD_MEDIA_ID), mediaId);
+      bundle.putString(FIELD_MEDIA_ID, mediaId);
     }
     if (!liveConfiguration.equals(LiveConfiguration.UNSET)) {
-      bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
+      bundle.putBundle(FIELD_LIVE_CONFIGURATION, liveConfiguration.toBundle());
     }
     if (!mediaMetadata.equals(MediaMetadata.EMPTY)) {
-      bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
+      bundle.putBundle(FIELD_MEDIA_METADATA, mediaMetadata.toBundle());
     }
     if (!clippingConfiguration.equals(ClippingConfiguration.UNSET)) {
-      bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingConfiguration.toBundle());
+      bundle.putBundle(FIELD_CLIPPING_PROPERTIES, clippingConfiguration.toBundle());
     }
     if (!requestMetadata.equals(RequestMetadata.EMPTY)) {
-      bundle.putBundle(keyForField(FIELD_REQUEST_METADATA), requestMetadata.toBundle());
+      bundle.putBundle(FIELD_REQUEST_METADATA, requestMetadata.toBundle());
     }
     return bundle;
   }
@@ -2093,31 +2022,29 @@ public final class MediaItem implements Bundleable {
 
   @SuppressWarnings("deprecation") // Unbundling to ClippingProperties while it still exists.
   private static MediaItem fromBundle(Bundle bundle) {
-    String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID), DEFAULT_MEDIA_ID));
-    @Nullable
-    Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
+    String mediaId = checkNotNull(bundle.getString(FIELD_MEDIA_ID, DEFAULT_MEDIA_ID));
+    @Nullable Bundle liveConfigurationBundle = bundle.getBundle(FIELD_LIVE_CONFIGURATION);
     LiveConfiguration liveConfiguration;
     if (liveConfigurationBundle == null) {
       liveConfiguration = LiveConfiguration.UNSET;
     } else {
       liveConfiguration = LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
     }
-    @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
+    @Nullable Bundle mediaMetadataBundle = bundle.getBundle(FIELD_MEDIA_METADATA);
     MediaMetadata mediaMetadata;
     if (mediaMetadataBundle == null) {
       mediaMetadata = MediaMetadata.EMPTY;
     } else {
       mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
     }
-    @Nullable
-    Bundle clippingConfigurationBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
+    @Nullable Bundle clippingConfigurationBundle = bundle.getBundle(FIELD_CLIPPING_PROPERTIES);
     ClippingProperties clippingConfiguration;
     if (clippingConfigurationBundle == null) {
       clippingConfiguration = ClippingProperties.UNSET;
     } else {
       clippingConfiguration = ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
     }
-    @Nullable Bundle requestMetadataBundle = bundle.getBundle(keyForField(FIELD_REQUEST_METADATA));
+    @Nullable Bundle requestMetadataBundle = bundle.getBundle(FIELD_REQUEST_METADATA);
     RequestMetadata requestMetadata;
     if (requestMetadataBundle == null) {
       requestMetadata = RequestMetadata.EMPTY;
@@ -2131,9 +2058,5 @@ public final class MediaItem implements Bundleable {
         liveConfiguration,
         mediaMetadata,
         requestMetadata);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

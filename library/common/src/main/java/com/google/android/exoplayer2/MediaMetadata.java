@@ -1095,183 +1095,142 @@ public final class MediaMetadata implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_TITLE,
-    FIELD_ARTIST,
-    FIELD_ALBUM_TITLE,
-    FIELD_ALBUM_ARTIST,
-    FIELD_DISPLAY_TITLE,
-    FIELD_SUBTITLE,
-    FIELD_DESCRIPTION,
-    FIELD_MEDIA_URI,
-    FIELD_USER_RATING,
-    FIELD_OVERALL_RATING,
-    FIELD_ARTWORK_DATA,
-    FIELD_ARTWORK_DATA_TYPE,
-    FIELD_ARTWORK_URI,
-    FIELD_TRACK_NUMBER,
-    FIELD_TOTAL_TRACK_COUNT,
-    FIELD_FOLDER_TYPE,
-    FIELD_IS_PLAYABLE,
-    FIELD_RECORDING_YEAR,
-    FIELD_RECORDING_MONTH,
-    FIELD_RECORDING_DAY,
-    FIELD_RELEASE_YEAR,
-    FIELD_RELEASE_MONTH,
-    FIELD_RELEASE_DAY,
-    FIELD_WRITER,
-    FIELD_COMPOSER,
-    FIELD_CONDUCTOR,
-    FIELD_DISC_NUMBER,
-    FIELD_TOTAL_DISC_COUNT,
-    FIELD_GENRE,
-    FIELD_COMPILATION,
-    FIELD_STATION,
-    FIELD_MEDIA_TYPE,
-    FIELD_IS_BROWSABLE,
-    FIELD_EXTRAS,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_TITLE = 0;
-  private static final int FIELD_ARTIST = 1;
-  private static final int FIELD_ALBUM_TITLE = 2;
-  private static final int FIELD_ALBUM_ARTIST = 3;
-  private static final int FIELD_DISPLAY_TITLE = 4;
-  private static final int FIELD_SUBTITLE = 5;
-  private static final int FIELD_DESCRIPTION = 6;
-  private static final int FIELD_MEDIA_URI = 7;
-  private static final int FIELD_USER_RATING = 8;
-  private static final int FIELD_OVERALL_RATING = 9;
-  private static final int FIELD_ARTWORK_DATA = 10;
-  private static final int FIELD_ARTWORK_URI = 11;
-  private static final int FIELD_TRACK_NUMBER = 12;
-  private static final int FIELD_TOTAL_TRACK_COUNT = 13;
-  private static final int FIELD_FOLDER_TYPE = 14;
-  private static final int FIELD_IS_PLAYABLE = 15;
-  private static final int FIELD_RECORDING_YEAR = 16;
-  private static final int FIELD_RECORDING_MONTH = 17;
-  private static final int FIELD_RECORDING_DAY = 18;
-  private static final int FIELD_RELEASE_YEAR = 19;
-  private static final int FIELD_RELEASE_MONTH = 20;
-  private static final int FIELD_RELEASE_DAY = 21;
-  private static final int FIELD_WRITER = 22;
-  private static final int FIELD_COMPOSER = 23;
-  private static final int FIELD_CONDUCTOR = 24;
-  private static final int FIELD_DISC_NUMBER = 25;
-  private static final int FIELD_TOTAL_DISC_COUNT = 26;
-  private static final int FIELD_GENRE = 27;
-  private static final int FIELD_COMPILATION = 28;
-  private static final int FIELD_ARTWORK_DATA_TYPE = 29;
-  private static final int FIELD_STATION = 30;
-  private static final int FIELD_MEDIA_TYPE = 31;
-  private static final int FIELD_IS_BROWSABLE = 32;
-  private static final int FIELD_EXTRAS = 1000;
+  private static final String FIELD_TITLE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_ARTIST = Util.intToStringMaxRadix(1);
+  private static final String FIELD_ALBUM_TITLE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_ALBUM_ARTIST = Util.intToStringMaxRadix(3);
+  private static final String FIELD_DISPLAY_TITLE = Util.intToStringMaxRadix(4);
+  private static final String FIELD_SUBTITLE = Util.intToStringMaxRadix(5);
+  private static final String FIELD_DESCRIPTION = Util.intToStringMaxRadix(6);
+  // 7 is reserved to maintain backward compatibility for a previously defined field.
+  private static final String FIELD_USER_RATING = Util.intToStringMaxRadix(8);
+  private static final String FIELD_OVERALL_RATING = Util.intToStringMaxRadix(9);
+  private static final String FIELD_ARTWORK_DATA = Util.intToStringMaxRadix(10);
+  private static final String FIELD_ARTWORK_URI = Util.intToStringMaxRadix(11);
+  private static final String FIELD_TRACK_NUMBER = Util.intToStringMaxRadix(12);
+  private static final String FIELD_TOTAL_TRACK_COUNT = Util.intToStringMaxRadix(13);
+  private static final String FIELD_FOLDER_TYPE = Util.intToStringMaxRadix(14);
+  private static final String FIELD_IS_PLAYABLE = Util.intToStringMaxRadix(15);
+  private static final String FIELD_RECORDING_YEAR = Util.intToStringMaxRadix(16);
+  private static final String FIELD_RECORDING_MONTH = Util.intToStringMaxRadix(17);
+  private static final String FIELD_RECORDING_DAY = Util.intToStringMaxRadix(18);
+  private static final String FIELD_RELEASE_YEAR = Util.intToStringMaxRadix(19);
+  private static final String FIELD_RELEASE_MONTH = Util.intToStringMaxRadix(20);
+  private static final String FIELD_RELEASE_DAY = Util.intToStringMaxRadix(21);
+  private static final String FIELD_WRITER = Util.intToStringMaxRadix(22);
+  private static final String FIELD_COMPOSER = Util.intToStringMaxRadix(23);
+  private static final String FIELD_CONDUCTOR = Util.intToStringMaxRadix(24);
+  private static final String FIELD_DISC_NUMBER = Util.intToStringMaxRadix(25);
+  private static final String FIELD_TOTAL_DISC_COUNT = Util.intToStringMaxRadix(26);
+  private static final String FIELD_GENRE = Util.intToStringMaxRadix(27);
+  private static final String FIELD_COMPILATION = Util.intToStringMaxRadix(28);
+  private static final String FIELD_ARTWORK_DATA_TYPE = Util.intToStringMaxRadix(29);
+  private static final String FIELD_STATION = Util.intToStringMaxRadix(30);
+  private static final String FIELD_MEDIA_TYPE = Util.intToStringMaxRadix(31);
+  private static final String FIELD_IS_BROWSABLE = Util.intToStringMaxRadix(32);
+  private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(1000);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     if (title != null) {
-      bundle.putCharSequence(keyForField(FIELD_TITLE), title);
+      bundle.putCharSequence(FIELD_TITLE, title);
     }
     if (artist != null) {
-      bundle.putCharSequence(keyForField(FIELD_ARTIST), artist);
+      bundle.putCharSequence(FIELD_ARTIST, artist);
     }
     if (albumTitle != null) {
-      bundle.putCharSequence(keyForField(FIELD_ALBUM_TITLE), albumTitle);
+      bundle.putCharSequence(FIELD_ALBUM_TITLE, albumTitle);
     }
     if (albumArtist != null) {
-      bundle.putCharSequence(keyForField(FIELD_ALBUM_ARTIST), albumArtist);
+      bundle.putCharSequence(FIELD_ALBUM_ARTIST, albumArtist);
     }
     if (displayTitle != null) {
-      bundle.putCharSequence(keyForField(FIELD_DISPLAY_TITLE), displayTitle);
+      bundle.putCharSequence(FIELD_DISPLAY_TITLE, displayTitle);
     }
     if (subtitle != null) {
-      bundle.putCharSequence(keyForField(FIELD_SUBTITLE), subtitle);
+      bundle.putCharSequence(FIELD_SUBTITLE, subtitle);
     }
     if (description != null) {
-      bundle.putCharSequence(keyForField(FIELD_DESCRIPTION), description);
+      bundle.putCharSequence(FIELD_DESCRIPTION, description);
     }
     if (artworkData != null) {
-      bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
+      bundle.putByteArray(FIELD_ARTWORK_DATA, artworkData);
     }
     if (artworkUri != null) {
-      bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
+      bundle.putParcelable(FIELD_ARTWORK_URI, artworkUri);
     }
     if (writer != null) {
-      bundle.putCharSequence(keyForField(FIELD_WRITER), writer);
+      bundle.putCharSequence(FIELD_WRITER, writer);
     }
     if (composer != null) {
-      bundle.putCharSequence(keyForField(FIELD_COMPOSER), composer);
+      bundle.putCharSequence(FIELD_COMPOSER, composer);
     }
     if (conductor != null) {
-      bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
+      bundle.putCharSequence(FIELD_CONDUCTOR, conductor);
     }
     if (genre != null) {
-      bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
+      bundle.putCharSequence(FIELD_GENRE, genre);
     }
     if (compilation != null) {
-      bundle.putCharSequence(keyForField(FIELD_COMPILATION), compilation);
+      bundle.putCharSequence(FIELD_COMPILATION, compilation);
     }
     if (station != null) {
-      bundle.putCharSequence(keyForField(FIELD_STATION), station);
+      bundle.putCharSequence(FIELD_STATION, station);
     }
     if (userRating != null) {
-      bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
+      bundle.putBundle(FIELD_USER_RATING, userRating.toBundle());
     }
     if (overallRating != null) {
-      bundle.putBundle(keyForField(FIELD_OVERALL_RATING), overallRating.toBundle());
+      bundle.putBundle(FIELD_OVERALL_RATING, overallRating.toBundle());
     }
     if (trackNumber != null) {
-      bundle.putInt(keyForField(FIELD_TRACK_NUMBER), trackNumber);
+      bundle.putInt(FIELD_TRACK_NUMBER, trackNumber);
     }
     if (totalTrackCount != null) {
-      bundle.putInt(keyForField(FIELD_TOTAL_TRACK_COUNT), totalTrackCount);
+      bundle.putInt(FIELD_TOTAL_TRACK_COUNT, totalTrackCount);
     }
     if (folderType != null) {
-      bundle.putInt(keyForField(FIELD_FOLDER_TYPE), folderType);
+      bundle.putInt(FIELD_FOLDER_TYPE, folderType);
     }
     if (isBrowsable != null) {
-      bundle.putBoolean(keyForField(FIELD_IS_BROWSABLE), isBrowsable);
+      bundle.putBoolean(FIELD_IS_BROWSABLE, isBrowsable);
     }
     if (isPlayable != null) {
-      bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
+      bundle.putBoolean(FIELD_IS_PLAYABLE, isPlayable);
     }
     if (recordingYear != null) {
-      bundle.putInt(keyForField(FIELD_RECORDING_YEAR), recordingYear);
+      bundle.putInt(FIELD_RECORDING_YEAR, recordingYear);
     }
     if (recordingMonth != null) {
-      bundle.putInt(keyForField(FIELD_RECORDING_MONTH), recordingMonth);
+      bundle.putInt(FIELD_RECORDING_MONTH, recordingMonth);
     }
     if (recordingDay != null) {
-      bundle.putInt(keyForField(FIELD_RECORDING_DAY), recordingDay);
+      bundle.putInt(FIELD_RECORDING_DAY, recordingDay);
     }
     if (releaseYear != null) {
-      bundle.putInt(keyForField(FIELD_RELEASE_YEAR), releaseYear);
+      bundle.putInt(FIELD_RELEASE_YEAR, releaseYear);
     }
     if (releaseMonth != null) {
-      bundle.putInt(keyForField(FIELD_RELEASE_MONTH), releaseMonth);
+      bundle.putInt(FIELD_RELEASE_MONTH, releaseMonth);
     }
     if (releaseDay != null) {
-      bundle.putInt(keyForField(FIELD_RELEASE_DAY), releaseDay);
+      bundle.putInt(FIELD_RELEASE_DAY, releaseDay);
     }
     if (discNumber != null) {
-      bundle.putInt(keyForField(FIELD_DISC_NUMBER), discNumber);
+      bundle.putInt(FIELD_DISC_NUMBER, discNumber);
     }
     if (totalDiscCount != null) {
-      bundle.putInt(keyForField(FIELD_TOTAL_DISC_COUNT), totalDiscCount);
+      bundle.putInt(FIELD_TOTAL_DISC_COUNT, totalDiscCount);
     }
     if (artworkDataType != null) {
-      bundle.putInt(keyForField(FIELD_ARTWORK_DATA_TYPE), artworkDataType);
+      bundle.putInt(FIELD_ARTWORK_DATA_TYPE, artworkDataType);
     }
     if (mediaType != null) {
-      bundle.putInt(keyForField(FIELD_MEDIA_TYPE), mediaType);
+      bundle.putInt(FIELD_MEDIA_TYPE, mediaType);
     }
     if (extras != null) {
-      bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+      bundle.putBundle(FIELD_EXTRAS, extras);
     }
     return bundle;
   }
@@ -1282,87 +1241,83 @@ public final class MediaMetadata implements Bundleable {
   private static MediaMetadata fromBundle(Bundle bundle) {
     Builder builder = new Builder();
     builder
-        .setTitle(bundle.getCharSequence(keyForField(FIELD_TITLE)))
-        .setArtist(bundle.getCharSequence(keyForField(FIELD_ARTIST)))
-        .setAlbumTitle(bundle.getCharSequence(keyForField(FIELD_ALBUM_TITLE)))
-        .setAlbumArtist(bundle.getCharSequence(keyForField(FIELD_ALBUM_ARTIST)))
-        .setDisplayTitle(bundle.getCharSequence(keyForField(FIELD_DISPLAY_TITLE)))
-        .setSubtitle(bundle.getCharSequence(keyForField(FIELD_SUBTITLE)))
-        .setDescription(bundle.getCharSequence(keyForField(FIELD_DESCRIPTION)))
+        .setTitle(bundle.getCharSequence(FIELD_TITLE))
+        .setArtist(bundle.getCharSequence(FIELD_ARTIST))
+        .setAlbumTitle(bundle.getCharSequence(FIELD_ALBUM_TITLE))
+        .setAlbumArtist(bundle.getCharSequence(FIELD_ALBUM_ARTIST))
+        .setDisplayTitle(bundle.getCharSequence(FIELD_DISPLAY_TITLE))
+        .setSubtitle(bundle.getCharSequence(FIELD_SUBTITLE))
+        .setDescription(bundle.getCharSequence(FIELD_DESCRIPTION))
         .setArtworkData(
-            bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)),
-            bundle.containsKey(keyForField(FIELD_ARTWORK_DATA_TYPE))
-                ? bundle.getInt(keyForField(FIELD_ARTWORK_DATA_TYPE))
+            bundle.getByteArray(FIELD_ARTWORK_DATA),
+            bundle.containsKey(FIELD_ARTWORK_DATA_TYPE)
+                ? bundle.getInt(FIELD_ARTWORK_DATA_TYPE)
                 : null)
-        .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)))
-        .setWriter(bundle.getCharSequence(keyForField(FIELD_WRITER)))
-        .setComposer(bundle.getCharSequence(keyForField(FIELD_COMPOSER)))
-        .setConductor(bundle.getCharSequence(keyForField(FIELD_CONDUCTOR)))
-        .setGenre(bundle.getCharSequence(keyForField(FIELD_GENRE)))
-        .setCompilation(bundle.getCharSequence(keyForField(FIELD_COMPILATION)))
-        .setStation(bundle.getCharSequence(keyForField(FIELD_STATION)))
-        .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
+        .setArtworkUri(bundle.getParcelable(FIELD_ARTWORK_URI))
+        .setWriter(bundle.getCharSequence(FIELD_WRITER))
+        .setComposer(bundle.getCharSequence(FIELD_COMPOSER))
+        .setConductor(bundle.getCharSequence(FIELD_CONDUCTOR))
+        .setGenre(bundle.getCharSequence(FIELD_GENRE))
+        .setCompilation(bundle.getCharSequence(FIELD_COMPILATION))
+        .setStation(bundle.getCharSequence(FIELD_STATION))
+        .setExtras(bundle.getBundle(FIELD_EXTRAS));
 
-    if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {
-      @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_USER_RATING));
+    if (bundle.containsKey(FIELD_USER_RATING)) {
+      @Nullable Bundle fieldBundle = bundle.getBundle(FIELD_USER_RATING);
       if (fieldBundle != null) {
         builder.setUserRating(Rating.CREATOR.fromBundle(fieldBundle));
       }
     }
-    if (bundle.containsKey(keyForField(FIELD_OVERALL_RATING))) {
-      @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_OVERALL_RATING));
+    if (bundle.containsKey(FIELD_OVERALL_RATING)) {
+      @Nullable Bundle fieldBundle = bundle.getBundle(FIELD_OVERALL_RATING);
       if (fieldBundle != null) {
         builder.setOverallRating(Rating.CREATOR.fromBundle(fieldBundle));
       }
     }
-    if (bundle.containsKey(keyForField(FIELD_TRACK_NUMBER))) {
-      builder.setTrackNumber(bundle.getInt(keyForField(FIELD_TRACK_NUMBER)));
+    if (bundle.containsKey(FIELD_TRACK_NUMBER)) {
+      builder.setTrackNumber(bundle.getInt(FIELD_TRACK_NUMBER));
     }
-    if (bundle.containsKey(keyForField(FIELD_TOTAL_TRACK_COUNT))) {
-      builder.setTotalTrackCount(bundle.getInt(keyForField(FIELD_TOTAL_TRACK_COUNT)));
+    if (bundle.containsKey(FIELD_TOTAL_TRACK_COUNT)) {
+      builder.setTotalTrackCount(bundle.getInt(FIELD_TOTAL_TRACK_COUNT));
     }
-    if (bundle.containsKey(keyForField(FIELD_FOLDER_TYPE))) {
-      builder.setFolderType(bundle.getInt(keyForField(FIELD_FOLDER_TYPE)));
+    if (bundle.containsKey(FIELD_FOLDER_TYPE)) {
+      builder.setFolderType(bundle.getInt(FIELD_FOLDER_TYPE));
     }
-    if (bundle.containsKey(keyForField(FIELD_IS_BROWSABLE))) {
-      builder.setIsBrowsable(bundle.getBoolean(keyForField(FIELD_IS_BROWSABLE)));
+    if (bundle.containsKey(FIELD_IS_BROWSABLE)) {
+      builder.setIsBrowsable(bundle.getBoolean(FIELD_IS_BROWSABLE));
     }
-    if (bundle.containsKey(keyForField(FIELD_IS_PLAYABLE))) {
-      builder.setIsPlayable(bundle.getBoolean(keyForField(FIELD_IS_PLAYABLE)));
+    if (bundle.containsKey(FIELD_IS_PLAYABLE)) {
+      builder.setIsPlayable(bundle.getBoolean(FIELD_IS_PLAYABLE));
     }
-    if (bundle.containsKey(keyForField(FIELD_RECORDING_YEAR))) {
-      builder.setRecordingYear(bundle.getInt(keyForField(FIELD_RECORDING_YEAR)));
+    if (bundle.containsKey(FIELD_RECORDING_YEAR)) {
+      builder.setRecordingYear(bundle.getInt(FIELD_RECORDING_YEAR));
     }
-    if (bundle.containsKey(keyForField(FIELD_RECORDING_MONTH))) {
-      builder.setRecordingMonth(bundle.getInt(keyForField(FIELD_RECORDING_MONTH)));
+    if (bundle.containsKey(FIELD_RECORDING_MONTH)) {
+      builder.setRecordingMonth(bundle.getInt(FIELD_RECORDING_MONTH));
     }
-    if (bundle.containsKey(keyForField(FIELD_RECORDING_DAY))) {
-      builder.setRecordingDay(bundle.getInt(keyForField(FIELD_RECORDING_DAY)));
+    if (bundle.containsKey(FIELD_RECORDING_DAY)) {
+      builder.setRecordingDay(bundle.getInt(FIELD_RECORDING_DAY));
     }
-    if (bundle.containsKey(keyForField(FIELD_RELEASE_YEAR))) {
-      builder.setReleaseYear(bundle.getInt(keyForField(FIELD_RELEASE_YEAR)));
+    if (bundle.containsKey(FIELD_RELEASE_YEAR)) {
+      builder.setReleaseYear(bundle.getInt(FIELD_RELEASE_YEAR));
     }
-    if (bundle.containsKey(keyForField(FIELD_RELEASE_MONTH))) {
-      builder.setReleaseMonth(bundle.getInt(keyForField(FIELD_RELEASE_MONTH)));
+    if (bundle.containsKey(FIELD_RELEASE_MONTH)) {
+      builder.setReleaseMonth(bundle.getInt(FIELD_RELEASE_MONTH));
     }
-    if (bundle.containsKey(keyForField(FIELD_RELEASE_DAY))) {
-      builder.setReleaseDay(bundle.getInt(keyForField(FIELD_RELEASE_DAY)));
+    if (bundle.containsKey(FIELD_RELEASE_DAY)) {
+      builder.setReleaseDay(bundle.getInt(FIELD_RELEASE_DAY));
     }
-    if (bundle.containsKey(keyForField(FIELD_DISC_NUMBER))) {
-      builder.setDiscNumber(bundle.getInt(keyForField(FIELD_DISC_NUMBER)));
+    if (bundle.containsKey(FIELD_DISC_NUMBER)) {
+      builder.setDiscNumber(bundle.getInt(FIELD_DISC_NUMBER));
     }
-    if (bundle.containsKey(keyForField(FIELD_TOTAL_DISC_COUNT))) {
-      builder.setTotalDiscCount(bundle.getInt(keyForField(FIELD_TOTAL_DISC_COUNT)));
+    if (bundle.containsKey(FIELD_TOTAL_DISC_COUNT)) {
+      builder.setTotalDiscCount(bundle.getInt(FIELD_TOTAL_DISC_COUNT));
     }
-    if (bundle.containsKey(keyForField(FIELD_MEDIA_TYPE))) {
-      builder.setMediaType(bundle.getInt(keyForField(FIELD_MEDIA_TYPE)));
+    if (bundle.containsKey(FIELD_MEDIA_TYPE)) {
+      builder.setMediaType(bundle.getInt(FIELD_MEDIA_TYPE));
     }
 
     return builder.build();
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 
   private static @FolderType int getFolderTypeFromMediaType(@MediaType int mediaType) {
