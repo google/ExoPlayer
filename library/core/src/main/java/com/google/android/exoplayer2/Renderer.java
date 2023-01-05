@@ -208,7 +208,7 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * The type of a message that can be passed to a video renderer to set the desired output
    * resolution. The message payload should be a {@link Size} of the desired output width and
-   * height. Use this method only when playing with video {@link Effect}.
+   * height. Use this method only when playing with video {@linkplain Effect effects}.
    */
   int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 13;
   /**

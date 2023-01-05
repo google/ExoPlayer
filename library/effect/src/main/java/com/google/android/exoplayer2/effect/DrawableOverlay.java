@@ -35,7 +35,7 @@ public abstract class DrawableOverlay extends BitmapOverlay {
   /**
    * Returns the overlay {@link Drawable} displayed at the specified timestamp.
    *
-   * <p>The drawable must have it's bounds set via {@link Drawable#setBounds} for drawable to be
+   * <p>The drawable must have its bounds set via {@link Drawable#setBounds} for drawable to be
    * displayed on the frame.
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.

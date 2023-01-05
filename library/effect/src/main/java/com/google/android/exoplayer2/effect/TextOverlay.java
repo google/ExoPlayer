@@ -32,9 +32,46 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * Creates a {@link TextureOverlay} from text.
  *
- * <p>Uses a {@link SpannableString} store the text and support advanced per-character text styling.
+ * <p>Uses a {@link SpannableString} to store the text and support advanced per-character text
+ * styling.
  */
 public abstract class TextOverlay extends BitmapOverlay {
+
+  /**
+   * Creates a {@link TextOverlay} that shows the {@code overlayText} with the same default settings
+   * in {@link OverlaySettings} throughout the whole video.
+   */
+  public static TextOverlay createStaticTextOverlay(SpannableString overlayText) {
+    return new TextOverlay() {
+      @Override
+      public SpannableString getText(long presentationTimeUs) {
+        return overlayText;
+      }
+    };
+  }
+
+  /**
+   * Creates a {@link TextOverlay} that shows the {@code overlayText} with the same {@link
+   * OverlaySettings} throughout the whole video.
+   *
+   * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
+   *     the frames.
+   */
+  public static TextOverlay createStaticTextOverlay(
+      SpannableString overlayText, OverlaySettings overlaySettings) {
+    return new TextOverlay() {
+      @Override
+      public SpannableString getText(long presentationTimeUs) {
+        return overlayText;
+      }
+
+      @Override
+      public OverlaySettings getOverlaySettings(long presentationTimeUs) {
+        return overlaySettings;
+      }
+    };
+  }
+
   public static final int TEXT_SIZE_PIXELS = 100;
 
   private @MonotonicNonNull Bitmap lastBitmap;
@@ -77,41 +114,6 @@ public abstract class TextOverlay extends BitmapOverlay {
       staticLayout.draw(canvas);
     }
     return checkNotNull(lastBitmap);
-  }
-
-  /**
-   * Creates a {@link TextOverlay} that shows the {@code overlayText} with the same default settings
-   * in {@link OverlaySettings} throughout the whole video.
-   */
-  public static TextOverlay createStaticTextOverlay(SpannableString overlayText) {
-    return new TextOverlay() {
-      @Override
-      public SpannableString getText(long presentationTimeUs) {
-        return overlayText;
-      }
-    };
-  }
-
-  /**
-   * Creates a {@link TextOverlay} that shows the {@code overlayText} with the same {@link
-   * OverlaySettings} throughout the whole video.
-   *
-   * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
-   *     the frames.
-   */
-  public static TextOverlay createStaticTextOverlay(
-      SpannableString overlayText, OverlaySettings overlaySettings) {
-    return new TextOverlay() {
-      @Override
-      public SpannableString getText(long presentationTimeUs) {
-        return overlayText;
-      }
-
-      @Override
-      public OverlaySettings getOverlaySettings(long presentationTimeUs) {
-        return overlaySettings;
-      }
-    };
   }
 
   @RequiresApi(23)
