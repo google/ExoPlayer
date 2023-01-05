@@ -17,20 +17,15 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.List;
 
 /**
@@ -201,38 +196,25 @@ public final class CommandButton implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_SESSION_COMMAND,
-    FIELD_PLAYER_COMMAND,
-    FIELD_ICON_RES_ID,
-    FIELD_DISPLAY_NAME,
-    FIELD_EXTRAS,
-    FIELD_ENABLED
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_SESSION_COMMAND = 0;
-  private static final int FIELD_PLAYER_COMMAND = 1;
-  private static final int FIELD_ICON_RES_ID = 2;
-  private static final int FIELD_DISPLAY_NAME = 3;
-  private static final int FIELD_EXTRAS = 4;
-  private static final int FIELD_ENABLED = 5;
+  private static final String FIELD_SESSION_COMMAND = Util.intToStringMaxRadix(0);
+  private static final String FIELD_PLAYER_COMMAND = Util.intToStringMaxRadix(1);
+  private static final String FIELD_ICON_RES_ID = Util.intToStringMaxRadix(2);
+  private static final String FIELD_DISPLAY_NAME = Util.intToStringMaxRadix(3);
+  private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(4);
+  private static final String FIELD_ENABLED = Util.intToStringMaxRadix(5);
 
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     if (sessionCommand != null) {
-      bundle.putBundle(keyForField(FIELD_SESSION_COMMAND), sessionCommand.toBundle());
+      bundle.putBundle(FIELD_SESSION_COMMAND, sessionCommand.toBundle());
     }
-    bundle.putInt(keyForField(FIELD_PLAYER_COMMAND), playerCommand);
-    bundle.putInt(keyForField(FIELD_ICON_RES_ID), iconResId);
-    bundle.putCharSequence(keyForField(FIELD_DISPLAY_NAME), displayName);
-    bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
-    bundle.putBoolean(keyForField(FIELD_ENABLED), isEnabled);
+    bundle.putInt(FIELD_PLAYER_COMMAND, playerCommand);
+    bundle.putInt(FIELD_ICON_RES_ID, iconResId);
+    bundle.putCharSequence(FIELD_DISPLAY_NAME, displayName);
+    bundle.putBundle(FIELD_EXTRAS, extras);
+    bundle.putBoolean(FIELD_ENABLED, isEnabled);
     return bundle;
   }
 
@@ -240,7 +222,7 @@ public final class CommandButton implements Bundleable {
   @UnstableApi public static final Creator<CommandButton> CREATOR = CommandButton::fromBundle;
 
   private static CommandButton fromBundle(Bundle bundle) {
-    @Nullable Bundle sessionCommandBundle = bundle.getBundle(keyForField(FIELD_SESSION_COMMAND));
+    @Nullable Bundle sessionCommandBundle = bundle.getBundle(FIELD_SESSION_COMMAND);
     @Nullable
     SessionCommand sessionCommand =
         sessionCommandBundle == null
@@ -248,13 +230,11 @@ public final class CommandButton implements Bundleable {
             : SessionCommand.CREATOR.fromBundle(sessionCommandBundle);
     @Player.Command
     int playerCommand =
-        bundle.getInt(
-            keyForField(FIELD_PLAYER_COMMAND), /* defaultValue= */ Player.COMMAND_INVALID);
-    int iconResId = bundle.getInt(keyForField(FIELD_ICON_RES_ID), /* defaultValue= */ 0);
-    CharSequence displayName =
-        bundle.getCharSequence(keyForField(FIELD_DISPLAY_NAME), /* defaultValue= */ "");
-    @Nullable Bundle extras = bundle.getBundle(keyForField(FIELD_EXTRAS));
-    boolean enabled = bundle.getBoolean(keyForField(FIELD_ENABLED), /* defaultValue= */ false);
+        bundle.getInt(FIELD_PLAYER_COMMAND, /* defaultValue= */ Player.COMMAND_INVALID);
+    int iconResId = bundle.getInt(FIELD_ICON_RES_ID, /* defaultValue= */ 0);
+    CharSequence displayName = bundle.getCharSequence(FIELD_DISPLAY_NAME, /* defaultValue= */ "");
+    @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
+    boolean enabled = bundle.getBoolean(FIELD_ENABLED, /* defaultValue= */ false);
     Builder builder = new Builder();
     if (sessionCommand != null) {
       builder.setSessionCommand(sessionCommand);
@@ -268,9 +248,5 @@ public final class CommandButton implements Bundleable {
         .setExtras(extras == null ? Bundle.EMPTY : extras)
         .setEnabled(enabled)
         .build();
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

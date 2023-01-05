@@ -34,6 +34,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -262,23 +263,11 @@ public final class LibraryResult<V> implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_RESULT_CODE,
-    FIELD_COMPLETION_TIME_MS,
-    FIELD_PARAMS,
-    FIELD_VALUE,
-    FIELD_VALUE_TYPE
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_RESULT_CODE = 0;
-  private static final int FIELD_COMPLETION_TIME_MS = 1;
-  private static final int FIELD_PARAMS = 2;
-  private static final int FIELD_VALUE = 3;
-  private static final int FIELD_VALUE_TYPE = 4;
+  private static final String FIELD_RESULT_CODE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_COMPLETION_TIME_MS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_PARAMS = Util.intToStringMaxRadix(2);
+  private static final String FIELD_VALUE = Util.intToStringMaxRadix(3);
+  private static final String FIELD_VALUE_TYPE = Util.intToStringMaxRadix(4);
 
   // Casting V to ImmutableList<MediaItem> is safe if valueType == VALUE_TYPE_ITEM_LIST.
   @SuppressWarnings("unchecked")
@@ -286,24 +275,24 @@ public final class LibraryResult<V> implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_RESULT_CODE), resultCode);
-    bundle.putLong(keyForField(FIELD_COMPLETION_TIME_MS), completionTimeMs);
+    bundle.putInt(FIELD_RESULT_CODE, resultCode);
+    bundle.putLong(FIELD_COMPLETION_TIME_MS, completionTimeMs);
     if (params != null) {
-      bundle.putBundle(keyForField(FIELD_PARAMS), params.toBundle());
+      bundle.putBundle(FIELD_PARAMS, params.toBundle());
     }
-    bundle.putInt(keyForField(FIELD_VALUE_TYPE), valueType);
+    bundle.putInt(FIELD_VALUE_TYPE, valueType);
 
     if (value == null) {
       return bundle;
     }
     switch (valueType) {
       case VALUE_TYPE_ITEM:
-        bundle.putBundle(keyForField(FIELD_VALUE), ((MediaItem) value).toBundle());
+        bundle.putBundle(FIELD_VALUE, ((MediaItem) value).toBundle());
         break;
       case VALUE_TYPE_ITEM_LIST:
         BundleCompat.putBinder(
             bundle,
-            keyForField(FIELD_VALUE),
+            FIELD_VALUE,
             new BundleListRetriever(BundleableUtil.toBundleList((ImmutableList<MediaItem>) value)));
         break;
       case VALUE_TYPE_VOID:
@@ -367,27 +356,24 @@ public final class LibraryResult<V> implements Bundleable {
    */
   private static LibraryResult<?> fromBundle(
       Bundle bundle, @Nullable @ValueType Integer expectedType) {
-    int resultCode =
-        bundle.getInt(keyForField(FIELD_RESULT_CODE), /* defaultValue= */ RESULT_SUCCESS);
+    int resultCode = bundle.getInt(FIELD_RESULT_CODE, /* defaultValue= */ RESULT_SUCCESS);
     long completionTimeMs =
-        bundle.getLong(
-            keyForField(FIELD_COMPLETION_TIME_MS),
-            /* defaultValue= */ SystemClock.elapsedRealtime());
-    @Nullable Bundle paramsBundle = bundle.getBundle(keyForField(FIELD_PARAMS));
+        bundle.getLong(FIELD_COMPLETION_TIME_MS, /* defaultValue= */ SystemClock.elapsedRealtime());
+    @Nullable Bundle paramsBundle = bundle.getBundle(FIELD_PARAMS);
     @Nullable
     MediaLibraryService.LibraryParams params =
         paramsBundle == null ? null : LibraryParams.CREATOR.fromBundle(paramsBundle);
-    @ValueType int valueType = bundle.getInt(keyForField(FIELD_VALUE_TYPE));
+    @ValueType int valueType = bundle.getInt(FIELD_VALUE_TYPE);
     @Nullable Object value;
     switch (valueType) {
       case VALUE_TYPE_ITEM:
         checkState(expectedType == null || expectedType == VALUE_TYPE_ITEM);
-        @Nullable Bundle valueBundle = bundle.getBundle(keyForField(FIELD_VALUE));
+        @Nullable Bundle valueBundle = bundle.getBundle(FIELD_VALUE);
         value = valueBundle == null ? null : MediaItem.CREATOR.fromBundle(valueBundle);
         break;
       case VALUE_TYPE_ITEM_LIST:
         checkState(expectedType == null || expectedType == VALUE_TYPE_ITEM_LIST);
-        @Nullable IBinder valueRetriever = BundleCompat.getBinder(bundle, keyForField(FIELD_VALUE));
+        @Nullable IBinder valueRetriever = BundleCompat.getBinder(bundle, FIELD_VALUE);
         value =
             valueRetriever == null
                 ? null
@@ -403,10 +389,6 @@ public final class LibraryResult<V> implements Bundleable {
     }
 
     return new LibraryResult<>(resultCode, completionTimeMs, params, value, VALUE_TYPE_ITEM_LIST);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 
   @Documented

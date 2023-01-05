@@ -41,6 +41,7 @@ import androidx.media3.common.Bundleable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -153,9 +154,9 @@ public final class SessionToken implements Bundleable {
   }
 
   private SessionToken(Bundle bundle) {
-    checkArgument(bundle.containsKey(keyForField(FIELD_IMPL_TYPE)), "Impl type needs to be set.");
-    @SessionTokenImplType int implType = bundle.getInt(keyForField(FIELD_IMPL_TYPE));
-    Bundle implBundle = checkNotNull(bundle.getBundle(keyForField(FIELD_IMPL)));
+    checkArgument(bundle.containsKey(FIELD_IMPL_TYPE), "Impl type needs to be set.");
+    @SessionTokenImplType int implType = bundle.getInt(FIELD_IMPL_TYPE);
+    Bundle implBundle = checkNotNull(bundle.getBundle(FIELD_IMPL));
     if (implType == IMPL_TYPE_BASE) {
       impl = SessionTokenImplBase.CREATOR.fromBundle(implBundle);
     } else {
@@ -481,14 +482,8 @@ public final class SessionToken implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_IMPL_TYPE, FIELD_IMPL})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_IMPL_TYPE = 0;
-  private static final int FIELD_IMPL = 1;
+  private static final String FIELD_IMPL_TYPE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_IMPL = Util.intToStringMaxRadix(1);
 
   /** Types of {@link SessionTokenImpl} */
   @Documented
@@ -505,11 +500,11 @@ public final class SessionToken implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     if (impl instanceof SessionTokenImplBase) {
-      bundle.putInt(keyForField(FIELD_IMPL_TYPE), IMPL_TYPE_BASE);
+      bundle.putInt(FIELD_IMPL_TYPE, IMPL_TYPE_BASE);
     } else {
-      bundle.putInt(keyForField(FIELD_IMPL_TYPE), IMPL_TYPE_LEGACY);
+      bundle.putInt(FIELD_IMPL_TYPE, IMPL_TYPE_LEGACY);
     }
-    bundle.putBundle(keyForField(FIELD_IMPL), impl.toBundle());
+    bundle.putBundle(FIELD_IMPL, impl.toBundle());
     return bundle;
   }
 
@@ -518,9 +513,5 @@ public final class SessionToken implements Bundleable {
 
   private static SessionToken fromBundle(Bundle bundle) {
     return new SessionToken(bundle);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

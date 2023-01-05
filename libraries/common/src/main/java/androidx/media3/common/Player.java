@@ -268,27 +268,14 @@ public interface Player {
     }
 
     // Bundleable implementation.
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      FIELD_MEDIA_ITEM_INDEX,
-      FIELD_MEDIA_ITEM,
-      FIELD_PERIOD_INDEX,
-      FIELD_POSITION_MS,
-      FIELD_CONTENT_POSITION_MS,
-      FIELD_AD_GROUP_INDEX,
-      FIELD_AD_INDEX_IN_AD_GROUP
-    })
-    private @interface FieldNumber {}
 
-    private static final int FIELD_MEDIA_ITEM_INDEX = 0;
-    private static final int FIELD_MEDIA_ITEM = 1;
-    private static final int FIELD_PERIOD_INDEX = 2;
-    private static final int FIELD_POSITION_MS = 3;
-    private static final int FIELD_CONTENT_POSITION_MS = 4;
-    private static final int FIELD_AD_GROUP_INDEX = 5;
-    private static final int FIELD_AD_INDEX_IN_AD_GROUP = 6;
+    private static final String FIELD_MEDIA_ITEM_INDEX = Util.intToStringMaxRadix(0);
+    private static final String FIELD_MEDIA_ITEM = Util.intToStringMaxRadix(1);
+    private static final String FIELD_PERIOD_INDEX = Util.intToStringMaxRadix(2);
+    private static final String FIELD_POSITION_MS = Util.intToStringMaxRadix(3);
+    private static final String FIELD_CONTENT_POSITION_MS = Util.intToStringMaxRadix(4);
+    private static final String FIELD_AD_GROUP_INDEX = Util.intToStringMaxRadix(5);
+    private static final String FIELD_AD_INDEX_IN_AD_GROUP = Util.intToStringMaxRadix(6);
 
     /**
      * {@inheritDoc}
@@ -300,15 +287,15 @@ public interface Player {
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
+      bundle.putInt(FIELD_MEDIA_ITEM_INDEX, mediaItemIndex);
       if (mediaItem != null) {
-        bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+        bundle.putBundle(FIELD_MEDIA_ITEM, mediaItem.toBundle());
       }
-      bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
-      bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
-      bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
-      bundle.putInt(keyForField(FIELD_AD_GROUP_INDEX), adGroupIndex);
-      bundle.putInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), adIndexInAdGroup);
+      bundle.putInt(FIELD_PERIOD_INDEX, periodIndex);
+      bundle.putLong(FIELD_POSITION_MS, positionMs);
+      bundle.putLong(FIELD_CONTENT_POSITION_MS, contentPositionMs);
+      bundle.putInt(FIELD_AD_GROUP_INDEX, adGroupIndex);
+      bundle.putInt(FIELD_AD_INDEX_IN_AD_GROUP, adIndexInAdGroup);
       return bundle;
     }
 
@@ -316,22 +303,18 @@ public interface Player {
     @UnstableApi public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
 
     private static PositionInfo fromBundle(Bundle bundle) {
-      int mediaItemIndex =
-          bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
-      @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
+      int mediaItemIndex = bundle.getInt(FIELD_MEDIA_ITEM_INDEX, /* defaultValue= */ C.INDEX_UNSET);
+      @Nullable Bundle mediaItemBundle = bundle.getBundle(FIELD_MEDIA_ITEM);
       @Nullable
       MediaItem mediaItem =
           mediaItemBundle == null ? null : MediaItem.CREATOR.fromBundle(mediaItemBundle);
-      int periodIndex =
-          bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
-      long positionMs =
-          bundle.getLong(keyForField(FIELD_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
+      int periodIndex = bundle.getInt(FIELD_PERIOD_INDEX, /* defaultValue= */ C.INDEX_UNSET);
+      long positionMs = bundle.getLong(FIELD_POSITION_MS, /* defaultValue= */ C.TIME_UNSET);
       long contentPositionMs =
-          bundle.getLong(keyForField(FIELD_CONTENT_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
-      int adGroupIndex =
-          bundle.getInt(keyForField(FIELD_AD_GROUP_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+          bundle.getLong(FIELD_CONTENT_POSITION_MS, /* defaultValue= */ C.TIME_UNSET);
+      int adGroupIndex = bundle.getInt(FIELD_AD_GROUP_INDEX, /* defaultValue= */ C.INDEX_UNSET);
       int adIndexInAdGroup =
-          bundle.getInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), /* defaultValue= */ C.INDEX_UNSET);
+          bundle.getInt(FIELD_AD_INDEX_IN_AD_GROUP, /* defaultValue= */ C.INDEX_UNSET);
       return new PositionInfo(
           /* windowUid= */ null,
           mediaItemIndex,
@@ -342,10 +325,6 @@ public interface Player {
           contentPositionMs,
           adGroupIndex,
           adIndexInAdGroup);
-    }
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
@@ -581,13 +560,7 @@ public interface Player {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({FIELD_COMMANDS})
-    private @interface FieldNumber {}
-
-    private static final int FIELD_COMMANDS = 0;
+    private static final String FIELD_COMMANDS = Util.intToStringMaxRadix(0);
 
     @UnstableApi
     @Override
@@ -597,7 +570,7 @@ public interface Player {
       for (int i = 0; i < flags.size(); i++) {
         commandsBundle.add(flags.get(i));
       }
-      bundle.putIntegerArrayList(keyForField(FIELD_COMMANDS), commandsBundle);
+      bundle.putIntegerArrayList(FIELD_COMMANDS, commandsBundle);
       return bundle;
     }
 
@@ -605,8 +578,7 @@ public interface Player {
     @UnstableApi public static final Creator<Commands> CREATOR = Commands::fromBundle;
 
     private static Commands fromBundle(Bundle bundle) {
-      @Nullable
-      ArrayList<Integer> commands = bundle.getIntegerArrayList(keyForField(FIELD_COMMANDS));
+      @Nullable ArrayList<Integer> commands = bundle.getIntegerArrayList(FIELD_COMMANDS);
       if (commands == null) {
         return Commands.EMPTY;
       }
@@ -615,10 +587,6 @@ public interface Player {
         builder.add(commands.get(i));
       }
       return builder.build();
-    }
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 

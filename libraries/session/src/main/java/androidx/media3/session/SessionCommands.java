@@ -18,22 +18,17 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -235,13 +230,7 @@ public final class SessionCommands implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_SESSION_COMMANDS})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_SESSION_COMMANDS = 0;
+  private static final String FIELD_SESSION_COMMANDS = Util.intToStringMaxRadix(0);
 
   @UnstableApi
   @Override
@@ -251,7 +240,7 @@ public final class SessionCommands implements Bundleable {
     for (SessionCommand command : commands) {
       sessionCommandBundleList.add(command.toBundle());
     }
-    bundle.putParcelableArrayList(keyForField(FIELD_SESSION_COMMANDS), sessionCommandBundleList);
+    bundle.putParcelableArrayList(FIELD_SESSION_COMMANDS, sessionCommandBundleList);
     return bundle;
   }
 
@@ -261,7 +250,7 @@ public final class SessionCommands implements Bundleable {
       bundle -> {
         @Nullable
         ArrayList<Bundle> sessionCommandBundleList =
-            bundle.getParcelableArrayList(keyForField(FIELD_SESSION_COMMANDS));
+            bundle.getParcelableArrayList(FIELD_SESSION_COMMANDS);
         if (sessionCommandBundleList == null) {
           Log.w(TAG, "Missing commands. Creating an empty SessionCommands");
           return SessionCommands.EMPTY;
@@ -273,8 +262,4 @@ public final class SessionCommands implements Bundleable {
         }
         return builder.build();
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }
