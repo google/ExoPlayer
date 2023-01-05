@@ -465,7 +465,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // MuxerWrapper.Listener implementation.
 
     @Override
-    public void onTrackEnded(@C.TrackType int trackType, int averageBitrate, int sampleCount) {
+    public void onTrackEnded(
+        @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
       if (trackType == C.TRACK_TYPE_AUDIO) {
         transformationResultBuilder.setAverageAudioBitrate(averageBitrate);
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
