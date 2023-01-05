@@ -20,13 +20,11 @@ import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT;
 import static androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE;
 import static androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
 import static androidx.media3.common.Player.STATE_IDLE;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.Bundleable;
@@ -47,12 +45,9 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Information about the player that {@link MediaSession} uses to send its state to {@link
@@ -83,36 +78,24 @@ import java.lang.annotation.Target;
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({FIELD_IS_TIMELINE_EXCLUDED, FIELD_ARE_CURRENT_TRACKS_EXCLUDED})
-    private @interface FieldNumber {}
-
-    private static final int FIELD_IS_TIMELINE_EXCLUDED = 0;
-    private static final int FIELD_ARE_CURRENT_TRACKS_EXCLUDED = 1;
+    private static final String FIELD_IS_TIMELINE_EXCLUDED = Util.intToStringMaxRadix(0);
+    private static final String FIELD_ARE_CURRENT_TRACKS_EXCLUDED = Util.intToStringMaxRadix(1);
     // Next field key = 2
 
     @UnstableApi
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putBoolean(keyForField(FIELD_IS_TIMELINE_EXCLUDED), isTimelineExcluded);
-      bundle.putBoolean(keyForField(FIELD_ARE_CURRENT_TRACKS_EXCLUDED), areCurrentTracksExcluded);
+      bundle.putBoolean(FIELD_IS_TIMELINE_EXCLUDED, isTimelineExcluded);
+      bundle.putBoolean(FIELD_ARE_CURRENT_TRACKS_EXCLUDED, areCurrentTracksExcluded);
       return bundle;
     }
 
     public static final Creator<BundlingExclusions> CREATOR =
         bundle ->
             new BundlingExclusions(
-                bundle.getBoolean(
-                    keyForField(FIELD_IS_TIMELINE_EXCLUDED), /* defaultValue= */ false),
-                bundle.getBoolean(
-                    keyForField(FIELD_ARE_CURRENT_TRACKS_EXCLUDED), /* defaultValue= */ false));
-
-    private static String keyForField(@BundlingExclusions.FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
+                bundle.getBoolean(FIELD_IS_TIMELINE_EXCLUDED, /* defaultValue= */ false),
+                bundle.getBoolean(FIELD_ARE_CURRENT_TRACKS_EXCLUDED, /* defaultValue= */ false));
 
     @Override
     public boolean equals(@Nullable Object o) {
@@ -783,73 +766,36 @@ import java.lang.annotation.Target;
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_PLAYBACK_PARAMETERS,
-    FIELD_REPEAT_MODE,
-    FIELD_SHUFFLE_MODE_ENABLED,
-    FIELD_TIMELINE,
-    FIELD_VIDEO_SIZE,
-    FIELD_PLAYLIST_METADATA,
-    FIELD_VOLUME,
-    FIELD_AUDIO_ATTRIBUTES,
-    FIELD_DEVICE_INFO,
-    FIELD_DEVICE_VOLUME,
-    FIELD_DEVICE_MUTED,
-    FIELD_PLAY_WHEN_READY,
-    FIELD_PLAY_WHEN_READY_CHANGED_REASON,
-    FIELD_PLAYBACK_SUPPRESSION_REASON,
-    FIELD_PLAYBACK_STATE,
-    FIELD_IS_PLAYING,
-    FIELD_IS_LOADING,
-    FIELD_PLAYBACK_ERROR,
-    FIELD_SESSION_POSITION_INFO,
-    FIELD_MEDIA_ITEM_TRANSITION_REASON,
-    FIELD_OLD_POSITION_INFO,
-    FIELD_NEW_POSITION_INFO,
-    FIELD_DISCONTINUITY_REASON,
-    FIELD_CUE_GROUP,
-    FIELD_MEDIA_METADATA,
-    FIELD_SEEK_BACK_INCREMENT_MS,
-    FIELD_SEEK_FORWARD_INCREMENT_MS,
-    FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS,
-    FIELD_TRACK_SELECTION_PARAMETERS,
-    FIELD_CURRENT_TRACKS,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_PLAYBACK_PARAMETERS = 1;
-  private static final int FIELD_REPEAT_MODE = 2;
-  private static final int FIELD_SHUFFLE_MODE_ENABLED = 3;
-  private static final int FIELD_TIMELINE = 4;
-  private static final int FIELD_VIDEO_SIZE = 5;
-  private static final int FIELD_PLAYLIST_METADATA = 6;
-  private static final int FIELD_VOLUME = 7;
-  private static final int FIELD_AUDIO_ATTRIBUTES = 8;
-  private static final int FIELD_DEVICE_INFO = 9;
-  private static final int FIELD_DEVICE_VOLUME = 10;
-  private static final int FIELD_DEVICE_MUTED = 11;
-  private static final int FIELD_PLAY_WHEN_READY = 12;
-  private static final int FIELD_PLAY_WHEN_READY_CHANGED_REASON = 13;
-  private static final int FIELD_PLAYBACK_SUPPRESSION_REASON = 14;
-  private static final int FIELD_PLAYBACK_STATE = 15;
-  private static final int FIELD_IS_PLAYING = 16;
-  private static final int FIELD_IS_LOADING = 17;
-  private static final int FIELD_PLAYBACK_ERROR = 18;
-  private static final int FIELD_SESSION_POSITION_INFO = 19;
-  private static final int FIELD_MEDIA_ITEM_TRANSITION_REASON = 20;
-  private static final int FIELD_OLD_POSITION_INFO = 21;
-  private static final int FIELD_NEW_POSITION_INFO = 22;
-  private static final int FIELD_DISCONTINUITY_REASON = 23;
-  private static final int FIELD_CUE_GROUP = 24;
-  private static final int FIELD_MEDIA_METADATA = 25;
-  private static final int FIELD_SEEK_BACK_INCREMENT_MS = 26;
-  private static final int FIELD_SEEK_FORWARD_INCREMENT_MS = 27;
-  private static final int FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 28;
-  private static final int FIELD_TRACK_SELECTION_PARAMETERS = 29;
-  private static final int FIELD_CURRENT_TRACKS = 30;
+  private static final String FIELD_PLAYBACK_PARAMETERS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_REPEAT_MODE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_SHUFFLE_MODE_ENABLED = Util.intToStringMaxRadix(3);
+  private static final String FIELD_TIMELINE = Util.intToStringMaxRadix(4);
+  private static final String FIELD_VIDEO_SIZE = Util.intToStringMaxRadix(5);
+  private static final String FIELD_PLAYLIST_METADATA = Util.intToStringMaxRadix(6);
+  private static final String FIELD_VOLUME = Util.intToStringMaxRadix(7);
+  private static final String FIELD_AUDIO_ATTRIBUTES = Util.intToStringMaxRadix(8);
+  private static final String FIELD_DEVICE_INFO = Util.intToStringMaxRadix(9);
+  private static final String FIELD_DEVICE_VOLUME = Util.intToStringMaxRadix(10);
+  private static final String FIELD_DEVICE_MUTED = Util.intToStringMaxRadix(11);
+  private static final String FIELD_PLAY_WHEN_READY = Util.intToStringMaxRadix(12);
+  private static final String FIELD_PLAY_WHEN_READY_CHANGED_REASON = Util.intToStringMaxRadix(13);
+  private static final String FIELD_PLAYBACK_SUPPRESSION_REASON = Util.intToStringMaxRadix(14);
+  private static final String FIELD_PLAYBACK_STATE = Util.intToStringMaxRadix(15);
+  private static final String FIELD_IS_PLAYING = Util.intToStringMaxRadix(16);
+  private static final String FIELD_IS_LOADING = Util.intToStringMaxRadix(17);
+  private static final String FIELD_PLAYBACK_ERROR = Util.intToStringMaxRadix(18);
+  private static final String FIELD_SESSION_POSITION_INFO = Util.intToStringMaxRadix(19);
+  private static final String FIELD_MEDIA_ITEM_TRANSITION_REASON = Util.intToStringMaxRadix(20);
+  private static final String FIELD_OLD_POSITION_INFO = Util.intToStringMaxRadix(21);
+  private static final String FIELD_NEW_POSITION_INFO = Util.intToStringMaxRadix(22);
+  private static final String FIELD_DISCONTINUITY_REASON = Util.intToStringMaxRadix(23);
+  private static final String FIELD_CUE_GROUP = Util.intToStringMaxRadix(24);
+  private static final String FIELD_MEDIA_METADATA = Util.intToStringMaxRadix(25);
+  private static final String FIELD_SEEK_BACK_INCREMENT_MS = Util.intToStringMaxRadix(26);
+  private static final String FIELD_SEEK_FORWARD_INCREMENT_MS = Util.intToStringMaxRadix(27);
+  private static final String FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS = Util.intToStringMaxRadix(28);
+  private static final String FIELD_TRACK_SELECTION_PARAMETERS = Util.intToStringMaxRadix(29);
+  private static final String FIELD_CURRENT_TRACKS = Util.intToStringMaxRadix(30);
   // Next field key = 31
 
   public Bundle toBundle(
@@ -860,48 +806,46 @@ import java.lang.annotation.Target;
       boolean excludeTracks) {
     Bundle bundle = new Bundle();
     if (playerError != null) {
-      bundle.putBundle(keyForField(FIELD_PLAYBACK_ERROR), playerError.toBundle());
+      bundle.putBundle(FIELD_PLAYBACK_ERROR, playerError.toBundle());
     }
-    bundle.putInt(keyForField(FIELD_MEDIA_ITEM_TRANSITION_REASON), mediaItemTransitionReason);
-    bundle.putBundle(keyForField(FIELD_SESSION_POSITION_INFO), sessionPositionInfo.toBundle());
-    bundle.putBundle(keyForField(FIELD_OLD_POSITION_INFO), oldPositionInfo.toBundle());
-    bundle.putBundle(keyForField(FIELD_NEW_POSITION_INFO), newPositionInfo.toBundle());
-    bundle.putInt(keyForField(FIELD_DISCONTINUITY_REASON), discontinuityReason);
-    bundle.putBundle(keyForField(FIELD_PLAYBACK_PARAMETERS), playbackParameters.toBundle());
-    bundle.putInt(keyForField(FIELD_REPEAT_MODE), repeatMode);
-    bundle.putBoolean(keyForField(FIELD_SHUFFLE_MODE_ENABLED), shuffleModeEnabled);
+    bundle.putInt(FIELD_MEDIA_ITEM_TRANSITION_REASON, mediaItemTransitionReason);
+    bundle.putBundle(FIELD_SESSION_POSITION_INFO, sessionPositionInfo.toBundle());
+    bundle.putBundle(FIELD_OLD_POSITION_INFO, oldPositionInfo.toBundle());
+    bundle.putBundle(FIELD_NEW_POSITION_INFO, newPositionInfo.toBundle());
+    bundle.putInt(FIELD_DISCONTINUITY_REASON, discontinuityReason);
+    bundle.putBundle(FIELD_PLAYBACK_PARAMETERS, playbackParameters.toBundle());
+    bundle.putInt(FIELD_REPEAT_MODE, repeatMode);
+    bundle.putBoolean(FIELD_SHUFFLE_MODE_ENABLED, shuffleModeEnabled);
     if (!excludeTimeline) {
-      bundle.putBundle(keyForField(FIELD_TIMELINE), timeline.toBundle(excludeMediaItems));
+      bundle.putBundle(FIELD_TIMELINE, timeline.toBundle(excludeMediaItems));
     }
-    bundle.putBundle(keyForField(FIELD_VIDEO_SIZE), videoSize.toBundle());
+    bundle.putBundle(FIELD_VIDEO_SIZE, videoSize.toBundle());
     if (!excludeMediaItemsMetadata) {
-      bundle.putBundle(keyForField(FIELD_PLAYLIST_METADATA), playlistMetadata.toBundle());
+      bundle.putBundle(FIELD_PLAYLIST_METADATA, playlistMetadata.toBundle());
     }
-    bundle.putFloat(keyForField(FIELD_VOLUME), volume);
-    bundle.putBundle(keyForField(FIELD_AUDIO_ATTRIBUTES), audioAttributes.toBundle());
+    bundle.putFloat(FIELD_VOLUME, volume);
+    bundle.putBundle(FIELD_AUDIO_ATTRIBUTES, audioAttributes.toBundle());
     if (!excludeCues) {
-      bundle.putBundle(keyForField(FIELD_CUE_GROUP), cueGroup.toBundle());
+      bundle.putBundle(FIELD_CUE_GROUP, cueGroup.toBundle());
     }
-    bundle.putBundle(keyForField(FIELD_DEVICE_INFO), deviceInfo.toBundle());
-    bundle.putInt(keyForField(FIELD_DEVICE_VOLUME), deviceVolume);
-    bundle.putBoolean(keyForField(FIELD_DEVICE_MUTED), deviceMuted);
-    bundle.putBoolean(keyForField(FIELD_PLAY_WHEN_READY), playWhenReady);
-    bundle.putInt(keyForField(FIELD_PLAYBACK_SUPPRESSION_REASON), playbackSuppressionReason);
-    bundle.putInt(keyForField(FIELD_PLAYBACK_STATE), playbackState);
-    bundle.putBoolean(keyForField(FIELD_IS_PLAYING), isPlaying);
-    bundle.putBoolean(keyForField(FIELD_IS_LOADING), isLoading);
+    bundle.putBundle(FIELD_DEVICE_INFO, deviceInfo.toBundle());
+    bundle.putInt(FIELD_DEVICE_VOLUME, deviceVolume);
+    bundle.putBoolean(FIELD_DEVICE_MUTED, deviceMuted);
+    bundle.putBoolean(FIELD_PLAY_WHEN_READY, playWhenReady);
+    bundle.putInt(FIELD_PLAYBACK_SUPPRESSION_REASON, playbackSuppressionReason);
+    bundle.putInt(FIELD_PLAYBACK_STATE, playbackState);
+    bundle.putBoolean(FIELD_IS_PLAYING, isPlaying);
+    bundle.putBoolean(FIELD_IS_LOADING, isLoading);
     bundle.putBundle(
-        keyForField(FIELD_MEDIA_METADATA),
+        FIELD_MEDIA_METADATA,
         excludeMediaItems ? MediaMetadata.EMPTY.toBundle() : mediaMetadata.toBundle());
-    bundle.putLong(keyForField(FIELD_SEEK_BACK_INCREMENT_MS), seekBackIncrementMs);
-    bundle.putLong(keyForField(FIELD_SEEK_FORWARD_INCREMENT_MS), seekForwardIncrementMs);
-    bundle.putLong(
-        keyForField(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS), maxSeekToPreviousPositionMs);
+    bundle.putLong(FIELD_SEEK_BACK_INCREMENT_MS, seekBackIncrementMs);
+    bundle.putLong(FIELD_SEEK_FORWARD_INCREMENT_MS, seekForwardIncrementMs);
+    bundle.putLong(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS, maxSeekToPreviousPositionMs);
     if (!excludeTracks) {
-      bundle.putBundle(keyForField(FIELD_CURRENT_TRACKS), currentTracks.toBundle());
+      bundle.putBundle(FIELD_CURRENT_TRACKS, currentTracks.toBundle());
     }
-    bundle.putBundle(
-        keyForField(FIELD_TRACK_SELECTION_PARAMETERS), trackSelectionParameters.toBundle());
+    bundle.putBundle(FIELD_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle());
 
     return bundle;
   }
@@ -920,107 +864,96 @@ import java.lang.annotation.Target;
   public static final Creator<PlayerInfo> CREATOR = PlayerInfo::fromBundle;
 
   private static PlayerInfo fromBundle(Bundle bundle) {
-    @Nullable Bundle playerErrorBundle = bundle.getBundle(keyForField(FIELD_PLAYBACK_ERROR));
+    @Nullable Bundle playerErrorBundle = bundle.getBundle(FIELD_PLAYBACK_ERROR);
     @Nullable
     PlaybackException playerError =
         playerErrorBundle == null ? null : PlaybackException.CREATOR.fromBundle(playerErrorBundle);
     int mediaItemTransitionReason =
-        bundle.getInt(
-            keyForField(FIELD_MEDIA_ITEM_TRANSITION_REASON), MEDIA_ITEM_TRANSITION_REASON_REPEAT);
-    @Nullable
-    Bundle sessionPositionInfoBundle = bundle.getBundle(keyForField(FIELD_SESSION_POSITION_INFO));
+        bundle.getInt(FIELD_MEDIA_ITEM_TRANSITION_REASON, MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+    @Nullable Bundle sessionPositionInfoBundle = bundle.getBundle(FIELD_SESSION_POSITION_INFO);
     SessionPositionInfo sessionPositionInfo =
         sessionPositionInfoBundle == null
             ? SessionPositionInfo.DEFAULT
             : SessionPositionInfo.CREATOR.fromBundle(sessionPositionInfoBundle);
-    @Nullable Bundle oldPositionInfoBundle = bundle.getBundle(keyForField(FIELD_OLD_POSITION_INFO));
+    @Nullable Bundle oldPositionInfoBundle = bundle.getBundle(FIELD_OLD_POSITION_INFO);
     PositionInfo oldPositionInfo =
         oldPositionInfoBundle == null
             ? SessionPositionInfo.DEFAULT_POSITION_INFO
             : PositionInfo.CREATOR.fromBundle(oldPositionInfoBundle);
-    @Nullable Bundle newPositionInfoBundle = bundle.getBundle(keyForField(FIELD_NEW_POSITION_INFO));
+    @Nullable Bundle newPositionInfoBundle = bundle.getBundle(FIELD_NEW_POSITION_INFO);
     PositionInfo newPositionInfo =
         newPositionInfoBundle == null
             ? SessionPositionInfo.DEFAULT_POSITION_INFO
             : PositionInfo.CREATOR.fromBundle(newPositionInfoBundle);
     int discontinuityReason =
-        bundle.getInt(
-            keyForField(FIELD_DISCONTINUITY_REASON), DISCONTINUITY_REASON_AUTO_TRANSITION);
-    @Nullable
-    Bundle playbackParametersBundle = bundle.getBundle(keyForField(FIELD_PLAYBACK_PARAMETERS));
+        bundle.getInt(FIELD_DISCONTINUITY_REASON, DISCONTINUITY_REASON_AUTO_TRANSITION);
+    @Nullable Bundle playbackParametersBundle = bundle.getBundle(FIELD_PLAYBACK_PARAMETERS);
     PlaybackParameters playbackParameters =
         playbackParametersBundle == null
             ? PlaybackParameters.DEFAULT
             : PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
     @Player.RepeatMode
-    int repeatMode =
-        bundle.getInt(keyForField(FIELD_REPEAT_MODE), /* defaultValue= */ Player.REPEAT_MODE_OFF);
+    int repeatMode = bundle.getInt(FIELD_REPEAT_MODE, /* defaultValue= */ Player.REPEAT_MODE_OFF);
     boolean shuffleModeEnabled =
-        bundle.getBoolean(keyForField(FIELD_SHUFFLE_MODE_ENABLED), /* defaultValue= */ false);
-    @Nullable Bundle timelineBundle = bundle.getBundle(keyForField(FIELD_TIMELINE));
+        bundle.getBoolean(FIELD_SHUFFLE_MODE_ENABLED, /* defaultValue= */ false);
+    @Nullable Bundle timelineBundle = bundle.getBundle(FIELD_TIMELINE);
     Timeline timeline =
         timelineBundle == null ? Timeline.EMPTY : Timeline.CREATOR.fromBundle(timelineBundle);
-    @Nullable Bundle videoSizeBundle = bundle.getBundle(keyForField(FIELD_VIDEO_SIZE));
+    @Nullable Bundle videoSizeBundle = bundle.getBundle(FIELD_VIDEO_SIZE);
     VideoSize videoSize =
         videoSizeBundle == null ? VideoSize.UNKNOWN : VideoSize.CREATOR.fromBundle(videoSizeBundle);
-    @Nullable
-    Bundle playlistMetadataBundle = bundle.getBundle(keyForField(FIELD_PLAYLIST_METADATA));
+    @Nullable Bundle playlistMetadataBundle = bundle.getBundle(FIELD_PLAYLIST_METADATA);
     MediaMetadata playlistMetadata =
         playlistMetadataBundle == null
             ? MediaMetadata.EMPTY
             : MediaMetadata.CREATOR.fromBundle(playlistMetadataBundle);
-    float volume = bundle.getFloat(keyForField(FIELD_VOLUME), /* defaultValue= */ 1);
-    @Nullable Bundle audioAttributesBundle = bundle.getBundle(keyForField(FIELD_AUDIO_ATTRIBUTES));
+    float volume = bundle.getFloat(FIELD_VOLUME, /* defaultValue= */ 1);
+    @Nullable Bundle audioAttributesBundle = bundle.getBundle(FIELD_AUDIO_ATTRIBUTES);
     AudioAttributes audioAttributes =
         audioAttributesBundle == null
             ? AudioAttributes.DEFAULT
             : AudioAttributes.CREATOR.fromBundle(audioAttributesBundle);
-    @Nullable Bundle cueGroupBundle = bundle.getBundle(keyForField(FIELD_CUE_GROUP));
+    @Nullable Bundle cueGroupBundle = bundle.getBundle(FIELD_CUE_GROUP);
     CueGroup cueGroup =
         cueGroupBundle == null
             ? CueGroup.EMPTY_TIME_ZERO
             : CueGroup.CREATOR.fromBundle(cueGroupBundle);
-    @Nullable Bundle deviceInfoBundle = bundle.getBundle(keyForField(FIELD_DEVICE_INFO));
+    @Nullable Bundle deviceInfoBundle = bundle.getBundle(FIELD_DEVICE_INFO);
     DeviceInfo deviceInfo =
         deviceInfoBundle == null
             ? DeviceInfo.UNKNOWN
             : DeviceInfo.CREATOR.fromBundle(deviceInfoBundle);
-    int deviceVolume = bundle.getInt(keyForField(FIELD_DEVICE_VOLUME), /* defaultValue= */ 0);
-    boolean deviceMuted =
-        bundle.getBoolean(keyForField(FIELD_DEVICE_MUTED), /* defaultValue= */ false);
-    boolean playWhenReady =
-        bundle.getBoolean(keyForField(FIELD_PLAY_WHEN_READY), /* defaultValue= */ false);
+    int deviceVolume = bundle.getInt(FIELD_DEVICE_VOLUME, /* defaultValue= */ 0);
+    boolean deviceMuted = bundle.getBoolean(FIELD_DEVICE_MUTED, /* defaultValue= */ false);
+    boolean playWhenReady = bundle.getBoolean(FIELD_PLAY_WHEN_READY, /* defaultValue= */ false);
     int playWhenReadyChangedReason =
         bundle.getInt(
-            keyForField(FIELD_PLAY_WHEN_READY_CHANGED_REASON),
+            FIELD_PLAY_WHEN_READY_CHANGED_REASON,
             /* defaultValue= */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
     @Player.PlaybackSuppressionReason
     int playbackSuppressionReason =
         bundle.getInt(
-            keyForField(FIELD_PLAYBACK_SUPPRESSION_REASON),
+            FIELD_PLAYBACK_SUPPRESSION_REASON,
             /* defaultValue= */ PLAYBACK_SUPPRESSION_REASON_NONE);
     @Player.State
-    int playbackState =
-        bundle.getInt(keyForField(FIELD_PLAYBACK_STATE), /* defaultValue= */ STATE_IDLE);
-    boolean isPlaying = bundle.getBoolean(keyForField(FIELD_IS_PLAYING), /* defaultValue= */ false);
-    boolean isLoading = bundle.getBoolean(keyForField(FIELD_IS_LOADING), /* defaultValue= */ false);
-    @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
+    int playbackState = bundle.getInt(FIELD_PLAYBACK_STATE, /* defaultValue= */ STATE_IDLE);
+    boolean isPlaying = bundle.getBoolean(FIELD_IS_PLAYING, /* defaultValue= */ false);
+    boolean isLoading = bundle.getBoolean(FIELD_IS_LOADING, /* defaultValue= */ false);
+    @Nullable Bundle mediaMetadataBundle = bundle.getBundle(FIELD_MEDIA_METADATA);
     MediaMetadata mediaMetadata =
         mediaMetadataBundle == null
             ? MediaMetadata.EMPTY
             : MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
-    long seekBackIncrementMs =
-        bundle.getLong(keyForField(FIELD_SEEK_BACK_INCREMENT_MS), /* defaultValue= */ 0);
+    long seekBackIncrementMs = bundle.getLong(FIELD_SEEK_BACK_INCREMENT_MS, /* defaultValue= */ 0);
     long seekForwardIncrementMs =
-        bundle.getLong(keyForField(FIELD_SEEK_FORWARD_INCREMENT_MS), /* defaultValue= */ 0);
+        bundle.getLong(FIELD_SEEK_FORWARD_INCREMENT_MS, /* defaultValue= */ 0);
     long maxSeekToPreviousPosition =
-        bundle.getLong(keyForField(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS), /* defaultValue= */ 0);
-    Bundle currentTracksBundle = bundle.getBundle(keyForField(FIELD_CURRENT_TRACKS));
+        bundle.getLong(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS, /* defaultValue= */ 0);
+    Bundle currentTracksBundle = bundle.getBundle(FIELD_CURRENT_TRACKS);
     Tracks currentTracks =
         currentTracksBundle == null ? Tracks.EMPTY : Tracks.CREATOR.fromBundle(currentTracksBundle);
     @Nullable
-    Bundle trackSelectionParametersBundle =
-        bundle.getBundle(keyForField(FIELD_TRACK_SELECTION_PARAMETERS));
+    Bundle trackSelectionParametersBundle = bundle.getBundle(FIELD_TRACK_SELECTION_PARAMETERS);
     TrackSelectionParameters trackSelectionParameters =
         trackSelectionParametersBundle == null
             ? TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
@@ -1056,9 +989,5 @@ import java.lang.annotation.Target;
         maxSeekToPreviousPosition,
         currentTracks,
         trackSelectionParameters);
-  }
-
-  private static String keyForField(@PlayerInfo.FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

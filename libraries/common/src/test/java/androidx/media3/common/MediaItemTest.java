@@ -859,6 +859,8 @@ public class MediaItemTest {
 
   @Test
   public void createMediaItemInstance_roundTripViaBundle_yieldsEqualInstance() {
+    Bundle extras = new Bundle();
+    extras.putString("key", "value");
     // Creates instance by setting some non-default values
     MediaItem mediaItem =
         new MediaItem.Builder()
@@ -874,11 +876,14 @@ public class MediaItemTest {
                 new RequestMetadata.Builder()
                     .setMediaUri(Uri.parse("http://test.test"))
                     .setSearchQuery("search")
+                    .setExtras(extras)
                     .build())
             .build();
 
     MediaItem mediaItemFromBundle = MediaItem.CREATOR.fromBundle(mediaItem.toBundle());
 
     assertThat(mediaItemFromBundle).isEqualTo(mediaItem);
+    assertThat(mediaItemFromBundle.requestMetadata.extras)
+        .isEqualTo(mediaItem.requestMetadata.extras);
   }
 }

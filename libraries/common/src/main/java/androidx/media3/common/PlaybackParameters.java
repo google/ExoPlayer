@@ -15,20 +15,13 @@
  */
 package androidx.media3.common;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.os.Bundle;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /** Parameters that apply to playback, including speed setting. */
 public final class PlaybackParameters implements Bundleable {
@@ -122,21 +115,15 @@ public final class PlaybackParameters implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_SPEED, FIELD_PITCH})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_SPEED = 0;
-  private static final int FIELD_PITCH = 1;
+  private static final String FIELD_SPEED = Util.intToStringMaxRadix(0);
+  private static final String FIELD_PITCH = Util.intToStringMaxRadix(1);
 
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putFloat(keyForField(FIELD_SPEED), speed);
-    bundle.putFloat(keyForField(FIELD_PITCH), pitch);
+    bundle.putFloat(FIELD_SPEED, speed);
+    bundle.putFloat(FIELD_PITCH, pitch);
     return bundle;
   }
 
@@ -144,12 +131,8 @@ public final class PlaybackParameters implements Bundleable {
   @UnstableApi
   public static final Creator<PlaybackParameters> CREATOR =
       bundle -> {
-        float speed = bundle.getFloat(keyForField(FIELD_SPEED), /* defaultValue= */ 1f);
-        float pitch = bundle.getFloat(keyForField(FIELD_PITCH), /* defaultValue= */ 1f);
+        float speed = bundle.getFloat(FIELD_SPEED, /* defaultValue= */ 1f);
+        float pitch = bundle.getFloat(FIELD_PITCH, /* defaultValue= */ 1f);
         return new PlaybackParameters(speed, pitch);
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

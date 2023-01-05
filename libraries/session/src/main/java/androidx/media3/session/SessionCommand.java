@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Rating;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -165,24 +166,17 @@ public final class SessionCommand implements Bundleable {
   }
 
   // Bundleable implementation.
-
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_COMMAND_CODE, FIELD_CUSTOM_ACTION, FIELD_CUSTOM_EXTRAS})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_COMMAND_CODE = 0;
-  private static final int FIELD_CUSTOM_ACTION = 1;
-  private static final int FIELD_CUSTOM_EXTRAS = 2;
+  private static final String FIELD_COMMAND_CODE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_CUSTOM_ACTION = Util.intToStringMaxRadix(1);
+  private static final String FIELD_CUSTOM_EXTRAS = Util.intToStringMaxRadix(2);
 
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_COMMAND_CODE), commandCode);
-    bundle.putString(keyForField(FIELD_CUSTOM_ACTION), customAction);
-    bundle.putBundle(keyForField(FIELD_CUSTOM_EXTRAS), customExtras);
+    bundle.putInt(FIELD_COMMAND_CODE, commandCode);
+    bundle.putString(FIELD_CUSTOM_ACTION, customAction);
+    bundle.putBundle(FIELD_CUSTOM_EXTRAS, customExtras);
     return bundle;
   }
 
@@ -191,18 +185,14 @@ public final class SessionCommand implements Bundleable {
   public static final Creator<SessionCommand> CREATOR =
       bundle -> {
         int commandCode =
-            bundle.getInt(keyForField(FIELD_COMMAND_CODE), /* defaultValue= */ COMMAND_CODE_CUSTOM);
+            bundle.getInt(FIELD_COMMAND_CODE, /* defaultValue= */ COMMAND_CODE_CUSTOM);
         if (commandCode != COMMAND_CODE_CUSTOM) {
           return new SessionCommand(commandCode);
         } else {
-          String customAction = checkNotNull(bundle.getString(keyForField(FIELD_CUSTOM_ACTION)));
-          @Nullable Bundle customExtras = bundle.getBundle(keyForField(FIELD_CUSTOM_EXTRAS));
+          String customAction = checkNotNull(bundle.getString(FIELD_CUSTOM_ACTION));
+          @Nullable Bundle customExtras = bundle.getBundle(FIELD_CUSTOM_EXTRAS);
           return new SessionCommand(
               customAction, customExtras == null ? Bundle.EMPTY : customExtras);
         }
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

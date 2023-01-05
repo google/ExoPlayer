@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -27,7 +26,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
@@ -36,15 +34,12 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Superclass to be extended by services hosting {@link MediaLibrarySession media library sessions}.
@@ -666,30 +661,19 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      FIELD_EXTRAS,
-      FIELD_RECENT,
-      FIELD_OFFLINE,
-      FIELD_SUGGESTED,
-    })
-    private @interface FieldNumber {}
-
-    private static final int FIELD_EXTRAS = 0;
-    private static final int FIELD_RECENT = 1;
-    private static final int FIELD_OFFLINE = 2;
-    private static final int FIELD_SUGGESTED = 3;
+    private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(0);
+    private static final String FIELD_RECENT = Util.intToStringMaxRadix(1);
+    private static final String FIELD_OFFLINE = Util.intToStringMaxRadix(2);
+    private static final String FIELD_SUGGESTED = Util.intToStringMaxRadix(3);
 
     @UnstableApi
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
-      bundle.putBoolean(keyForField(FIELD_RECENT), isRecent);
-      bundle.putBoolean(keyForField(FIELD_OFFLINE), isOffline);
-      bundle.putBoolean(keyForField(FIELD_SUGGESTED), isSuggested);
+      bundle.putBundle(FIELD_EXTRAS, extras);
+      bundle.putBoolean(FIELD_RECENT, isRecent);
+      bundle.putBoolean(FIELD_OFFLINE, isOffline);
+      bundle.putBoolean(FIELD_SUGGESTED, isSuggested);
       return bundle;
     }
 
@@ -697,16 +681,11 @@ public abstract class MediaLibraryService extends MediaSessionService {
     @UnstableApi public static final Creator<LibraryParams> CREATOR = LibraryParams::fromBundle;
 
     private static LibraryParams fromBundle(Bundle bundle) {
-      @Nullable Bundle extras = bundle.getBundle(keyForField(FIELD_EXTRAS));
-      boolean recent = bundle.getBoolean(keyForField(FIELD_RECENT), /* defaultValue= */ false);
-      boolean offline = bundle.getBoolean(keyForField(FIELD_OFFLINE), /* defaultValue= */ false);
-      boolean suggested =
-          bundle.getBoolean(keyForField(FIELD_SUGGESTED), /* defaultValue= */ false);
+      @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
+      boolean recent = bundle.getBoolean(FIELD_RECENT, /* defaultValue= */ false);
+      boolean offline = bundle.getBoolean(FIELD_OFFLINE, /* defaultValue= */ false);
+      boolean suggested = bundle.getBoolean(FIELD_SUGGESTED, /* defaultValue= */ false);
       return new LibraryParams(extras == null ? Bundle.EMPTY : extras, recent, offline, suggested);
-    }
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 

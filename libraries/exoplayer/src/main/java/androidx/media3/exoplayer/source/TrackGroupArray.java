@@ -15,10 +15,7 @@
  */
 package androidx.media3.exoplayer.source;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.C;
@@ -26,11 +23,8 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.List;
 
 /**
@@ -118,21 +112,13 @@ public final class TrackGroupArray implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_TRACK_GROUPS,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_TRACK_GROUPS = 0;
+  private static final String FIELD_TRACK_GROUPS = Util.intToStringMaxRadix(0);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
-        keyForField(FIELD_TRACK_GROUPS), BundleableUtil.toBundleArrayList(trackGroups));
+        FIELD_TRACK_GROUPS, BundleableUtil.toBundleArrayList(trackGroups));
     return bundle;
   }
 
@@ -140,8 +126,7 @@ public final class TrackGroupArray implements Bundleable {
   public static final Creator<TrackGroupArray> CREATOR =
       bundle -> {
         @Nullable
-        List<Bundle> trackGroupBundles =
-            bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS));
+        List<Bundle> trackGroupBundles = bundle.getParcelableArrayList(FIELD_TRACK_GROUPS);
         if (trackGroupBundles == null) {
           return new TrackGroupArray();
         }
@@ -162,9 +147,5 @@ public final class TrackGroupArray implements Bundleable {
         }
       }
     }
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

@@ -25,6 +25,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -175,23 +176,17 @@ public final class SessionResult implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_RESULT_CODE, FIELD_EXTRAS, FIELD_COMPLETION_TIME_MS})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_RESULT_CODE = 0;
-  private static final int FIELD_EXTRAS = 1;
-  private static final int FIELD_COMPLETION_TIME_MS = 2;
+  private static final String FIELD_RESULT_CODE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_COMPLETION_TIME_MS = Util.intToStringMaxRadix(2);
 
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_RESULT_CODE), resultCode);
-    bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
-    bundle.putLong(keyForField(FIELD_COMPLETION_TIME_MS), completionTimeMs);
+    bundle.putInt(FIELD_RESULT_CODE, resultCode);
+    bundle.putBundle(FIELD_EXTRAS, extras);
+    bundle.putLong(FIELD_COMPLETION_TIME_MS, completionTimeMs);
     return bundle;
   }
 
@@ -199,17 +194,10 @@ public final class SessionResult implements Bundleable {
   @UnstableApi public static final Creator<SessionResult> CREATOR = SessionResult::fromBundle;
 
   private static SessionResult fromBundle(Bundle bundle) {
-    int resultCode =
-        bundle.getInt(keyForField(FIELD_RESULT_CODE), /* defaultValue= */ RESULT_ERROR_UNKNOWN);
-    @Nullable Bundle extras = bundle.getBundle(keyForField(FIELD_EXTRAS));
+    int resultCode = bundle.getInt(FIELD_RESULT_CODE, /* defaultValue= */ RESULT_ERROR_UNKNOWN);
+    @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
     long completionTimeMs =
-        bundle.getLong(
-            keyForField(FIELD_COMPLETION_TIME_MS),
-            /* defaultValue= */ SystemClock.elapsedRealtime());
+        bundle.getLong(FIELD_COMPLETION_TIME_MS, /* defaultValue= */ SystemClock.elapsedRealtime());
     return new SessionResult(resultCode, extras == null ? Bundle.EMPTY : extras, completionTimeMs);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

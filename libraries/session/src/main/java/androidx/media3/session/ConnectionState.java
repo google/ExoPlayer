@@ -16,20 +16,15 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.app.PendingIntent;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import androidx.media3.common.util.Util;
 
 /**
  * Created by {@link MediaSession} to send its state to the {@link MediaController} when the
@@ -78,47 +73,29 @@ import java.lang.annotation.Target;
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_LIBRARY_VERSION,
-    FIELD_SESSION_BINDER,
-    FIELD_SESSION_ACTIVITY,
-    FIELD_SESSION_COMMANDS,
-    FIELD_PLAYER_COMMANDS_FROM_SESSION,
-    FIELD_PLAYER_COMMANDS_FROM_PLAYER,
-    FIELD_TOKEN_EXTRAS,
-    FIELD_PLAYER_INFO,
-    FIELD_SESSION_INTERFACE_VERSION,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_LIBRARY_VERSION = 0;
-  private static final int FIELD_SESSION_BINDER = 1;
-  private static final int FIELD_SESSION_ACTIVITY = 2;
-  private static final int FIELD_SESSION_COMMANDS = 3;
-  private static final int FIELD_PLAYER_COMMANDS_FROM_SESSION = 4;
-  private static final int FIELD_PLAYER_COMMANDS_FROM_PLAYER = 5;
-  private static final int FIELD_TOKEN_EXTRAS = 6;
-  private static final int FIELD_PLAYER_INFO = 7;
-  private static final int FIELD_SESSION_INTERFACE_VERSION = 8;
+  private static final String FIELD_LIBRARY_VERSION = Util.intToStringMaxRadix(0);
+  private static final String FIELD_SESSION_BINDER = Util.intToStringMaxRadix(1);
+  private static final String FIELD_SESSION_ACTIVITY = Util.intToStringMaxRadix(2);
+  private static final String FIELD_SESSION_COMMANDS = Util.intToStringMaxRadix(3);
+  private static final String FIELD_PLAYER_COMMANDS_FROM_SESSION = Util.intToStringMaxRadix(4);
+  private static final String FIELD_PLAYER_COMMANDS_FROM_PLAYER = Util.intToStringMaxRadix(5);
+  private static final String FIELD_TOKEN_EXTRAS = Util.intToStringMaxRadix(6);
+  private static final String FIELD_PLAYER_INFO = Util.intToStringMaxRadix(7);
+  private static final String FIELD_SESSION_INTERFACE_VERSION = Util.intToStringMaxRadix(8);
   // Next field key = 9
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_LIBRARY_VERSION), libraryVersion);
-    BundleCompat.putBinder(bundle, keyForField(FIELD_SESSION_BINDER), sessionBinder.asBinder());
-    bundle.putParcelable(keyForField(FIELD_SESSION_ACTIVITY), sessionActivity);
-    bundle.putBundle(keyForField(FIELD_SESSION_COMMANDS), sessionCommands.toBundle());
+    bundle.putInt(FIELD_LIBRARY_VERSION, libraryVersion);
+    BundleCompat.putBinder(bundle, FIELD_SESSION_BINDER, sessionBinder.asBinder());
+    bundle.putParcelable(FIELD_SESSION_ACTIVITY, sessionActivity);
+    bundle.putBundle(FIELD_SESSION_COMMANDS, sessionCommands.toBundle());
+    bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION, playerCommandsFromSession.toBundle());
+    bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_PLAYER, playerCommandsFromPlayer.toBundle());
+    bundle.putBundle(FIELD_TOKEN_EXTRAS, tokenExtras);
     bundle.putBundle(
-        keyForField(FIELD_PLAYER_COMMANDS_FROM_SESSION), playerCommandsFromSession.toBundle());
-    bundle.putBundle(
-        keyForField(FIELD_PLAYER_COMMANDS_FROM_PLAYER), playerCommandsFromPlayer.toBundle());
-    bundle.putBundle(keyForField(FIELD_TOKEN_EXTRAS), tokenExtras);
-    bundle.putBundle(
-        keyForField(FIELD_PLAYER_INFO),
+        FIELD_PLAYER_INFO,
         playerInfo.toBundle(
             /* excludeMediaItems= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TIMELINE)
                 || !playerCommandsFromSession.contains(Player.COMMAND_GET_TIMELINE),
@@ -130,7 +107,7 @@ import java.lang.annotation.Target;
             /* excludeTimeline= */ false,
             /* excludeTracks= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TRACKS)
                 || !playerCommandsFromSession.contains(Player.COMMAND_GET_TRACKS)));
-    bundle.putInt(keyForField(FIELD_SESSION_INTERFACE_VERSION), sessionInterfaceVersion);
+    bundle.putInt(FIELD_SESSION_INTERFACE_VERSION, sessionInterfaceVersion);
     return bundle;
   }
 
@@ -138,34 +115,30 @@ import java.lang.annotation.Target;
   public static final Creator<ConnectionState> CREATOR = ConnectionState::fromBundle;
 
   private static ConnectionState fromBundle(Bundle bundle) {
-    int libraryVersion = bundle.getInt(keyForField(FIELD_LIBRARY_VERSION), /* defaultValue= */ 0);
+    int libraryVersion = bundle.getInt(FIELD_LIBRARY_VERSION, /* defaultValue= */ 0);
     int sessionInterfaceVersion =
-        bundle.getInt(keyForField(FIELD_SESSION_INTERFACE_VERSION), /* defaultValue= */ 0);
-    IBinder sessionBinder =
-        checkNotNull(BundleCompat.getBinder(bundle, keyForField(FIELD_SESSION_BINDER)));
-    @Nullable
-    PendingIntent sessionActivity = bundle.getParcelable(keyForField(FIELD_SESSION_ACTIVITY));
-    @Nullable Bundle sessionCommandsBundle = bundle.getBundle(keyForField(FIELD_SESSION_COMMANDS));
+        bundle.getInt(FIELD_SESSION_INTERFACE_VERSION, /* defaultValue= */ 0);
+    IBinder sessionBinder = checkNotNull(BundleCompat.getBinder(bundle, FIELD_SESSION_BINDER));
+    @Nullable PendingIntent sessionActivity = bundle.getParcelable(FIELD_SESSION_ACTIVITY);
+    @Nullable Bundle sessionCommandsBundle = bundle.getBundle(FIELD_SESSION_COMMANDS);
     SessionCommands sessionCommands =
         sessionCommandsBundle == null
             ? SessionCommands.EMPTY
             : SessionCommands.CREATOR.fromBundle(sessionCommandsBundle);
     @Nullable
-    Bundle playerCommandsFromPlayerBundle =
-        bundle.getBundle(keyForField(FIELD_PLAYER_COMMANDS_FROM_PLAYER));
+    Bundle playerCommandsFromPlayerBundle = bundle.getBundle(FIELD_PLAYER_COMMANDS_FROM_PLAYER);
     Player.Commands playerCommandsFromPlayer =
         playerCommandsFromPlayerBundle == null
             ? Player.Commands.EMPTY
             : Player.Commands.CREATOR.fromBundle(playerCommandsFromPlayerBundle);
     @Nullable
-    Bundle playerCommandsFromSessionBundle =
-        bundle.getBundle(keyForField(FIELD_PLAYER_COMMANDS_FROM_SESSION));
+    Bundle playerCommandsFromSessionBundle = bundle.getBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION);
     Player.Commands playerCommandsFromSession =
         playerCommandsFromSessionBundle == null
             ? Player.Commands.EMPTY
             : Player.Commands.CREATOR.fromBundle(playerCommandsFromSessionBundle);
-    @Nullable Bundle tokenExtras = bundle.getBundle(keyForField(FIELD_TOKEN_EXTRAS));
-    @Nullable Bundle playerInfoBundle = bundle.getBundle(keyForField(FIELD_PLAYER_INFO));
+    @Nullable Bundle tokenExtras = bundle.getBundle(FIELD_TOKEN_EXTRAS);
+    @Nullable Bundle playerInfoBundle = bundle.getBundle(FIELD_PLAYER_INFO);
     PlayerInfo playerInfo =
         playerInfoBundle == null
             ? PlayerInfo.DEFAULT
@@ -180,9 +153,5 @@ import java.lang.annotation.Target;
         playerCommandsFromPlayer,
         tokenExtras == null ? Bundle.EMPTY : tokenExtras,
         playerInfo);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }
