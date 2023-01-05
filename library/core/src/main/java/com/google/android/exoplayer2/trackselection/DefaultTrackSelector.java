@@ -841,7 +841,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         // Audio
         setExceedAudioConstraintsIfNecessary(
             bundle.getBoolean(
-                Parameters.keyForField(Parameters.FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
+                Parameters.keyForField(Parameters.FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NECESSARY),
                 defaultValue.exceedAudioConstraintsIfNecessary));
         setAllowAudioMixedMimeTypeAdaptiveness(
             bundle.getBoolean(
@@ -1874,7 +1874,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private static final int FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS =
         FIELD_CUSTOM_ID_BASE + 1;
     private static final int FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS = FIELD_CUSTOM_ID_BASE + 2;
-    private static final int FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY = FIELD_CUSTOM_ID_BASE + 3;
+    private static final int FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NECESSARY = FIELD_CUSTOM_ID_BASE + 3;
     private static final int FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS =
         FIELD_CUSTOM_ID_BASE + 4;
     private static final int FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS =
@@ -1916,7 +1916,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           allowVideoMixedDecoderSupportAdaptiveness);
       // Audio
       bundle.putBoolean(
-          keyForField(FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
+          keyForField(FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NECESSARY),
           exceedAudioConstraintsIfNecessary);
       bundle.putBoolean(
           keyForField(FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS),
