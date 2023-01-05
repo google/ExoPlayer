@@ -15,18 +15,12 @@
  */
 package com.google.android.exoplayer2.video;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.os.Bundle;
 import androidx.annotation.FloatRange;
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.google.android.exoplayer2.util.Util;
 
 /** Represents the video size. */
 public final class VideoSize implements Bundleable {
@@ -130,46 +124,30 @@ public final class VideoSize implements Bundleable {
   }
 
   // Bundleable implementation.
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_WIDTH,
-    FIELD_HEIGHT,
-    FIELD_UNAPPLIED_ROTATION_DEGREES,
-    FIELD_PIXEL_WIDTH_HEIGHT_RATIO,
-  })
-  private @interface FieldNumber {}
 
-  private static final int FIELD_WIDTH = 0;
-  private static final int FIELD_HEIGHT = 1;
-  private static final int FIELD_UNAPPLIED_ROTATION_DEGREES = 2;
-  private static final int FIELD_PIXEL_WIDTH_HEIGHT_RATIO = 3;
+  private static final String FIELD_WIDTH = Util.intToStringMaxRadix(0);
+  private static final String FIELD_HEIGHT = Util.intToStringMaxRadix(1);
+  private static final String FIELD_UNAPPLIED_ROTATION_DEGREES = Util.intToStringMaxRadix(2);
+  private static final String FIELD_PIXEL_WIDTH_HEIGHT_RATIO = Util.intToStringMaxRadix(3);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_WIDTH), width);
-    bundle.putInt(keyForField(FIELD_HEIGHT), height);
-    bundle.putInt(keyForField(FIELD_UNAPPLIED_ROTATION_DEGREES), unappliedRotationDegrees);
-    bundle.putFloat(keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), pixelWidthHeightRatio);
+    bundle.putInt(FIELD_WIDTH, width);
+    bundle.putInt(FIELD_HEIGHT, height);
+    bundle.putInt(FIELD_UNAPPLIED_ROTATION_DEGREES, unappliedRotationDegrees);
+    bundle.putFloat(FIELD_PIXEL_WIDTH_HEIGHT_RATIO, pixelWidthHeightRatio);
     return bundle;
   }
 
   public static final Creator<VideoSize> CREATOR =
       bundle -> {
-        int width = bundle.getInt(keyForField(FIELD_WIDTH), DEFAULT_WIDTH);
-        int height = bundle.getInt(keyForField(FIELD_HEIGHT), DEFAULT_HEIGHT);
+        int width = bundle.getInt(FIELD_WIDTH, DEFAULT_WIDTH);
+        int height = bundle.getInt(FIELD_HEIGHT, DEFAULT_HEIGHT);
         int unappliedRotationDegrees =
-            bundle.getInt(
-                keyForField(FIELD_UNAPPLIED_ROTATION_DEGREES), DEFAULT_UNAPPLIED_ROTATION_DEGREES);
+            bundle.getInt(FIELD_UNAPPLIED_ROTATION_DEGREES, DEFAULT_UNAPPLIED_ROTATION_DEGREES);
         float pixelWidthHeightRatio =
-            bundle.getFloat(
-                keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
+            bundle.getFloat(FIELD_PIXEL_WIDTH_HEIGHT_RATIO, DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
         return new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

@@ -30,7 +30,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.msToUs;
 import static com.google.android.exoplayer2.util.Util.usToMs;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.net.Uri;
@@ -39,7 +38,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
 import android.view.ViewGroup;
-import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -97,10 +95,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -326,13 +320,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
       // Bundleable implementation.
 
-      @Documented
-      @Retention(RetentionPolicy.SOURCE)
-      @Target(TYPE_USE)
-      @IntDef({FIELD_AD_PLAYBACK_STATES})
-      private @interface FieldNumber {}
-
-      private static final int FIELD_AD_PLAYBACK_STATES = 1;
+      private static final String FIELD_AD_PLAYBACK_STATES = Util.intToStringMaxRadix(1);
 
       @Override
       public Bundle toBundle() {
@@ -341,7 +329,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         for (Map.Entry<String, AdPlaybackState> entry : adPlaybackStates.entrySet()) {
           adPlaybackStatesBundle.putBundle(entry.getKey(), entry.getValue().toBundle());
         }
-        bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATES), adPlaybackStatesBundle);
+        bundle.putBundle(FIELD_AD_PLAYBACK_STATES, adPlaybackStatesBundle);
         return bundle;
       }
 
@@ -352,8 +340,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         @Nullable
         ImmutableMap.Builder<String, AdPlaybackState> adPlaybackStateMap =
             new ImmutableMap.Builder<>();
-        Bundle adPlaybackStateBundle =
-            checkNotNull(bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATES)));
+        Bundle adPlaybackStateBundle = checkNotNull(bundle.getBundle(FIELD_AD_PLAYBACK_STATES));
         for (String key : adPlaybackStateBundle.keySet()) {
           AdPlaybackState adPlaybackState =
               AdPlaybackState.CREATOR.fromBundle(
@@ -362,10 +349,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               key, AdPlaybackState.fromAdPlaybackState(/* adsId= */ key, adPlaybackState));
         }
         return new State(adPlaybackStateMap.buildOrThrow());
-      }
-
-      private static String keyForField(@FieldNumber int field) {
-        return Integer.toString(field, Character.MAX_RADIX);
       }
     }
 

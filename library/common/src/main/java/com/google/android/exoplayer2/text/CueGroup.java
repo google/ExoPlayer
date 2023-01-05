@@ -15,20 +15,14 @@
  */
 package com.google.android.exoplayer2.text;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,38 +57,28 @@ public final class CueGroup implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_CUES, FIELD_PRESENTATION_TIME_US})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_CUES = 0;
-  private static final int FIELD_PRESENTATION_TIME_US = 1;
+  private static final String FIELD_CUES = Util.intToStringMaxRadix(0);
+  private static final String FIELD_PRESENTATION_TIME_US = Util.intToStringMaxRadix(1);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
-        keyForField(FIELD_CUES), BundleableUtil.toBundleArrayList(filterOutBitmapCues(cues)));
-    bundle.putLong(keyForField(FIELD_PRESENTATION_TIME_US), presentationTimeUs);
+        FIELD_CUES, BundleableUtil.toBundleArrayList(filterOutBitmapCues(cues)));
+    bundle.putLong(FIELD_PRESENTATION_TIME_US, presentationTimeUs);
     return bundle;
   }
 
   public static final Creator<CueGroup> CREATOR = CueGroup::fromBundle;
 
   private static final CueGroup fromBundle(Bundle bundle) {
-    @Nullable ArrayList<Bundle> cueBundles = bundle.getParcelableArrayList(keyForField(FIELD_CUES));
+    @Nullable ArrayList<Bundle> cueBundles = bundle.getParcelableArrayList(FIELD_CUES);
     List<Cue> cues =
         cueBundles == null
             ? ImmutableList.of()
             : BundleableUtil.fromBundleList(Cue.CREATOR, cueBundles);
-    long presentationTimeUs = bundle.getLong(keyForField(FIELD_PRESENTATION_TIME_US));
+    long presentationTimeUs = bundle.getLong(FIELD_PRESENTATION_TIME_US);
     return new CueGroup(cues, presentationTimeUs);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 
   /**

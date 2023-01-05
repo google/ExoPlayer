@@ -158,95 +158,71 @@ public class TrackSelectionParameters implements Bundleable {
     /** Creates a builder with the initial values specified in {@code bundle}. */
     protected Builder(Bundle bundle) {
       // Video
-      maxVideoWidth =
-          bundle.getInt(keyForField(FIELD_MAX_VIDEO_WIDTH), DEFAULT_WITHOUT_CONTEXT.maxVideoWidth);
+      maxVideoWidth = bundle.getInt(FIELD_MAX_VIDEO_WIDTH, DEFAULT_WITHOUT_CONTEXT.maxVideoWidth);
       maxVideoHeight =
-          bundle.getInt(
-              keyForField(FIELD_MAX_VIDEO_HEIGHT), DEFAULT_WITHOUT_CONTEXT.maxVideoHeight);
+          bundle.getInt(FIELD_MAX_VIDEO_HEIGHT, DEFAULT_WITHOUT_CONTEXT.maxVideoHeight);
       maxVideoFrameRate =
-          bundle.getInt(
-              keyForField(FIELD_MAX_VIDEO_FRAMERATE), DEFAULT_WITHOUT_CONTEXT.maxVideoFrameRate);
+          bundle.getInt(FIELD_MAX_VIDEO_FRAMERATE, DEFAULT_WITHOUT_CONTEXT.maxVideoFrameRate);
       maxVideoBitrate =
-          bundle.getInt(
-              keyForField(FIELD_MAX_VIDEO_BITRATE), DEFAULT_WITHOUT_CONTEXT.maxVideoBitrate);
-      minVideoWidth =
-          bundle.getInt(keyForField(FIELD_MIN_VIDEO_WIDTH), DEFAULT_WITHOUT_CONTEXT.minVideoWidth);
+          bundle.getInt(FIELD_MAX_VIDEO_BITRATE, DEFAULT_WITHOUT_CONTEXT.maxVideoBitrate);
+      minVideoWidth = bundle.getInt(FIELD_MIN_VIDEO_WIDTH, DEFAULT_WITHOUT_CONTEXT.minVideoWidth);
       minVideoHeight =
-          bundle.getInt(
-              keyForField(FIELD_MIN_VIDEO_HEIGHT), DEFAULT_WITHOUT_CONTEXT.minVideoHeight);
+          bundle.getInt(FIELD_MIN_VIDEO_HEIGHT, DEFAULT_WITHOUT_CONTEXT.minVideoHeight);
       minVideoFrameRate =
-          bundle.getInt(
-              keyForField(FIELD_MIN_VIDEO_FRAMERATE), DEFAULT_WITHOUT_CONTEXT.minVideoFrameRate);
+          bundle.getInt(FIELD_MIN_VIDEO_FRAMERATE, DEFAULT_WITHOUT_CONTEXT.minVideoFrameRate);
       minVideoBitrate =
-          bundle.getInt(
-              keyForField(FIELD_MIN_VIDEO_BITRATE), DEFAULT_WITHOUT_CONTEXT.minVideoBitrate);
-      viewportWidth =
-          bundle.getInt(keyForField(FIELD_VIEWPORT_WIDTH), DEFAULT_WITHOUT_CONTEXT.viewportWidth);
-      viewportHeight =
-          bundle.getInt(keyForField(FIELD_VIEWPORT_HEIGHT), DEFAULT_WITHOUT_CONTEXT.viewportHeight);
+          bundle.getInt(FIELD_MIN_VIDEO_BITRATE, DEFAULT_WITHOUT_CONTEXT.minVideoBitrate);
+      viewportWidth = bundle.getInt(FIELD_VIEWPORT_WIDTH, DEFAULT_WITHOUT_CONTEXT.viewportWidth);
+      viewportHeight = bundle.getInt(FIELD_VIEWPORT_HEIGHT, DEFAULT_WITHOUT_CONTEXT.viewportHeight);
       viewportOrientationMayChange =
           bundle.getBoolean(
-              keyForField(FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE),
+              FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE,
               DEFAULT_WITHOUT_CONTEXT.viewportOrientationMayChange);
       preferredVideoMimeTypes =
           ImmutableList.copyOf(
-              firstNonNull(
-                  bundle.getStringArray(keyForField(FIELD_PREFERRED_VIDEO_MIMETYPES)),
-                  new String[0]));
+              firstNonNull(bundle.getStringArray(FIELD_PREFERRED_VIDEO_MIMETYPES), new String[0]));
       preferredVideoRoleFlags =
           bundle.getInt(
-              keyForField(FIELD_PREFERRED_VIDEO_ROLE_FLAGS),
-              DEFAULT_WITHOUT_CONTEXT.preferredVideoRoleFlags);
+              FIELD_PREFERRED_VIDEO_ROLE_FLAGS, DEFAULT_WITHOUT_CONTEXT.preferredVideoRoleFlags);
       // Audio
       String[] preferredAudioLanguages1 =
-          firstNonNull(
-              bundle.getStringArray(keyForField(FIELD_PREFERRED_AUDIO_LANGUAGES)), new String[0]);
+          firstNonNull(bundle.getStringArray(FIELD_PREFERRED_AUDIO_LANGUAGES), new String[0]);
       preferredAudioLanguages = normalizeLanguageCodes(preferredAudioLanguages1);
       preferredAudioRoleFlags =
           bundle.getInt(
-              keyForField(FIELD_PREFERRED_AUDIO_ROLE_FLAGS),
-              DEFAULT_WITHOUT_CONTEXT.preferredAudioRoleFlags);
+              FIELD_PREFERRED_AUDIO_ROLE_FLAGS, DEFAULT_WITHOUT_CONTEXT.preferredAudioRoleFlags);
       maxAudioChannelCount =
           bundle.getInt(
-              keyForField(FIELD_MAX_AUDIO_CHANNEL_COUNT),
-              DEFAULT_WITHOUT_CONTEXT.maxAudioChannelCount);
+              FIELD_MAX_AUDIO_CHANNEL_COUNT, DEFAULT_WITHOUT_CONTEXT.maxAudioChannelCount);
       maxAudioBitrate =
-          bundle.getInt(
-              keyForField(FIELD_MAX_AUDIO_BITRATE), DEFAULT_WITHOUT_CONTEXT.maxAudioBitrate);
+          bundle.getInt(FIELD_MAX_AUDIO_BITRATE, DEFAULT_WITHOUT_CONTEXT.maxAudioBitrate);
       preferredAudioMimeTypes =
           ImmutableList.copyOf(
-              firstNonNull(
-                  bundle.getStringArray(keyForField(FIELD_PREFERRED_AUDIO_MIME_TYPES)),
-                  new String[0]));
+              firstNonNull(bundle.getStringArray(FIELD_PREFERRED_AUDIO_MIME_TYPES), new String[0]));
       // Text
       preferredTextLanguages =
           normalizeLanguageCodes(
-              firstNonNull(
-                  bundle.getStringArray(keyForField(FIELD_PREFERRED_TEXT_LANGUAGES)),
-                  new String[0]));
+              firstNonNull(bundle.getStringArray(FIELD_PREFERRED_TEXT_LANGUAGES), new String[0]));
       preferredTextRoleFlags =
           bundle.getInt(
-              keyForField(FIELD_PREFERRED_TEXT_ROLE_FLAGS),
-              DEFAULT_WITHOUT_CONTEXT.preferredTextRoleFlags);
+              FIELD_PREFERRED_TEXT_ROLE_FLAGS, DEFAULT_WITHOUT_CONTEXT.preferredTextRoleFlags);
       ignoredTextSelectionFlags =
           bundle.getInt(
-              keyForField(FIELD_IGNORED_TEXT_SELECTION_FLAGS),
+              FIELD_IGNORED_TEXT_SELECTION_FLAGS,
               DEFAULT_WITHOUT_CONTEXT.ignoredTextSelectionFlags);
       selectUndeterminedTextLanguage =
           bundle.getBoolean(
-              keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE),
+              FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
               DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage);
       // General
       forceLowestBitrate =
-          bundle.getBoolean(
-              keyForField(FIELD_FORCE_LOWEST_BITRATE), DEFAULT_WITHOUT_CONTEXT.forceLowestBitrate);
+          bundle.getBoolean(FIELD_FORCE_LOWEST_BITRATE, DEFAULT_WITHOUT_CONTEXT.forceLowestBitrate);
       forceHighestSupportedBitrate =
           bundle.getBoolean(
-              keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
+              FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
       @Nullable
-      List<Bundle> overrideBundleList =
-          bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDES));
+      List<Bundle> overrideBundleList = bundle.getParcelableArrayList(FIELD_SELECTION_OVERRIDES);
       List<TrackSelectionOverride> overrideList =
           overrideBundleList == null
               ? ImmutableList.of()
@@ -257,7 +233,7 @@ public class TrackSelectionParameters implements Bundleable {
         overrides.put(override.mediaTrackGroup, override);
       }
       int[] disabledTrackTypeArray =
-          firstNonNull(bundle.getIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE)), new int[0]);
+          firstNonNull(bundle.getIntArray(FIELD_DISABLED_TRACK_TYPE), new int[0]);
       disabledTrackTypes = new HashSet<>();
       for (@C.TrackType int disabledTrackType : disabledTrackTypeArray) {
         disabledTrackTypes.add(disabledTrackType);
@@ -1098,39 +1074,40 @@ public class TrackSelectionParameters implements Bundleable {
 
   // Bundleable implementation
 
-  private static final int FIELD_PREFERRED_AUDIO_LANGUAGES = 1;
-  private static final int FIELD_PREFERRED_AUDIO_ROLE_FLAGS = 2;
-  private static final int FIELD_PREFERRED_TEXT_LANGUAGES = 3;
-  private static final int FIELD_PREFERRED_TEXT_ROLE_FLAGS = 4;
-  private static final int FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE = 5;
-  private static final int FIELD_MAX_VIDEO_WIDTH = 6;
-  private static final int FIELD_MAX_VIDEO_HEIGHT = 7;
-  private static final int FIELD_MAX_VIDEO_FRAMERATE = 8;
-  private static final int FIELD_MAX_VIDEO_BITRATE = 9;
-  private static final int FIELD_MIN_VIDEO_WIDTH = 10;
-  private static final int FIELD_MIN_VIDEO_HEIGHT = 11;
-  private static final int FIELD_MIN_VIDEO_FRAMERATE = 12;
-  private static final int FIELD_MIN_VIDEO_BITRATE = 13;
-  private static final int FIELD_VIEWPORT_WIDTH = 14;
-  private static final int FIELD_VIEWPORT_HEIGHT = 15;
-  private static final int FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE = 16;
-  private static final int FIELD_PREFERRED_VIDEO_MIMETYPES = 17;
-  private static final int FIELD_MAX_AUDIO_CHANNEL_COUNT = 18;
-  private static final int FIELD_MAX_AUDIO_BITRATE = 19;
-  private static final int FIELD_PREFERRED_AUDIO_MIME_TYPES = 20;
-  private static final int FIELD_FORCE_LOWEST_BITRATE = 21;
-  private static final int FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE = 22;
-  private static final int FIELD_SELECTION_OVERRIDES = 23;
-  private static final int FIELD_DISABLED_TRACK_TYPE = 24;
-  private static final int FIELD_PREFERRED_VIDEO_ROLE_FLAGS = 25;
-  private static final int FIELD_IGNORED_TEXT_SELECTION_FLAGS = 26;
+  private static final String FIELD_PREFERRED_AUDIO_LANGUAGES = Util.intToStringMaxRadix(1);
+  private static final String FIELD_PREFERRED_AUDIO_ROLE_FLAGS = Util.intToStringMaxRadix(2);
+  private static final String FIELD_PREFERRED_TEXT_LANGUAGES = Util.intToStringMaxRadix(3);
+  private static final String FIELD_PREFERRED_TEXT_ROLE_FLAGS = Util.intToStringMaxRadix(4);
+  private static final String FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE = Util.intToStringMaxRadix(5);
+  private static final String FIELD_MAX_VIDEO_WIDTH = Util.intToStringMaxRadix(6);
+  private static final String FIELD_MAX_VIDEO_HEIGHT = Util.intToStringMaxRadix(7);
+  private static final String FIELD_MAX_VIDEO_FRAMERATE = Util.intToStringMaxRadix(8);
+  private static final String FIELD_MAX_VIDEO_BITRATE = Util.intToStringMaxRadix(9);
+  private static final String FIELD_MIN_VIDEO_WIDTH = Util.intToStringMaxRadix(10);
+  private static final String FIELD_MIN_VIDEO_HEIGHT = Util.intToStringMaxRadix(11);
+  private static final String FIELD_MIN_VIDEO_FRAMERATE = Util.intToStringMaxRadix(12);
+  private static final String FIELD_MIN_VIDEO_BITRATE = Util.intToStringMaxRadix(13);
+  private static final String FIELD_VIEWPORT_WIDTH = Util.intToStringMaxRadix(14);
+  private static final String FIELD_VIEWPORT_HEIGHT = Util.intToStringMaxRadix(15);
+  private static final String FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE = Util.intToStringMaxRadix(16);
+  private static final String FIELD_PREFERRED_VIDEO_MIMETYPES = Util.intToStringMaxRadix(17);
+  private static final String FIELD_MAX_AUDIO_CHANNEL_COUNT = Util.intToStringMaxRadix(18);
+  private static final String FIELD_MAX_AUDIO_BITRATE = Util.intToStringMaxRadix(19);
+  private static final String FIELD_PREFERRED_AUDIO_MIME_TYPES = Util.intToStringMaxRadix(20);
+  private static final String FIELD_FORCE_LOWEST_BITRATE = Util.intToStringMaxRadix(21);
+  private static final String FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE = Util.intToStringMaxRadix(22);
+  private static final String FIELD_SELECTION_OVERRIDES = Util.intToStringMaxRadix(23);
+  private static final String FIELD_DISABLED_TRACK_TYPE = Util.intToStringMaxRadix(24);
+  private static final String FIELD_PREFERRED_VIDEO_ROLE_FLAGS = Util.intToStringMaxRadix(25);
+  private static final String FIELD_IGNORED_TEXT_SELECTION_FLAGS = Util.intToStringMaxRadix(26);
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
    * and {@link Bundleable.Creator}.
    *
    * <p>Subclasses should obtain keys for their {@link Bundle} representation by applying a
-   * non-negative offset on this constant and passing the result to {@link #keyForField(int)}.
+   * non-negative offset on this constant and passing the result to {@link
+   * Util#intToStringMaxRadix(int)}.
    */
   protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
@@ -1139,46 +1116,39 @@ public class TrackSelectionParameters implements Bundleable {
     Bundle bundle = new Bundle();
 
     // Video
-    bundle.putInt(keyForField(FIELD_MAX_VIDEO_WIDTH), maxVideoWidth);
-    bundle.putInt(keyForField(FIELD_MAX_VIDEO_HEIGHT), maxVideoHeight);
-    bundle.putInt(keyForField(FIELD_MAX_VIDEO_FRAMERATE), maxVideoFrameRate);
-    bundle.putInt(keyForField(FIELD_MAX_VIDEO_BITRATE), maxVideoBitrate);
-    bundle.putInt(keyForField(FIELD_MIN_VIDEO_WIDTH), minVideoWidth);
-    bundle.putInt(keyForField(FIELD_MIN_VIDEO_HEIGHT), minVideoHeight);
-    bundle.putInt(keyForField(FIELD_MIN_VIDEO_FRAMERATE), minVideoFrameRate);
-    bundle.putInt(keyForField(FIELD_MIN_VIDEO_BITRATE), minVideoBitrate);
-    bundle.putInt(keyForField(FIELD_VIEWPORT_WIDTH), viewportWidth);
-    bundle.putInt(keyForField(FIELD_VIEWPORT_HEIGHT), viewportHeight);
-    bundle.putBoolean(
-        keyForField(FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE), viewportOrientationMayChange);
+    bundle.putInt(FIELD_MAX_VIDEO_WIDTH, maxVideoWidth);
+    bundle.putInt(FIELD_MAX_VIDEO_HEIGHT, maxVideoHeight);
+    bundle.putInt(FIELD_MAX_VIDEO_FRAMERATE, maxVideoFrameRate);
+    bundle.putInt(FIELD_MAX_VIDEO_BITRATE, maxVideoBitrate);
+    bundle.putInt(FIELD_MIN_VIDEO_WIDTH, minVideoWidth);
+    bundle.putInt(FIELD_MIN_VIDEO_HEIGHT, minVideoHeight);
+    bundle.putInt(FIELD_MIN_VIDEO_FRAMERATE, minVideoFrameRate);
+    bundle.putInt(FIELD_MIN_VIDEO_BITRATE, minVideoBitrate);
+    bundle.putInt(FIELD_VIEWPORT_WIDTH, viewportWidth);
+    bundle.putInt(FIELD_VIEWPORT_HEIGHT, viewportHeight);
+    bundle.putBoolean(FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE, viewportOrientationMayChange);
     bundle.putStringArray(
-        keyForField(FIELD_PREFERRED_VIDEO_MIMETYPES),
-        preferredVideoMimeTypes.toArray(new String[0]));
-    bundle.putInt(keyForField(FIELD_PREFERRED_VIDEO_ROLE_FLAGS), preferredVideoRoleFlags);
+        FIELD_PREFERRED_VIDEO_MIMETYPES, preferredVideoMimeTypes.toArray(new String[0]));
+    bundle.putInt(FIELD_PREFERRED_VIDEO_ROLE_FLAGS, preferredVideoRoleFlags);
     // Audio
     bundle.putStringArray(
-        keyForField(FIELD_PREFERRED_AUDIO_LANGUAGES),
-        preferredAudioLanguages.toArray(new String[0]));
-    bundle.putInt(keyForField(FIELD_PREFERRED_AUDIO_ROLE_FLAGS), preferredAudioRoleFlags);
-    bundle.putInt(keyForField(FIELD_MAX_AUDIO_CHANNEL_COUNT), maxAudioChannelCount);
-    bundle.putInt(keyForField(FIELD_MAX_AUDIO_BITRATE), maxAudioBitrate);
+        FIELD_PREFERRED_AUDIO_LANGUAGES, preferredAudioLanguages.toArray(new String[0]));
+    bundle.putInt(FIELD_PREFERRED_AUDIO_ROLE_FLAGS, preferredAudioRoleFlags);
+    bundle.putInt(FIELD_MAX_AUDIO_CHANNEL_COUNT, maxAudioChannelCount);
+    bundle.putInt(FIELD_MAX_AUDIO_BITRATE, maxAudioBitrate);
     bundle.putStringArray(
-        keyForField(FIELD_PREFERRED_AUDIO_MIME_TYPES),
-        preferredAudioMimeTypes.toArray(new String[0]));
+        FIELD_PREFERRED_AUDIO_MIME_TYPES, preferredAudioMimeTypes.toArray(new String[0]));
     // Text
     bundle.putStringArray(
-        keyForField(FIELD_PREFERRED_TEXT_LANGUAGES), preferredTextLanguages.toArray(new String[0]));
-    bundle.putInt(keyForField(FIELD_PREFERRED_TEXT_ROLE_FLAGS), preferredTextRoleFlags);
-    bundle.putInt(keyForField(FIELD_IGNORED_TEXT_SELECTION_FLAGS), ignoredTextSelectionFlags);
-    bundle.putBoolean(
-        keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE), selectUndeterminedTextLanguage);
+        FIELD_PREFERRED_TEXT_LANGUAGES, preferredTextLanguages.toArray(new String[0]));
+    bundle.putInt(FIELD_PREFERRED_TEXT_ROLE_FLAGS, preferredTextRoleFlags);
+    bundle.putInt(FIELD_IGNORED_TEXT_SELECTION_FLAGS, ignoredTextSelectionFlags);
+    bundle.putBoolean(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE, selectUndeterminedTextLanguage);
     // General
-    bundle.putBoolean(keyForField(FIELD_FORCE_LOWEST_BITRATE), forceLowestBitrate);
-    bundle.putBoolean(
-        keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE), forceHighestSupportedBitrate);
-    bundle.putParcelableArrayList(
-        keyForField(FIELD_SELECTION_OVERRIDES), toBundleArrayList(overrides.values()));
-    bundle.putIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE), Ints.toArray(disabledTrackTypes));
+    bundle.putBoolean(FIELD_FORCE_LOWEST_BITRATE, forceLowestBitrate);
+    bundle.putBoolean(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE, forceHighestSupportedBitrate);
+    bundle.putParcelableArrayList(FIELD_SELECTION_OVERRIDES, toBundleArrayList(overrides.values()));
+    bundle.putIntArray(FIELD_DISABLED_TRACK_TYPE, Ints.toArray(disabledTrackTypes));
 
     return bundle;
   }
@@ -1194,15 +1164,4 @@ public class TrackSelectionParameters implements Bundleable {
   @Deprecated
   public static final Creator<TrackSelectionParameters> CREATOR =
       TrackSelectionParameters::fromBundle;
-
-  /**
-   * Converts the given field number to a string which can be used as a field key when implementing
-   * {@link #toBundle()} and {@link Bundleable.Creator}.
-   *
-   * <p>Subclasses should use {@code field} values greater than or equal to {@link
-   * #FIELD_CUSTOM_ID_BASE}.
-   */
-  protected static String keyForField(int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

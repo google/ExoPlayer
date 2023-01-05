@@ -343,13 +343,12 @@ public class PlaybackException extends Exception implements Bundleable {
   /** Creates a new instance using the fields obtained from the given {@link Bundle}. */
   protected PlaybackException(Bundle bundle) {
     this(
-        /* message= */ bundle.getString(keyForField(FIELD_STRING_MESSAGE)),
+        /* message= */ bundle.getString(FIELD_STRING_MESSAGE),
         /* cause= */ getCauseFromBundle(bundle),
         /* errorCode= */ bundle.getInt(
-            keyForField(FIELD_INT_ERROR_CODE), /* defaultValue= */ ERROR_CODE_UNSPECIFIED),
+            FIELD_INT_ERROR_CODE, /* defaultValue= */ ERROR_CODE_UNSPECIFIED),
         /* timestampMs= */ bundle.getLong(
-            keyForField(FIELD_LONG_TIMESTAMP_MS),
-            /* defaultValue= */ SystemClock.elapsedRealtime()));
+            FIELD_LONG_TIMESTAMP_MS, /* defaultValue= */ SystemClock.elapsedRealtime()));
   }
 
   /** Creates a new instance using the given values. */
@@ -397,18 +396,18 @@ public class PlaybackException extends Exception implements Bundleable {
 
   // Bundleable implementation.
 
-  private static final int FIELD_INT_ERROR_CODE = 0;
-  private static final int FIELD_LONG_TIMESTAMP_MS = 1;
-  private static final int FIELD_STRING_MESSAGE = 2;
-  private static final int FIELD_STRING_CAUSE_CLASS_NAME = 3;
-  private static final int FIELD_STRING_CAUSE_MESSAGE = 4;
+  private static final String FIELD_INT_ERROR_CODE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_LONG_TIMESTAMP_MS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_STRING_MESSAGE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_STRING_CAUSE_CLASS_NAME = Util.intToStringMaxRadix(3);
+  private static final String FIELD_STRING_CAUSE_MESSAGE = Util.intToStringMaxRadix(4);
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
    * and {@link Bundleable.Creator}.
    *
    * <p>Subclasses should obtain their {@link Bundle Bundle's} field keys by applying a non-negative
-   * offset on this constant and passing the result to {@link #keyForField(int)}.
+   * offset on this constant and passing the result to {@link Util#intToStringMaxRadix(int)}.
    */
   protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
@@ -419,26 +418,15 @@ public class PlaybackException extends Exception implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_INT_ERROR_CODE), errorCode);
-    bundle.putLong(keyForField(FIELD_LONG_TIMESTAMP_MS), timestampMs);
-    bundle.putString(keyForField(FIELD_STRING_MESSAGE), getMessage());
+    bundle.putInt(FIELD_INT_ERROR_CODE, errorCode);
+    bundle.putLong(FIELD_LONG_TIMESTAMP_MS, timestampMs);
+    bundle.putString(FIELD_STRING_MESSAGE, getMessage());
     @Nullable Throwable cause = getCause();
     if (cause != null) {
-      bundle.putString(keyForField(FIELD_STRING_CAUSE_CLASS_NAME), cause.getClass().getName());
-      bundle.putString(keyForField(FIELD_STRING_CAUSE_MESSAGE), cause.getMessage());
+      bundle.putString(FIELD_STRING_CAUSE_CLASS_NAME, cause.getClass().getName());
+      bundle.putString(FIELD_STRING_CAUSE_MESSAGE, cause.getMessage());
     }
     return bundle;
-  }
-
-  /**
-   * Converts the given field number to a string which can be used as a field key when implementing
-   * {@link #toBundle()} and {@link Bundleable.Creator}.
-   *
-   * <p>Subclasses should use {@code field} values greater than or equal to {@link
-   * #FIELD_CUSTOM_ID_BASE}.
-   */
-  protected static String keyForField(int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 
   // Creates a new {@link Throwable} with possibly {@code null} message.
@@ -456,8 +444,8 @@ public class PlaybackException extends Exception implements Bundleable {
 
   @Nullable
   private static Throwable getCauseFromBundle(Bundle bundle) {
-    @Nullable String causeClassName = bundle.getString(keyForField(FIELD_STRING_CAUSE_CLASS_NAME));
-    @Nullable String causeMessage = bundle.getString(keyForField(FIELD_STRING_CAUSE_MESSAGE));
+    @Nullable String causeClassName = bundle.getString(FIELD_STRING_CAUSE_CLASS_NAME);
+    @Nullable String causeMessage = bundle.getString(FIELD_STRING_CAUSE_MESSAGE);
     @Nullable Throwable cause = null;
     if (!TextUtils.isEmpty(causeClassName)) {
       try {
