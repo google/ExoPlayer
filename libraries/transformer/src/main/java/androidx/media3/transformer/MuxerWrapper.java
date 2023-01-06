@@ -177,7 +177,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     {@linkplain #addTrackFormat(Format) received a format} for every {@linkplain
    *     #setTrackCount(int) track}, or if it should write samples of other track types first to
    *     ensure a good interleaving.
-   * @throws IllegalStateException If the muxer doesn't have any {@linkplain #endTrack(int)
+   * @throws IllegalArgumentException If the muxer doesn't have any {@linkplain #endTrack(int)
    *     non-ended} track of the given track type.
    * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
    */
@@ -189,7 +189,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkArgument(
         trackInfo != null, "Could not write sample because there is no track of type " + trackType);
 
-    if (!canWriteSampleOfType(trackType)) {
+    if (!canWriteSample(trackType, presentationTimeUs)) {
       return false;
     }
 
@@ -255,21 +255,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Returns whether the muxer can write a sample of the given track type.
+   * Returns whether the muxer can write a sample.
    *
-   * @param trackType The track type, defined by the {@code TRACK_TYPE_*} constants in {@link C}.
-   * @return Whether the muxer can write a sample of the given track type. This is {@code false} if
-   *     the muxer hasn't {@link #addTrackFormat(Format) received a format} for every {@link
-   *     #setTrackCount(int) track}, or if it should write samples of other track types first to
-   *     ensure a good interleaving.
-   * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
-   *     track of the given track type.
+   * @param trackType The sample track type.
+   * @param presentationTimeUs The sample presentation time, in microseconds.
+   * @return Whether the muxer can write a sample with the given track type and presentation time.
+   *     This is {@code false} if the muxer hasn't {@link #addTrackFormat(Format) received a format}
+   *     for every {@link #setTrackCount(int) track}, or if it should write samples of other track
+   *     types first to ensure a good interleaving.
    */
-  private boolean canWriteSampleOfType(int trackType) {
-    @Nullable TrackInfo trackInfo = trackTypeToInfo.get(trackType);
-    // SparseArray.get() returns null by default if the value is not found.
-    checkArgument(trackInfo != null, "There is no track of type " + trackType);
-
+  private boolean canWriteSample(@C.TrackType int trackType, long presentationTimeUs) {
     if (!isReady) {
       return false;
     }
@@ -279,7 +274,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (trackType != previousTrackType) {
       minTrackTimeUs = getMinTrackTimeUs(trackTypeToInfo);
     }
-    return trackInfo.timeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
+    return presentationTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
 
   @RequiresNonNull("muxer")

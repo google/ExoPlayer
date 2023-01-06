@@ -147,12 +147,6 @@ sample:
   isKeyFrame = true
   presentationTimeUs = 487620
 sample:
-  trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
-  isKeyFrame = true
-  presentationTimeUs = 510840
-sample:
   trackIndex = 0
   dataHashCode = -770308242
   size = 36692
@@ -169,6 +163,12 @@ sample:
   dataHashCode = 1742602241
   size = 4096
   isKeyFrame = true
+  presentationTimeUs = 510840
+sample:
+  trackIndex = 1
+  dataHashCode = 1742602241
+  size = 4096
+  isKeyFrame = true
   presentationTimeUs = 534059
 sample:
   trackIndex = 1
@@ -176,12 +176,6 @@ sample:
   size = 4096
   isKeyFrame = true
   presentationTimeUs = 557279
-sample:
-  trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
-  isKeyFrame = true
-  presentationTimeUs = 580499
 sample:
   trackIndex = 0
   dataHashCode = 468156717
@@ -194,6 +188,12 @@ sample:
   size = 7735
   isKeyFrame = false
   presentationTimeUs = 200200
+sample:
+  trackIndex = 1
+  dataHashCode = 1742602241
+  size = 4096
+  isKeyFrame = true
+  presentationTimeUs = 580499
 sample:
   trackIndex = 1
   dataHashCode = 1742602241
@@ -225,12 +225,6 @@ sample:
   isKeyFrame = true
   presentationTimeUs = 696599
 sample:
-  trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
-  isKeyFrame = true
-  presentationTimeUs = 719819
-sample:
   trackIndex = 0
   dataHashCode = 1443582006
   size = 987
@@ -259,6 +253,12 @@ sample:
   dataHashCode = 1742602241
   size = 4096
   isKeyFrame = true
+  presentationTimeUs = 719819
+sample:
+  trackIndex = 1
+  dataHashCode = 1742602241
+  size = 4096
+  isKeyFrame = true
   presentationTimeUs = 743039
 sample:
   trackIndex = 1
@@ -278,12 +278,6 @@ sample:
   size = 4096
   isKeyFrame = true
   presentationTimeUs = 812699
-sample:
-  trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
-  isKeyFrame = true
-  presentationTimeUs = 835919
 sample:
   trackIndex = 0
   dataHashCode = -32297181
@@ -313,6 +307,12 @@ sample:
   dataHashCode = 1742602241
   size = 4096
   isKeyFrame = true
+  presentationTimeUs = 835919
+sample:
+  trackIndex = 1
+  dataHashCode = 1742602241
+  size = 4096
+  isKeyFrame = true
   presentationTimeUs = 859139
 sample:
   trackIndex = 1
@@ -333,12 +333,6 @@ sample:
   isKeyFrame = true
   presentationTimeUs = 928799
 sample:
-  trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
-  isKeyFrame = true
-  presentationTimeUs = 952019
-sample:
   trackIndex = 0
   dataHashCode = 1369083472
   size = 568
@@ -356,6 +350,12 @@ sample:
   size = 5450
   isKeyFrame = false
   presentationTimeUs = 567233
+sample:
+  trackIndex = 1
+  dataHashCode = 1742602241
+  size = 4096
+  isKeyFrame = true
+  presentationTimeUs = 952019
 sample:
   trackIndex = 1
   dataHashCode = 1742602241
