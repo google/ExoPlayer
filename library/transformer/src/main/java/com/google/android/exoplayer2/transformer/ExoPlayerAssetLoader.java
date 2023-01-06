@@ -291,22 +291,13 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       int index = 0;
       if (!removeAudio) {
         renderers[index] =
-            new ExoPlayerAssetLoaderRenderer(
-                C.TRACK_TYPE_AUDIO,
-                /* flattenForSlowMotion= */ false,
-                decoderFactory,
-                mediaClock,
-                assetLoaderListener);
+            new ExoAssetLoaderAudioRenderer(decoderFactory, mediaClock, assetLoaderListener);
         index++;
       }
       if (!removeVideo) {
         renderers[index] =
-            new ExoPlayerAssetLoaderRenderer(
-                C.TRACK_TYPE_VIDEO,
-                flattenForSlowMotion,
-                decoderFactory,
-                mediaClock,
-                assetLoaderListener);
+            new ExoAssetLoaderVideoRenderer(
+                flattenForSlowMotion, decoderFactory, mediaClock, assetLoaderListener);
         index++;
       }
       return renderers;

@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OU
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
-import android.media.MediaCodec;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
@@ -33,53 +32,32 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.video.ColorInfo;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/* package */ final class ExoPlayerAssetLoaderRenderer extends BaseRenderer {
+/* package */ abstract class ExoAssetLoaderBaseRenderer extends BaseRenderer {
 
-  private static final String TAG = "ExoPlayerAssetLoaderRenderer";
+  protected long streamOffsetUs;
+  protected @MonotonicNonNull SampleConsumer sampleConsumer;
+  protected @MonotonicNonNull Codec decoder;
+  protected boolean isEnded;
 
-  private final boolean flattenForSlowMotion;
-  private final Codec.DecoderFactory decoderFactory;
   private final TransformerMediaClock mediaClock;
   private final AssetLoader.Listener assetLoaderListener;
   private final DecoderInputBuffer decoderInputBuffer;
-  private final List<Long> decodeOnlyPresentationTimestamps;
 
   private boolean isTransformationRunning;
   private long streamStartPositionUs;
-  private long streamOffsetUs;
-  private @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
-  private @MonotonicNonNull Codec decoder;
-  @Nullable private ByteBuffer pendingDecoderOutputBuffer;
-  private int maxDecoderPendingFrameCount;
-  private @MonotonicNonNull SampleConsumer sampleConsumer;
-  private boolean isEnded;
 
-  public ExoPlayerAssetLoaderRenderer(
-      int trackType,
-      boolean flattenForSlowMotion,
-      Codec.DecoderFactory decoderFactory,
+  public ExoAssetLoaderBaseRenderer(
+      @C.TrackType int trackType,
       TransformerMediaClock mediaClock,
       AssetLoader.Listener assetLoaderListener) {
     super(trackType);
-    this.flattenForSlowMotion = flattenForSlowMotion;
-    this.decoderFactory = decoderFactory;
     this.mediaClock = mediaClock;
     this.assetLoaderListener = assetLoaderListener;
     decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
-    decodeOnlyPresentationTimestamps = new ArrayList<>();
-  }
-
-  @Override
-  public String getName() {
-    return TAG;
   }
 
   /**
@@ -119,13 +97,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
 
       if (sampleConsumer.expectsDecodedData()) {
-        if (getTrackType() == C.TRACK_TYPE_AUDIO) {
-          while (feedConsumerAudioFromDecoder() || feedDecoderFromInput()) {}
-        } else if (getTrackType() == C.TRACK_TYPE_VIDEO) {
-          while (feedConsumerVideoFromDecoder() || feedDecoderFromInput()) {}
-        } else {
-          throw new IllegalStateException();
-        }
+        while (feedConsumerFromDecoder() || feedDecoderFromInput()) {}
       } else {
         while (feedConsumerFromInput()) {}
       }
@@ -163,6 +135,35 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
+  /** Called when the {@link Format} of the samples fed to the renderer is known. */
+  protected void onInputFormatRead(Format inputFormat) {}
+
+  /** Initializes {@link #decoder} with an appropriate {@linkplain Codec decoder}. */
+  @RequiresNonNull("sampleConsumer")
+  protected abstract void initDecoder(Format inputFormat) throws TransformationException;
+
+  /**
+   * Preprocesses an encoded {@linkplain DecoderInputBuffer input buffer} and returns whether it
+   * should be dropped.
+   *
+   * <p>The input buffer is cleared if it should be dropped.
+   */
+  protected boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
+    return false;
+  }
+
+  /** Called before a {@link DecoderInputBuffer} is queued to the decoder. */
+  protected void onDecoderInputReady(DecoderInputBuffer inputBuffer) {}
+
+  /**
+   * Attempts to get decoded data and pass it to the sample consumer.
+   *
+   * @return Whether it may be possible to read more data immediately by calling this method again.
+   * @throws TransformationException If an error occurs in the decoder.
+   */
+  @RequiresNonNull("sampleConsumer")
+  protected abstract boolean feedConsumerFromDecoder() throws TransformationException;
+
   @EnsuresNonNullIf(expression = "sampleConsumer", result = true)
   private boolean ensureConfigured() throws TransformationException {
     if (sampleConsumer != null) {
@@ -181,104 +182,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleConsumer =
         assetLoaderListener.onTrackAdded(
             inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
-    if (getTrackType() == C.TRACK_TYPE_VIDEO && flattenForSlowMotion) {
-      sefVideoSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
-    }
+    onInputFormatRead(inputFormat);
     if (sampleConsumer.expectsDecodedData()) {
-      if (getTrackType() == C.TRACK_TYPE_AUDIO) {
-        decoder = decoderFactory.createForAudioDecoding(inputFormat);
-      } else if (getTrackType() == C.TRACK_TYPE_VIDEO) {
-        boolean isDecoderToneMappingRequired =
-            ColorInfo.isTransferHdr(inputFormat.colorInfo)
-                && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedColorInfo());
-        decoder =
-            decoderFactory.createForVideoDecoding(
-                inputFormat,
-                checkNotNull(sampleConsumer.getInputSurface()),
-                isDecoderToneMappingRequired);
-        maxDecoderPendingFrameCount = decoder.getMaxPendingFrameCount();
-      } else {
-        throw new IllegalStateException();
-      }
+      initDecoder(inputFormat);
     }
-    return true;
-  }
-
-  /**
-   * Attempts to get decoded audio data and pass it to the sample consumer.
-   *
-   * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If an error occurs in the decoder.
-   */
-  @RequiresNonNull("sampleConsumer")
-  private boolean feedConsumerAudioFromDecoder() throws TransformationException {
-    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.dequeueInputBuffer();
-    if (sampleConsumerInputBuffer == null) {
-      return false;
-    }
-
-    Codec decoder = checkNotNull(this.decoder);
-    if (pendingDecoderOutputBuffer != null) {
-      if (pendingDecoderOutputBuffer.hasRemaining()) {
-        return false;
-      } else {
-        decoder.releaseOutputBuffer(/* render= */ false);
-        pendingDecoderOutputBuffer = null;
-      }
-    }
-
-    if (decoder.isEnded()) {
-      sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      sampleConsumer.queueInputBuffer();
-      isEnded = true;
-      return false;
-    }
-
-    pendingDecoderOutputBuffer = decoder.getOutputBuffer();
-    if (pendingDecoderOutputBuffer == null) {
-      return false;
-    }
-
-    sampleConsumerInputBuffer.data = pendingDecoderOutputBuffer;
-    MediaCodec.BufferInfo bufferInfo = checkNotNull(decoder.getOutputBufferInfo());
-    sampleConsumerInputBuffer.timeUs = bufferInfo.presentationTimeUs;
-    sampleConsumerInputBuffer.setFlags(bufferInfo.flags);
-    sampleConsumer.queueInputBuffer();
-    return true;
-  }
-
-  /**
-   * Attempts to get decoded video data and pass it to the sample consumer.
-   *
-   * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If an error occurs in the decoder.
-   */
-  @RequiresNonNull("sampleConsumer")
-  private boolean feedConsumerVideoFromDecoder() throws TransformationException {
-    Codec decoder = checkNotNull(this.decoder);
-    if (decoder.isEnded()) {
-      sampleConsumer.signalEndOfVideoInput();
-      isEnded = true;
-      return false;
-    }
-
-    @Nullable MediaCodec.BufferInfo decoderOutputBufferInfo = decoder.getOutputBufferInfo();
-    if (decoderOutputBufferInfo == null) {
-      return false;
-    }
-
-    if (isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
-      decoder.releaseOutputBuffer(/* render= */ false);
-      return true;
-    }
-
-    if (maxDecoderPendingFrameCount != C.UNLIMITED_PENDING_FRAME_COUNT
-        && sampleConsumer.getPendingVideoFrameCount() == maxDecoderPendingFrameCount) {
-      return false;
-    }
-
-    sampleConsumer.registerVideoFrame();
-    decoder.releaseOutputBuffer(/* render= */ true);
     return true;
   }
 
@@ -302,9 +209,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
 
-    if (decoderInputBuffer.isDecodeOnly()) {
-      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
-    }
+    onDecoderInputReady(decoderInputBuffer);
     decoder.queueInputBuffer(decoderInputBuffer);
     return true;
   }
@@ -358,43 +263,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       default:
         return false;
     }
-  }
-
-  /**
-   * Preprocesses an encoded {@linkplain DecoderInputBuffer input buffer} and returns whether it
-   * should be dropped.
-   *
-   * <p>The input buffer is cleared if it should be dropped.
-   */
-  private boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
-    ByteBuffer inputBytes = checkNotNull(inputBuffer.data);
-
-    if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
-      return false;
-    }
-
-    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
-    boolean shouldDropInputBuffer =
-        sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
-    if (shouldDropInputBuffer) {
-      inputBytes.clear();
-    } else {
-      inputBuffer.timeUs =
-          streamOffsetUs + sefVideoSlowMotionFlattener.getSamplePresentationTimeUs();
-    }
-    return shouldDropInputBuffer;
-  }
-
-  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
-    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
-    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
-    int size = decodeOnlyPresentationTimestamps.size();
-    for (int i = 0; i < size; i++) {
-      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
-        decodeOnlyPresentationTimestamps.remove(i);
-        return true;
-      }
-    }
-    return false;
   }
 }
