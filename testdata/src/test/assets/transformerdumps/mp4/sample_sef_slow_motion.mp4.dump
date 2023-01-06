@@ -190,12 +190,6 @@ sample:
   isKeyFrame = false
   presentationTimeUs = 434083
 sample:
-  trackIndex = 1
-  dataHashCode = 2112365658
-  size = 1109
-  isKeyFrame = false
-  presentationTimeUs = 600750
-sample:
   trackIndex = 0
   dataHashCode = 1580199067
   size = 232
@@ -279,6 +273,12 @@ sample:
   size = 232
   isKeyFrame = true
   presentationTimeUs = 84417
+sample:
+  trackIndex = 1
+  dataHashCode = 2112365658
+  size = 1109
+  isKeyFrame = false
+  presentationTimeUs = 600750
 sample:
   trackIndex = 1
   dataHashCode = -968901399
