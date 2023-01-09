@@ -139,7 +139,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
+  public DecoderInputBuffer getInputBuffer() {
     return hasPendingInputBuffer ? null : inputBuffer;
   }
 

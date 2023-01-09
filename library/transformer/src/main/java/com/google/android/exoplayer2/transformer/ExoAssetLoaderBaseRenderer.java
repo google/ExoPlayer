@@ -221,7 +221,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull("sampleConsumer")
   private boolean feedConsumerFromInput() {
-    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.dequeueInputBuffer();
+    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.getInputBuffer();
     if (sampleConsumerInputBuffer == null) {
       return false;
     }

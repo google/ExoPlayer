@@ -278,7 +278,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // The sample pipeline is drained before dequeuing input to maximise the chances of having an
     // input buffer to dequeue.
     while (samplePipeline.processData()) {}
-    pendingInputBuffer = samplePipeline.dequeueInputBuffer();
+    pendingInputBuffer = samplePipeline.getInputBuffer();
     dequeueBufferConditionVariable.open();
 
     if (forceSilentAudio) {
@@ -640,7 +640,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       @Nullable
       @Override
-      public DecoderInputBuffer dequeueInputBuffer() {
+      public DecoderInputBuffer getInputBuffer() {
         if (released) {
           // Make sure there is no dequeue action waiting on the asset loader thread when it is
           // being released to avoid a deadlock.

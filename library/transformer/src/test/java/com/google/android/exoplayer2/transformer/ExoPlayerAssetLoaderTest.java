@@ -139,7 +139,7 @@ public class ExoPlayerAssetLoaderTest {
 
     @Nullable
     @Override
-    public DecoderInputBuffer dequeueInputBuffer() {
+    public DecoderInputBuffer getInputBuffer() {
       return null;
     }
 
