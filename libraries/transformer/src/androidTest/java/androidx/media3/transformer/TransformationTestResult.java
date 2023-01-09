@@ -19,6 +19,7 @@ import static androidx.media3.transformer.AndroidTestUtil.exceptionAsJsonObject;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -194,7 +195,10 @@ public class TransformationTestResult {
     if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
       jsonObject.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
     }
-    if (transformationResult.durationMs != C.LENGTH_UNSET) {
+    if (transformationResult.channelCount != C.LENGTH_UNSET) {
+      jsonObject.put("channelCount", transformationResult.channelCount);
+    }
+    if (transformationResult.durationMs != C.TIME_UNSET) {
       jsonObject.put("durationMs", transformationResult.durationMs);
     }
     if (elapsedTimeMs != C.TIME_UNSET) {
@@ -202,6 +206,15 @@ public class TransformationTestResult {
     }
     if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
       jsonObject.put("fileSizeBytes", transformationResult.fileSizeBytes);
+    }
+    if (transformationResult.height != C.LENGTH_UNSET) {
+      jsonObject.put("height", transformationResult.height);
+    }
+    if (transformationResult.pcmEncoding != Format.NO_VALUE) {
+      jsonObject.put("pcmEncoding", transformationResult.pcmEncoding);
+    }
+    if (transformationResult.sampleRate != C.RATE_UNSET_INT) {
+      jsonObject.put("sampleRate", transformationResult.sampleRate);
     }
     if (ssim != TransformationTestResult.SSIM_UNSET) {
       jsonObject.put("ssim", ssim);
@@ -211,6 +224,9 @@ public class TransformationTestResult {
     }
     if (transformationResult.videoFrameCount > 0) {
       jsonObject.put("videoFrameCount", transformationResult.videoFrameCount);
+    }
+    if (transformationResult.width != C.LENGTH_UNSET) {
+      jsonObject.put("width", transformationResult.width);
     }
     return jsonObject;
   }

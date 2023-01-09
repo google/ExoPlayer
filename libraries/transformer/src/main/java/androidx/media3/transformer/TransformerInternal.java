@@ -468,11 +468,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onTrackEnded(
         @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
       if (trackType == C.TRACK_TYPE_AUDIO) {
-        transformationResultBuilder.setAverageAudioBitrate(averageBitrate);
+        transformationResultBuilder
+            .setAverageAudioBitrate(averageBitrate)
+            .setPcmEncoding(format.pcmEncoding);
+        if (format.channelCount != Format.NO_VALUE) {
+          transformationResultBuilder.setChannelCount(format.channelCount);
+        }
+        if (format.sampleRate != Format.NO_VALUE) {
+          transformationResultBuilder.setSampleRate(format.sampleRate);
+        }
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
         transformationResultBuilder
-            .setVideoFrameCount(sampleCount)
-            .setAverageVideoBitrate(averageBitrate);
+            .setAverageVideoBitrate(averageBitrate)
+            .setVideoFrameCount(sampleCount);
+        if (format.height != Format.NO_VALUE) {
+          transformationResultBuilder.setHeight(format.height);
+        }
+        if (format.width != Format.NO_VALUE) {
+          transformationResultBuilder.setWidth(format.width);
+        }
       }
     }
 
