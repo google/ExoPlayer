@@ -113,7 +113,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void setTrackCount(@IntRange(from = 1) int trackCount) {
     checkState(
         trackTypeToInfo.size() == 0,
-        "The track count cannot be set after track formats have been added.");
+        "The track count cannot be changed after adding track formats.");
     this.trackCount = trackCount;
   }
 
@@ -135,23 +135,26 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Adds a track format to the muxer.
    *
    * <p>The number of tracks must be {@linkplain #setTrackCount(int) set} before any format is added
-   * and all the formats must be added before samples are {@linkplain #writeSample(int, ByteBuffer,
-   * boolean, long) written}.
+   * and all the formats must be added before any samples can be {@linkplain #writeSample(int,
+   * ByteBuffer, boolean, long) written}.
    *
    * @param format The {@link Format} to be added.
-   * @throws IllegalStateException If the format is unsupported or if there is already a track
-   *     format of the same type (audio or video).
-   * @throws Muxer.MuxerException If the underlying muxer encounters a problem while adding the
-   *     track.
+   * @throws IllegalArgumentException If the format is unsupported.
+   * @throws IllegalStateException If the number of formats added exceeds the {@linkplain
+   *     #setTrackCount track count}, if {@link #setTrackCount(int)} has not been called or if there
+   *     is already a track of that {@link C.TrackType}.
+   * @throws Muxer.MuxerException If the underlying {@link Muxer} encounters a problem while adding
+   *     the track.
    */
   public void addTrackFormat(Format format) throws Muxer.MuxerException {
     checkState(trackCount > 0, "The track count should be set before the formats are added.");
     checkState(trackTypeToInfo.size() < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
-    boolean isAudio = MimeTypes.isAudio(sampleMimeType);
-    boolean isVideo = MimeTypes.isVideo(sampleMimeType);
-    checkState(isAudio || isVideo, "Unsupported track format: " + sampleMimeType);
     @C.TrackType int trackType = MimeTypes.getTrackType(sampleMimeType);
+    checkArgument(
+        trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO,
+        "Unsupported track format: " + sampleMimeType);
+
     // SparseArray.get() returns null by default if the value is not found.
     checkState(
         trackTypeToInfo.get(trackType) == null, "There is already a track of type " + trackType);
@@ -169,17 +172,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Attempts to write a sample to the muxer.
    *
-   * @param trackType The {@linkplain C.TrackType track type} of the sample.
+   * @param trackType The {@link C.TrackType} of the sample.
    * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
-   * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
-   *     {@linkplain #addTrackFormat(Format) received a format} for every {@linkplain
-   *     #setTrackCount(int) track}, or if it should write samples of other track types first to
-   *     ensure a good interleaving.
-   * @throws IllegalArgumentException If the muxer doesn't have any {@linkplain #endTrack(int)
-   *     non-ended} track of the given track type.
-   * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
+   * @return Whether the sample was successfully written. {@code false} if samples of other
+   *     {@linkplain C.TrackType track types} should be written first to ensure the files track
+   *     interleaving is balanced, or if the muxer hasn't {@linkplain #addTrackFormat(Format)
+   *     received a format} for every {@linkplain #setTrackCount(int) track}.
+   * @throws IllegalArgumentException If the muxer doesn't have a {@linkplain #endTrack(int)
+   *     non-ended} track of the given {@link C.TrackType}.
+   * @throws Muxer.MuxerException If the underlying {@link Muxer} fails to write the sample.
    */
   public boolean writeSample(
       @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
@@ -205,10 +208,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Notifies the muxer that all the samples have been {@link #writeSample(int, ByteBuffer, boolean,
-   * long) written} for a given track.
+   * Notifies the muxer that all the samples have been {@linkplain #writeSample(int, ByteBuffer,
+   * boolean, long) written} for a given track.
    *
-   * @param trackType The {@link C.TrackType track type}.
+   * @param trackType The {@link C.TrackType}.
    */
   public void endTrack(@C.TrackType int trackType) {
     @Nullable TrackInfo trackInfo = trackTypeToInfo.get(trackType);
@@ -243,8 +246,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
-   * @throws Muxer.MuxerException If the underlying muxer fails to finish writing the output and
-   *     {@code forCancellation} is false.
+   * @throws Muxer.MuxerException If the underlying {@link Muxer} fails to finish writing the output
+   *     and {@code forCancellation} is false.
    */
   public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
@@ -254,16 +257,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /**
-   * Returns whether the muxer can write a sample.
-   *
-   * @param trackType The sample track type.
-   * @param presentationTimeUs The sample presentation time, in microseconds.
-   * @return Whether the muxer can write a sample with the given track type and presentation time.
-   *     This is {@code false} if the muxer hasn't {@link #addTrackFormat(Format) received a format}
-   *     for every {@link #setTrackCount(int) track}, or if it should write samples of other track
-   *     types first to ensure a good interleaving.
-   */
   private boolean canWriteSample(@C.TrackType int trackType, long presentationTimeUs) {
     if (!isReady) {
       return false;
