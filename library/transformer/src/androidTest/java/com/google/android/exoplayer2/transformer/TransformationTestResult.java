@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.exceptionAsJsonObject;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -29,6 +31,7 @@ public class TransformationTestResult {
   /** A builder for {@link TransformationTestResult}. */
   public static class Builder {
     private final TransformationResult transformationResult;
+
     @Nullable private String filePath;
     private long elapsedTimeMs;
     private double ssim;
@@ -142,83 +145,72 @@ public class TransformationTestResult {
     }
   }
 
+  /** The {@link TransformationResult} of the transformation. */
   public final TransformationResult transformationResult;
+  /** The path to the file created in the transformation, or {@code null} if unset. */
   @Nullable public final String filePath;
   /**
-   * The average rate (per second) at which frames are processed by the transformer, or {@link
-   * C#RATE_UNSET} if unset or unknown.
-   */
-  public final float throughputFps;
-  /**
-   * The amount of time taken to perform the transformation in milliseconds. {@link C#TIME_UNSET} if
-   * unset.
+   * The amount of time taken to perform the transformation in milliseconds, or {@link C#TIME_UNSET}
+   * if unset.
    */
   public final long elapsedTimeMs;
-  /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
+  /**
+   * The average rate (per second) at which frames were processed by the transformer, or {@link
+   * C#RATE_UNSET} if unset.
+   */
+  public final float throughputFps;
+  /** The SSIM score of the transformation, or {@link #SSIM_UNSET} if unset. */
   public final double ssim;
   /**
    * The {@link FallbackDetails} describing the fallbacks that occurred doing transformation, or
    * {@code null} if no fallback occurred.
    */
   @Nullable public final FallbackDetails fallbackDetails;
-  /**
-   * The {@link Exception} that was thrown during the test, or {@code null} if nothing was thrown.
-   */
+  /** The {@link Exception} thrown during the test, or {@code null} if nothing was thrown. */
   @Nullable public final Exception testException;
-
   /**
-   * The {@link Exception} that was thrown during post-transformation analysis, or {@code null} if
-   * nothing was thrown.
+   * The {@link Exception} thrown during post-transformation analysis, or {@code null} if nothing
+   * was thrown.
    */
   @Nullable public final Exception analysisException;
 
   /** Returns a {@link JSONObject} representing all the values in {@code this}. */
   public JSONObject asJsonObject() throws JSONException {
-    JSONObject jsonObject = new JSONObject();
-    if (transformationResult.durationMs != C.LENGTH_UNSET) {
-      jsonObject.put("durationMs", transformationResult.durationMs);
-    }
-    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
-      jsonObject.put("fileSizeBytes", transformationResult.fileSizeBytes);
-    }
+    JSONObject jsonObject =
+        new JSONObject()
+            .putOpt("audioDecoderName", transformationResult.audioDecoderName)
+            .putOpt("audioEncoderName", transformationResult.audioEncoderName)
+            .putOpt(
+                "fallbackDetails", fallbackDetails != null ? fallbackDetails.asJsonObject() : null)
+            .putOpt("filePath", filePath)
+            .putOpt("videoDecoderName", transformationResult.videoDecoderName)
+            .putOpt("videoEncoderName", transformationResult.videoEncoderName)
+            .putOpt("testException", exceptionAsJsonObject(testException))
+            .putOpt("analysisException", exceptionAsJsonObject(analysisException));
+
     if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
       jsonObject.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
     }
     if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
       jsonObject.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
     }
-    if (transformationResult.videoFrameCount > 0) {
-      jsonObject.put("videoFrameCount", transformationResult.videoFrameCount);
-    }
-    if (transformationResult.audioDecoderName != null) {
-      jsonObject.put("audioDecoderName", transformationResult.audioDecoderName);
-    }
-    if (transformationResult.videoDecoderName != null) {
-      jsonObject.put("videoDecoderName", transformationResult.videoDecoderName);
-    }
-    if (transformationResult.audioEncoderName != null) {
-      jsonObject.put("audioEncoderName", transformationResult.audioEncoderName);
-    }
-    if (transformationResult.videoEncoderName != null) {
-      jsonObject.put("videoEncoderName", transformationResult.videoEncoderName);
-    }
-    if (throughputFps != C.RATE_UNSET) {
-      jsonObject.put("throughputFps", throughputFps);
+    if (transformationResult.durationMs != C.LENGTH_UNSET) {
+      jsonObject.put("durationMs", transformationResult.durationMs);
     }
     if (elapsedTimeMs != C.TIME_UNSET) {
       jsonObject.put("elapsedTimeMs", elapsedTimeMs);
     }
+    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
+      jsonObject.put("fileSizeBytes", transformationResult.fileSizeBytes);
+    }
     if (ssim != TransformationTestResult.SSIM_UNSET) {
       jsonObject.put("ssim", ssim);
     }
-    if (fallbackDetails != null) {
-      jsonObject.put("fallbackDetails", fallbackDetails.asJsonObject());
+    if (throughputFps != C.RATE_UNSET) {
+      jsonObject.put("throughputFps", throughputFps);
     }
-    if (testException != null) {
-      jsonObject.put("testException", AndroidTestUtil.exceptionAsJsonObject(testException));
-    }
-    if (analysisException != null) {
-      jsonObject.put("analysisException", AndroidTestUtil.exceptionAsJsonObject(analysisException));
+    if (transformationResult.videoFrameCount > 0) {
+      jsonObject.put("videoFrameCount", transformationResult.videoFrameCount);
     }
     return jsonObject;
   }

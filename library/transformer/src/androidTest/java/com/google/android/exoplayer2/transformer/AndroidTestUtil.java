@@ -502,11 +502,20 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Converts an exception to a {@link JSONObject}.
+   * Creates a {@link JSONObject} from the {@link Exception}.
    *
    * <p>If the exception is a {@link TransformationException}, {@code errorCode} is included.
+   *
+   * @param exception The {@link Exception}.
+   * @return The {@link JSONObject} containing the exception details, or {@code null} if the
+   *     exception was {@code null}.
    */
-  public static JSONObject exceptionAsJsonObject(Exception exception) throws JSONException {
+  @Nullable
+  public static JSONObject exceptionAsJsonObject(@Nullable Exception exception)
+      throws JSONException {
+    if (exception == null) {
+      return null;
+    }
     JSONObject exceptionJson = new JSONObject();
     exceptionJson.put("message", exception.getMessage());
     exceptionJson.put("type", exception.getClass());

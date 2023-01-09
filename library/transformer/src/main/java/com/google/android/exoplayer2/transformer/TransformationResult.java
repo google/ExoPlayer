@@ -30,10 +30,10 @@ public final class TransformationResult {
     private long durationMs;
     private long fileSizeBytes;
     private int averageAudioBitrate;
-    private int averageVideoBitrate;
-    private int videoFrameCount;
     @Nullable private String audioDecoderName;
     @Nullable private String audioEncoderName;
+    private int averageVideoBitrate;
+    private int videoFrameCount;
     @Nullable private String videoDecoderName;
     @Nullable private String videoEncoderName;
     @Nullable private TransformationException transformationException;
@@ -46,9 +46,9 @@ public final class TransformationResult {
     }
 
     /**
-     * Sets the duration of the video in milliseconds.
+     * Sets the duration of the output in milliseconds.
      *
-     * <p>Input must be positive or {@link C#TIME_UNSET}.
+     * <p>Must be positive or {@link C#TIME_UNSET}.
      */
     @CanIgnoreReturnValue
     public Builder setDurationMs(long durationMs) {
@@ -60,7 +60,7 @@ public final class TransformationResult {
     /**
      * Sets the file size in bytes.
      *
-     * <p>Input must be positive or {@link C#LENGTH_UNSET}.
+     * <p>Must be positive or {@link C#LENGTH_UNSET}.
      */
     @CanIgnoreReturnValue
     public Builder setFileSizeBytes(long fileSizeBytes) {
@@ -72,36 +72,12 @@ public final class TransformationResult {
     /**
      * Sets the average audio bitrate.
      *
-     * <p>Input must be positive or {@link C#RATE_UNSET_INT}.
+     * <p>Must be positive or {@link C#RATE_UNSET_INT}.
      */
     @CanIgnoreReturnValue
     public Builder setAverageAudioBitrate(int averageAudioBitrate) {
       checkArgument(averageAudioBitrate > 0 || averageAudioBitrate == C.RATE_UNSET_INT);
       this.averageAudioBitrate = averageAudioBitrate;
-      return this;
-    }
-
-    /**
-     * Sets the average video bitrate.
-     *
-     * <p>Input must be positive or {@link C#RATE_UNSET_INT}.
-     */
-    @CanIgnoreReturnValue
-    public Builder setAverageVideoBitrate(int averageVideoBitrate) {
-      checkArgument(averageVideoBitrate > 0 || averageVideoBitrate == C.RATE_UNSET_INT);
-      this.averageVideoBitrate = averageVideoBitrate;
-      return this;
-    }
-
-    /**
-     * Sets the number of video frames.
-     *
-     * <p>Input must be positive or {@code 0}.
-     */
-    @CanIgnoreReturnValue
-    public Builder setVideoFrameCount(int videoFrameCount) {
-      checkArgument(videoFrameCount >= 0);
-      this.videoFrameCount = videoFrameCount;
       return this;
     }
 
@@ -116,6 +92,30 @@ public final class TransformationResult {
     @CanIgnoreReturnValue
     public Builder setAudioEncoderName(@Nullable String audioEncoderName) {
       this.audioEncoderName = audioEncoderName;
+      return this;
+    }
+
+    /**
+     * Sets the average video bitrate.
+     *
+     * <p>Must be positive or {@link C#RATE_UNSET_INT}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAverageVideoBitrate(int averageVideoBitrate) {
+      checkArgument(averageVideoBitrate > 0 || averageVideoBitrate == C.RATE_UNSET_INT);
+      this.averageVideoBitrate = averageVideoBitrate;
+      return this;
+    }
+
+    /**
+     * Sets the number of video frames.
+     *
+     * <p>Must be positive or {@code 0}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setVideoFrameCount(int videoFrameCount) {
+      checkArgument(videoFrameCount >= 0);
+      this.videoFrameCount = videoFrameCount;
       return this;
     }
 
@@ -146,10 +146,10 @@ public final class TransformationResult {
           durationMs,
           fileSizeBytes,
           averageAudioBitrate,
-          averageVideoBitrate,
-          videoFrameCount,
           audioDecoderName,
           audioEncoderName,
+          averageVideoBitrate,
+          videoFrameCount,
           videoDecoderName,
           videoEncoderName,
           transformationException);
@@ -160,24 +160,27 @@ public final class TransformationResult {
   public final long durationMs;
   /** The size of the file in bytes, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final long fileSizeBytes;
+
   /**
    * The average bitrate of the audio track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
   public final int averageAudioBitrate;
+  /** The name of the audio decoder used, or {@code null} if none were used. */
+  @Nullable public final String audioDecoderName;
+  /** The name of the audio encoder used, or {@code null} if none were used. */
+  @Nullable public final String audioEncoderName;
+
   /**
    * The average bitrate of the video track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
   public final int averageVideoBitrate;
   /** The number of video frames. */
   public final int videoFrameCount;
-  /** The name of the audio decoder used, or {@code null} if none were used. */
-  @Nullable public final String audioDecoderName;
-  /** The name of the audio encoder used, or {@code null} if none were used. */
-  @Nullable public final String audioEncoderName;
   /** The name of the video decoder used, or {@code null} if none were used. */
   @Nullable public final String videoDecoderName;
   /** The name of the video encoder used, or {@code null} if none were used. */
   @Nullable public final String videoEncoderName;
+
   /**
    * The {@link TransformationException} that caused the transformation to fail, or {@code null} if
    * the transformation was a success.
@@ -188,20 +191,20 @@ public final class TransformationResult {
       long durationMs,
       long fileSizeBytes,
       int averageAudioBitrate,
-      int averageVideoBitrate,
-      int videoFrameCount,
       @Nullable String audioDecoderName,
       @Nullable String audioEncoderName,
+      int averageVideoBitrate,
+      int videoFrameCount,
       @Nullable String videoDecoderName,
       @Nullable String videoEncoderName,
       @Nullable TransformationException transformationException) {
     this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
-    this.averageVideoBitrate = averageVideoBitrate;
-    this.videoFrameCount = videoFrameCount;
     this.audioDecoderName = audioDecoderName;
     this.audioEncoderName = audioEncoderName;
+    this.averageVideoBitrate = averageVideoBitrate;
+    this.videoFrameCount = videoFrameCount;
     this.videoDecoderName = videoDecoderName;
     this.videoEncoderName = videoEncoderName;
     this.transformationException = transformationException;
@@ -212,10 +215,10 @@ public final class TransformationResult {
         .setDurationMs(durationMs)
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)
-        .setAverageVideoBitrate(averageVideoBitrate)
-        .setVideoFrameCount(videoFrameCount)
         .setAudioDecoderName(audioDecoderName)
         .setAudioEncoderName(audioEncoderName)
+        .setAverageVideoBitrate(averageVideoBitrate)
+        .setVideoFrameCount(videoFrameCount)
         .setVideoDecoderName(videoDecoderName)
         .setVideoEncoderName(videoEncoderName)
         .setTransformationException(transformationException);
@@ -233,10 +236,10 @@ public final class TransformationResult {
     return durationMs == result.durationMs
         && fileSizeBytes == result.fileSizeBytes
         && averageAudioBitrate == result.averageAudioBitrate
-        && averageVideoBitrate == result.averageVideoBitrate
-        && videoFrameCount == result.videoFrameCount
         && Objects.equals(audioDecoderName, result.audioDecoderName)
         && Objects.equals(audioEncoderName, result.audioEncoderName)
+        && averageVideoBitrate == result.averageVideoBitrate
+        && videoFrameCount == result.videoFrameCount
         && Objects.equals(videoDecoderName, result.videoDecoderName)
         && Objects.equals(videoEncoderName, result.videoEncoderName)
         && Objects.equals(transformationException, result.transformationException);
@@ -247,10 +250,10 @@ public final class TransformationResult {
     int result = (int) durationMs;
     result = 31 * result + (int) fileSizeBytes;
     result = 31 * result + averageAudioBitrate;
-    result = 31 * result + averageVideoBitrate;
-    result = 31 * result + videoFrameCount;
     result = 31 * result + Objects.hashCode(audioDecoderName);
     result = 31 * result + Objects.hashCode(audioEncoderName);
+    result = 31 * result + averageVideoBitrate;
+    result = 31 * result + videoFrameCount;
     result = 31 * result + Objects.hashCode(videoDecoderName);
     result = 31 * result + Objects.hashCode(videoEncoderName);
     result = 31 * result + Objects.hashCode(transformationException);
