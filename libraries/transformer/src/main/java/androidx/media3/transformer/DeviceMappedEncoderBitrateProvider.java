@@ -22,7 +22,7 @@ import androidx.media3.common.util.Util;
 
 /** Provides encoder bitrates that should target 0.95 SSIM or higher, accounting for device used. */
 @UnstableApi
-public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvider {
+/* package */ class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvider {
 
   @Override
   public int getBitrate(String encoderName, int width, int height, float frameRate) {

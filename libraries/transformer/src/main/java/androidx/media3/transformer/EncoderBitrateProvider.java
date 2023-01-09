@@ -21,7 +21,7 @@ import androidx.media3.common.util.UnstableApi;
 
 /** Provides bitrates for encoders to use as a target. */
 @UnstableApi
-public interface EncoderBitrateProvider {
+/* package */ interface EncoderBitrateProvider {
 
   /**
    * Returns a recommended bitrate that the encoder should target.
