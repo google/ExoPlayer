@@ -39,19 +39,20 @@ public interface SampleConsumer {
    * Returns a buffer if the consumer is ready to accept input, and {@code null} otherwise.
    *
    * <p>If the consumer is ready to accept input and this method is called multiple times before
-   * {@linkplain #queueInputBuffer() queuing} input, the same buffer instance is returned.
+   * {@linkplain #queueInputBuffer() queuing} input, the same {@link DecoderInputBuffer} instance is
+   * returned.
    *
    * <p>Should only be used for compressed data and raw audio data.
    */
   @Nullable
-  default DecoderInputBuffer dequeueInputBuffer() {
+  default DecoderInputBuffer getInputBuffer() {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Informs the consumer that its input buffer contains new input.
    *
-   * <p>Should be called after filling the input buffer from {@link #dequeueInputBuffer()} with new
+   * <p>Should be called after filling the input buffer from {@link #getInputBuffer()} with new
    * input.
    *
    * <p>Should only be used for compressed data and raw audio data.

@@ -60,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   @RequiresNonNull("sampleConsumer")
   protected boolean feedConsumerFromDecoder() throws TransformationException {
-    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.dequeueInputBuffer();
+    @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.getInputBuffer();
     if (sampleConsumerInputBuffer == null) {
       return false;
     }

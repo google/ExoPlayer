@@ -47,7 +47,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
+  public DecoderInputBuffer getInputBuffer() {
     return hasPendingBuffer ? null : buffer;
   }
 
