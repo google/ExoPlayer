@@ -57,6 +57,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
+import androidx.media3.exoplayer.ima.ImaUtil.ServerSideAdInsertionConfiguration;
 import androidx.media3.exoplayer.source.CompositeMediaSource;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.ForwardingTimeline;
@@ -193,6 +194,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       @Nullable private AdErrorEvent.AdErrorListener adErrorListener;
       private State state;
       private ImmutableList<CompanionAdSlot> companionAdSlots;
+      private boolean focusSkipButtonWhenAvailable;
 
       /**
        * Creates an instance.
@@ -205,6 +207,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         this.adViewProvider = adViewProvider;
         companionAdSlots = ImmutableList.of();
         state = new State(ImmutableMap.of());
+        focusSkipButtonWhenAvailable = true;
       }
 
       /**
@@ -274,6 +277,22 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         return this;
       }
 
+      /**
+       * Sets whether to focus the skip button (when available) on Android TV devices. The default
+       * setting is {@code true}.
+       *
+       * @param focusSkipButtonWhenAvailable Whether to focus the skip button (when available) on
+       *     Android TV devices.
+       * @return This builder, for convenience.
+       * @see AdsRenderingSettings#setFocusSkipButtonWhenAvailable(boolean)
+       */
+      @CanIgnoreReturnValue
+      public AdsLoader.Builder setFocusSkipButtonWhenAvailable(
+          boolean focusSkipButtonWhenAvailable) {
+        this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
+        return this;
+      }
+
       /** Returns a new {@link AdsLoader}. */
       public AdsLoader build() {
         @Nullable ImaSdkSettings imaSdkSettings = this.imaSdkSettings;
@@ -281,13 +300,14 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
           imaSdkSettings.setLanguage(Util.getSystemLanguageCodes()[0]);
         }
-        ImaUtil.ServerSideAdInsertionConfiguration configuration =
-            new ImaUtil.ServerSideAdInsertionConfiguration(
+        ServerSideAdInsertionConfiguration configuration =
+            new ServerSideAdInsertionConfiguration(
                 adViewProvider,
                 imaSdkSettings,
                 adEventListener,
                 adErrorListener,
                 companionAdSlots,
+                focusSkipButtonWhenAvailable,
                 imaSdkSettings.isDebugMode());
         return new AdsLoader(context, configuration, state);
       }
@@ -354,7 +374,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       }
     }
 
-    private final ImaUtil.ServerSideAdInsertionConfiguration configuration;
+    private final ServerSideAdInsertionConfiguration configuration;
     private final Context context;
     private final Map<ImaServerSideAdInsertionMediaSource, MediaSourceResourceHolder>
         mediaSourceResources;
@@ -363,7 +383,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     @Nullable private Player player;
 
     private AdsLoader(
-        Context context, ImaUtil.ServerSideAdInsertionConfiguration configuration, State state) {
+        Context context, ServerSideAdInsertionConfiguration configuration, State state) {
       this.context = context.getApplicationContext();
       this.configuration = configuration;
       mediaSourceResources = new HashMap<>();
@@ -504,6 +524,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       StreamManagerLoadable streamManagerLoadable =
           new StreamManagerLoadable(
               sdkAdsLoader,
+              adsLoader.configuration,
               streamRequest,
               streamPlayer,
               applicationAdErrorListener,
@@ -932,6 +953,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       implements Loadable, AdsLoadedListener, AdErrorListener {
 
     private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
+    private final ServerSideAdInsertionConfiguration serverSideAdInsertionConfiguration;
     private final StreamRequest request;
     private final StreamPlayer streamPlayer;
     @Nullable private final AdErrorListener adErrorListener;
@@ -948,11 +970,13 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     /** Creates an instance. */
     private StreamManagerLoadable(
         com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader,
+        ServerSideAdInsertionConfiguration serverSideAdInsertionConfiguration,
         StreamRequest request,
         StreamPlayer streamPlayer,
         @Nullable AdErrorListener adErrorListener,
         int loadVideoTimeoutMs) {
       this.adsLoader = adsLoader;
+      this.serverSideAdInsertionConfiguration = serverSideAdInsertionConfiguration;
       this.request = request;
       this.streamPlayer = streamPlayer;
       this.adErrorListener = adErrorListener;
@@ -1029,6 +1053,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       AdsRenderingSettings adsRenderingSettings =
           ImaSdkFactory.getInstance().createAdsRenderingSettings();
       adsRenderingSettings.setLoadVideoTimeout(loadVideoTimeoutMs);
+      adsRenderingSettings.setFocusSkipButtonWhenAvailable(
+          serverSideAdInsertionConfiguration.focusSkipButtonWhenAvailable);
       // After initialization completed the streamUri will be reported to the streamPlayer.
       streamManager.init(adsRenderingSettings);
       this.streamManager = streamManager;
@@ -1261,7 +1287,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   private static StreamDisplayContainer createStreamDisplayContainer(
       ImaSdkFactory imaSdkFactory,
-      ImaUtil.ServerSideAdInsertionConfiguration config,
+      ServerSideAdInsertionConfiguration config,
       StreamPlayer streamPlayer) {
     StreamDisplayContainer container =
         ImaSdkFactory.createStreamDisplayContainer(
