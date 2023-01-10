@@ -138,6 +138,8 @@ public interface FrameProcessor {
    *
    * <p>The caller should update {@link FrameInfo#streamOffsetUs} when switching input streams to
    * ensure that frame timestamps are always monotonically increasing.
+   *
+   * <p>Can be called on any thread.
    */
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
@@ -217,6 +219,8 @@ public interface FrameProcessor {
    * ignored.
    *
    * <p>This method blocks until all resources are released or releasing times out.
+   *
+   * <p>Can be called on any thread.
    */
   void release();
 }
