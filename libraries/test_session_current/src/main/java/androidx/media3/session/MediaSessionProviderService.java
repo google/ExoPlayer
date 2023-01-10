@@ -802,6 +802,16 @@ public class MediaSessionProviderService extends Service {
     }
 
     @Override
+    public void setMediaMetadata(String sessionId, Bundle metadataBundle) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.mediaMetadata = MediaMetadata.CREATOR.fromBundle(metadataBundle);
+          });
+    }
+
+    @Override
     public void setPlaylistMetadata(String sessionId, Bundle playlistMetadataBundle)
         throws RemoteException {
       runOnHandler(

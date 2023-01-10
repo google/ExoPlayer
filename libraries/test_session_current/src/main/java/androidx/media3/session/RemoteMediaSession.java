@@ -360,6 +360,10 @@ public class RemoteMediaSession {
       binder.setTrackSelectionParameters(sessionId, parameters.toBundle());
     }
 
+    public void setMediaMetadata(MediaMetadata mediaMetadata) throws RemoteException {
+      binder.setMediaMetadata(sessionId, mediaMetadata.toBundle());
+    }
+
     public void notifyTimelineChanged(@Player.TimelineChangeReason int reason)
         throws RemoteException {
       binder.notifyTimelineChanged(sessionId, reason);

@@ -127,6 +127,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
             .setBufferedPosition(testBufferingPosition)
             .setPlaybackParameters(new PlaybackParameters(testSpeed))
             .setTimeline(testTimeline)
+            .setMediaMetadata(testMediaItems.get(testItemIndex).mediaMetadata)
             .setPlaylistMetadata(testPlaylistMetadata)
             .setCurrentMediaItemIndex(testItemIndex)
             .setShuffleModeEnabled(testShuffleModeEnabled)
@@ -370,6 +371,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
             .setDuration(testDurationMs)
             .setPlaybackParameters(playbackParameters)
             .setTimeline(testTimeline)
+            .setMediaMetadata(testMediaItems.get(testItemIndex).mediaMetadata)
             .setPlaylistMetadata(testPlaylistMetadata)
             .setCurrentMediaItemIndex(testItemIndex)
             .setShuffleModeEnabled(testShuffleModeEnabled)
@@ -979,53 +981,68 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   }
 
   @Test
-  public void currentMediaItemChange() throws Exception {
+  public void onMediaItemTransition_updatesLegacyMetadataAndPlaybackState_correctModelConversion()
+      throws Exception {
     int testItemIndex = 3;
     long testPosition = 1234;
     String testDisplayTitle = "displayTitle";
+    long testDurationMs = 30_000;
     List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    String testCurrentMediaId = testMediaItems.get(testItemIndex).mediaId;
+    MediaMetadata testMediaMetadata =
+        new MediaMetadata.Builder().setTitle(testDisplayTitle).build();
     testMediaItems.set(
         testItemIndex,
         new MediaItem.Builder()
             .setMediaId(testMediaItems.get(testItemIndex).mediaId)
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle(testDisplayTitle).build())
+            .setMediaMetadata(testMediaMetadata)
             .build());
-    Timeline timeline = new PlaylistTimeline(testMediaItems);
-    session.getMockPlayer().setTimeline(timeline);
+    session.getMockPlayer().setTimeline(new PlaylistTimeline(testMediaItems));
+    session.getMockPlayer().setCurrentMediaItemIndex(testItemIndex);
+    session.getMockPlayer().setCurrentPosition(testPosition);
+    session.getMockPlayer().setDuration(testDurationMs);
+    session.getMockPlayer().setMediaMetadata(testMediaMetadata);
     AtomicReference<MediaMetadataCompat> metadataRef = new AtomicReference<>();
     AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
     CountDownLatch latchForMetadata = new CountDownLatch(1);
     CountDownLatch latchForPlaybackState = new CountDownLatch(1);
+    List<String> callbackOrder = new ArrayList<>();
     MediaControllerCompat.Callback callback =
         new MediaControllerCompat.Callback() {
           @Override
           public void onMetadataChanged(MediaMetadataCompat metadata) {
             metadataRef.set(metadata);
+            callbackOrder.add("onMetadataChanged");
             latchForMetadata.countDown();
           }
 
           @Override
           public void onPlaybackStateChanged(PlaybackStateCompat state) {
             playbackStateRef.set(state);
+            callbackOrder.add("onPlaybackStateChanged");
             latchForPlaybackState.countDown();
           }
         };
     controllerCompat.registerCallback(callback, handler);
 
-    session.getMockPlayer().setCurrentMediaItemIndex(testItemIndex);
-    session.getMockPlayer().setCurrentPosition(testPosition);
     session
         .getMockPlayer()
         .notifyMediaItemTransition(testItemIndex, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
 
+    // Assert metadata.
     assertThat(latchForMetadata.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(metadataRef.get().getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
+    MediaMetadataCompat parameterMetadataCompat = metadataRef.get();
+    MediaMetadataCompat getterMetadataCompat = controllerCompat.getMetadata();
+    assertThat(parameterMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
         .isEqualTo(testDisplayTitle);
-    assertThat(
-            controllerCompat
-                .getMetadata()
-                .getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
+    assertThat(getterMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
         .isEqualTo(testDisplayTitle);
+    assertThat(parameterMetadataCompat.getLong(METADATA_KEY_DURATION)).isEqualTo(testDurationMs);
+    assertThat(getterMetadataCompat.getLong(METADATA_KEY_DURATION)).isEqualTo(testDurationMs);
+    assertThat(parameterMetadataCompat.getString(METADATA_KEY_MEDIA_ID))
+        .isEqualTo(testCurrentMediaId);
+    assertThat(getterMetadataCompat.getString(METADATA_KEY_MEDIA_ID)).isEqualTo(testCurrentMediaId);
+    // Assert the playback state.
     assertThat(latchForPlaybackState.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackStateRef.get().getPosition()).isEqualTo(testPosition);
     assertThat(controllerCompat.getPlaybackState().getPosition()).isEqualTo(testPosition);
@@ -1033,6 +1050,56 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
         .isEqualTo(MediaUtils.convertToQueueItemId(testItemIndex));
     assertThat(controllerCompat.getPlaybackState().getActiveQueueItemId())
         .isEqualTo(MediaUtils.convertToQueueItemId(testItemIndex));
+    assertThat(callbackOrder)
+        .containsExactly("onMetadataChanged", "onPlaybackStateChanged")
+        .inOrder();
+  }
+
+  @Test
+  public void onMediaMetadataChanged_updatesLegacyMetadata_correctModelConversion()
+      throws Exception {
+    int testItemIndex = 3;
+    String testDisplayTitle = "displayTitle";
+    long testDurationMs = 30_000;
+    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    String testCurrentMediaId = testMediaItems.get(testItemIndex).mediaId;
+    MediaMetadata testMediaMetadata =
+        new MediaMetadata.Builder().setTitle(testDisplayTitle).build();
+    testMediaItems.set(
+        testItemIndex,
+        new MediaItem.Builder()
+            .setMediaId(testMediaItems.get(testItemIndex).mediaId)
+            .setMediaMetadata(testMediaMetadata)
+            .build());
+    session.getMockPlayer().setTimeline(new PlaylistTimeline(testMediaItems));
+    session.getMockPlayer().setCurrentMediaItemIndex(testItemIndex);
+    session.getMockPlayer().setDuration(testDurationMs);
+    AtomicReference<MediaMetadataCompat> metadataRef = new AtomicReference<>();
+    CountDownLatch latchForMetadata = new CountDownLatch(1);
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onMetadataChanged(MediaMetadataCompat metadata) {
+            metadataRef.set(metadata);
+            latchForMetadata.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    session.getMockPlayer().notifyMediaMetadataChanged(testMediaMetadata);
+
+    assertThat(latchForMetadata.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaMetadataCompat parameterMetadataCompat = metadataRef.get();
+    MediaMetadataCompat getterMetadataCompat = controllerCompat.getMetadata();
+    assertThat(parameterMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
+        .isEqualTo(testDisplayTitle);
+    assertThat(getterMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
+        .isEqualTo(testDisplayTitle);
+    assertThat(parameterMetadataCompat.getLong(METADATA_KEY_DURATION)).isEqualTo(testDurationMs);
+    assertThat(getterMetadataCompat.getLong(METADATA_KEY_DURATION)).isEqualTo(testDurationMs);
+    assertThat(parameterMetadataCompat.getString(METADATA_KEY_MEDIA_ID))
+        .isEqualTo(testCurrentMediaId);
+    assertThat(getterMetadataCompat.getString(METADATA_KEY_MEDIA_ID)).isEqualTo(testCurrentMediaId);
   }
 
   @Test

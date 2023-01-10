@@ -714,7 +714,11 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testRemoveMediaItem, /* durationMs= */ 100L, /* artworkBitmap= */ null);
+            testRemoveMediaItem.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            /* artworkBitmap= */ null);
     session.setQueue(testQueue);
     session.setMetadata(testMetadataCompat);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -732,7 +736,11 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testRemoveMediaItem, /* durationMs= */ 100L, /* artworkBitmap= */ null);
+            testRemoveMediaItem.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            /* artworkBitmap= */ null);
     session.setQueue(testQueue);
     session.setMetadata(testMetadataCompat);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -767,7 +775,11 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testRemoveMediaItem, /* durationMs= */ 100L, /* artworkBitmap= */ null);
+            testRemoveMediaItem.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            /* artworkBitmap= */ null);
     session.setQueue(testQueue);
     session.setMetadata(testMetadataCompat);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -785,7 +797,11 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
     MediaMetadataCompat testMediaMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testMediaItem, /* durationMs= */ 100L, /* artworkBitmap= */ null);
+            testMediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            /* artworkBitmap= */ null);
     session.setMetadata(testMediaMetadataCompat);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
 
@@ -803,7 +819,11 @@ public class MediaControllerWithMediaSessionCompatTest {
     @Nullable Bitmap artworkBitmap = getBitmapFromMetadata(testMediaMetadata);
     MediaMetadataCompat testMediaMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testMediaItem, /* durationMs= */ 100L, artworkBitmap);
+            testMediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            artworkBitmap);
     session.setMetadata(testMediaMetadataCompat);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
 
@@ -1141,9 +1161,14 @@ public class MediaControllerWithMediaSessionCompatTest {
   @Test
   public void setPlaybackState_fromStateBufferingToPlaying_notifiesReadyState() throws Exception {
     List<MediaItem> testPlaylist = MediaTestUtils.createMediaItems(/* size= */ 1);
+    MediaItem firstMediaItemInPlaylist = testPlaylist.get(0);
     MediaMetadataCompat metadata =
         MediaUtils.convertToMediaMetadataCompat(
-            testPlaylist.get(0), /* durationMs= */ 50_000, /* artworkBitmap= */ null);
+            firstMediaItemInPlaylist.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 50_000,
+            /* artworkBitmap= */ null);
     long testBufferedPosition = 5_000;
     session.setMetadata(metadata);
     session.setPlaybackState(
@@ -1186,9 +1211,14 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void setPlaybackState_fromStatePlayingToBuffering_notifiesBufferingState()
       throws Exception {
     List<MediaItem> testPlaylist = MediaTestUtils.createMediaItems(1);
+    MediaItem firstMediaItemInPlaylist = testPlaylist.get(0);
     MediaMetadataCompat metadata =
         MediaUtils.convertToMediaMetadataCompat(
-            testPlaylist.get(0), /* durationMs= */ 1_000, /* artworkBitmap= */ null);
+            firstMediaItemInPlaylist.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 1_000,
+            /* artworkBitmap= */ null);
     long testBufferingPosition = 0;
     session.setMetadata(metadata);
     session.setPlaybackState(
