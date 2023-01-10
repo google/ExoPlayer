@@ -531,14 +531,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return null;
   }
 
-  /** Converts a {@link MediaItem} to a {@link MediaMetadataCompat}. */
+  /**
+   * Converts a {@link MediaMetadata} to a {@link MediaMetadataCompat}.
+   *
+   * @param metadata The {@link MediaMetadata} instance to convert.
+   * @param mediaId The corresponding media ID.
+   * @param mediaUri The corresponding media URI, or null if unknown.
+   * @param durationMs The duration of the media, in milliseconds or {@link C#TIME_UNSET}, if no
+   *     duration should be included.
+   * @return An instance of the legacy {@link MediaMetadataCompat}.
+   */
   public static MediaMetadataCompat convertToMediaMetadataCompat(
-      MediaItem mediaItem, long durationMs, @Nullable Bitmap artworkBitmap) {
+      MediaMetadata metadata,
+      String mediaId,
+      @Nullable Uri mediaUri,
+      long durationMs,
+      @Nullable Bitmap artworkBitmap) {
     MediaMetadataCompat.Builder builder =
         new MediaMetadataCompat.Builder()
-            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaItem.mediaId);
-
-    MediaMetadata metadata = mediaItem.mediaMetadata;
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId);
 
     if (metadata.title != null) {
       builder.putText(MediaMetadataCompat.METADATA_KEY_TITLE, metadata.title);
@@ -569,10 +580,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.putLong(MediaMetadataCompat.METADATA_KEY_YEAR, metadata.recordingYear);
     }
 
-    if (mediaItem.requestMetadata.mediaUri != null) {
-      builder.putString(
-          MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
-          mediaItem.requestMetadata.mediaUri.toString());
+    if (mediaUri != null) {
+      builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString());
     }
 
     if (metadata.artworkUri != null) {
@@ -597,21 +606,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs);
     }
 
-    @Nullable
-    RatingCompat userRatingCompat = convertToRatingCompat(mediaItem.mediaMetadata.userRating);
+    @Nullable RatingCompat userRatingCompat = convertToRatingCompat(metadata.userRating);
     if (userRatingCompat != null) {
       builder.putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, userRatingCompat);
     }
 
-    @Nullable
-    RatingCompat overallRatingCompat = convertToRatingCompat(mediaItem.mediaMetadata.overallRating);
+    @Nullable RatingCompat overallRatingCompat = convertToRatingCompat(metadata.overallRating);
     if (overallRatingCompat != null) {
       builder.putRating(MediaMetadataCompat.METADATA_KEY_RATING, overallRatingCompat);
     }
 
-    if (mediaItem.mediaMetadata.mediaType != null) {
-      builder.putLong(
-          MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, mediaItem.mediaMetadata.mediaType);
+    if (metadata.mediaType != null) {
+      builder.putLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, metadata.mediaType);
     }
 
     return builder.build();

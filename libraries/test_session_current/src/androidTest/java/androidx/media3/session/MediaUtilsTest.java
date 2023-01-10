@@ -29,6 +29,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
@@ -217,7 +218,11 @@ public final class MediaUtilsTest {
     }
     MediaMetadataCompat testMediaMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testMediaItem, /* durationMs= */ 100L, testArtworkBitmap);
+            testMediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            testArtworkBitmap);
 
     MediaMetadata mediaMetadata =
         MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, RatingCompat.RATING_NONE);
@@ -258,7 +263,11 @@ public final class MediaUtilsTest {
 
     MediaMetadataCompat mediaMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            mediaItem, /* durotionsMs= */ C.TIME_UNSET, /* artworkBitmap= */ null);
+            mediaItem.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://www.example.com"),
+            /* durotionsMs= */ C.TIME_UNSET,
+            /* artworkBitmap= */ null);
 
     assertThat(
             mediaMetadataCompat.getLong(

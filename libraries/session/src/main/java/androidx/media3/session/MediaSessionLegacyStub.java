@@ -91,6 +91,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -850,12 +851,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private final class ControllerLegacyCbForBroadcast implements ControllerCb {
 
-    @Nullable private MediaItem currentMediaItemForMetadataUpdate;
-
-    private long durationMsForMetadataUpdate;
+    private MediaMetadata lastMediaMetadata;
+    private String lastMediaId;
+    @Nullable private Uri lastMediaUri;
+    private long lastDurationMs;
 
     public ControllerLegacyCbForBroadcast() {
-      durationMsForMetadataUpdate = C.TIME_UNSET;
+      lastMediaMetadata = MediaMetadata.EMPTY;
+      lastMediaId = MediaItem.DEFAULT_MEDIA_ID;
+      lastDurationMs = C.TIME_UNSET;
     }
 
     @Override
@@ -992,6 +996,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public void onMediaItemTransition(
         int seq, @Nullable MediaItem mediaItem, @Player.MediaItemTransitionReason int reason)
         throws RemoteException {
+      // MediaMetadataCompat needs to be updated when the media ID or URI of the media item changes.
       updateMetadataIfChanged();
       if (mediaItem == null) {
         sessionCompat.setRatingType(RatingCompat.RATING_NONE);
@@ -1005,6 +1010,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public void onMediaMetadataChanged(int seq, MediaMetadata mediaMetadata) {
+      updateMetadataIfChanged();
+    }
+
+    @Override
     public void onTimelineChanged(
         int seq, Timeline timeline, @Player.TimelineChangeReason int reason)
         throws RemoteException {
@@ -1014,7 +1024,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
 
       updateQueue(timeline);
-
       // Duration might be unknown at onMediaItemTransition and become available afterward.
       updateMetadataIfChanged();
     }
@@ -1146,22 +1155,30 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
     }
 
-    @Override
-    public void onMediaMetadataChanged(int seq, MediaMetadata mediaMetadata) {
-      // Metadata change will be notified by onMediaItemTransition.
-    }
-
     private void updateMetadataIfChanged() {
-      @Nullable MediaItem currentMediaItem = sessionImpl.getPlayerWrapper().getCurrentMediaItem();
-      long durationMs = sessionImpl.getPlayerWrapper().getDuration();
+      Player player = sessionImpl.getPlayerWrapper();
+      @Nullable MediaItem currentMediaItem = player.getCurrentMediaItem();
+      MediaMetadata newMediaMetadata = player.getMediaMetadata();
+      long newDurationMs = player.getDuration();
+      String newMediaId =
+          currentMediaItem != null ? currentMediaItem.mediaId : MediaItem.DEFAULT_MEDIA_ID;
+      @Nullable
+      Uri newMediaUri =
+          currentMediaItem != null && currentMediaItem.localConfiguration != null
+              ? currentMediaItem.localConfiguration.uri
+              : null;
 
-      if (ObjectsCompat.equals(currentMediaItemForMetadataUpdate, currentMediaItem)
-          && durationMsForMetadataUpdate == durationMs) {
+      if (Objects.equals(lastMediaMetadata, newMediaMetadata)
+          && Objects.equals(lastMediaId, newMediaId)
+          && Objects.equals(lastMediaUri, newMediaUri)
+          && lastDurationMs == newDurationMs) {
         return;
       }
 
-      currentMediaItemForMetadataUpdate = currentMediaItem;
-      durationMsForMetadataUpdate = durationMs;
+      lastMediaId = newMediaId;
+      lastMediaUri = newMediaUri;
+      lastMediaMetadata = newMediaMetadata;
+      lastDurationMs = newDurationMs;
 
       if (currentMediaItem == null) {
         setMetadata(sessionCompat, /* metadataCompat= */ null);
@@ -1170,7 +1187,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
       @Nullable Bitmap artworkBitmap = null;
       ListenableFuture<Bitmap> bitmapFuture =
-          sessionImpl.getBitmapLoader().loadBitmapFromMetadata(currentMediaItem.mediaMetadata);
+          sessionImpl.getBitmapLoader().loadBitmapFromMetadata(newMediaMetadata);
       if (bitmapFuture != null) {
         pendingBitmapLoadCallback = null;
         if (bitmapFuture.isDone()) {
@@ -1190,7 +1207,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   setMetadata(
                       sessionCompat,
                       MediaUtils.convertToMediaMetadataCompat(
-                          currentMediaItem, durationMs, result));
+                          newMediaMetadata,
+                          newMediaId,
+                          newMediaUri,
+                          newDurationMs,
+                          /* artworkBitmap= */ result));
                   sessionImpl.onNotificationRefreshRequired();
                 }
 
@@ -1210,7 +1231,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       setMetadata(
           sessionCompat,
-          MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs, artworkBitmap));
+          MediaUtils.convertToMediaMetadataCompat(
+              newMediaMetadata, newMediaId, newMediaUri, newDurationMs, artworkBitmap));
     }
   }
 

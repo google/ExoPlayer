@@ -47,6 +47,8 @@ Release notes
         for custom players.
     *   Add helper method to convert platform session token to Media3
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
+    *   Use `onMediaMetadataChanged` to trigger updates of the platform media
+        session ([#219](https://github.com/androidx/media/issues/219)).
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
