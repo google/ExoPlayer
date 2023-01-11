@@ -74,6 +74,9 @@ Release notes
         `ImaServerSideAdInsertionMediaSource.AdsLoader.Builder` to request
         focusing the skip button on TV devices and set it to true by default.
     *   Bump IMA SDK version to 3.29.0.
+*   Demo app
+    *   Request notification permission for download notifications at runtime
+        ([#10884](https://github.com/google/ExoPlayer/issues/10884)).
 
 ### 1.0.0-beta03 (2022-11-22)
 
