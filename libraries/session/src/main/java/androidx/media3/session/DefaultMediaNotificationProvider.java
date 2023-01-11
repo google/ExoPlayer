@@ -84,8 +84,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2>Drawables</h2>
  *
- * The drawables used can be overridden by drawables with the same names defined the application.
- * The drawables are:
+ * The drawables used can be overridden by drawables with the same file names in {@code
+ * res/drawables} of the application module. Alternatively, you can override the drawable resource
+ * ID with a {@code drawable} element in a resource file in {@code res/values}. The drawable
+ * resource IDs are:
  *
  * <ul>
  *   <li><b>{@code media3_notification_play}</b> - The play icon.
@@ -99,8 +101,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2>String resources</h2>
  *
- * String resources used can be overridden by resources with the same names defined the application.
- * These are:
+ * String resources used can be overridden by resources with the same resource IDs defined by the
+ * application. The string resource IDs are:
  *
  * <ul>
  *   <li><b>{@code media3_controls_play_description}</b> - The description of the play icon.
