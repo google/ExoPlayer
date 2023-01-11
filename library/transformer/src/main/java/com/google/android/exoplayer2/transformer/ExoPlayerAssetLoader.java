@@ -45,10 +45,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -62,48 +59,28 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
   /** An {@link AssetLoader.Factory} for {@link ExoPlayerAssetLoader} instances. */
   public static final class Factory implements AssetLoader.Factory {
 
-    @Nullable private Context context;
-    @Nullable private MediaItem mediaItem;
+    private final Context context;
+    private final MediaSource.Factory mediaSourceFactory;
+    private final Clock clock;
+
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenVideoForSlowMotion;
-    @Nullable private MediaSource.Factory mediaSourceFactory;
     @Nullable private Codec.DecoderFactory decoderFactory;
-    @Nullable private Looper looper;
-    @Nullable private AssetLoader.Listener listener;
-    @Nullable private Clock clock;
 
     /**
      * Creates an instance.
      *
-     * <p>The {@link ExoPlayerAssetLoader} instances produced use a {@link
-     * DefaultMediaSourceFactory} built with the context provided in {@linkplain
-     * #setContext(Context)}.
+     * @param context The {@link Context}.
+     * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
+     *     transform.
+     * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
+     *     testing.
      */
-    public Factory() {}
-
-    /**
-     * Creates an instance.
-     *
-     * @param mediaSourceFactory The {@link MediaSource.Factory} to be used to retrieve the samples
-     *     to transform.
-     */
-    public Factory(MediaSource.Factory mediaSourceFactory) {
-      this.mediaSourceFactory = mediaSourceFactory;
-    }
-
-    @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setContext(Context context) {
+    public Factory(Context context, MediaSource.Factory mediaSourceFactory, Clock clock) {
       this.context = context;
-      return this;
-    }
-
-    @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
-      this.mediaItem = mediaItem;
-      return this;
+      this.mediaSourceFactory = mediaSourceFactory;
+      this.clock = clock;
     }
 
     @Override
@@ -135,47 +112,18 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     }
 
     @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setLooper(Looper looper) {
-      this.looper = looper;
-      return this;
-    }
-
-    @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setListener(AssetLoader.Listener listener) {
-      this.listener = listener;
-      return this;
-    }
-
-    @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setClock(Clock clock) {
-      this.clock = clock;
-      return this;
-    }
-
-    @Override
-    public AssetLoader createAssetLoader() {
-      Context context = checkStateNotNull(this.context);
-      if (mediaSourceFactory == null) {
-        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-        if (flattenVideoForSlowMotion) {
-          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
-        }
-        mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
-      }
+    public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
       return new ExoPlayerAssetLoader(
           context,
-          checkStateNotNull(mediaItem),
+          mediaItem,
           removeAudio,
           removeVideo,
           flattenVideoForSlowMotion,
           mediaSourceFactory,
           checkStateNotNull(decoderFactory),
-          checkStateNotNull(looper),
-          checkStateNotNull(listener),
-          checkStateNotNull(clock));
+          looper,
+          listener,
+          clock);
     }
   }
 

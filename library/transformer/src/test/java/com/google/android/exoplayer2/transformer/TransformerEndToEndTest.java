@@ -23,7 +23,6 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,7 +58,6 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
-import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -529,7 +527,8 @@ public final class TransformerEndToEndTest {
     MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
-    AssetLoader.Factory assetLoaderFactory = new ExoPlayerAssetLoader.Factory(mediaSourceFactory);
+    AssetLoader.Factory assetLoaderFactory =
+        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock);
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
@@ -1079,23 +1078,11 @@ public final class TransformerEndToEndTest {
       private final @SupportedOutputTypes int supportedOutputTypes;
       @Nullable private final AtomicReference<SampleConsumer> sampleConsumerRef;
 
-      @Nullable private AssetLoader.Listener listener;
-
       public Factory(
           @SupportedOutputTypes int supportedOutputTypes,
           @Nullable AtomicReference<SampleConsumer> sampleConsumerRef) {
         this.supportedOutputTypes = supportedOutputTypes;
         this.sampleConsumerRef = sampleConsumerRef;
-      }
-
-      @Override
-      public AssetLoader.Factory setContext(Context context) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
-        return this;
       }
 
       @Override
@@ -1119,24 +1106,8 @@ public final class TransformerEndToEndTest {
       }
 
       @Override
-      public AssetLoader.Factory setLooper(Looper looper) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setListener(Listener listener) {
-        this.listener = listener;
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setClock(Clock clock) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader createAssetLoader() {
-        return new FakeAssetLoader(checkNotNull(listener), supportedOutputTypes, sampleConsumerRef);
+      public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
+        return new FakeAssetLoader(listener, supportedOutputTypes, sampleConsumerRef);
       }
     }
 

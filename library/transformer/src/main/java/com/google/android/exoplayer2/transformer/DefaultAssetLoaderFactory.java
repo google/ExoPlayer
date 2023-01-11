@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.transformer;
 import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -27,21 +28,18 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
 
   private final AssetLoader.Factory assetLoaderFactory;
 
-  /** Creates an instance. */
-  public DefaultAssetLoaderFactory() {
-    assetLoaderFactory = new ExoPlayerAssetLoader.Factory();
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setContext(Context context) {
-    return assetLoaderFactory.setContext(context);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
-    return assetLoaderFactory.setMediaItem(mediaItem);
+  /**
+   * Creates an instance.
+   *
+   * @param context The {@link Context}.
+   * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
+   *     transform when an {@link ExoPlayerAssetLoader} is used.
+   * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
+   *     testing.
+   */
+  public DefaultAssetLoaderFactory(
+      Context context, MediaSource.Factory mediaSourceFactory, Clock clock) {
+    assetLoaderFactory = new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock);
   }
 
   @Override
@@ -70,25 +68,8 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   }
 
   @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setLooper(Looper looper) {
-    return assetLoaderFactory.setLooper(looper);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setListener(AssetLoader.Listener listener) {
-    return assetLoaderFactory.setListener(listener);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setClock(Clock clock) {
-    return assetLoaderFactory.setClock(clock);
-  }
-
-  @Override
-  public AssetLoader createAssetLoader() {
-    return assetLoaderFactory.createAssetLoader();
+  public AssetLoader createAssetLoader(
+      MediaItem mediaItem, Looper looper, AssetLoader.Listener listener) {
+    return assetLoaderFactory.createAssetLoader(mediaItem, looper, listener);
   }
 }
