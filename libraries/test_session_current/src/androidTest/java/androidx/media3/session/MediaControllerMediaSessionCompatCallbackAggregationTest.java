@@ -45,6 +45,7 @@ import androidx.media3.common.Player.Events;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;

@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Arrays;

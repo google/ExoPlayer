@@ -41,6 +41,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.Commands;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;

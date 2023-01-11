@@ -52,6 +52,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;

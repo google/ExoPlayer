@@ -54,6 +54,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;

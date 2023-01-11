@@ -15,41 +15,11 @@
  */
 package androidx.media3.session;
 
-import android.graphics.Bitmap;
-import android.net.Uri;
-import androidx.annotation.Nullable;
-import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.UnstableApi;
-import com.google.common.util.concurrent.ListenableFuture;
 
-/** Loads images. */
+/**
+ * @deprecated Use {@link androidx.media3.common.util.BitmapLoader} instead.
+ */
+@Deprecated
 @UnstableApi
-public interface BitmapLoader {
-  /** Decodes an image from compressed binary data. */
-  ListenableFuture<Bitmap> decodeBitmap(byte[] data);
-
-  /** Loads an image from {@code uri}. */
-  ListenableFuture<Bitmap> loadBitmap(Uri uri);
-
-  /**
-   * Loads an image from {@link MediaMetadata}. Returns null if {@code metadata} doesn't contain
-   * bitmap information.
-   *
-   * <p>By default, the method will try to decode an image from {@link MediaMetadata#artworkData} if
-   * it is present. Otherwise, the method will try to load an image from {@link
-   * MediaMetadata#artworkUri} if it is present. The method will return null if neither {@link
-   * MediaMetadata#artworkData} nor {@link MediaMetadata#artworkUri} is present.
-   */
-  @Nullable
-  default ListenableFuture<Bitmap> loadBitmapFromMetadata(MediaMetadata metadata) {
-    @Nullable ListenableFuture<Bitmap> future;
-    if (metadata.artworkData != null) {
-      future = decodeBitmap(metadata.artworkData);
-    } else if (metadata.artworkUri != null) {
-      future = loadBitmap(metadata.artworkUri);
-    } else {
-      future = null;
-    }
-    return future;
-  }
-}
+public interface BitmapLoader extends androidx.media3.common.util.BitmapLoader {}

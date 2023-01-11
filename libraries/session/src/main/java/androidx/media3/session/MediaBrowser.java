@@ -31,6 +31,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;

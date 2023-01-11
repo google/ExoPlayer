@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;

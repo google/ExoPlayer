@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-package androidx.media3.effect;
+package androidx.media3.common.util;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.util.UnstableApi;
 import com.google.common.util.concurrent.ListenableFuture;
-
-// TODO(b/258685047): delete this copy once session/BitmapLoader.java is moved to common
-//  (b/194284041, b/258658893).
 
 /** Loads images. */
 @UnstableApi

@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;

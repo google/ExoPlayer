@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
