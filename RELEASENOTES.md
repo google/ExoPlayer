@@ -73,6 +73,9 @@ Release notes
     *   Add a property `focusSkipButtonWhenAvailable` to the
         `ImaServerSideAdInsertionMediaSource.AdsLoader.Builder` to request
         focusing the skip button on TV devices and set it to true by default.
+    *   Add a method `focusSkipButton()` to the
+        `ImaServerSideAdInsertionMediaSource.AdsLoader` to programmatically
+        request to focus the skip button.
     *   Bump IMA SDK version to 3.29.0.
 *   Demo app
     *   Request notification permission for download notifications at runtime
