@@ -202,7 +202,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     checkNotNull(muxer);
     resetAbortTimer();
-    muxer.writeSampleData(trackInfo.index, data, isKeyFrame, presentationTimeUs);
+    muxer.writeSampleData(
+        trackInfo.index, data, presentationTimeUs, isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0);
     previousTrackType = trackType;
     return true;
   }

@@ -142,10 +142,9 @@ import java.nio.ByteBuffer;
     return trackIndex;
   }
 
-  @SuppressLint("WrongConstant") // C.BUFFER_FLAG_KEY_FRAME equals MediaCodec.BUFFER_FLAG_KEY_FRAME.
   @Override
   public void writeSampleData(
-      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
     if (!isStarted) {
       isStarted = true;
@@ -157,7 +156,6 @@ import java.nio.ByteBuffer;
     }
     int offset = data.position();
     int size = data.limit() - offset;
-    int flags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
     bufferInfo.set(offset, size, presentationTimeUs, flags);
     long lastSamplePresentationTimeUs = trackIndexToLastPresentationTimeUs.get(trackIndex);
     try {
