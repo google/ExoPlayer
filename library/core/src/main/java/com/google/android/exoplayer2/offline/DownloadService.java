@@ -39,7 +39,16 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** A {@link Service} for downloading media. */
+/**
+ * A {@link Service} for downloading media.
+ *
+ * <p>Apps with target SDK 33 and greater need to add the {@code
+ * android.permission.POST_NOTIFICATIONS} permission to the manifest and request the permission at
+ * runtime before starting downloads. Without that permission granted by the user, notifications
+ * posted by this service are not displayed. See <a
+ * href="https://developer.android.com/develop/ui/views/notifications/notification-permission">the
+ * official UI guide</a> for more detailed information.
+ */
 public abstract class DownloadService extends Service {
 
   /**
