@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-package com.google.android.exoplayer2.effect;
+package com.google.android.exoplayer2.util;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.common.util.concurrent.ListenableFuture;
-
-// TODO(b/258685047): delete this copy once session/BitmapLoader.java is moved to common
-//  (b/194284041, b/258658893).
 
 /** Loads images. */
 public interface BitmapLoader {
