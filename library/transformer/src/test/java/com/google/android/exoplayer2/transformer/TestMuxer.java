@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.DumpableFormat;
 import com.google.android.exoplayer2.testutil.Dumper;
@@ -50,10 +51,15 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
   @Override
   public void writeSampleData(
-      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
-    dumpables.add(new DumpableSample(trackIndex, data, isKeyFrame, presentationTimeUs));
-    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
+    dumpables.add(
+        new DumpableSample(
+            trackIndex,
+            data,
+            (flags & C.BUFFER_FLAG_KEY_FRAME) == C.BUFFER_FLAG_KEY_FRAME,
+            presentationTimeUs));
+    muxer.writeSampleData(trackIndex, data, presentationTimeUs, flags);
   }
 
   @Override

@@ -26,11 +26,10 @@ import java.nio.ByteBuffer;
  * Abstracts media muxing operations.
  *
  * <p>Query whether {@linkplain Factory#getSupportedSampleMimeTypes(int) sample MIME types} are
- * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain
- * #writeSampleData(int, ByteBuffer, boolean, long) write sample data} to mux samples. Once any
- * sample data has been written, it is not possible to add tracks. After writing all sample data,
- * {@linkplain #release(boolean) release} the instance to finish writing to the output and return
- * any resources to the system.
+ * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain #writeSampleData
+ * write sample data} to mux samples. Once any sample data has been written, it is not possible to
+ * add tracks. After writing all sample data, {@linkplain #release(boolean) release} the instance to
+ * finish writing to the output and return any resources to the system.
  */
 public interface Muxer {
 
@@ -91,11 +90,13 @@ public interface Muxer {
    *
    * @param trackIndex The index of the track, previously returned by {@link #addTrack(Format)}.
    * @param data A buffer containing the sample data to write to the container.
-   * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
+   * @param flags The {@link C.BufferFlags} associated with the data. Only {@link
+   *     C#BUFFER_FLAG_KEY_FRAME} is supported.
    * @throws MuxerException If the muxer fails to write the sample.
    */
-  void writeSampleData(int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+  void writeSampleData(
+      int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException;
 
   /**
