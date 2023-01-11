@@ -20,14 +20,16 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.video.ColorInfo;
 
-/** Consumer of encoded media samples, raw audio or raw video frames. */
+/**
+ * Consumer of encoded media samples, raw audio or raw video frames.
+ *
+ * <p>All the methods in this class can be called from any thread.
+ */
 public interface SampleConsumer {
 
   /**
    * Returns whether the consumer should be fed with decoded sample data. If false, encoded sample
    * data should be fed.
-   *
-   * <p>Can be called on any thread.
    */
   boolean expectsDecodedData();
 
@@ -65,8 +67,6 @@ public interface SampleConsumer {
    * Returns the input {@link Surface}, where the consumer reads input frames from.
    *
    * <p>Should only be used for raw video data.
-   *
-   * <p>Can be called on any thread.
    */
   default Surface getInputSurface() {
     throw new UnsupportedOperationException();
@@ -76,8 +76,6 @@ public interface SampleConsumer {
    * Returns the expected input {@link ColorInfo}.
    *
    * <p>Should only be used for raw video data.
-   *
-   * <p>Can be called on any thread.
    */
   default ColorInfo getExpectedColorInfo() {
     throw new UnsupportedOperationException();
@@ -89,8 +87,6 @@ public interface SampleConsumer {
    * {@linkplain #getInputSurface() input surface} yet.
    *
    * <p>Should only be used for raw video data.
-   *
-   * <p>Can be called on any thread.
    */
   default int getPendingVideoFrameCount() {
     throw new UnsupportedOperationException();
@@ -103,8 +99,6 @@ public interface SampleConsumer {
    * <p>Must be called before rendering a frame to the input surface.
    *
    * <p>Should only be used for raw video data.
-   *
-   * <p>Can be called on any thread.
    */
   default void registerVideoFrame() {
     throw new UnsupportedOperationException();
@@ -114,8 +108,6 @@ public interface SampleConsumer {
    * Informs the consumer that no further input frames will be rendered.
    *
    * <p>Should only be used for raw video data.
-   *
-   * <p>Can be called on any thread.
    */
   default void signalEndOfVideoInput() {
     throw new UnsupportedOperationException();

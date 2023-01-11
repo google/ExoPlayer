@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
 import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -31,24 +32,28 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw audio samples. */
 /* package */ final class AudioSamplePipeline extends SamplePipeline {
 
+  private static final int MAX_INPUT_BUFFER_COUNT = 10;
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
   @Nullable private final SilentAudioGenerator silentAudioGenerator;
-  private final DecoderInputBuffer inputBuffer;
+  private final Queue<DecoderInputBuffer> availableInputBuffers;
+  private final Queue<DecoderInputBuffer> pendingInputBuffers;
   private final AudioProcessingPipeline audioProcessingPipeline;
   private final Codec encoder;
   private final AudioFormat encoderInputAudioFormat;
   private final DecoderInputBuffer encoderInputBuffer;
   private final DecoderInputBuffer encoderOutputBuffer;
 
-  private boolean hasPendingInputBuffer;
   private long nextEncoderInputBufferTimeUs;
   private long encoderBufferDurationRemainder;
 
@@ -72,7 +77,15 @@ import org.checkerframework.dataflow.qual.Pure;
       silentAudioGenerator = null;
     }
 
-    inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
+    availableInputBuffers = new ConcurrentLinkedDeque<>();
+    ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+    for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
+      DecoderInputBuffer inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DIRECT);
+      inputBuffer.data = emptyBuffer;
+      availableInputBuffers.add(inputBuffer);
+    }
+    pendingInputBuffers = new ConcurrentLinkedDeque<>();
+
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
 
@@ -140,12 +153,12 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
-    return hasPendingInputBuffer ? null : inputBuffer;
+    return availableInputBuffers.peek();
   }
 
   @Override
   public void queueInputBuffer() {
-    hasPendingInputBuffer = true;
+    pendingInputBuffers.add(availableInputBuffers.remove());
   }
 
   @Override
@@ -197,22 +210,34 @@ import org.checkerframework.dataflow.qual.Pure;
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
   private boolean feedEncoderFromInput() throws TransformationException {
-    if ((!isInputSilent() && !hasPendingInputBuffer)
-        || !encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
+    if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
 
-    if (isInputSilent() ? silentAudioGenerator.isEnded() : inputBuffer.isEndOfStream()) {
+    if (isInputSilent()) {
+      if (silentAudioGenerator.isEnded()) {
+        queueEndOfStreamToEncoder();
+        return false;
+      }
+      feedEncoder(silentAudioGenerator.getBuffer());
+      return true;
+    }
+
+    if (pendingInputBuffers.isEmpty()) {
+      return false;
+    }
+
+    DecoderInputBuffer pendingInputBuffer = pendingInputBuffers.element();
+    if (pendingInputBuffer.isEndOfStream()) {
       queueEndOfStreamToEncoder();
-      hasPendingInputBuffer = false;
+      removePendingInputBuffer();
       return false;
     }
 
-    ByteBuffer inputData =
-        isInputSilent() ? silentAudioGenerator.getBuffer() : checkNotNull(inputBuffer.data);
+    ByteBuffer inputData = checkNotNull(pendingInputBuffer.data);
     feedEncoder(inputData);
     if (!inputData.hasRemaining()) {
-      hasPendingInputBuffer = false;
+      removePendingInputBuffer();
     }
     return true;
   }
@@ -246,25 +271,42 @@ import org.checkerframework.dataflow.qual.Pure;
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
   private boolean feedProcessingPipelineFromInput() {
-    if (!isInputSilent() && !hasPendingInputBuffer) {
+    if (isInputSilent()) {
+      if (silentAudioGenerator.isEnded()) {
+        audioProcessingPipeline.queueEndOfStream();
+        return false;
+      }
+      ByteBuffer inputData = silentAudioGenerator.getBuffer();
+      audioProcessingPipeline.queueInput(inputData);
+      return !inputData.hasRemaining();
+    }
+
+    if (pendingInputBuffers.isEmpty()) {
       return false;
     }
 
-    if (isInputSilent() ? silentAudioGenerator.isEnded() : inputBuffer.isEndOfStream()) {
+    DecoderInputBuffer pendingInputBuffer = pendingInputBuffers.element();
+    if (pendingInputBuffer.isEndOfStream()) {
       audioProcessingPipeline.queueEndOfStream();
-      hasPendingInputBuffer = false;
+      removePendingInputBuffer();
       return false;
     }
-    checkState(!audioProcessingPipeline.isEnded());
 
-    ByteBuffer inputData =
-        isInputSilent() ? silentAudioGenerator.getBuffer() : checkNotNull(inputBuffer.data);
+    ByteBuffer inputData = checkNotNull(pendingInputBuffer.data);
     audioProcessingPipeline.queueInput(inputData);
     if (inputData.hasRemaining()) {
       return false;
     }
-    hasPendingInputBuffer = false;
+
+    removePendingInputBuffer();
     return true;
+  }
+
+  private void removePendingInputBuffer() {
+    DecoderInputBuffer inputBuffer = pendingInputBuffers.remove();
+    inputBuffer.clear();
+    inputBuffer.timeUs = 0;
+    availableInputBuffers.add(inputBuffer);
   }
 
   /**
