@@ -31,8 +31,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final Codec.DecoderFactory decoderFactory;
 
-  @Nullable private ByteBuffer pendingDecoderOutputBuffer;
-
   public ExoAssetLoaderAudioRenderer(
       Codec.DecoderFactory decoderFactory,
       TransformerMediaClock mediaClock,
@@ -66,31 +64,25 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     Codec decoder = checkNotNull(this.decoder);
-    if (pendingDecoderOutputBuffer != null) {
-      if (pendingDecoderOutputBuffer.hasRemaining()) {
-        return false;
-      } else {
-        decoder.releaseOutputBuffer(/* render= */ false);
-        pendingDecoderOutputBuffer = null;
-      }
-    }
-
     if (decoder.isEnded()) {
+      sampleConsumerInputBuffer.data = null;
       sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
       sampleConsumer.queueInputBuffer();
       isEnded = true;
       return false;
     }
 
-    pendingDecoderOutputBuffer = decoder.getOutputBuffer();
-    if (pendingDecoderOutputBuffer == null) {
+    ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
+    if (decoderOutputBuffer == null) {
       return false;
     }
 
-    sampleConsumerInputBuffer.data = pendingDecoderOutputBuffer;
+    sampleConsumerInputBuffer.ensureSpaceForWrite(decoderOutputBuffer.limit());
+    sampleConsumerInputBuffer.data.put(decoderOutputBuffer).flip();
     MediaCodec.BufferInfo bufferInfo = checkNotNull(decoder.getOutputBufferInfo());
     sampleConsumerInputBuffer.timeUs = bufferInfo.presentationTimeUs;
     sampleConsumerInputBuffer.setFlags(bufferInfo.flags);
+    decoder.releaseOutputBuffer(/* render= */ false);
     sampleConsumer.queueInputBuffer();
     return true;
   }

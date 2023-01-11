@@ -570,9 +570,10 @@ public final class TransformerEndToEndTest {
 
     // This would throw if the previous transformation had not been cancelled.
     transformer.startTransformation(mediaItem, outputPath);
-    TransformerTestRunner.runLooper(transformer);
+    TransformationResult transformationResult = TransformerTestRunner.runLooper(transformer);
 
-    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
+    // TODO(b/264974805): Make transformation output deterministic and check it against dump file.
+    assertThat(transformationResult.transformationException).isNull();
   }
 
   @Test

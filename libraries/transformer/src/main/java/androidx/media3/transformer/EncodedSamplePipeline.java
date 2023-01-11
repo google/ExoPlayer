@@ -16,17 +16,26 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
+
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /** Pipeline that muxes encoded samples without any transcoding or transformation. */
 /* package */ final class EncodedSamplePipeline extends SamplePipeline {
 
-  private final DecoderInputBuffer buffer;
-  private final Format format;
+  private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
-  private boolean hasPendingBuffer;
+  private final Format format;
+  private final Queue<DecoderInputBuffer> availableInputBuffers;
+  private final Queue<DecoderInputBuffer> pendingInputBuffers;
+
+  private volatile boolean inputEnded;
 
   public EncodedSamplePipeline(
       Format format,
@@ -36,7 +45,14 @@ import androidx.media3.decoder.DecoderInputBuffer;
       FallbackListener fallbackListener) {
     super(format, streamStartPositionUs, muxerWrapper);
     this.format = format;
-    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+    availableInputBuffers = new ConcurrentLinkedDeque<>();
+    ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+    for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
+      DecoderInputBuffer inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DIRECT);
+      inputBuffer.data = emptyBuffer;
+      availableInputBuffers.add(inputBuffer);
+    }
+    pendingInputBuffers = new ConcurrentLinkedDeque<>();
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
   }
 
@@ -48,13 +64,16 @@ import androidx.media3.decoder.DecoderInputBuffer;
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
-    return hasPendingBuffer ? null : buffer;
+    return availableInputBuffers.peek();
   }
 
   @Override
   public void queueInputBuffer() {
-    if (buffer.data != null && buffer.data.hasRemaining()) {
-      hasPendingBuffer = true;
+    DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
+    if (inputBuffer.isEndOfStream()) {
+      inputEnded = true;
+    } else {
+      pendingInputBuffers.add(inputBuffer);
     }
   }
 
@@ -69,17 +88,19 @@ import androidx.media3.decoder.DecoderInputBuffer;
   @Override
   @Nullable
   protected DecoderInputBuffer getMuxerInputBuffer() {
-    return hasPendingBuffer ? buffer : null;
+    return pendingInputBuffers.peek();
   }
 
   @Override
   protected void releaseMuxerInputBuffer() {
-    buffer.clear();
-    hasPendingBuffer = false;
+    DecoderInputBuffer inputBuffer = pendingInputBuffers.remove();
+    inputBuffer.clear();
+    inputBuffer.timeUs = 0;
+    availableInputBuffers.add(inputBuffer);
   }
 
   @Override
   protected boolean isMuxerInputEnded() {
-    return buffer.isEndOfStream();
+    return inputEnded && pendingInputBuffers.isEmpty();
   }
 }

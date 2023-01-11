@@ -29,11 +29,9 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
-import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
@@ -45,7 +43,6 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
-import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -85,13 +82,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Internal messages.
   private static final int MSG_START = 0;
   private static final int MSG_REGISTER_SAMPLE_PIPELINE = 1;
-  private static final int MSG_DEQUEUE_BUFFER = 2;
-  private static final int MSG_QUEUE_BUFFER = 3;
-  private static final int MSG_DRAIN_PIPELINES = 4;
-  private static final int MSG_END = 5;
-  private static final int MSG_UPDATE_PROGRESS = 6;
+  private static final int MSG_DRAIN_PIPELINES = 2;
+  private static final int MSG_END = 3;
+  private static final int MSG_UPDATE_PROGRESS = 4;
 
-  private static final int DRAIN_PIPELINES_DELAY_MS = 50;
+  private static final int DRAIN_PIPELINES_DELAY_MS = 10;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
@@ -109,14 +104,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HandlerWrapper internalHandler;
   private final AssetLoader assetLoader;
   private final List<SamplePipeline> samplePipelines;
-  private final ConditionVariable dequeueBufferConditionVariable;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
   private final TransformationResult.Builder transformationResultBuilder;
 
-  @Nullable private DecoderInputBuffer pendingInputBuffer;
   private boolean isDrainingPipelines;
-  private int silentSamplePipelineIndex;
   private @Transformer.ProgressState int progressState;
   private @MonotonicNonNull RuntimeException cancelException;
 
@@ -167,8 +159,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             .setDecoderFactory(this.decoderFactory)
             .createAssetLoader(mediaItem, internalLooper, componentListener);
     samplePipelines = new ArrayList<>();
-    silentSamplePipelineIndex = C.INDEX_UNSET;
-    dequeueBufferConditionVariable = new ConditionVariable();
     muxerWrapper =
         new MuxerWrapper(outputPath, outputParcelFileDescriptor, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();
@@ -227,12 +217,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         case MSG_REGISTER_SAMPLE_PIPELINE:
           registerSamplePipelineInternal((SamplePipeline) msg.obj);
           break;
-        case MSG_DEQUEUE_BUFFER:
-          dequeueBufferInternal(/* samplePipelineIndex= */ msg.arg1);
-          break;
-        case MSG_QUEUE_BUFFER:
-          samplePipelines.get(/* index= */ msg.arg1).queueInputBuffer();
-          break;
         case MSG_DRAIN_PIPELINES:
           drainPipelinesInternal();
           break;
@@ -262,22 +246,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void registerSamplePipelineInternal(SamplePipeline samplePipeline) {
     samplePipelines.add(samplePipeline);
     if (!isDrainingPipelines) {
-      // Make sure pipelines are drained regularly to prevent them from getting stuck.
-      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
+      internalHandler.sendEmptyMessage(MSG_DRAIN_PIPELINES);
       isDrainingPipelines = true;
-    }
-  }
-
-  private void dequeueBufferInternal(int samplePipelineIndex) throws TransformationException {
-    SamplePipeline samplePipeline = samplePipelines.get(samplePipelineIndex);
-    // The sample pipeline is drained before dequeuing input to maximise the chances of having an
-    // input buffer to dequeue.
-    while (samplePipeline.processData()) {}
-    pendingInputBuffer = samplePipeline.getInputBuffer();
-    dequeueBufferConditionVariable.open();
-
-    if (forceSilentAudio) {
-      while (samplePipelines.get(silentSamplePipelineIndex).processData()) {}
     }
   }
 
@@ -304,10 +274,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (!released) {
       released = true;
 
-      // Make sure there is no dequeue action waiting on the asset loader thread to avoid a
-      // deadlock when releasing it.
-      pendingInputBuffer = null;
-      dequeueBufferConditionVariable.open();
       try {
         try {
           assetLoader.release();
@@ -372,7 +338,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final FallbackListener fallbackListener;
     private final AtomicInteger trackCount;
 
-    private int tracksAddedCount;
+    private boolean trackAdded;
 
     private volatile long durationUs;
 
@@ -421,18 +387,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long streamStartPositionUs,
         long streamOffsetUs)
         throws TransformationException {
-      if (tracksAddedCount == 0) {
+      if (!trackAdded) {
         // Call setTrackCount() methods here so that they are called from the same thread as the
         // MuxerWrapper and FallbackListener methods called when building the sample pipelines.
         muxerWrapper.setTrackCount(trackCount.get());
         fallbackListener.setTrackCount(trackCount.get());
+        trackAdded = true;
       }
 
       SamplePipeline samplePipeline =
           getSamplePipeline(format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
-      int samplePipelineIndex = tracksAddedCount;
-      tracksAddedCount++;
 
       if (forceSilentAudio) {
         Format silentAudioFormat =
@@ -450,11 +415,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         internalHandler
             .obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, audioSamplePipeline)
             .sendToTarget();
-        silentSamplePipelineIndex = tracksAddedCount;
-        tracksAddedCount++;
       }
 
-      return new SampleConsumerImpl(samplePipelineIndex, samplePipeline);
+      return samplePipeline;
     }
 
     // MuxerWrapper.Listener implementation.
@@ -630,74 +593,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return true;
       }
       return false;
-    }
-
-    private class SampleConsumerImpl implements SampleConsumer {
-
-      private final int samplePipelineIndex;
-      private final SamplePipeline samplePipeline;
-
-      public SampleConsumerImpl(int samplePipelineIndex, SamplePipeline samplePipeline) {
-        this.samplePipelineIndex = samplePipelineIndex;
-        this.samplePipeline = samplePipeline;
-      }
-
-      @Override
-      public boolean expectsDecodedData() {
-        return samplePipeline.expectsDecodedData();
-      }
-
-      @Nullable
-      @Override
-      public DecoderInputBuffer getInputBuffer() {
-        if (released) {
-          // Make sure there is no dequeue action waiting on the asset loader thread when it is
-          // being released to avoid a deadlock.
-          return null;
-        }
-        // TODO(b/252537210): Reduce the number of thread hops (for example by adding a queue at the
-        //  start of the sample pipelines). Having 2 thread hops per sample (one for dequeuing and
-        //  one for queuing) makes transmuxing slower than it used to be.
-        internalHandler
-            .obtainMessage(MSG_DEQUEUE_BUFFER, samplePipelineIndex, /* unused */ 0)
-            .sendToTarget();
-        clock.onThreadBlocked();
-        dequeueBufferConditionVariable.blockUninterruptible();
-        dequeueBufferConditionVariable.close();
-        return pendingInputBuffer;
-      }
-
-      @Override
-      public void queueInputBuffer() {
-        internalHandler
-            .obtainMessage(MSG_QUEUE_BUFFER, samplePipelineIndex, /* unused */ 0)
-            .sendToTarget();
-      }
-
-      @Override
-      public Surface getInputSurface() {
-        return samplePipeline.getInputSurface();
-      }
-
-      @Override
-      public ColorInfo getExpectedColorInfo() {
-        return samplePipeline.getExpectedColorInfo();
-      }
-
-      @Override
-      public int getPendingVideoFrameCount() {
-        return samplePipeline.getPendingVideoFrameCount();
-      }
-
-      @Override
-      public void registerVideoFrame() {
-        samplePipeline.registerVideoFrame();
-      }
-
-      @Override
-      public void signalEndOfVideoInput() {
-        samplePipeline.signalEndOfVideoInput();
-      }
     }
   }
 }
