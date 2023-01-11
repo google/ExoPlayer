@@ -1143,7 +1143,7 @@ public interface ExoPlayer extends Player {
      * <p>The backing thread should run with priority {@link Process#THREAD_PRIORITY_AUDIO} and
      * should handle messages within 10ms.
      *
-     * @param playbackLooper A {@link looper}.
+     * @param playbackLooper A {@link Looper}.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
