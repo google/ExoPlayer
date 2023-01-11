@@ -119,12 +119,12 @@ public class ExoPlayerAssetLoaderTest {
       Looper looper, AssetLoader.Listener listener, Clock clock) {
     Context context = ApplicationProvider.getApplicationContext();
     MediaSource.Factory mediaSourceFactory = new DefaultMediaSourceFactory(context);
+    Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     MediaItem mediaItem = MediaItem.fromUri("asset:///media/mp4/sample.mp4");
-    return new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock)
+    return new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, decoderFactory, clock)
         .setRemoveAudio(false)
         .setRemoveVideo(false)
         .setFlattenVideoForSlowMotion(false)
-        .setDecoderFactory(new DefaultDecoderFactory(context))
         .createAssetLoader(mediaItem, looper, listener);
   }
 

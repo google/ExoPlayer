@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -77,10 +78,6 @@ public interface AssetLoader {
      */
     @CanIgnoreReturnValue
     Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion);
-
-    /** Sets the {@link Codec.DecoderFactory} to be used to decode the samples (if necessary). */
-    @CanIgnoreReturnValue
-    Factory setDecoderFactory(Codec.DecoderFactory decoderFactory);
 
     /**
      * Creates an {@link AssetLoader} instance. All the setters in this factory must be called
@@ -175,6 +172,14 @@ public interface AssetLoader {
    */
   @Transformer.ProgressState
   int getProgress(ProgressHolder progressHolder);
+
+  /**
+   * Return the used decoders' names.
+   *
+   * @return The decoders' names keyed by {@linkplain com.google.android.exoplayer2.C.TrackType
+   *     track type}.
+   */
+  ImmutableMap<Integer, String> getDecoderNames();
 
   /** Stops loading data and releases all resources associated with the asset loader. */
   void release();

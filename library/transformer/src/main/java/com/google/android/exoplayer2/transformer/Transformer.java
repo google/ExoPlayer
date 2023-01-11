@@ -89,9 +89,8 @@ public final class Transformer {
     private boolean forceSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
     @Nullable private AssetLoader.Factory assetLoaderFactory;
-    private Codec.DecoderFactory decoderFactory;
-    private Codec.EncoderFactory encoderFactory;
     private FrameProcessor.Factory frameProcessorFactory;
+    private Codec.EncoderFactory encoderFactory;
     private Muxer.Factory muxerFactory;
     private Looper looper;
     private DebugViewProvider debugViewProvider;
@@ -107,9 +106,8 @@ public final class Transformer {
       transformationRequest = new TransformationRequest.Builder().build();
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
-      decoderFactory = new DefaultDecoderFactory(this.context);
-      encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       frameProcessorFactory = new GlEffectsFrameProcessor.Factory();
+      encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       muxerFactory = new DefaultMuxer.Factory();
       looper = Util.getCurrentOrMainLooper();
       debugViewProvider = DebugViewProvider.NONE;
@@ -128,9 +126,8 @@ public final class Transformer {
       this.forceSilentAudio = transformer.forceSilentAudio;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
-      this.decoderFactory = transformer.decoderFactory;
-      this.encoderFactory = transformer.encoderFactory;
       this.frameProcessorFactory = transformer.frameProcessorFactory;
+      this.encoderFactory = transformer.encoderFactory;
       this.muxerFactory = transformer.muxerFactory;
       this.looper = transformer.looper;
       this.debugViewProvider = transformer.debugViewProvider;
@@ -292,7 +289,7 @@ public final class Transformer {
      * Sets the {@link AssetLoader.Factory} to be used to retrieve the samples to transform.
      *
      * <p>The default value is a {@link DefaultAssetLoaderFactory} built with a {@link
-     * DefaultMediaSourceFactory}.
+     * DefaultMediaSourceFactory} and a {@link DefaultDecoderFactory}.
      *
      * @param assetLoaderFactory An {@link AssetLoader.Factory}.
      * @return This builder.
@@ -300,34 +297,6 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder setAssetLoaderFactory(AssetLoader.Factory assetLoaderFactory) {
       this.assetLoaderFactory = assetLoaderFactory;
-      return this;
-    }
-
-    /**
-     * Sets the {@link Codec.DecoderFactory} that will be used by the transformer.
-     *
-     * <p>The default value is a {@link DefaultDecoderFactory} instance.
-     *
-     * @param decoderFactory The {@link Codec.DecoderFactory} instance.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setDecoderFactory(Codec.DecoderFactory decoderFactory) {
-      this.decoderFactory = decoderFactory;
-      return this;
-    }
-
-    /**
-     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
-     *
-     * <p>The default value is a {@link DefaultEncoderFactory} instance.
-     *
-     * @param encoderFactory The {@link Codec.EncoderFactory} instance.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
-      this.encoderFactory = encoderFactory;
       return this;
     }
 
@@ -348,6 +317,20 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
       this.frameProcessorFactory = frameProcessorFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
+     *
+     * <p>The default value is a {@link DefaultEncoderFactory} instance.
+     *
+     * @param encoderFactory The {@link Codec.EncoderFactory} instance.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
+      this.encoderFactory = encoderFactory;
       return this;
     }
 
@@ -465,7 +448,9 @@ public final class Transformer {
         }
         MediaSource.Factory mediaSourceFactory =
             new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
-        assetLoaderFactory = new DefaultAssetLoaderFactory(context, mediaSourceFactory, clock);
+        Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
+        assetLoaderFactory =
+            new DefaultAssetLoaderFactory(context, mediaSourceFactory, decoderFactory, clock);
       }
       return new Transformer(
           context,
@@ -477,9 +462,8 @@ public final class Transformer {
           forceSilentAudio,
           listeners,
           assetLoaderFactory,
-          decoderFactory,
-          encoderFactory,
           frameProcessorFactory,
+          encoderFactory,
           muxerFactory,
           looper,
           debugViewProvider,
@@ -589,9 +573,6 @@ public final class Transformer {
   /** Indicates that the progress is permanently unavailable. */
   public static final int PROGRESS_STATE_UNAVAILABLE = 3;
 
-  @VisibleForTesting /* package */ final Codec.DecoderFactory decoderFactory;
-  @VisibleForTesting /* package */ final Codec.EncoderFactory encoderFactory;
-
   private final Context context;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<AudioProcessor> audioProcessors;
@@ -602,6 +583,7 @@ public final class Transformer {
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
+  private final Codec.EncoderFactory encoderFactory;
   private final Muxer.Factory muxerFactory;
   private final Looper looper;
   private final DebugViewProvider debugViewProvider;
@@ -619,9 +601,8 @@ public final class Transformer {
       boolean forceSilentAudio,
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
-      Codec.DecoderFactory decoderFactory,
-      Codec.EncoderFactory encoderFactory,
       FrameProcessor.Factory frameProcessorFactory,
+      Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
       Looper looper,
       DebugViewProvider debugViewProvider,
@@ -640,9 +621,8 @@ public final class Transformer {
     this.forceSilentAudio = forceSilentAudio;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
-    this.decoderFactory = decoderFactory;
-    this.encoderFactory = encoderFactory;
     this.frameProcessorFactory = frameProcessorFactory;
+    this.encoderFactory = encoderFactory;
     this.muxerFactory = muxerFactory;
     this.looper = looper;
     this.debugViewProvider = debugViewProvider;
@@ -783,9 +763,8 @@ public final class Transformer {
             removeVideo,
             forceSilentAudio,
             assetLoaderFactory,
-            decoderFactory,
-            encoderFactory,
             frameProcessorFactory,
+            encoderFactory,
             muxerFactory,
             transformerInternalListener,
             fallbackListener,

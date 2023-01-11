@@ -34,12 +34,18 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * @param context The {@link Context}.
    * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
    *     transform when an {@link ExoPlayerAssetLoader} is used.
+   * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
+   *     necessary).
    * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
    *     testing.
    */
   public DefaultAssetLoaderFactory(
-      Context context, MediaSource.Factory mediaSourceFactory, Clock clock) {
-    assetLoaderFactory = new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock);
+      Context context,
+      MediaSource.Factory mediaSourceFactory,
+      Codec.DecoderFactory decoderFactory,
+      Clock clock) {
+    assetLoaderFactory =
+        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, decoderFactory, clock);
   }
 
   @Override
@@ -59,12 +65,6 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
     assetLoaderFactory.setFlattenVideoForSlowMotion(flattenVideoForSlowMotion);
     return this;
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setDecoderFactory(Codec.DecoderFactory decoderFactory) {
-    return assetLoaderFactory.setDecoderFactory(decoderFactory);
   }
 
   @Override

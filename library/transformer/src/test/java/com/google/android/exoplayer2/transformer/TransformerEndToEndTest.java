@@ -61,6 +61,7 @@ import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
@@ -527,8 +528,9 @@ public final class TransformerEndToEndTest {
     MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
+    Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     AssetLoader.Factory assetLoaderFactory =
-        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock);
+        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, decoderFactory, clock);
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
@@ -1102,11 +1104,6 @@ public final class TransformerEndToEndTest {
       }
 
       @Override
-      public AssetLoader.Factory setDecoderFactory(Codec.DecoderFactory decoderFactory) {
-        return this;
-      }
-
-      @Override
       public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
         return new FakeAssetLoader(listener, supportedOutputTypes, sampleConsumerRef);
       }
@@ -1153,6 +1150,11 @@ public final class TransformerEndToEndTest {
     @Override
     public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
       return 0;
+    }
+
+    @Override
+    public ImmutableMap<Integer, String> getDecoderNames() {
+      return ImmutableMap.of();
     }
 
     @Override
