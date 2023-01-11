@@ -161,16 +161,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
     assetLoader =
         assetLoaderFactory
-            .setContext(context)
-            .setMediaItem(mediaItem)
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
             .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
             .setDecoderFactory(this.decoderFactory)
-            .setLooper(internalLooper)
-            .setListener(componentListener)
-            .setClock(clock)
-            .createAssetLoader();
+            .createAssetLoader(mediaItem, internalLooper, componentListener);
     samplePipelines = new ArrayList<>();
     silentSamplePipelineIndex = C.INDEX_UNSET;
     dequeueBufferConditionVariable = new ConditionVariable();

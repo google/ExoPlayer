@@ -16,7 +16,6 @@
 
 package androidx.media3.transformer;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUntil;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
@@ -47,7 +46,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
@@ -529,7 +527,8 @@ public final class TransformerEndToEndTest {
     MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
-    AssetLoader.Factory assetLoaderFactory = new ExoPlayerAssetLoader.Factory(mediaSourceFactory);
+    AssetLoader.Factory assetLoaderFactory =
+        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock);
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
@@ -1079,23 +1078,11 @@ public final class TransformerEndToEndTest {
       private final @SupportedOutputTypes int supportedOutputTypes;
       @Nullable private final AtomicReference<SampleConsumer> sampleConsumerRef;
 
-      @Nullable private AssetLoader.Listener listener;
-
       public Factory(
           @SupportedOutputTypes int supportedOutputTypes,
           @Nullable AtomicReference<SampleConsumer> sampleConsumerRef) {
         this.supportedOutputTypes = supportedOutputTypes;
         this.sampleConsumerRef = sampleConsumerRef;
-      }
-
-      @Override
-      public AssetLoader.Factory setContext(Context context) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
-        return this;
       }
 
       @Override
@@ -1119,24 +1106,8 @@ public final class TransformerEndToEndTest {
       }
 
       @Override
-      public AssetLoader.Factory setLooper(Looper looper) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setListener(Listener listener) {
-        this.listener = listener;
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setClock(Clock clock) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader createAssetLoader() {
-        return new FakeAssetLoader(checkNotNull(listener), supportedOutputTypes, sampleConsumerRef);
+      public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
+        return new FakeAssetLoader(listener, supportedOutputTypes, sampleConsumerRef);
       }
     }
 

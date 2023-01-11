@@ -18,13 +18,11 @@ package androidx.media3.transformer;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
-import android.content.Context;
 import android.os.Looper;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
@@ -50,14 +48,6 @@ public interface AssetLoader {
    * {@link Transformer}.
    */
   interface Factory {
-
-    /** Sets the {@link Context}. */
-    @CanIgnoreReturnValue
-    Factory setContext(Context context);
-
-    /** Sets the {@link MediaItem} to load. */
-    @CanIgnoreReturnValue
-    Factory setMediaItem(MediaItem mediaItem);
 
     /**
      * Sets whether to remove the audio samples from the output (if any).
@@ -95,29 +85,17 @@ public interface AssetLoader {
     Factory setDecoderFactory(Codec.DecoderFactory decoderFactory);
 
     /**
-     * Sets the {@link Looper} that's used to access the {@link AssetLoader} after it's been
-     * created.
-     */
-    @CanIgnoreReturnValue
-    Factory setLooper(Looper looper);
-
-    /** Sets the {@link Listener} on which the {@link AssetLoader} should notify of events. */
-    @CanIgnoreReturnValue
-    Factory setListener(AssetLoader.Listener listener);
-
-    /**
-     * The {@link Clock} to use.
-     *
-     * <p>Should always be {@link Clock#DEFAULT} except for testing.
-     */
-    @CanIgnoreReturnValue
-    Factory setClock(Clock clock);
-
-    /**
      * Creates an {@link AssetLoader} instance. All the setters in this factory must be called
      * before creating the {@link AssetLoader}.
+     *
+     * @param mediaItem The {@link MediaItem} to load.
+     * @param looper The {@link Looper} that's used to access the {@link AssetLoader} after it's
+     *     been created.
+     * @param listener The {@link Listener} on which the {@link AssetLoader} should notify of
+     *     events.
+     * @return An {@link AssetLoader}.
      */
-    AssetLoader createAssetLoader();
+    AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener);
   }
 
   /**

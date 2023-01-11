@@ -27,6 +27,8 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Clock;
 import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.time.Duration;
@@ -116,18 +118,14 @@ public class ExoPlayerAssetLoaderTest {
   private static AssetLoader getAssetLoader(
       Looper looper, AssetLoader.Listener listener, Clock clock) {
     Context context = ApplicationProvider.getApplicationContext();
+    MediaSource.Factory mediaSourceFactory = new DefaultMediaSourceFactory(context);
     MediaItem mediaItem = MediaItem.fromUri("asset:///media/mp4/sample.mp4");
-    return new ExoPlayerAssetLoader.Factory()
-        .setContext(context)
-        .setMediaItem(mediaItem)
+    return new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, clock)
         .setRemoveAudio(false)
         .setRemoveVideo(false)
         .setFlattenVideoForSlowMotion(false)
         .setDecoderFactory(new DefaultDecoderFactory(context))
-        .setLooper(looper)
-        .setListener(listener)
-        .setClock(clock)
-        .createAssetLoader();
+        .createAssetLoader(mediaItem, looper, listener);
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

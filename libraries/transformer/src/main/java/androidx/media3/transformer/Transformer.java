@@ -43,6 +43,10 @@ import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlEffectsFrameProcessor;
 import androidx.media3.effect.GlMatrixTransformation;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.extractor.DefaultExtractorsFactory;
+import androidx.media3.extractor.mp4.Mp4Extractor;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
@@ -86,7 +90,7 @@ public final class Transformer {
     private boolean removeVideo;
     private boolean forceSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
-    private AssetLoader.Factory assetLoaderFactory;
+    @Nullable private AssetLoader.Factory assetLoaderFactory;
     private Codec.DecoderFactory decoderFactory;
     private Codec.EncoderFactory encoderFactory;
     private FrameProcessor.Factory frameProcessorFactory;
@@ -105,7 +109,6 @@ public final class Transformer {
       transformationRequest = new TransformationRequest.Builder().build();
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
-      assetLoaderFactory = new DefaultAssetLoaderFactory();
       decoderFactory = new DefaultDecoderFactory(this.context);
       encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       frameProcessorFactory = new GlEffectsFrameProcessor.Factory();
@@ -290,7 +293,8 @@ public final class Transformer {
     /**
      * Sets the {@link AssetLoader.Factory} to be used to retrieve the samples to transform.
      *
-     * <p>The default value is a {@link DefaultAssetLoaderFactory}.
+     * <p>The default value is a {@link DefaultAssetLoaderFactory} built with a {@link
+     * DefaultMediaSourceFactory}.
      *
      * @param assetLoaderFactory An {@link AssetLoader.Factory}.
      * @return This builder.
@@ -455,6 +459,15 @@ public final class Transformer {
       }
       if (transformationRequest.videoMimeType != null) {
         checkSampleMimeType(transformationRequest.videoMimeType);
+      }
+      if (assetLoaderFactory == null) {
+        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+        if (transformationRequest.flattenForSlowMotion) {
+          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
+        }
+        MediaSource.Factory mediaSourceFactory =
+            new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
+        assetLoaderFactory = new DefaultAssetLoaderFactory(context, mediaSourceFactory, clock);
       }
       return new Transformer(
           context,
