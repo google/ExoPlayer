@@ -45,6 +45,8 @@
 
   <string name="sample_list_load_error">One or more sample lists failed to load</string>
 
+  <string name="post_notification_not_granted">Notifications suppressed. Grant permission to see download notifications.</string>
+
   <string name="download_start_error">Failed to start download</string>
 
   <string name="download_start_error_offline_license">Failed to obtain offline license</string>
