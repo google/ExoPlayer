@@ -17,7 +17,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
@@ -52,6 +51,7 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.video.VideoRendererEventListener;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** An {@link AssetLoader} implementation that uses an {@link ExoPlayer} to load samples. */
@@ -63,12 +63,12 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     private final Context context;
     private final MediaSource.Factory mediaSourceFactory;
+    private final Codec.DecoderFactory decoderFactory;
     private final Clock clock;
 
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenVideoForSlowMotion;
-    @Nullable private Codec.DecoderFactory decoderFactory;
 
     /**
      * Creates an instance.
@@ -76,12 +76,19 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
      * @param context The {@link Context}.
      * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
      *     transform.
+     * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
+     *     necessary).
      * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
      *     testing.
      */
-    public Factory(Context context, MediaSource.Factory mediaSourceFactory, Clock clock) {
+    public Factory(
+        Context context,
+        MediaSource.Factory mediaSourceFactory,
+        Codec.DecoderFactory decoderFactory,
+        Clock clock) {
       this.context = context;
       this.mediaSourceFactory = mediaSourceFactory;
+      this.decoderFactory = decoderFactory;
       this.clock = clock;
     }
 
@@ -107,13 +114,6 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     }
 
     @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setDecoderFactory(Codec.DecoderFactory decoderFactory) {
-      this.decoderFactory = decoderFactory;
-      return this;
-    }
-
-    @Override
     public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
       return new ExoPlayerAssetLoader(
           context,
@@ -122,7 +122,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
           removeVideo,
           flattenVideoForSlowMotion,
           mediaSourceFactory,
-          checkStateNotNull(decoderFactory),
+          decoderFactory,
           looper,
           listener,
           clock);
@@ -130,6 +130,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
   }
 
   private final MediaItem mediaItem;
+  private final CapturingDecoderFactory decoderFactory;
   private final ExoPlayer player;
 
   private @Transformer.ProgressState int progressState;
@@ -146,6 +147,8 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       Listener listener,
       Clock clock) {
     this.mediaItem = mediaItem;
+    this.decoderFactory = new CapturingDecoderFactory(decoderFactory);
+
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
         new DefaultTrackSelector.Parameters.Builder(context)
@@ -165,7 +168,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
         new ExoPlayer.Builder(
                 context,
                 new RenderersFactoryImpl(
-                    removeAudio, removeVideo, flattenForSlowMotion, decoderFactory, listener))
+                    removeAudio, removeVideo, flattenForSlowMotion, this.decoderFactory, listener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -176,7 +179,6 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       @SuppressWarnings("VisibleForTests")
       ExoPlayer.Builder unusedForAnnotation = playerBuilder.setClock(clock);
     }
-
     player = playerBuilder.build();
     player.addListener(new PlayerListener(listener));
 
@@ -198,6 +200,20 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
     }
     return progressState;
+  }
+
+  @Override
+  public ImmutableMap<Integer, String> getDecoderNames() {
+    ImmutableMap.Builder<Integer, String> decoderNamesByTrackType = new ImmutableMap.Builder<>();
+    @Nullable String audioDecoderName = decoderFactory.getAudioDecoderName();
+    if (audioDecoderName != null) {
+      decoderNamesByTrackType.put(C.TRACK_TYPE_AUDIO, audioDecoderName);
+    }
+    @Nullable String videoDecoderName = decoderFactory.getVideoDecoderName();
+    if (videoDecoderName != null) {
+      decoderNamesByTrackType.put(C.TRACK_TYPE_VIDEO, videoDecoderName);
+    }
+    return decoderNamesByTrackType.buildOrThrow();
   }
 
   @Override

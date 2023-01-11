@@ -45,6 +45,7 @@ import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -93,9 +94,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
   private final boolean forceSilentAudio;
-  private final CapturingDecoderFactory decoderFactory;
-  private final CapturingEncoderFactory encoderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
+  private final CapturingEncoderFactory encoderFactory;
   private final Listener listener;
   private final HandlerWrapper applicationHandler;
   private final DebugViewProvider debugViewProvider;
@@ -126,9 +126,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean removeVideo,
       boolean forceSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
-      Codec.DecoderFactory decoderFactory,
-      Codec.EncoderFactory encoderFactory,
       FrameProcessor.Factory frameProcessorFactory,
+      Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
       Listener listener,
       FallbackListener fallbackListener,
@@ -140,9 +139,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
     this.forceSilentAudio = forceSilentAudio;
-    this.decoderFactory = new CapturingDecoderFactory(decoderFactory);
-    this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.frameProcessorFactory = frameProcessorFactory;
+    this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
     this.applicationHandler = applicationHandler;
     this.debugViewProvider = debugViewProvider;
@@ -156,7 +154,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
             .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
-            .setDecoderFactory(this.decoderFactory)
             .createAssetLoader(mediaItem, internalLooper, componentListener);
     samplePipelines = new ArrayList<>();
     muxerWrapper =
@@ -263,9 +260,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
+    ImmutableMap<Integer, String> decoderNames = assetLoader.getDecoderNames();
     transformationResultBuilder
-        .setAudioDecoderName(decoderFactory.getAudioDecoderName())
-        .setVideoDecoderName(decoderFactory.getVideoDecoderName())
+        .setAudioDecoderName(decoderNames.get(C.TRACK_TYPE_AUDIO))
+        .setVideoDecoderName(decoderNames.get(C.TRACK_TYPE_VIDEO))
         .setAudioEncoderName(encoderFactory.getAudioEncoderName())
         .setVideoEncoderName(encoderFactory.getVideoEncoderName());
 
