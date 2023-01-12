@@ -81,11 +81,14 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -1039,7 +1042,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
               : mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
     }
     pixelWidthHeightRatio = format.pixelWidthHeightRatio;
-    if (Util.SDK_INT >= 21) {
+    if (codecAppliesRotation()) {
       // On API level 21 and above the decoder applies the rotation when rendering to the surface.
       // Hence currentUnappliedRotation should always be 0. For 90 and 270 degree rotations, we need
       // to flip the width, height and pixel aspect ratio to reflect the rotation that was applied.
@@ -1049,8 +1052,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         height = rotatedHeight;
         pixelWidthHeightRatio = 1 / pixelWidthHeightRatio;
       }
-    } else {
-      // On API level 20 and below the decoder does not apply the rotation.
+    } else if (!frameProcessorManager.isEnabled()) {
+      // Neither the codec nor the FrameProcessor applies the rotation.
       unappliedRotationDegrees = format.rotationDegrees;
     }
     decodedVideoSize =
@@ -1058,7 +1061,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseHelper.onFormatChanged(format.frameRate);
 
     if (frameProcessorManager.isEnabled()) {
-      frameProcessorManager.setInputFrameInfo(width, height, pixelWidthHeightRatio);
+      frameProcessorManager.setInputFormat(
+          format
+              .buildUpon()
+              .setWidth(width)
+              .setHeight(height)
+              .setRotationDegrees(unappliedRotationDegrees)
+              .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+              .build());
     }
   }
 
@@ -1501,12 +1511,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Renders the output buffer with the specified index. This method is only called if the platform
    * API version of the device is less than 21.
    *
+   * <p>When frame processing is {@linkplain FrameProcessorManager#isEnabled()} enabled}, this
+   * method renders to {@link FrameProcessorManager}'s {@linkplain
+   * FrameProcessorManager#getInputSurface() input surface}.
+   *
    * @param codec The codec that owns the output buffer.
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
   protected void renderOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
-    maybeNotifyVideoSizeChanged(decodedVideoSize);
+    if (!frameProcessorManager.isEnabled()) {
+      maybeNotifyVideoSizeChanged(decodedVideoSize);
+    }
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, true);
     TraceUtil.endSection();
@@ -1520,6 +1536,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * Renders the output buffer with the specified index. This method is only called if the platform
    * API version of the device is 21 or later.
    *
+   * <p>When frame processing is {@linkplain FrameProcessorManager#isEnabled()} enabled}, this
+   * method renders to {@link FrameProcessorManager}'s {@linkplain
+   * FrameProcessorManager#getInputSurface() input surface}.
+   *
    * @param codec The codec that owns the output buffer.
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
@@ -1528,7 +1548,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @RequiresApi(21)
   protected void renderOutputBufferV21(
       MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
-    maybeNotifyVideoSizeChanged(decodedVideoSize);
+    if (!frameProcessorManager.isEnabled()) {
+      maybeNotifyVideoSizeChanged(decodedVideoSize);
+    }
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
@@ -1792,8 +1814,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /** Manages {@link FrameProcessor} interactions. */
   private static final class FrameProcessorManager {
 
-    private static final String FRAME_PROCESSOR_FACTORY_CLASS =
-        "com.google.android.exoplayer2.effect.GlEffectsFrameProcessor$Factory";
     /** The threshold for releasing a processed frame. */
     private static final long EARLY_THRESHOLD_US = 50_000;
 
@@ -1807,6 +1827,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private @MonotonicNonNull Handler handler;
     @Nullable private FrameProcessor frameProcessor;
     @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
+    @Nullable private Format inputFormat;
     /**
      * The current frame {@link Format} and the earliest presentationTimeUs that associates to it.
      */
@@ -1830,6 +1851,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private boolean releasedLastFrame;
 
     private long lastCodecBufferPresentationTimestampUs;
+    private VideoSize processedFrameSize;
+    private boolean pendingOutputSizeChange;
+    /** The presentation time, after which the listener should be notified about the size change. */
+    private long pendingOutputSizeChangeNotificationTimeUs;
 
     /** Creates a new instance. */
     public FrameProcessorManager(
@@ -1842,6 +1867,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       frameProcessorMaxPendingFrameCount = C.LENGTH_UNSET;
       canEnableFrameProcessing = true;
       lastCodecBufferPresentationTimestampUs = C.TIME_UNSET;
+      processedFrameSize = VideoSize.UNKNOWN;
+      pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
     }
 
     /** Sets the {@linkplain Effect video effects}. */
@@ -1902,9 +1929,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Playback thread handler.
       handler = Util.createHandlerForCurrentLooper();
       try {
+        // TODO(b/243036513): Set rotation in setInputFormat() after supporting changing effects.
+        if (!codecAppliesRotation() && inputFormat.rotationDegrees != 0) {
+          // Insert as the first effect as if the decoder has applied the rotation.
+          videoEffects.add(
+              /* index= */ 0,
+              FrameProcessorAccessor.createRotationEffect(inputFormat.rotationDegrees));
+        }
+
         frameProcessor =
-            ((FrameProcessor.Factory)
-                    Class.forName(FRAME_PROCESSOR_FACTORY_CLASS).getConstructor().newInstance())
+            FrameProcessorAccessor.getFrameProcessorFactory()
                 .create(
                     renderer.context,
                     checkNotNull(videoEffects),
@@ -1916,7 +1950,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     new FrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
-                        // TODO(b/238302341) Handle output size change.
+                        @Nullable Format inputFormat = FrameProcessorManager.this.inputFormat;
+                        checkStateNotNull(inputFormat);
+                        // TODO(b/264889146): Handle Effect that changes output size based on pts.
+                        processedFrameSize =
+                            new VideoSize(
+                                width,
+                                height,
+                                // FrameProcessor is configured to produce rotation free frames.
+                                /* unappliedRotationDegrees= */ 0,
+                                // FrameProcessor always outputs pixelWidthHeightRatio 1.
+                                /* pixelWidthHeightRatio= */ 1.f);
+                        pendingOutputSizeChange = true;
                       }
 
                       @Override
@@ -1929,6 +1974,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                         if (registeredLastFrame
                             && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
                           processedLastFrame = true;
+                        }
+                        if (pendingOutputSizeChange) {
+                          // Report the size change on releasing this frame.
+                          pendingOutputSizeChange = false;
+                          pendingOutputSizeChangeNotificationTimeUs = presentationTimeUs;
                         }
                       }
 
@@ -1951,7 +2001,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         throw renderer.createRendererException(
             e, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
-      setInputFrameInfo(inputFormat.width, inputFormat.height, inputFormat.pixelWidthHeightRatio);
+      setInputFormat(inputFormat);
       return true;
     }
 
@@ -1985,7 +2035,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           .setOutputSurfaceInfo(
               new SurfaceInfo(
                   outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
-      currentSurfaceAndSize = Pair.create(outputSurface, outputResolution);
     }
 
     /**
@@ -2004,11 +2053,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
      * this method.
      */
-    public void setInputFrameInfo(int width, int height, float pixelWidthHeightRatio) {
+    public void setInputFormat(Format inputFormat) {
       checkNotNull(frameProcessor)
           .setInputFrameInfo(
               new FrameInfo(
-                  width, height, pixelWidthHeightRatio, renderer.getOutputStreamOffsetUs()));
+                  inputFormat.width,
+                  inputFormat.height,
+                  inputFormat.pixelWidthHeightRatio,
+                  renderer.getOutputStreamOffsetUs()));
+      this.inputFormat = inputFormat;
 
       if (registeredLastFrame) {
         registeredLastFrame = false;
@@ -2121,6 +2174,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             bufferPresentationTimeUs - renderer.getOutputStreamOffsetUs();
         renderer.notifyFrameMetadataListener(
             framePresentationTimeUs, adjustedFrameReleaseTimeNs, currentFrameFormat.second);
+        if (pendingOutputSizeChangeNotificationTimeUs >= bufferPresentationTimeUs) {
+          pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
+          renderer.maybeNotifyVideoSizeChanged(processedFrameSize);
+        }
         frameProcessor.releaseOutputFrame(adjustedFrameReleaseTimeNs);
         processedFramesTimestampsUs.remove();
         if (isLastFrame) {
@@ -2146,6 +2203,53 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       processedFramesTimestampsUs.clear();
       canEnableFrameProcessing = true;
+    }
+
+    private static final class FrameProcessorAccessor {
+
+      private static @MonotonicNonNull Constructor<?> scaleToFitTransformationBuilderConstructor;
+      private static @MonotonicNonNull Method setRotationMethod;
+      private static @MonotonicNonNull Method buildScaleToFitTransformationMethod;
+      private static @MonotonicNonNull Constructor<?> frameProcessorFactorConstructor;
+
+      public static Effect createRotationEffect(float rotationDegrees) throws Exception {
+        prepare();
+        Object builder = scaleToFitTransformationBuilderConstructor.newInstance();
+        setRotationMethod.invoke(builder, rotationDegrees);
+        return (Effect) checkNotNull(buildScaleToFitTransformationMethod.invoke(builder));
+      }
+
+      public static FrameProcessor.Factory getFrameProcessorFactory() throws Exception {
+        prepare();
+        return (FrameProcessor.Factory) frameProcessorFactorConstructor.newInstance();
+      }
+
+      @EnsuresNonNull({
+        "ScaleToFitEffectBuilder",
+        "SetRotationMethod",
+        "SetRotationMethod",
+        "FrameProcessorFactoryClass"
+      })
+      private static void prepare() throws Exception {
+        if (scaleToFitTransformationBuilderConstructor == null
+            || setRotationMethod == null
+            || buildScaleToFitTransformationMethod == null) {
+          Class<?> scaleToFitTransformationBuilderClass =
+              Class.forName(
+                  "com.google.android.exoplayer2.effect.ScaleToFitTransformation$Builder");
+          scaleToFitTransformationBuilderConstructor =
+              scaleToFitTransformationBuilderClass.getConstructor();
+          setRotationMethod =
+              scaleToFitTransformationBuilderClass.getMethod("setRotationDegrees", float.class);
+          buildScaleToFitTransformationMethod =
+              scaleToFitTransformationBuilderClass.getMethod("build");
+        }
+        if (frameProcessorFactorConstructor == null) {
+          frameProcessorFactorConstructor =
+              Class.forName("com.google.android.exoplayer2.effect.GlEffectsFrameProcessor$Factory")
+                  .getConstructor();
+        }
+      }
     }
   }
 
@@ -2219,6 +2323,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else {
       return getCodecMaxInputSize(codecInfo, format);
     }
+  }
+
+  private static boolean codecAppliesRotation() {
+    return Util.SDK_INT >= 21;
   }
 
   /**
