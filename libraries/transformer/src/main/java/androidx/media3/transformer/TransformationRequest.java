@@ -215,7 +215,7 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height.
+     * Sets the output resolution using the output height of the displayed video.
      *
      * <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
      * other transformations.
@@ -225,6 +225,10 @@ public final class TransformationRequest {
      * <p>The default value, {@link C#LENGTH_UNSET}, leaves the width and height unchanged unless
      * {@linkplain #setScale(float,float) scaling} or @linkplain #setRotationDegrees(float)
      * rotation} are requested.
+     *
+     * <p>Note that the output encoded video's dimensions may be swapped from the displayed video's
+     * dimensions, if the displayed video's height > width. This is to improve compatibility among
+     * different device encoders.
      *
      * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
