@@ -74,7 +74,7 @@ vec3 smpte170mOetf(vec3 opticalColor) {
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
 // electrical signals. Input and output are both normalized to [0, 1].
 highp vec3 applyOetf(highp vec3 linearColor) {
-  // LINT.IfChange(color_transfer_oetf)
+  // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_LINEAR = 1;
   const int COLOR_TRANSFER_SDR_VIDEO = 3;
   if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {

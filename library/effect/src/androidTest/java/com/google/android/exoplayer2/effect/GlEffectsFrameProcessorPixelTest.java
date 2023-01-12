@@ -88,13 +88,20 @@ public final class GlEffectsFrameProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/grayscale_then_increase_red_channel.png";
   // This file is generated on a Pixel 7, because the emulator isn't able to decode HLG to generate
   // this file.
-  public static final String TONE_MAP_HDR_TO_SDR_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_hdr_to_sdr.png";
+  public static final String TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_hlg_to_sdr.png";
+  // This file is generated on a Pixel 7, because the emulator isn't able to decode PQ to generate
+  // this file.
+  public static final String TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_pq_to_sdr.png";
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_SDR_MP4_ASSET_STRING = "media/mp4/sample.mp4";
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
+  /** Input PQ video of which we only use the first frame. */
+  private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-1080p.mp4";
+
   /**
    * Time to wait for the decoded frame to populate the {@link GlEffectsFrameProcessor} instance's
    * input surface and the {@link GlEffectsFrameProcessor} to finish processing the frame, in
@@ -399,24 +406,58 @@ public final class GlEffectsFrameProcessorPixelTest {
     // TODO(b/239735341): Move this test to mobileharness testing.
     String testId = "drawHlgFrame_toneMap";
     ColorInfo hlgColor =
-        new ColorInfo(
-            C.COLOR_SPACE_BT2020,
-            C.COLOR_RANGE_LIMITED,
-            C.COLOR_TRANSFER_HLG,
-            /* hdrStaticInfo= */ null);
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT2020)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_HLG)
+            .build();
     ColorInfo toneMapSdrColor =
-        new ColorInfo(
-            C.COLOR_SPACE_BT709,
-            C.COLOR_RANGE_LIMITED,
-            C.COLOR_TRANSFER_GAMMA_2_2,
-            /* hdrStaticInfo= */ null);
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT709)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
+            .build();
     setUpAndPrepareFirstFrame(
         INPUT_HLG_MP4_ASSET_STRING,
         DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         /* inputColorInfo= */ hlgColor,
         /* outputColorInfo= */ toneMapSdrColor,
         /* effects= */ ImmutableList.of());
-    Bitmap expectedBitmap = readBitmap(TONE_MAP_HDR_TO_SDR_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  @Ignore("b/261877288 Test can only run on physical devices because decoder can't decode PQ.")
+  public void drawPqFrame_toneMap_producesExpectedOutput() throws Exception {
+    // TODO(b/239735341): Move this test to mobileharness testing.
+    String testId = "drawPqFrame_toneMap";
+    ColorInfo pqColor =
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT2020)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_ST2084)
+            .build();
+    ColorInfo toneMapSdrColor =
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT709)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
+            .build();
+    setUpAndPrepareFirstFrame(
+        INPUT_PQ_MP4_ASSET_STRING,
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        /* inputColorInfo= */ pqColor,
+        /* outputColorInfo= */ toneMapSdrColor,
+        /* effects= */ ImmutableList.of());
+    Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 

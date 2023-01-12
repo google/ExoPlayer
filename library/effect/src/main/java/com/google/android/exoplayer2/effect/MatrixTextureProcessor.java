@@ -217,11 +217,8 @@ import java.util.List;
               ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
               : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
 
-      @C.ColorTransfer int inputColorTransfer = inputColorInfo.colorTransfer;
-      checkArgument(
-          inputColorTransfer == C.COLOR_TRANSFER_HLG
-              || inputColorTransfer == C.COLOR_TRANSFER_ST2084);
-      glProgram.setIntUniform("uInputColorTransfer", inputColorTransfer);
+      checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
+      glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
       // TODO(b/239735341): Add a setBooleanUniform method to GlProgram.
       glProgram.setIntUniform(
           "uApplyHdrToSdrToneMapping",
