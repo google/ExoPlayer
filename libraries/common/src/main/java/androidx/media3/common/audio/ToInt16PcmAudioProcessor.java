@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.audio;
+package androidx.media3.common.audio;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.audio.AudioProcessor;
-import androidx.media3.common.audio.BaseAudioProcessor;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
@@ -36,7 +35,8 @@ import java.nio.ByteBuffer;
  *   <li>{@link C#ENCODING_PCM_FLOAT}
  * </ul>
  */
-/* package */ final class ResamplingAudioProcessor extends BaseAudioProcessor {
+@UnstableApi
+public final class ToInt16PcmAudioProcessor extends BaseAudioProcessor {
 
   @Override
   @CanIgnoreReturnValue

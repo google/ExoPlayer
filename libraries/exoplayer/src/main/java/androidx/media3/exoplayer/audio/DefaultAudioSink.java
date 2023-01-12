@@ -48,6 +48,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.audio.AudioProcessingPipeline;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
+import androidx.media3.common.audio.ToInt16PcmAudioProcessor;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
@@ -542,7 +543,7 @@ public final class DefaultAudioSink implements AudioSink {
     trimmingAudioProcessor = new TrimmingAudioProcessor();
     toIntPcmAvailableAudioProcessors =
         ImmutableList.of(
-            new ResamplingAudioProcessor(), channelMappingAudioProcessor, trimmingAudioProcessor);
+            new ToInt16PcmAudioProcessor(), channelMappingAudioProcessor, trimmingAudioProcessor);
     toFloatPcmAvailableAudioProcessors = ImmutableList.of(new FloatResamplingAudioProcessor());
     volume = 1f;
     audioAttributes = AudioAttributes.DEFAULT;
