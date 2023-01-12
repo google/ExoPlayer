@@ -425,8 +425,7 @@ import org.checkerframework.dataflow.qual.Pure;
       // frame before encoding, so the encoded frame's width >= height, and sets
       // rotationDegrees in the output Format to ensure the frame is displayed in the correct
       // orientation.
-      boolean flipOrientation = requestedWidth < requestedHeight;
-      if (flipOrientation) {
+      if (requestedWidth < requestedHeight) {
         int temp = requestedWidth;
         requestedWidth = requestedHeight;
         requestedHeight = temp;
@@ -477,7 +476,7 @@ import org.checkerframework.dataflow.qual.Pure;
       fallbackListener.onTransformationRequestFinalized(
           createSupportedTransformationRequest(
               transformationRequest,
-              /* hasOutputFormatRotation= */ flipOrientation,
+              /* hasOutputFormatRotation= */ outputRotationDegrees != 0,
               requestedEncoderFormat,
               encoderSupportedFormat,
               supportedFallbackHdrMode));
