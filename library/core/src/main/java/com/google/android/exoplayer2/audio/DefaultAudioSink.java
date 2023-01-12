@@ -531,7 +531,7 @@ public final class DefaultAudioSink implements AudioSink {
     trimmingAudioProcessor = new TrimmingAudioProcessor();
     toIntPcmAvailableAudioProcessors =
         ImmutableList.of(
-            new ResamplingAudioProcessor(), channelMappingAudioProcessor, trimmingAudioProcessor);
+            new ToInt16PcmAudioProcessor(), channelMappingAudioProcessor, trimmingAudioProcessor);
     toFloatPcmAvailableAudioProcessors = ImmutableList.of(new FloatResamplingAudioProcessor());
     volume = 1f;
     audioAttributes = AudioAttributes.DEFAULT;

@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
  *   <li>{@link C#ENCODING_PCM_FLOAT}
  * </ul>
  */
-/* package */ final class ResamplingAudioProcessor extends BaseAudioProcessor {
+public final class ToInt16PcmAudioProcessor extends BaseAudioProcessor {
 
   @Override
   @CanIgnoreReturnValue
