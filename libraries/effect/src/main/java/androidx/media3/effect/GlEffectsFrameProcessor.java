@@ -92,16 +92,15 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
       if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
           || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
-        // GL Tone mapping is only implemented for BT2020 to BT709 and HLG to SDR (Gamma 2.2).
+        // GL Tone mapping is only implemented for BT2020 to BT709 and HDR to SDR (Gamma 2.2).
         // Gamma 2.2 is used instead of SMPTE 170M for SDR, despite MediaFormat's
         // COLOR_TRANSFER_SDR_VIDEO being defined as SMPTE 170M. This is to match
         // other known tone-mapping behavior within the Android ecosystem.
         // TODO(b/239735341): Consider migrating SDR outside tone-mapping from SMPTE
         //  170M to gamma 2.2.
-        // TODO(b/239735341): Implement PQ tone-mapping to reduce the scope of these checks.
         checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
         checkArgument(outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020);
-        checkArgument(inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG);
+        checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
         checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2);
       }
 

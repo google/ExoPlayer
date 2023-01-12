@@ -48,6 +48,12 @@ uniform int uOutputColorTransfer;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
 
+// LINT.IfChange(color_transfer)
+const int COLOR_TRANSFER_LINEAR = 1;
+const int COLOR_TRANSFER_GAMMA_2_2 = 10;
+const int COLOR_TRANSFER_ST2084 = 6;
+const int COLOR_TRANSFER_HLG = 7;
+
 // TODO(b/227624622): Consider using mediump to save precision, if it won't lead
 //  to noticeable quantization errors.
 
@@ -93,10 +99,6 @@ highp vec3 pqEotf(highp vec3 pqColor) {
 // Applies the appropriate EOTF to convert nonlinear electrical values to linear
 // optical values. Input and output are both normalized to [0, 1].
 highp vec3 applyEotf(highp vec3 electricalColor) {
-  // LINT.IfChange(color_transfer)
-  const int COLOR_TRANSFER_ST2084 = 6;
-  const int COLOR_TRANSFER_HLG = 7;
-
   if (uInputColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqEotf(electricalColor);
   } else if (uInputColorTransfer == COLOR_TRANSFER_HLG) {
@@ -134,6 +136,25 @@ highp vec3 applyHlgBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
       linearXyzBt2020 * pow(linearXyzBt2020[1], hlgGamma - 1.0);
   vec3 linearRgbBt709 = clamp((XYZ_TO_RGB_BT709 * linearXyzBt709), 0.0, 1.0);
   return linearRgbBt709;
+}
+
+// Apply the PQ BT2020 to BT709 OOTF.
+highp vec3 applyPqBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
+  float pqPeakLuminance = 10000.0;
+  float sdrPeakLuminance = 500.0;
+
+  return linearRgbBt2020 * pqPeakLuminance / sdrPeakLuminance;
+}
+
+highp vec3 applyBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
+  if (uInputColorTransfer == COLOR_TRANSFER_ST2084) {
+    return applyPqBt2020ToBt709Ootf(linearRgbBt2020);
+  } else if (uInputColorTransfer == COLOR_TRANSFER_HLG) {
+    return applyHlgBt2020ToBt709Ootf(linearRgbBt2020);
+  } else {
+    // Output red as an obviously visible error.
+    return vec3(1.0, 0.0, 0.0);
+  }
 }
 
 // BT.2100 / BT.2020 HLG OETF for one channel.
@@ -194,11 +215,6 @@ vec3 gamma22Oetf(highp vec3 linearColor) {
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
 // electrical signals. Input and output are both normalized to [0, 1].
 highp vec3 applyOetf(highp vec3 linearColor) {
-  // LINT.IfChange(color_transfer_oetf)
-  const int COLOR_TRANSFER_LINEAR = 1;
-  const int COLOR_TRANSFER_GAMMA_2_2 = 10;
-  const int COLOR_TRANSFER_ST2084 = 6;
-  const int COLOR_TRANSFER_HLG = 7;
   if (uOutputColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqOetf(linearColor);
   } else if (uOutputColorTransfer == COLOR_TRANSFER_HLG) {
@@ -221,9 +237,8 @@ vec3 yuvToRgb(vec3 yuv) {
 void main() {
   vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
   vec3 opticalColorBt2020 = applyEotf(yuvToRgb(srcYuv));
-  // TODO(b/239735341): Add support for PQ tone-mapping.
   vec4 opticalColor = (uApplyHdrToSdrToneMapping == 1)
-      ? vec4(applyHlgBt2020ToBt709Ootf(opticalColorBt2020), 1.0)
+      ? vec4(applyBt2020ToBt709Ootf(opticalColorBt2020), 1.0)
       : vec4(opticalColorBt2020, 1.0);
   vec4 transformedColors = uRgbMatrix * opticalColor;
   outColor = vec4(applyOetf(transformedColors.rgb), 1.0);

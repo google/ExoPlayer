@@ -79,7 +79,7 @@ public final class TransformationRequest {
    * Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
    * tone-mapper.
    *
-   * <p>Supported on API 29+, for HLG input.
+   * <p>Supported on API 29+.
    *
    * <p>This may exhibit mild differences from {@link
    * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, depending on the device's tone-mapping
@@ -88,7 +88,6 @@ public final class TransformationRequest {
    *
    * <p>If not supported, {@link Transformer} throws a {@link TransformationException}.
    */
-  // TODO(b/239735341): Implement PQ tone-mapping to remove the HLG reference.
   public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL = 2;
   /**
    * Interpret HDR input as SDR, likely with a washed out look.

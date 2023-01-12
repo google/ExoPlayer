@@ -16,6 +16,8 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
@@ -88,6 +90,56 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+      Log.i(TAG, "Tone mapped.");
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+    } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+        throw exception;
+      }
+    }
+  }
+
+  @Test
+  public void transform_toneMap_hdr10File_toneMapsOrThrows() throws Exception {
+    String testId = "transform_glToneMap_hdr10File_toneMapsOrThrows";
+
+    if (Util.SDK_INT < 29) {
+      recordTestSkipped(
+          ApplicationProvider.getApplicationContext(),
+          testId,
+          /* reason= */ "OpenGL-based HDR to SDR tone mapping is only supported on API 29+.");
+      return;
+    }
+
+    if (!GlUtil.isYuvTargetExtensionSupported()) {
+      recordTestSkipped(
+          getApplicationContext(), testId, /* reason= */ "Device lacks YUV extension support.");
+      return;
+    }
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        getApplicationContext(),
+        testId,
+        /* decodingFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
+        /* encodingFormat= */ null)) {
+      return;
+    }
+
+    Context context = ApplicationProvider.getApplicationContext();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
+                    .build())
+            .build();
+    try {
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
