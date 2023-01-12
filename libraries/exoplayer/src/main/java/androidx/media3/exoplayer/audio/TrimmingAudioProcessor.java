@@ -19,6 +19,7 @@ import static java.lang.Math.min;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.audio.BaseAudioProcessor;
 import androidx.media3.common.util.Util;
 import java.nio.ByteBuffer;
 
