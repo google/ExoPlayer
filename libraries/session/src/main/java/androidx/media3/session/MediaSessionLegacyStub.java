@@ -313,7 +313,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             playerWrapper.seekTo(
                 playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
           }
-          playerWrapper.play();
+          if (sessionImpl.onPlayRequested()) {
+            playerWrapper.play();
+          }
         },
         sessionCompat.getCurrentControllerInfo());
   }

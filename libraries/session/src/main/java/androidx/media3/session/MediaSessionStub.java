@@ -611,7 +611,20 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, sequenceNumber, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::play));
+        caller,
+        sequenceNumber,
+        COMMAND_PLAY_PAUSE,
+        sendSessionResultSuccess(
+            player -> {
+              @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
+              if (sessionImpl == null || sessionImpl.isReleased()) {
+                return;
+              }
+
+              if (sessionImpl.onPlayRequested()) {
+                player.play();
+              }
+            }));
   }
 
   @Override
