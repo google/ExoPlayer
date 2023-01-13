@@ -16,12 +16,12 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.effect.BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer;
-import static androidx.media3.effect.BitmapTestUtil.createGlTextureFromBitmap;
-import static androidx.media3.effect.BitmapTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
-import static androidx.media3.effect.BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory;
-import static androidx.media3.effect.BitmapTestUtil.readBitmap;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.createGlTextureFromBitmap;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -38,6 +38,7 @@ import android.text.style.ForegroundColorSpan;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
+import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -52,8 +53,8 @@ import org.junit.runner.RunWith;
  *
  * <p>Expected bitmaps are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
- * BitmapTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output bitmaps
- * as recommended in {@link GlEffectsFrameProcessorPixelTest}.
+ * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
+ * bitmaps as recommended in {@link GlEffectsFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
 public class OverlayTextureProcessorPixelTest {

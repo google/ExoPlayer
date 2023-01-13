@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.effect;
+package androidx.media3.test.utils;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.opengl.GLES20;
@@ -31,6 +32,7 @@ import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.UnstableApi;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,27 +40,26 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-/**
- * Utilities for instrumentation tests for the {@link GlEffectsFrameProcessor} and {@link
- * SingleFrameGlTextureProcessor SingleFrameGlTextureProcessors}.
- */
-public class BitmapTestUtil {
+/** Utilities for pixel tests. */
+// TODO(b/263395272): After the bug is fixed and dependent tests are moved back to media3.effect,
+//  move this back to the effect tests directory.
+@UnstableApi
+public class BitmapPixelTestUtil {
 
-  private static final String TAG = "BitmapTestUtil";
+  private static final String TAG = "BitmapPixelTestUtil";
 
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images in pixel
    * difference-based tests. The value is chosen so that differences in decoder behavior across
    * emulator versions don't affect whether the test passes for most emulators, but substantial
-   * distortions introduced by changes in the behavior of the {@link SingleFrameGlTextureProcessor
-   * SingleFrameGlTextureProcessors} will cause the test to fail.
+   * distortions introduced by changes in tested components will cause the test to fail.
    *
    * <p>To run pixel difference-based tests on physical devices, please use a value of 5f, rather
    * than 0.5f. This higher value will ignore some very small errors, but will allow for some
    * differences caused by graphics implementations to be ignored. When the difference is close to
    * the threshold, manually inspect expected/actual bitmaps to confirm failure, as it's possible
-   * this is caused by a difference in the codec or graphics implementation as opposed to a {@link
-   * SingleFrameGlTextureProcessor} issue.
+   * this is caused by a difference in the codec or graphics implementation as opposed to an issue
+   * in the tested component.
    */
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.5f;
 
@@ -210,7 +211,7 @@ public class BitmapTestUtil {
     // https://developer.android.com/reference/android/graphics/Bitmap.Config#ARGB_8888.
     bitmap.copyPixelsFromBuffer(rgba8888Buffer);
     // Flip the bitmap as its positive y-axis points down while OpenGL's positive y-axis points up.
-    return BitmapUtil.flipBitmapVertically(bitmap);
+    return flipBitmapVertically(bitmap);
   }
 
   /**
@@ -226,10 +227,23 @@ public class BitmapTestUtil {
             bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, BitmapUtil.flipBitmapVertically(bitmap), 0);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, flipBitmapVertically(bitmap), 0);
     GlUtil.checkGlError();
     return texId;
   }
 
-  private BitmapTestUtil() {}
+  public static Bitmap flipBitmapVertically(Bitmap bitmap) {
+    Matrix flip = new Matrix();
+    flip.postScale(1f, -1f);
+    return Bitmap.createBitmap(
+        bitmap,
+        /* x= */ 0,
+        /* y= */ 0,
+        bitmap.getWidth(),
+        bitmap.getHeight(),
+        flip,
+        /* filter= */ true);
+  }
+
+  private BitmapPixelTestUtil() {}
 }

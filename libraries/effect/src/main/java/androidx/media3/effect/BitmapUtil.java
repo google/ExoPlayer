@@ -20,7 +20,7 @@ import android.graphics.Matrix;
 
 /** Utility functions for working with {@link Bitmap}. */
 /* package */ final class BitmapUtil {
-  static Bitmap flipBitmapVertically(Bitmap bitmap) {
+  public static Bitmap flipBitmapVertically(Bitmap bitmap) {
     Matrix flip = new Matrix();
     flip.postScale(1f, -1f);
     return Bitmap.createBitmap(

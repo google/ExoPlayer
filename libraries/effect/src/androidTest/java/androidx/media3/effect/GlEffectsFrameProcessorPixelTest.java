@@ -17,11 +17,11 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.effect.BitmapTestUtil.createArgb8888BitmapFromRgba8888Image;
-import static androidx.media3.effect.BitmapTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
-import static androidx.media3.effect.BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory;
-import static androidx.media3.effect.BitmapTestUtil.readBitmap;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
@@ -42,6 +42,7 @@ import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.util.Size;
+import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.DecodeOneFrameUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -59,7 +60,7 @@ import org.junit.runner.RunWith;
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
- * BitmapTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
+ * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
  * bitmaps.
  */
 @RunWith(AndroidJUnit4.class)
@@ -468,8 +469,8 @@ public final class GlEffectsFrameProcessorPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  // TODO(b/227624622): Add a test for HDR input after BitmapTestUtil can read HDR bitmaps, using
-  //  GlEffectWrapper to ensure usage of intermediate textures.
+  // TODO(b/227624622): Add a test for HDR input after BitmapPixelTestUtil can read HDR bitmaps,
+  //  using GlEffectWrapper to ensure usage of intermediate textures.
 
   /**
    * Sets up and prepares the first frame from an input video, as well as the relevant test
