@@ -686,7 +686,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
         Size outputResolution = (Size) checkNotNull(message);
-        if (displaySurface != null && frameProcessorManager.isEnabled()) {
+        if (outputResolution.getWidth() != 0
+            && outputResolution.getHeight() != 0
+            && displaySurface != null
+            && frameProcessorManager.isEnabled()) {
           frameProcessorManager.setOutputSurfaceInfo(displaySurface, outputResolution);
         }
         break;
@@ -2051,6 +2054,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       checkNotNull(frameProcessor).setOutputSurfaceInfo(null);
       currentSurfaceAndSize = null;
     }
+
     /**
      * Sets the input surface info.
      *
