@@ -152,8 +152,8 @@ highp vec3 applyBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   } else if (uInputColorTransfer == COLOR_TRANSFER_HLG) {
     return applyHlgBt2020ToBt709Ootf(linearRgbBt2020);
   } else {
-    // Output red as an obviously visible error.
-    return vec3(1.0, 0.0, 0.0);
+    // Output green as an obviously visible error.
+    return vec3(0.0, 1.0, 0.0);
   }
 }
 
@@ -224,8 +224,8 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   } else if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
     return linearColor;
   } else {
-    // Output red as an obviously visible error.
-    return vec3(1.0, 0.0, 0.0);
+    // Output blue as an obviously visible error.
+    return vec3(0.0, 0.0, 1.0);
   }
 }
 
