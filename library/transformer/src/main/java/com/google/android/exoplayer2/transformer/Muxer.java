@@ -92,7 +92,7 @@ public interface Muxer {
    * @param data A buffer containing the sample data to write to the container.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @param flags The {@link C.BufferFlags} associated with the data. Only {@link
-   *     C#BUFFER_FLAG_KEY_FRAME} is supported.
+   *     C#BUFFER_FLAG_KEY_FRAME} and {@link C#BUFFER_FLAG_END_OF_STREAM} are supported.
    * @throws MuxerException If the muxer fails to write the sample.
    */
   void writeSampleData(

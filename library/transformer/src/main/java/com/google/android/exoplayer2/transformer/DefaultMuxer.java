@@ -37,16 +37,27 @@ public final class DefaultMuxer implements Muxer {
      * set to {@link #DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS}.
      */
     public Factory() {
-      this.muxerFactory = new FrameworkMuxer.Factory(DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
+      this(/* maxDelayBetweenSamplesMs= */ DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
     }
-
     /**
      * Creates an instance.
      *
      * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
      */
     public Factory(long maxDelayBetweenSamplesMs) {
-      this.muxerFactory = new FrameworkMuxer.Factory(maxDelayBetweenSamplesMs);
+      this(maxDelayBetweenSamplesMs, /* videoDurationMs= */ C.TIME_UNSET);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
+     * @param videoDurationMs The duration of the video track (in milliseconds) to enforce in the
+     *     output, or {@link C#TIME_UNSET} to not enforce. Only applicable when a video track is
+     *     {@linkplain #addTrack(Format) added}.
+     */
+    public Factory(long maxDelayBetweenSamplesMs, long videoDurationMs) {
+      this.muxerFactory = new FrameworkMuxer.Factory(maxDelayBetweenSamplesMs, videoDurationMs);
     }
 
     @Override
