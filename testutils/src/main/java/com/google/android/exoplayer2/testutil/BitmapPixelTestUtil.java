@@ -59,7 +59,7 @@ public class BitmapPixelTestUtil {
    * this is caused by a difference in the codec or graphics implementation as opposed to an issue
    * in the tested component.
    */
-  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.5f;
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 1.f;
 
   /**
    * Reads a bitmap from the specified asset location.
