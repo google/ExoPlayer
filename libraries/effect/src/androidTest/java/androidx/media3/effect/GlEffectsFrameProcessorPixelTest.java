@@ -142,6 +142,21 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
+  public void processData_noEditsWithCache_leavesFrameUnchanged() throws Exception {
+    String testId = "processData_noEditsWithCache";
+    setUpAndPrepareFirstFrame(new FrameCache(/* capacity= */ 5));
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
   public void processData_withPixelWidthHeightRatio_producesExpectedOutput() throws Exception {
     String testId = "processData_withPixelWidthHeightRatio";
     setUpAndPrepareFirstFrame(
@@ -359,6 +374,49 @@ public final class GlEffectsFrameProcessorPixelTest {
             new Rotation(/* degrees= */ 90),
             new RgbAdjustment.Builder().setBlueScale(5).build(),
             new Rotation(/* degrees= */ 90),
+            centerCrop);
+    setUpAndPrepareFirstFrame(
+        ImmutableList.of(
+            new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
+            centerCrop));
+    Bitmap centerCropAndBrightnessIncreaseResultBitmap = processFirstFrameAndEnd();
+    setUpAndPrepareFirstFrame(increaseBrightnessFullRotationCenterCrop);
+
+    Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap = processFirstFrameAndEnd();
+
+    maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "centerCrop", centerCropAndBrightnessIncreaseResultBitmap);
+    maybeSaveTestBitmapToCacheDirectory(
+        testId,
+        /* bitmapLabel= */ "full4StepRotationBrightnessIncreaseAndCenterCrop",
+        fullRotationBrightnessIncreaseAndCenterCropResultBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(
+            centerCropAndBrightnessIncreaseResultBitmap,
+            fullRotationBrightnessIncreaseAndCenterCropResultBitmap,
+            testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void
+      processData_fullRotationIncreaseBrightnessAndCenterCropWithCache_leavesFrameUnchanged()
+          throws Exception {
+    String testId = "processData_fullRotationIncreaseBrightnessAndCenterCropWithCache";
+    Crop centerCrop =
+        new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
+    ImmutableList<Effect> increaseBrightnessFullRotationCenterCrop =
+        ImmutableList.of(
+            new Rotation(/* degrees= */ 90),
+            new RgbAdjustment.Builder().setRedScale(5).build(),
+            new RgbAdjustment.Builder().setGreenScale(5).build(),
+            new Rotation(/* degrees= */ 90),
+            new Rotation(/* degrees= */ 90),
+            new RgbAdjustment.Builder().setBlueScale(5).build(),
+            new FrameCache(/* capacity= */ 2),
+            new Rotation(/* degrees= */ 90),
+            new FrameCache(/* capacity= */ 2),
             centerCrop);
     setUpAndPrepareFirstFrame(
         ImmutableList.of(
