@@ -579,14 +579,25 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
-  /* package */ void setMediaSessionListener(@Nullable MediaSession.Listener listener) {
+  /* package */ void setMediaSessionListener(MediaSession.Listener listener) {
     this.mediaSessionListener = listener;
+  }
+
+  /* package */ void clearMediaSessionListener() {
+    this.mediaSessionListener = null;
   }
 
   /* package */ void onNotificationRefreshRequired() {
     if (this.mediaSessionListener != null) {
       this.mediaSessionListener.onNotificationRefreshRequired(instance);
     }
+  }
+
+  /* package */ boolean onPlayRequested() {
+    if (this.mediaSessionListener != null) {
+      return this.mediaSessionListener.onPlayRequested(instance);
+    }
+    return true;
   }
 
   private void dispatchRemoteControllerTaskToLegacyStub(RemoteControllerTask task) {

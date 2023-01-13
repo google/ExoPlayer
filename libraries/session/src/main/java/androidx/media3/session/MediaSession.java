@@ -877,8 +877,13 @@ public class MediaSession {
   }
 
   /** Sets the {@linkplain Listener listener}. */
-  /* package */ void setListener(@Nullable Listener listener) {
+  /* package */ void setListener(Listener listener) {
     impl.setMediaSessionListener(listener);
+  }
+
+  /** Clears the {@linkplain Listener listener}. */
+  /* package */ void clearListener() {
+    impl.clearMediaSessionListener();
   }
 
   private Uri getUri() {
@@ -1272,6 +1277,15 @@ public class MediaSession {
      * @param session The media session for which the notification requires to be refreshed.
      */
     void onNotificationRefreshRequired(MediaSession session);
+
+    /**
+     * Called when the {@linkplain MediaSession session} receives the play command and requests from
+     * the listener on whether the media can be played.
+     *
+     * @param session The media session which requests if the media can be played.
+     * @return True if the media can be played, false otherwise.
+     */
+    boolean onPlayRequested(MediaSession session);
   }
 
   /**
