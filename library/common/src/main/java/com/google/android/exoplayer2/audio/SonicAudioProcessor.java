@@ -29,7 +29,7 @@ import java.nio.ShortBuffer;
 /**
  * An {@link AudioProcessor} that uses the Sonic library to modify audio speed/pitch/sample rate.
  */
-public final class SonicAudioProcessor implements AudioProcessor {
+public class SonicAudioProcessor implements AudioProcessor {
 
   /** Indicates that the output sample rate should be the same as the input. */
   public static final int SAMPLE_RATE_NO_CHANGE = -1;
@@ -82,7 +82,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
    *
    * @param speed The target factor by which playback should be sped up.
    */
-  public void setSpeed(float speed) {
+  public final void setSpeed(float speed) {
     if (this.speed != speed) {
       this.speed = speed;
       pendingSonicRecreation = true;
@@ -96,7 +96,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
    *
    * @param pitch The target pitch.
    */
-  public void setPitch(float pitch) {
+  public final void setPitch(float pitch) {
     if (this.pitch != pitch) {
       this.pitch = pitch;
       pendingSonicRecreation = true;
@@ -111,7 +111,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
    * @param sampleRateHz The sample rate for output audio, in Hertz.
    * @see #configure(AudioFormat)
    */
-  public void setOutputSampleRateHz(int sampleRateHz) {
+  public final void setOutputSampleRateHz(int sampleRateHz) {
     pendingOutputSampleRate = sampleRateHz;
   }
 
@@ -126,7 +126,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
    * @param playoutDuration The playout duration to scale.
    * @return The corresponding media duration, in the same units as {@code duration}.
    */
-  public long getMediaDuration(long playoutDuration) {
+  public final long getMediaDuration(long playoutDuration) {
     if (outputBytes >= MIN_BYTES_FOR_DURATION_SCALING_CALCULATION) {
       long processedInputBytes = inputBytes - checkNotNull(sonic).getPendingInputBytes();
       return outputAudioFormat.sampleRate == inputAudioFormat.sampleRate
@@ -142,7 +142,8 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   @CanIgnoreReturnValue
-  public AudioFormat configure(AudioFormat inputAudioFormat) throws UnhandledAudioFormatException {
+  public final AudioFormat configure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
     if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
       throw new UnhandledAudioFormatException(inputAudioFormat);
     }
@@ -158,7 +159,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public boolean isActive() {
+  public final boolean isActive() {
     return pendingOutputAudioFormat.sampleRate != Format.NO_VALUE
         && (Math.abs(speed - 1f) >= CLOSE_THRESHOLD
             || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
@@ -166,7 +167,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public void queueInput(ByteBuffer inputBuffer) {
+  public final void queueInput(ByteBuffer inputBuffer) {
     if (!inputBuffer.hasRemaining()) {
       return;
     }
@@ -179,7 +180,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public void queueEndOfStream() {
+  public final void queueEndOfStream() {
     // TODO(internal b/174554082): assert sonic is non-null here and in getOutput.
     if (sonic != null) {
       sonic.queueEndOfStream();
@@ -188,7 +189,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public ByteBuffer getOutput() {
+  public final ByteBuffer getOutput() {
     @Nullable Sonic sonic = this.sonic;
     if (sonic != null) {
       int outputSize = sonic.getOutputSize();
@@ -212,12 +213,12 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public boolean isEnded() {
+  public final boolean isEnded() {
     return inputEnded && (sonic == null || sonic.getOutputSize() == 0);
   }
 
   @Override
-  public void flush() {
+  public final void flush() {
     if (isActive()) {
       inputAudioFormat = pendingInputAudioFormat;
       outputAudioFormat = pendingOutputAudioFormat;
@@ -240,7 +241,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public void reset() {
+  public final void reset() {
     speed = 1f;
     pitch = 1f;
     pendingInputAudioFormat = AudioFormat.NOT_SET;
