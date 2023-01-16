@@ -257,14 +257,64 @@ public final class ColorInfo implements Bundleable {
   @Override
   public String toString() {
     return "ColorInfo("
-        + colorSpace
+        + colorSpaceToString(colorSpace)
         + ", "
-        + colorRange
+        + colorRangeToString(colorRange)
         + ", "
-        + colorTransfer
+        + colorTransferToString(colorTransfer)
         + ", "
         + (hdrStaticInfo != null)
         + ")";
+  }
+
+  private static String colorSpaceToString(@C.ColorSpace int colorSpace) {
+    // LINT.IfChange(color_space)
+    switch (colorSpace) {
+      case Format.NO_VALUE:
+        return "Unset color space";
+      case C.COLOR_SPACE_BT601:
+        return "BT601";
+      case C.COLOR_SPACE_BT709:
+        return "BT709";
+      case C.COLOR_SPACE_BT2020:
+        return "BT2020";
+      default:
+        return "Undefined color space";
+    }
+  }
+
+  private static String colorTransferToString(@C.ColorTransfer int colorTransfer) {
+    // LINT.IfChange(color_transfer)
+    switch (colorTransfer) {
+      case Format.NO_VALUE:
+        return "Unset color transfer";
+      case C.COLOR_TRANSFER_LINEAR:
+        return "Linear";
+      case C.COLOR_TRANSFER_SDR:
+        return "SDR SMPTE 170M";
+      case C.COLOR_TRANSFER_GAMMA_2_2:
+        return "Gamma 2.2";
+      case C.COLOR_TRANSFER_ST2084:
+        return "ST2084 PQ";
+      case C.COLOR_TRANSFER_HLG:
+        return "HLG";
+      default:
+        return "Undefined color transfer";
+    }
+  }
+
+  private static String colorRangeToString(@C.ColorRange int colorRange) {
+    // LINT.IfChange(color_range)
+    switch (colorRange) {
+      case Format.NO_VALUE:
+        return "Unset color range";
+      case C.COLOR_RANGE_LIMITED:
+        return "Limited range";
+      case C.COLOR_RANGE_FULL:
+        return "Full range";
+      default:
+        return "Undefined color range";
+    }
   }
 
   @Override
