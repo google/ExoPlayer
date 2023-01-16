@@ -185,7 +185,8 @@ public class MediaSessionPermissionTest {
 
   @Test
   public void setDeviceMuted() throws Exception {
-    testOnCommandRequest(COMMAND_SET_DEVICE_VOLUME, controller -> controller.setDeviceMuted(true));
+    testOnCommandRequest(
+        COMMAND_ADJUST_DEVICE_VOLUME, controller -> controller.setDeviceMuted(true));
   }
 
   @Test
