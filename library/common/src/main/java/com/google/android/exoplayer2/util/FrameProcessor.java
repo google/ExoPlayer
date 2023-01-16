@@ -135,8 +135,9 @@ public interface FrameProcessor {
    * <p>Pixels are expanded using the {@link FrameInfo#pixelWidthHeightRatio} so that the output
    * frames' pixels have a ratio of 1.
    *
-   * <p>The caller should update {@link FrameInfo#streamOffsetUs} when switching input streams to
-   * ensure that frame timestamps are always monotonically increasing.
+   * <p>The caller should update {@link FrameInfo#streamOffsetUs} when switching to an input stream
+   * whose first frame timestamp is less than or equal to the last timestamp received. This stream
+   * offset should ensure that frame timestamps are monotonically increasing.
    *
    * <p>Can be called on any thread.
    */

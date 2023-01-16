@@ -438,23 +438,21 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   }
 
   /**
-   * Expands or shrinks the frame based on the {@link FrameInfo#pixelWidthHeightRatio} and returns a
-   * new {@link FrameInfo} instance with scaled dimensions and {@link
-   * FrameInfo#pixelWidthHeightRatio} of {@code 1}.
+   * Expands the frame based on the {@link FrameInfo#pixelWidthHeightRatio} and returns a new {@link
+   * FrameInfo} instance with scaled dimensions and {@link FrameInfo#pixelWidthHeightRatio} of
+   * {@code 1}.
    */
   private FrameInfo adjustForPixelWidthHeightRatio(FrameInfo frameInfo) {
     if (frameInfo.pixelWidthHeightRatio > 1f) {
-      return new FrameInfo(
-          (int) (frameInfo.width * frameInfo.pixelWidthHeightRatio),
-          frameInfo.height,
-          /* pixelWidthHeightRatio= */ 1,
-          frameInfo.streamOffsetUs);
+      return new FrameInfo.Builder(frameInfo)
+          .setWidth((int) (frameInfo.width * frameInfo.pixelWidthHeightRatio))
+          .setPixelWidthHeightRatio(1)
+          .build();
     } else if (frameInfo.pixelWidthHeightRatio < 1f) {
-      return new FrameInfo(
-          frameInfo.width,
-          (int) (frameInfo.height / frameInfo.pixelWidthHeightRatio),
-          /* pixelWidthHeightRatio= */ 1,
-          frameInfo.streamOffsetUs);
+      return new FrameInfo.Builder(frameInfo)
+          .setHeight((int) (frameInfo.height / frameInfo.pixelWidthHeightRatio))
+          .setPixelWidthHeightRatio(1)
+          .build();
     } else {
       return frameInfo;
     }

@@ -739,11 +739,11 @@ public final class GlEffectsFrameProcessorPixelTest {
             @Override
             public void onContainerExtracted(MediaFormat mediaFormat) {
               glEffectsFrameProcessor.setInputFrameInfo(
-                  new FrameInfo(
-                      mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
-                      mediaFormat.getInteger(MediaFormat.KEY_HEIGHT),
-                      pixelWidthHeightRatio,
-                      /* streamOffsetUs= */ 0));
+                  new FrameInfo.Builder(
+                          mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
+                          mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
+                      .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+                      .build());
               glEffectsFrameProcessor.registerInputFrame();
             }
 

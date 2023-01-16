@@ -341,9 +341,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
             () -> {
               blankFrameProducer.configureGlObjects();
               checkNotNull(glEffectsFrameProcessor)
-                  .setInputFrameInfo(
-                      new FrameInfo(
-                          WIDTH, HEIGHT, /* pixelWidthHeightRatio= */ 1, /* streamOffsetUs= */ 0));
+                  .setInputFrameInfo(new FrameInfo.Builder(WIDTH, HEIGHT).build());
               // A frame needs to be registered despite not queuing any external input to ensure
               // that
               // the frame processor knows about the stream offset.
