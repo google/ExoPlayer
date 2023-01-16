@@ -182,6 +182,9 @@ public class DashManifest implements FilterableManifest<DashManifest> {
           }
 
           String id = representation.format.id;
+          if (id == null) {
+            continue;
+          }
           int bitrate = representation.format.bitrate;
           int imageWidth = representation.format.width;
           int imageHeight = representation.format.height;

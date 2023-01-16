@@ -75,7 +75,6 @@ public class PlayerActivity extends AppCompatActivity
   protected LinearLayout debugRootView;
   protected TextView debugTextView;
   protected @Nullable ExoPlayer player;
-  DefaultThumbnailTimeBar timeBar;
 
   private boolean isShowingTrackSelectionDialog;
   private Button selectTracksButton;
@@ -117,9 +116,6 @@ public class PlayerActivity extends AppCompatActivity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
-
-    timeBar = playerView.findViewById(R.id.exo_progress);
-
     if (savedInstanceState != null) {
       trackSelectionParameters =
           TrackSelectionParameters.fromBundle(
@@ -285,7 +281,7 @@ public class PlayerActivity extends AppCompatActivity
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
       configurePlayerWithServerSideAdsLoader();
-      timeBar.setThumbnailUtils(new DefaultThumbnailProvider(player, timeBar));
+
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }

@@ -1,11 +1,12 @@
 package com.google.android.exoplayer2.thumbnail;
 
 import android.net.Uri;
+import androidx.annotation.NonNull;
 
 public class ThumbnailDescription {
 
-  private final String id;
-  private final Uri uri;
+  @NonNull private final String id;
+  @NonNull private final Uri uri;
   private final int bitrate;
   private final int tileCountHorizontal;
   private final int tileCountVertical;
@@ -14,7 +15,7 @@ public class ThumbnailDescription {
   private final int imageWidth;            // Image width (Pixel)
   private final int imageHeight;           // Image height (Pixel)
 
-  public ThumbnailDescription(String id, Uri uri, int bitrate, int tileCountHorizontal, int tileCountVertical, long startTimeMs, long durationMs, int imageWidth, int imageHeight) {
+  public ThumbnailDescription(@NonNull String id, @NonNull Uri uri, int bitrate, int tileCountHorizontal, int tileCountVertical, long startTimeMs, long durationMs, int imageWidth, int imageHeight) {
     this.id = id;
     this.uri = uri;
     this.bitrate = bitrate;
@@ -26,6 +27,12 @@ public class ThumbnailDescription {
     this.imageHeight = imageHeight;
   }
 
+  @NonNull
+  public String getId() {
+    return id;
+  }
+
+  @NonNull
   public Uri getUri() {
     return uri;
   }
