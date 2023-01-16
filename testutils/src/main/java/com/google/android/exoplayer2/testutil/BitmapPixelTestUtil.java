@@ -177,9 +177,8 @@ public class BitmapPixelTestUtil {
    */
   public static void maybeSaveTestBitmapToCacheDirectory(
       String testId, String bitmapLabel, Bitmap bitmap) {
-    File file =
-        new File(
-            getApplicationContext().getExternalCacheDir(), testId + "_" + bitmapLabel + ".png");
+    String fileName = testId + (bitmapLabel.isEmpty() ? "" : "_" + bitmapLabel) + ".png";
+    File file = new File(getApplicationContext().getExternalCacheDir(), fileName);
     try (FileOutputStream outputStream = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, outputStream);
     } catch (IOException e) {

@@ -23,7 +23,7 @@ To generate new "expected" assets:
 
     ```shell
     adb pull \
-    /sdcard/Android/data/com.google.android.exoplayer2.effect.test/cache/drawFrame_rotate90_actual.png \
+    /sdcard/Android/data/com.google.android.exoplayer2.effect.test/cache/drawFrame_rotate90.png \
     third_party/java_src/android_libs/media/libraries/test_data/src/test/assets/media/bitmap/sample_mp4_first_frame/electrical_colors/rotate90.png
     ```
 
