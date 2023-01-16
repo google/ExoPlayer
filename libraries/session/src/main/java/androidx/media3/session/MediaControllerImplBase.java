@@ -1468,7 +1468,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setDeviceMuted(boolean muted) {
-    if (!isPlayerCommandAvailable(Player.COMMAND_SET_DEVICE_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
 
