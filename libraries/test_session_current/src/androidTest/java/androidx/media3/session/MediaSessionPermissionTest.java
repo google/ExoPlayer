@@ -38,12 +38,19 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.DeviceInfo;
+import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
+import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -260,6 +267,168 @@ public class MediaSessionPermissionTest {
         controller ->
             controller.setTrackSelectionParameters(
                 TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT));
+  }
+
+  @Test
+  public void setPlayer_withoutAvailableCommands_doesNotCallProtectedPlayerGetters()
+      throws Exception {
+    MockPlayer mockPlayer =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .build();
+    // Set remote device info to ensure we also cover the volume provider compat setup.
+    mockPlayer.deviceInfo =
+        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 100);
+    Player player =
+        new ForwardingPlayer(mockPlayer) {
+          @Override
+          public boolean isCommandAvailable(int command) {
+            return false;
+          }
+
+          @Override
+          public Tracks getCurrentTracks() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public MediaMetadata getMediaMetadata() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public MediaMetadata getPlaylistMetadata() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public Timeline getCurrentTimeline() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getCurrentPeriodIndex() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getCurrentMediaItemIndex() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getNextMediaItemIndex() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getPreviousMediaItemIndex() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Nullable
+          @Override
+          public MediaItem getCurrentMediaItem() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getDuration() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getCurrentPosition() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getBufferedPosition() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getTotalBufferedDuration() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public boolean isCurrentMediaItemDynamic() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public boolean isCurrentMediaItemLive() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public boolean isPlayingAd() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getCurrentAdGroupIndex() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getCurrentAdIndexInAdGroup() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getContentDuration() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getContentPosition() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getContentBufferedPosition() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public AudioAttributes getAudioAttributes() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public CueGroup getCurrentCues() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public int getDeviceVolume() {
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public boolean isDeviceMuted() {
+            throw new UnsupportedOperationException();
+          }
+        };
+    MediaSession session = new MediaSession.Builder(context, player).setId(SESSION_ID).build();
+
+    MediaController controller =
+        new MediaController.Builder(context, session.getToken())
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .buildAsync()
+            .get();
+
+    // Test passes if none of the protected player getters have been called.
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.release();
+              session.release();
+              player.release();
+            });
   }
 
   private ControllerInfo getTestControllerInfo() {
