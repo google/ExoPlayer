@@ -478,7 +478,10 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void stop(boolean reset) {
-    throw new UnsupportedOperationException();
+    stop();
+    if (reset) {
+      clearMediaItems();
+    }
   }
 
   /**
@@ -1174,7 +1177,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
-    throw new UnsupportedOperationException();
+    return isCurrentMediaItemDynamic();
   }
 
   @Override
@@ -1191,7 +1194,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowLive() {
-    throw new UnsupportedOperationException();
+    return isCurrentMediaItemLive();
   }
 
   @Override
@@ -1208,7 +1211,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
-    throw new UnsupportedOperationException();
+    return isCurrentMediaItemSeekable();
   }
 
   @Override
@@ -1260,7 +1263,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getCurrentWindowIndex() {
-    throw new UnsupportedOperationException();
+    return getCurrentMediaItemIndex();
   }
 
   @Override
@@ -1276,7 +1279,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getPreviousWindowIndex() {
-    throw new UnsupportedOperationException();
+    return getPreviousMediaItemIndex();
   }
 
   /**
@@ -1299,7 +1302,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getNextWindowIndex() {
-    throw new UnsupportedOperationException();
+    return getNextMediaItemIndex();
   }
 
   /**
@@ -1322,7 +1325,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasPrevious() {
-    throw new UnsupportedOperationException();
+    return hasPreviousMediaItem();
   }
 
   /**
@@ -1332,7 +1335,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasNext() {
-    throw new UnsupportedOperationException();
+    return hasNextMediaItem();
   }
 
   /**
@@ -1342,7 +1345,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasPreviousWindow() {
-    throw new UnsupportedOperationException();
+    return hasPreviousMediaItem();
   }
 
   /**
@@ -1352,7 +1355,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasNextWindow() {
-    throw new UnsupportedOperationException();
+    return hasNextMediaItem();
   }
 
   @Override
@@ -1374,7 +1377,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void previous() {
-    throw new UnsupportedOperationException();
+    seekToPreviousMediaItem();
   }
 
   /**
@@ -1384,7 +1387,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void next() {
-    throw new UnsupportedOperationException();
+    seekToNextMediaItem();
   }
 
   /**
@@ -1394,7 +1397,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
-    throw new UnsupportedOperationException();
+    seekToPreviousMediaItem();
   }
 
   /**
@@ -1420,7 +1423,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void seekToNextWindow() {
-    throw new UnsupportedOperationException();
+    seekToNextMediaItem();
   }
 
   /**
