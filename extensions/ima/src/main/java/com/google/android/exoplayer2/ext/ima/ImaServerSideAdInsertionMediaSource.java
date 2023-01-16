@@ -211,7 +211,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       /**
        * Sets the IMA SDK settings.
        *
-       * <p>If this method is not called the default settings will be used.
+       * <p>If this method is not called, the {@linkplain ImaSdkFactory#createImaSdkSettings()
+       * default settings} will be used with the language set to {@linkplain
+       * Util#getSystemLanguageCodes() the preferred system language}.
        *
        * @param imaSdkSettings The {@link ImaSdkSettings}.
        * @return This builder, for convenience.
