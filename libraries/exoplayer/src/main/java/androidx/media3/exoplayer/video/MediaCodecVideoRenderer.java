@@ -2064,11 +2064,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     public void setInputFormat(Format inputFormat) {
       checkNotNull(frameProcessor)
           .setInputFrameInfo(
-              new FrameInfo(
-                  inputFormat.width,
-                  inputFormat.height,
-                  inputFormat.pixelWidthHeightRatio,
-                  renderer.getOutputStreamOffsetUs()));
+              new FrameInfo.Builder(inputFormat.width, inputFormat.height)
+                  .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
+                  .setStreamOffsetUs(renderer.getOutputStreamOffsetUs())
+                  .build());
       this.inputFormat = inputFormat;
 
       if (registeredLastFrame) {

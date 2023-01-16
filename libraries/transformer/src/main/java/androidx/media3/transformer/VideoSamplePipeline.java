@@ -222,8 +222,10 @@ import org.checkerframework.dataflow.qual.Pure;
           e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
     }
     frameProcessor.setInputFrameInfo(
-        new FrameInfo(
-            decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio, streamOffsetUs));
+        new FrameInfo.Builder(decodedWidth, decodedHeight)
+            .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
+            .setStreamOffsetUs(streamOffsetUs)
+            .build());
   }
 
   @Override

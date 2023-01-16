@@ -160,6 +160,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
     externalTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
     long frameTimeNs = surfaceTexture.getTimestamp();
+    long offsetToAddUs = currentFrame.offsetToAddUs;
     long streamOffsetUs = currentFrame.streamOffsetUs;
     if (streamOffsetUs != previousStreamOffsetUs) {
       if (previousStreamOffsetUs != C.TIME_UNSET) {
@@ -167,8 +168,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
       previousStreamOffsetUs = streamOffsetUs;
     }
-    // Correct for the stream offset so processors see original media presentation timestamps.
-    long presentationTimeUs = (frameTimeNs / 1000) - streamOffsetUs;
+    // Correct the presentation time so that processors don't see the stream offset.
+    long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs - streamOffsetUs;
     externalTextureProcessor.queueInputFrame(
         new TextureInfo(
             externalTexId, /* fboId= */ C.INDEX_UNSET, currentFrame.width, currentFrame.height),
