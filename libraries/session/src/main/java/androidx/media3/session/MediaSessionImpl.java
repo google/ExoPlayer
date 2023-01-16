@@ -1290,7 +1290,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (msg.what == MSG_PLAYER_INFO_CHANGED) {
         playerInfo =
             playerInfo.copyWithTimelineAndSessionPositionInfo(
-                getPlayerWrapper().getCurrentTimeline(),
+                getPlayerWrapper().getCurrentTimelineWithCommandCheck(),
                 getPlayerWrapper().createSessionPositionInfoForBundling());
         dispatchOnPlayerInfoChanged(playerInfo, excludeTimeline, excludeTracks);
         excludeTimeline = true;

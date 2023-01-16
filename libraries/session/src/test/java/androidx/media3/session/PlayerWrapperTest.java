@@ -16,6 +16,7 @@
 package androidx.media3.session;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import android.os.Looper;
@@ -42,6 +43,7 @@ public class PlayerWrapperTest {
   @Before
   public void setUp() {
     playerWrapper = new PlayerWrapper(player);
+    when(player.isCommandAvailable(anyInt())).thenReturn(true);
     when(player.getApplicationLooper()).thenReturn(Looper.myLooper());
   }
 

@@ -23,7 +23,9 @@ import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -256,10 +258,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               || playbackState == STATE_ENDED
               || playbackState == STATE_IDLE) {
             if (playbackState == STATE_IDLE) {
-              playerWrapper.prepare();
+              playerWrapper.prepareIfCommandAvailable();
             } else if (playbackState == STATE_ENDED) {
-              playerWrapper.seekTo(
-                  playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+              playerWrapper.seekToDefaultPositionIfCommandAvailable();
             }
             playerWrapper.play();
           } else {
@@ -308,10 +309,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
           @Player.State int playbackState = playerWrapper.getPlaybackState();
           if (playbackState == Player.STATE_IDLE) {
-            playerWrapper.prepare();
+            playerWrapper.prepareIfCommandAvailable();
           } else if (playbackState == Player.STATE_ENDED) {
-            playerWrapper.seekTo(
-                playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+            playerWrapper.seekToDefaultPositionIfCommandAvailable();
           }
           if (sessionImpl.onPlayRequested()) {
             playerWrapper.play();
@@ -369,18 +369,32 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void onSkipToNext() {
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_NEXT,
-        controller -> sessionImpl.getPlayerWrapper().seekToNext(),
-        sessionCompat.getCurrentControllerInfo());
+    if (sessionImpl.getPlayerWrapper().isCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_NEXT,
+          controller -> sessionImpl.getPlayerWrapper().seekToNext(),
+          sessionCompat.getCurrentControllerInfo());
+    } else {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+          controller -> sessionImpl.getPlayerWrapper().seekToNextMediaItem(),
+          sessionCompat.getCurrentControllerInfo());
+    }
   }
 
   @Override
   public void onSkipToPrevious() {
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_PREVIOUS,
-        controller -> sessionImpl.getPlayerWrapper().seekToPrevious(),
-        sessionCompat.getCurrentControllerInfo());
+    if (sessionImpl.getPlayerWrapper().isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_PREVIOUS,
+          controller -> sessionImpl.getPlayerWrapper().seekToPrevious(),
+          sessionCompat.getCurrentControllerInfo());
+    } else {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+          controller -> sessionImpl.getPlayerWrapper().seekToPreviousMediaItem(),
+          sessionCompat.getCurrentControllerInfo());
+    }
   }
 
   @Override
@@ -435,7 +449,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     dispatchSessionTaskWithSessionCommand(
         SessionCommand.COMMAND_CODE_SESSION_SET_RATING,
         controller -> {
-          @Nullable MediaItem currentItem = sessionImpl.getPlayerWrapper().getCurrentMediaItem();
+          @Nullable
+          MediaItem currentItem =
+              sessionImpl.getPlayerWrapper().getCurrentMediaItemWithCommandCheck();
           if (currentItem == null) {
             return;
           }
@@ -494,12 +510,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             Log.w(TAG, "onRemoveQueueItem(): Media ID shouldn't be null");
             return;
           }
-          Timeline timeline = sessionImpl.getPlayerWrapper().getCurrentTimeline();
+          PlayerWrapper player = sessionImpl.getPlayerWrapper();
+          if (!player.isCommandAvailable(Player.COMMAND_GET_TIMELINE)) {
+            Log.w(TAG, "Can't remove item by id without availabe COMMAND_GET_TIMELINE");
+            return;
+          }
+          Timeline timeline = player.getCurrentTimeline();
           Timeline.Window window = new Timeline.Window();
           for (int i = 0; i < timeline.getWindowCount(); i++) {
             MediaItem mediaItem = timeline.getWindow(i, window).mediaItem;
             if (TextUtils.equals(mediaItem.mediaId, mediaId)) {
-              sessionImpl.getPlayerWrapper().removeMediaItem(i);
+              player.removeMediaItem(i);
               return;
             }
           }
@@ -700,16 +721,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   postOrRun(
                       sessionImpl.getApplicationHandler(),
                       () -> {
-                        Player player = sessionImpl.getPlayerWrapper();
+                        PlayerWrapper player = sessionImpl.getPlayerWrapper();
                         player.setMediaItems(mediaItems);
                         @Player.State int playbackState = player.getPlaybackState();
                         if (playbackState == Player.STATE_IDLE) {
-                          player.prepare();
+                          player.prepareIfCommandAvailable();
                         } else if (playbackState == Player.STATE_ENDED) {
-                          player.seekTo(/* positionMs= */ C.TIME_UNSET);
+                          player.seekToDefaultPositionIfCommandAvailable();
                         }
                         if (play) {
-                          player.play();
+                          player.playIfCommandAvailable();
                         }
                       });
                 }
@@ -875,19 +896,21 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         throws RemoteException {
       // Tells the playlist change first, so current media item index change notification
       // can point to the valid current media item in the playlist.
-      Timeline newTimeline = newPlayerWrapper.getCurrentTimeline();
+      Timeline newTimeline = newPlayerWrapper.getCurrentTimelineWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getCurrentTimeline(), newTimeline)) {
+          || !Util.areEqual(oldPlayerWrapper.getCurrentTimelineWithCommandCheck(), newTimeline)) {
         onTimelineChanged(seq, newTimeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
       }
-      MediaMetadata newPlaylistMetadata = newPlayerWrapper.getPlaylistMetadata();
+      MediaMetadata newPlaylistMetadata = newPlayerWrapper.getPlaylistMetadataWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getPlaylistMetadata(), newPlaylistMetadata)) {
+          || !Util.areEqual(
+              oldPlayerWrapper.getPlaylistMetadataWithCommandCheck(), newPlaylistMetadata)) {
         onPlaylistMetadataChanged(seq, newPlaylistMetadata);
       }
-      MediaMetadata newMediaMetadata = newPlayerWrapper.getMediaMetadata();
+      MediaMetadata newMediaMetadata = newPlayerWrapper.getMediaMetadataWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getMediaMetadata(), newMediaMetadata)) {
+          || !Util.areEqual(
+              oldPlayerWrapper.getMediaMetadataWithCommandCheck(), newMediaMetadata)) {
         onMediaMetadataChanged(seq, newMediaMetadata);
       }
       if (oldPlayerWrapper == null
@@ -904,9 +927,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       onDeviceInfoChanged(seq, newPlayerWrapper.getDeviceInfo());
 
       // Rest of changes are all notified via PlaybackStateCompat.
-      @Nullable MediaItem newMediaItem = newPlayerWrapper.getCurrentMediaItem();
+      @Nullable MediaItem newMediaItem = newPlayerWrapper.getCurrentMediaItemWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getCurrentMediaItem(), newMediaItem)) {
+          || !Util.areEqual(oldPlayerWrapper.getCurrentMediaItemWithCommandCheck(), newMediaItem)) {
         // Note: This will update both PlaybackStateCompat and metadata.
         onMediaItemTransition(
             seq, newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
@@ -1135,7 +1158,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       PlayerWrapper player = sessionImpl.getPlayerWrapper();
       volumeProviderCompat = player.createVolumeProviderCompat();
       if (volumeProviderCompat == null) {
-        int streamType = MediaUtils.getLegacyStreamType(player.getAudioAttributes());
+        int streamType =
+            MediaUtils.getLegacyStreamType(player.getAudioAttributesWithCommandCheck());
         sessionCompat.setPlaybackToLocal(streamType);
       } else {
         sessionCompat.setPlaybackToRemote(volumeProviderCompat);
@@ -1158,10 +1182,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     private void updateMetadataIfChanged() {
-      Player player = sessionImpl.getPlayerWrapper();
-      @Nullable MediaItem currentMediaItem = player.getCurrentMediaItem();
-      MediaMetadata newMediaMetadata = player.getMediaMetadata();
-      long newDurationMs = player.getDuration();
+      PlayerWrapper player = sessionImpl.getPlayerWrapper();
+      @Nullable MediaItem currentMediaItem = player.getCurrentMediaItemWithCommandCheck();
+      MediaMetadata newMediaMetadata = player.getMediaMetadataWithCommandCheck();
+      long newDurationMs = player.getDurationWithCommandCheck();
       String newMediaId =
           currentMediaItem != null ? currentMediaItem.mediaId : MediaItem.DEFAULT_MEDIA_ID;
       @Nullable
