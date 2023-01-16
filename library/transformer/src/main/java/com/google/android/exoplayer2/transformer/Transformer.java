@@ -167,9 +167,7 @@ public final class Transformer {
      * Sets the {@link Effect} instances to apply to each video frame.
      *
      * <p>The {@link Effect} instances are applied before any {@linkplain
-     * TransformationRequest.Builder#setScale(float, float) scale}, {@linkplain
-     * TransformationRequest.Builder#setRotationDegrees(float) rotation}, or {@linkplain
-     * TransformationRequest.Builder#setResolution(int) resolution} changes specified in the {@link
+     * TransformationRequest.Builder#setResolution(int) resolution} change specified in the {@link
      * #setTransformationRequest(TransformationRequest) TransformationRequest} but after {@linkplain
      * TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
      *

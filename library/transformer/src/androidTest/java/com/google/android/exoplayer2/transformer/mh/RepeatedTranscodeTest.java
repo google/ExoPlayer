@@ -23,11 +23,13 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
@@ -46,8 +48,9 @@ public final class RepeatedTranscodeTest {
         new TransformerAndroidTestRunner.Builder(
                 context,
                 new Transformer.Builder(context)
-                    .setTransformationRequest(
-                        new TransformationRequest.Builder().setRotationDegrees(45).build())
+                    .setVideoEffects(
+                        ImmutableList.of(
+                            new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
                     .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();
@@ -76,8 +79,9 @@ public final class RepeatedTranscodeTest {
                 context,
                 new Transformer.Builder(context)
                     .setRemoveAudio(true)
-                    .setTransformationRequest(
-                        new TransformationRequest.Builder().setRotationDegrees(45).build())
+                    .setVideoEffects(
+                        ImmutableList.of(
+                            new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
                     .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();

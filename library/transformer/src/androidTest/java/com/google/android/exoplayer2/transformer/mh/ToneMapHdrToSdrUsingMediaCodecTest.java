@@ -27,12 +27,14 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Log;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -145,8 +147,10 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder()
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
-                    .setRotationDegrees(180)
                     .build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -191,8 +195,10 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder()
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
-                    .setRotationDegrees(180)
                     .build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override

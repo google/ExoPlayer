@@ -58,9 +58,11 @@ import com.google.android.exoplayer2.effect.GlTextureProcessor;
 import com.google.android.exoplayer2.effect.HslAdjustment;
 import com.google.android.exoplayer2.effect.OverlayEffect;
 import com.google.android.exoplayer2.effect.OverlaySettings;
+import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbAdjustment;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
+import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.effect.SingleColorLut;
 import com.google.android.exoplayer2.effect.TextOverlay;
 import com.google.android.exoplayer2.effect.TextureOverlay;
@@ -278,43 +280,51 @@ public final class TransformerActivity extends AppCompatActivity {
       if (videoMimeType != null) {
         requestBuilder.setVideoMimeType(videoMimeType);
       }
+      requestBuilder.setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE));
+      transformerBuilder.setTransformationRequest(requestBuilder.build());
+
+      transformerBuilder.setAudioProcessors(createAudioProcessorsFromBundle(bundle));
+
+      ImmutableList.Builder<Effect> effectsListBuilder =
+          new ImmutableList.Builder<Effect>().addAll(createVideoEffectsFromBundle(bundle));
+      float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
+      float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
+      float rotateDegrees =
+          bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
+      if (scaleX != 1f || scaleY != 1f || rotateDegrees != 0f) {
+        effectsListBuilder.add(
+            new ScaleToFitTransformation.Builder()
+                .setScale(scaleX, scaleY)
+                .setRotationDegrees(rotateDegrees)
+                .build());
+      }
       int resolutionHeight =
           bundle.getInt(
               ConfigurationActivity.RESOLUTION_HEIGHT, /* defaultValue= */ C.LENGTH_UNSET);
       if (resolutionHeight != C.LENGTH_UNSET) {
-        requestBuilder.setResolution(resolutionHeight);
+        effectsListBuilder.add(Presentation.createForHeight(resolutionHeight));
       }
+      transformerBuilder.setVideoEffects(effectsListBuilder.build());
 
-      float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
-      float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
-      requestBuilder.setScale(scaleX, scaleY);
-
-      float rotateDegrees =
-          bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
-      requestBuilder.setRotationDegrees(rotateDegrees);
-      requestBuilder.setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE));
       transformerBuilder
-          .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
-          .experimentalSetForceSilentAudio(
-              bundle.getBoolean(ConfigurationActivity.FORCE_SILENT_AUDIO))
           .setEncoderFactory(
               new DefaultEncoderFactory.Builder(this.getApplicationContext())
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
                   .build());
 
-      transformerBuilder.setAudioProcessors(createAudioProcessorsFromBundle(bundle));
-      transformerBuilder.setVideoEffects(createVideoEffectsFromBundle(bundle));
+      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_TRANSFORMATION)) {
+        transformerBuilder.setMuxerFactory(
+            new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
+      }
 
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
       }
 
-      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_TRANSFORMATION)) {
-        transformerBuilder.setMuxerFactory(
-            new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
-      }
+      transformerBuilder.experimentalSetForceSilentAudio(
+          bundle.getBoolean(ConfigurationActivity.FORCE_SILENT_AUDIO));
     }
 
     return transformerBuilder

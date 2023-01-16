@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.effect.Presentation;
-import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -133,15 +132,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
     ImmutableList.Builder<Effect> effectsListBuilder =
         new ImmutableList.Builder<Effect>().addAll(effects);
-    if (transformationRequest.scaleX != 1f
-        || transformationRequest.scaleY != 1f
-        || transformationRequest.rotationDegrees != 0f) {
-      effectsListBuilder.add(
-          new ScaleToFitTransformation.Builder()
-              .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
-              .setRotationDegrees(transformationRequest.rotationDegrees)
-              .build());
-    }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
       effectsListBuilder.add(Presentation.createForHeight(transformationRequest.outputHeight));
     }

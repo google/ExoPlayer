@@ -38,8 +38,6 @@ public class TransformationRequestTest {
         .setFlattenForSlowMotion(true)
         .setAudioMimeType(MimeTypes.AUDIO_AAC)
         .setVideoMimeType(MimeTypes.VIDEO_H264)
-        .setRotationDegrees(45)
-        .setScale(/* scaleX= */ 1f, /* scaleY= */ 2f)
         .build();
   }
 }
