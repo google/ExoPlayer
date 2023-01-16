@@ -116,6 +116,7 @@ public class PlayerActivity extends AppCompatActivity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
+
     if (savedInstanceState != null) {
       trackSelectionParameters =
           TrackSelectionParameters.fromBundle(
@@ -281,7 +282,6 @@ public class PlayerActivity extends AppCompatActivity
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
       configurePlayerWithServerSideAdsLoader();
-
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }

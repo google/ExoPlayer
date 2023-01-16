@@ -632,23 +632,6 @@
     ]
   },
   {
-    "name": "Thumbnails",
-    "samples": [
-      {
-        "name": "Single adaptation set, 7 tiles at 10x1, each thumb 320x180",
-        "uri": "https://dash.akamaized.net/akamai/bbb_30fps/bbb_with_tiled_thumbnails.mpd"
-      },
-      {
-        "name": "Single adaptation set, SegmentTemplate with SegmentTimeline",
-        "uri": "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel-tiled-thumbnails-timeline.ism/.mpd"
-      },
-      {
-        "name": "Single adaptation set, SegmentTemplate with SegmentNumber",
-        "uri": "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel-tiled-thumbnails-numbered.ism/.mpd"
-      }
-    ]
-  },
-  {
     "name": "Misc",
     "samples": [
       {
