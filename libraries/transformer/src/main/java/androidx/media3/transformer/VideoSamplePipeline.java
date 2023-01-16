@@ -45,7 +45,6 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.effect.Presentation;
-import androidx.media3.effect.ScaleToFitTransformation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
@@ -133,15 +132,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
     ImmutableList.Builder<Effect> effectsListBuilder =
         new ImmutableList.Builder<Effect>().addAll(effects);
-    if (transformationRequest.scaleX != 1f
-        || transformationRequest.scaleY != 1f
-        || transformationRequest.rotationDegrees != 0f) {
-      effectsListBuilder.add(
-          new ScaleToFitTransformation.Builder()
-              .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
-              .setRotationDegrees(transformationRequest.rotationDegrees)
-              .build());
-    }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
       effectsListBuilder.add(Presentation.createForHeight(transformationRequest.outputHeight));
     }

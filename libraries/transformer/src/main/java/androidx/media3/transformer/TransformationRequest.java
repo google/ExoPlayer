@@ -111,9 +111,6 @@ public final class TransformationRequest {
   public static final class Builder {
 
     private boolean flattenForSlowMotion;
-    private float scaleX;
-    private float scaleY;
-    private float rotationDegrees;
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
@@ -126,16 +123,11 @@ public final class TransformationRequest {
      * {@link TransformationRequest}.
      */
     public Builder() {
-      scaleX = 1;
-      scaleY = 1;
       outputHeight = C.LENGTH_UNSET;
     }
 
     private Builder(TransformationRequest transformationRequest) {
       this.flattenForSlowMotion = transformationRequest.flattenForSlowMotion;
-      this.scaleX = transformationRequest.scaleX;
-      this.scaleY = transformationRequest.scaleY;
-      this.rotationDegrees = transformationRequest.rotationDegrees;
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
@@ -178,42 +170,6 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
-     * the video along these axes appropriately.
-     *
-     * <p>The default value for {@code scaleX} and {@code scaleY}, 1, corresponds to not scaling
-     * along the x and y axes, respectively.
-     *
-     * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
-     * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setScale(float scaleX, float scaleY) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      return this;
-    }
-
-    /**
-     * Sets the rotation, in degrees, counterclockwise, to apply to each frame.
-     *
-     * <p>The output frame's width and height are automatically adjusted to preserve all input
-     * pixels. The rotated input frame is fitted inside an enclosing black rectangle if its edges
-     * aren't parallel to the x and y axes.
-     *
-     * <p>The default value, 0, corresponds to not applying any rotation.
-     *
-     * @param rotationDegrees The counterclockwise rotation, in degrees.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setRotationDegrees(float rotationDegrees) {
-      this.rotationDegrees = rotationDegrees;
-      return this;
-    }
-
-    /**
      * Sets the output resolution using the output height of the displayed video.
      *
      * <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
@@ -221,9 +177,7 @@ public final class TransformationRequest {
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
      *
-     * <p>The default value, {@link C#LENGTH_UNSET}, leaves the width and height unchanged unless
-     * {@linkplain #setScale(float,float) scaling} or @linkplain #setRotationDegrees(float)
-     * rotation} are requested.
+     * <p>The default value, {@link C#LENGTH_UNSET}, leaves the width and height unchanged.
      *
      * <p>Note that the output encoded video's dimensions may be swapped from the displayed video's
      * dimensions, if the displayed video's height > width. This is to improve compatibility among
@@ -337,14 +291,7 @@ public final class TransformationRequest {
     /** Builds a {@link TransformationRequest} instance. */
     public TransformationRequest build() {
       return new TransformationRequest(
-          flattenForSlowMotion,
-          scaleX,
-          scaleY,
-          rotationDegrees,
-          outputHeight,
-          audioMimeType,
-          videoMimeType,
-          hdrMode);
+          flattenForSlowMotion, outputHeight, audioMimeType, videoMimeType, hdrMode);
     }
   }
 
@@ -354,26 +301,6 @@ public final class TransformationRequest {
    * @see Builder#setFlattenForSlowMotion(boolean)
    */
   public final boolean flattenForSlowMotion;
-  /**
-   * The requested scale factor, on the x-axis, of the output video, or 1 if inferred from the
-   * input.
-   *
-   * @see Builder#setScale(float, float)
-   */
-  public final float scaleX;
-  /**
-   * The requested scale factor, on the y-axis, of the output video, or 1 if inferred from the
-   * input.
-   *
-   * @see Builder#setScale(float, float)
-   */
-  public final float scaleY;
-  /**
-   * The requested rotation, in degrees, of the output video, or 0 if inferred from the input.
-   *
-   * @see Builder#setRotationDegrees(float)
-   */
-  public final float rotationDegrees;
   /**
    * The requested height of the output video, or {@link C#LENGTH_UNSET} if inferred from the input.
    *
@@ -403,18 +330,12 @@ public final class TransformationRequest {
 
   private TransformationRequest(
       boolean flattenForSlowMotion,
-      float scaleX,
-      float scaleY,
-      float rotationDegrees,
       int outputHeight,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType,
       @HdrMode int hdrMode) {
 
     this.flattenForSlowMotion = flattenForSlowMotion;
-    this.scaleX = scaleX;
-    this.scaleY = scaleY;
-    this.rotationDegrees = rotationDegrees;
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
@@ -431,9 +352,6 @@ public final class TransformationRequest {
     }
     TransformationRequest that = (TransformationRequest) o;
     return flattenForSlowMotion == that.flattenForSlowMotion
-        && scaleX == that.scaleX
-        && scaleY == that.scaleY
-        && rotationDegrees == that.rotationDegrees
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
         && Util.areEqual(videoMimeType, that.videoMimeType)
@@ -443,9 +361,6 @@ public final class TransformationRequest {
   @Override
   public int hashCode() {
     int result = (flattenForSlowMotion ? 1 : 0);
-    result = 31 * result + Float.floatToIntBits(scaleX);
-    result = 31 * result + Float.floatToIntBits(scaleY);
-    result = 31 * result + Float.floatToIntBits(rotationDegrees);
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);

@@ -31,6 +31,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.transformer.EncoderUtil;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
@@ -39,6 +40,7 @@ import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,8 +123,9 @@ public class HdrEditingTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setRotationDegrees(180).build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .build();
 
     TransformationTestResult transformationTestResult =
@@ -144,8 +147,9 @@ public class HdrEditingTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setRotationDegrees(180).build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .build();
 
     TransformationTestResult transformationTestResult =
@@ -169,8 +173,9 @@ public class HdrEditingTest {
     AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setRotationDegrees(180).build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -222,8 +227,9 @@ public class HdrEditingTest {
     AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setRotationDegrees(180).build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -257,7 +263,6 @@ public class HdrEditingTest {
               TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
-      return;
     }
   }
 

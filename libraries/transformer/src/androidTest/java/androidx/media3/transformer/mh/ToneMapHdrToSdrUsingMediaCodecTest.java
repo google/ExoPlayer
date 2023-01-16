@@ -26,6 +26,7 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
+import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationTestResult;
@@ -33,6 +34,7 @@ import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -145,8 +147,10 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder()
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
-                    .setRotationDegrees(180)
                     .build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -191,8 +195,10 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder()
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
-                    .setRotationDegrees(180)
                     .build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override

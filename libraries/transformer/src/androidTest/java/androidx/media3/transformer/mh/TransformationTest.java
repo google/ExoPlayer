@@ -28,6 +28,7 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -37,6 +38,7 @@ import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -195,8 +197,9 @@ public class TransformationTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setRotationDegrees(45).build())
+            .setVideoEffects(
+                ImmutableList.of(
+                    new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)

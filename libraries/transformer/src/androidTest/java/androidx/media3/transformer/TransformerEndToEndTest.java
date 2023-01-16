@@ -24,8 +24,10 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.effect.Presentation;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,8 +44,7 @@ public class TransformerEndToEndTest {
   public void videoEditing_completesWithConsistentFrameCount() throws Exception {
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setResolution(480).build())
+            .setVideoEffects(ImmutableList.of(Presentation.createForHeight(480)))
             .setEncoderFactory(
                 new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
@@ -66,8 +67,7 @@ public class TransformerEndToEndTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setResolution(480).build())
+            .setVideoEffects(ImmutableList.of(Presentation.createForHeight(480)))
             .setEncoderFactory(
                 new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
