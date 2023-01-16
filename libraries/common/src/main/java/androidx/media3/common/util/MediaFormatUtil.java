@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -238,6 +239,28 @@ public final class MediaFormatUtil {
     byte[] array = new byte[byteBuffer.remaining()];
     byteBuffer.get(array);
     return array;
+  }
+
+  /** Returns whether a {@link MediaFormat} is a video format. */
+  public static boolean isVideoFormat(MediaFormat mediaFormat) {
+    return MimeTypes.isVideo(mediaFormat.getString(MediaFormat.KEY_MIME));
+  }
+
+  /** Returns whether a {@link MediaFormat} is an audio format. */
+  public static boolean isAudioFormat(MediaFormat mediaFormat) {
+    return MimeTypes.isAudio(mediaFormat.getString(MediaFormat.KEY_MIME));
+  }
+
+  /** Returns the time lapse capture FPS from the given {@link MediaFormat} if it was set. */
+  @Nullable
+  public static Integer getTimeLapseFrameRate(MediaFormat format) {
+    if (format.containsKey("time-lapse-enable")
+        && format.getInteger("time-lapse-enable") > 0
+        && format.containsKey("time-lapse-fps")) {
+      return format.getInteger("time-lapse-fps");
+    } else {
+      return null;
+    }
   }
 
   // Internal methods.
