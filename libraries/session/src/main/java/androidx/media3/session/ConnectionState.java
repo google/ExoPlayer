@@ -94,19 +94,12 @@ import androidx.media3.common.util.Util;
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION, playerCommandsFromSession.toBundle());
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_PLAYER, playerCommandsFromPlayer.toBundle());
     bundle.putBundle(FIELD_TOKEN_EXTRAS, tokenExtras);
+    Player.Commands intersectedCommands =
+        MediaUtils.intersect(playerCommandsFromSession, playerCommandsFromPlayer);
     bundle.putBundle(
         FIELD_PLAYER_INFO,
         playerInfo.toBundle(
-            /* excludeMediaItems= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TIMELINE)
-                || !playerCommandsFromSession.contains(Player.COMMAND_GET_TIMELINE),
-            /* excludeMediaItemsMetadata= */ !playerCommandsFromPlayer.contains(
-                    Player.COMMAND_GET_MEDIA_ITEMS_METADATA)
-                || !playerCommandsFromSession.contains(Player.COMMAND_GET_MEDIA_ITEMS_METADATA),
-            /* excludeCues= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TEXT)
-                || !playerCommandsFromSession.contains(Player.COMMAND_GET_TEXT),
-            /* excludeTimeline= */ false,
-            /* excludeTracks= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TRACKS)
-                || !playerCommandsFromSession.contains(Player.COMMAND_GET_TRACKS)));
+            intersectedCommands, /* excludeTimeline= */ false, /* excludeTracks= */ false));
     bundle.putInt(FIELD_SESSION_INTERFACE_VERSION, sessionInterfaceVersion);
     return bundle;
   }

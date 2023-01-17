@@ -1292,7 +1292,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Returns the intersection of {@link Player.Command commands} from the given two {@link
    * Commands}.
    */
-  public static Commands intersect(Commands commands1, Commands commands2) {
+  public static Commands intersect(@Nullable Commands commands1, @Nullable Commands commands2) {
+    if (commands1 == null || commands2 == null) {
+      return Commands.EMPTY;
+    }
     Commands.Builder intersectCommandsBuilder = new Commands.Builder();
     for (int i = 0; i < commands1.size(); i++) {
       if (commands2.contains(commands1.get(i))) {
