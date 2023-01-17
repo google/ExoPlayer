@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,120 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
- * Pipeline for processing {@link DecoderInputBuffer DecoderInputBuffers}.
+ * Pipeline for processing media data.
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
-/* package */ interface SamplePipeline {
+/* package */ abstract class SamplePipeline implements SampleConsumer {
 
-  /** Returns a buffer if the pipeline is ready to accept input, and {@code null} otherwise. */
-  @Nullable
-  DecoderInputBuffer dequeueInputBuffer() throws TransformationException;
+  private final long streamStartPositionUs;
+  private final MuxerWrapper muxerWrapper;
+  private final @C.TrackType int trackType;
 
-  /**
-   * Informs the pipeline that its input buffer contains new input.
-   *
-   * <p>Should be called after filling the input buffer from {@link #dequeueInputBuffer()} with new
-   * input.
-   */
-  void queueInputBuffer() throws TransformationException;
+  private boolean muxerWrapperTrackAdded;
+
+  public SamplePipeline(Format inputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
+    this.streamStartPositionUs = streamStartPositionUs;
+    this.muxerWrapper = muxerWrapper;
+    trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
+  }
+
+  protected static TransformationException createNoSupportedMimeTypeException(
+      Format requestedEncoderFormat) {
+    return TransformationException.createForCodec(
+        new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
+        MimeTypes.isVideo(requestedEncoderFormat.sampleMimeType),
+        /* isDecoder= */ false,
+        requestedEncoderFormat,
+        /* mediaCodecName= */ null,
+        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+  }
+
+  @Override
+  public boolean expectsDecodedData() {
+    return true;
+  }
 
   /**
    * Processes the input data and returns whether it may be possible to process more data by calling
    * this method again.
    */
-  boolean processData() throws TransformationException;
-
-  /** Returns whether the pipeline has ended. */
-  boolean isEnded();
+  public final boolean processData() throws TransformationException {
+    return feedMuxer() || processDataUpToMuxer();
+  }
 
   /** Releases all resources held by the pipeline. */
-  void release();
+  public abstract void release();
+
+  protected boolean processDataUpToMuxer() throws TransformationException {
+    return false;
+  }
+
+  @Nullable
+  protected abstract Format getMuxerInputFormat() throws TransformationException;
+
+  @Nullable
+  protected abstract DecoderInputBuffer getMuxerInputBuffer() throws TransformationException;
+
+  protected abstract void releaseMuxerInputBuffer() throws TransformationException;
+
+  protected abstract boolean isMuxerInputEnded();
 
   /**
-   * Returns the current timestamp being processed in the track, in milliseconds. This is the
-   * largest timestamp queued minus the stream start time, or 0 if no input has been queued.
+   * Attempts to pass encoded data to the muxer, and returns whether it may be possible to pass more
+   * data immediately by calling this method again.
    */
-  long getCurrentPositionMs();
+  private boolean feedMuxer() throws TransformationException {
+    if (!muxerWrapperTrackAdded) {
+      @Nullable Format inputFormat = getMuxerInputFormat();
+      if (inputFormat == null) {
+        return false;
+      }
+      try {
+        muxerWrapper.addTrackFormat(inputFormat);
+      } catch (Muxer.MuxerException e) {
+        throw TransformationException.createForMuxer(
+            e, TransformationException.ERROR_CODE_MUXING_FAILED);
+      }
+      muxerWrapperTrackAdded = true;
+    }
+
+    if (isMuxerInputEnded()) {
+      muxerWrapper.endTrack(trackType);
+      return false;
+    }
+
+    @Nullable DecoderInputBuffer muxerInputBuffer = getMuxerInputBuffer();
+    if (muxerInputBuffer == null) {
+      return false;
+    }
+
+    long samplePresentationTimeUs = muxerInputBuffer.timeUs - streamStartPositionUs;
+    // TODO(b/204892224): Consider subtracting the first sample timestamp from the sample pipeline
+    //  buffer from all samples so that they are guaranteed to start from zero in the output file.
+    try {
+      if (!muxerWrapper.writeSample(
+          trackType,
+          checkStateNotNull(muxerInputBuffer.data),
+          muxerInputBuffer.isKeyFrame(),
+          samplePresentationTimeUs)) {
+        return false;
+      }
+    } catch (Muxer.MuxerException e) {
+      throw TransformationException.createForMuxer(
+          e, TransformationException.ERROR_CODE_MUXING_FAILED);
+    }
+
+    releaseMuxerInputBuffer();
+    return true;
+  }
 }

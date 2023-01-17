@@ -31,9 +31,11 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.EncoderUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -86,7 +88,9 @@ public class EncoderCapabilityAnalysisTest {
 
   @Test
   public void logEncoderCapabilities() throws Exception {
-    ImmutableSet<String> supportedVideoMimeTypes = EncoderUtil.getSupportedVideoMimeTypes();
+    ImmutableSet<String> supportedVideoMimeTypes =
+        ImmutableSet.copyOf(
+            Iterables.filter(EncoderUtil.getSupportedMimeTypes(), MimeTypes::isVideo));
 
     // Map from MIME type to a list of maps from capability name to value.
     LinkedHashMap<String, List<Map<String, Object>>> mimeTypeToEncoderInfo = new LinkedHashMap<>();

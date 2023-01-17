@@ -16,22 +16,23 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.maxValue;
-import static com.google.android.exoplayer2.util.Util.minValue;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.ParcelFileDescriptor;
-import android.util.SparseIntArray;
-import android.util.SparseLongArray;
+import android.util.SparseArray;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,6 +48,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 /* package */ final class MuxerWrapper {
 
+  public interface Listener {
+    void onTrackEnded(
+        @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount);
+
+    void onEnded(long durationMs, long fileSizeBytes);
+
+    void onTransformationError(TransformationException transformationException);
+  }
+
   /**
    * The maximum difference between the track positions, in microseconds.
    *
@@ -58,18 +68,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private final String outputPath;
   @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final Muxer.Factory muxerFactory;
-  private final Consumer<TransformationException> errorConsumer;
-  private final SparseIntArray trackTypeToIndex;
-  private final SparseIntArray trackTypeToSampleCount;
-  private final SparseLongArray trackTypeToTimeUs;
-  private final SparseLongArray trackTypeToBytesWritten;
+  private final Listener listener;
+  private final SparseArray<TrackInfo> trackTypeToInfo;
   private final ScheduledExecutorService abortScheduledExecutorService;
 
   private int trackCount;
-  private int trackFormatCount;
   private boolean isReady;
+  private boolean isEnded;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
+  private long maxEndedTrackTimeUs;
   private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
   private boolean isAborted;
   private @MonotonicNonNull Muxer muxer;
@@ -78,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable String outputPath,
       @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
       Muxer.Factory muxerFactory,
-      Consumer<TransformationException> errorConsumer) {
+      Listener listener) {
     if (outputPath == null && outputParcelFileDescriptor == null) {
       throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
     }
@@ -86,29 +94,27 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.outputPath = outputPath;
     this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
-    this.errorConsumer = errorConsumer;
+    this.listener = listener;
 
-    trackTypeToIndex = new SparseIntArray();
-    trackTypeToSampleCount = new SparseIntArray();
-    trackTypeToTimeUs = new SparseLongArray();
-    trackTypeToBytesWritten = new SparseLongArray();
+    trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
     abortScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
   }
 
   /**
-   * Registers an output track.
+   * Sets the number of output tracks.
    *
-   * <p>All tracks must be registered before any track format is {@linkplain #addTrackFormat(Format)
+   * <p>The track count must be set before any track format is {@linkplain #addTrackFormat(Format)
    * added}.
    *
    * @throws IllegalStateException If a track format was {@linkplain #addTrackFormat(Format) added}
    *     before calling this method.
    */
-  public void registerTrack() {
+  public void setTrackCount(@IntRange(from = 1) int trackCount) {
     checkState(
-        trackFormatCount == 0, "Tracks cannot be registered after track formats have been added.");
-    trackCount++;
+        trackTypeToInfo.size() == 0,
+        "The track count cannot be changed after adding track formats.");
+    this.trackCount = trackCount;
   }
 
   /** Returns whether the sample {@linkplain MimeTypes MIME type} is supported. */
@@ -128,37 +134,36 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Adds a track format to the muxer.
    *
-   * <p>The tracks must all be {@linkplain #registerTrack() registered} before any format is added
-   * and all the formats must be added before samples are {@linkplain #writeSample(int, ByteBuffer,
-   * boolean, long) written}.
+   * <p>The number of tracks must be {@linkplain #setTrackCount(int) set} before any format is added
+   * and all the formats must be added before any samples can be {@linkplain #writeSample(int,
+   * ByteBuffer, boolean, long) written}.
    *
    * @param format The {@link Format} to be added.
-   * @throws IllegalStateException If the format is unsupported or if there is already a track
-   *     format of the same type (audio or video).
-   * @throws Muxer.MuxerException If the underlying muxer encounters a problem while adding the
-   *     track.
+   * @throws IllegalArgumentException If the format is unsupported.
+   * @throws IllegalStateException If the number of formats added exceeds the {@linkplain
+   *     #setTrackCount track count}, if {@link #setTrackCount(int)} has not been called or if there
+   *     is already a track of that {@link C.TrackType}.
+   * @throws Muxer.MuxerException If the underlying {@link Muxer} encounters a problem while adding
+   *     the track.
    */
   public void addTrackFormat(Format format) throws Muxer.MuxerException {
-    checkState(trackCount > 0, "All tracks should be registered before the formats are added.");
-    checkState(trackFormatCount < trackCount, "All track formats have already been added.");
+    checkState(trackCount > 0, "The track count should be set before the formats are added.");
+    checkState(trackTypeToInfo.size() < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
-    boolean isAudio = MimeTypes.isAudio(sampleMimeType);
-    boolean isVideo = MimeTypes.isVideo(sampleMimeType);
-    checkState(isAudio || isVideo, "Unsupported track format: " + sampleMimeType);
     @C.TrackType int trackType = MimeTypes.getTrackType(sampleMimeType);
+    checkArgument(
+        trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO,
+        "Unsupported track format: " + sampleMimeType);
+
+    // SparseArray.get() returns null by default if the value is not found.
     checkState(
-        trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET) == C.INDEX_UNSET,
-        "There is already a track of type " + trackType);
+        trackTypeToInfo.get(trackType) == null, "There is already a track of type " + trackType);
 
     ensureMuxerInitialized();
 
-    int trackIndex = muxer.addTrack(format);
-    trackTypeToIndex.put(trackType, trackIndex);
-    trackTypeToSampleCount.put(trackType, 0);
-    trackTypeToTimeUs.put(trackType, 0L);
-    trackTypeToBytesWritten.put(trackType, 0L);
-    trackFormatCount++;
-    if (trackFormatCount == trackCount) {
+    TrackInfo trackInfo = new TrackInfo(format, muxer.addTrack(format));
+    trackTypeToInfo.put(trackType, trackInfo);
+    if (trackTypeToInfo.size() == trackCount) {
       isReady = true;
       resetAbortTimer();
     }
@@ -167,55 +172,71 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Attempts to write a sample to the muxer.
    *
-   * @param trackType The {@linkplain C.TrackType track type} of the sample.
+   * @param trackType The {@link C.TrackType} of the sample.
    * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
-   * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
-   *     {@linkplain #addTrackFormat(Format) received a format} for every {@linkplain
-   *     #registerTrack() registered track}, or if it should write samples of other track types
-   *     first to ensure a good interleaving.
-   * @throws IllegalStateException If the muxer doesn't have any {@linkplain #endTrack(int)
-   *     non-ended} track of the given track type.
-   * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
+   * @return Whether the sample was successfully written. {@code false} if samples of other
+   *     {@linkplain C.TrackType track types} should be written first to ensure the files track
+   *     interleaving is balanced, or if the muxer hasn't {@linkplain #addTrackFormat(Format)
+   *     received a format} for every {@linkplain #setTrackCount(int) track}.
+   * @throws IllegalArgumentException If the muxer doesn't have a {@linkplain #endTrack(int)
+   *     non-ended} track of the given {@link C.TrackType}.
+   * @throws Muxer.MuxerException If the underlying {@link Muxer} fails to write the sample.
    */
   public boolean writeSample(
       @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
       throws Muxer.MuxerException {
-    int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
-    checkState(
-        trackIndex != C.INDEX_UNSET,
-        "Could not write sample because there is no track of type " + trackType);
+    @Nullable TrackInfo trackInfo = trackTypeToInfo.get(trackType);
+    // SparseArray.get() returns null by default if the value is not found.
+    checkArgument(
+        trackInfo != null, "Could not write sample because there is no track of type " + trackType);
 
-    if (!canWriteSampleOfType(trackType)) {
+    if (!canWriteSample(trackType, presentationTimeUs)) {
       return false;
     }
 
-    trackTypeToSampleCount.put(trackType, trackTypeToSampleCount.get(trackType) + 1);
-    trackTypeToBytesWritten.put(
-        trackType, trackTypeToBytesWritten.get(trackType) + data.remaining());
-    if (trackTypeToTimeUs.get(trackType) < presentationTimeUs) {
-      trackTypeToTimeUs.put(trackType, presentationTimeUs);
-    }
+    trackInfo.sampleCount++;
+    trackInfo.bytesWritten += data.remaining();
+    trackInfo.timeUs = max(trackInfo.timeUs, presentationTimeUs);
 
     checkNotNull(muxer);
     resetAbortTimer();
-    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
+    muxer.writeSampleData(trackInfo.index, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
     return true;
   }
 
   /**
-   * Notifies the muxer that all the samples have been {@link #writeSample(int, ByteBuffer, boolean,
-   * long) written} for a given track.
+   * Notifies the muxer that all the samples have been {@linkplain #writeSample(int, ByteBuffer,
+   * boolean, long) written} for a given track.
    *
-   * @param trackType The {@link C.TrackType track type}.
+   * @param trackType The {@link C.TrackType}.
    */
   public void endTrack(@C.TrackType int trackType) {
-    trackTypeToIndex.delete(trackType);
-    if (trackTypeToIndex.size() == 0) {
-      abortScheduledExecutorService.shutdownNow();
+    @Nullable TrackInfo trackInfo = trackTypeToInfo.get(trackType);
+    if (trackInfo == null) {
+      // SparseArray.get() returns null by default if the value is not found.
+      return;
     }
+
+    maxEndedTrackTimeUs = max(maxEndedTrackTimeUs, trackInfo.timeUs);
+    listener.onTrackEnded(
+        trackType, trackInfo.format, trackInfo.getAverageBitrate(), trackInfo.sampleCount);
+
+    trackTypeToInfo.delete(trackType);
+    if (trackTypeToInfo.size() == 0) {
+      abortScheduledExecutorService.shutdownNow();
+      if (!isEnded) {
+        isEnded = true;
+        listener.onEnded(Util.usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
+      }
+    }
+  }
+
+  /** Returns whether all the tracks are {@linkplain #endTrack(int) ended}. */
+  public boolean isEnded() {
+    return isEnded;
   }
 
   /**
@@ -225,8 +246,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
-   * @throws Muxer.MuxerException If the underlying muxer fails to finish writing the output and
-   *     {@code forCancellation} is false.
+   * @throws Muxer.MuxerException If the underlying {@link Muxer} fails to finish writing the output
+   *     and {@code forCancellation} is false.
    */
   public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
@@ -236,59 +257,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /**
-   * Returns the average bitrate of data written to the track of the provided {@code trackType}, or
-   * {@link C#RATE_UNSET_INT} if there is no track data.
-   */
-  public int getTrackAverageBitrate(@C.TrackType int trackType) {
-    long trackDurationUs = trackTypeToTimeUs.get(trackType, /* valueIfKeyNotFound= */ -1);
-    long trackBytes = trackTypeToBytesWritten.get(trackType, /* valueIfKeyNotFound= */ -1);
-    if (trackDurationUs <= 0 || trackBytes <= 0) {
-      return C.RATE_UNSET_INT;
-    }
-    // The number of bytes written is not a timestamp, however this utility method provides
-    // overflow-safe multiplication & division.
-    return (int)
-        Util.scaleLargeTimestamp(
-            /* timestamp= */ trackBytes,
-            /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
-            /* divisor= */ trackDurationUs);
-  }
-
-  /** Returns the number of samples written to the track of the provided {@code trackType}. */
-  public int getTrackSampleCount(@C.TrackType int trackType) {
-    return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
-  }
-
-  /** Returns the duration of the longest track in milliseconds. */
-  public long getDurationMs() {
-    return Util.usToMs(maxValue(trackTypeToTimeUs));
-  }
-
-  /**
-   * Returns whether the muxer can write a sample of the given track type.
-   *
-   * @param trackType The track type, defined by the {@code TRACK_TYPE_*} constants in {@link C}.
-   * @return Whether the muxer can write a sample of the given track type. This is {@code false} if
-   *     the muxer hasn't {@link #addTrackFormat(Format) received a format} for every {@link
-   *     #registerTrack() registered track}, or if it should write samples of other track types
-   *     first to ensure a good interleaving.
-   * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
-   *     track of the given track type.
-   */
-  private boolean canWriteSampleOfType(int trackType) {
-    long trackTimeUs = trackTypeToTimeUs.get(trackType, /* valueIfKeyNotFound= */ C.TIME_UNSET);
-    checkState(trackTimeUs != C.TIME_UNSET);
+  private boolean canWriteSample(@C.TrackType int trackType, long presentationTimeUs) {
     if (!isReady) {
       return false;
     }
-    if (trackTypeToIndex.size() == 1) {
+    if (trackTypeToInfo.size() == 1) {
       return true;
     }
     if (trackType != previousTrackType) {
-      minTrackTimeUs = minValue(trackTypeToTimeUs);
+      minTrackTimeUs = getMinTrackTimeUs(trackTypeToInfo);
     }
-    return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
+    return presentationTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
 
   @RequiresNonNull("muxer")
@@ -307,7 +286,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              errorConsumer.accept(
+              listener.onTransformationError(
                   TransformationException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "
@@ -328,6 +307,63 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         checkNotNull(outputParcelFileDescriptor);
         muxer = muxerFactory.create(outputParcelFileDescriptor);
       }
+    }
+  }
+
+  /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
+  private long getCurrentOutputSizeBytes() {
+    long fileSize = C.LENGTH_UNSET;
+
+    if (outputPath != null) {
+      fileSize = new File(outputPath).length();
+    } else if (outputParcelFileDescriptor != null) {
+      fileSize = outputParcelFileDescriptor.getStatSize();
+    }
+
+    return fileSize > 0 ? fileSize : C.LENGTH_UNSET;
+  }
+
+  private static long getMinTrackTimeUs(SparseArray<TrackInfo> trackTypeToInfo) {
+    if (trackTypeToInfo.size() == 0) {
+      return C.TIME_UNSET;
+    }
+
+    long minTrackTimeUs = Long.MAX_VALUE;
+    for (int i = 0; i < trackTypeToInfo.size(); i++) {
+      minTrackTimeUs = min(minTrackTimeUs, trackTypeToInfo.valueAt(i).timeUs);
+    }
+    return minTrackTimeUs;
+  }
+
+  private static final class TrackInfo {
+    public final Format format;
+    public final int index;
+
+    public long bytesWritten;
+    public int sampleCount;
+    public long timeUs;
+
+    public TrackInfo(Format format, int index) {
+      this.format = format;
+      this.index = index;
+    }
+
+    /**
+     * Returns the average bitrate of data written to the track, or {@link C#RATE_UNSET_INT} if
+     * there is no track data.
+     */
+    public int getAverageBitrate() {
+      if (timeUs <= 0 || bytesWritten <= 0) {
+        return C.RATE_UNSET_INT;
+      }
+
+      // The number of bytes written is not a timestamp, however this utility method provides
+      // overflow-safe multiplication & division.
+      return (int)
+          Util.scaleLargeTimestamp(
+              /* timestamp= */ bytesWritten,
+              /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
+              /* divisor= */ timeUs);
     }
   }
 }

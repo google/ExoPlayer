@@ -16,18 +16,13 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.FloatRange;
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Objects;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /** A rating expressed as a fractional number of stars. */
 public final class StarRating extends Rating {
@@ -105,21 +100,15 @@ public final class StarRating extends Rating {
   private static final @RatingType int TYPE = RATING_TYPE_STAR;
   private static final int MAX_STARS_DEFAULT = 5;
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_RATING_TYPE, FIELD_MAX_STARS, FIELD_STAR_RATING})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_MAX_STARS = 1;
-  private static final int FIELD_STAR_RATING = 2;
+  private static final String FIELD_MAX_STARS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_STAR_RATING = Util.intToStringMaxRadix(2);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_RATING_TYPE), TYPE);
-    bundle.putInt(keyForField(FIELD_MAX_STARS), maxStars);
-    bundle.putFloat(keyForField(FIELD_STAR_RATING), starRating);
+    bundle.putInt(FIELD_RATING_TYPE, TYPE);
+    bundle.putInt(FIELD_MAX_STARS, maxStars);
+    bundle.putFloat(FIELD_STAR_RATING, starRating);
     return bundle;
   }
 
@@ -127,19 +116,11 @@ public final class StarRating extends Rating {
   public static final Creator<StarRating> CREATOR = StarRating::fromBundle;
 
   private static StarRating fromBundle(Bundle bundle) {
-    checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
-            == TYPE);
-    int maxStars =
-        bundle.getInt(keyForField(FIELD_MAX_STARS), /* defaultValue= */ MAX_STARS_DEFAULT);
-    float starRating =
-        bundle.getFloat(keyForField(FIELD_STAR_RATING), /* defaultValue= */ RATING_UNSET);
+    checkArgument(bundle.getInt(FIELD_RATING_TYPE, /* defaultValue= */ RATING_TYPE_UNSET) == TYPE);
+    int maxStars = bundle.getInt(FIELD_MAX_STARS, /* defaultValue= */ MAX_STARS_DEFAULT);
+    float starRating = bundle.getFloat(FIELD_STAR_RATING, /* defaultValue= */ RATING_UNSET);
     return starRating == RATING_UNSET
         ? new StarRating(maxStars)
         : new StarRating(maxStars, starRating);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.Charset.forName;
 import static org.junit.Assert.fail;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.base.Charsets;
 import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -330,6 +332,7 @@ public final class ParsableByteArrayTest {
   public void readLittleEndianLong() {
     ParsableByteArray byteArray =
         new ParsableByteArray(new byte[] {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xFF});
+
     assertThat(byteArray.readLittleEndianLong()).isEqualTo(0xFF00000000000001L);
     assertThat(byteArray.getPosition()).isEqualTo(8);
   }
@@ -337,6 +340,7 @@ public final class ParsableByteArrayTest {
   @Test
   public void readLittleEndianUnsignedInt() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {0x10, 0x00, 0x00, (byte) 0xFF});
+
     assertThat(byteArray.readLittleEndianUnsignedInt()).isEqualTo(0xFF000010L);
     assertThat(byteArray.getPosition()).isEqualTo(4);
   }
@@ -344,6 +348,7 @@ public final class ParsableByteArrayTest {
   @Test
   public void readLittleEndianInt() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {0x01, 0x00, 0x00, (byte) 0xFF});
+
     assertThat(byteArray.readLittleEndianInt()).isEqualTo(0xFF000001);
     assertThat(byteArray.getPosition()).isEqualTo(4);
   }
@@ -352,6 +357,7 @@ public final class ParsableByteArrayTest {
   public void readLittleEndianUnsignedInt24() {
     byte[] data = {0x01, 0x02, (byte) 0xFF};
     ParsableByteArray byteArray = new ParsableByteArray(data);
+
     assertThat(byteArray.readLittleEndianUnsignedInt24()).isEqualTo(0xFF0201);
     assertThat(byteArray.getPosition()).isEqualTo(3);
   }
@@ -360,6 +366,7 @@ public final class ParsableByteArrayTest {
   public void readInt24Positive() {
     byte[] data = {0x01, 0x02, (byte) 0xFF};
     ParsableByteArray byteArray = new ParsableByteArray(data);
+
     assertThat(byteArray.readInt24()).isEqualTo(0x0102FF);
     assertThat(byteArray.getPosition()).isEqualTo(3);
   }
@@ -368,6 +375,7 @@ public final class ParsableByteArrayTest {
   public void readInt24Negative() {
     byte[] data = {(byte) 0xFF, 0x02, (byte) 0x01};
     ParsableByteArray byteArray = new ParsableByteArray(data);
+
     assertThat(byteArray.readInt24()).isEqualTo(0xFFFF0201);
     assertThat(byteArray.getPosition()).isEqualTo(3);
   }
@@ -376,6 +384,7 @@ public final class ParsableByteArrayTest {
   public void readLittleEndianUnsignedShort() {
     ParsableByteArray byteArray =
         new ParsableByteArray(new byte[] {0x01, (byte) 0xFF, 0x02, (byte) 0xFF});
+
     assertThat(byteArray.readLittleEndianUnsignedShort()).isEqualTo(0xFF01);
     assertThat(byteArray.getPosition()).isEqualTo(2);
     assertThat(byteArray.readLittleEndianUnsignedShort()).isEqualTo(0xFF02);
@@ -386,6 +395,7 @@ public final class ParsableByteArrayTest {
   public void readLittleEndianShort() {
     ParsableByteArray byteArray =
         new ParsableByteArray(new byte[] {0x01, (byte) 0xFF, 0x02, (byte) 0xFF});
+
     assertThat(byteArray.readLittleEndianShort()).isEqualTo((short) 0xFF01);
     assertThat(byteArray.getPosition()).isEqualTo(2);
     assertThat(byteArray.readLittleEndianShort()).isEqualTo((short) 0xFF02);
@@ -420,6 +430,7 @@ public final class ParsableByteArrayTest {
       (byte) 0x20,
     };
     ParsableByteArray byteArray = new ParsableByteArray(data);
+
     assertThat(byteArray.readString(data.length)).isEqualTo("ä ö ® π √ ± 谢 ");
     assertThat(byteArray.getPosition()).isEqualTo(data.length);
   }
@@ -428,6 +439,7 @@ public final class ParsableByteArrayTest {
   public void readAsciiString() {
     byte[] data = new byte[] {'t', 'e', 's', 't'};
     ParsableByteArray testArray = new ParsableByteArray(data);
+
     assertThat(testArray.readString(data.length, forName("US-ASCII"))).isEqualTo("test");
     assertThat(testArray.getPosition()).isEqualTo(data.length);
   }
@@ -436,6 +448,7 @@ public final class ParsableByteArrayTest {
   public void readStringOutOfBoundsDoesNotMovePosition() {
     byte[] data = {(byte) 0xC3, (byte) 0xA4, (byte) 0x20};
     ParsableByteArray byteArray = new ParsableByteArray(data);
+
     try {
       byteArray.readString(data.length + 1);
       fail();
@@ -452,17 +465,22 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void readNullTerminatedStringWithLengths() {
+  public void readNullTerminatedStringWithLengths_readLengthsMatchNullPositions() {
     byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
-    // Test with lengths that match NUL byte positions.
+
     ParsableByteArray parser = new ParsableByteArray(bytes);
     assertThat(parser.readNullTerminatedString(4)).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readNullTerminatedString(4)).isEqualTo("bar");
     assertThat(parser.getPosition()).isEqualTo(8);
     assertThat(parser.readNullTerminatedString()).isNull();
-    // Test with lengths that do not match NUL byte positions.
-    parser = new ParsableByteArray(bytes);
+  }
+
+  @Test
+  public void readNullTerminatedStringWithLengths_readLengthsDontMatchNullPositions() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readNullTerminatedString(2)).isEqualTo("fo");
     assertThat(parser.getPosition()).isEqualTo(2);
     assertThat(parser.readNullTerminatedString(2)).isEqualTo("o");
@@ -472,13 +490,23 @@ public final class ParsableByteArrayTest {
     assertThat(parser.readNullTerminatedString(1)).isEqualTo("");
     assertThat(parser.getPosition()).isEqualTo(8);
     assertThat(parser.readNullTerminatedString()).isNull();
-    // Test with limit at NUL
-    parser = new ParsableByteArray(bytes, 4);
+  }
+
+  @Test
+  public void readNullTerminatedStringWithLengths_limitAtNull() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
+    ParsableByteArray parser = new ParsableByteArray(bytes, /* limit= */ 4);
+
     assertThat(parser.readNullTerminatedString(4)).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readNullTerminatedString()).isNull();
-    // Test with limit before NUL
-    parser = new ParsableByteArray(bytes, 3);
+  }
+
+  @Test
+  public void readNullTerminatedStringWithLengths_limitBeforeNull() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
+    ParsableByteArray parser = new ParsableByteArray(bytes, /* limit= */ 3);
+
     assertThat(parser.readNullTerminatedString(3)).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(3);
     assertThat(parser.readNullTerminatedString()).isNull();
@@ -487,20 +515,30 @@ public final class ParsableByteArrayTest {
   @Test
   public void readNullTerminatedString() {
     byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
-    // Test normal case.
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readNullTerminatedString()).isEqualTo("bar");
     assertThat(parser.getPosition()).isEqualTo(8);
     assertThat(parser.readNullTerminatedString()).isNull();
-    // Test with limit at NUL.
-    parser = new ParsableByteArray(bytes, 4);
+  }
+
+  @Test
+  public void readNullTerminatedString_withLimitAtNull() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
+    ParsableByteArray parser = new ParsableByteArray(bytes, /* limit= */ 4);
+
     assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readNullTerminatedString()).isNull();
-    // Test with limit before NUL.
-    parser = new ParsableByteArray(bytes, 3);
+  }
+
+  @Test
+  public void readNullTerminatedString_withLimitBeforeNull() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r', 0};
+    ParsableByteArray parser = new ParsableByteArray(bytes, /* limit= */ 3);
+
     assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(3);
     assertThat(parser.readNullTerminatedString()).isNull();
@@ -510,6 +548,7 @@ public final class ParsableByteArrayTest {
   public void readNullTerminatedStringWithoutEndingNull() {
     byte[] bytes = new byte[] {'f', 'o', 'o', 0, 'b', 'a', 'r'};
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
     assertThat(parser.readNullTerminatedString()).isEqualTo("bar");
     assertThat(parser.readNullTerminatedString()).isNull();
@@ -518,78 +557,364 @@ public final class ParsableByteArrayTest {
   @Test
   public void readDelimiterTerminatedString() {
     byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r', '*'};
-    // Test normal case.
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("bar");
     assertThat(parser.getPosition()).isEqualTo(8);
     assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+  }
 
-    // Test with limit at delimiter.
-    parser = new ParsableByteArray(bytes, 4);
+  @Test
+  public void readDelimiterTerminatedString_limitAtDelimiter() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r', '*'};
+    ParsableByteArray parser = new ParsableByteArray(bytes, /* limit= */ 4);
+
     assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readDelimiterTerminatedString('*')).isNull();
-    // Test with limit before delimiter.
-    parser = new ParsableByteArray(bytes, 3);
+  }
+
+  @Test
+  public void readDelimiterTerminatedString_limitBeforeDelimiter() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r', '*'};
+    ParsableByteArray parser = new ParsableByteArray(bytes, /* limit= */ 3);
+
     assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
     assertThat(parser.getPosition()).isEqualTo(3);
     assertThat(parser.readDelimiterTerminatedString('*')).isNull();
   }
 
   @Test
-  public void readDelimiterTerminatedStringWithoutEndingDelimiter() {
+  public void readDelimiterTerminatedStringW_noDelimiter() {
     byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r'};
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
     assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("bar");
     assertThat(parser.readDelimiterTerminatedString('*')).isNull();
   }
 
   @Test
-  public void readSingleLineWithoutEndingTrail() {
-    byte[] bytes = new byte[] {'f', 'o', 'o'};
+  public void readSingleLineWithoutEndingTrail_ascii() {
+    byte[] bytes = "foo".getBytes(Charsets.US_ASCII);
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(3);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithEndingLf_ascii() {
+    byte[] bytes = "foo\n".getBytes(Charsets.US_ASCII);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isNull();
+  }
+
+  @Test
+  public void readTwoLinesWithCrFollowedByLf_ascii() {
+    byte[] bytes = "foo\r\nbar".getBytes(Charsets.US_ASCII);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(5);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isNull();
+  }
+
+  @Test
+  public void readThreeLinesWithEmptyLine_ascii() {
+    byte[] bytes = "foo\r\n\rbar".getBytes(Charsets.US_ASCII);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(5);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(6);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(9);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isNull();
+  }
+
+  @Test
+  public void readFourLinesWithLfFollowedByCr_ascii() {
+    byte[] bytes = "foo\n\r\rbar\r\n".getBytes(Charsets.US_ASCII);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(5);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(6);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(11);
+    assertThat(parser.readLine(Charsets.US_ASCII)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithoutEndingTrail_utf8() {
+    byte[] bytes = "foo".getBytes(Charsets.UTF_8);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(3);
     assertThat(parser.readLine()).isNull();
   }
 
   @Test
-  public void readSingleLineWithEndingLf() {
-    byte[] bytes = new byte[] {'f', 'o', 'o', '\n'};
+  public void readSingleLineWithEndingLf_utf8() {
+    byte[] bytes = "foo\n".getBytes(Charsets.UTF_8);
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readLine()).isNull();
   }
 
   @Test
-  public void readTwoLinesWithCrFollowedByLf() {
-    byte[] bytes = new byte[] {'f', 'o', 'o', '\r', '\n', 'b', 'a', 'r'};
+  public void readTwoLinesWithCrFollowedByLf_utf8() {
+    byte[] bytes = "foo\r\nbar".getBytes(Charsets.UTF_8);
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(5);
     assertThat(parser.readLine()).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(8);
     assertThat(parser.readLine()).isNull();
   }
 
   @Test
-  public void readThreeLinesWithEmptyLine() {
-    byte[] bytes = new byte[] {'f', 'o', 'o', '\r', '\n', '\r', 'b', 'a', 'r'};
+  public void readThreeLinesWithEmptyLineAndLeadingBom_utf8() {
+    byte[] bytes =
+        Bytes.concat(createByteArray(0xEF, 0xBB, 0xBF), "foo\r\n\rbar".getBytes(Charsets.UTF_8));
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
     assertThat(parser.readLine()).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(9);
     assertThat(parser.readLine()).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(12);
     assertThat(parser.readLine()).isNull();
   }
 
   @Test
-  public void readFourLinesWithLfFollowedByCr() {
-    byte[] bytes = new byte[] {'f', 'o', 'o', '\n', '\r', '\r', 'b', 'a', 'r', '\r', '\n'};
+  public void readFourLinesWithLfFollowedByCr_utf8() {
+    byte[] bytes = "foo\n\r\rbar\r\n".getBytes(Charsets.UTF_8);
     ParsableByteArray parser = new ParsableByteArray(bytes);
+
     assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
     assertThat(parser.readLine()).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(5);
     assertThat(parser.readLine()).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(6);
     assertThat(parser.readLine()).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(11);
     assertThat(parser.readLine()).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithoutEndingTrail_utf16() {
+    // Use UTF_16BE because we don't want the leading BOM that's added by getBytes(UTF_16). We
+    // explicitly test with a BOM elsewhere.
+    byte[] bytes = "foo".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(6);
+    assertThat(parser.readLine(Charsets.UTF_16)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithEndingLf_utf16() {
+    // Use UTF_16BE because we don't want the leading BOM that's added by getBytes(UTF_16). We
+    // explicitly test with a BOM elsewhere.
+    byte[] bytes = "foo\n".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.UTF_16)).isNull();
+  }
+
+  @Test
+  public void readTwoLinesWithCrFollowedByLf_utf16() {
+    // Use UTF_16BE because we don't want the leading BOM that's added by getBytes(UTF_16). We
+    // explicitly test with a BOM elsewhere.
+    byte[] bytes = "foo\r\nbar".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(10);
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(16);
+    assertThat(parser.readLine(Charsets.UTF_16)).isNull();
+  }
+
+  @Test
+  public void readThreeLinesWithEmptyLineAndLeadingBom_utf16() {
+    // getBytes(UTF_16) always adds the leading BOM.
+    byte[] bytes = "foo\r\n\rbar".getBytes(Charsets.UTF_16);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(12);
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(14);
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(20);
+    assertThat(parser.readLine(Charsets.UTF_16)).isNull();
+  }
+
+  @Test
+  public void readFourLinesWithLfFollowedByCr_utf16() {
+    // Use UTF_16BE because we don't want the leading BOM that's added by getBytes(UTF_16). We
+    // explicitly test with a BOM elsewhere.
+    byte[] bytes = "foo\n\r\rbar\r\n".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(10);
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(12);
+    assertThat(parser.readLine(Charsets.UTF_16)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(22);
+    assertThat(parser.readLine(Charsets.UTF_16)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithoutEndingTrail_utf16be() {
+    byte[] bytes = "foo".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(6);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithEndingLf_utf16be() {
+    byte[] bytes = "foo\n".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isNull();
+  }
+
+  @Test
+  public void readTwoLinesWithCrFollowedByLf_utf16be() {
+    byte[] bytes = "foo\r\nbar".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(10);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(16);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isNull();
+  }
+
+  @Test
+  public void readThreeLinesWithEmptyLineAndLeadingBom_utf16be() {
+    byte[] bytes =
+        Bytes.concat(createByteArray(0xFE, 0xFF), "foo\r\n\rbar".getBytes(Charsets.UTF_16BE));
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(12);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(14);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(20);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isNull();
+  }
+
+  @Test
+  public void readFourLinesWithLfFollowedByCr_utf16be() {
+    byte[] bytes = "foo\n\r\rbar\r\n".getBytes(Charsets.UTF_16BE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(10);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(12);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(22);
+    assertThat(parser.readLine(Charsets.UTF_16BE)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithoutEndingTrail_utf16le() {
+    byte[] bytes = "foo".getBytes(Charsets.UTF_16LE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(6);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isNull();
+  }
+
+  @Test
+  public void readSingleLineWithEndingLf_utf16le() {
+    byte[] bytes = "foo\n".getBytes(Charsets.UTF_16LE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isNull();
+  }
+
+  @Test
+  public void readTwoLinesWithCrFollowedByLf_utf16le() {
+    byte[] bytes = "foo\r\nbar".getBytes(Charsets.UTF_16LE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(10);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(16);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isNull();
+  }
+
+  @Test
+  public void readThreeLinesWithEmptyLineAndLeadingBom_utf16le() {
+    byte[] bytes =
+        Bytes.concat(createByteArray(0xFF, 0xFE), "foo\r\n\rbar".getBytes(Charsets.UTF_16LE));
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(12);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(14);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(20);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isNull();
+  }
+
+  @Test
+  public void readFourLinesWithLfFollowedByCr_utf16le() {
+    byte[] bytes = "foo\n\r\rbar\r\n".getBytes(Charsets.UTF_16LE);
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(10);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(12);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(22);
+    assertThat(parser.readLine(Charsets.UTF_16LE)).isNull();
   }
 }

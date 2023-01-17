@@ -19,6 +19,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,21 +60,14 @@ public abstract class Rating implements Bundleable {
   /* package */ static final int RATING_TYPE_STAR = 2;
   /* package */ static final int RATING_TYPE_THUMB = 3;
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_RATING_TYPE})
-  private @interface FieldNumber {}
-
-  /* package */ static final int FIELD_RATING_TYPE = 0;
+  /* package */ static final String FIELD_RATING_TYPE = Util.intToStringMaxRadix(0);
 
   /** Object that can restore a {@link Rating} from a {@link Bundle}. */
   public static final Creator<Rating> CREATOR = Rating::fromBundle;
 
   private static Rating fromBundle(Bundle bundle) {
     @RatingType
-    int ratingType =
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET);
+    int ratingType = bundle.getInt(FIELD_RATING_TYPE, /* defaultValue= */ RATING_TYPE_UNSET);
     switch (ratingType) {
       case RATING_TYPE_HEART:
         return HeartRating.CREATOR.fromBundle(bundle);
@@ -87,9 +81,5 @@ public abstract class Rating implements Bundleable {
       default:
         throw new IllegalArgumentException("Unknown RatingType: " + ratingType);
     }
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

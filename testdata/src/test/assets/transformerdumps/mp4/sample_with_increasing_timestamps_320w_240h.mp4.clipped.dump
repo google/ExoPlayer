@@ -8,7 +8,7 @@ format 0:
   channelCount = 2
   sampleRate = 48000
   language = en
-  metadata = entries=[TSSE: description=null: value=Lavf58.76.100]
+  metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
   initializationData:
     data = length 2, hash 560
 format 1:
@@ -27,6 +27,12 @@ format 1:
   initializationData:
     data = length 31, hash 4B108214
     data = length 9, hash FBA158BB
+sample:
+  trackIndex = 0
+  dataHashCode = 620415738
+  size = 508
+  isKeyFrame = true
+  presentationTimeUs = 7020
 sample:
   trackIndex = 1
   dataHashCode = 983000500
@@ -214,23 +220,17 @@ sample:
   isKeyFrame = false
   presentationTimeUs = 500000
 sample:
-  trackIndex = 1
-  dataHashCode = 1120133924
-  size = 151
-  isKeyFrame = false
-  presentationTimeUs = 516666
-sample:
-  trackIndex = 0
-  dataHashCode = 620415738
-  size = 508
-  isKeyFrame = true
-  presentationTimeUs = 7020
-sample:
   trackIndex = 0
   dataHashCode = 33931768
   size = 504
   isKeyFrame = true
   presentationTimeUs = 28354
+sample:
+  trackIndex = 1
+  dataHashCode = 1120133924
+  size = 151
+  isKeyFrame = false
+  presentationTimeUs = 516666
 sample:
   trackIndex = 0
   dataHashCode = 800699278
@@ -375,6 +375,12 @@ sample:
   size = 2235
   isKeyFrame = false
   presentationTimeUs = 533333
+sample:
+  trackIndex = 0
+  dataHashCode = 204379389
+  size = 504
+  isKeyFrame = true
+  presentationTimeUs = 540354
 sample:
   trackIndex = 1
   dataHashCode = 64254117
@@ -557,16 +563,16 @@ sample:
   presentationTimeUs = 1033333
 sample:
   trackIndex = 0
-  dataHashCode = 204379389
-  size = 504
-  isKeyFrame = true
-  presentationTimeUs = 540354
-sample:
-  trackIndex = 0
   dataHashCode = 694913274
   size = 508
   isKeyFrame = true
   presentationTimeUs = 561687
+sample:
+  trackIndex = 1
+  dataHashCode = 65238903
+  size = 163
+  isKeyFrame = false
+  presentationTimeUs = 1050000
 sample:
   trackIndex = 0
   dataHashCode = 289018778
@@ -700,17 +706,23 @@ sample:
   isKeyFrame = true
   presentationTimeUs = 1031020
 sample:
-  trackIndex = 1
-  dataHashCode = 65238903
-  size = 163
-  isKeyFrame = false
-  presentationTimeUs = 1050000
+  trackIndex = 0
+  dataHashCode = -320096195
+  size = 509
+  isKeyFrame = true
+  presentationTimeUs = 1052354
 sample:
   trackIndex = 1
   dataHashCode = 1720840922
   size = 2043
   isKeyFrame = false
   presentationTimeUs = 1066666
+sample:
+  trackIndex = 0
+  dataHashCode = -744850549
+  size = 511
+  isKeyFrame = true
+  presentationTimeUs = 1073687
 sample:
   trackIndex = 1
   dataHashCode = -1006231050
@@ -861,18 +873,6 @@ sample:
   size = 119
   isKeyFrame = false
   presentationTimeUs = 1483333
-sample:
-  trackIndex = 0
-  dataHashCode = -320096195
-  size = 509
-  isKeyFrame = true
-  presentationTimeUs = 1052354
-sample:
-  trackIndex = 0
-  dataHashCode = -744850549
-  size = 511
-  isKeyFrame = true
-  presentationTimeUs = 1073687
 sample:
   trackIndex = 0
   dataHashCode = 1457899387

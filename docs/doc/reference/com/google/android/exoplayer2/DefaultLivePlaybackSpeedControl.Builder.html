@@ -290,7 +290,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setFallbackMinPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setFallbackMinPlaybackSpeed&#8203;(float&nbsp;fallbackMinPlaybackSpeed)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setFallbackMinPlaybackSpeed&#8203;(float&nbsp;fallbackMinPlaybackSpeed)</pre>
 <div class="block">Sets the minimum playback speed that should be used if no minimum playback speed is defined
  by the media.
 
@@ -309,7 +310,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setFallbackMaxPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setFallbackMaxPlaybackSpeed&#8203;(float&nbsp;fallbackMaxPlaybackSpeed)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setFallbackMaxPlaybackSpeed&#8203;(float&nbsp;fallbackMaxPlaybackSpeed)</pre>
 <div class="block">Sets the maximum playback speed that should be used if no maximum playback speed is defined
  by the media.
 
@@ -328,7 +330,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMinUpdateIntervalMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setMinUpdateIntervalMs&#8203;(long&nbsp;minUpdateIntervalMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setMinUpdateIntervalMs&#8203;(long&nbsp;minUpdateIntervalMs)</pre>
 <div class="block">Sets the minimum interval between playback speed changes, in milliseconds.
 
  <p>The default is <a href="DefaultLivePlaybackSpeedControl.html#DEFAULT_MIN_UPDATE_INTERVAL_MS"><code>DefaultLivePlaybackSpeedControl.DEFAULT_MIN_UPDATE_INTERVAL_MS</code></a>.</div>
@@ -347,7 +350,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setProportionalControlFactor</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setProportionalControlFactor&#8203;(float&nbsp;proportionalControlFactor)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setProportionalControlFactor&#8203;(float&nbsp;proportionalControlFactor)</pre>
 <div class="block">Sets the proportional control factor used to adjust the playback speed.
 
  <p>The factor by which playback will be sped up is calculated as <code>1.0 +
@@ -369,7 +373,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxLiveOffsetErrorMsForUnitSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setMaxLiveOffsetErrorMsForUnitSpeed&#8203;(long&nbsp;maxLiveOffsetErrorMsForUnitSpeed)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setMaxLiveOffsetErrorMsForUnitSpeed&#8203;(long&nbsp;maxLiveOffsetErrorMsForUnitSpeed)</pre>
 <div class="block">Sets the maximum difference between the current live offset and the target live offset, in
  milliseconds, for which unit speed (1.0f) is used.
 
@@ -389,7 +394,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setTargetLiveOffsetIncrementOnRebufferMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setTargetLiveOffsetIncrementOnRebufferMs&#8203;(long&nbsp;targetLiveOffsetIncrementOnRebufferMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setTargetLiveOffsetIncrementOnRebufferMs&#8203;(long&nbsp;targetLiveOffsetIncrementOnRebufferMs)</pre>
 <div class="block">Sets the increment applied to the target live offset each time the player is rebuffering, in
  milliseconds.</div>
 <dl>
@@ -407,7 +413,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMinPossibleLiveOffsetSmoothingFactor</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setMinPossibleLiveOffsetSmoothingFactor&#8203;(float&nbsp;minPossibleLiveOffsetSmoothingFactor)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a>&nbsp;setMinPossibleLiveOffsetSmoothingFactor&#8203;(float&nbsp;minPossibleLiveOffsetSmoothingFactor)</pre>
 <div class="block">Sets the smoothing factor when smoothing the minimum possible live offset that can be
  achieved during playback.
 

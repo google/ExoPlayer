@@ -333,7 +333,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadRequest.html#uri"><code>DownloadRequest.uri</code></a></dd>
@@ -346,7 +347,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadRequest.html#uri"><code>DownloadRequest.uri</code></a></dd>
@@ -359,7 +361,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMimeType</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setMimeType&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setMimeType&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadRequest.html#mimeType"><code>DownloadRequest.mimeType</code></a></dd>
@@ -372,7 +375,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setKeySetId</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setKeySetId&#8203;(byte[]&nbsp;keySetId)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setKeySetId&#8203;(byte[]&nbsp;keySetId)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadRequest.html#keySetId"><code>DownloadRequest.keySetId</code></a></dd>
@@ -385,7 +389,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setCacheKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setCacheKey&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setCacheKey&#8203;(@Nullable
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -399,7 +404,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setState</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setState&#8203;(<a href="../offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setState&#8203;(<a href="../offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
                                 @com.google.android.exoplayer2.offline.Download.State int&nbsp;state)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -413,7 +419,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPercentDownloaded</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setPercentDownloaded&#8203;(float&nbsp;percentDownloaded)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setPercentDownloaded&#8203;(float&nbsp;percentDownloaded)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadProgress.html#percentDownloaded"><code>DownloadProgress.percentDownloaded</code></a></dd>
@@ -426,7 +433,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBytesDownloaded</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setBytesDownloaded&#8203;(long&nbsp;bytesDownloaded)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setBytesDownloaded&#8203;(long&nbsp;bytesDownloaded)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadProgress.html#bytesDownloaded"><code>DownloadProgress.bytesDownloaded</code></a></dd>
@@ -439,7 +447,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentLength</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setContentLength&#8203;(long&nbsp;contentLength)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setContentLength&#8203;(long&nbsp;contentLength)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/Download.html#contentLength"><code>Download.contentLength</code></a></dd>
@@ -452,7 +461,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setFailureReason</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setFailureReason&#8203;(int&nbsp;failureReason)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setFailureReason&#8203;(int&nbsp;failureReason)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/Download.html#failureReason"><code>Download.failureReason</code></a></dd>
@@ -465,7 +475,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setStopReason</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setStopReason&#8203;(int&nbsp;stopReason)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setStopReason&#8203;(int&nbsp;stopReason)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/Download.html#stopReason"><code>Download.stopReason</code></a></dd>
@@ -478,7 +489,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setStartTimeMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setStartTimeMs&#8203;(long&nbsp;startTimeMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setStartTimeMs&#8203;(long&nbsp;startTimeMs)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/Download.html#startTimeMs"><code>Download.startTimeMs</code></a></dd>
@@ -491,7 +503,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUpdateTimeMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setUpdateTimeMs&#8203;(long&nbsp;updateTimeMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setUpdateTimeMs&#8203;(long&nbsp;updateTimeMs)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/Download.html#updateTimeMs"><code>Download.updateTimeMs</code></a></dd>
@@ -504,7 +517,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setStreamKeys</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setStreamKeys&#8203;(<a href="../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>...&nbsp;streamKeys)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setStreamKeys&#8203;(<a href="../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>...&nbsp;streamKeys)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadRequest.html#streamKeys"><code>DownloadRequest.streamKeys</code></a></dd>
@@ -517,7 +531,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setCustomMetadata</h4>
-<pre class="methodSignature">public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setCustomMetadata&#8203;(byte[]&nbsp;customMetadata)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DownloadBuilder.html" title="class in com.google.android.exoplayer2.testutil">DownloadBuilder</a>&nbsp;setCustomMetadata&#8203;(byte[]&nbsp;customMetadata)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../offline/DownloadRequest.html#data"><code>DownloadRequest.data</code></a></dd>

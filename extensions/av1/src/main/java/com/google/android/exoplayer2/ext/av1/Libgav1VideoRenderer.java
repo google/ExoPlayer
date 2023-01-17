@@ -138,11 +138,7 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
         C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @hide
-   */
+  /** {@inheritDoc} */
   @Override
   protected final Gav1Decoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws Gav1DecoderException {

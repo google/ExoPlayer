@@ -75,7 +75,7 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/selected_file_text_view"
-    app:layout_constraintBottom_toTopOf="@+id/select_demo_effects_button">
+    app:layout_constraintBottom_toTopOf="@+id/select_audio_effects_button">
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -110,6 +110,15 @@
           android:text="@string/flatten_for_slow_motion"/>
         <CheckBox
           android:id="@+id/flatten_for_slow_motion_checkbox"
+          android:layout_gravity="end" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1">
+        <TextView
+          android:layout_gravity="center_vertical"
+          android:text="@string/force_silent_audio" />
+        <CheckBox
+          android:id="@+id/force_silent_audio_checkbox"
           android:layout_gravity="end" />
       </TableRow>
       <TableRow
@@ -198,6 +207,15 @@
           android:checked="true"/>
       </TableRow>
       <TableRow
+        android:layout_weight="1">
+        <TextView
+          android:layout_gravity="center_vertical"
+          android:text="@string/abort_slow_transformation" />
+        <CheckBox
+          android:id="@+id/abort_slow_transformation_checkbox"
+          android:layout_gravity="end"/>
+      </TableRow>
+      <TableRow
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView
@@ -211,13 +229,24 @@
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
   <Button
-    android:id="@+id/select_demo_effects_button"
+    android:id="@+id/select_audio_effects_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="32dp"
     android:layout_marginStart="32dp"
     android:layout_marginEnd="32dp"
-    android:text="@string/select_demo_effects"
+    android:text="@string/select_audio_effects"
+    app:layout_constraintBottom_toTopOf="@+id/select_video_effects_button"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+  <Button
+    android:id="@+id/select_video_effects_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/select_video_effects"
     app:layout_constraintBottom_toTopOf="@+id/transform_button"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />

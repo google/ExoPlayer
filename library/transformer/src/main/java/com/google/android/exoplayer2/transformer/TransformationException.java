@@ -23,7 +23,6 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.FrameProcessingException;
@@ -39,12 +38,11 @@ import java.lang.annotation.Target;
 public final class TransformationException extends Exception {
 
   /**
-   * Codes that identify causes of {@link Transformer} errors.
+   * Error codes that identify causes of {@link Transformer} errors.
    *
    * <p>This list of errors may be extended in future versions. The underlying values may also
    * change, so it is best to avoid relying on them directly without using the constants.
    */
-  // TODO(b/209469847): Update the javadoc once the underlying values are fixed.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
@@ -67,7 +65,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
-        ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
+        ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
         ERROR_CODE_FRAME_PROCESSING_FAILED,
         ERROR_CODE_AUDIO_PROCESSING_FAILED,
@@ -108,8 +106,8 @@ public final class TransformationException extends Exception {
   /**
    * Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.
    *
-   * <p>For example, this can happen when the player is expecting a piece of media, but the server
-   * returns a paywall HTML page, with content type "text/html".
+   * <p>For example, this can happen when the {@link AssetLoader} is expecting a piece of media, but
+   * the server returns a paywall HTML page, with content type "text/html".
    */
   public static final int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE = 2003;
   /** Caused by an HTTP server returning an unexpected HTTP response status code. */
@@ -122,8 +120,8 @@ public final class TransformationException extends Exception {
    */
   public static final int ERROR_CODE_IO_NO_PERMISSION = 2006;
   /**
-   * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
-   * https://) when the app's Network Security Configuration does not permit it.
+   * Caused by the {@link AssetLoader} trying to access cleartext HTTP traffic (meaning http://
+   * rather than https://) when the app's Network Security Configuration does not permit it.
    */
   public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2007;
   /** Caused by reading data out of the data bound. */
@@ -147,12 +145,12 @@ public final class TransformationException extends Exception {
   /** Caused by a failure while trying to encode media samples. */
   public static final int ERROR_CODE_ENCODING_FAILED = 4002;
   /**
-   * Caused by the output format for a track not being supported.
+   * Caused by trying to encode content whose format is not supported. *
    *
-   * <p>Supported output formats are limited by the muxer's capabilities and the {@linkplain
-   * Codec.DecoderFactory encoders} available.
+   * <p>Supported output formats are limited by the {@linkplain Codec.DecoderFactory encoders}
+   * available.
    */
-  public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
+  public static final int ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED = 4003;
   /** Caused by the encoder not supporting HDR formats. */
   public static final int ERROR_CODE_HDR_ENCODING_UNSUPPORTED = 4004;
 
@@ -171,7 +169,7 @@ public final class TransformationException extends Exception {
   /** Caused by a failure while muxing media samples. */
   public static final int ERROR_CODE_MUXING_FAILED = 7001;
 
-  private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
+  /* package */ static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
           .put("ERROR_CODE_FAILED_RUNTIME_CHECK", ERROR_CODE_FAILED_RUNTIME_CHECK)
           .put("ERROR_CODE_IO_UNSPECIFIED", ERROR_CODE_IO_UNSPECIFIED)
@@ -189,17 +187,12 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_HDR_DECODING_UNSUPPORTED", ERROR_CODE_HDR_DECODING_UNSUPPORTED)
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
-          .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
+          .put("ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED", ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED)
           .put("ERROR_CODE_HDR_ENCODING_UNSUPPORTED", ERROR_CODE_HDR_ENCODING_UNSUPPORTED)
           .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
-
-  /** Returns the {@code errorCode} for a given name. */
-  private static @ErrorCode int getErrorCodeForName(String errorCodeName) {
-    return NAME_TO_ERROR_CODE.getOrDefault(errorCodeName, ERROR_CODE_UNSPECIFIED);
-  }
 
   /** Returns the name of a given {@code errorCode}. */
   public static String getErrorCodeName(@ErrorCode int errorCode) {
@@ -212,6 +205,17 @@ public final class TransformationException extends Exception {
    */
   public String getErrorCodeName() {
     return getErrorCodeName(errorCode);
+  }
+
+  /**
+   * Creates an instance for an {@link AssetLoader} related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  public static TransformationException createForAssetLoader(Throwable cause, int errorCode) {
+    return new TransformationException("Asset loader error", cause, errorCode);
   }
 
   /**
@@ -321,21 +325,6 @@ public final class TransformationException extends Exception {
           "Unexpected runtime error", cause, ERROR_CODE_FAILED_RUNTIME_CHECK);
     }
     return new TransformationException("Unexpected error", cause, ERROR_CODE_UNSPECIFIED);
-  }
-
-  /**
-   * Creates an instance for a {@link PlaybackException}.
-   *
-   * <p>If there is a corresponding {@link TransformationException.ErrorCode} for the {@link
-   * PlaybackException.ErrorCode}, this error code and the same message are used for the created
-   * instance. Otherwise, this is equivalent to {@link #createForUnexpected(Exception)}.
-   */
-  /* package */ static TransformationException createForPlaybackException(
-      PlaybackException exception) {
-    @ErrorCode int errorCode = getErrorCodeForName(exception.getErrorCodeName());
-    return errorCode == ERROR_CODE_UNSPECIFIED
-        ? createForUnexpected(exception)
-        : new TransformationException(exception.getMessage(), exception, errorCode);
   }
 
   /** An error code which identifies the cause of the transformation failure. */

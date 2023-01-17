@@ -60,11 +60,13 @@ public final class C {
    */
   public static final long TIME_UNSET = Long.MIN_VALUE + 1;
 
-  /** Represents an unset or unknown index. */
+  /** Represents an unset or unknown index or byte position. */
   public static final int INDEX_UNSET = -1;
 
-  /** Represents an unset or unknown position. */
-  public static final int POSITION_UNSET = -1;
+  /**
+   * @deprecated Use {@link #INDEX_UNSET}.
+   */
+  @Deprecated public static final int POSITION_UNSET = INDEX_UNSET;
 
   /** Represents an unset or unknown rate. */
   public static final float RATE_UNSET = -Float.MAX_VALUE;
@@ -194,7 +196,7 @@ public final class C {
    * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT},
    * {@link #ENCODING_PCM_FLOAT}, {@link #ENCODING_MP3}, {@link #ENCODING_AC3}, {@link
    * #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4}, {@link #ENCODING_DTS},
-   * {@link #ENCODING_DTS_HD} or {@link #ENCODING_DOLBY_TRUEHD}.
+   * {@link #ENCODING_DTS_HD}, {@link #ENCODING_DOLBY_TRUEHD} or {@link #ENCODING_OPUS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -221,7 +223,8 @@ public final class C {
     ENCODING_AC4,
     ENCODING_DTS,
     ENCODING_DTS_HD,
-    ENCODING_DOLBY_TRUEHD
+    ENCODING_DOLBY_TRUEHD,
+    ENCODING_OPUS,
   })
   public @interface Encoding {}
 
@@ -321,6 +324,10 @@ public final class C {
    * @see AudioFormat#ENCODING_DOLBY_TRUEHD
    */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
+  /**
+   * @see AudioFormat#ENCODING_OPUS
+   */
+  public static final int ENCODING_OPUS = AudioFormat.ENCODING_OPUS;
 
   /** Represents the behavior affecting whether spatialization will be used. */
   @Documented
@@ -1048,24 +1055,33 @@ public final class C {
   // LINT.IfChange(color_transfer)
   /**
    * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
-   * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
+   * #COLOR_TRANSFER_LINEAR}, {@link #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_GAMMA_2_2} {@link
+   * #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
+  @IntDef({
+    Format.NO_VALUE,
+    COLOR_TRANSFER_LINEAR,
+    COLOR_TRANSFER_SDR,
+    COLOR_TRANSFER_GAMMA_2_2,
+    COLOR_TRANSFER_ST2084,
+    COLOR_TRANSFER_HLG
+  })
   public @interface ColorTransfer {}
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_LINEAR}. */
+  public static final int COLOR_TRANSFER_LINEAR = MediaFormat.COLOR_TRANSFER_LINEAR;
+  /** See {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO}. The SMPTE 170M transfer function. */
   public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
   /**
-   * @see MediaFormat#COLOR_TRANSFER_ST2084
+   * See {@link android.hardware.DataSpace#TRANSFER_GAMMA2_2}. The Gamma 2.2 transfer function, used
+   * for some SDR use-cases like tone-mapping.
    */
+  public static final int COLOR_TRANSFER_GAMMA_2_2 = 10;
+  /** See {@link MediaFormat#COLOR_TRANSFER_ST2084}. */
   public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_HLG
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_HLG}. */
   public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
   // LINT.IfChange(color_range)
@@ -1086,6 +1102,12 @@ public final class C {
    * @see MediaFormat#COLOR_RANGE_FULL
    */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+
+  /**
+   * Represents applying no limit to the number of input frames a {@link MediaCodec} encoder
+   * accepts.
+   */
+  public static final int UNLIMITED_PENDING_FRAME_COUNT = Integer.MAX_VALUE;
 
   /** Video projection types. */
   @Documented

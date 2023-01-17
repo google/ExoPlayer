@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -207,14 +208,19 @@ public final class Ac3Reader implements ElementaryStreamReader {
         || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
         || !Util.areEqual(frameInfo.mimeType, format.sampleMimeType)) {
-      format =
+      Format.Builder formatBuilder =
           new Format.Builder()
               .setId(formatId)
               .setSampleMimeType(frameInfo.mimeType)
               .setChannelCount(frameInfo.channelCount)
               .setSampleRate(frameInfo.sampleRate)
               .setLanguage(language)
-              .build();
+              .setPeakBitrate(frameInfo.bitrate);
+      // AC3 has constant bitrate, so averageBitrate = peakBitrate
+      if (MimeTypes.AUDIO_AC3.equals(frameInfo.mimeType)) {
+        formatBuilder.setAverageBitrate(frameInfo.bitrate);
+      }
+      format = formatBuilder.build();
       output.format(format);
     }
     sampleSize = frameInfo.frameSize;

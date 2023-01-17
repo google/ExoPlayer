@@ -26,10 +26,12 @@ import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit tests for {@link FallbackListener}. */
 @RunWith(AndroidJUnit4.class)
@@ -38,10 +40,11 @@ public class FallbackListenerTest {
   private static final MediaItem PLACEHOLDER_MEDIA_ITEM = MediaItem.fromUri(Uri.EMPTY);
 
   @Test
-  public void onTransformationRequestFinalized_withoutTrackRegistration_throwsException() {
+  public void onTransformationRequestFinalized_withoutTrackCountSet_throwsException() {
     TransformationRequest transformationRequest = new TransformationRequest.Builder().build();
     FallbackListener fallbackListener =
-        new FallbackListener(PLACEHOLDER_MEDIA_ITEM, createListenerSet(), transformationRequest);
+        new FallbackListener(
+            PLACEHOLDER_MEDIA_ITEM, createListenerSet(), createHandler(), transformationRequest);
 
     assertThrows(
         IllegalStateException.class,
@@ -49,13 +52,15 @@ public class FallbackListenerTest {
   }
 
   @Test
-  public void onTransformationRequestFinalized_afterTrackRegistration_completesSuccessfully() {
+  public void onTransformationRequestFinalized_afterTrackCountSet_completesSuccessfully() {
     TransformationRequest transformationRequest = new TransformationRequest.Builder().build();
     FallbackListener fallbackListener =
-        new FallbackListener(PLACEHOLDER_MEDIA_ITEM, createListenerSet(), transformationRequest);
+        new FallbackListener(
+            PLACEHOLDER_MEDIA_ITEM, createListenerSet(), createHandler(), transformationRequest);
 
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
+    ShadowLooper.idleMainLooper();
   }
 
   @Test
@@ -66,10 +71,14 @@ public class FallbackListenerTest {
     Transformer.Listener mockListener = mock(Transformer.Listener.class);
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM, createListenerSet(mockListener), originalRequest);
+            PLACEHOLDER_MEDIA_ITEM,
+            createListenerSet(mockListener),
+            createHandler(),
+            originalRequest);
 
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(unchangedRequest);
+    ShadowLooper.idleMainLooper();
 
     verify(mockListener, never()).onFallbackApplied(any(), any(), any());
   }
@@ -83,10 +92,14 @@ public class FallbackListenerTest {
     Transformer.Listener mockListener = mock(Transformer.Listener.class);
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM, createListenerSet(mockListener), originalRequest);
+            PLACEHOLDER_MEDIA_ITEM,
+            createListenerSet(mockListener),
+            createHandler(),
+            originalRequest);
 
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(audioFallbackRequest);
+    ShadowLooper.idleMainLooper();
 
     verify(mockListener)
         .onFallbackApplied(PLACEHOLDER_MEDIA_ITEM, originalRequest, audioFallbackRequest);
@@ -109,12 +122,15 @@ public class FallbackListenerTest {
     Transformer.Listener mockListener = mock(Transformer.Listener.class);
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM, createListenerSet(mockListener), originalRequest);
+            PLACEHOLDER_MEDIA_ITEM,
+            createListenerSet(mockListener),
+            createHandler(),
+            originalRequest);
 
-    fallbackListener.registerTrack();
-    fallbackListener.registerTrack();
+    fallbackListener.setTrackCount(2);
     fallbackListener.onTransformationRequestFinalized(audioFallbackRequest);
     fallbackListener.onTransformationRequestFinalized(videoFallbackRequest);
+    ShadowLooper.idleMainLooper();
 
     verify(mockListener)
         .onFallbackApplied(PLACEHOLDER_MEDIA_ITEM, originalRequest, mergedFallbackRequest);
@@ -129,5 +145,9 @@ public class FallbackListenerTest {
 
   private static ListenerSet<Transformer.Listener> createListenerSet() {
     return new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, (listener, flags) -> {});
+  }
+
+  private static HandlerWrapper createHandler() {
+    return Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
   }
 }

@@ -460,44 +460,29 @@ public final class AdPlaybackState implements Bundleable {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      FIELD_TIME_US,
-      FIELD_COUNT,
-      FIELD_URIS,
-      FIELD_STATES,
-      FIELD_DURATIONS_US,
-      FIELD_CONTENT_RESUME_OFFSET_US,
-      FIELD_IS_SERVER_SIDE_INSERTED,
-      FIELD_ORIGINAL_COUNT
-    })
-    private @interface FieldNumber {}
-
-    private static final int FIELD_TIME_US = 0;
-    private static final int FIELD_COUNT = 1;
-    private static final int FIELD_URIS = 2;
-    private static final int FIELD_STATES = 3;
-    private static final int FIELD_DURATIONS_US = 4;
-    private static final int FIELD_CONTENT_RESUME_OFFSET_US = 5;
-    private static final int FIELD_IS_SERVER_SIDE_INSERTED = 6;
-    private static final int FIELD_ORIGINAL_COUNT = 7;
+    private static final String FIELD_TIME_US = Util.intToStringMaxRadix(0);
+    private static final String FIELD_COUNT = Util.intToStringMaxRadix(1);
+    private static final String FIELD_URIS = Util.intToStringMaxRadix(2);
+    private static final String FIELD_STATES = Util.intToStringMaxRadix(3);
+    private static final String FIELD_DURATIONS_US = Util.intToStringMaxRadix(4);
+    private static final String FIELD_CONTENT_RESUME_OFFSET_US = Util.intToStringMaxRadix(5);
+    private static final String FIELD_IS_SERVER_SIDE_INSERTED = Util.intToStringMaxRadix(6);
+    private static final String FIELD_ORIGINAL_COUNT = Util.intToStringMaxRadix(7);
 
     // putParcelableArrayList actually supports null elements.
     @SuppressWarnings("nullness:argument")
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putLong(keyForField(FIELD_TIME_US), timeUs);
-      bundle.putInt(keyForField(FIELD_COUNT), count);
-      bundle.putInt(keyForField(FIELD_ORIGINAL_COUNT), originalCount);
+      bundle.putLong(FIELD_TIME_US, timeUs);
+      bundle.putInt(FIELD_COUNT, count);
+      bundle.putInt(FIELD_ORIGINAL_COUNT, originalCount);
       bundle.putParcelableArrayList(
-          keyForField(FIELD_URIS), new ArrayList<@NullableType Uri>(Arrays.asList(uris)));
-      bundle.putIntArray(keyForField(FIELD_STATES), states);
-      bundle.putLongArray(keyForField(FIELD_DURATIONS_US), durationsUs);
-      bundle.putLong(keyForField(FIELD_CONTENT_RESUME_OFFSET_US), contentResumeOffsetUs);
-      bundle.putBoolean(keyForField(FIELD_IS_SERVER_SIDE_INSERTED), isServerSideInserted);
+          FIELD_URIS, new ArrayList<@NullableType Uri>(Arrays.asList(uris)));
+      bundle.putIntArray(FIELD_STATES, states);
+      bundle.putLongArray(FIELD_DURATIONS_US, durationsUs);
+      bundle.putLong(FIELD_CONTENT_RESUME_OFFSET_US, contentResumeOffsetUs);
+      bundle.putBoolean(FIELD_IS_SERVER_SIDE_INSERTED, isServerSideInserted);
       return bundle;
     }
 
@@ -507,18 +492,16 @@ public final class AdPlaybackState implements Bundleable {
     // getParcelableArrayList may have null elements.
     @SuppressWarnings("nullness:type.argument")
     private static AdGroup fromBundle(Bundle bundle) {
-      long timeUs = bundle.getLong(keyForField(FIELD_TIME_US));
-      int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
-      int originalCount =
-          bundle.getInt(keyForField(FIELD_ORIGINAL_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
-      @Nullable
-      ArrayList<@NullableType Uri> uriList = bundle.getParcelableArrayList(keyForField(FIELD_URIS));
+      long timeUs = bundle.getLong(FIELD_TIME_US);
+      int count = bundle.getInt(FIELD_COUNT);
+      int originalCount = bundle.getInt(FIELD_ORIGINAL_COUNT);
+      @Nullable ArrayList<@NullableType Uri> uriList = bundle.getParcelableArrayList(FIELD_URIS);
       @Nullable
       @AdState
-      int[] states = bundle.getIntArray(keyForField(FIELD_STATES));
-      @Nullable long[] durationsUs = bundle.getLongArray(keyForField(FIELD_DURATIONS_US));
-      long contentResumeOffsetUs = bundle.getLong(keyForField(FIELD_CONTENT_RESUME_OFFSET_US));
-      boolean isServerSideInserted = bundle.getBoolean(keyForField(FIELD_IS_SERVER_SIDE_INSERTED));
+      int[] states = bundle.getIntArray(FIELD_STATES);
+      @Nullable long[] durationsUs = bundle.getLongArray(FIELD_DURATIONS_US);
+      long contentResumeOffsetUs = bundle.getLong(FIELD_CONTENT_RESUME_OFFSET_US);
+      boolean isServerSideInserted = bundle.getBoolean(FIELD_IS_SERVER_SIDE_INSERTED);
       return new AdGroup(
           timeUs,
           count,
@@ -528,10 +511,6 @@ public final class AdPlaybackState implements Bundleable {
           durationsUs == null ? new long[0] : durationsUs,
           contentResumeOffsetUs,
           isServerSideInserted);
-    }
-
-    private static String keyForField(@AdGroup.FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
@@ -1123,21 +1102,10 @@ public final class AdPlaybackState implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_AD_GROUPS,
-    FIELD_AD_RESUME_POSITION_US,
-    FIELD_CONTENT_DURATION_US,
-    FIELD_REMOVED_AD_GROUP_COUNT
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_AD_GROUPS = 1;
-  private static final int FIELD_AD_RESUME_POSITION_US = 2;
-  private static final int FIELD_CONTENT_DURATION_US = 3;
-  private static final int FIELD_REMOVED_AD_GROUP_COUNT = 4;
+  private static final String FIELD_AD_GROUPS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_AD_RESUME_POSITION_US = Util.intToStringMaxRadix(2);
+  private static final String FIELD_CONTENT_DURATION_US = Util.intToStringMaxRadix(3);
+  private static final String FIELD_REMOVED_AD_GROUP_COUNT = Util.intToStringMaxRadix(4);
 
   /**
    * {@inheritDoc}
@@ -1153,10 +1121,18 @@ public final class AdPlaybackState implements Bundleable {
     for (AdGroup adGroup : adGroups) {
       adGroupBundleList.add(adGroup.toBundle());
     }
-    bundle.putParcelableArrayList(keyForField(FIELD_AD_GROUPS), adGroupBundleList);
-    bundle.putLong(keyForField(FIELD_AD_RESUME_POSITION_US), adResumePositionUs);
-    bundle.putLong(keyForField(FIELD_CONTENT_DURATION_US), contentDurationUs);
-    bundle.putInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT), removedAdGroupCount);
+    if (!adGroupBundleList.isEmpty()) {
+      bundle.putParcelableArrayList(FIELD_AD_GROUPS, adGroupBundleList);
+    }
+    if (adResumePositionUs != NONE.adResumePositionUs) {
+      bundle.putLong(FIELD_AD_RESUME_POSITION_US, adResumePositionUs);
+    }
+    if (contentDurationUs != NONE.contentDurationUs) {
+      bundle.putLong(FIELD_CONTENT_DURATION_US, contentDurationUs);
+    }
+    if (removedAdGroupCount != NONE.removedAdGroupCount) {
+      bundle.putInt(FIELD_REMOVED_AD_GROUP_COUNT, removedAdGroupCount);
+    }
     return bundle;
   }
 
@@ -1168,9 +1144,7 @@ public final class AdPlaybackState implements Bundleable {
   public static final Bundleable.Creator<AdPlaybackState> CREATOR = AdPlaybackState::fromBundle;
 
   private static AdPlaybackState fromBundle(Bundle bundle) {
-    @Nullable
-    ArrayList<Bundle> adGroupBundleList =
-        bundle.getParcelableArrayList(keyForField(FIELD_AD_GROUPS));
+    @Nullable ArrayList<Bundle> adGroupBundleList = bundle.getParcelableArrayList(FIELD_AD_GROUPS);
     @Nullable AdGroup[] adGroups;
     if (adGroupBundleList == null) {
       adGroups = new AdGroup[0];
@@ -1181,16 +1155,13 @@ public final class AdPlaybackState implements Bundleable {
       }
     }
     long adResumePositionUs =
-        bundle.getLong(keyForField(FIELD_AD_RESUME_POSITION_US), /* defaultValue= */ 0);
+        bundle.getLong(FIELD_AD_RESUME_POSITION_US, /* defaultValue= */ NONE.adResumePositionUs);
     long contentDurationUs =
-        bundle.getLong(keyForField(FIELD_CONTENT_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
-    int removedAdGroupCount = bundle.getInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT));
+        bundle.getLong(FIELD_CONTENT_DURATION_US, /* defaultValue= */ NONE.contentDurationUs);
+    int removedAdGroupCount =
+        bundle.getInt(FIELD_REMOVED_AD_GROUP_COUNT, /* defaultValue= */ NONE.removedAdGroupCount);
     return new AdPlaybackState(
         /* adsId= */ null, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 
   private static AdGroup[] createEmptyAdGroups(long[] adGroupTimesUs) {

@@ -78,10 +78,10 @@ public interface Muxer {
   }
 
   /**
-   * Adds a track with the specified format, and returns its index (to be passed in subsequent calls
-   * to {@link #writeSampleData(int, ByteBuffer, boolean, long)}).
+   * Adds a track with the specified format.
    *
    * @param format The {@link Format} of the track.
+   * @return The index for this track, which should be passed to {@link #writeSampleData}.
    * @throws MuxerException If the muxer encounters a problem while adding the track.
    */
   int addTrack(Format format) throws MuxerException;

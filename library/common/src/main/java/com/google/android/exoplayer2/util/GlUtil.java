@@ -31,6 +31,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
 import androidx.annotation.DoNotInline;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -88,7 +89,16 @@ public final class GlUtil {
   private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
   // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
   private static final String EXTENSION_YUV_TARGET = "GL_EXT_YUV_target";
-
+  // https://registry.khronos.org/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
+  private static final String EXTENSION_COLORSPACE_BT2020_PQ = "EGL_EXT_gl_colorspace_bt2020_pq";
+  // https://registry.khronos.org/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
+  private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
+  // https://registry.khronos.org/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
+  private static final int EGL_GL_COLORSPACE_BT2020_PQ_EXT = 0x3340;
+  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ =
+      new int[] {
+        EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_PQ_EXT, EGL14.EGL_NONE, EGL14.EGL_NONE
+      };
   private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
 
   /** Class only contains static methods. */
@@ -189,7 +199,7 @@ public final class GlUtil {
    * Returns whether the {@value #EXTENSION_YUV_TARGET} extension is supported.
    *
    * <p>This extension allows sampling raw YUV values from an external texture, which is required
-   * for HDR.
+   * for HDR input.
    */
   public static boolean isYuvTargetExtensionSupported() {
     if (Util.SDK_INT < 17) {
@@ -215,6 +225,13 @@ public final class GlUtil {
     return glExtensions != null && glExtensions.contains(EXTENSION_YUV_TARGET);
   }
 
+  /** Returns whether {@value #EXTENSION_COLORSPACE_BT2020_PQ} is supported. */
+  public static boolean isBt2020PqExtensionSupported() {
+    EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+    @Nullable String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
+    return eglExtensions != null && eglExtensions.contains(EXTENSION_COLORSPACE_BT2020_PQ);
+  }
+
   /** Returns an initialized default {@link EGLDisplay}. */
   @RequiresApi(17)
   public static EGLDisplay createEglDisplay() throws GlException {
@@ -231,56 +248,73 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static EGLContext createEglContext(EGLDisplay eglDisplay) throws GlException {
-    return createEglContext(eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+    return createEglContext(eglDisplay, /* openGlVersion= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
    * Creates a new {@link EGLContext} for the specified {@link EGLDisplay}.
    *
    * @param eglDisplay The {@link EGLDisplay} to create an {@link EGLContext} for.
+   * @param openGlVersion The version of OpenGL ES to configure. Accepts either {@code 2}, for
+   *     OpenGL ES 2.0, or {@code 3}, for OpenGL ES 3.0.
    * @param configAttributes The attributes to configure EGL with. Accepts either {@link
-   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}, which will request OpenGL ES 3.0, or {@link
-   *     #EGL_CONFIG_ATTRIBUTES_RGBA_8888}, which will request OpenGL ES 2.0.
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}, or {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
    */
   @RequiresApi(17)
-  public static EGLContext createEglContext(EGLDisplay eglDisplay, int[] configAttributes)
+  public static EGLContext createEglContext(
+      EGLDisplay eglDisplay, @IntRange(from = 2, to = 3) int openGlVersion, int[] configAttributes)
       throws GlException {
     checkArgument(
         Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_8888)
             || Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102));
-    return Api17.createEglContext(
-        eglDisplay,
-        /* version= */ Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102) ? 3 : 2,
-        configAttributes);
+    checkArgument(openGlVersion == 2 || openGlVersion == 3);
+    return Api17.createEglContext(eglDisplay, openGlVersion, configAttributes);
   }
 
   /**
    * Creates a new {@link EGLSurface} wrapping the specified {@code surface}.
    *
-   * <p>The {@link EGLSurface} will configure with {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888} and
-   * OpenGL ES 2.0.
+   * <p>The {@link EGLSurface} will configure with OpenGL ES 2.0.
    *
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
-   */
-  @RequiresApi(17)
-  public static EGLSurface createEglSurface(EGLDisplay eglDisplay, Object surface)
-      throws GlException {
-    return Api17.createEglSurface(eglDisplay, surface, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
-  }
-
-  /**
-   * Creates a new {@link EGLSurface} wrapping the specified {@code surface}.
-   *
-   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
-   * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
-   * @param configAttributes The attributes to configure EGL with. Accepts {@link
-   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
+   * @param colorTransfer The {@linkplain C.ColorTransfer color transfer characteristics} to which
+   *     the {@code surface} is configured. The only accepted values are {@link
+   *     C#COLOR_TRANSFER_SDR}, {@link C#COLOR_TRANSFER_HLG} and {@link C#COLOR_TRANSFER_ST2084}.
+   * @param isEncoderInputSurface Whether the {@code surface} is the input surface of an encoder.
    */
   @RequiresApi(17)
   public static EGLSurface createEglSurface(
-      EGLDisplay eglDisplay, Object surface, int[] configAttributes) throws GlException {
-    return Api17.createEglSurface(eglDisplay, surface, configAttributes);
+      EGLDisplay eglDisplay,
+      Object surface,
+      @C.ColorTransfer int colorTransfer,
+      boolean isEncoderInputSurface)
+      throws GlException {
+    int[] configAttributes;
+    int[] windowAttributes;
+    if (colorTransfer == C.COLOR_TRANSFER_SDR || colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2) {
+      configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_8888;
+      windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
+    } else if (colorTransfer == C.COLOR_TRANSFER_ST2084) {
+      configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_1010102;
+      if (isEncoderInputSurface) {
+        // Outputting BT2020 PQ with EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ to an encoder causes
+        // the encoder to incorrectly switch to full range color, even if the encoder is configured
+        // with limited range color, because EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ sets full range
+        // color output, and GL windowAttributes overrides encoder settings.
+        windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
+      } else {
+        // TODO(b/262259999) HDR10 PQ content looks dark on the screen.
+        windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ;
+      }
+    } else if (colorTransfer == C.COLOR_TRANSFER_HLG) {
+      checkArgument(isEncoderInputSurface, "Outputting HLG to the screen is not supported.");
+      configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_1010102;
+      windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
+    } else {
+      throw new IllegalArgumentException("Unsupported color transfer: " + colorTransfer);
+    }
+    return Api17.createEglSurface(eglDisplay, surface, configAttributes, windowAttributes);
   }
 
   /**
@@ -466,6 +500,16 @@ public final class GlUtil {
   public static void destroyEglContext(
       @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
     Api17.destroyEglContext(eglDisplay, eglContext);
+  }
+
+  /**
+   * Destroys the {@link EGLSurface} identified by the provided {@link EGLDisplay} and {@link
+   * EGLSurface}.
+   */
+  @RequiresApi(17)
+  public static void destroyEglSurface(
+      @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
+    Api17.destroyEglSurface(eglDisplay, eglSurface);
   }
 
   /**
@@ -659,13 +703,14 @@ public final class GlUtil {
 
     @DoNotInline
     public static EGLSurface createEglSurface(
-        EGLDisplay eglDisplay, Object surface, int[] configAttributes) throws GlException {
+        EGLDisplay eglDisplay, Object surface, int[] configAttributes, int[] windowAttributes)
+        throws GlException {
       EGLSurface eglSurface =
           EGL14.eglCreateWindowSurface(
               eglDisplay,
               getEglConfig(eglDisplay, configAttributes),
               surface,
-              EGL_WINDOW_SURFACE_ATTRIBUTES_NONE,
+              windowAttributes,
               /* offset= */ 0);
       checkEglException("Error creating surface");
       return eglSurface;
@@ -731,6 +776,16 @@ public final class GlUtil {
       checkEglException("Error releasing thread");
       EGL14.eglTerminate(eglDisplay);
       checkEglException("Error terminating display");
+    }
+
+    @DoNotInline
+    public static void destroyEglSurface(
+        @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
+      if (eglDisplay == null || eglSurface == null) {
+        return;
+      }
+      EGL14.eglDestroySurface(eglDisplay, eglSurface);
+      checkEglException("Error destroying surface");
     }
 
     @DoNotInline

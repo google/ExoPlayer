@@ -1097,6 +1097,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
+    onReadyToInitializeCodec(inputFormat);
     codecInitializingTimestamp = SystemClock.elapsedRealtime();
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
@@ -1379,6 +1380,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     decoderCounters.queuedInputBufferCount++;
     return true;
+  }
+
+  /**
+   * Called when ready to initialize the {@link MediaCodecAdapter}.
+   *
+   * <p>This method is called just before the renderer obtains the {@linkplain
+   * #getMediaCodecConfiguration configuration} for the {@link MediaCodecAdapter} and creates the
+   * adapter via the passed in {@link MediaCodecAdapter.Factory}.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param format The {@link Format} for which the codec is being configured.
+   * @throws ExoPlaybackException If an error occurs preparing for initializing the codec.
+   */
+  protected void onReadyToInitializeCodec(Format format) throws ExoPlaybackException {
+    // Do nothing.
   }
 
   /**
@@ -2431,7 +2448,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         || (Util.SDK_INT <= 17 && "OMX.allwinner.video.decoder.avc".equals(name))
         || (Util.SDK_INT <= 29
             && ("OMX.broadcom.video_decoder.tunnel".equals(name)
-                || "OMX.broadcom.video_decoder.tunnel.secure".equals(name)))
+                || "OMX.broadcom.video_decoder.tunnel.secure".equals(name)
+                || "OMX.bcm.vdec.avc.tunnel".equals(name)
+                || "OMX.bcm.vdec.avc.tunnel.secure".equals(name)
+                || "OMX.bcm.vdec.hevc.tunnel".equals(name)
+                || "OMX.bcm.vdec.hevc.tunnel.secure".equals(name)))
         || ("Amazon".equals(Util.MANUFACTURER) && "AFTS".equals(Util.MODEL) && codecInfo.secure);
   }
 

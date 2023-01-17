@@ -39,8 +39,8 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
-import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -63,7 +63,7 @@ public final class DefaultCodec implements Codec {
   private final Format configurationFormat;
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
-  private final boolean decoderNeedsFrameDroppingWorkaround;
+  private final int maxPendingFrameCount;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -103,8 +103,9 @@ public final class DefaultCodec implements Codec {
     boolean isVideo = MimeTypes.isVideo(checkNotNull(configurationFormat.sampleMimeType));
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
+    boolean requestedHdrToneMapping;
     try {
-      boolean requestedHdrToneMapping =
+      requestedHdrToneMapping =
           SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
@@ -133,7 +134,9 @@ public final class DefaultCodec implements Codec {
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
-    decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
+    maxPendingFrameCount =
+        Util.getMaxPendingFramesCountForMediaCodecEncoders(
+            context, mediaCodecName, requestedHdrToneMapping);
   }
 
   @Override
@@ -148,22 +151,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public int getMaxPendingFrameCount() {
-    if (decoderNeedsFrameDroppingWorkaround) {
-      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
-      // TODO(b/226330223): Investigate increasing this limit.
-      return 1;
-    }
-    if (Ascii.toUpperCase(getName()).startsWith("OMX.")) {
-      // Some OMX decoders don't correctly track their number of output buffers available, and get
-      // stuck if too many frames are rendered without being processed, so limit the number of
-      // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, b/229978305, and b/245491744.
-      // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
-      return 5;
-    }
-    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
-    // throughput.
-    return UNLIMITED_PENDING_FRAME_COUNT;
+    return maxPendingFrameCount;
   }
 
   @Override
@@ -417,7 +405,7 @@ public final class DefaultCodec implements Codec {
           mediaCodecName,
           isDecoder
               ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
-              : TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+              : TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
     }
     return TransformationException.createForUnexpected(cause);
   }
@@ -474,15 +462,6 @@ public final class DefaultCodec implements Codec {
     TraceUtil.beginSection("startCodec");
     codec.start();
     TraceUtil.endSection();
-  }
-
-  private static boolean decoderNeedsFrameDroppingWorkaround(Context context) {
-    // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-    // bounds. From API 29, if the app targets API 29 or later, the {@link
-    // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is full.
-    // Frame dropping is never desired, so a workaround is needed for older API levels.
-    return SDK_INT < 29
-        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
   }
 
   @RequiresApi(29)

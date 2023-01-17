@@ -33,21 +33,24 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.DecodeOneFrameUtil;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.FrameProcessor;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,9 +86,15 @@ public final class GlEffectsFrameProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/increase_brightness.png";
   public static final String GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/grayscale_then_increase_red_channel.png";
+  // This file is generated on a Pixel 7, because the emulator isn't able to decode HLG to generate
+  // this file.
+  public static final String TONE_MAP_HDR_TO_SDR_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_hdr_to_sdr.png";
 
   /** Input video of which we only use the first frame. */
-  private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
+  private static final String INPUT_SDR_MP4_ASSET_STRING = "media/mp4/sample.mp4";
+  /** Input HLG video of which we only use the first frame. */
+  private static final String INPUT_HLG_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
   /**
    * Time to wait for the decoded frame to populate the {@link GlEffectsFrameProcessor} instance's
    * input surface and the {@link GlEffectsFrameProcessor} to finish processing the frame, in
@@ -112,7 +121,7 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     String testId = "processData_noEdits";
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
+    setUpAndPrepareFirstFrame();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -127,7 +136,12 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void processData_withPixelWidthHeightRatio_producesExpectedOutput() throws Exception {
     String testId = "processData_withPixelWidthHeightRatio";
-    setUpAndPrepareFirstFrame(/* pixelWidthHeightRatio= */ 2f);
+    setUpAndPrepareFirstFrame(
+        INPUT_SDR_MP4_ASSET_STRING,
+        /* pixelWidthHeightRatio= */ 2f,
+        /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+        /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+        /* effects= */ ImmutableList.of());
     Bitmap expectedBitmap = readBitmap(SCALE_WIDE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -146,7 +160,6 @@ public final class GlEffectsFrameProcessorPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         (MatrixTransformation) (long presentationTimeNs) -> translateRightMatrix);
     Bitmap expectedBitmap = readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
@@ -166,7 +179,6 @@ public final class GlEffectsFrameProcessorPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix,
         new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Bitmap expectedBitmap = readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
@@ -187,7 +199,6 @@ public final class GlEffectsFrameProcessorPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         new ScaleToFitTransformation.Builder().setRotationDegrees(45).build(),
         (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix);
     Bitmap expectedBitmap = readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
@@ -205,7 +216,7 @@ public final class GlEffectsFrameProcessorPixelTest {
   public void processData_withPresentation_createForHeight_producesExpectedOutput()
       throws Exception {
     String testId = "processData_withPresentation_createForHeight";
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, Presentation.createForHeight(480));
+    setUpAndPrepareFirstFrame(Presentation.createForHeight(480));
     Bitmap expectedBitmap = readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -221,7 +232,6 @@ public final class GlEffectsFrameProcessorPixelTest {
   public void processData_withCropThenPresentation_producesExpectedOutput() throws Exception {
     String testId = "processData_withCropThenPresentation";
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         new Crop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ -.5f, /* top= */ .5f),
         Presentation.createForAspectRatio(
             /* aspectRatio= */ .5f, Presentation.LAYOUT_SCALE_TO_FIT));
@@ -241,7 +251,6 @@ public final class GlEffectsFrameProcessorPixelTest {
       throws Exception {
     String testId = "processData_withScaleToFitTransformation_rotate45";
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Bitmap expectedBitmap = readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
@@ -259,7 +268,6 @@ public final class GlEffectsFrameProcessorPixelTest {
       throws Exception {
     String testId = "processData_withTwoWrappedScaleToFitTransformations";
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         new GlEffectWrapper(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()),
         new GlEffectWrapper(
             new ScaleToFitTransformation.Builder()
@@ -290,10 +298,9 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
     full10StepRotationAndCenterCrop.add(centerCrop);
 
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, centerCrop);
+    setUpAndPrepareFirstFrame(centerCrop);
     Bitmap centerCropResultBitmap = processFirstFrameAndEnd();
-    setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, full10StepRotationAndCenterCrop.build());
+    setUpAndPrepareFirstFrame(full10StepRotationAndCenterCrop.build());
     Bitmap fullRotationAndCenterCropResultBitmap = processFirstFrameAndEnd();
 
     maybeSaveTestBitmapToCacheDirectory(
@@ -317,7 +324,7 @@ public final class GlEffectsFrameProcessorPixelTest {
             new RgbAdjustment.Builder().setRedScale(5).build(),
             new RgbAdjustment.Builder().setGreenScale(5).build(),
             new RgbAdjustment.Builder().setBlueScale(5).build());
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, increaseBrightness);
+    setUpAndPrepareFirstFrame(increaseBrightness);
     Bitmap expectedBitmap = readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -346,13 +353,11 @@ public final class GlEffectsFrameProcessorPixelTest {
             new Rotation(/* degrees= */ 90),
             centerCrop);
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         ImmutableList.of(
             new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
             centerCrop));
     Bitmap centerCropAndBrightnessIncreaseResultBitmap = processFirstFrameAndEnd();
-    setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, increaseBrightnessFullRotationCenterCrop);
+    setUpAndPrepareFirstFrame(increaseBrightnessFullRotationCenterCrop);
 
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap = processFirstFrameAndEnd();
 
@@ -375,11 +380,43 @@ public final class GlEffectsFrameProcessorPixelTest {
   public void drawFrame_grayscaleAndIncreaseRedChannel_producesGrayscaleAndRedImage()
       throws Exception {
     String testId = "drawFrame_grayscaleAndIncreaseRedChannel";
-    ImmutableList<Effect> grayscaleThenIncreaseRed =
-        ImmutableList.of(
-            RgbFilter.createGrayscaleFilter(), new RgbAdjustment.Builder().setRedScale(3).build());
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, grayscaleThenIncreaseRed);
+    setUpAndPrepareFirstFrame(
+        RgbFilter.createGrayscaleFilter(), new RgbAdjustment.Builder().setRedScale(3).build());
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  @Ignore("b/261877288 Test can only run on physical devices because decoder can't decode HLG.")
+  public void drawHlgFrame_toneMap_producesExpectedOutput() throws Exception {
+    // TODO(b/239735341): Move this test to mobileharness testing.
+    String testId = "drawHlgFrame_toneMap";
+    ColorInfo hlgColor =
+        new ColorInfo(
+            C.COLOR_SPACE_BT2020,
+            C.COLOR_RANGE_LIMITED,
+            C.COLOR_TRANSFER_HLG,
+            /* hdrStaticInfo= */ null);
+    ColorInfo toneMapSdrColor =
+        new ColorInfo(
+            C.COLOR_SPACE_BT709,
+            C.COLOR_RANGE_LIMITED,
+            C.COLOR_TRANSFER_GAMMA_2_2,
+            /* hdrStaticInfo= */ null);
+    setUpAndPrepareFirstFrame(
+        INPUT_HLG_MP4_ASSET_STRING,
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        /* inputColorInfo= */ hlgColor,
+        /* outputColorInfo= */ toneMapSdrColor,
+        /* effects= */ ImmutableList.of());
+    Bitmap expectedBitmap = readBitmap(TONE_MAP_HDR_TO_SDR_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -400,21 +437,39 @@ public final class GlEffectsFrameProcessorPixelTest {
    * <p>The frame will be sent towards {@link #glEffectsFrameProcessor}, and output may be accessed
    * on the {@code outputImageReader}.
    *
-   * @param pixelWidthHeightRatio The ratio of width over height for each pixel.
    * @param effects The {@link GlEffect GlEffects} to apply to the input frame.
    */
-  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, GlEffect... effects)
-      throws Exception {
-    setUpAndPrepareFirstFrame(pixelWidthHeightRatio, asList(effects));
+  private void setUpAndPrepareFirstFrame(GlEffect... effects) throws Exception {
+    setUpAndPrepareFirstFrame(asList(effects));
   }
 
-  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, List<Effect> effects)
+  private void setUpAndPrepareFirstFrame(List<Effect> effects) throws Exception {
+    setUpAndPrepareFirstFrame(
+        INPUT_SDR_MP4_ASSET_STRING,
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+        /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+        effects);
+  }
+
+  private void setUpAndPrepareFirstFrame(
+      String videoAssetPath,
+      float pixelWidthHeightRatio,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
+      List<Effect> effects)
       throws Exception {
     glEffectsFrameProcessor =
         checkNotNull(
             new GlEffectsFrameProcessor.Factory()
                 .create(
                     getApplicationContext(),
+                    effects,
+                    DebugViewProvider.NONE,
+                    inputColorInfo,
+                    outputColorInfo,
+                    /* releaseFramesAutomatically= */ true,
+                    MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
@@ -440,13 +495,9 @@ public final class GlEffectsFrameProcessorPixelTest {
                       public void onFrameProcessingEnded() {
                         frameProcessingEnded = true;
                       }
-                    },
-                    effects,
-                    DebugViewProvider.NONE,
-                    ColorInfo.SDR_BT709_LIMITED,
-                    /* releaseFramesAutomatically= */ true));
+                    }));
     DecodeOneFrameUtil.decodeOneAssetFileFrame(
-        INPUT_MP4_ASSET_STRING,
+        videoAssetPath,
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
@@ -496,14 +547,14 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     @Override
-    public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+    public Size configure(int inputWidth, int inputHeight) {
       adjustedTransformationMatrix = new Matrix();
       adjustedTransformationMatrix.postRotate(degrees);
       float inputAspectRatio = (float) inputWidth / inputHeight;
       adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
       adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
 
-      return Pair.create(inputWidth, inputHeight);
+      return new Size(inputWidth, inputHeight);
     }
 
     @Override

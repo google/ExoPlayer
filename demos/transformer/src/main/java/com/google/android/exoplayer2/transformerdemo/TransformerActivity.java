@@ -16,17 +16,24 @@
 package com.google.android.exoplayer2.transformerdemo;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -40,15 +47,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor;
+import com.google.android.exoplayer2.audio.SonicAudioProcessor;
+import com.google.android.exoplayer2.effect.BitmapOverlay;
 import com.google.android.exoplayer2.effect.Contrast;
+import com.google.android.exoplayer2.effect.DrawableOverlay;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlTextureProcessor;
 import com.google.android.exoplayer2.effect.HslAdjustment;
+import com.google.android.exoplayer2.effect.OverlayEffect;
+import com.google.android.exoplayer2.effect.OverlaySettings;
 import com.google.android.exoplayer2.effect.RgbAdjustment;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
 import com.google.android.exoplayer2.effect.SingleColorLut;
+import com.google.android.exoplayer2.effect.TextOverlay;
+import com.google.android.exoplayer2.effect.TextureOverlay;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.DefaultMuxer;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
@@ -59,6 +76,7 @@ import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.card.MaterialCardView;
@@ -179,19 +197,24 @@ public final class TransformerActivity extends AppCompatActivity {
     Uri uri = checkNotNull(intent.getData());
     try {
       externalCacheFile = createExternalCacheFile("transformer-output.mp4");
-      String filePath = externalCacheFile.getAbsolutePath();
-      @Nullable Bundle bundle = intent.getExtras();
-      MediaItem mediaItem = createMediaItem(bundle, uri);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+    String filePath = externalCacheFile.getAbsolutePath();
+    @Nullable Bundle bundle = intent.getExtras();
+    MediaItem mediaItem = createMediaItem(bundle, uri);
+    try {
       Transformer transformer = createTransformer(bundle, filePath);
       transformationStopwatch.start();
       transformer.startTransformation(mediaItem, filePath);
       this.transformer = transformer;
-    } catch (IOException e) {
+    } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);
     }
-    informationTextView.setText(R.string.transformation_started);
     inputCardView.setVisibility(View.GONE);
     outputPlayerView.setVisibility(View.GONE);
+    informationTextView.setText(R.string.transformation_started);
+    progressViewGroup.setVisibility(View.VISIBLE);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
     mainHandler.post(
@@ -199,8 +222,7 @@ public final class TransformerActivity extends AppCompatActivity {
           @Override
           public void run() {
             if (transformer != null
-                && transformer.getProgress(progressHolder)
-                    != Transformer.PROGRESS_STATE_NO_TRANSFORMATION) {
+                && transformer.getProgress(progressHolder) != PROGRESS_STATE_NOT_STARTED) {
               progressIndicator.setProgress(progressHolder.progress);
               informationTextView.setText(
                   getString(
@@ -241,7 +263,8 @@ public final class TransformerActivity extends AppCompatActivity {
     "progressViewGroup",
     "debugFrame",
   })
-  private Transformer createTransformer(@Nullable Bundle bundle, String filePath) {
+  private Transformer createTransformer(@Nullable Bundle bundle, String filePath)
+      throws PackageManager.NameNotFoundException {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
     if (bundle != null) {
       TransformationRequest.Builder requestBuilder = new TransformationRequest.Builder();
@@ -274,29 +297,40 @@ public final class TransformerActivity extends AppCompatActivity {
           .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+          .experimentalSetForceSilentAudio(
+              bundle.getBoolean(ConfigurationActivity.FORCE_SILENT_AUDIO))
           .setEncoderFactory(
               new DefaultEncoderFactory.Builder(this.getApplicationContext())
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
                   .build());
 
-      transformerBuilder.setVideoEffects(createVideoEffectsListFromBundle(bundle));
+      transformerBuilder.setAudioProcessors(createAudioProcessorsFromBundle(bundle));
+      transformerBuilder.setVideoEffects(createVideoEffectsFromBundle(bundle));
 
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
       }
+
+      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_TRANSFORMATION)) {
+        transformerBuilder.setMuxerFactory(
+            new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
+      }
     }
+
     return transformerBuilder
         .addListener(
             new Transformer.Listener() {
               @Override
               public void onTransformationCompleted(
-                  MediaItem mediaItem, TransformationResult transformationResult) {
+                  MediaItem mediaItem, TransformationResult result) {
                 TransformerActivity.this.onTransformationCompleted(filePath, mediaItem);
               }
 
               @Override
               public void onTransformationError(
-                  MediaItem mediaItem, TransformationException exception) {
+                  MediaItem mediaItem,
+                  TransformationResult result,
+                  TransformationException exception) {
                 TransformerActivity.this.onTransformationError(exception);
               }
             })
@@ -315,18 +349,48 @@ public final class TransformerActivity extends AppCompatActivity {
     return file;
   }
 
-  private ImmutableList<Effect> createVideoEffectsListFromBundle(Bundle bundle) {
+  private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {
     @Nullable
-    boolean[] selectedEffects =
-        bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
-    if (selectedEffects == null) {
+    boolean[] selectedAudioEffects =
+        bundle.getBooleanArray(ConfigurationActivity.AUDIO_EFFECTS_SELECTIONS);
+
+    if (selectedAudioEffects == null) {
       return ImmutableList.of();
     }
+
+    ImmutableList.Builder<AudioProcessor> processors = new ImmutableList.Builder<>();
+
+    if (selectedAudioEffects[ConfigurationActivity.HIGH_PITCHED_INDEX]
+        || selectedAudioEffects[ConfigurationActivity.SAMPLE_RATE_INDEX]) {
+      SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+      if (selectedAudioEffects[ConfigurationActivity.HIGH_PITCHED_INDEX]) {
+        sonicAudioProcessor.setPitch(2f);
+      }
+      if (selectedAudioEffects[ConfigurationActivity.SAMPLE_RATE_INDEX]) {
+        sonicAudioProcessor.setOutputSampleRateHz(48_000);
+      }
+      processors.add(sonicAudioProcessor);
+    }
+
+    if (selectedAudioEffects[ConfigurationActivity.SKIP_SILENCE_INDEX]) {
+      SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
+          new SilenceSkippingAudioProcessor();
+      silenceSkippingAudioProcessor.setEnabled(true);
+      processors.add(silenceSkippingAudioProcessor);
+    }
+
+    return processors.build();
+  }
+
+  private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle)
+      throws PackageManager.NameNotFoundException {
+    boolean[] selectedEffects =
+        checkStateNotNull(bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS));
     ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
-    if (selectedEffects[0]) {
+    if (selectedEffects[ConfigurationActivity.DIZZY_CROP_INDEX]) {
       effects.add(MatrixTransformationFactory.createDizzyCropEffect());
     }
-    if (selectedEffects[1]) {
+    if (selectedEffects[ConfigurationActivity.EDGE_DETECTOR_INDEX]) {
       try {
         Class<?> clazz =
             Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
@@ -359,7 +423,7 @@ public final class TransformerActivity extends AppCompatActivity {
         showToast(R.string.no_media_pipe_error);
       }
     }
-    if (selectedEffects[2]) {
+    if (selectedEffects[ConfigurationActivity.COLOR_FILTERS_INDEX]) {
       switch (bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION)) {
         case ConfigurationActivity.COLOR_FILTER_GRAYSCALE:
           effects.add(RgbFilter.createGrayscaleFilter());
@@ -385,7 +449,7 @@ public final class TransformerActivity extends AppCompatActivity {
                   + bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION));
       }
     }
-    if (selectedEffects[3]) {
+    if (selectedEffects[ConfigurationActivity.MAP_WHITE_TO_GREEN_LUT_INDEX]) {
       int length = 3;
       int[][][] mapWhiteToGreenLut = new int[length][length][length];
       int scale = 255 / (length - 1);
@@ -400,7 +464,7 @@ public final class TransformerActivity extends AppCompatActivity {
       mapWhiteToGreenLut[length - 1][length - 1][length - 1] = Color.GREEN;
       effects.add(SingleColorLut.createFromCube(mapWhiteToGreenLut));
     }
-    if (selectedEffects[4]) {
+    if (selectedEffects[ConfigurationActivity.RGB_ADJUSTMENTS_INDEX]) {
       effects.add(
           new RgbAdjustment.Builder()
               .setRedScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_RED_SCALE))
@@ -408,7 +472,7 @@ public final class TransformerActivity extends AppCompatActivity {
               .setBlueScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_BLUE_SCALE))
               .build());
     }
-    if (selectedEffects[5]) {
+    if (selectedEffects[ConfigurationActivity.HSL_ADJUSTMENT_INDEX]) {
       effects.add(
           new HslAdjustment.Builder()
               .adjustHue(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_HUE))
@@ -416,10 +480,10 @@ public final class TransformerActivity extends AppCompatActivity {
               .adjustLightness(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_LIGHTNESS))
               .build());
     }
-    if (selectedEffects[6]) {
+    if (selectedEffects[ConfigurationActivity.CONTRAST_INDEX]) {
       effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
     }
-    if (selectedEffects[7]) {
+    if (selectedEffects[ConfigurationActivity.PERIODIC_VIGNETTE_INDEX]) {
       effects.add(
           (GlEffect)
               (Context context, boolean useHdr) ->
@@ -434,16 +498,74 @@ public final class TransformerActivity extends AppCompatActivity {
                           ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
     }
-    if (selectedEffects[8]) {
+    if (selectedEffects[ConfigurationActivity.SPIN_3D_INDEX]) {
       effects.add(MatrixTransformationFactory.createSpin3dEffect());
     }
-    if (selectedEffects[9]) {
-      effects.add((GlEffect) BitmapOverlayProcessor::new);
-    }
-    if (selectedEffects[10]) {
+    if (selectedEffects[ConfigurationActivity.ZOOM_IN_INDEX]) {
       effects.add(MatrixTransformationFactory.createZoomInTransition());
     }
+
+    @Nullable OverlayEffect overlayEffect = createOverlayEffectFromBundle(bundle, selectedEffects);
+    if (overlayEffect != null) {
+      effects.add(overlayEffect);
+    }
+
     return effects.build();
+  }
+
+  @Nullable
+  private OverlayEffect createOverlayEffectFromBundle(Bundle bundle, boolean[] selectedEffects)
+      throws PackageManager.NameNotFoundException {
+    ImmutableList.Builder<TextureOverlay> overlaysBuilder = new ImmutableList.Builder<>();
+    if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
+      float[] logoPositioningMatrix = GlUtil.create4x4IdentityMatrix();
+      Matrix.translateM(
+          logoPositioningMatrix, /* mOffset= */ 0, /* x= */ -0.95f, /* y= */ -0.95f, /* z= */ 1);
+      OverlaySettings logoSettings =
+          new OverlaySettings.Builder()
+              .setMatrix(logoPositioningMatrix)
+              .setAnchor(/* x= */ -1f, /* y= */ -1f)
+              .build();
+      Drawable logo = getPackageManager().getApplicationIcon(getPackageName());
+      logo.setBounds(
+          /* left= */ 0, /* top= */ 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight());
+      TextureOverlay logoOverlay = DrawableOverlay.createStaticDrawableOverlay(logo, logoSettings);
+      TextureOverlay timerOverlay = new TimerOverlay();
+      overlaysBuilder.add(logoOverlay, timerOverlay);
+    }
+    if (selectedEffects[ConfigurationActivity.BITMAP_OVERLAY_INDEX]) {
+      OverlaySettings overlaySettings =
+          new OverlaySettings.Builder()
+              .setAlpha(
+                  bundle.getFloat(
+                      ConfigurationActivity.BITMAP_OVERLAY_ALPHA, /* defaultValue= */ 1))
+              .build();
+      BitmapOverlay bitmapOverlay =
+          BitmapOverlay.createStaticBitmapOverlay(
+              Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
+              overlaySettings);
+      overlaysBuilder.add(bitmapOverlay);
+    }
+    if (selectedEffects[ConfigurationActivity.TEXT_OVERLAY_INDEX]) {
+      OverlaySettings overlaySettings =
+          new OverlaySettings.Builder()
+              .setAlpha(
+                  bundle.getFloat(ConfigurationActivity.TEXT_OVERLAY_ALPHA, /* defaultValue= */ 1))
+              .build();
+      SpannableString overlayText =
+          new SpannableString(
+              checkNotNull(bundle.getString(ConfigurationActivity.TEXT_OVERLAY_TEXT)));
+      overlayText.setSpan(
+          new ForegroundColorSpan(bundle.getInt(ConfigurationActivity.TEXT_OVERLAY_TEXT_COLOR)),
+          /* start= */ 0,
+          overlayText.length(),
+          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      TextOverlay textOverlay = TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
+      overlaysBuilder.add(textOverlay);
+    }
+
+    ImmutableList<TextureOverlay> overlays = overlaysBuilder.build();
+    return overlays.isEmpty() ? null : new OverlayEffect(overlays);
   }
 
   @RequiresNonNull({
@@ -453,7 +575,9 @@ public final class TransformerActivity extends AppCompatActivity {
     "transformationStopwatch",
   })
   private void onTransformationError(TransformationException exception) {
-    transformationStopwatch.stop();
+    if (transformationStopwatch.isRunning()) {
+      transformationStopwatch.stop();
+    }
     informationTextView.setText(R.string.transformation_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();

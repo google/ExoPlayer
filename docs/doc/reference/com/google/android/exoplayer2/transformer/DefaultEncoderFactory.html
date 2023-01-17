@@ -86,8 +86,8 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -143,20 +143,28 @@ implements <a href="Codec.EncoderFactory.html" title="interface in com.google.an
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
-<li class="blockList"><a id="field.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
-<h3>Field Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.transformer.Codec.EncoderFactory">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.transformer.<a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.EncoderFactory</a></h3>
-<code><a href="Codec.EncoderFactory.html#DEFAULT">DEFAULT</a></code></li>
-</ul>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer">DefaultEncoderFactory.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block">A builder for <a href="DefaultEncoderFactory.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory</code></a> instances.</div>
+</td>
+</tr>
+</table>
 </li>
 </ul>
 </section>
@@ -174,25 +182,32 @@ implements <a href="Codec.EncoderFactory.html" title="interface in com.google.an
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultEncoderFactory</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">DefaultEncoderFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
-<div class="block">Creates a new instance using the <a href="EncoderSelector.html#DEFAULT"><code>default encoder selector</code></a>, a
- default <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings</code></a>, and with format fallback enabled.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory.Builder</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.transformer.EncoderSelector,boolean)">DefaultEncoderFactory</a></span>&#8203;(<a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.transformer.EncoderSelector,boolean)">DefaultEncoderFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                     <a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
                      boolean&nbsp;enableFallback)</code></th>
 <td class="colLast">
-<div class="block">Creates a new instance using a default <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory.Builder</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.transformer.EncoderSelector,com.google.android.exoplayer2.transformer.VideoEncoderSettings,boolean)">DefaultEncoderFactory</a></span>&#8203;(<a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.transformer.EncoderSelector,com.google.android.exoplayer2.transformer.VideoEncoderSettings,boolean)">DefaultEncoderFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                     <a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
                      <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings</a>&nbsp;requestedVideoEncoderSettings,
                      boolean&nbsp;enableFallback)</code></th>
 <td class="colLast">
-<div class="block">Creates a new instance.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory.Builder</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -267,57 +282,48 @@ implements <a href="Codec.EncoderFactory.html" title="interface in com.google.an
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;()">
+<a id="&lt;init&gt;(android.content.Context)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultEncoderFactory</h4>
-<pre>public&nbsp;DefaultEncoderFactory()</pre>
-<div class="block">Creates a new instance using the <a href="EncoderSelector.html#DEFAULT"><code>default encoder selector</code></a>, a
- default <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings</code></a>, and with format fallback enabled.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;DefaultEncoderFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory.Builder</code></a> instead.</div>
+</div>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.transformer.EncoderSelector,boolean)">
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.transformer.EncoderSelector,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultEncoderFactory</h4>
-<pre>public&nbsp;DefaultEncoderFactory&#8203;(<a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;DefaultEncoderFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                             <a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
                              boolean&nbsp;enableFallback)</pre>
-<div class="block">Creates a new instance using a default <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory.Builder</code></a> instead.</div>
+</div>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.transformer.EncoderSelector,com.google.android.exoplayer2.transformer.VideoEncoderSettings,boolean)">
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.transformer.EncoderSelector,com.google.android.exoplayer2.transformer.VideoEncoderSettings,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultEncoderFactory</h4>
-<pre>public&nbsp;DefaultEncoderFactory&#8203;(<a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;DefaultEncoderFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                             <a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a>&nbsp;videoEncoderSelector,
                              <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings</a>&nbsp;requestedVideoEncoderSettings,
                              boolean&nbsp;enableFallback)</pre>
-<div class="block">Creates a new instance.
-
- <p>With format fallback enabled, when the requested <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is not supported, <code>
- DefaultEncoderFactory</code> finds a format that is supported by the device and configures the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> with it. The fallback process may change the requested <a href="../Format.html#sampleMimeType"><code>MIME
- type</code></a>, resolution, <a href="../Format.html#bitrate"><code>bitrate</code></a>, <a href="../Format.html#codecs"><code>profile/level</code></a> etc.
-
- <p>Values in <code>requestedVideoEncoderSettings</code> could be adjusted to improve encoding
- quality and/or reduce failures. Specifically, <a href="VideoEncoderSettings.html#profile"><code>VideoEncoderSettings.profile</code></a> and <a href="VideoEncoderSettings.html#level"><code>VideoEncoderSettings.level</code></a> are ignored for <a href="../util/MimeTypes.html#VIDEO_H264"><code>MimeTypes.VIDEO_H264</code></a>. Consider implementing
- <a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.EncoderFactory</code></a> if such adjustments are unwanted.
-
- <p><code>requestedVideoEncoderSettings</code> should be handled with care because there is no
- fallback support for it. For example, using incompatible <a href="VideoEncoderSettings.html#profile"><code>VideoEncoderSettings.profile</code></a>
- and <a href="VideoEncoderSettings.html#level"><code>VideoEncoderSettings.level</code></a> can cause codec configuration failure. Setting an
- unsupported <a href="VideoEncoderSettings.html#bitrateMode"><code>VideoEncoderSettings.bitrateMode</code></a> may cause encoder instantiation failure.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>videoEncoderSelector</code> - The <a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer"><code>EncoderSelector</code></a>.</dd>
-<dd><code>requestedVideoEncoderSettings</code> - The <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings</code></a>.</dd>
-<dd><code>enableFallback</code> - Whether to enable fallback.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory.Builder</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>
@@ -457,8 +463,8 @@ implements <a href="Codec.EncoderFactory.html" title="interface in com.google.an
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

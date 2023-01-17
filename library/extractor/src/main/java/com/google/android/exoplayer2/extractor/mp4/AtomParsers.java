@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ExtractorUtil;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.extractor.mp4.Atom.LeafAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
@@ -308,9 +309,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     Pair<Long, String> mdhdData =
         parseMdhd(checkNotNull(mdia.getLeafAtomOfType(Atom.TYPE_mdhd)).data);
+    LeafAtom stsd = stbl.getLeafAtomOfType(Atom.TYPE_stsd);
+    if (stsd == null) {
+      throw ParserException.createForMalformedContainer(
+          "Malformed sample table (stbl) missing sample description (stsd)", /* cause= */ null);
+    }
     StsdData stsdData =
         parseStsd(
-            checkNotNull(stbl.getLeafAtomOfType(Atom.TYPE_stsd)).data,
+            stsd.data,
             tkhdData.id,
             tkhdData.rotationDegrees,
             mdhdData.second,
@@ -1515,7 +1521,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             childAtomType == Atom.TYPE_esds
                 ? childPosition
                 : findBoxPosition(parent, Atom.TYPE_esds, childPosition, childAtomSize);
-        if (esdsAtomPosition != C.POSITION_UNSET) {
+        if (esdsAtomPosition != C.INDEX_UNSET) {
           esdsData = parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = esdsData.mimeType;
           @Nullable byte[] initializationDataBytes = esdsData.initializationData;
@@ -1623,7 +1629,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /**
    * Returns the position of the first box with the given {@code boxType} within {@code parent}, or
-   * {@link C#POSITION_UNSET} if no such box is found.
+   * {@link C#INDEX_UNSET} if no such box is found.
    *
    * @param parent The {@link ParsableByteArray} to search. The search will start from the {@link
    *     ParsableByteArray#getPosition() current position}.
@@ -1631,7 +1637,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param parentBoxPosition The position in {@code parent} of the box we are searching.
    * @param parentBoxSize The size of the parent box we are searching in bytes.
    * @return The position of the first box with the given {@code boxType} within {@code parent}, or
-   *     {@link C#POSITION_UNSET} if no such box is found.
+   *     {@link C#INDEX_UNSET} if no such box is found.
    */
   private static int findBoxPosition(
       ParsableByteArray parent, int boxType, int parentBoxPosition, int parentBoxSize)
@@ -1648,7 +1654,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       childAtomPosition += childAtomSize;
     }
-    return C.POSITION_UNSET;
+    return C.INDEX_UNSET;
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */
@@ -1736,7 +1742,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /* package */ static Pair<Integer, TrackEncryptionBox> parseCommonEncryptionSinfFromParent(
       ParsableByteArray parent, int position, int size) throws ParserException {
     int childPosition = position + Atom.HEADER_SIZE;
-    int schemeInformationBoxPosition = C.POSITION_UNSET;
+    int schemeInformationBoxPosition = C.INDEX_UNSET;
     int schemeInformationBoxSize = 0;
     @Nullable String schemeType = null;
     @Nullable Integer dataFormat = null;
@@ -1763,7 +1769,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         || C.CENC_TYPE_cbcs.equals(schemeType)) {
       ExtractorUtil.checkContainerInput(dataFormat != null, "frma atom is mandatory");
       ExtractorUtil.checkContainerInput(
-          schemeInformationBoxPosition != C.POSITION_UNSET, "schi atom is mandatory");
+          schemeInformationBoxPosition != C.INDEX_UNSET, "schi atom is mandatory");
       @Nullable
       TrackEncryptionBox encryptionBox =
           parseSchiFromParent(

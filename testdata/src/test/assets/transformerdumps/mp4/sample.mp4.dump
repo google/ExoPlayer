@@ -7,7 +7,7 @@ format 0:
   channelCount = 1
   sampleRate = 44100
   language = und
-  metadata = entries=[TSSE: description=null: value=Lavf56.1.0]
+  metadata = entries=[TSSE: description=null: values=[Lavf56.1.0]]
   initializationData:
     data = length 2, hash 5F7
 format 1:
@@ -21,6 +21,12 @@ format 1:
   initializationData:
     data = length 29, hash 4746B5D9
     data = length 10, hash 7A0D0F2B
+sample:
+  trackIndex = 0
+  dataHashCode = 1205768497
+  size = 23
+  isKeyFrame = true
+  presentationTimeUs = 44000
 sample:
   trackIndex = 1
   dataHashCode = -770308242
@@ -106,18 +112,6 @@ sample:
   isKeyFrame = false
   presentationTimeUs = 367033
 sample:
-  trackIndex = 1
-  dataHashCode = -261176150
-  size = 5450
-  isKeyFrame = false
-  presentationTimeUs = 567233
-sample:
-  trackIndex = 0
-  dataHashCode = 1205768497
-  size = 23
-  isKeyFrame = true
-  presentationTimeUs = 44000
-sample:
   trackIndex = 0
   dataHashCode = 837571078
   size = 6
@@ -129,6 +123,12 @@ sample:
   size = 148
   isKeyFrame = true
   presentationTimeUs = 90439
+sample:
+  trackIndex = 1
+  dataHashCode = -261176150
+  size = 5450
+  isKeyFrame = false
+  presentationTimeUs = 567233
 sample:
   trackIndex = 0
   dataHashCode = -822987359
@@ -238,11 +238,35 @@ sample:
   isKeyFrame = true
   presentationTimeUs = 508399
 sample:
+  trackIndex = 0
+  dataHashCode = 1675188486
+  size = 228
+  isKeyFrame = true
+  presentationTimeUs = 531619
+sample:
+  trackIndex = 0
+  dataHashCode = 888567545
+  size = 238
+  isKeyFrame = true
+  presentationTimeUs = 554839
+sample:
+  trackIndex = 0
+  dataHashCode = -439631803
+  size = 234
+  isKeyFrame = true
+  presentationTimeUs = 578058
+sample:
   trackIndex = 1
   dataHashCode = -1830836678
   size = 1051
   isKeyFrame = false
   presentationTimeUs = 500500
+sample:
+  trackIndex = 0
+  dataHashCode = 1606694497
+  size = 231
+  isKeyFrame = true
+  presentationTimeUs = 601278
 sample:
   trackIndex = 1
   dataHashCode = 1767407540
@@ -327,30 +351,6 @@ sample:
   size = 568
   isKeyFrame = false
   presentationTimeUs = 934266
-sample:
-  trackIndex = 0
-  dataHashCode = 1675188486
-  size = 228
-  isKeyFrame = true
-  presentationTimeUs = 531619
-sample:
-  trackIndex = 0
-  dataHashCode = 888567545
-  size = 238
-  isKeyFrame = true
-  presentationTimeUs = 554839
-sample:
-  trackIndex = 0
-  dataHashCode = -439631803
-  size = 234
-  isKeyFrame = true
-  presentationTimeUs = 578058
-sample:
-  trackIndex = 0
-  dataHashCode = 1606694497
-  size = 231
-  isKeyFrame = true
-  presentationTimeUs = 601278
 sample:
   trackIndex = 0
   dataHashCode = 1747388653

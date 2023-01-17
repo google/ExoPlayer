@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 
 import android.content.Context;
+import android.media.MediaFormat;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -35,13 +36,19 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
   private static final String TAG = "AndroidTestUtil";
+
+  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
+  public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+  /**
+   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
+   */
+  public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
   // Format values are sourced from `mediainfo` command.
 
@@ -86,8 +93,7 @@ public final class AndroidTestUtil {
           .setFrameRate(30.472f)
           .build();
 
-  public static final String MP4_ASSET_1080P_5_SECOND_HLG10 =
-      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4";
+  public static final String MP4_ASSET_1080P_5_SECOND_HLG10 = "asset:///media/mp4/hlg-1080p.mp4";
   public static final Format MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H265)
@@ -101,8 +107,7 @@ public final class AndroidTestUtil {
                   C.COLOR_TRANSFER_HLG,
                   /* hdrStaticInfo= */ null))
           .build();
-  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
-      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
+  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 = "asset:///media/mp4/hdr10-1080p.mp4";
   public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H265)
@@ -464,15 +469,13 @@ public final class AndroidTestUtil {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      return encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    public Codec createForAudioEncoding(Format format) throws TransformationException {
+      return encoderFactory.createForAudioEncoding(format);
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      return encoderFactory.createForVideoEncoding(format, allowedMimeTypes);
+    public Codec createForVideoEncoding(Format format) throws TransformationException {
+      return encoderFactory.createForVideoEncoding(format);
     }
 
     @Override
@@ -499,11 +502,20 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Converts an exception to a {@link JSONObject}.
+   * Creates a {@link JSONObject} from the {@link Exception}.
    *
    * <p>If the exception is a {@link TransformationException}, {@code errorCode} is included.
+   *
+   * @param exception The {@link Exception}.
+   * @return The {@link JSONObject} containing the exception details, or {@code null} if the
+   *     exception was {@code null}.
    */
-  public static JSONObject exceptionAsJsonObject(Exception exception) throws JSONException {
+  @Nullable
+  public static JSONObject exceptionAsJsonObject(@Nullable Exception exception)
+      throws JSONException {
+    if (exception == null) {
+      return null;
+    }
     JSONObject exceptionJson = new JSONObject();
     exceptionJson.put("message", exception.getMessage());
     exceptionJson.put("type", exception.getClass());

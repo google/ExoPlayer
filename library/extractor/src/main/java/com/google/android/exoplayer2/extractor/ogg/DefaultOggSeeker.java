@@ -109,7 +109,7 @@ import java.io.IOException;
         return positionBeforeSeekToEnd;
       case STATE_SEEK:
         long position = getNextSeekPosition(input);
-        if (position != C.POSITION_UNSET) {
+        if (position != C.INDEX_UNSET) {
           return position;
         }
         state = STATE_SKIP;
@@ -142,18 +142,18 @@ import java.io.IOException;
 
   /**
    * Performs a single step of a seeking binary search, returning the byte position from which data
-   * should be provided for the next step, or {@link C#POSITION_UNSET} if the search has converged.
-   * If the search has converged then {@link #skipToPageOfTargetGranule(ExtractorInput)} should be
+   * should be provided for the next step, or {@link C#INDEX_UNSET} if the search has converged. If
+   * the search has converged then {@link #skipToPageOfTargetGranule(ExtractorInput)} should be
    * called to skip to the target page.
    *
    * @param input The {@link ExtractorInput} to read from.
    * @return The byte position from which data should be provided for the next step, or {@link
-   *     C#POSITION_UNSET} if the search has converged.
+   *     C#INDEX_UNSET} if the search has converged.
    * @throws IOException If reading from the input fails.
    */
   private long getNextSeekPosition(ExtractorInput input) throws IOException {
     if (start == end) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
 
     long currentPosition = input.getPosition();
@@ -170,7 +170,7 @@ import java.io.IOException;
     long granuleDistance = targetGranule - pageHeader.granulePosition;
     int pageSize = pageHeader.headerSize + pageHeader.bodySize;
     if (0 <= granuleDistance && granuleDistance < MATCH_RANGE) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
 
     if (granuleDistance < 0) {

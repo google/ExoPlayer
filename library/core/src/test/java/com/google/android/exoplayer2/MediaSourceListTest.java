@@ -64,7 +64,7 @@ public class MediaSourceListTest {
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
             analyticsCollector,
-            Util.createHandlerForCurrentOrMainLooper(),
+            Clock.DEFAULT.createHandler(Util.getCurrentOrMainLooper(), /* callback= */ null),
             PlayerId.UNSET);
   }
 

@@ -15,10 +15,13 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.C.MICROS_PER_SECOND;
 import static com.google.android.exoplayer2.audio.DefaultAudioSink.OUTPUT_MODE_PASSTHROUGH;
+import static com.google.android.exoplayer2.audio.DefaultAudioTrackBufferSizeProvider.getMaximumEncodedRateBytesPerSecond;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +46,8 @@ public class DefaultAudioTrackBufferSizeProviderEncodedTest {
         C.ENCODING_MP3,
         C.ENCODING_AAC_LC,
         C.ENCODING_AAC_HE_V1,
+        C.ENCODING_E_AC3,
+        C.ENCODING_E_AC3_JOC,
         C.ENCODING_AC4,
         C.ENCODING_DTS,
         C.ENCODING_DOLBY_TRUEHD);
@@ -57,8 +62,46 @@ public class DefaultAudioTrackBufferSizeProviderEncodedTest {
             /* outputMode= */ OUTPUT_MODE_PASSTHROUGH,
             /* pcmFrameSize= */ 1,
             /* sampleRate= */ 0,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 0);
 
     assertThat(bufferSize).isEqualTo(123456789);
+  }
+
+  @Test
+  public void
+      getBufferSizeInBytes_passThroughAndBitrateNotSet_returnsBufferSizeWithAssumedBitrate() {
+    int bufferSize =
+        DEFAULT.getBufferSizeInBytes(
+            /* minBufferSizeInBytes= */ 0,
+            /* encoding= */ encoding,
+            /* outputMode= */ OUTPUT_MODE_PASSTHROUGH,
+            /* pcmFrameSize= */ 1,
+            /* sampleRate= */ 0,
+            /* bitrate= */ Format.NO_VALUE,
+            /* maxAudioTrackPlaybackSpeed= */ 1);
+
+    assertThat(bufferSize)
+        .isEqualTo(durationUsToMaxBytes(encoding, DEFAULT.passthroughBufferDurationUs));
+  }
+
+  @Test
+  public void getBufferSizeInBytes_passthroughAndBitrateDefined() {
+    int bufferSize =
+        DEFAULT.getBufferSizeInBytes(
+            /* minBufferSizeInBytes= */ 0,
+            /* encoding= */ encoding,
+            /* outputMode= */ OUTPUT_MODE_PASSTHROUGH,
+            /* pcmFrameSize= */ 1,
+            /* sampleRate= */ 0,
+            /* bitrate= */ 256_000,
+            /* maxAudioTrackPlaybackSpeed= */ 1);
+
+    // Default buffer duration is 250ms => 0.25 * 256000 / 8 = 8000
+    assertThat(bufferSize).isEqualTo(8000);
+  }
+
+  private static int durationUsToMaxBytes(@C.Encoding int encoding, long durationUs) {
+    return (int) (durationUs * getMaximumEncodedRateBytesPerSecond(encoding) / MICROS_PER_SECOND);
   }
 }

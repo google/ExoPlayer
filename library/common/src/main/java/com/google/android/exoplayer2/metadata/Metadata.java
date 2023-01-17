@@ -52,11 +52,8 @@ public final class Metadata implements Parcelable {
     }
 
     /**
-     * Updates the {@link MediaMetadata.Builder} with the type specific values stored in this Entry.
-     *
-     * <p>The order of the {@link Entry} objects in the {@link Metadata} matters. If two {@link
-     * Entry} entries attempt to populate the same {@link MediaMetadata} field, then the last one in
-     * the list is used.
+     * Updates the {@link MediaMetadata.Builder} with the type-specific values stored in this {@code
+     * Entry}.
      *
      * @param builder The builder to be updated.
      */

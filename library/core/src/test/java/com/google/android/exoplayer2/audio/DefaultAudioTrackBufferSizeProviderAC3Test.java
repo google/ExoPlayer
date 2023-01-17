@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,7 +35,7 @@ public class DefaultAudioTrackBufferSizeProviderAC3Test {
 
   @Test
   public void
-      getBufferSizeInBytes_passthroughAC3_isPassthroughBufferSizeTimesMultiplicationFactor() {
+      getBufferSizeInBytes_passthroughAc3AndNoBitrate_assumesMaxByteRateTimesMultiplicationFactor() {
     int bufferSize =
         DEFAULT.getBufferSizeInBytes(
             /* minBufferSizeInBytes= */ 0,
@@ -42,12 +43,30 @@ public class DefaultAudioTrackBufferSizeProviderAC3Test {
             /* outputMode= */ OUTPUT_MODE_PASSTHROUGH,
             /* pcmFrameSize= */ 1,
             /* sampleRate= */ 0,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize)
         .isEqualTo(
             durationUsToAc3MaxBytes(DEFAULT.passthroughBufferDurationUs)
                 * DEFAULT.ac3BufferMultiplicationFactor);
+  }
+
+  @Test
+  public void
+      getBufferSizeInBytes_passthroughAC3At256Kbits_isPassthroughBufferSizeTimesMultiplicationFactor() {
+    int bufferSize =
+        DEFAULT.getBufferSizeInBytes(
+            /* minBufferSizeInBytes= */ 0,
+            /* encoding= */ C.ENCODING_AC3,
+            /* outputMode= */ OUTPUT_MODE_PASSTHROUGH,
+            /* pcmFrameSize= */ 1,
+            /* sampleRate= */ 0,
+            /* bitrate= */ 256_000,
+            /* maxAudioTrackPlaybackSpeed= */ 1);
+
+    // Default buffer duration 0.25s => 0.25 * 256000 / 8 = 8000
+    assertThat(bufferSize).isEqualTo(8000 * DEFAULT.ac3BufferMultiplicationFactor);
   }
 
   private static int durationUsToAc3MaxBytes(long durationUs) {

@@ -18,8 +18,10 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 
@@ -32,6 +34,7 @@ import com.google.android.exoplayer2.util.Util;
   private final MediaItem mediaItem;
   private final TransformationRequest originalTransformationRequest;
   private final ListenerSet<Transformer.Listener> transformerListeners;
+  private final HandlerWrapper transformerListenerHandler;
 
   private TransformationRequest fallbackTransformationRequest;
   private int trackCount;
@@ -40,28 +43,32 @@ import com.google.android.exoplayer2.util.Util;
    * Creates a new instance.
    *
    * @param mediaItem The {@link MediaItem} to transform.
-   * @param transformerListeners The {@linkplain Transformer.Listener listeners} to forward events
-   *     to.
+   * @param transformerListeners The {@linkplain Transformer.Listener listeners} to call {@link
+   *     Transformer.Listener#onFallbackApplied} on.
+   * @param transformerListenerHandler The {@link HandlerWrapper} to call {@link
+   *     Transformer.Listener#onFallbackApplied} events on.
    * @param originalTransformationRequest The original {@link TransformationRequest}.
    */
   public FallbackListener(
       MediaItem mediaItem,
       ListenerSet<Transformer.Listener> transformerListeners,
+      HandlerWrapper transformerListenerHandler,
       TransformationRequest originalTransformationRequest) {
     this.mediaItem = mediaItem;
     this.transformerListeners = transformerListeners;
+    this.transformerListenerHandler = transformerListenerHandler;
     this.originalTransformationRequest = originalTransformationRequest;
     this.fallbackTransformationRequest = originalTransformationRequest;
   }
 
   /**
-   * Registers an output track.
+   * Sets the number of output tracks.
    *
-   * <p>All tracks must be registered before a transformation request is {@linkplain
+   * <p>The track count must be set before a transformation request is {@linkplain
    * #onTransformationRequestFinalized(TransformationRequest) finalized}.
    */
-  public void registerTrack() {
-    trackCount++;
+  public void setTrackCount(@IntRange(from = 1) int trackCount) {
+    this.trackCount = trackCount;
   }
 
   /**
@@ -76,8 +83,8 @@ import com.google.android.exoplayer2.util.Util;
    * TransformationRequest)} once this method has been called for each track.
    *
    * @param transformationRequest The final {@link TransformationRequest} for a track.
-   * @throws IllegalStateException If called for more tracks than registered using {@link
-   *     #registerTrack()}.
+   * @throws IllegalStateException If called for more tracks than declared in {@link
+   *     #setTrackCount(int)}.
    */
   public void onTransformationRequestFinalized(TransformationRequest transformationRequest) {
     checkState(trackCount-- > 0);
@@ -98,15 +105,19 @@ import com.google.android.exoplayer2.util.Util;
     if (transformationRequest.hdrMode != originalTransformationRequest.hdrMode) {
       fallbackRequestBuilder.setHdrMode(transformationRequest.hdrMode);
     }
-    fallbackTransformationRequest = fallbackRequestBuilder.build();
+    TransformationRequest newFallbackTransformationRequest = fallbackRequestBuilder.build();
+    fallbackTransformationRequest = newFallbackTransformationRequest;
 
     if (trackCount == 0 && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
-      transformerListeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener ->
-              listener.onFallbackApplied(
-                  mediaItem, originalTransformationRequest, fallbackTransformationRequest));
-      transformerListeners.flushEvents();
+      transformerListenerHandler.post(
+          () ->
+              transformerListeners.sendEvent(
+                  /* eventFlag= */ C.INDEX_UNSET,
+                  listener ->
+                      listener.onFallbackApplied(
+                          mediaItem,
+                          originalTransformationRequest,
+                          newFallbackTransformationRequest)));
     }
   }
 }

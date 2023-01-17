@@ -23,6 +23,7 @@ com.google.android.exoplayer2.database com.google.android.exoplayer2.database
 com.google.android.exoplayer2.decoder com.google.android.exoplayer2.decoder
 com.google.android.exoplayer2.demo com.google.android.exoplayer2.demo
 com.google.android.exoplayer2.drm com.google.android.exoplayer2.drm
+com.google.android.exoplayer2.effect com.google.android.exoplayer2.effect
 com.google.android.exoplayer2.ext.av1 com.google.android.exoplayer2.ext.av1
 com.google.android.exoplayer2.ext.cast com.google.android.exoplayer2.ext.cast
 com.google.android.exoplayer2.ext.cronet com.google.android.exoplayer2.ext.cronet
@@ -63,7 +64,6 @@ com.google.android.exoplayer2.util com.google.android.exoplayer2.util
 com.google.android.exoplayer2.util com.google.android.exoplayer2.util
 com.google.android.exoplayer2.video com.google.android.exoplayer2.video'
 
-
 CLASS_RENAMINGS='com.google.android.exoplayer2.ui.StyledPlayerView com.google.android.exoplayer2.ui.PlayerView
 StyledPlayerView PlayerView
 com.google.android.exoplayer2.ui.StyledPlayerControlView com.google.android.exoplayer2.ui.PlayerControlView
@@ -77,11 +77,12 @@ CLASS_MAPPINGS='com.google.android.exoplayer2.text.span androidx.media3.common.t
 com.google.android.exoplayer2.text androidx.media3.common.text CueGroup Cue
 com.google.android.exoplayer2.text com.google.android.exoplayer2.text ExoplayerCuesDecoder SubtitleDecoderFactory TextOutput TextRenderer
 com.google.android.exoplayer2.upstream.crypto com.google.android.exoplayer2.upstream AesCipherDataSource AesCipherDataSink AesFlushingCipher
-com.google.android.exoplayer2.util com.google.android.exoplayer2.util AtomicFile Assertions BundleableUtil BundleUtil Clock ClosedSource CodecSpecificDataUtil ColorParser ConditionVariable Consumer CopyOnWriteMultiset EGLSurfaceTexture GlProgram GlUtil HandlerWrapper LibraryLoader ListenerSet Log LongArray MediaFormatUtil NetworkTypeObserver NonNullApi NotificationUtil ParsableBitArray ParsableByteArray RepeatModeUtil RunnableFutureTask SystemClock SystemHandlerWrapper TimedValueQueue TimestampAdjuster TraceUtil UnknownNull UnstableApi UriUtil Util XmlPullParserUtil
-com.google.android.exoplayer2.util androidx.media3.common ErrorMessageProvider FlagSet FileTypes MimeTypes PriorityTaskManager
+com.google.android.exoplayer2.util com.google.android.exoplayer2.util AtomicFile Assertions BundleableUtil BundleUtil Clock ClosedSource CodecSpecificDataUtil ColorParser ConditionVariable Consumer CopyOnWriteMultiset EGLSurfaceTexture GlProgram GlUtil HandlerWrapper LibraryLoader ListenerSet Log LongArray MediaFormatUtil NetworkTypeObserver NonNullApi NotificationUtil ParsableBitArray ParsableByteArray RepeatModeUtil RunnableFutureTask Size SystemClock SystemHandlerWrapper TimedValueQueue TimestampAdjuster TraceUtil UnknownNull UnstableApi UriUtil Util XmlPullParserUtil
+com.google.android.exoplayer2.util androidx.media3.common DebugViewProvider Effect ErrorMessageProvider FlagSet FileTypes FrameInfo FrameProcessingException FrameProcessor MimeTypes PriorityTaskManager SurfaceInfo
 com.google.android.exoplayer2.metadata androidx.media3.common Metadata
 com.google.android.exoplayer2.metadata com.google.android.exoplayer2.metadata MetadataDecoderFactory MetadataOutput MetadataRenderer
 com.google.android.exoplayer2.audio androidx.media3.common AudioAttributes AuxEffectInfo
+com.google.android.exoplayer2.audio com.google.android.exoplayer2.audio AudioProcessingPipeline AudioProcessor AudioProcessorChain
 com.google.android.exoplayer2.ui androidx.media3.common AdOverlayInfo AdViewProvider
 com.google.android.exoplayer2.source.ads androidx.media3.common AdPlaybackState
 com.google.android.exoplayer2.source androidx.media3.common MediaPeriodId TrackGroup
@@ -97,7 +98,7 @@ com.google.android.exoplayer2.video com.google.android.exoplayer2.extractor AvcC
 com.google.android.exoplayer2.decoder com.google.android.exoplayer2 DecoderCounters DecoderReuseEvaluation
 com.google.android.exoplayer2.util com.google.android.exoplayer2 MediaClock StandaloneMediaClock
 com.google.android.exoplayer2 com.google.android.exoplayer2 FormatHolder PlayerMessage
-com.google.android.exoplayer2 androidx.media3.common BasePlayer BundleListRetriever Bundleable ControlDispatcher C DefaultControlDispatcher DeviceInfo ErrorMessageProvider ExoPlayerLibraryInfo Format ForwardingPlayer HeartRating IllegalSeekPositionException MediaItem MediaMetadata ParserException PercentageRating PlaybackException PlaybackParameters Player PositionInfo Rating StarRating ThumbRating Timeline Tracks
+com.google.android.exoplayer2 androidx.media3.common BasePlayer BundleListRetriever Bundleable ControlDispatcher C DefaultControlDispatcher DeviceInfo ErrorMessageProvider ExoPlayerLibraryInfo Format ForwardingPlayer HeartRating IllegalSeekPositionException LegacyMediaPlayerWrapper MediaItem MediaMetadata ParserException PercentageRating PlaybackException PlaybackParameters Player PositionInfo Rating SimpleBasePlayer StarRating ThumbRating Timeline Tracks
 com.google.android.exoplayer2.drm androidx.media3.common DrmInitData'
 
 DEPENDENCY_MAPPINGS='exoplayer media3-exoplayer
@@ -114,6 +115,7 @@ exoplayer-rtsp media3-exoplayer-rtsp
 exoplayer-smoothstreaming media3-exoplayer-smoothstreaming
 exoplayer-testutils media3-test-utils
 exoplayer-transformer media3-transformer
+exoplayer-effect media3-effect
 exoplayer-ui media3-ui
 extension-cast media3-cast
 extension-cronet media3-datasource-cronet
@@ -126,8 +128,8 @@ extension-workmanager media3-exoplayer-workmanager'
 # Rewrites classes, packages and dependencies from the legacy ExoPlayer package structure
 # to androidx.media3 structure.
 
-MEDIA3_VERSION="1.0.0-beta02"
-LEGACY_PEER_VERSION="2.18.1"
+MEDIA3_VERSION="1.0.0-beta03"
+LEGACY_PEER_VERSION="2.18.2"
 
 function usage() {
   echo "usage: $0 [-p|-c|-d|-v]|[-m|-l [-x <path>] [-f] PROJECT_ROOT]"

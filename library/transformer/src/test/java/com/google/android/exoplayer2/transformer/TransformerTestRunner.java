@@ -17,12 +17,12 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLooperUntil;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -32,67 +32,47 @@ public final class TransformerTestRunner {
   private TransformerTestRunner() {}
 
   /**
-   * Runs tasks of the {@link Transformer#getApplicationLooper() transformer Looper} until the
-   * current {@link Transformer transformation} completes.
+   * Runs tasks of the {@linkplain Transformer#getApplicationLooper() transformer Looper} until the
+   * {@linkplain Transformer transformation} ends.
    *
    * @param transformer The {@link Transformer}.
+   * @return The {@link TransformationResult}.
+   * @throws TransformationException If the transformation threw an exception.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
-   * @throws IllegalStateException If the method is not called from the main thread, or if the
-   *     transformation completes with error.
+   * @throws IllegalStateException If the method is not called from the main thread.
    */
-  public static void runUntilCompleted(Transformer transformer) throws TimeoutException {
-    @Nullable Exception exception = runUntilListenerCalled(transformer);
-    if (exception != null) {
-      throw new IllegalStateException(exception);
-    }
-  }
-
-  /**
-   * Runs tasks of the {@link Transformer#getApplicationLooper() transformer Looper} until a {@link
-   * Transformer} error occurs.
-   *
-   * @param transformer The {@link Transformer}.
-   * @return The raised exception.
-   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
-   *     exceeded.
-   * @throws IllegalStateException If the method is not called from the main thread, or if the
-   *     transformation completes without error.
-   */
-  public static TransformationException runUntilError(Transformer transformer)
-      throws TimeoutException {
-    @Nullable TransformationException exception = runUntilListenerCalled(transformer);
-    if (exception == null) {
-      throw new IllegalStateException("The transformation completed without error.");
-    }
-    return exception;
-  }
-
-  @Nullable
-  private static TransformationException runUntilListenerCalled(Transformer transformer)
-      throws TimeoutException {
-    AtomicBoolean transformationCompleted = new AtomicBoolean();
-    AtomicReference<@NullableType TransformationException> transformationException =
+  public static TransformationResult runLooper(Transformer transformer)
+      throws TransformationException, TimeoutException {
+    AtomicReference<@NullableType TransformationResult> transformationResultRef =
         new AtomicReference<>();
 
     transformer.addListener(
         new Transformer.Listener() {
           @Override
           public void onTransformationCompleted(
-              MediaItem inputMediaItem, TransformationResult transformationResult) {
-            transformationCompleted.set(true);
+              MediaItem inputMediaItem, TransformationResult result) {
+            transformationResultRef.set(result);
           }
 
           @Override
           public void onTransformationError(
-              MediaItem inputMediaItem, TransformationException exception) {
-            transformationException.set(exception);
+              MediaItem inputMediaItem,
+              TransformationResult result,
+              TransformationException exception) {
+            if (!Objects.equals(result.transformationException, exception)) {
+              result = result.buildUpon().setTransformationException(exception).build();
+            }
+            transformationResultRef.set(result);
           }
         });
-    runLooperUntil(
-        transformer.getApplicationLooper(),
-        () -> transformationCompleted.get() || transformationException.get() != null);
+    runLooperUntil(transformer.getApplicationLooper(), () -> transformationResultRef.get() != null);
 
-    return transformationException.get();
+    TransformationResult result = checkNotNull(transformationResultRef.get());
+    if (result.transformationException != null) {
+      throw result.transformationException;
+    }
+
+    return result;
   }
 }

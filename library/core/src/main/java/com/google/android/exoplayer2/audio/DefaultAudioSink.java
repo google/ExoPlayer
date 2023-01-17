@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
+import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.constrainValue;
 import static java.lang.Math.max;
@@ -190,6 +191,8 @@ public final class DefaultAudioSink implements AudioSink {
      * @param pcmFrameSize The size of the PCM frames if the {@code encoding} is PCM, 1 otherwise,
      *     in bytes.
      * @param sampleRate The sample rate of the format, in Hz.
+     * @param bitrate The bitrate of the audio stream if the stream is compressed, or {@link
+     *     Format#NO_VALUE} if {@code encoding} is PCM or the bitrate is not known.
      * @param maxAudioTrackPlaybackSpeed The maximum speed the content will be played using {@link
      *     AudioTrack#setPlaybackParams}. 0.5 is 2x slow motion, 1 is real time, 2 is 2x fast
      *     forward, etc. This will be {@code 1} unless {@link
@@ -204,6 +207,7 @@ public final class DefaultAudioSink implements AudioSink {
         @OutputMode int outputMode,
         int pcmFrameSize,
         int sampleRate,
+        int bitrate,
         double maxAudioTrackPlaybackSpeed);
   }
 
@@ -507,6 +511,7 @@ public final class DefaultAudioSink implements AudioSink {
   private AuxEffectInfo auxEffectInfo;
   @Nullable private AudioDeviceInfoApi23 preferredDevice;
   private boolean tunneling;
+  private long lastTunnelingAvSyncPresentationTimeUs;
   private long lastFeedElapsedRealtimeMs;
   private boolean offloadDisabledUntilNextConfiguration;
   private boolean isWaitingForOffloadEndOfStreamHandled;
@@ -697,8 +702,9 @@ public final class DefaultAudioSink implements AudioSink {
                 getAudioTrackMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding),
                 outputEncoding,
                 outputMode,
-                outputPcmFrameSize,
+                outputPcmFrameSize != C.LENGTH_UNSET ? outputPcmFrameSize : 1,
                 outputSampleRate,
+                inputFormat.bitrate,
                 enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
 
     offloadDisabledUntilNextConfiguration = false;
@@ -890,9 +896,11 @@ public final class DefaultAudioSink implements AudioSink {
                   getSubmittedFrames() - trimmingAudioProcessor.getTrimmedFrameCount());
       if (!startMediaTimeUsNeedsSync
           && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
-        listener.onAudioSinkError(
-            new AudioSink.UnexpectedDiscontinuityException(
-                presentationTimeUs, expectedPresentationTimeUs));
+        if (listener != null) {
+          listener.onAudioSinkError(
+              new AudioSink.UnexpectedDiscontinuityException(
+                  presentationTimeUs, expectedPresentationTimeUs));
+        }
         startMediaTimeUsNeedsSync = true;
       }
       if (startMediaTimeUsNeedsSync) {
@@ -994,10 +1002,13 @@ public final class DefaultAudioSink implements AudioSink {
    * <p>If the {@link AudioProcessingPipeline} is not {@linkplain
    * AudioProcessingPipeline#isOperational() operational}, input buffers are passed straight to
    * {@link #writeBuffer(ByteBuffer, long)}.
+   *
+   * @param avSyncPresentationTimeUs The tunneling AV sync presentation time for the current buffer,
+   *     or {@link C#TIME_END_OF_SOURCE} when draining remaining buffers at the end of the stream.
    */
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
-    if (!audioProcessingPipeline.isOperational() && inputBuffer != null) {
-      writeBuffer(inputBuffer, avSyncPresentationTimeUs);
+    if (!audioProcessingPipeline.isOperational()) {
+      writeBuffer(inputBuffer != null ? inputBuffer : EMPTY_BUFFER, avSyncPresentationTimeUs);
       return;
     }
 
@@ -1027,17 +1038,24 @@ public final class DefaultAudioSink implements AudioSink {
       if (outputBuffer == null) {
         return true;
       }
-      writeBuffer(outputBuffer, C.TIME_UNSET);
+      writeBuffer(outputBuffer, C.TIME_END_OF_SOURCE);
       return outputBuffer == null;
     }
 
     audioProcessingPipeline.queueEndOfStream();
-    processBuffers(C.TIME_UNSET);
+    processBuffers(C.TIME_END_OF_SOURCE);
     return audioProcessingPipeline.isEnded()
         && (outputBuffer == null || !outputBuffer.hasRemaining());
   }
 
   @SuppressWarnings("ReferenceEquality")
+  /**
+   * Writes the provided buffer to the audio track.
+   *
+   * @param buffer The buffer to write.
+   * @param avSyncPresentationTimeUs The tunneling AV sync presentation time for the buffer, or
+   *     {@link C#TIME_END_OF_SOURCE} when draining remaining buffers at the end of the stream.
+   */
   private void writeBuffer(ByteBuffer buffer, long avSyncPresentationTimeUs) throws WriteException {
     if (!buffer.hasRemaining()) {
       return;
@@ -1073,6 +1091,14 @@ public final class DefaultAudioSink implements AudioSink {
       }
     } else if (tunneling) {
       Assertions.checkState(avSyncPresentationTimeUs != C.TIME_UNSET);
+      if (avSyncPresentationTimeUs == C.TIME_END_OF_SOURCE) {
+        // Audio processors during tunneling are required to produce buffers immediately when
+        // queuing, so we can assume the timestamp during draining at the end of the stream is the
+        // same as the timestamp of the last sample we processed.
+        avSyncPresentationTimeUs = lastTunnelingAvSyncPresentationTimeUs;
+      } else {
+        lastTunnelingAvSyncPresentationTimeUs = avSyncPresentationTimeUs;
+      }
       bytesWrittenOrError =
           writeNonBlockingWithAvSyncV21(
               audioTrack, buffer, bytesRemaining, avSyncPresentationTimeUs);
@@ -1664,6 +1690,8 @@ public final class DefaultAudioSink implements AudioSink {
             ? 0
             : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
                 * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
+      case C.ENCODING_OPUS:
+        return OpusUtil.parsePacketAudioSampleCount(buffer);
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:

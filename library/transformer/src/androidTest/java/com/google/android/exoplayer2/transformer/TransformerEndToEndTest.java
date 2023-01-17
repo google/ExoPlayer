@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -140,14 +139,12 @@ public class TransformerEndToEndTest {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      return encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    public Codec createForAudioEncoding(Format format) throws TransformationException {
+      return encoderFactory.createForAudioEncoding(format);
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
+    public Codec createForVideoEncoding(Format format) throws TransformationException {
       throw TransformationException.createForCodec(
           new IllegalArgumentException(),
           /* isVideo= */ true,

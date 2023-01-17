@@ -65,12 +65,12 @@ app is notified of events via the listener passed to the `Transformer` builder.
 Transformer.Listener transformerListener =
    new Transformer.Listener() {
      @Override
-     public void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult transformationResult) {
+     public void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
        playOutput();
      }
 
      @Override
-     public void onTransformationError(MediaItem inputMediaItem, TransformationException e) {
+     public void onTransformationError(MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {
        displayError(e);
      }
    };
@@ -96,7 +96,7 @@ mainHandler.post(
      public void run() {
        @ProgressState int progressState = transformer.getProgress(progressHolder);
        updateProgressInUi(progressState, progressHolder);
-       if (progressState != PROGRESS_STATE_NO_TRANSFORMATION) {
+       if (progressState != PROGRESS_STATE_NOT_STARTED) {
          mainHandler.postDelayed(/* r= */ this, /* delayMillis= */ 500);
        }
      }

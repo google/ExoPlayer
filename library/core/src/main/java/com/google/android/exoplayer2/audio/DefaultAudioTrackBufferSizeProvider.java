@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.audio.DefaultAudioSink.OUTPUT_MODE_O
 import static com.google.android.exoplayer2.audio.DefaultAudioSink.OUTPUT_MODE_PASSTHROUGH;
 import static com.google.android.exoplayer2.audio.DefaultAudioSink.OUTPUT_MODE_PCM;
 import static com.google.android.exoplayer2.util.Util.constrainValue;
+import static com.google.common.math.IntMath.divide;
 import static com.google.common.primitives.Ints.checkedCast;
 import static java.lang.Math.max;
 
@@ -27,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.DefaultAudioSink.OutputMode;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.math.RoundingMode;
 
 /** Provide the buffer size to use when creating an {@link AudioTrack}. */
 public class DefaultAudioTrackBufferSizeProvider
@@ -166,10 +168,11 @@ public class DefaultAudioTrackBufferSizeProvider
       @OutputMode int outputMode,
       int pcmFrameSize,
       int sampleRate,
+      int bitrate,
       double maxAudioTrackPlaybackSpeed) {
     int bufferSize =
         get1xBufferSizeInBytes(
-            minBufferSizeInBytes, encoding, outputMode, pcmFrameSize, sampleRate);
+            minBufferSizeInBytes, encoding, outputMode, pcmFrameSize, sampleRate, bitrate);
     // Maintain the buffer duration by scaling the size accordingly.
     bufferSize = (int) (bufferSize * maxAudioTrackPlaybackSpeed);
     // Buffer size must not be lower than the AudioTrack min buffer size for this format.
@@ -180,12 +183,17 @@ public class DefaultAudioTrackBufferSizeProvider
 
   /** Returns the buffer size for playback at 1x speed. */
   protected int get1xBufferSizeInBytes(
-      int minBufferSizeInBytes, int encoding, int outputMode, int pcmFrameSize, int sampleRate) {
+      int minBufferSizeInBytes,
+      int encoding,
+      int outputMode,
+      int pcmFrameSize,
+      int sampleRate,
+      int bitrate) {
     switch (outputMode) {
       case OUTPUT_MODE_PCM:
         return getPcmBufferSizeInBytes(minBufferSizeInBytes, sampleRate, pcmFrameSize);
       case OUTPUT_MODE_PASSTHROUGH:
-        return getPassthroughBufferSizeInBytes(encoding);
+        return getPassthroughBufferSizeInBytes(encoding, bitrate);
       case OUTPUT_MODE_OFFLOAD:
         return getOffloadBufferSizeInBytes(encoding);
       default:
@@ -202,13 +210,16 @@ public class DefaultAudioTrackBufferSizeProvider
   }
 
   /** Returns the buffer size for passthrough playback. */
-  protected int getPassthroughBufferSizeInBytes(@C.Encoding int encoding) {
+  protected int getPassthroughBufferSizeInBytes(@C.Encoding int encoding, int bitrate) {
     int bufferSizeUs = passthroughBufferDurationUs;
     if (encoding == C.ENCODING_AC3) {
       bufferSizeUs *= ac3BufferMultiplicationFactor;
     }
-    int maxByteRate = getMaximumEncodedRateBytesPerSecond(encoding);
-    return checkedCast((long) bufferSizeUs * maxByteRate / C.MICROS_PER_SECOND);
+    int byteRate =
+        bitrate != Format.NO_VALUE
+            ? divide(bitrate, 8, RoundingMode.CEILING)
+            : getMaximumEncodedRateBytesPerSecond(encoding);
+    return checkedCast((long) bufferSizeUs * byteRate / C.MICROS_PER_SECOND);
   }
 
   /** Returns the buffer size for offload playback. */
@@ -248,6 +259,8 @@ public class DefaultAudioTrackBufferSizeProvider
         return DtsUtil.DTS_HD_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_DOLBY_TRUEHD:
         return Ac3Util.TRUEHD_MAX_RATE_BYTES_PER_SECOND;
+      case C.ENCODING_OPUS:
+        return OpusUtil.MAX_BYTES_PER_SECOND;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:

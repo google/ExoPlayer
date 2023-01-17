@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
+import static com.google.android.exoplayer2.C.UNLIMITED_PENDING_FRAME_COUNT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
@@ -47,9 +48,11 @@ import android.content.res.Resources;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.MediaCodec;
 import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Build;
@@ -66,6 +69,8 @@ import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import androidx.annotation.DoNotInline;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -2671,6 +2676,46 @@ public final class Util {
   }
 
   /**
+   * Returns the number of maximum pending input frames that are allowed on a {@link MediaCodec}
+   * encoder.
+   */
+  public static int getMaxPendingFramesCountForMediaCodecEncoders(
+      Context context, String codecName, boolean requestedHdrToneMapping) {
+    if (SDK_INT < 29
+        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29) {
+      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+      // bounds. From API 29, if the app targets API 29 or later, the {@link
+      // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is
+      // full.
+      // Frame dropping is never desired, so a workaround is needed for older API levels.
+      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
+      // TODO(b/226330223): Investigate increasing this limit.
+      return 1;
+    }
+    if (Ascii.toUpperCase(codecName).startsWith("OMX.")) {
+      // Some OMX decoders don't correctly track their number of output buffers available, and get
+      // stuck if too many frames are rendered without being processed, so limit the number of
+      // pending frames to avoid getting stuck. This value is experimentally determined. See also
+      // b/213455700, b/230097284, b/229978305, and b/245491744.
+      //
+      // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
+      return 5;
+    }
+    if (requestedHdrToneMapping
+        && codecName.equals("c2.qti.hevc.decoder")
+        && MODEL.equals("SM-F936B")) {
+      // This decoder gets stuck if too many frames are rendered without being processed when
+      // tone-mapping HDR10. This value is experimentally determined. See also b/260408846.
+      // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
+      return 12;
+    }
+
+    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
+    // throughput.
+    return UNLIMITED_PENDING_FRAME_COUNT;
+  }
+
+  /**
    * Returns string representation of a {@link C.FormatSupport} flag.
    *
    * @param formatSupport A {@link C.FormatSupport} flag.
@@ -2742,6 +2787,31 @@ public final class Util {
       sum += summand;
     }
     return sum;
+  }
+
+  /**
+   * Returns a {@link Drawable} for the given resource or throws a {@link
+   * Resources.NotFoundException} if not found.
+   *
+   * @param context The context to get the theme from starting with API 21.
+   * @param resources The resources to load the drawable from.
+   * @param drawableRes The drawable resource int.
+   * @return The loaded {@link Drawable}.
+   */
+  public static Drawable getDrawable(
+      Context context, Resources resources, @DrawableRes int drawableRes) {
+    return SDK_INT >= 21
+        ? Api21.getDrawable(context, resources, drawableRes)
+        : resources.getDrawable(drawableRes);
+  }
+
+  /**
+   * Returns a string representation of the integer using radix value {@link Character#MAX_RADIX}.
+   *
+   * @param i An integer to be converted to String.
+   */
+  public static String intToStringMaxRadix(int i) {
+    return Integer.toString(i, Character.MAX_RADIX);
   }
 
   @Nullable
@@ -2980,4 +3050,12 @@ public final class Util {
     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4,
     0xF3
   };
+
+  @RequiresApi(21)
+  private static final class Api21 {
+    @DoNotInline
+    public static Drawable getDrawable(Context context, Resources resources, @DrawableRes int res) {
+      return resources.getDrawable(res, context.getTheme());
+    }
+  }
 }

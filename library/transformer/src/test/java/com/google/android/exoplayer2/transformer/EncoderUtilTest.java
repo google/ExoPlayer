@@ -23,12 +23,17 @@ import android.media.MediaFormat;
 import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
+import org.robolectric.shadows.ShadowMediaCodec;
 import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** Unit test for {@link EncoderUtil}. */
@@ -59,6 +64,13 @@ public class EncoderUtilTest {
                     .setProfileLevels(new MediaCodecInfo.CodecProfileLevel[] {profileLevel})
                     .build())
             .build());
+  }
+
+  @After
+  public void tearDown() {
+    ShadowMediaCodecList.reset();
+    ShadowMediaCodec.clearCodecs();
+    EncoderUtil.clearCachedEncoders();
   }
 
   @Test
@@ -115,5 +127,26 @@ public class EncoderUtilTest {
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
     assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
+  }
+
+  /**
+   * @see EncoderUtil#getSupportedEncoderNamesForHdrEditing(String, ColorInfo)
+   */
+  @Config(sdk = {30, 31})
+  @Test
+  public void getSupportedEncoderNamesForHdrEditing_returnsEmptyList() {
+    // This test is run on 30 and 31 because the tested logic differentiate at API31.
+    // getSupportedEncoderNamesForHdrEditing returns an empty list for API < 31. It returns an empty
+    // list for API >= 31 as well, because currently it is not possible to make ShadowMediaCodec
+    // support HDR.
+    assertThat(
+            EncoderUtil.getSupportedEncoderNamesForHdrEditing(
+                MIME_TYPE,
+                new ColorInfo(
+                    C.COLOR_SPACE_BT2020,
+                    C.COLOR_RANGE_FULL,
+                    C.COLOR_TRANSFER_HLG,
+                    /* hdrStaticInfo= */ null)))
+        .isEmpty();
   }
 }

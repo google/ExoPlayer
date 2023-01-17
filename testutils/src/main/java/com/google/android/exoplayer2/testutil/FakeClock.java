@@ -242,16 +242,19 @@ public class FakeClock implements Clock {
     }
     handlerMessages.remove(messageIndex);
     waitingForMessage = true;
+    boolean messageSent;
+    Handler realHandler = message.handler.handler;
     if (message.runnable != null) {
-      message.handler.handler.post(message.runnable);
+      messageSent = realHandler.post(message.runnable);
     } else {
-      message
-          .handler
-          .handler
-          .obtainMessage(message.what, message.arg1, message.arg2, message.obj)
-          .sendToTarget();
+      messageSent =
+          realHandler.sendMessage(
+              realHandler.obtainMessage(message.what, message.arg1, message.arg2, message.obj));
     }
-    message.handler.internalHandler.post(this::onMessageHandled);
+    messageSent &= message.handler.internalHandler.post(this::onMessageHandled);
+    if (!messageSent) {
+      onMessageHandled();
+    }
   }
 
   private synchronized void onMessageHandled() {

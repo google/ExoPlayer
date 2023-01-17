@@ -66,6 +66,7 @@ import java.util.List;
  * </ul>
  */
 public final class AudioProcessingPipeline {
+
   /** The {@link AudioProcessor} instances passed to {@link AudioProcessingPipeline}. */
   private final ImmutableList<AudioProcessor> audioProcessors;
   /**
@@ -209,8 +210,11 @@ public final class AudioProcessingPipeline {
     if (!isOperational()) {
       return EMPTY_BUFFER;
     }
-    processData(EMPTY_BUFFER);
-    return outputBuffers[getFinalOutputBufferIndex()];
+    ByteBuffer outputBuffer = outputBuffers[getFinalOutputBufferIndex()];
+    if (!outputBuffer.hasRemaining()) {
+      processData(EMPTY_BUFFER);
+    }
+    return outputBuffer;
   }
 
   /**

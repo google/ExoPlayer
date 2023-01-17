@@ -402,7 +402,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setImaSdkSettings</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setImaSdkSettings&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setImaSdkSettings&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
 <div class="block">Sets the IMA SDK settings. The provided settings instance's player type and version fields
  may be overwritten.
 
@@ -421,7 +422,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdErrorListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdErrorListener&#8203;(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdErrorListener&#8203;(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
 <div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader.addAdErrorListener(AdErrorListener)</code> and
  <code>BaseManager.addAdErrorListener(AdErrorListener)</code>.</div>
 <dl>
@@ -438,7 +440,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdEventListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdEventListener&#8203;(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdEventListener&#8203;(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
 <div class="block">Sets a listener for ad events that will be passed to <code>BaseManager.addAdEventListener(AdEventListener)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -454,7 +457,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoAdPlayerCallback</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVideoAdPlayerCallback&#8203;(com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback&nbsp;videoAdPlayerCallback)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVideoAdPlayerCallback&#8203;(com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback&nbsp;videoAdPlayerCallback)</pre>
 <div class="block">Sets a callback to receive video ad player events. Note that these events are handled
  internally by the IMA SDK and this ads loader. For analytics and diagnostics, new
  implementations should generally use events from the top-level <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> listeners
@@ -475,7 +479,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdUiElements</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdUiElements&#8203;(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdUiElements&#8203;(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</pre>
 <div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -493,7 +498,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompanionAdSlots</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setCompanionAdSlots&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setCompanionAdSlots&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
 <div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -511,7 +517,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdMediaMimeTypes</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdMediaMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;adMediaMimeTypes)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdMediaMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;adMediaMimeTypes)</pre>
 <div class="block">Sets the MIME types to prioritize for linear ad media. If not specified, MIME types supported
  by the <a href="../../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>adMediaSourceFactory</code></a> used to construct the <a href="../../source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> will be used.</div>
 <dl>
@@ -530,7 +537,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableContinuousPlayback</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setEnableContinuousPlayback&#8203;(boolean&nbsp;enableContinuousPlayback)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setEnableContinuousPlayback&#8203;(boolean&nbsp;enableContinuousPlayback)</pre>
 <div class="block">Sets whether to enable continuous playback. Pass <code>true</code> if content videos will be
  played continuously, similar to a TV broadcast. This setting may modify the ads request but
  does not affect ad playback behavior. The requested value is unknown by default.</div>
@@ -550,7 +558,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdPreloadTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdPreloadTimeoutMs&#8203;(long&nbsp;adPreloadTimeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdPreloadTimeoutMs&#8203;(long&nbsp;adPreloadTimeoutMs)</pre>
 <div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
  group before that ad group is skipped and marked as having failed to load. Pass <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there should be no such timeout. The default value is <a href="#DEFAULT_AD_PRELOAD_TIMEOUT_MS">10000L</a> ms.
 
@@ -570,7 +579,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setVastLoadTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVastLoadTimeoutMs&#8203;(@IntRange(from=1L)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVastLoadTimeoutMs&#8203;(@IntRange(from=1L)
                                                  int&nbsp;vastLoadTimeoutMs)</pre>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
 <dl>
@@ -589,7 +599,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaLoadTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMediaLoadTimeoutMs&#8203;(@IntRange(from=1L)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMediaLoadTimeoutMs&#8203;(@IntRange(from=1L)
                                                   int&nbsp;mediaLoadTimeoutMs)</pre>
 <div class="block">Sets the ad media load timeout, in milliseconds.</div>
 <dl>
@@ -608,7 +619,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxMediaBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMaxMediaBitrate&#8203;(@IntRange(from=1L)
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMaxMediaBitrate&#8203;(@IntRange(from=1L)
                                                int&nbsp;bitrate)</pre>
 <div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
 <dl>
@@ -627,7 +639,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setFocusSkipButtonWhenAvailable</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setFocusSkipButtonWhenAvailable&#8203;(boolean&nbsp;focusSkipButtonWhenAvailable)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setFocusSkipButtonWhenAvailable&#8203;(boolean&nbsp;focusSkipButtonWhenAvailable)</pre>
 <div class="block">Sets whether to focus the skip button (when available) on Android TV devices. The default
  setting is <code>true</code>.</div>
 <dl>
@@ -647,7 +660,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlayAdBeforeStartPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setPlayAdBeforeStartPosition&#8203;(boolean&nbsp;playAdBeforeStartPosition)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setPlayAdBeforeStartPosition&#8203;(boolean&nbsp;playAdBeforeStartPosition)</pre>
 <div class="block">Sets whether to play an ad before the start position when beginning playback. If <code>
  true</code>, an ad will be played if there is one at or before the start position. If <code>
  false</code>, an ad will be played only if there is one exactly at the start position. The default
@@ -667,7 +681,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDebugModeEnabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setDebugModeEnabled&#8203;(boolean&nbsp;debugModeEnabled)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setDebugModeEnabled&#8203;(boolean&nbsp;debugModeEnabled)</pre>
 <div class="block">Sets whether to enable outputting verbose logs for the IMA extension and IMA SDK. The default
  value is <code>false</code>. This setting is intended for debugging only, and should not be
  enabled in production applications.</div>

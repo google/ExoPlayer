@@ -25,6 +25,7 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -37,8 +38,10 @@ import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -56,17 +59,49 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      *
      * <p>All {@link Effect} instances must be {@link GlEffect} instances.
      *
-     * <p>Using HDR requires the {@code EXT_YUV_target} OpenGL extension.
+     * <p>Using HDR {@code inputColorInfo} requires the {@code EXT_YUV_target} OpenGL extension.
+     *
+     * <p>Using HDR {@code inputColorInfo} or {@code outputColorInfo} requires OpenGL ES 3.0.
+     *
+     * <p>If outputting HDR content to a display, {@code EGL_GL_COLORSPACE_BT2020_PQ_EXT} is
+     * required, and {@link ColorInfo#colorTransfer outputColorInfo.colorTransfer} must be {@link
+     * C#COLOR_TRANSFER_ST2084}.
+     *
+     * <p>Pass a {@link MoreExecutors#directExecutor() direct listenerExecutor} if invoking the
+     * {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is desired.
      */
     @Override
     public GlEffectsFrameProcessor create(
         Context context,
-        FrameProcessor.Listener listener,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        ColorInfo colorInfo,
-        boolean releaseFramesAutomatically)
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        boolean releaseFramesAutomatically,
+        Executor listenerExecutor,
+        Listener listener)
         throws FrameProcessingException {
+      // TODO(b/261188041) Add tests to verify the Listener is invoked on the given Executor.
+
+      checkArgument(inputColorInfo.isValid());
+      checkArgument(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
+      checkArgument(outputColorInfo.isValid());
+      checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
+
+      if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
+          || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
+        // GL Tone mapping is only implemented for BT2020 to BT709 and HLG to SDR (Gamma 2.2).
+        // Gamma 2.2 is used instead of SMPTE 170M for SDR, despite MediaFormat's
+        // COLOR_TRANSFER_SDR_VIDEO being defined as SMPTE 170M. This is to match
+        // other known tone-mapping behavior within the Android ecosystem.
+        // TODO(b/239735341): Consider migrating SDR outside tone-mapping from SMPTE
+        //  170M to gamma 2.2.
+        // TODO(b/239735341): Implement PQ tone-mapping to reduce the scope of these checks.
+        checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
+        checkArgument(outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020);
+        checkArgument(inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG);
+        checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2);
+      }
 
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
@@ -75,12 +110,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
               () ->
                   createOpenGlObjectsAndFrameProcessor(
                       context,
-                      listener,
                       effects,
                       debugViewProvider,
-                      colorInfo,
+                      inputColorInfo,
+                      outputColorInfo,
                       releaseFramesAutomatically,
-                      singleThreadExecutorService));
+                      singleThreadExecutorService,
+                      listenerExecutor,
+                      listener));
 
       try {
         return glFrameProcessorFuture.get();
@@ -94,7 +131,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   }
 
   /**
-   * Creates the OpenGL context, surfaces, textures, and framebuffers, initializes {@link
+   * Creates the OpenGL context, surfaces, textures, and frame buffers, initializes {@link
    * GlTextureProcessor} instances corresponding to the {@link GlEffect} instances, and returns a
    * new {@code GlEffectsFrameProcessor}.
    *
@@ -106,23 +143,41 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   @WorkerThread
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
-      FrameProcessor.Listener listener,
       List<Effect> effects,
       DebugViewProvider debugViewProvider,
-      ColorInfo colorInfo,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
       boolean releaseFramesAutomatically,
-      ExecutorService singleThreadExecutorService)
+      ExecutorService singleThreadExecutorService,
+      Executor executor,
+      Listener listener)
       throws GlUtil.GlException, FrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
     //  configure based on the color info from the decoder output media format instead.
-    boolean useHdr = ColorInfo.isTransferHdr(colorInfo);
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     int[] configAttributes =
-        useHdr ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102 : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
-    EGLContext eglContext = GlUtil.createEglContext(eglDisplay, configAttributes);
+        ColorInfo.isTransferHdr(outputColorInfo)
+            ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
+            : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
+    int openGlVersion =
+        ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
+    EGLContext eglContext = GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
     GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+
+    // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
+    // require the BT2020 PQ GL extension.
+    if (!releaseFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
+      // Display hardware supports PQ only.
+      checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
+      if (Util.SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
+        GlUtil.destroyEglContext(eglDisplay, eglContext);
+        // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
+        // GL extension is supported.
+        throw new FrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
+      }
+    }
 
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(
@@ -130,13 +185,16 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             effects,
             eglDisplay,
             eglContext,
-            listener,
             debugViewProvider,
-            colorInfo,
-            releaseFramesAutomatically);
+            inputColorInfo,
+            outputColorInfo,
+            releaseFramesAutomatically,
+            executor,
+            listener);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
-    chainTextureProcessorsWithListeners(textureProcessors, frameProcessingTaskExecutor, listener);
+    chainTextureProcessorsWithListeners(
+        textureProcessors, frameProcessingTaskExecutor, listener, executor);
 
     return new GlEffectsFrameProcessor(
         eglDisplay,
@@ -162,10 +220,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       List<Effect> effects,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      FrameProcessor.Listener listener,
       DebugViewProvider debugViewProvider,
-      ColorInfo colorInfo,
-      boolean releaseFramesAutomatically)
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
+      boolean releaseFramesAutomatically,
+      Executor executor,
+      Listener listener)
       throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
         new ImmutableList.Builder<>();
@@ -173,6 +233,9 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         new ImmutableList.Builder<>();
     ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
     boolean sampleFromExternalTexture = true;
+    ColorInfo linearColorInfo =
+        new ColorInfo(
+            outputColorInfo.colorSpace, outputColorInfo.colorRange, C.COLOR_TRANSFER_LINEAR, null);
     for (int i = 0; i < effects.size(); i++) {
       Effect effect = effects.get(i);
       checkArgument(effect instanceof GlEffect, "GlEffectsFrameProcessor only supports GlEffects");
@@ -192,24 +255,28 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       ImmutableList<GlMatrixTransformation> matrixTransformations =
           matrixTransformationListBuilder.build();
       ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
+      boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
       if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromExternalTexture) {
         MatrixTextureProcessor matrixTextureProcessor;
         if (sampleFromExternalTexture) {
           matrixTextureProcessor =
-              MatrixTextureProcessor.createWithExternalSamplerApplyingEotf(
-                  context, matrixTransformations, rgbMatrices, colorInfo);
+              MatrixTextureProcessor.createWithExternalSampler(
+                  context,
+                  matrixTransformations,
+                  rgbMatrices,
+                  /* inputColorInfo= */ inputColorInfo,
+                  /* outputColorInfo= */ linearColorInfo);
         } else {
           matrixTextureProcessor =
               MatrixTextureProcessor.create(
-                  context, matrixTransformations, rgbMatrices, ColorInfo.isTransferHdr(colorInfo));
+                  context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
         }
         textureProcessorListBuilder.add(matrixTextureProcessor);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         rgbMatrixListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
-      textureProcessorListBuilder.add(
-          glEffect.toGlTextureProcessor(context, ColorInfo.isTransferHdr(colorInfo)));
+      textureProcessorListBuilder.add(glEffect.toGlTextureProcessor(context, isOutputTransferHdr));
     }
 
     textureProcessorListBuilder.add(
@@ -219,11 +286,13 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             eglContext,
             matrixTransformationListBuilder.build(),
             rgbMatrixListBuilder.build(),
-            listener,
             debugViewProvider,
             sampleFromExternalTexture,
-            colorInfo,
-            releaseFramesAutomatically));
+            /* inputColorInfo= */ sampleFromExternalTexture ? inputColorInfo : linearColorInfo,
+            outputColorInfo,
+            releaseFramesAutomatically,
+            executor,
+            listener));
     return textureProcessorListBuilder.build();
   }
 
@@ -234,7 +303,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private static void chainTextureProcessorsWithListeners(
       ImmutableList<GlTextureProcessor> textureProcessors,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      FrameProcessor.Listener frameProcessorListener) {
+      Listener frameProcessorListener,
+      Executor frameProcessorListenerExecutor) {
     for (int i = 0; i < textureProcessors.size() - 1; i++) {
       GlTextureProcessor producingGlTextureProcessor = textureProcessors.get(i);
       GlTextureProcessor consumingGlTextureProcessor = textureProcessors.get(i + 1);
@@ -244,7 +314,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
               consumingGlTextureProcessor,
               frameProcessingTaskExecutor);
       producingGlTextureProcessor.setOutputListener(chainingGlTextureProcessorListener);
-      producingGlTextureProcessor.setErrorListener(frameProcessorListener::onFrameProcessingError);
+      producingGlTextureProcessor.setErrorListener(
+          frameProcessorListenerExecutor, frameProcessorListener::onFrameProcessingError);
       consumingGlTextureProcessor.setInputListener(chainingGlTextureProcessorListener);
     }
   }
@@ -261,13 +332,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final FinalMatrixTextureProcessorWrapper finalTextureProcessorWrapper;
   private final ImmutableList<GlTextureProcessor> allTextureProcessors;
 
-  private @MonotonicNonNull FrameInfo nextInputFrameInfo;
-  private boolean inputStreamEnded;
   /**
    * Offset compared to original media presentation time that has been added to incoming frame
    * timestamps, in microseconds.
    */
   private long previousStreamOffsetUs;
+
+  private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
+  private volatile boolean inputStreamEnded;
 
   private GlEffectsFrameProcessor(
       EGLDisplay eglDisplay,
@@ -294,6 +366,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     finalTextureProcessorWrapper = (FinalMatrixTextureProcessorWrapper) getLast(textureProcessors);
     allTextureProcessors = textureProcessors;
     previousStreamOffsetUs = C.TIME_UNSET;
+  }
+
+  /** Returns the task executor that runs frame processing tasks. */
+  @VisibleForTesting
+  /* package */ FrameProcessingTaskExecutor getTaskExecutor() {
+    return frameProcessingTaskExecutor;
   }
 
   @Override

@@ -162,8 +162,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   }
 
   @Override
-  public void seekTo(long positionMs) {
-    player.seekTo(player.getCurrentMediaItemIndex(), positionMs);
+  public void seekTo(long positionInMs) {
+    player.seekTo(player.getCurrentMediaItemIndex(), positionInMs);
   }
 
   @Override
@@ -264,7 +264,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
             // int arguments (int what, int extra). Since PlaybackException defines a single error
             // code, we pass 0 as the extra.
             context.getString(
-                R.string.lb_media_player_error, /* formatArgs= */ error.errorCode, 0));
+                R.string.lb_media_player_error, /* formatArgs...= */ error.errorCode, 0));
       }
     }
 

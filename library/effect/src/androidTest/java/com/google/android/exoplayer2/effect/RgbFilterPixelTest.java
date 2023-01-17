@@ -31,10 +31,10 @@ import android.graphics.Bitmap;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Size;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -105,12 +105,12 @@ public final class RgbFilterPixelTest {
     String testId = "drawFrame_grayscale";
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
     matrixTextureProcessor = grayscaleMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -123,12 +123,12 @@ public final class RgbFilterPixelTest {
     String testId = "drawFrame_inverted";
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
     matrixTextureProcessor = invertedMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =

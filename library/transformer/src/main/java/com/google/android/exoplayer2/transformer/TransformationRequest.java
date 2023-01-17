@@ -38,7 +38,8 @@ public final class TransformationRequest {
   /**
    * The strategy to use to transcode or edit High Dynamic Range (HDR) input video.
    *
-   * <p>One of {@link #HDR_MODE_KEEP_HDR}, {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR}, or {@link
+   * <p>One of {@link #HDR_MODE_KEEP_HDR}, {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC},
+   * {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}, or {@link
    * #HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
    *
    * <p>Standard Dynamic Range (SDR) input video is unaffected by these settings.
@@ -48,8 +49,9 @@ public final class TransformationRequest {
   @Target(TYPE_USE)
   @IntDef({
     HDR_MODE_KEEP_HDR,
-    HDR_MODE_TONE_MAP_HDR_TO_SDR,
-    HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR
+    HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC,
+    HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL,
+    HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
   })
   public @interface HdrMode {}
   /**
@@ -58,26 +60,43 @@ public final class TransformationRequest {
    * <p>Supported on API 31+, by some device and HDR format combinations.
    *
    * <p>If not supported, {@link Transformer} may fall back to {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR}.
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}.
    */
   public static final int HDR_MODE_KEEP_HDR = 0;
   /**
-   * Tone map HDR input to SDR before processing, to generate SDR output.
+   * Tone map HDR input to SDR before processing, to generate SDR output, using the {@link
+   * android.media.MediaCodec} decoder tone-mapper.
    *
    * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
    * guaranteed to be supported from Android T onwards.
    *
-   * <p>If not supported, {@link Transformer} may throw a {@link TransformationException}.
+   * <p>If not supported, {@link Transformer} throws a {@link TransformationException}.
    */
-  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR = 1;
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC = 1;
   /**
-   * Interpret HDR input as SDR, resulting in washed out video.
+   * Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
+   * tone-mapper.
+   *
+   * <p>Supported on API 29+, for HLG input.
+   *
+   * <p>This may exhibit mild differences from {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, depending on the device's tone-mapping
+   * implementation, but should have much wider support and have more consistent results across
+   * devices.
+   *
+   * <p>If not supported, {@link Transformer} throws a {@link TransformationException}.
+   */
+  // TODO(b/239735341): Implement PQ tone-mapping to remove the HLG reference.
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL = 2;
+  /**
+   * Interpret HDR input as SDR, likely with a washed out look.
    *
    * <p>Supported on API 29+.
    *
    * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR}. However, as HDR transfer functions and metadata will be
-   * ignored, contents will be displayed incorrectly, likely with a washed out look.
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. However, as HDR transfer functions and
+   * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
+   * look.
    *
    * <p>Use of this flag may result in {@code
    * TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED} or {@code
@@ -85,7 +104,7 @@ public final class TransformationRequest {
    *
    * <p>This field is experimental, and will be renamed or removed in a future release.
    */
-  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR = 2;
+  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR = 3;
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
@@ -140,10 +159,10 @@ public final class TransformationRequest {
      *   <li>The recording frame rate of the video is 120 or 240 fps.
      * </ul>
      *
-     * <p>If specifying a {@link MediaSource.Factory} using {@link
-     * Transformer.Builder#setMediaSourceFactory(MediaSource.Factory)}, make sure that {@link
-     * Mp4Extractor#FLAG_READ_SEF_DATA} is set on the {@link Mp4Extractor} used. Otherwise, the slow
-     * motion metadata will be ignored and the input won't be flattened.
+     * <p>If using an {@link ExoPlayerAssetLoader.Factory} with a provided {@link
+     * MediaSource.Factory}, make sure that {@link Mp4Extractor#FLAG_READ_SEF_DATA} is set on the
+     * {@link Mp4Extractor} used. Otherwise, the slow motion metadata will be ignored and the input
+     * won't be flattened.
      *
      * <p>Using slow motion flattening together with {@link
      * com.google.android.exoplayer2.MediaItem.ClippingConfiguration} is not supported yet.
@@ -283,14 +302,14 @@ public final class TransformationRequest {
 
     /**
      * @deprecated This method is now a no-op if {@code false}, and sets {@code
-     *     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR)} if {@code true}. Use {@link #setHdrMode} with
-     *     {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR} instead.
+     *     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)} if {@code true}. Use {@link
+     *     #setHdrMode} with {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} instead.
      */
     @Deprecated
     @CanIgnoreReturnValue
     public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
       if (enableRequestSdrToneMapping) {
-        return setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR);
+        return setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
       }
       return this;
     }

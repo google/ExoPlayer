@@ -15,10 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -28,10 +25,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Joiner;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1512,77 +1505,39 @@ public final class Format implements Bundleable {
   }
 
   // Bundleable implementation.
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_ID,
-    FIELD_LABEL,
-    FIELD_LANGUAGE,
-    FIELD_SELECTION_FLAGS,
-    FIELD_ROLE_FLAGS,
-    FIELD_AVERAGE_BITRATE,
-    FIELD_PEAK_BITRATE,
-    FIELD_CODECS,
-    FIELD_METADATA,
-    FIELD_CONTAINER_MIME_TYPE,
-    FIELD_SAMPLE_MIME_TYPE,
-    FIELD_MAX_INPUT_SIZE,
-    FIELD_INITIALIZATION_DATA,
-    FIELD_DRM_INIT_DATA,
-    FIELD_SUBSAMPLE_OFFSET_US,
-    FIELD_WIDTH,
-    FIELD_HEIGHT,
-    FIELD_FRAME_RATE,
-    FIELD_ROTATION_DEGREES,
-    FIELD_PIXEL_WIDTH_HEIGHT_RATIO,
-    FIELD_PROJECTION_DATA,
-    FIELD_STEREO_MODE,
-    FIELD_COLOR_INFO,
-    FIELD_CHANNEL_COUNT,
-    FIELD_SAMPLE_RATE,
-    FIELD_PCM_ENCODING,
-    FIELD_ENCODER_DELAY,
-    FIELD_ENCODER_PADDING,
-    FIELD_ACCESSIBILITY_CHANNEL,
-    FIELD_CRYPTO_TYPE,
-    FIELD_TILE_COUNT_HORIZONTAL,
-    FIELD_TILE_COUNT_VERTICAL,
-  })
-  private @interface FieldNumber {}
 
-  private static final int FIELD_ID = 0;
-  private static final int FIELD_LABEL = 1;
-  private static final int FIELD_LANGUAGE = 2;
-  private static final int FIELD_SELECTION_FLAGS = 3;
-  private static final int FIELD_ROLE_FLAGS = 4;
-  private static final int FIELD_AVERAGE_BITRATE = 5;
-  private static final int FIELD_PEAK_BITRATE = 6;
-  private static final int FIELD_CODECS = 7;
-  private static final int FIELD_METADATA = 8;
-  private static final int FIELD_CONTAINER_MIME_TYPE = 9;
-  private static final int FIELD_SAMPLE_MIME_TYPE = 10;
-  private static final int FIELD_MAX_INPUT_SIZE = 11;
-  private static final int FIELD_INITIALIZATION_DATA = 12;
-  private static final int FIELD_DRM_INIT_DATA = 13;
-  private static final int FIELD_SUBSAMPLE_OFFSET_US = 14;
-  private static final int FIELD_WIDTH = 15;
-  private static final int FIELD_HEIGHT = 16;
-  private static final int FIELD_FRAME_RATE = 17;
-  private static final int FIELD_ROTATION_DEGREES = 18;
-  private static final int FIELD_PIXEL_WIDTH_HEIGHT_RATIO = 19;
-  private static final int FIELD_PROJECTION_DATA = 20;
-  private static final int FIELD_STEREO_MODE = 21;
-  private static final int FIELD_COLOR_INFO = 22;
-  private static final int FIELD_CHANNEL_COUNT = 23;
-  private static final int FIELD_SAMPLE_RATE = 24;
-  private static final int FIELD_PCM_ENCODING = 25;
-  private static final int FIELD_ENCODER_DELAY = 26;
-  private static final int FIELD_ENCODER_PADDING = 27;
-  private static final int FIELD_ACCESSIBILITY_CHANNEL = 28;
-  private static final int FIELD_CRYPTO_TYPE = 29;
-  private static final int FIELD_TILE_COUNT_HORIZONTAL = 30;
-  private static final int FIELD_TILE_COUNT_VERTICAL = 31;
+  private static final String FIELD_ID = Util.intToStringMaxRadix(0);
+  private static final String FIELD_LABEL = Util.intToStringMaxRadix(1);
+  private static final String FIELD_LANGUAGE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_SELECTION_FLAGS = Util.intToStringMaxRadix(3);
+  private static final String FIELD_ROLE_FLAGS = Util.intToStringMaxRadix(4);
+  private static final String FIELD_AVERAGE_BITRATE = Util.intToStringMaxRadix(5);
+  private static final String FIELD_PEAK_BITRATE = Util.intToStringMaxRadix(6);
+  private static final String FIELD_CODECS = Util.intToStringMaxRadix(7);
+  private static final String FIELD_METADATA = Util.intToStringMaxRadix(8);
+  private static final String FIELD_CONTAINER_MIME_TYPE = Util.intToStringMaxRadix(9);
+  private static final String FIELD_SAMPLE_MIME_TYPE = Util.intToStringMaxRadix(10);
+  private static final String FIELD_MAX_INPUT_SIZE = Util.intToStringMaxRadix(11);
+  private static final String FIELD_INITIALIZATION_DATA = Util.intToStringMaxRadix(12);
+  private static final String FIELD_DRM_INIT_DATA = Util.intToStringMaxRadix(13);
+  private static final String FIELD_SUBSAMPLE_OFFSET_US = Util.intToStringMaxRadix(14);
+  private static final String FIELD_WIDTH = Util.intToStringMaxRadix(15);
+  private static final String FIELD_HEIGHT = Util.intToStringMaxRadix(16);
+  private static final String FIELD_FRAME_RATE = Util.intToStringMaxRadix(17);
+  private static final String FIELD_ROTATION_DEGREES = Util.intToStringMaxRadix(18);
+  private static final String FIELD_PIXEL_WIDTH_HEIGHT_RATIO = Util.intToStringMaxRadix(19);
+  private static final String FIELD_PROJECTION_DATA = Util.intToStringMaxRadix(20);
+  private static final String FIELD_STEREO_MODE = Util.intToStringMaxRadix(21);
+  private static final String FIELD_COLOR_INFO = Util.intToStringMaxRadix(22);
+  private static final String FIELD_CHANNEL_COUNT = Util.intToStringMaxRadix(23);
+  private static final String FIELD_SAMPLE_RATE = Util.intToStringMaxRadix(24);
+  private static final String FIELD_PCM_ENCODING = Util.intToStringMaxRadix(25);
+  private static final String FIELD_ENCODER_DELAY = Util.intToStringMaxRadix(26);
+  private static final String FIELD_ENCODER_PADDING = Util.intToStringMaxRadix(27);
+  private static final String FIELD_ACCESSIBILITY_CHANNEL = Util.intToStringMaxRadix(28);
+  private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(29);
+  private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(30);
+  private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(31);
 
   @Override
   public Bundle toBundle() {
@@ -1595,54 +1550,54 @@ public final class Format implements Bundleable {
    */
   public Bundle toBundle(boolean excludeMetadata) {
     Bundle bundle = new Bundle();
-    bundle.putString(keyForField(FIELD_ID), id);
-    bundle.putString(keyForField(FIELD_LABEL), label);
-    bundle.putString(keyForField(FIELD_LANGUAGE), language);
-    bundle.putInt(keyForField(FIELD_SELECTION_FLAGS), selectionFlags);
-    bundle.putInt(keyForField(FIELD_ROLE_FLAGS), roleFlags);
-    bundle.putInt(keyForField(FIELD_AVERAGE_BITRATE), averageBitrate);
-    bundle.putInt(keyForField(FIELD_PEAK_BITRATE), peakBitrate);
-    bundle.putString(keyForField(FIELD_CODECS), codecs);
+    bundle.putString(FIELD_ID, id);
+    bundle.putString(FIELD_LABEL, label);
+    bundle.putString(FIELD_LANGUAGE, language);
+    bundle.putInt(FIELD_SELECTION_FLAGS, selectionFlags);
+    bundle.putInt(FIELD_ROLE_FLAGS, roleFlags);
+    bundle.putInt(FIELD_AVERAGE_BITRATE, averageBitrate);
+    bundle.putInt(FIELD_PEAK_BITRATE, peakBitrate);
+    bundle.putString(FIELD_CODECS, codecs);
     if (!excludeMetadata) {
       // TODO (internal ref: b/239701618)
-      bundle.putParcelable(keyForField(FIELD_METADATA), metadata);
+      bundle.putParcelable(FIELD_METADATA, metadata);
     }
     // Container specific.
-    bundle.putString(keyForField(FIELD_CONTAINER_MIME_TYPE), containerMimeType);
+    bundle.putString(FIELD_CONTAINER_MIME_TYPE, containerMimeType);
     // Sample specific.
-    bundle.putString(keyForField(FIELD_SAMPLE_MIME_TYPE), sampleMimeType);
-    bundle.putInt(keyForField(FIELD_MAX_INPUT_SIZE), maxInputSize);
+    bundle.putString(FIELD_SAMPLE_MIME_TYPE, sampleMimeType);
+    bundle.putInt(FIELD_MAX_INPUT_SIZE, maxInputSize);
     for (int i = 0; i < initializationData.size(); i++) {
       bundle.putByteArray(keyForInitializationData(i), initializationData.get(i));
     }
     // DrmInitData doesn't need to be Bundleable as it's only used in the playing process to
     // initialize the decoder.
-    bundle.putParcelable(keyForField(FIELD_DRM_INIT_DATA), drmInitData);
-    bundle.putLong(keyForField(FIELD_SUBSAMPLE_OFFSET_US), subsampleOffsetUs);
+    bundle.putParcelable(FIELD_DRM_INIT_DATA, drmInitData);
+    bundle.putLong(FIELD_SUBSAMPLE_OFFSET_US, subsampleOffsetUs);
     // Video specific.
-    bundle.putInt(keyForField(FIELD_WIDTH), width);
-    bundle.putInt(keyForField(FIELD_HEIGHT), height);
-    bundle.putFloat(keyForField(FIELD_FRAME_RATE), frameRate);
-    bundle.putInt(keyForField(FIELD_ROTATION_DEGREES), rotationDegrees);
-    bundle.putFloat(keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), pixelWidthHeightRatio);
-    bundle.putByteArray(keyForField(FIELD_PROJECTION_DATA), projectionData);
-    bundle.putInt(keyForField(FIELD_STEREO_MODE), stereoMode);
+    bundle.putInt(FIELD_WIDTH, width);
+    bundle.putInt(FIELD_HEIGHT, height);
+    bundle.putFloat(FIELD_FRAME_RATE, frameRate);
+    bundle.putInt(FIELD_ROTATION_DEGREES, rotationDegrees);
+    bundle.putFloat(FIELD_PIXEL_WIDTH_HEIGHT_RATIO, pixelWidthHeightRatio);
+    bundle.putByteArray(FIELD_PROJECTION_DATA, projectionData);
+    bundle.putInt(FIELD_STEREO_MODE, stereoMode);
     if (colorInfo != null) {
-      bundle.putBundle(keyForField(FIELD_COLOR_INFO), colorInfo.toBundle());
+      bundle.putBundle(FIELD_COLOR_INFO, colorInfo.toBundle());
     }
     // Audio specific.
-    bundle.putInt(keyForField(FIELD_CHANNEL_COUNT), channelCount);
-    bundle.putInt(keyForField(FIELD_SAMPLE_RATE), sampleRate);
-    bundle.putInt(keyForField(FIELD_PCM_ENCODING), pcmEncoding);
-    bundle.putInt(keyForField(FIELD_ENCODER_DELAY), encoderDelay);
-    bundle.putInt(keyForField(FIELD_ENCODER_PADDING), encoderPadding);
+    bundle.putInt(FIELD_CHANNEL_COUNT, channelCount);
+    bundle.putInt(FIELD_SAMPLE_RATE, sampleRate);
+    bundle.putInt(FIELD_PCM_ENCODING, pcmEncoding);
+    bundle.putInt(FIELD_ENCODER_DELAY, encoderDelay);
+    bundle.putInt(FIELD_ENCODER_PADDING, encoderPadding);
     // Text specific.
-    bundle.putInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), accessibilityChannel);
-    // Image specific.
-    bundle.putInt(keyForField(FIELD_TILE_COUNT_HORIZONTAL), tileCountHorizontal);
-    bundle.putInt(keyForField(FIELD_TILE_COUNT_VERTICAL), tileCountVertical);
+    bundle.putInt(FIELD_ACCESSIBILITY_CHANNEL, accessibilityChannel);
     // Source specific.
-    bundle.putInt(keyForField(FIELD_CRYPTO_TYPE), cryptoType);
+    bundle.putInt(FIELD_CRYPTO_TYPE, cryptoType);
+    // Image specific.
+    bundle.putInt(FIELD_TILE_COUNT_HORIZONTAL, tileCountHorizontal);
+    bundle.putInt(FIELD_TILE_COUNT_VERTICAL, tileCountVertical);
     return bundle;
   }
 
@@ -1653,28 +1608,22 @@ public final class Format implements Bundleable {
     Builder builder = new Builder();
     BundleableUtil.ensureClassLoader(bundle);
     builder
-        .setId(defaultIfNull(bundle.getString(keyForField(FIELD_ID)), DEFAULT.id))
-        .setLabel(defaultIfNull(bundle.getString(keyForField(FIELD_LABEL)), DEFAULT.label))
-        .setLanguage(defaultIfNull(bundle.getString(keyForField(FIELD_LANGUAGE)), DEFAULT.language))
-        .setSelectionFlags(
-            bundle.getInt(keyForField(FIELD_SELECTION_FLAGS), DEFAULT.selectionFlags))
-        .setRoleFlags(bundle.getInt(keyForField(FIELD_ROLE_FLAGS), DEFAULT.roleFlags))
-        .setAverageBitrate(
-            bundle.getInt(keyForField(FIELD_AVERAGE_BITRATE), DEFAULT.averageBitrate))
-        .setPeakBitrate(bundle.getInt(keyForField(FIELD_PEAK_BITRATE), DEFAULT.peakBitrate))
-        .setCodecs(defaultIfNull(bundle.getString(keyForField(FIELD_CODECS)), DEFAULT.codecs))
-        .setMetadata(
-            defaultIfNull(bundle.getParcelable(keyForField(FIELD_METADATA)), DEFAULT.metadata))
+        .setId(defaultIfNull(bundle.getString(FIELD_ID), DEFAULT.id))
+        .setLabel(defaultIfNull(bundle.getString(FIELD_LABEL), DEFAULT.label))
+        .setLanguage(defaultIfNull(bundle.getString(FIELD_LANGUAGE), DEFAULT.language))
+        .setSelectionFlags(bundle.getInt(FIELD_SELECTION_FLAGS, DEFAULT.selectionFlags))
+        .setRoleFlags(bundle.getInt(FIELD_ROLE_FLAGS, DEFAULT.roleFlags))
+        .setAverageBitrate(bundle.getInt(FIELD_AVERAGE_BITRATE, DEFAULT.averageBitrate))
+        .setPeakBitrate(bundle.getInt(FIELD_PEAK_BITRATE, DEFAULT.peakBitrate))
+        .setCodecs(defaultIfNull(bundle.getString(FIELD_CODECS), DEFAULT.codecs))
+        .setMetadata(defaultIfNull(bundle.getParcelable(FIELD_METADATA), DEFAULT.metadata))
         // Container specific.
         .setContainerMimeType(
-            defaultIfNull(
-                bundle.getString(keyForField(FIELD_CONTAINER_MIME_TYPE)),
-                DEFAULT.containerMimeType))
+            defaultIfNull(bundle.getString(FIELD_CONTAINER_MIME_TYPE), DEFAULT.containerMimeType))
         // Sample specific.
         .setSampleMimeType(
-            defaultIfNull(
-                bundle.getString(keyForField(FIELD_SAMPLE_MIME_TYPE)), DEFAULT.sampleMimeType))
-        .setMaxInputSize(bundle.getInt(keyForField(FIELD_MAX_INPUT_SIZE), DEFAULT.maxInputSize));
+            defaultIfNull(bundle.getString(FIELD_SAMPLE_MIME_TYPE), DEFAULT.sampleMimeType))
+        .setMaxInputSize(bundle.getInt(FIELD_MAX_INPUT_SIZE, DEFAULT.maxInputSize));
 
     List<byte[]> initializationData = new ArrayList<>();
     for (int i = 0; ; i++) {
@@ -1686,56 +1635,53 @@ public final class Format implements Bundleable {
     }
     builder
         .setInitializationData(initializationData)
-        .setDrmInitData(bundle.getParcelable(keyForField(FIELD_DRM_INIT_DATA)))
-        .setSubsampleOffsetUs(
-            bundle.getLong(keyForField(FIELD_SUBSAMPLE_OFFSET_US), DEFAULT.subsampleOffsetUs))
+        .setDrmInitData(bundle.getParcelable(FIELD_DRM_INIT_DATA))
+        .setSubsampleOffsetUs(bundle.getLong(FIELD_SUBSAMPLE_OFFSET_US, DEFAULT.subsampleOffsetUs))
         // Video specific.
-        .setWidth(bundle.getInt(keyForField(FIELD_WIDTH), DEFAULT.width))
-        .setHeight(bundle.getInt(keyForField(FIELD_HEIGHT), DEFAULT.height))
-        .setFrameRate(bundle.getFloat(keyForField(FIELD_FRAME_RATE), DEFAULT.frameRate))
-        .setRotationDegrees(
-            bundle.getInt(keyForField(FIELD_ROTATION_DEGREES), DEFAULT.rotationDegrees))
+        .setWidth(bundle.getInt(FIELD_WIDTH, DEFAULT.width))
+        .setHeight(bundle.getInt(FIELD_HEIGHT, DEFAULT.height))
+        .setFrameRate(bundle.getFloat(FIELD_FRAME_RATE, DEFAULT.frameRate))
+        .setRotationDegrees(bundle.getInt(FIELD_ROTATION_DEGREES, DEFAULT.rotationDegrees))
         .setPixelWidthHeightRatio(
-            bundle.getFloat(
-                keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), DEFAULT.pixelWidthHeightRatio))
-        .setProjectionData(bundle.getByteArray(keyForField(FIELD_PROJECTION_DATA)))
-        .setStereoMode(bundle.getInt(keyForField(FIELD_STEREO_MODE), DEFAULT.stereoMode));
-    Bundle colorInfoBundle = bundle.getBundle(keyForField(FIELD_COLOR_INFO));
+            bundle.getFloat(FIELD_PIXEL_WIDTH_HEIGHT_RATIO, DEFAULT.pixelWidthHeightRatio))
+        .setProjectionData(bundle.getByteArray(FIELD_PROJECTION_DATA))
+        .setStereoMode(bundle.getInt(FIELD_STEREO_MODE, DEFAULT.stereoMode));
+    Bundle colorInfoBundle = bundle.getBundle(FIELD_COLOR_INFO);
     if (colorInfoBundle != null) {
       builder.setColorInfo(ColorInfo.CREATOR.fromBundle(colorInfoBundle));
     }
     // Audio specific.
     builder
-        .setChannelCount(bundle.getInt(keyForField(FIELD_CHANNEL_COUNT), DEFAULT.channelCount))
-        .setSampleRate(bundle.getInt(keyForField(FIELD_SAMPLE_RATE), DEFAULT.sampleRate))
-        .setPcmEncoding(bundle.getInt(keyForField(FIELD_PCM_ENCODING), DEFAULT.pcmEncoding))
-        .setEncoderDelay(bundle.getInt(keyForField(FIELD_ENCODER_DELAY), DEFAULT.encoderDelay))
-        .setEncoderPadding(
-            bundle.getInt(keyForField(FIELD_ENCODER_PADDING), DEFAULT.encoderPadding))
+        .setChannelCount(bundle.getInt(FIELD_CHANNEL_COUNT, DEFAULT.channelCount))
+        .setSampleRate(bundle.getInt(FIELD_SAMPLE_RATE, DEFAULT.sampleRate))
+        .setPcmEncoding(bundle.getInt(FIELD_PCM_ENCODING, DEFAULT.pcmEncoding))
+        .setEncoderDelay(bundle.getInt(FIELD_ENCODER_DELAY, DEFAULT.encoderDelay))
+        .setEncoderPadding(bundle.getInt(FIELD_ENCODER_PADDING, DEFAULT.encoderPadding))
         // Text specific.
-        .setAccessibilityChannel(
-            bundle.getInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), DEFAULT.accessibilityChannel))
+        .setAccessibilityChannel(bundle.getInt(FIELD_ACCESSIBILITY_CHANNEL, DEFAULT.accessibilityChannel))
         // Image specific.
-        .setTileCountHorizontal(
-            bundle.getInt(keyForField(FIELD_TILE_COUNT_HORIZONTAL), DEFAULT.tileCountHorizontal))
-        .setTileCountVertical(
-            bundle.getInt(keyForField(FIELD_TILE_COUNT_VERTICAL), DEFAULT.tileCountVertical))
+        .setTileCountHorizontal(bundle.getInt(FIELD_TILE_COUNT_HORIZONTAL, DEFAULT.tileCountHorizontal))
+        .setTileCountVertical(bundle.getInt(FIELD_TILE_COUNT_VERTICAL, DEFAULT.tileCountVertical))
         // Source specific.
-        .setCryptoType(bundle.getInt(keyForField(FIELD_CRYPTO_TYPE), DEFAULT.cryptoType));
+        .setCryptoType(bundle.getInt(FIELD_CRYPTO_TYPE, DEFAULT.cryptoType));
 
     return builder.build();
   }
 
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
-
   private static String keyForInitializationData(int initialisationDataIndex) {
-    return keyForField(FIELD_INITIALIZATION_DATA)
+    return FIELD_INITIALIZATION_DATA
         + "_"
         + Integer.toString(initialisationDataIndex, Character.MAX_RADIX);
   }
 
+  /**
+   * Utility method to get {@code defaultValue} if {@code value} is {@code null}. {@code
+   * defaultValue} can be {@code null}.
+   *
+   * <p>Note: Current implementations of getters in {@link Bundle}, for example {@link
+   * Bundle#getString(String, String)} does not allow the defaultValue to be {@code null}, hence the
+   * need for this method.
+   */
   @Nullable
   private static <T> T defaultIfNull(@Nullable T value, @Nullable T defaultValue) {
     return value != null ? value : defaultValue;

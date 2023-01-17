@@ -38,12 +38,14 @@ import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -68,10 +70,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
-  private final FrameProcessor.Listener frameProcessorListener;
   private final boolean sampleFromExternalTexture;
-  private final ColorInfo colorInfo;
+  private final ColorInfo inputColorInfo;
+  private final ColorInfo outputColorInfo;
   private final boolean releaseFramesAutomatically;
+  private final Executor frameProcessorListenerExecutor;
+  private final FrameProcessor.Listener frameProcessorListener;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
   private final Queue<Pair<TextureInfo, Long>> availableFrames;
@@ -81,7 +85,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private MatrixTextureProcessor matrixTextureProcessor;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private InputListener inputListener;
-  private @MonotonicNonNull Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation;
+  private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
 
   private volatile boolean outputSizeOrRotationChanged;
@@ -100,21 +104,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLContext eglContext,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
-      FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
-      ColorInfo colorInfo,
-      boolean releaseFramesAutomatically) {
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
+      boolean releaseFramesAutomatically,
+      Executor frameProcessorListenerExecutor,
+      FrameProcessor.Listener frameProcessorListener) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
-    this.frameProcessorListener = frameProcessorListener;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
-    this.colorInfo = colorInfo;
+    this.inputColorInfo = inputColorInfo;
+    this.outputColorInfo = outputColorInfo;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
+    this.frameProcessorListenerExecutor = frameProcessorListenerExecutor;
+    this.frameProcessorListener = frameProcessorListener;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
@@ -135,7 +143,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setErrorListener(ErrorListener errorListener) {
+  public void setErrorListener(Executor executor, ErrorListener errorListener) {
     // The FrameProcessor.Listener passed to the constructor is used for errors.
     throw new UnsupportedOperationException();
   }
@@ -145,7 +153,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long streamOffsetUs =
         checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
     long offsetPresentationTimeUs = presentationTimeUs + streamOffsetUs;
-    frameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs);
+    frameProcessorListenerExecutor.execute(
+        () -> frameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs));
     if (releaseFramesAutomatically) {
       renderFrameToSurfaces(
           inputTexture, presentationTimeUs, /* releaseTimeNs= */ offsetPresentationTimeUs * 1000);
@@ -177,15 +186,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     streamOffsetUsQueue.remove();
     if (streamOffsetUsQueue.isEmpty()) {
-      frameProcessorListener.onFrameProcessingEnded();
+      frameProcessorListenerExecutor.execute(frameProcessorListener::onFrameProcessingEnded);
     }
   }
 
   @Override
   @WorkerThread
-  public void release() throws FrameProcessingException {
+  public synchronized void release() throws FrameProcessingException {
     if (matrixTextureProcessor != null) {
       matrixTextureProcessor.release();
+    }
+    try {
+      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
     }
   }
 
@@ -226,6 +240,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (outputSurfaceInfo != null
           && this.outputSurfaceInfo != null
           && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
+        try {
+          GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+        } catch (GlUtil.GlException e) {
+          frameProcessorListenerExecutor.execute(
+              () ->
+                  frameProcessorListener.onFrameProcessingError(FrameProcessingException.from(e)));
+        }
         this.outputEglSurface = null;
       }
       outputSizeOrRotationChanged =
@@ -243,8 +264,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
     } catch (FrameProcessingException | GlUtil.GlException e) {
-      frameProcessorListener.onFrameProcessingError(
-          FrameProcessingException.from(e, presentationTimeUs));
+      frameProcessorListenerExecutor.execute(
+          () ->
+              frameProcessorListener.onFrameProcessingError(
+                  FrameProcessingException.from(e, presentationTimeUs)));
     }
     maybeRenderFrameToDebugSurface(inputTexture, presentationTimeUs);
     inputListener.onInputFrameProcessed(inputTexture);
@@ -291,14 +314,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         || this.outputSizeBeforeSurfaceTransformation == null) {
       this.inputWidth = inputWidth;
       this.inputHeight = inputHeight;
-      Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation =
+      Size outputSizeBeforeSurfaceTransformation =
           MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
       if (!Util.areEqual(
           this.outputSizeBeforeSurfaceTransformation, outputSizeBeforeSurfaceTransformation)) {
         this.outputSizeBeforeSurfaceTransformation = outputSizeBeforeSurfaceTransformation;
-        frameProcessorListener.onOutputSizeChanged(
-            outputSizeBeforeSurfaceTransformation.first,
-            outputSizeBeforeSurfaceTransformation.second);
+        frameProcessorListenerExecutor.execute(
+            () ->
+                frameProcessorListener.onOutputSizeChanged(
+                    outputSizeBeforeSurfaceTransformation.getWidth(),
+                    outputSizeBeforeSurfaceTransformation.getHeight()));
       }
     }
 
@@ -307,6 +332,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         matrixTextureProcessor.release();
         matrixTextureProcessor = null;
       }
+      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
       outputEglSurface = null;
       return false;
     }
@@ -314,15 +340,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
-      boolean colorInfoIsHdr = ColorInfo.isTransferHdr(colorInfo);
-
       outputEglSurface =
           GlUtil.createEglSurface(
               eglDisplay,
               outputSurfaceInfo.surface,
-              colorInfoIsHdr
-                  ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
-                  : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+              outputColorInfo.colorTransfer,
+              // Frames are only released automatically when outputting to an encoder.
+              /* isEncoderInputSurface= */ releaseFramesAutomatically);
 
       @Nullable
       SurfaceView debugSurfaceView =
@@ -330,7 +354,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputSurfaceInfo.width, outputSurfaceInfo.height);
       if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
         debugSurfaceViewWrapper =
-            new SurfaceViewWrapper(eglDisplay, eglContext, colorInfoIsHdr, debugSurfaceView);
+            new SurfaceViewWrapper(
+                eglDisplay, eglContext, ColorInfo.isTransferHdr(outputColorInfo), debugSurfaceView);
       }
       this.debugSurfaceView = debugSurfaceView;
     }
@@ -368,18 +393,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         matrixTransformationListBuilder.build();
     if (sampleFromExternalTexture) {
       matrixTextureProcessor =
-          MatrixTextureProcessor.createWithExternalSamplerApplyingEotfThenOetf(
-              context, expandedMatrixTransformations, rgbMatrices, colorInfo);
+          MatrixTextureProcessor.createWithExternalSampler(
+              context,
+              expandedMatrixTransformations,
+              rgbMatrices,
+              /* inputColorInfo= */ inputColorInfo,
+              /* outputColorInfo= */ outputColorInfo);
     } else {
       matrixTextureProcessor =
           MatrixTextureProcessor.createApplyingOetf(
-              context, expandedMatrixTransformations, rgbMatrices, colorInfo);
+              context, expandedMatrixTransformations, rgbMatrices, outputColorInfo);
     }
 
     matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
-    checkState(outputSize.first == outputSurfaceInfo.width);
-    checkState(outputSize.second == outputSurfaceInfo.height);
+    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    checkState(outputSize.getWidth() == outputSurfaceInfo.width);
+    checkState(outputSize.getHeight() == outputSurfaceInfo.height);
     return matrixTextureProcessor;
   }
 
@@ -444,13 +473,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       if (eglSurface == null) {
+        // Screen output supports only BT.2020 PQ (ST2084).
         eglSurface =
             GlUtil.createEglSurface(
                 eglDisplay,
                 surface,
-                useHdr
-                    ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
-                    : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+                useHdr ? C.COLOR_TRANSFER_ST2084 : C.COLOR_TRANSFER_SDR,
+                /* isEncoderInputSurface= */ false);
       }
       EGLSurface eglSurface = this.eglSurface;
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);

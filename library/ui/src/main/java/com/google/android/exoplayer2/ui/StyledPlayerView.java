@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ui;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.getDrawable;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
@@ -287,9 +288,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       overlayFrameLayout = null;
       ImageView logo = new ImageView(context);
       if (Util.SDK_INT >= 23) {
-        configureEditModeLogoV23(getResources(), logo);
+        configureEditModeLogoV23(context, getResources(), logo);
       } else {
-        configureEditModeLogo(getResources(), logo);
+        configureEditModeLogo(context, getResources(), logo);
       }
       addView(logo);
       return;
@@ -867,8 +868,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   /**
    * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
-   * <p>Removes any listener set by {@link
-   * #setControllerVisibilityListener(StyledPlayerControlView.VisibilityListener)}.
+   * <p>If {@code listener} is non-null then any listener set by {@link
+   * #setControllerVisibilityListener(StyledPlayerControlView.VisibilityListener)} is removed.
    *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
@@ -876,14 +877,16 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   @SuppressWarnings("deprecation") // Clearing the legacy listener.
   public void setControllerVisibilityListener(@Nullable ControllerVisibilityListener listener) {
     this.controllerVisibilityListener = listener;
-    setControllerVisibilityListener((StyledPlayerControlView.VisibilityListener) null);
+    if (listener != null) {
+      setControllerVisibilityListener((StyledPlayerControlView.VisibilityListener) null);
+    }
   }
 
   /**
    * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
-   * <p>Removes any listener set by {@link
-   * #setControllerVisibilityListener(ControllerVisibilityListener)}.
+   * <p>If {@code listener} is non-null then any listener set by {@link
+   * #setControllerVisibilityListener(ControllerVisibilityListener)} is removed.
    *
    * @deprecated Use {@link #setControllerVisibilityListener(ControllerVisibilityListener)} instead.
    */
@@ -902,8 +905,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     this.legacyControllerVisibilityListener = listener;
     if (listener != null) {
       controller.addVisibilityListener(listener);
+      setControllerVisibilityListener((ControllerVisibilityListener) null);
     }
-    setControllerVisibilityListener((ControllerVisibilityListener) null);
   }
 
   /**
@@ -1415,13 +1418,14 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   @RequiresApi(23)
-  private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
-    logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
+  private static void configureEditModeLogoV23(
+      Context context, Resources resources, ImageView logo) {
+    logo.setImageDrawable(getDrawable(context, resources, R.drawable.exo_edit_mode_logo));
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color, null));
   }
 
-  private static void configureEditModeLogo(Resources resources, ImageView logo) {
-    logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo));
+  private static void configureEditModeLogo(Context context, Resources resources, ImageView logo) {
+    logo.setImageDrawable(getDrawable(context, resources, R.drawable.exo_edit_mode_logo));
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color));
   }
 

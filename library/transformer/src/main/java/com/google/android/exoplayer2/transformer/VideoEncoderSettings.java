@@ -100,9 +100,9 @@ public final class VideoEncoderSettings {
     /**
      * Sets {@link VideoEncoderSettings#bitrate}. The default value is {@link #NO_VALUE}.
      *
-     * <p>Can not be set if enabling {@link #setEnableHighQualityTargeting(boolean)}.
+     * <p>Can not be set if enabling {@link #experimentalSetEnableHighQualityTargeting(boolean)}.
      *
-     * @param bitrate The {@link VideoEncoderSettings#bitrate}.
+     * @param bitrate The {@link VideoEncoderSettings#bitrate} in bits per second.
      * @return This builder.
      */
     @CanIgnoreReturnValue
@@ -165,7 +165,8 @@ public final class VideoEncoderSettings {
      * Sets encoding operating rate and priority. The default values are {@link #NO_VALUE}, which is
      * treated as configuring the encoder for maximum throughput.
      *
-     * @param operatingRate The {@link MediaFormat#KEY_OPERATING_RATE operating rate}.
+     * @param operatingRate The {@link MediaFormat#KEY_OPERATING_RATE operating rate} in frames per
+     *     second.
      * @param priority The {@link MediaFormat#KEY_PRIORITY priority}.
      * @return This builder.
      */
@@ -180,6 +181,8 @@ public final class VideoEncoderSettings {
     /**
      * Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.
      *
+     * <p>This method is experimental and may be removed or changed without warning.
+     *
      * <p>Default value is {@code false}.
      *
      * <p>Requires {@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_VBR}.
@@ -187,7 +190,7 @@ public final class VideoEncoderSettings {
      * <p>Can not be enabled alongside setting a custom bitrate with {@link #setBitrate(int)}.
      */
     @CanIgnoreReturnValue
-    public Builder setEnableHighQualityTargeting(boolean enableHighQualityTargeting) {
+    public Builder experimentalSetEnableHighQualityTargeting(boolean enableHighQualityTargeting) {
       this.enableHighQualityTargeting = enableHighQualityTargeting;
       return this;
     }
@@ -212,7 +215,7 @@ public final class VideoEncoderSettings {
     }
   }
 
-  /** The encoding bitrate. */
+  /** The encoding bitrate in bits per second. */
   public final int bitrate;
   /** One of {@linkplain BitrateMode}. */
   public final @BitrateMode int bitrateMode;
@@ -222,7 +225,7 @@ public final class VideoEncoderSettings {
   public final int level;
   /** The encoding I-Frame interval in seconds. */
   public final float iFrameIntervalSeconds;
-  /** The encoder {@link MediaFormat#KEY_OPERATING_RATE operating rate}. */
+  /** The encoder {@link MediaFormat#KEY_OPERATING_RATE operating rate} in frames per second. */
   public final int operatingRate;
   /** The encoder {@link MediaFormat#KEY_PRIORITY priority}. */
   public final int priority;

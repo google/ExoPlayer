@@ -15,21 +15,14 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.os.Bundle;
 import androidx.annotation.DoNotInline;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Attributes for audio playback, which configure the underlying platform {@link
@@ -206,32 +199,20 @@ public final class AudioAttributes implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_CONTENT_TYPE,
-    FIELD_FLAGS,
-    FIELD_USAGE,
-    FIELD_ALLOWED_CAPTURE_POLICY,
-    FIELD_SPATIALIZATION_BEHAVIOR
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_CONTENT_TYPE = 0;
-  private static final int FIELD_FLAGS = 1;
-  private static final int FIELD_USAGE = 2;
-  private static final int FIELD_ALLOWED_CAPTURE_POLICY = 3;
-  private static final int FIELD_SPATIALIZATION_BEHAVIOR = 4;
+  private static final String FIELD_CONTENT_TYPE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_FLAGS = Util.intToStringMaxRadix(1);
+  private static final String FIELD_USAGE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_ALLOWED_CAPTURE_POLICY = Util.intToStringMaxRadix(3);
+  private static final String FIELD_SPATIALIZATION_BEHAVIOR = Util.intToStringMaxRadix(4);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_CONTENT_TYPE), contentType);
-    bundle.putInt(keyForField(FIELD_FLAGS), flags);
-    bundle.putInt(keyForField(FIELD_USAGE), usage);
-    bundle.putInt(keyForField(FIELD_ALLOWED_CAPTURE_POLICY), allowedCapturePolicy);
-    bundle.putInt(keyForField(FIELD_SPATIALIZATION_BEHAVIOR), spatializationBehavior);
+    bundle.putInt(FIELD_CONTENT_TYPE, contentType);
+    bundle.putInt(FIELD_FLAGS, flags);
+    bundle.putInt(FIELD_USAGE, usage);
+    bundle.putInt(FIELD_ALLOWED_CAPTURE_POLICY, allowedCapturePolicy);
+    bundle.putInt(FIELD_SPATIALIZATION_BEHAVIOR, spatializationBehavior);
     return bundle;
   }
 
@@ -239,28 +220,23 @@ public final class AudioAttributes implements Bundleable {
   public static final Creator<AudioAttributes> CREATOR =
       bundle -> {
         Builder builder = new Builder();
-        if (bundle.containsKey(keyForField(FIELD_CONTENT_TYPE))) {
-          builder.setContentType(bundle.getInt(keyForField(FIELD_CONTENT_TYPE)));
+        if (bundle.containsKey(FIELD_CONTENT_TYPE)) {
+          builder.setContentType(bundle.getInt(FIELD_CONTENT_TYPE));
         }
-        if (bundle.containsKey(keyForField(FIELD_FLAGS))) {
-          builder.setFlags(bundle.getInt(keyForField(FIELD_FLAGS)));
+        if (bundle.containsKey(FIELD_FLAGS)) {
+          builder.setFlags(bundle.getInt(FIELD_FLAGS));
         }
-        if (bundle.containsKey(keyForField(FIELD_USAGE))) {
-          builder.setUsage(bundle.getInt(keyForField(FIELD_USAGE)));
+        if (bundle.containsKey(FIELD_USAGE)) {
+          builder.setUsage(bundle.getInt(FIELD_USAGE));
         }
-        if (bundle.containsKey(keyForField(FIELD_ALLOWED_CAPTURE_POLICY))) {
-          builder.setAllowedCapturePolicy(bundle.getInt(keyForField(FIELD_ALLOWED_CAPTURE_POLICY)));
+        if (bundle.containsKey(FIELD_ALLOWED_CAPTURE_POLICY)) {
+          builder.setAllowedCapturePolicy(bundle.getInt(FIELD_ALLOWED_CAPTURE_POLICY));
         }
-        if (bundle.containsKey(keyForField(FIELD_SPATIALIZATION_BEHAVIOR))) {
-          builder.setSpatializationBehavior(
-              bundle.getInt(keyForField(FIELD_SPATIALIZATION_BEHAVIOR)));
+        if (bundle.containsKey(FIELD_SPATIALIZATION_BEHAVIOR)) {
+          builder.setSpatializationBehavior(bundle.getInt(FIELD_SPATIALIZATION_BEHAVIOR));
         }
         return builder.build();
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 
   @RequiresApi(29)
   private static final class Api29 {

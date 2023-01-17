@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 import android.net.Uri;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
@@ -43,6 +44,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader;
 import com.google.android.exoplayer2.extractor.wav.WavExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -126,6 +128,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   private @Mp3Extractor.Flags int mp3Flags;
   private @TsExtractor.Mode int tsMode;
   private @DefaultTsPayloadReaderFactory.Flags int tsFlags;
+  // TODO (b/260245332): Initialize tsSubtitleFormats in constructor once shrinking bug is fixed.
+  @Nullable private ImmutableList<Format> tsSubtitleFormats;
   private int tsTimestampSearchBytes;
 
   public DefaultExtractorsFactory() {
@@ -302,6 +306,20 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   /**
+   * Sets a list of subtitle formats to pass to the {@link DefaultTsPayloadReaderFactory} used by
+   * {@link TsExtractor} instances created by the factory.
+   *
+   * @see DefaultTsPayloadReaderFactory#DefaultTsPayloadReaderFactory(int, List)
+   * @param subtitleFormats The subtitle formats.
+   * @return The factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  public synchronized DefaultExtractorsFactory setTsSubtitleFormats(List<Format> subtitleFormats) {
+    tsSubtitleFormats = ImmutableList.copyOf(subtitleFormats);
+    return this;
+  }
+
+  /**
    * Sets the number of bytes searched to find a timestamp for {@link TsExtractor} instances created
    * by the factory.
    *
@@ -414,7 +432,15 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         extractors.add(new PsExtractor());
         break;
       case FileTypes.TS:
-        extractors.add(new TsExtractor(tsMode, tsFlags, tsTimestampSearchBytes));
+        if (tsSubtitleFormats == null) {
+          tsSubtitleFormats = ImmutableList.of();
+        }
+        extractors.add(
+            new TsExtractor(
+                tsMode,
+                new TimestampAdjuster(0),
+                new DefaultTsPayloadReaderFactory(tsFlags, tsSubtitleFormats),
+                tsTimestampSearchBytes));
         break;
       case FileTypes.WAV:
         extractors.add(new WavExtractor());

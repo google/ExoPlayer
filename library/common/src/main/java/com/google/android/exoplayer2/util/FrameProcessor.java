@@ -21,6 +21,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Interface for a frame processor that applies changes to individual video frames.
@@ -43,33 +44,39 @@ public interface FrameProcessor {
      * Creates a new {@link FrameProcessor} instance.
      *
      * @param context A {@link Context}.
-     * @param listener A {@link Listener}.
-     * @param effects The {@link Effect} instances to apply to each frame.
+     * @param effects The {@link Effect} instances to apply to each frame. Applied on the {@code
+     *     outputColorInfo}'s color space.
      * @param debugViewProvider A {@link DebugViewProvider}.
-     * @param colorInfo The {@link ColorInfo} for input and output frames.
+     * @param inputColorInfo The {@link ColorInfo} for input frames.
+     * @param outputColorInfo The {@link ColorInfo} for output frames.
      * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will render
      *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
      *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
      *     {@link FrameProcessor} will block until {@link #releaseOutputFrame(long)} is called, to
      *     render or drop the frame.
+     * @param executor The {@link Executor} on which the {@code listener} is invoked.
+     * @param listener A {@link Listener}.
      * @return A new instance.
      * @throws FrameProcessingException If a problem occurs while creating the {@link
      *     FrameProcessor}.
      */
     FrameProcessor create(
         Context context,
-        Listener listener,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        ColorInfo colorInfo,
-        boolean releaseFramesAutomatically)
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        boolean releaseFramesAutomatically,
+        Executor executor,
+        Listener listener)
         throws FrameProcessingException;
   }
 
   /**
    * Listener for asynchronous frame processing events.
    *
-   * <p>All listener methods must be called from the same thread.
+   * <p>All listener methods must be called from the {@link Executor} passed in at {@linkplain
+   * Factory#create creation}.
    */
   interface Listener {
 
@@ -112,7 +119,11 @@ public interface FrameProcessor {
   /** Indicates the frame should be dropped after {@link #releaseOutputFrame(long)} is invoked. */
   long DROP_OUTPUT_FRAME = -2;
 
-  /** Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from. */
+  /**
+   * Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from.
+   *
+   * <p>Can be called on any thread.
+   */
   Surface getInputSurface();
 
   /**
@@ -126,6 +137,8 @@ public interface FrameProcessor {
    *
    * <p>The caller should update {@link FrameInfo#streamOffsetUs} when switching input streams to
    * ensure that frame timestamps are always monotonically increasing.
+   *
+   * <p>Can be called on any thread.
    */
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
@@ -133,6 +146,8 @@ public interface FrameProcessor {
    * Informs the {@code FrameProcessor} that a frame will be queued to its input surface.
    *
    * <p>Must be called before rendering a frame to the frame processor's input surface.
+   *
+   * <p>Can be called on any thread.
    *
    * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
    *     #setInputFrameInfo(FrameInfo)}.
@@ -142,6 +157,8 @@ public interface FrameProcessor {
   /**
    * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
+   *
+   * <p>Can be called on any thread.
    */
   int getPendingInputFrameCount();
 
@@ -186,6 +203,8 @@ public interface FrameProcessor {
   /**
    * Informs the {@code FrameProcessor} that no further input frames should be accepted.
    *
+   * <p>Can be called on any thread.
+   *
    * @throws IllegalStateException If called more than once.
    */
   void signalEndOfInput();
@@ -199,6 +218,8 @@ public interface FrameProcessor {
    * ignored.
    *
    * <p>This method blocks until all resources are released or releasing times out.
+   *
+   * <p>Can be called on any thread.
    */
   void release();
 }

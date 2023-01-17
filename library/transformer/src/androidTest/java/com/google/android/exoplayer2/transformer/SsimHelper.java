@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_NON_REALTIME;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
@@ -167,6 +168,7 @@ public final class SsimHelper {
     private static final String ASSET_FILE_SCHEME = "asset:///";
     private static final int MAX_IMAGES_ALLOWED = 1;
 
+    private final MediaFormat mediaFormat;
     private final MediaCodec mediaCodec;
     private final MediaExtractor mediaExtractor;
     private final MediaCodec.BufferInfo bufferInfo;
@@ -178,6 +180,7 @@ public final class SsimHelper {
     private boolean hasReadEndOfInputStream;
     private boolean queuedEndOfStreamToDecoder;
     private boolean dequeuedAllDecodedFrames;
+    private boolean isCodecStarted;
     private int dequeuedFramesCount;
 
     /**
@@ -230,10 +233,9 @@ public final class SsimHelper {
 
       String sampleMimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MEDIA_CODEC_COLOR_SPACE);
+      mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, MEDIA_CODEC_PRIORITY_NON_REALTIME);
+      this.mediaFormat = mediaFormat;
       mediaCodec = MediaCodec.createDecoderByType(sampleMimeType);
-      mediaCodec.configure(
-          mediaFormat, imageReader.getSurface(), /* crypto= */ null, /* flags= */ 0);
-      mediaCodec.start();
     }
 
     /**
@@ -243,6 +245,12 @@ public final class SsimHelper {
      */
     @Nullable
     public Image runUntilComparisonFrameOrEnded() throws InterruptedException {
+      if (!isCodecStarted) {
+        mediaCodec.configure(
+            mediaFormat, imageReader.getSurface(), /* crypto= */ null, /* flags= */ 0);
+        mediaCodec.start();
+        isCodecStarted = true;
+      }
       while (!hasEnded() && !isCurrentFrameComparisonFrame) {
         while (dequeueOneFrameFromDecoder()) {}
         while (queueOneFrameToDecoder()) {}

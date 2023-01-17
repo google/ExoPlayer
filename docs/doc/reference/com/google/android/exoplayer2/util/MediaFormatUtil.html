@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -200,6 +200,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getArray(java.nio.ByteBuffer)">getArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;byteBuffer)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getColorInfo(android.media.MediaFormat)">getColorInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)</code></th>
+<td class="colLast">
+<div class="block">Creates and returns a <code>ColorInfo</code>, if a valid instance is described in the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSetByteBuffer(android.media.MediaFormat,java.lang.String,byte%5B%5D)">maybeSetByteBuffer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
@@ -208,7 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> value.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSetColorInfo(android.media.MediaFormat,com.google.android.exoplayer2.video.ColorInfo)">maybeSetColorInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
                  <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</code></th>
@@ -216,7 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>'s color information.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSetFloat(android.media.MediaFormat,java.lang.String,float)">maybeSetFloat</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
@@ -225,7 +237,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> float value.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSetInteger(android.media.MediaFormat,java.lang.String,int)">maybeSetInteger</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
@@ -234,7 +246,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> integer value.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSetString(android.media.MediaFormat,java.lang.String,java.lang.String)">maybeSetString</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
@@ -243,7 +255,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top"><code>String</code></a> value.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCsdBuffers(android.media.MediaFormat,java.util.List)">setCsdBuffers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;csdBuffers)</code></th>
@@ -447,7 +459,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="maybeSetColorInfo(android.media.MediaFormat,com.google.android.exoplayer2.video.ColorInfo)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>maybeSetColorInfo</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;maybeSetColorInfo&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
@@ -459,6 +471,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>format</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> being configured.</dd>
 <dd><code>colorInfo</code> - The color info to set.</dd>
 </dl>
+</li>
+</ul>
+<a id="getColorInfo(android.media.MediaFormat)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getColorInfo</h4>
+<pre class="methodSignature">@Nullable
+public static&nbsp;<a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;getColorInfo&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)</pre>
+<div class="block">Creates and returns a <code>ColorInfo</code>, if a valid instance is described in the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>.</div>
+</li>
+</ul>
+<a id="getArray(java.nio.ByteBuffer)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getArray</h4>
+<pre class="methodSignature">public static&nbsp;byte[]&nbsp;getArray&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;byteBuffer)</pre>
 </li>
 </ul>
 </li>

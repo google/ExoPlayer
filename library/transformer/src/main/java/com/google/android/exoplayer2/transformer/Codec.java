@@ -22,9 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 /**
  * Provides a layer of abstraction for interacting with decoders and encoders.
@@ -33,9 +31,6 @@ import java.util.List;
  * buffers.
  */
 public interface Codec {
-  /** Default value for the pending frame count, which represents applying no limit. */
-  int UNLIMITED_PENDING_FRAME_COUNT = Integer.MAX_VALUE;
-
   /** A factory for {@linkplain Codec decoder} instances. */
   interface DecoderFactory {
 
@@ -70,40 +65,38 @@ public interface Codec {
     /**
      * Returns a {@link Codec} for audio encoding.
      *
-     * <p>This method must validate that the {@link Codec} is configured to produce one of the
-     * {@code allowedMimeTypes}. The {@linkplain Format#sampleMimeType sample MIME type} given in
-     * {@code format} is not necessarily allowed.
+     * <p>The caller should ensure the {@linkplain Format#sampleMimeType MIME type} is supported on
+     * the device before calling this method.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
-     *     encoder and its configuration values.
-     * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes
-     *     MIME types}.
-     * @return A {@link Codec} for audio encoding.
+     *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link
+     *     Format#sampleRate}, {@link Format#channelCount} and {@link Format#bitrate} are set to
+     *     those of the desired output video format.
+     * @return A {@link Codec} for encoding audio to the requested {@link Format#sampleMimeType MIME
+     *     type}.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
-    Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException;
+    Codec createForAudioEncoding(Format format) throws TransformationException;
 
     /**
      * Returns a {@link Codec} for video encoding.
      *
-     * <p>This method must validate that the {@link Codec} is configured to produce one of the
-     * {@code allowedMimeTypes}. The {@linkplain Format#sampleMimeType sample MIME type} given in
-     * {@code format} is not necessarily allowed.
+     * <p>The caller should ensure the {@linkplain Format#sampleMimeType MIME type} is supported on
+     * the device before calling this method. If encoding to HDR, the caller should also ensure the
+     * {@linkplain Format#colorInfo color characteristics} are supported.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link Format#width}
      *     and {@link Format#height} are set to those of the desired output video format. {@link
-     *     Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link Format#height},
-     *     therefore the video is always in landscape orientation. {@link Format#frameRate} is set
-     *     to the output video's frame rate, if available.
-     * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes
-     *     MIME types}.
-     * @return A {@link Codec} for video encoding.
+     *     Format#frameRate} is set to the requested output frame rate, if available. {@link
+     *     Format#colorInfo} is set to the requested output color characteristics, if available.
+     *     {@link Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link
+     *     Format#height}, therefore the video is always in landscape orientation.
+     * @return A {@link Codec} for encoding video to the requested {@linkplain Format#sampleMimeType
+     *     MIME type}.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
-    Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException;
+    Codec createForVideoEncoding(Format format) throws TransformationException;
 
     /** Returns whether the audio needs to be encoded because of encoder specific configuration. */
     default boolean audioNeedsEncoding() {
@@ -138,10 +131,10 @@ public interface Codec {
 
   /**
    * Returns the maximum number of frames that may be pending in the output {@code Codec} at a time,
-   * or {@link #UNLIMITED_PENDING_FRAME_COUNT} if it's not necessary to enforce a limit.
+   * or {@link C#UNLIMITED_PENDING_FRAME_COUNT} if it's not necessary to enforce a limit.
    */
   default int getMaxPendingFrameCount() {
-    return UNLIMITED_PENDING_FRAME_COUNT;
+    return C.UNLIMITED_PENDING_FRAME_COUNT;
   }
 
   /**

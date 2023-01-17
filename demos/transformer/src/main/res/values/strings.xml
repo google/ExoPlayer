@@ -29,9 +29,11 @@
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
+  <string name="abort_slow_transformation" translatable="false">Abort slow transformation</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="hdr_mode" translatable="false">HDR mode</string>
-  <string name="select_demo_effects" translatable="false">Add demo effects</string>
+  <string name="select_audio_effects" translatable="false">Add audio effects</string>
+  <string name="select_video_effects" translatable="false">Add video effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
   <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
   <string name="transform" translatable="false">Transform</string>
@@ -64,4 +66,11 @@
   <string name="permission_denied">Permission Denied</string>
   <string name="hide_input_video">Hide input video</string>
   <string name="show_input_video">Show input video</string>
+  <string name="force_silent_audio">Force silent audio</string>
+  <string name="overlay_alpha">Alpha</string>
+  <string name="overlay_uri">Uri</string>
+  <string name="bitmap_overlay_settings">Specify bitmap overlay settings</string>
+  <string name="overlay_text">Text</string>
+  <string name="overlay_text_color">Text color</string>
+  <string name="text_overlay_settings">Specify text overlay settings</string>
 </resources>

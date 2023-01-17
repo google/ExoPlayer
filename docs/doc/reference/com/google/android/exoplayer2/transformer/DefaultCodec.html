@@ -191,7 +191,8 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,android.media.MediaFormat,java.lang.String,boolean,android.view.Surface)">DefaultCodec</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;configurationFormat,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.Format,android.media.MediaFormat,java.lang.String,boolean,android.view.Surface)">DefaultCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+            <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;configurationFormat,
             <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;configurationMediaFormat,
             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
             boolean&nbsp;isDecoder,
@@ -335,13 +336,14 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.Format,android.media.MediaFormat,java.lang.String,boolean,android.view.Surface)">
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.Format,android.media.MediaFormat,java.lang.String,boolean,android.view.Surface)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultCodec</h4>
-<pre>public&nbsp;DefaultCodec&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;configurationFormat,
+<pre>public&nbsp;DefaultCodec&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;configurationFormat,
                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;configurationMediaFormat,
                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
                     boolean&nbsp;isDecoder,
@@ -351,6 +353,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <div class="block">Creates a <code>DefaultCodec</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>configurationFormat</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> to configure the <code>DefaultCodec</code>. See <a href="#getConfigurationFormat()"><code>getConfigurationFormat()</code></a>. The <a href="../Format.html#sampleMimeType"><code>sampleMimeType</code></a> must not be
      <code>null</code>.</dd>
 <dd><code>configurationMediaFormat</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> to configure the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
@@ -626,7 +629,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <div class="block">Returns the name of the underlying codec.
 
  <p>This name is of the actual codec, which may not be the same as the <code>mediaCodecName</code>
- passed to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,android.media.MediaFormat,java.lang.String,boolean,android.view.Surface)"><code>DefaultCodec(Format, MediaFormat, String, boolean, Surface)</code></a>.</div>
+ passed to <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.Format,android.media.MediaFormat,java.lang.String,boolean,android.view.Surface)"><code>DefaultCodec(Context, Format, MediaFormat, String, boolean, Surface)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#getName()">getName</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>

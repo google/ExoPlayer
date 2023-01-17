@@ -20,7 +20,15 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FO
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
+import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_UNSPECIFIED;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Handler;
@@ -29,7 +37,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -38,57 +45,157 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
-/* package */ final class ExoPlayerAssetLoader {
+/** An {@link AssetLoader} implementation that uses an {@link ExoPlayer} to load samples. */
+public final class ExoPlayerAssetLoader implements AssetLoader {
 
-  public interface Listener {
+  /** An {@link AssetLoader.Factory} for {@link ExoPlayerAssetLoader} instances. */
+  public static final class Factory implements AssetLoader.Factory {
 
-    void onDurationMs(long durationMs);
+    @Nullable private Context context;
+    @Nullable private MediaItem mediaItem;
+    private boolean removeAudio;
+    private boolean removeVideo;
+    private boolean flattenVideoForSlowMotion;
+    @Nullable private MediaSource.Factory mediaSourceFactory;
+    @Nullable private Codec.DecoderFactory decoderFactory;
+    @Nullable private Looper looper;
+    @Nullable private AssetLoader.Listener listener;
+    @Nullable private Clock clock;
 
-    void onTrackRegistered();
+    /**
+     * Creates an instance.
+     *
+     * <p>The {@link ExoPlayerAssetLoader} instances produced use a {@link
+     * DefaultMediaSourceFactory} built with the context provided in {@linkplain
+     * #setContext(Context)}.
+     */
+    public Factory() {}
 
-    void onAllTracksRegistered();
+    /**
+     * Creates an instance.
+     *
+     * @param mediaSourceFactory The {@link MediaSource.Factory} to be used to retrieve the samples
+     *     to transform.
+     */
+    public Factory(MediaSource.Factory mediaSourceFactory) {
+      this.mediaSourceFactory = mediaSourceFactory;
+    }
 
-    SamplePipeline onTrackAdded(Format format, long streamStartPositionUs, long streamOffsetUs)
-        throws TransformationException;
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setContext(Context context) {
+      this.context = context;
+      return this;
+    }
 
-    void onEnded();
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setMediaItem(MediaItem mediaItem) {
+      this.mediaItem = mediaItem;
+      return this;
+    }
 
-    void onError(Exception e);
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
+      this.removeAudio = removeAudio;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
+      this.removeVideo = removeVideo;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
+      this.flattenVideoForSlowMotion = flattenVideoForSlowMotion;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setDecoderFactory(Codec.DecoderFactory decoderFactory) {
+      this.decoderFactory = decoderFactory;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setLooper(Looper looper) {
+      this.looper = looper;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setListener(AssetLoader.Listener listener) {
+      this.listener = listener;
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public AssetLoader.Factory setClock(Clock clock) {
+      this.clock = clock;
+      return this;
+    }
+
+    @Override
+    public AssetLoader createAssetLoader() {
+      Context context = checkStateNotNull(this.context);
+      if (mediaSourceFactory == null) {
+        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+        if (flattenVideoForSlowMotion) {
+          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
+        }
+        mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
+      }
+      return new ExoPlayerAssetLoader(
+          context,
+          checkStateNotNull(mediaItem),
+          removeAudio,
+          removeVideo,
+          flattenVideoForSlowMotion,
+          mediaSourceFactory,
+          checkStateNotNull(decoderFactory),
+          checkStateNotNull(looper),
+          checkStateNotNull(listener),
+          checkStateNotNull(clock));
+    }
   }
 
-  private final Context context;
-  private final boolean removeAudio;
-  private final boolean removeVideo;
-  private final MediaSource.Factory mediaSourceFactory;
-  private final Looper looper;
-  private final Clock clock;
+  private final MediaItem mediaItem;
+  private final ExoPlayer player;
 
-  @Nullable private ExoPlayer player;
+  private @Transformer.ProgressState int progressState;
 
-  public ExoPlayerAssetLoader(
+  private ExoPlayerAssetLoader(
       Context context,
+      MediaItem mediaItem,
       boolean removeAudio,
       boolean removeVideo,
+      boolean flattenForSlowMotion,
       MediaSource.Factory mediaSourceFactory,
+      Codec.DecoderFactory decoderFactory,
       Looper looper,
+      Listener listener,
       Clock clock) {
-    this.context = context;
-    this.removeAudio = removeAudio;
-    this.removeVideo = removeVideo;
-    this.mediaSourceFactory = mediaSourceFactory;
-    this.looper = looper;
-    this.clock = clock;
-  }
-
-  public void start(MediaItem mediaItem, Listener listener) {
+    this.mediaItem = mediaItem;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
         new DefaultTrackSelector.Parameters.Builder(context)
@@ -105,7 +212,10 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
     ExoPlayer.Builder playerBuilder =
-        new ExoPlayer.Builder(context, new RenderersFactoryImpl(removeAudio, removeVideo, listener))
+        new ExoPlayer.Builder(
+                context,
+                new RenderersFactoryImpl(
+                    removeAudio, removeVideo, flattenForSlowMotion, decoderFactory, listener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -118,16 +228,32 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
     }
 
     player = playerBuilder.build();
-    player.setMediaItem(mediaItem);
     player.addListener(new PlayerListener(listener));
-    player.prepare();
+
+    progressState = PROGRESS_STATE_NOT_STARTED;
   }
 
-  public void release() {
-    if (player != null) {
-      player.release();
-      player = null;
+  @Override
+  public void start() {
+    player.setMediaItem(mediaItem);
+    player.prepare();
+    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+  }
+
+  @Override
+  public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
+    if (progressState == PROGRESS_STATE_AVAILABLE) {
+      long durationMs = player.getDuration();
+      long positionMs = player.getCurrentPosition();
+      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
     }
+    return progressState;
+  }
+
+  @Override
+  public void release() {
+    player.release();
+    progressState = PROGRESS_STATE_NOT_STARTED;
   }
 
   private static final class RenderersFactoryImpl implements RenderersFactory {
@@ -135,14 +261,20 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
     private final TransformerMediaClock mediaClock;
     private final boolean removeAudio;
     private final boolean removeVideo;
-    private final ExoPlayerAssetLoader.Listener assetLoaderListener;
+    private final boolean flattenForSlowMotion;
+    private final Codec.DecoderFactory decoderFactory;
+    private final Listener assetLoaderListener;
 
     public RenderersFactoryImpl(
         boolean removeAudio,
         boolean removeVideo,
-        ExoPlayerAssetLoader.Listener assetLoaderListener) {
+        boolean flattenForSlowMotion,
+        Codec.DecoderFactory decoderFactory,
+        Listener assetLoaderListener) {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
+      this.flattenForSlowMotion = flattenForSlowMotion;
+      this.decoderFactory = decoderFactory;
       this.assetLoaderListener = assetLoaderListener;
       mediaClock = new TransformerMediaClock();
     }
@@ -159,12 +291,13 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
       int index = 0;
       if (!removeAudio) {
         renderers[index] =
-            new ExoPlayerAssetLoaderRenderer(C.TRACK_TYPE_AUDIO, mediaClock, assetLoaderListener);
+            new ExoAssetLoaderAudioRenderer(decoderFactory, mediaClock, assetLoaderListener);
         index++;
       }
       if (!removeVideo) {
         renderers[index] =
-            new ExoPlayerAssetLoaderRenderer(C.TRACK_TYPE_VIDEO, mediaClock, assetLoaderListener);
+            new ExoAssetLoaderVideoRenderer(
+                flattenForSlowMotion, decoderFactory, mediaClock, assetLoaderListener);
         index++;
       }
       return renderers;
@@ -173,42 +306,64 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
   private final class PlayerListener implements Player.Listener {
 
-    private final Listener listener;
-    private boolean hasSentDuration;
+    private final Listener assetLoaderListener;
 
-    public PlayerListener(Listener listener) {
-      this.listener = listener;
-    }
-
-    @Override
-    public void onPlaybackStateChanged(int state) {
-      if (state == Player.STATE_ENDED) {
-        listener.onEnded();
-      }
+    public PlayerListener(Listener assetLoaderListener) {
+      this.assetLoaderListener = assetLoaderListener;
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
-      if (hasSentDuration) {
+      if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
-        listener.onDurationMs(Util.usToMs(window.durationUs));
-        hasSentDuration = true;
-        checkNotNull(player).play();
+        long durationUs = window.durationUs;
+        // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
+        // to a high value at the end of the transformation if the duration is set once the media is
+        // entirely loaded.
+        progressState =
+            durationUs <= 0 || durationUs == C.TIME_UNSET
+                ? PROGRESS_STATE_UNAVAILABLE
+                : PROGRESS_STATE_AVAILABLE;
+        assetLoaderListener.onDurationUs(window.durationUs);
       }
     }
 
     @Override
     public void onTracksChanged(Tracks tracks) {
-      listener.onAllTracksRegistered();
+      int trackCount = 0;
+      if (tracks.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
+        trackCount++;
+      }
+      if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+        trackCount++;
+      }
+      if (trackCount == 0) {
+        assetLoaderListener.onTransformationError(
+            TransformationException.createForAssetLoader(
+                new IllegalStateException("The asset loader has no track to output."),
+                ERROR_CODE_FAILED_RUNTIME_CHECK));
+        return;
+      } else {
+        assetLoaderListener.onTrackCount(trackCount);
+      }
+      // Start the renderers after having registered all the tracks to make sure the AssetLoader
+      // listener callbacks are called in the right order.
+      player.play();
     }
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      listener.onError(error);
+      @TransformationException.ErrorCode
+      int errorCode =
+          checkNotNull(
+              TransformationException.NAME_TO_ERROR_CODE.getOrDefault(
+                  error.getErrorCodeName(), ERROR_CODE_UNSPECIFIED));
+      assetLoaderListener.onTransformationError(
+          TransformationException.createForAssetLoader(error, errorCode));
     }
   }
 }

@@ -19,10 +19,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
-import android.view.Surface;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
-import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SystemClock;
@@ -31,14 +34,11 @@ import com.google.common.base.Ascii;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
@@ -152,7 +152,6 @@ public class TransformerAndroidTestRunner {
   }
 
   private final Context context;
-  private final CodecNameForwardingCodecFactory transformerCodecFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
   private final boolean requestCalculateSsim;
@@ -167,14 +166,7 @@ public class TransformerAndroidTestRunner {
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
-    this.transformerCodecFactory =
-        new CodecNameForwardingCodecFactory(transformer.decoderFactory, transformer.encoderFactory);
-    this.transformer =
-        transformer
-            .buildUpon()
-            .setDecoderFactory(transformerCodecFactory)
-            .setEncoderFactory(transformerCodecFactory)
-            .build();
+    this.transformer = transformer;
     this.timeoutSeconds = timeoutSeconds;
     this.requestCalculateSsim = requestCalculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
@@ -182,7 +174,7 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Transforms the {@code uriString}, saving a summary of the transformation to the application
+   * Transforms the {@link MediaItem}, saving a summary of the transformation to the application
    * cache.
    *
    * @param testId A unique identifier for the transformer test run.
@@ -198,48 +190,57 @@ public class TransformerAndroidTestRunner {
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, mediaItem);
       resultJson.put("transformationResult", transformationTestResult.asJsonObject());
+      if (transformationTestResult.testException != null) {
+        throw transformationTestResult.testException;
+      }
       if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
         throw transformationTestResult.analysisException;
       }
       return transformationTestResult;
-    } catch (Exception e) {
-      resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
+    } catch (UnsupportedOperationException | InterruptedException | IOException e) {
+      resultJson.put(
+          "transformationResult",
+          new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
       throw e;
     } finally {
-      resultJson.put("codecDetails", transformerCodecFactory.getCodecNamesAsJsonObject());
       AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
 
   /**
-   * Transforms the {@code uriString}.
+   * Transforms the {@link MediaItem}.
    *
    * @param testId An identifier for the test.
    * @param mediaItem The {@link MediaItem} to transform.
    * @return The {@link TransformationTestResult}.
-   * @throws IOException If an error occurs opening the output file for writing
-   * @throws TimeoutException If the transformation takes longer than the {@link #timeoutSeconds}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
-   * @throws TransformationException If an exception occurs as a result of the transformation.
-   * @throws IllegalArgumentException If the path is invalid.
-   * @throws IllegalStateException If an unexpected exception occurs when starting a transformation.
+   * @throws IOException If an error occurs opening the output file for writing.
    */
   private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
-      throws InterruptedException, IOException, TimeoutException, TransformationException {
+      throws InterruptedException, IOException {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
         && requestCalculateSsim) {
       throw new UnsupportedOperationException(
           "SSIM calculation is not supported for clipped inputs.");
     }
 
+    Uri mediaItemUri = checkNotNull(mediaItem.localConfiguration).uri;
+    String scheme = checkNotNull(mediaItemUri.getScheme());
+    if ((scheme.equals("http") || scheme.equals("https")) && !hasNetworkConnection(context)) {
+      throw new UnsupportedOperationException(
+          "Input network file requested on device with no network connection. Input file name: "
+              + mediaItemUri);
+    }
+
+    AtomicReference<@NullableType FallbackDetails> fallbackDetailsReference =
+        new AtomicReference<>();
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
         new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
     AtomicReference<@NullableType TransformationResult> transformationResultReference =
         new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
-    AtomicBoolean fallbackResolutionApplied = new AtomicBoolean(false);
     long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
     Transformer testTransformer =
@@ -256,8 +257,11 @@ public class TransformerAndroidTestRunner {
 
                   @Override
                   public void onTransformationError(
-                      MediaItem inputMediaItem, TransformationException exception) {
+                      MediaItem inputMediaItem,
+                      TransformationResult result,
+                      TransformationException exception) {
                     transformationExceptionReference.set(exception);
+                    transformationResultReference.set(result);
                     countDownLatch.countDown();
                   }
 
@@ -269,10 +273,16 @@ public class TransformerAndroidTestRunner {
                     // Note: As TransformationRequest only reports the output height but not the
                     // output width, it's not possible to check whether the encoder has changed
                     // the output aspect ratio.
-                    if (originalTransformationRequest.outputHeight
-                        != fallbackTransformationRequest.outputHeight) {
-                      fallbackResolutionApplied.set(true);
-                    }
+                    fallbackDetailsReference.set(
+                        new FallbackDetails(
+                            originalTransformationRequest.outputHeight,
+                            fallbackTransformationRequest.outputHeight,
+                            originalTransformationRequest.audioMimeType,
+                            fallbackTransformationRequest.audioMimeType,
+                            originalTransformationRequest.videoMimeType,
+                            fallbackTransformationRequest.videoMimeType,
+                            originalTransformationRequest.hdrMode,
+                            fallbackTransformationRequest.hdrMode));
                   }
                 })
             .build();
@@ -292,45 +302,55 @@ public class TransformerAndroidTestRunner {
               }
             });
 
-    if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
-      throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
-    }
+    // Block here until timeout reached or latch is counted down.
+    boolean timeoutReached = !countDownLatch.await(timeoutSeconds, SECONDS);
     long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
 
+    @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
-    if (unexpectedException != null) {
-      throw new IllegalStateException(
-          "Unexpected exception starting the transformer.", unexpectedException);
-    }
-
     @Nullable
     TransformationException transformationException = transformationExceptionReference.get();
-    if (transformationException != null) {
-      throw transformationException;
+
+    @Nullable Exception testException = null;
+    if (timeoutReached) {
+      testException =
+          new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
+    } else if (unexpectedException != null) {
+      testException =
+          new IllegalStateException(
+              "Unexpected exception starting the transformer.", unexpectedException);
+    } else if (transformationException != null) {
+      testException = transformationException;
     }
 
-    // If both exceptions are null, the Transformation must have succeeded, and a
-    // transformationResult will be available.
-    TransformationResult transformationResult =
-        checkNotNull(transformationResultReference.get())
-            .buildUpon()
-            .setFileSizeBytes(outputVideoFile.length())
-            .build();
+    if (testException != null) {
+      return new TransformationTestResult.Builder(checkNotNull(transformationResultReference.get()))
+          .setElapsedTimeMs(elapsedTimeMs)
+          .setFallbackDetails(fallbackDetails)
+          .setTestException(testException)
+          .build();
+    }
 
-    TransformationTestResult.Builder resultBuilder =
-        new TransformationTestResult.Builder(transformationResult)
-            .setFilePath(outputVideoFile.getPath())
-            .setElapsedTimeMs(elapsedTimeMs);
+    // No exceptions raised, transformation has succeeded.
+    TransformationTestResult.Builder testResultBuilder =
+        new TransformationTestResult.Builder(
+                checkNotNull(transformationResultReference.get())
+                    .buildUpon()
+                    .setFileSizeBytes(outputVideoFile.length())
+                    .build())
+            .setElapsedTimeMs(elapsedTimeMs)
+            .setFallbackDetails(fallbackDetails)
+            .setFilePath(outputVideoFile.getPath());
 
     if (!requestCalculateSsim) {
-      return resultBuilder.build();
+      return testResultBuilder.build();
     }
-    if (fallbackResolutionApplied.get()) {
+    if (fallbackDetails != null && fallbackDetails.fallbackOutputHeight != C.LENGTH_UNSET) {
       Log.i(
           TAG,
           testId
               + ": Skipping SSIM calculation because an encoder resolution fallback was applied.");
-      return resultBuilder.build();
+      return testResultBuilder.build();
     }
     try {
       double ssim =
@@ -338,7 +358,7 @@ public class TransformerAndroidTestRunner {
               context,
               /* referenceVideoPath= */ checkNotNull(mediaItem.localConfiguration).uri.toString(),
               /* distortedVideoPath= */ outputVideoFile.getPath());
-      resultBuilder.setSsim(ssim);
+      testResultBuilder.setSsim(ssim);
     } catch (InterruptedException interruptedException) {
       // InterruptedException is a special unexpected case because it is not related to Ssim
       // calculation, so it should be thrown, rather than processed as part of the
@@ -356,96 +376,38 @@ public class TransformerAndroidTestRunner {
                 ? (Exception) analysisFailure
                 : new IllegalStateException(analysisFailure);
 
-        resultBuilder.setAnalysisException(analysisException);
+        testResultBuilder.setAnalysisException(analysisException);
         Log.e(TAG, testId + ": SSIM calculation failed.", analysisException);
       }
     }
-    return resultBuilder.build();
+    return testResultBuilder.build();
   }
 
-  /**
-   * A {@link Codec.EncoderFactory} that forwards all methods to another encoder factory, whilst
-   * providing visibility into the names of last codecs created by it.
-   */
-  private static class CodecNameForwardingCodecFactory
-      implements Codec.DecoderFactory, Codec.EncoderFactory {
-
-    /** The name of the last audio {@link Codec decoder} created. */
-    @Nullable public String audioDecoderName;
-    /** The name of the last video {@link Codec decoder} created. */
-    @Nullable public String videoDecoderName;
-    /** The name of the last audio {@link Codec encoder} created. */
-    @Nullable public String audioEncoderName;
-    /** The name of the last video {@link Codec encoder} created. */
-    @Nullable public String videoEncoderName;
-
-    private final Codec.DecoderFactory decoderFactory;
-    private final Codec.EncoderFactory encoderFactory;
-
-    public CodecNameForwardingCodecFactory(
-        Codec.DecoderFactory decoderFactory, Codec.EncoderFactory encoderFactory) {
-      this.decoderFactory = decoderFactory;
-      this.encoderFactory = encoderFactory;
+  /** Returns whether the context is connected to the network. */
+  private static boolean hasNetworkConnection(Context context) {
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
+      return false;
     }
-
-    @Override
-    public Codec createForAudioDecoding(Format format) throws TransformationException {
-      Codec audioDecoder = decoderFactory.createForAudioDecoding(format);
-      audioDecoderName = audioDecoder.getName();
-      return audioDecoder;
-    }
-
-    @Override
-    public Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean requestSdrToneMapping)
-        throws TransformationException {
-      Codec videoDecoder =
-          decoderFactory.createForVideoDecoding(format, outputSurface, requestSdrToneMapping);
-      videoDecoderName = videoDecoder.getName();
-      return videoDecoder;
-    }
-
-    @Override
-    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      Codec audioEncoder = encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
-      audioEncoderName = audioEncoder.getName();
-      return audioEncoder;
-    }
-
-    @Override
-    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-        throws TransformationException {
-      Codec videoEncoder = encoderFactory.createForVideoEncoding(format, allowedMimeTypes);
-      videoEncoderName = videoEncoder.getName();
-      return videoEncoder;
-    }
-
-    @Override
-    public boolean audioNeedsEncoding() {
-      return encoderFactory.audioNeedsEncoding();
-    }
-
-    @Override
-    public boolean videoNeedsEncoding() {
-      return encoderFactory.videoNeedsEncoding();
-    }
-
-    public JSONObject getCodecNamesAsJsonObject() throws JSONException {
-      JSONObject detailsJson = new JSONObject();
-      if (audioDecoderName != null) {
-        detailsJson.put("audioDecoderName", audioDecoderName);
+    if (Util.SDK_INT >= 23) {
+      // getActiveNetwork is available from API 23.
+      NetworkCapabilities activeNetworkCapabilities =
+          connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+      if (activeNetworkCapabilities != null
+          && (activeNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+              || activeNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))) {
+        return true;
       }
-      if (videoDecoderName != null) {
-        detailsJson.put("videoDecoderName", videoDecoderName);
+    } else {
+      // getActiveNetworkInfo is deprecated from API 29.
+      NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+      if (activeNetworkInfo != null
+          && (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
+              || activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE)) {
+        return true;
       }
-      if (audioEncoderName != null) {
-        detailsJson.put("audioEncoderName", audioEncoderName);
-      }
-      if (videoEncoderName != null) {
-        detailsJson.put("videoEncoderName", videoEncoderName);
-      }
-      return detailsJson;
     }
+    return false;
   }
 }
