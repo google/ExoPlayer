@@ -234,12 +234,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
 
+    isEnded = sampleConsumerInputBuffer.isEndOfStream();
     sampleConsumer.queueInputBuffer();
-    if (sampleConsumerInputBuffer.isEndOfStream()) {
-      isEnded = true;
-      return false;
-    }
-    return true;
+    return !isEnded;
   }
 
   /**

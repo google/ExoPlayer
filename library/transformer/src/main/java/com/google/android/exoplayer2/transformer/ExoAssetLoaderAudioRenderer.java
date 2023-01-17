@@ -65,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     Codec decoder = checkNotNull(this.decoder);
     if (decoder.isEnded()) {
-      sampleConsumerInputBuffer.data = null;
+      checkNotNull(sampleConsumerInputBuffer.data).limit(0);
       sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
       sampleConsumer.queueInputBuffer();
       isEnded = true;
