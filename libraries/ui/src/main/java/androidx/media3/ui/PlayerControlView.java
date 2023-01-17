@@ -980,6 +980,9 @@ public class PlayerControlView extends FrameLayout {
       ((ImageView) playPauseButton)
           .setImageDrawable(getDrawable(getContext(), resources, drawableRes));
       playPauseButton.setContentDescription(resources.getString(stringRes));
+
+      boolean enablePlayPause = shouldEnablePlayPauseButton();
+      updateButton(enablePlayPause, playPauseButton);
     }
   }
 
@@ -1495,6 +1498,10 @@ public class PlayerControlView extends FrameLayout {
       int yOffset = -settingsWindow.getHeight() - settingsWindowMargin;
       settingsWindow.update(v, xOffset, yOffset, -1, -1);
     }
+  }
+
+  private boolean shouldEnablePlayPauseButton() {
+    return player != null && !player.getCurrentTimeline().isEmpty();
   }
 
   private boolean shouldShowPauseButton() {
