@@ -23,7 +23,9 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Configures and queries the underlying native library. */
+/**
+ * Configures and queries the underlying native library.
+ */
 public final class FfmpegLibrary {
 
   static {
@@ -33,7 +35,7 @@ public final class FfmpegLibrary {
   private static final String TAG = "FfmpegLibrary";
 
   private static final LibraryLoader LOADER =
-      new LibraryLoader("ffmpegJNI") {
+      new LibraryLoader("avutil", "swresample", "avcodec", "ffmpeg_jni"){
         @Override
         protected void loadLibrary(String name) {
           System.loadLibrary(name);
