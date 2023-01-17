@@ -150,6 +150,20 @@ public class EncoderUtilTest {
     assertThat(closestSupportedResolution.getHeight()).isEqualTo(1920);
   }
 
+  @Test
+  public void getSupportedResolution_findsOneQuarterOfTheOriginalSize() {
+    ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
+    MediaCodecInfo encoderInfo = supportedEncoders.get(0);
+
+    @Nullable
+    Size closestSupportedResolution =
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 7680, 4320);
+
+    assertThat(closestSupportedResolution).isNotNull();
+    assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
+    assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
+  }
+
   /**
    * @see EncoderUtil#getSupportedEncoderNamesForHdrEditing(String, ColorInfo)
    */

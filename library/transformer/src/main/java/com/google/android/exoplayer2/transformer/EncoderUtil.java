@@ -239,7 +239,7 @@ public final class EncoderUtil {
 
     float[] reductionFactors =
         new float[] {
-          0.95f, 0.9f, 0.85f, 0.8f, 0.75f, 0.7f, 2f / 3f, 0.6f, 0.55f, 0.5f, 0.4f, 1f / 3f
+          0.95f, 0.9f, 0.85f, 0.8f, 0.75f, 0.7f, 2f / 3f, 0.6f, 0.55f, 0.5f, 0.4f, 1f / 3f, 0.25f
         };
     for (float reductionFactor : reductionFactors) {
       newWidth = alignResolution(round(width * reductionFactor), widthAlignment);
