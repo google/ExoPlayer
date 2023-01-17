@@ -18,10 +18,13 @@ package com.google.android.exoplayer2.ext.ffmpeg;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MIME_TYPE_CHANGED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION;
+import static java.lang.Runtime.getRuntime;
 
 import android.os.Handler;
 import android.view.Surface;
+
 import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -30,12 +33,13 @@ import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-// TODO: Remove the NOTE below.
 /**
  * <b>NOTE: This class if under development and is not yet functional.</b>
  *
@@ -44,6 +48,27 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
 
   private static final String TAG = "FfmpegVideoRenderer";
+
+  private static final int DEFAULT_NUM_OF_INPUT_BUFFERS = 2;
+  private static final int DEFAULT_NUM_OF_OUTPUT_BUFFERS = 1;
+  /* Default size based on 720p resolution video compressed by a factor of two. */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE =
+      Util.ceilDivide(1280, 64) * Util.ceilDivide(720, 64) * (64 * 64 * 3 / 2) / 2;
+
+  /**
+   * The number of input buffers.
+   */
+  private final int numInputBuffers;
+  /**
+   * The number of output buffers. The renderer may limit the minimum possible value due to
+   * requiring multiple output buffers to be dequeued at a time for it to make progress.
+   */
+  private final int numOutputBuffers;
+
+  private final int threads;
+
+  @Nullable
+  private FfmpegVideoDecoder decoder;
 
   /**
    * Creates a new instance.
@@ -61,8 +86,45 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
+    this(
+        allowedJoiningTimeMs,
+        eventHandler,
+        eventListener,
+        maxDroppedFramesToNotify,
+        /* threads= */ getRuntime().availableProcessors(),
+        DEFAULT_NUM_OF_INPUT_BUFFERS,
+        DEFAULT_NUM_OF_OUTPUT_BUFFERS);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param allowedJoiningTimeMs     The maximum duration in milliseconds for which this video
+   *                                 renderer can attempt to seamlessly join an ongoing playback.
+   * @param eventHandler             A handler to use when delivering events to {@code
+   *                                 eventListener}. May be null if delivery of events is not
+   *                                 required.
+   * @param eventListener            A listener of events. May be null if delivery of events is not
+   *                                 required.
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
+   *                                 invocations of {@link VideoRendererEventListener#onDroppedFrames(int,
+   *                                 long)}.
+   * @param threads                  Number of threads libgav1 will use to decode.
+   * @param numInputBuffers          Number of input buffers.
+   * @param numOutputBuffers         Number of output buffers.
+   */
+  public FfmpegVideoRenderer(
+      long allowedJoiningTimeMs,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify,
+      int threads,
+      int numInputBuffers,
+      int numOutputBuffers) {
     super(allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify);
-    // TODO: Implement.
+    this.threads = threads;
+    this.numInputBuffers = numInputBuffers;
+    this.numOutputBuffers = numOutputBuffers;
   }
 
   @Override
@@ -71,52 +133,53 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  public final @RendererCapabilities.Capabilities int supportsFormat(Format format) {
-    // TODO: Remove this line and uncomment the implementation below.
-    return C.FORMAT_UNSUPPORTED_TYPE;
-    /*
+  public final @C.FormatSupport int supportsFormat(Format format) {
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isVideo(mimeType)) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return C.FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
-    } else if (format.exoMediaCryptoType != null) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
+    } else if (format.cryptoType != C.CRYPTO_TYPE_NONE) {
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     } else {
       return RendererCapabilities.create(
-          FORMAT_HANDLED,
+          C.FORMAT_HANDLED,
           ADAPTIVE_SEAMLESS,
           TUNNELING_NOT_SUPPORTED);
     }
-    */
   }
 
-  @SuppressWarnings("nullness:return")
   @Override
   protected Decoder<DecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException>
       createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
           throws FfmpegDecoderException {
     TraceUtil.beginSection("createFfmpegVideoDecoder");
-    // TODO: Implement, remove the SuppressWarnings annotation, and update the return type to use
-    // the concrete type of the decoder (probably FfmepgVideoDecoder).
+    int initialInputBufferSize =
+        format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
+    FfmpegVideoDecoder decoder =
+        new FfmpegVideoDecoder(numInputBuffers, numOutputBuffers, initialInputBufferSize, threads,
+            format);
+    this.decoder = decoder;
     TraceUtil.endSection();
-    return null;
+    return decoder;
   }
 
   @Override
   protected void renderOutputBufferToSurface(VideoDecoderOutputBuffer outputBuffer, Surface surface)
       throws FfmpegDecoderException {
-    // TODO: Implement.
+    if (decoder == null) {
+      throw new FfmpegDecoderException(
+          "Failed to render output buffer to surface: decoder is not initialized.");
+    }
+    decoder.renderToSurface(outputBuffer, surface);
+    outputBuffer.release();
   }
 
   @Override
   protected void setDecoderOutputMode(@C.VideoOutputMode int outputMode) {
-    // TODO: Uncomment the implementation below.
-    /*
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
     }
-    */
   }
 
   @Override
