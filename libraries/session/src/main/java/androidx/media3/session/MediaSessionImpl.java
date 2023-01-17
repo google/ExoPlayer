@@ -15,9 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
-import static androidx.media3.common.Player.COMMAND_GET_TEXT;
-import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
 import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -416,21 +413,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           // 0 is OK for legacy controllers, because they didn't have sequence numbers.
           seq = 0;
         }
+        Player.Commands intersectedCommands =
+            MediaUtils.intersect(
+                controllersManager.getAvailablePlayerCommands(controller),
+                getPlayerWrapper().getAvailableCommands());
         checkStateNotNull(controller.getControllerCb())
             .onPlayerInfoChanged(
                 seq,
                 playerInfo,
-                /* excludeMediaItems= */ !controllersManager.isPlayerCommandAvailable(
-                    controller, COMMAND_GET_TIMELINE),
-                /* excludeMediaItemsMetadata= */ !controllersManager.isPlayerCommandAvailable(
-                    controller, COMMAND_GET_MEDIA_ITEMS_METADATA),
-                /* excludeCues= */ !controllersManager.isPlayerCommandAvailable(
-                    controller, COMMAND_GET_TEXT),
-                excludeTimeline
-                    || !controllersManager.isPlayerCommandAvailable(
-                        controller, COMMAND_GET_TIMELINE),
-                excludeTracks
-                    || !controllersManager.isPlayerCommandAvailable(controller, COMMAND_GET_TRACKS),
+                intersectedCommands,
+                excludeTimeline,
+                excludeTracks,
                 controller.getInterfaceVersion());
       } catch (DeadObjectException e) {
         onDeadObjectException(controller);

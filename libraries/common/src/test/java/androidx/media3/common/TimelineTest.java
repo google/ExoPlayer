@@ -350,10 +350,8 @@ public class TimelineTest {
 
     Bundle windowBundle = window.toBundle();
 
-    // Check that default values are skipped when bundling. MediaItem key is not added to the bundle
-    // only when excludeMediaItem is true.
-    assertThat(windowBundle.keySet()).hasSize(1);
-    assertThat(window.toBundle(/* excludeMediaItem= */ true).keySet()).isEmpty();
+    // Check that default values are skipped when bundling.
+    assertThat(windowBundle.keySet()).isEmpty();
 
     Timeline.Window restoredWindow = Timeline.Window.CREATOR.fromBundle(windowBundle);
 

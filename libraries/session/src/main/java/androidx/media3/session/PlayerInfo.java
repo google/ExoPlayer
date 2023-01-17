@@ -799,11 +799,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   // Next field key = 31
 
   public Bundle toBundle(
-      boolean excludeMediaItems,
-      boolean excludeMediaItemsMetadata,
-      boolean excludeCues,
-      boolean excludeTimeline,
-      boolean excludeTracks) {
+      Player.Commands availableCommands, boolean excludeTimeline, boolean excludeTracks) {
     Bundle bundle = new Bundle();
     if (playerError != null) {
       bundle.putBundle(FIELD_PLAYBACK_ERROR, playerError.toBundle());
@@ -816,16 +812,16 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     bundle.putBundle(FIELD_PLAYBACK_PARAMETERS, playbackParameters.toBundle());
     bundle.putInt(FIELD_REPEAT_MODE, repeatMode);
     bundle.putBoolean(FIELD_SHUFFLE_MODE_ENABLED, shuffleModeEnabled);
-    if (!excludeTimeline) {
-      bundle.putBundle(FIELD_TIMELINE, timeline.toBundle(excludeMediaItems));
+    if (!excludeTimeline && availableCommands.contains(Player.COMMAND_GET_TIMELINE)) {
+      bundle.putBundle(FIELD_TIMELINE, timeline.toBundle());
     }
     bundle.putBundle(FIELD_VIDEO_SIZE, videoSize.toBundle());
-    if (!excludeMediaItemsMetadata) {
+    if (availableCommands.contains(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {
       bundle.putBundle(FIELD_PLAYLIST_METADATA, playlistMetadata.toBundle());
     }
     bundle.putFloat(FIELD_VOLUME, volume);
     bundle.putBundle(FIELD_AUDIO_ATTRIBUTES, audioAttributes.toBundle());
-    if (!excludeCues) {
+    if (availableCommands.contains(Player.COMMAND_GET_TEXT)) {
       bundle.putBundle(FIELD_CUE_GROUP, cueGroup.toBundle());
     }
     bundle.putBundle(FIELD_DEVICE_INFO, deviceInfo.toBundle());
@@ -836,13 +832,13 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     bundle.putInt(FIELD_PLAYBACK_STATE, playbackState);
     bundle.putBoolean(FIELD_IS_PLAYING, isPlaying);
     bundle.putBoolean(FIELD_IS_LOADING, isLoading);
-    bundle.putBundle(
-        FIELD_MEDIA_METADATA,
-        excludeMediaItems ? MediaMetadata.EMPTY.toBundle() : mediaMetadata.toBundle());
+    if (availableCommands.contains(Player.COMMAND_GET_TIMELINE)) {
+      bundle.putBundle(FIELD_MEDIA_METADATA, mediaMetadata.toBundle());
+    }
     bundle.putLong(FIELD_SEEK_BACK_INCREMENT_MS, seekBackIncrementMs);
     bundle.putLong(FIELD_SEEK_FORWARD_INCREMENT_MS, seekForwardIncrementMs);
     bundle.putLong(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS, maxSeekToPreviousPositionMs);
-    if (!excludeTracks) {
+    if (!excludeTracks && availableCommands.contains(Player.COMMAND_GET_TRACKS)) {
       bundle.putBundle(FIELD_CURRENT_TRACKS, currentTracks.toBundle());
     }
     bundle.putBundle(FIELD_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle());
@@ -853,9 +849,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   @Override
   public Bundle toBundle() {
     return toBundle(
-        /* excludeMediaItems= */ false,
-        /* excludeMediaItemsMetadata= */ false,
-        /* excludeCues= */ false,
+        /* availableCommands= */ new Player.Commands.Builder().addAllCommands().build(),
         /* excludeTimeline= */ false,
         /* excludeTracks= */ false);
   }

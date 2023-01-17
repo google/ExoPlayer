@@ -1155,9 +1155,7 @@ public class MediaSession {
     default void onPlayerInfoChanged(
         int seq,
         PlayerInfo playerInfo,
-        boolean excludeMediaItems,
-        boolean excludeMediaItemsMetadata,
-        boolean excludeCues,
+        Player.Commands availableCommands,
         boolean excludeTimeline,
         boolean excludeTracks,
         int controllerInterfaceVersion)

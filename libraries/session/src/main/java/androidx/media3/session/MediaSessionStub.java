@@ -1606,35 +1606,29 @@ import java.util.concurrent.ExecutionException;
     public void onPlayerInfoChanged(
         int sequenceNumber,
         PlayerInfo playerInfo,
-        boolean excludeMediaItems,
-        boolean excludeMediaItemsMetadata,
-        boolean excludeCues,
+        Player.Commands availableCommands,
         boolean excludeTimeline,
         boolean excludeTracks,
         int controllerInterfaceVersion)
         throws RemoteException {
       Assertions.checkState(controllerInterfaceVersion != 0);
+      // The bundling exclusions merge the performance overrides with the available commands.
+      boolean bundlingExclusionsTimeline =
+          excludeTimeline || !availableCommands.contains(Player.COMMAND_GET_TIMELINE);
+      boolean bundlingExclusionsTracks =
+          excludeTracks || !availableCommands.contains(Player.COMMAND_GET_TRACKS);
       if (controllerInterfaceVersion >= 2) {
         iController.onPlayerInfoChangedWithExclusions(
             sequenceNumber,
-            playerInfo.toBundle(
-                excludeMediaItems,
-                excludeMediaItemsMetadata,
-                excludeCues,
-                excludeTimeline,
-                excludeTracks),
-            new PlayerInfo.BundlingExclusions(excludeTimeline, excludeTracks).toBundle());
+            playerInfo.toBundle(availableCommands, excludeTimeline, excludeTracks),
+            new PlayerInfo.BundlingExclusions(bundlingExclusionsTimeline, bundlingExclusionsTracks)
+                .toBundle());
       } else {
         //noinspection deprecation
         iController.onPlayerInfoChanged(
             sequenceNumber,
-            playerInfo.toBundle(
-                excludeMediaItems,
-                excludeMediaItemsMetadata,
-                excludeCues,
-                excludeTimeline,
-                /* excludeTracks= */ true),
-            excludeTimeline);
+            playerInfo.toBundle(availableCommands, excludeTimeline, /* excludeTracks= */ true),
+            bundlingExclusionsTimeline);
       }
     }
 
