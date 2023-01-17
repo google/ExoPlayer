@@ -917,33 +917,11 @@ import java.util.List;
     int state =
         MediaUtils.convertToPlaybackStateCompatState(
             playerError, getPlaybackState(), getPlayWhenReady());
-    long allActions =
-        PlaybackStateCompat.ACTION_STOP
-            | PlaybackStateCompat.ACTION_PAUSE
-            | PlaybackStateCompat.ACTION_PLAY
-            | PlaybackStateCompat.ACTION_REWIND
-            | PlaybackStateCompat.ACTION_FAST_FORWARD
-            | PlaybackStateCompat.ACTION_SET_RATING
-            | PlaybackStateCompat.ACTION_SEEK_TO
-            | PlaybackStateCompat.ACTION_PLAY_PAUSE
-            | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-            | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-            | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-            | PlaybackStateCompat.ACTION_PLAY_FROM_URI
-            | PlaybackStateCompat.ACTION_PREPARE
-            | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
-            | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
-            | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
-            | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-            | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
-            | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
-    if (getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS)
-        || getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
-      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
-    }
-    if (getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT)
-        || getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
-      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+    // Always advertise ACTION_SET_RATING.
+    long actions = PlaybackStateCompat.ACTION_SET_RATING;
+    Commands availableCommands = getAvailableCommands();
+    for (int i = 0; i < availableCommands.size(); i++) {
+      actions |= convertCommandToPlaybackStateActions(availableCommands.get(i));
     }
     long queueItemId =
         isCommandAvailable(COMMAND_GET_TIMELINE)
@@ -964,7 +942,7 @@ import java.util.List;
     PlaybackStateCompat.Builder builder =
         new PlaybackStateCompat.Builder()
             .setState(state, compatPosition, sessionPlaybackSpeed, SystemClock.elapsedRealtime())
-            .setActions(allActions)
+            .setActions(actions)
             .setActiveQueueItemId(queueItemId)
             .setBufferedPosition(compatBufferedPosition)
             .setExtras(extras);
@@ -1126,5 +1104,68 @@ import java.util.List;
 
   private void verifyApplicationThread() {
     checkState(Looper.myLooper() == getApplicationLooper());
+  }
+
+  @SuppressWarnings("deprecation") // Uses deprecated PlaybackStateCompat actions.
+  private static long convertCommandToPlaybackStateActions(@Command int command) {
+    switch (command) {
+      case Player.COMMAND_PLAY_PAUSE:
+        return PlaybackStateCompat.ACTION_PAUSE
+            | PlaybackStateCompat.ACTION_PLAY
+            | PlaybackStateCompat.ACTION_PLAY_PAUSE;
+      case Player.COMMAND_PREPARE:
+        return PlaybackStateCompat.ACTION_PREPARE;
+      case Player.COMMAND_SEEK_BACK:
+        return PlaybackStateCompat.ACTION_REWIND;
+      case Player.COMMAND_SEEK_FORWARD:
+        return PlaybackStateCompat.ACTION_FAST_FORWARD;
+      case Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SEEK_TO;
+      case Player.COMMAND_SEEK_TO_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
+      case Player.COMMAND_SEEK_TO_NEXT:
+      case Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+      case Player.COMMAND_SEEK_TO_PREVIOUS:
+      case Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+      case Player.COMMAND_SET_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+            | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+            | PlaybackStateCompat.ACTION_PLAY_FROM_URI
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_URI;
+      case Player.COMMAND_SET_REPEAT_MODE:
+        return PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
+      case Player.COMMAND_SET_SPEED_AND_PITCH:
+        return PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED;
+      case Player.COMMAND_SET_SHUFFLE_MODE:
+        return PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+            | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+      case Player.COMMAND_STOP:
+        return PlaybackStateCompat.ACTION_STOP;
+      case Player.COMMAND_ADJUST_DEVICE_VOLUME:
+      case Player.COMMAND_CHANGE_MEDIA_ITEMS:
+        // TODO(b/227346735): Handle this through
+        // MediaSessionCompat.setFlags(FLAG_HANDLES_QUEUE_COMMANDS)
+      case Player.COMMAND_GET_AUDIO_ATTRIBUTES:
+      case Player.COMMAND_GET_CURRENT_MEDIA_ITEM:
+      case Player.COMMAND_GET_DEVICE_VOLUME:
+      case Player.COMMAND_GET_MEDIA_ITEMS_METADATA:
+      case Player.COMMAND_GET_TEXT:
+      case Player.COMMAND_GET_TIMELINE:
+      case Player.COMMAND_GET_TRACKS:
+      case Player.COMMAND_GET_VOLUME:
+      case Player.COMMAND_INVALID:
+      case Player.COMMAND_SEEK_TO_DEFAULT_POSITION:
+      case Player.COMMAND_SET_DEVICE_VOLUME:
+      case Player.COMMAND_SET_MEDIA_ITEMS_METADATA:
+      case Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS:
+      case Player.COMMAND_SET_VIDEO_SURFACE:
+      case Player.COMMAND_SET_VOLUME:
+      default:
+        return 0;
+    }
   }
 }
