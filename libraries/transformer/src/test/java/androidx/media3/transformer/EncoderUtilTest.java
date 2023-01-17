@@ -36,7 +36,12 @@ import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowMediaCodec;
 import org.robolectric.shadows.ShadowMediaCodecList;
 
-/** Unit test for {@link EncoderUtil}. */
+/**
+ * Unit test for {@link EncoderUtil}.
+ *
+ * <p>See {@link androidx.media3.exoplayer.mediacodec.MediaCodecUtil#maxH264DecodableFrameSize()}
+ * for information on how MediaCodec determines frame sizes.
+ */
 @RunWith(AndroidJUnit4.class)
 public class EncoderUtilTest {
   private static final String MIME_TYPE = MimeTypes.VIDEO_H264;
@@ -102,7 +107,8 @@ public class EncoderUtilTest {
   }
 
   @Test
-  public void getSupportedResolution_withWidthTooBig_findsTwoThirdsOfTheOriginalSize() {
+  public void getSupportedResolution_findsThreeQuartersOfTheOriginalSize() {
+    // The supported resolution will try to match the aspect ratio where possible.
     ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
@@ -116,17 +122,31 @@ public class EncoderUtilTest {
   }
 
   @Test
-  public void getSupportedResolution_withWidthTooBig2_findsHalfOfTheOriginalSize() {
+  public void getSupportedResolution_findsTwoThirdsOfTheOriginalSize() {
     ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 3840, 2160);
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 2880, 1620);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
     assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
+  }
+
+  @Test
+  public void getSupportedResolution_findsHalfOfTheOriginalSize() {
+    ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
+    MediaCodecInfo encoderInfo = supportedEncoders.get(0);
+
+    @Nullable
+    Size closestSupportedResolution =
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 2160, 3840);
+
+    assertThat(closestSupportedResolution).isNotNull();
+    assertThat(closestSupportedResolution.getWidth()).isEqualTo(1080);
+    assertThat(closestSupportedResolution.getHeight()).isEqualTo(1920);
   }
 
   /**
