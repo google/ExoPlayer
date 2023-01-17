@@ -57,6 +57,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private final FrameProcessor frameProcessor;
   private final ColorInfo frameProcessorInputColor;
+  private final FrameInfo firstFrameInfo;
 
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
@@ -211,11 +212,12 @@ import org.checkerframework.dataflow.qual.Pure;
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
     }
-    frameProcessor.setInputFrameInfo(
+    firstFrameInfo =
         new FrameInfo.Builder(decodedWidth, decodedHeight)
             .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
             .setStreamOffsetUs(streamOffsetUs)
-            .build());
+            .build();
+    frameProcessor.setInputFrameInfo(firstFrameInfo);
   }
 
   @Override
@@ -226,6 +228,12 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   public ColorInfo getExpectedColorInfo() {
     return frameProcessorInputColor;
+  }
+
+  @Override
+  public void setVideoOffsetToAddUs(long offsetToAddUs) {
+    frameProcessor.setInputFrameInfo(
+        new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(offsetToAddUs).build());
   }
 
   @Override

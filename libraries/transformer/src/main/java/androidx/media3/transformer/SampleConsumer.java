@@ -57,6 +57,8 @@ public interface SampleConsumer {
    * <p>Should be called after filling the input buffer from {@link #getInputBuffer()} with new
    * input.
    *
+   * <p>An input buffer should not be used anymore after it has been queued.
+   *
    * <p>Should only be used for compressed data and raw audio data.
    */
   default void queueInputBuffer() {
@@ -91,6 +93,15 @@ public interface SampleConsumer {
    * <p>Should only be used for raw video data.
    */
   default int getPendingVideoFrameCount() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Sets the offset to add to the video timestamps, in microseconds.
+   *
+   * <p>Should only be used for raw video data.
+   */
+  default void setVideoOffsetToAddUs(long offsetToAddUs) {
     throw new UnsupportedOperationException();
   }
 
