@@ -286,16 +286,30 @@ public interface Player {
      */
     @Override
     public Bundle toBundle() {
+      return toBundle(/* canAccessCurrentMediaItem= */ true, /* canAccessTimeline= */ true);
+    }
+
+    /**
+     * Returns a {@link Bundle} representing the information stored in this object, filtered by
+     * available commands.
+     *
+     * @param canAccessCurrentMediaItem Whether the {@link Bundle} should contain information
+     *     accessbile with {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}.
+     * @param canAccessTimeline Whether the {@link Bundle} should contain information accessbile
+     *     with {@link #COMMAND_GET_TIMELINE}.
+     */
+    public Bundle toBundle(boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
       Bundle bundle = new Bundle();
-      bundle.putInt(FIELD_MEDIA_ITEM_INDEX, mediaItemIndex);
-      if (mediaItem != null) {
+      bundle.putInt(FIELD_MEDIA_ITEM_INDEX, canAccessTimeline ? mediaItemIndex : 0);
+      if (mediaItem != null && canAccessCurrentMediaItem) {
         bundle.putBundle(FIELD_MEDIA_ITEM, mediaItem.toBundle());
       }
-      bundle.putInt(FIELD_PERIOD_INDEX, periodIndex);
-      bundle.putLong(FIELD_POSITION_MS, positionMs);
-      bundle.putLong(FIELD_CONTENT_POSITION_MS, contentPositionMs);
-      bundle.putInt(FIELD_AD_GROUP_INDEX, adGroupIndex);
-      bundle.putInt(FIELD_AD_INDEX_IN_AD_GROUP, adIndexInAdGroup);
+      bundle.putInt(FIELD_PERIOD_INDEX, canAccessTimeline ? periodIndex : 0);
+      bundle.putLong(FIELD_POSITION_MS, canAccessCurrentMediaItem ? positionMs : 0);
+      bundle.putLong(FIELD_CONTENT_POSITION_MS, canAccessCurrentMediaItem ? contentPositionMs : 0);
+      bundle.putInt(FIELD_AD_GROUP_INDEX, canAccessCurrentMediaItem ? adGroupIndex : C.INDEX_UNSET);
+      bundle.putInt(
+          FIELD_AD_INDEX_IN_AD_GROUP, canAccessCurrentMediaItem ? adIndexInAdGroup : C.INDEX_UNSET);
       return bundle;
     }
 
@@ -303,15 +317,14 @@ public interface Player {
     public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
 
     private static PositionInfo fromBundle(Bundle bundle) {
-      int mediaItemIndex = bundle.getInt(FIELD_MEDIA_ITEM_INDEX, /* defaultValue= */ C.INDEX_UNSET);
+      int mediaItemIndex = bundle.getInt(FIELD_MEDIA_ITEM_INDEX, /* defaultValue= */ 0);
       @Nullable Bundle mediaItemBundle = bundle.getBundle(FIELD_MEDIA_ITEM);
       @Nullable
       MediaItem mediaItem =
           mediaItemBundle == null ? null : MediaItem.CREATOR.fromBundle(mediaItemBundle);
-      int periodIndex = bundle.getInt(FIELD_PERIOD_INDEX, /* defaultValue= */ C.INDEX_UNSET);
-      long positionMs = bundle.getLong(FIELD_POSITION_MS, /* defaultValue= */ C.TIME_UNSET);
-      long contentPositionMs =
-          bundle.getLong(FIELD_CONTENT_POSITION_MS, /* defaultValue= */ C.TIME_UNSET);
+      int periodIndex = bundle.getInt(FIELD_PERIOD_INDEX, /* defaultValue= */ 0);
+      long positionMs = bundle.getLong(FIELD_POSITION_MS, /* defaultValue= */ 0);
+      long contentPositionMs = bundle.getLong(FIELD_CONTENT_POSITION_MS, /* defaultValue= */ 0);
       int adGroupIndex = bundle.getInt(FIELD_AD_GROUP_INDEX, /* defaultValue= */ C.INDEX_UNSET);
       int adIndexInAdGroup =
           bundle.getInt(FIELD_AD_INDEX_IN_AD_GROUP, /* defaultValue= */ C.INDEX_UNSET);
@@ -2282,6 +2295,9 @@ public interface Player {
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_TIMELINE} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   boolean hasPreviousMediaItem();
 
@@ -2364,6 +2380,9 @@ public interface Player {
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_TIMELINE} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   boolean hasNextMediaItem();
 
