@@ -86,7 +86,7 @@ public final class Transformer {
     private ImmutableList<Effect> videoEffects;
     private boolean removeAudio;
     private boolean removeVideo;
-    private boolean forceSilentAudio;
+    private boolean generateSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
     @Nullable private AssetLoader.Factory assetLoaderFactory;
     private FrameProcessor.Factory frameProcessorFactory;
@@ -123,7 +123,7 @@ public final class Transformer {
       this.videoEffects = transformer.videoEffects;
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
-      this.forceSilentAudio = transformer.forceSilentAudio;
+      this.generateSilentAudio = transformer.generateSilentAudio;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
       this.frameProcessorFactory = transformer.frameProcessorFactory;
@@ -398,9 +398,11 @@ public final class Transformer {
     }
 
     /**
-     * Sets whether to force silent audio for the output file, ignoring any existing audio.
+     * Sets whether to generate silent audio for the output file, if there is no audio available.
      *
      * <p>This method is experimental and may be removed or changed without warning.
+     *
+     * <p>To replace existing audio with silence, call {@link #setRemoveAudio(boolean)} as well.
      *
      * <p>Audio properties/format:
      *
@@ -408,19 +410,20 @@ public final class Transformer {
      *   <li>Duration will match duration of the input media.
      *   <li>Sample mime type will match {@link TransformationRequest#audioMimeType}, or {@link
      *       MimeTypes#AUDIO_AAC} if {@code null}.
-     *   <li>Sample rate will be 44100hz. This can be modified by passing a {@link
+     *   <li>Sample rate will be {@code 44100} hz. This can be modified by passing a {@link
      *       SonicAudioProcessor} to {@link #setAudioProcessors(List)}, using {@link
      *       SonicAudioProcessor#setOutputSampleRateHz(int)}.
-     *   <li>Channel count will be 2. This can be modified by implementing a custom {@link
+     *   <li>Channel count will be {@code 2}. This can be modified by implementing a custom {@link
      *       AudioProcessor} and passing it to {@link #setAudioProcessors(List)}.
      * </ul>
      *
-     * @param forceSilentAudio Whether to output silent audio for the output file.
+     * @param generateSilentAudio Whether to generate silent audio for the output file if there is
+     *     no audio track.
      * @return This builder.
      */
     @CanIgnoreReturnValue
-    public Builder experimentalSetForceSilentAudio(boolean forceSilentAudio) {
-      this.forceSilentAudio = forceSilentAudio;
+    public Builder experimentalSetGenerateSilentAudio(boolean generateSilentAudio) {
+      this.generateSilentAudio = generateSilentAudio;
       return this;
     }
 
@@ -457,7 +460,7 @@ public final class Transformer {
           videoEffects,
           removeAudio,
           removeVideo,
-          forceSilentAudio,
+          generateSilentAudio,
           listeners,
           assetLoaderFactory,
           frameProcessorFactory,
@@ -577,7 +580,7 @@ public final class Transformer {
   private final ImmutableList<Effect> videoEffects;
   private final boolean removeAudio;
   private final boolean removeVideo;
-  private final boolean forceSilentAudio;
+  private final boolean generateSilentAudio;
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
   private final FrameProcessor.Factory frameProcessorFactory;
@@ -596,7 +599,7 @@ public final class Transformer {
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
-      boolean forceSilentAudio,
+      boolean generateSilentAudio,
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
       FrameProcessor.Factory frameProcessorFactory,
@@ -605,10 +608,6 @@ public final class Transformer {
       Looper looper,
       DebugViewProvider debugViewProvider,
       Clock clock) {
-    if (forceSilentAudio) {
-      removeAudio = true;
-    }
-    checkState(!removeVideo || !forceSilentAudio, "Silent only audio track needs a video track.");
     checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed.");
     this.context = context;
     this.transformationRequest = transformationRequest;
@@ -616,7 +615,7 @@ public final class Transformer {
     this.videoEffects = videoEffects;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
-    this.forceSilentAudio = forceSilentAudio;
+    this.generateSilentAudio = generateSilentAudio;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
     this.frameProcessorFactory = frameProcessorFactory;
@@ -759,7 +758,7 @@ public final class Transformer {
             videoEffects,
             removeAudio,
             removeVideo,
-            forceSilentAudio,
+            generateSilentAudio,
             assetLoaderFactory,
             frameProcessorFactory,
             encoderFactory,

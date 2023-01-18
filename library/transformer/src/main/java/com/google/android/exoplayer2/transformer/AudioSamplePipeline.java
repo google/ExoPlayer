@@ -64,15 +64,15 @@ import org.checkerframework.dataflow.qual.Pure;
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<AudioProcessor> audioProcessors,
-      long forceSilentAudioDurationUs,
+      long generateSilentAudioDurationUs,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws TransformationException {
     super(inputFormat, streamStartPositionUs, muxerWrapper);
 
-    if (forceSilentAudioDurationUs != C.TIME_UNSET) {
-      silentAudioGenerator = new SilentAudioGenerator(inputFormat, forceSilentAudioDurationUs);
+    if (generateSilentAudioDurationUs != C.TIME_UNSET) {
+      silentAudioGenerator = new SilentAudioGenerator(inputFormat, generateSilentAudioDurationUs);
     } else {
       silentAudioGenerator = null;
     }

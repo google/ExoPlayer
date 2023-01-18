@@ -271,10 +271,40 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void startTransformation_silentAudio_completesSuccessfully() throws Exception {
+  public void startTransformation_silentAudioOnAudioOnly_isIgnored() throws Exception {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
-            .experimentalSetForceSilentAudio(true)
+            .experimentalSetGenerateSilentAudio(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
+  }
+
+  @Test
+  public void startTransformation_silentAudioOnAudioVideo_isIgnored() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .experimentalSetGenerateSilentAudio(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
+  }
+
+  @Test
+  public void startTransformation_silentAudioRemoveAudio_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .experimentalSetGenerateSilentAudio(true)
+            .setRemoveAudio(true)
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
 
@@ -283,6 +313,36 @@ public final class TransformerEndToEndTest {
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silentaudio"));
+  }
+
+  @Test
+  public void startTransformation_silentAudioRemoveVideo_isIgnored() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .experimentalSetGenerateSilentAudio(true)
+            .setRemoveVideo(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
+  }
+
+  @Test
+  public void startTransformation_silentAudioOnVideoOnly_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .experimentalSetGenerateSilentAudio(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY + ".silentaudio"));
   }
 
   @Test

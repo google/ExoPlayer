@@ -61,7 +61,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SHOULD_REMOVE_AUDIO = "should_remove_audio";
   public static final String SHOULD_REMOVE_VIDEO = "should_remove_video";
   public static final String SHOULD_FLATTEN_FOR_SLOW_MOTION = "should_flatten_for_slow_motion";
-  public static final String FORCE_SILENT_AUDIO = "force_silent_audio";
+  public static final String GENERATE_SILENT_AUDIO = "generate_silent_audio";
   public static final String AUDIO_MIME_TYPE = "audio_mime_type";
   public static final String VIDEO_MIME_TYPE = "video_mime_type";
   public static final String RESOLUTION_HEIGHT = "resolution_height";
@@ -210,7 +210,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
   private @MonotonicNonNull CheckBox flattenForSlowMotionCheckbox;
-  private @MonotonicNonNull CheckBox forceSilentAudioCheckbox;
+  private @MonotonicNonNull CheckBox generateSilentAudioCheckbox;
   private @MonotonicNonNull Spinner audioMimeSpinner;
   private @MonotonicNonNull Spinner videoMimeSpinner;
   private @MonotonicNonNull Spinner resolutionHeightSpinner;
@@ -271,7 +271,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
 
-    forceSilentAudioCheckbox = findViewById(R.id.force_silent_audio_checkbox);
+    generateSilentAudioCheckbox = findViewById(R.id.generate_silent_audio_checkbox);
 
     ArrayAdapter<String> audioMimeAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
@@ -382,7 +382,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "removeAudioCheckbox",
     "removeVideoCheckbox",
     "flattenForSlowMotionCheckbox",
-    "forceSilentAudioCheckbox",
+    "generateSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -402,7 +402,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBoolean(SHOULD_REMOVE_AUDIO, removeAudioCheckbox.isChecked());
     bundle.putBoolean(SHOULD_REMOVE_VIDEO, removeVideoCheckbox.isChecked());
     bundle.putBoolean(SHOULD_FLATTEN_FOR_SLOW_MOTION, flattenForSlowMotionCheckbox.isChecked());
-    bundle.putBoolean(FORCE_SILENT_AUDIO, forceSilentAudioCheckbox.isChecked());
+    bundle.putBoolean(GENERATE_SILENT_AUDIO, generateSilentAudioCheckbox.isChecked());
     String selectedAudioMimeType = String.valueOf(audioMimeSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedAudioMimeType)) {
       bundle.putString(AUDIO_MIME_TYPE, selectedAudioMimeType);
@@ -738,7 +738,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "removeVideoCheckbox",
-    "forceSilentAudioCheckbox",
+    "generateSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -760,7 +760,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "removeAudioCheckbox",
-    "forceSilentAudioCheckbox",
+    "generateSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -781,7 +781,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   }
 
   @RequiresNonNull({
-    "forceSilentAudioCheckbox",
+    "generateSilentAudioCheckbox",
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
@@ -793,7 +793,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "selectVideoEffectsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
-    forceSilentAudioCheckbox.setEnabled(isVideoEnabled);
+    generateSilentAudioCheckbox.setEnabled(isVideoEnabled);
     audioMimeSpinner.setEnabled(isAudioEnabled);
     videoMimeSpinner.setEnabled(isVideoEnabled);
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
