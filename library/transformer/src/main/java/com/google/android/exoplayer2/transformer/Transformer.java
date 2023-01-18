@@ -31,9 +31,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
-import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
-import com.google.android.exoplayer2.effect.GlMatrixTransformation;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -151,34 +149,24 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link AudioProcessor} instances to apply to audio buffers.
-     *
-     * <p>The {@link AudioProcessor} instances are applied in the order of the list, and buffers
-     * will only be modified by that {@link AudioProcessor} if it {@link AudioProcessor#isActive()}
-     * based on the current configuration.
+     * @deprecated Set the {@linkplain AudioProcessor audio processors} in an {@link
+     *     EditedMediaItem}, and pass it to {@link #startTransformation(EditedMediaItem, String)} or
+     *     {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
      */
     @CanIgnoreReturnValue
+    @Deprecated
     public Builder setAudioProcessors(List<AudioProcessor> audioProcessors) {
       this.audioProcessors = ImmutableList.copyOf(audioProcessors);
       return this;
     }
 
     /**
-     * Sets the {@link Effect} instances to apply to each video frame.
-     *
-     * <p>The {@link Effect} instances are applied before any {@linkplain
-     * TransformationRequest.Builder#setResolution(int) resolution} change specified in the {@link
-     * #setTransformationRequest(TransformationRequest) TransformationRequest} but after {@linkplain
-     * TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
-     *
-     * <p>The default {@link FrameProcessor} only supports {@link GlEffect} instances. To use other
-     * effects, call {@link #setFrameProcessorFactory(FrameProcessor.Factory)} with a custom {@link
-     * FrameProcessor.Factory}.
-     *
-     * @param effects The {@link Effect} instances to apply to each video frame.
-     * @return This builder.
+     * @deprecated Set the {@linkplain Effect video effects} in an {@link EditedMediaItem}, and pass
+     *     it to {@link #startTransformation(EditedMediaItem, String)} or {@link
+     *     #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
      */
     @CanIgnoreReturnValue
+    @Deprecated
     public Builder setVideoEffects(List<Effect> effects) {
       this.videoEffects = ImmutableList.copyOf(effects);
       return this;
@@ -299,20 +287,12 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link FrameProcessor.Factory} for the {@link FrameProcessor} to use when applying
-     * {@linkplain Effect effects} to the video frames.
-     *
-     * <p>This factory will be used to create the {@link FrameProcessor} used for applying the
-     * {@link Effect} instances passed to {@link #setVideoEffects(List)} and any additional {@link
-     * GlMatrixTransformation} instances derived from the {@link TransformationRequest} set using
-     * {@link #setTransformationRequest(TransformationRequest)}.
-     *
-     * <p>The default is {@link GlEffectsFrameProcessor.Factory}.
-     *
-     * @param frameProcessorFactory The {@link FrameProcessor.Factory} to use.
-     * @return This builder.
+     * @deprecated Set the {@link FrameProcessor.Factory} in an {@link EditedMediaItem}, and pass it
+     *     to {@link #startTransformation(EditedMediaItem, String)} or {@link
+     *     #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
      */
     @CanIgnoreReturnValue
+    @Deprecated
     public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
       this.frameProcessorFactory = frameProcessorFactory;
       return this;
@@ -410,11 +390,13 @@ public final class Transformer {
      *   <li>Duration will match duration of the input media.
      *   <li>Sample mime type will match {@link TransformationRequest#audioMimeType}, or {@link
      *       MimeTypes#AUDIO_AAC} if {@code null}.
-     *   <li>Sample rate will be {@code 44100} hz. This can be modified by passing a {@link
-     *       SonicAudioProcessor} to {@link #setAudioProcessors(List)}, using {@link
-     *       SonicAudioProcessor#setOutputSampleRateHz(int)}.
+     *   <li>Sample rate will be {@code 44100} hz. This can be modified by creating a {@link
+     *       SonicAudioProcessor}, setting its {@linkplain
+     *       SonicAudioProcessor#setOutputSampleRateHz(int) sample rate}, and passing it to the
+     *       {@link EditedMediaItem} used to start the transformation.
      *   <li>Channel count will be {@code 2}. This can be modified by implementing a custom {@link
-     *       AudioProcessor} and passing it to {@link #setAudioProcessors(List)}.
+     *       AudioProcessor} and passing it to the {@link EditedMediaItem} used to start the
+     *       transformation.
      * </ul>
      *
      * @param generateSilentAudio Whether to generate silent audio for the output file if there is
@@ -688,15 +670,16 @@ public final class Transformer {
    * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
    * highest bitrate video and audio streams are selected.
    *
-   * @param mediaItem The {@link MediaItem} to transform.
+   * @param editedMediaItem The {@link MediaItem} to transform, with the transformations to apply to
+   *     it.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
    */
-  public void startTransformation(MediaItem mediaItem, String path) {
-    startTransformationInternal(mediaItem, path, /* parcelFileDescriptor= */ null);
+  public void startTransformation(EditedMediaItem editedMediaItem, String path) {
+    startTransformationInternal(editedMediaItem, path, /* parcelFileDescriptor= */ null);
   }
 
   /**
@@ -713,7 +696,8 @@ public final class Transformer {
    * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
    * highest bitrate video and audio streams are selected.
    *
-   * @param mediaItem The {@link MediaItem} to transform.
+   * @param editedMediaItem The {@link MediaItem} to transform, with the transformations to apply to
+   *     it.
    * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
    *     The file referenced by this ParcelFileDescriptor should not be used before the
    *     transformation is completed. It is the responsibility of the caller to close the
@@ -724,14 +708,39 @@ public final class Transformer {
    * @throws IllegalStateException If a transformation is already in progress.
    */
   @RequiresApi(26)
+  public void startTransformation(
+      EditedMediaItem editedMediaItem, ParcelFileDescriptor parcelFileDescriptor) {
+    startTransformationInternal(editedMediaItem, /* path= */ null, parcelFileDescriptor);
+  }
+
+  /**
+   * @deprecated Use {@link #startTransformation(EditedMediaItem, String)} instead.
+   */
+  @Deprecated
+  public void startTransformation(MediaItem mediaItem, String path) {
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            mediaItem, new Effects(audioProcessors, videoEffects, frameProcessorFactory));
+    startTransformationInternal(editedMediaItem, path, /* parcelFileDescriptor= */ null);
+  }
+
+  /**
+   * @deprecated Use {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+   */
+  @Deprecated
+  @RequiresApi(26)
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor) {
-    startTransformationInternal(mediaItem, /* path= */ null, parcelFileDescriptor);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            mediaItem, new Effects(audioProcessors, videoEffects, frameProcessorFactory));
+    startTransformationInternal(editedMediaItem, /* path= */ null, parcelFileDescriptor);
   }
 
   private void startTransformationInternal(
-      MediaItem mediaItem,
+      EditedMediaItem editedMediaItem,
       @Nullable String path,
       @Nullable ParcelFileDescriptor parcelFileDescriptor) {
+    MediaItem mediaItem = editedMediaItem.mediaItem;
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
         && transformationRequest.flattenForSlowMotion) {
       // TODO(b/233986762): Support clipping with SEF flattening.
@@ -750,17 +759,14 @@ public final class Transformer {
     transformerInternal =
         new TransformerInternal(
             context,
-            mediaItem,
+            editedMediaItem,
             path,
             parcelFileDescriptor,
             transformationRequest,
-            audioProcessors,
-            videoEffects,
             removeAudio,
             removeVideo,
             generateSilentAudio,
             assetLoaderFactory,
-            frameProcessorFactory,
             encoderFactory,
             muxerFactory,
             transformerInternalListener,
