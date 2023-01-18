@@ -441,6 +441,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
         transformationResultBuilder
             .setAverageVideoBitrate(averageBitrate)
+            .setColorInfo(format.colorInfo)
             .setVideoFrameCount(sampleCount);
         if (format.height != Format.NO_VALUE) {
           transformationResultBuilder.setHeight(format.height);

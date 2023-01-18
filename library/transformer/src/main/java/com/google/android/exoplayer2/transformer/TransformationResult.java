@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Objects;
 
@@ -36,6 +37,7 @@ public final class TransformationResult {
     @Nullable private String audioDecoderName;
     @Nullable private String audioEncoderName;
     private int averageVideoBitrate;
+    @Nullable ColorInfo colorInfo;
     private int height;
     private int width;
     private int videoFrameCount;
@@ -148,6 +150,13 @@ public final class TransformationResult {
       return this;
     }
 
+    /** Sets the {@link ColorInfo}. */
+    @CanIgnoreReturnValue
+    public Builder setColorInfo(@Nullable ColorInfo colorInfo) {
+      this.colorInfo = colorInfo;
+      return this;
+    }
+
     /**
      * Sets the height.
      *
@@ -217,6 +226,7 @@ public final class TransformationResult {
           audioDecoderName,
           audioEncoderName,
           averageVideoBitrate,
+          colorInfo,
           height,
           width,
           videoFrameCount,
@@ -250,6 +260,8 @@ public final class TransformationResult {
    * The average bitrate of the video track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
   public final int averageVideoBitrate;
+  /** The {@link ColorInfo} of the video, or {@code null} if unset or unknown. */
+  @Nullable public final ColorInfo colorInfo;
   /** The height of the video, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final int height;
   /** The width of the video, or {@link C#LENGTH_UNSET} if unset or unknown. */
@@ -277,6 +289,7 @@ public final class TransformationResult {
       @Nullable String audioDecoderName,
       @Nullable String audioEncoderName,
       int averageVideoBitrate,
+      @Nullable ColorInfo colorInfo,
       int height,
       int width,
       int videoFrameCount,
@@ -292,6 +305,7 @@ public final class TransformationResult {
     this.audioDecoderName = audioDecoderName;
     this.audioEncoderName = audioEncoderName;
     this.averageVideoBitrate = averageVideoBitrate;
+    this.colorInfo = colorInfo;
     this.height = height;
     this.width = width;
     this.videoFrameCount = videoFrameCount;
@@ -311,6 +325,7 @@ public final class TransformationResult {
         .setAudioDecoderName(audioDecoderName)
         .setAudioEncoderName(audioEncoderName)
         .setAverageVideoBitrate(averageVideoBitrate)
+        .setColorInfo(colorInfo)
         .setHeight(height)
         .setWidth(width)
         .setVideoFrameCount(videoFrameCount)
@@ -337,6 +352,7 @@ public final class TransformationResult {
         && Objects.equals(audioDecoderName, result.audioDecoderName)
         && Objects.equals(audioEncoderName, result.audioEncoderName)
         && averageVideoBitrate == result.averageVideoBitrate
+        && Objects.equals(colorInfo, result.colorInfo)
         && height == result.height
         && width == result.width
         && videoFrameCount == result.videoFrameCount
@@ -356,6 +372,7 @@ public final class TransformationResult {
     result = 31 * result + Objects.hashCode(audioDecoderName);
     result = 31 * result + Objects.hashCode(audioEncoderName);
     result = 31 * result + averageVideoBitrate;
+    result = 31 * result + Objects.hashCode(colorInfo);
     result = 31 * result + height;
     result = 31 * result + width;
     result = 31 * result + videoFrameCount;
