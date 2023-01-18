@@ -309,6 +309,8 @@ public final class TransformerActivity extends AppCompatActivity {
       transformerBuilder
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+          .experimentalSetGenerateSilentAudio(
+              bundle.getBoolean(ConfigurationActivity.GENERATE_SILENT_AUDIO))
           .setEncoderFactory(
               new DefaultEncoderFactory.Builder(this.getApplicationContext())
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
@@ -322,9 +324,6 @@ public final class TransformerActivity extends AppCompatActivity {
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
       }
-
-      transformerBuilder.experimentalSetForceSilentAudio(
-          bundle.getBoolean(ConfigurationActivity.FORCE_SILENT_AUDIO));
     }
 
     return transformerBuilder

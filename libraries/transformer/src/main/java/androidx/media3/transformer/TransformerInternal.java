@@ -93,7 +93,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
-  private final boolean forceSilentAudio;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final CapturingEncoderFactory encoderFactory;
   private final Listener listener;
@@ -108,6 +107,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ConditionVariable transformerConditionVariable;
   private final TransformationResult.Builder transformationResultBuilder;
 
+  private boolean generateSilentAudio;
   private boolean isDrainingPipelines;
   private @Transformer.ProgressState int progressState;
   private @MonotonicNonNull RuntimeException cancelException;
@@ -124,7 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
-      boolean forceSilentAudio,
+      boolean generateSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
       FrameProcessor.Factory frameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
@@ -138,7 +138,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.transformationRequest = transformationRequest;
     this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
-    this.forceSilentAudio = forceSilentAudio;
+    this.generateSilentAudio = generateSilentAudio;
     this.frameProcessorFactory = frameProcessorFactory;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
@@ -373,9 +373,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return;
       }
       this.trackCount.set(trackCount);
-      if (forceSilentAudio) {
-        this.trackCount.incrementAndGet();
-      }
     }
 
     @Override
@@ -386,6 +383,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long streamOffsetUs)
         throws TransformationException {
       if (!trackAdded) {
+        if (generateSilentAudio) {
+          if (this.trackCount.get() == 1 && MimeTypes.isVideo(format.sampleMimeType)) {
+            this.trackCount.incrementAndGet();
+          } else {
+            generateSilentAudio = false;
+          }
+        }
+
         // Call setTrackCount() methods here so that they are called from the same thread as the
         // MuxerWrapper and FallbackListener methods called when building the sample pipelines.
         muxerWrapper.setTrackCount(trackCount.get());
@@ -397,7 +402,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           getSamplePipeline(format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
-      if (forceSilentAudio) {
+      if (generateSilentAudio) {
         Format silentAudioFormat =
             new Format.Builder()
                 .setSampleMimeType(MimeTypes.AUDIO_AAC)
@@ -482,7 +487,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             transformationRequest,
             audioProcessors,
-            forceSilentAudio ? durationUs : C.TIME_UNSET,
+            generateSilentAudio ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
             fallbackListener);
@@ -528,7 +533,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!audioProcessors.isEmpty()) {
         return true;
       }
-      if (forceSilentAudio) {
+      if (generateSilentAudio) {
         return true;
       }
 
