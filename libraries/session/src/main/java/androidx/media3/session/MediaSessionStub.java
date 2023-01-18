@@ -1684,9 +1684,14 @@ import java.util.concurrent.ExecutionException;
 
     @Override
     public void onPeriodicSessionPositionInfoChanged(
-        int sequenceNumber, SessionPositionInfo sessionPositionInfo) throws RemoteException {
+        int sequenceNumber,
+        SessionPositionInfo sessionPositionInfo,
+        boolean canAccessCurrentMediaItem,
+        boolean canAccessTimeline)
+        throws RemoteException {
       iController.onPeriodicSessionPositionInfoChanged(
-          sequenceNumber, sessionPositionInfo.toBundle());
+          sequenceNumber,
+          sessionPositionInfo.toBundle(canAccessCurrentMediaItem, canAccessTimeline));
     }
 
     @Override

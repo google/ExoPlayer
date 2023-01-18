@@ -601,6 +601,38 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
+  private void dispatchOnPeriodicSessionPositionInfoChanged(
+      SessionPositionInfo sessionPositionInfo) {
+    ConnectedControllersManager<IBinder> controllersManager =
+        sessionStub.getConnectedControllersManager();
+    List<ControllerInfo> controllers =
+        sessionStub.getConnectedControllersManager().getConnectedControllers();
+    for (int i = 0; i < controllers.size(); i++) {
+      ControllerInfo controller = controllers.get(i);
+      boolean canAccessCurrentMediaItem =
+          controllersManager.isPlayerCommandAvailable(
+              controller, Player.COMMAND_GET_CURRENT_MEDIA_ITEM);
+      boolean canAccessTimeline =
+          controllersManager.isPlayerCommandAvailable(controller, Player.COMMAND_GET_TIMELINE);
+      dispatchRemoteControllerTaskWithoutReturn(
+          controller,
+          (controllerCb, seq) ->
+              controllerCb.onPeriodicSessionPositionInfoChanged(
+                  seq, sessionPositionInfo, canAccessCurrentMediaItem, canAccessTimeline));
+    }
+    try {
+      sessionLegacyStub
+          .getControllerLegacyCbForBroadcast()
+          .onPeriodicSessionPositionInfoChanged(
+              /* seq= */ 0,
+              sessionPositionInfo,
+              /* canAccessCurrentMediaItem= */ true,
+              /* canAccessTimeline= */ true);
+    } catch (RemoteException e) {
+      Log.e(TAG, "Exception in using media1 API", e);
+    }
+  }
+
   protected void dispatchRemoteControllerTaskWithoutReturn(RemoteControllerTask task) {
     List<ControllerInfo> controllers =
         sessionStub.getConnectedControllersManager().getConnectedControllers();
@@ -719,8 +751,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
     }
     SessionPositionInfo sessionPositionInfo = playerWrapper.createSessionPositionInfoForBundling();
-    dispatchRemoteControllerTaskWithoutReturn(
-        (callback, seq) -> callback.onPeriodicSessionPositionInfoChanged(seq, sessionPositionInfo));
+    dispatchOnPeriodicSessionPositionInfoChanged(sessionPositionInfo);
     schedulePeriodicSessionPositionInfoChanges();
   }
 

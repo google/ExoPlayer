@@ -1031,19 +1031,18 @@ import java.util.List;
    * <p>This excludes window uid and period uid that wouldn't be preserved when bundling.
    */
   public PositionInfo createPositionInfoForBundling() {
-    if (!isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)) {
-      return SessionPositionInfo.DEFAULT_POSITION_INFO;
-    }
+    boolean canAccessCurrentMediaItem = isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM);
+    boolean canAccessTimeline = isCommandAvailable(COMMAND_GET_TIMELINE);
     return new PositionInfo(
         /* windowUid= */ null,
-        getCurrentMediaItemIndex(),
-        getCurrentMediaItem(),
+        canAccessTimeline ? getCurrentMediaItemIndex() : 0,
+        canAccessCurrentMediaItem ? getCurrentMediaItem() : null,
         /* periodUid= */ null,
-        getCurrentPeriodIndex(),
-        getCurrentPosition(),
-        getContentPosition(),
-        getCurrentAdGroupIndex(),
-        getCurrentAdIndexInAdGroup());
+        canAccessTimeline ? getCurrentPeriodIndex() : 0,
+        canAccessCurrentMediaItem ? getCurrentPosition() : 0,
+        canAccessCurrentMediaItem ? getContentPosition() : 0,
+        canAccessCurrentMediaItem ? getCurrentAdGroupIndex() : C.INDEX_UNSET,
+        canAccessCurrentMediaItem ? getCurrentAdIndexInAdGroup() : C.INDEX_UNSET);
   }
 
   /**
@@ -1052,20 +1051,18 @@ import java.util.List;
    * <p>This excludes window uid and period uid that wouldn't be preserved when bundling.
    */
   public SessionPositionInfo createSessionPositionInfoForBundling() {
-    if (!isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)) {
-      return SessionPositionInfo.DEFAULT;
-    }
+    boolean canAccessCurrentMediaItem = isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM);
     return new SessionPositionInfo(
         createPositionInfoForBundling(),
-        isPlayingAd(),
+        canAccessCurrentMediaItem && isPlayingAd(),
         /* eventTimeMs= */ SystemClock.elapsedRealtime(),
-        getDuration(),
-        getBufferedPosition(),
-        getBufferedPercentage(),
-        getTotalBufferedDuration(),
-        getCurrentLiveOffset(),
-        getContentDuration(),
-        getContentBufferedPosition());
+        canAccessCurrentMediaItem ? getDuration() : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? getBufferedPosition() : 0,
+        canAccessCurrentMediaItem ? getBufferedPercentage() : 0,
+        canAccessCurrentMediaItem ? getTotalBufferedDuration() : 0,
+        canAccessCurrentMediaItem ? getCurrentLiveOffset() : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? getContentDuration() : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? getContentBufferedPosition() : 0);
   }
 
   public PlayerInfo createPlayerInfoForBundling() {
