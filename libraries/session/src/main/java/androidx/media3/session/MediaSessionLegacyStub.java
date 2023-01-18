@@ -1175,7 +1175,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onPeriodicSessionPositionInfoChanged(
-        int unusedSeq, SessionPositionInfo unusedSessionPositionInfo) throws RemoteException {
+        int unusedSeq,
+        SessionPositionInfo unusedSessionPositionInfo,
+        boolean unusedCanAccessCurrentMediaItem,
+        boolean unusedCanAccessTimeline)
+        throws RemoteException {
       sessionImpl
           .getSessionCompat()
           .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());

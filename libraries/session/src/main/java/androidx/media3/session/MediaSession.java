@@ -1163,7 +1163,11 @@ public class MediaSession {
         throws RemoteException {}
 
     default void onPeriodicSessionPositionInfoChanged(
-        int seq, SessionPositionInfo sessionPositionInfo) throws RemoteException {}
+        int seq,
+        SessionPositionInfo sessionPositionInfo,
+        boolean canAccessCurrentMediaItem,
+        boolean canAccessTimeline)
+        throws RemoteException {}
 
     // Mostly matched with MediaController.ControllerCallback
 

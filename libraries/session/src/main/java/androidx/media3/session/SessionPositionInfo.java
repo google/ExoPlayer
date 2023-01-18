@@ -170,17 +170,28 @@ import com.google.common.base.Objects;
 
   @Override
   public Bundle toBundle() {
+    return toBundle(/* canAccessCurrentMediaItem= */ true, /* canAccessTimeline= */ true);
+  }
+
+  public Bundle toBundle(boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
     Bundle bundle = new Bundle();
-    bundle.putBundle(FIELD_POSITION_INFO, positionInfo.toBundle());
-    bundle.putBoolean(FIELD_IS_PLAYING_AD, isPlayingAd);
+    bundle.putBundle(
+        FIELD_POSITION_INFO, positionInfo.toBundle(canAccessCurrentMediaItem, canAccessTimeline));
+    bundle.putBoolean(FIELD_IS_PLAYING_AD, canAccessCurrentMediaItem && isPlayingAd);
     bundle.putLong(FIELD_EVENT_TIME_MS, eventTimeMs);
-    bundle.putLong(FIELD_DURATION_MS, durationMs);
-    bundle.putLong(FIELD_BUFFERED_POSITION_MS, bufferedPositionMs);
-    bundle.putInt(FIELD_BUFFERED_PERCENTAGE, bufferedPercentage);
-    bundle.putLong(FIELD_TOTAL_BUFFERED_DURATION_MS, totalBufferedDurationMs);
-    bundle.putLong(FIELD_CURRENT_LIVE_OFFSET_MS, currentLiveOffsetMs);
-    bundle.putLong(FIELD_CONTENT_DURATION_MS, contentDurationMs);
-    bundle.putLong(FIELD_CONTENT_BUFFERED_POSITION_MS, contentBufferedPositionMs);
+    bundle.putLong(FIELD_DURATION_MS, canAccessCurrentMediaItem ? durationMs : C.TIME_UNSET);
+    bundle.putLong(FIELD_BUFFERED_POSITION_MS, canAccessCurrentMediaItem ? bufferedPositionMs : 0);
+    bundle.putInt(FIELD_BUFFERED_PERCENTAGE, canAccessCurrentMediaItem ? bufferedPercentage : 0);
+    bundle.putLong(
+        FIELD_TOTAL_BUFFERED_DURATION_MS, canAccessCurrentMediaItem ? totalBufferedDurationMs : 0);
+    bundle.putLong(
+        FIELD_CURRENT_LIVE_OFFSET_MS,
+        canAccessCurrentMediaItem ? currentLiveOffsetMs : C.TIME_UNSET);
+    bundle.putLong(
+        FIELD_CONTENT_DURATION_MS, canAccessCurrentMediaItem ? contentDurationMs : C.TIME_UNSET);
+    bundle.putLong(
+        FIELD_CONTENT_BUFFERED_POSITION_MS,
+        canAccessCurrentMediaItem ? contentBufferedPositionMs : 0);
     return bundle;
   }
 
@@ -196,8 +207,7 @@ import com.google.common.base.Objects;
     boolean isPlayingAd = bundle.getBoolean(FIELD_IS_PLAYING_AD, /* defaultValue= */ false);
     long eventTimeMs = bundle.getLong(FIELD_EVENT_TIME_MS, /* defaultValue= */ C.TIME_UNSET);
     long durationMs = bundle.getLong(FIELD_DURATION_MS, /* defaultValue= */ C.TIME_UNSET);
-    long bufferedPositionMs =
-        bundle.getLong(FIELD_BUFFERED_POSITION_MS, /* defaultValue= */ C.TIME_UNSET);
+    long bufferedPositionMs = bundle.getLong(FIELD_BUFFERED_POSITION_MS, /* defaultValue= */ 0);
     int bufferedPercentage = bundle.getInt(FIELD_BUFFERED_PERCENTAGE, /* defaultValue= */ 0);
     long totalBufferedDurationMs =
         bundle.getLong(FIELD_TOTAL_BUFFERED_DURATION_MS, /* defaultValue= */ 0);
@@ -206,7 +216,7 @@ import com.google.common.base.Objects;
     long contentDurationMs =
         bundle.getLong(FIELD_CONTENT_DURATION_MS, /* defaultValue= */ C.TIME_UNSET);
     long contentBufferedPositionMs =
-        bundle.getLong(FIELD_CONTENT_BUFFERED_POSITION_MS, /* defaultValue= */ C.TIME_UNSET);
+        bundle.getLong(FIELD_CONTENT_BUFFERED_POSITION_MS, /* defaultValue= */ 0);
 
     return new SessionPositionInfo(
         positionInfo,
