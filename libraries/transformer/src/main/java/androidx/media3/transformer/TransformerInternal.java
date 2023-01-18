@@ -35,11 +35,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
-import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
@@ -47,7 +45,6 @@ import androidx.media3.common.util.Size;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -94,9 +91,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
-  private final ImmutableList<AudioProcessor> audioProcessors;
-  private final ImmutableList<Effect> videoEffects;
-  private final FrameProcessor.Factory frameProcessorFactory;
   private final CapturingEncoderFactory encoderFactory;
   private final Listener listener;
   private final HandlerWrapper applicationHandler;
@@ -105,6 +99,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final AssetLoader assetLoader;
+  private final Effects effects;
   private final List<SamplePipeline> samplePipelines;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
@@ -119,17 +114,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public TransformerInternal(
       Context context,
-      MediaItem mediaItem,
+      EditedMediaItem editedMediaItem,
       @Nullable String outputPath,
       @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
       TransformationRequest transformationRequest,
-      ImmutableList<AudioProcessor> audioProcessors,
-      ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
       boolean generateSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
-      FrameProcessor.Factory frameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
       Listener listener,
@@ -139,10 +131,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Clock clock) {
     this.context = context;
     this.transformationRequest = transformationRequest;
-    this.audioProcessors = audioProcessors;
-    this.videoEffects = videoEffects;
     this.generateSilentAudio = generateSilentAudio;
-    this.frameProcessorFactory = frameProcessorFactory;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
     this.applicationHandler = applicationHandler;
@@ -151,6 +140,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
+    MediaItem mediaItem = editedMediaItem.mediaItem;
     ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
     assetLoader =
         assetLoaderFactory
@@ -158,6 +148,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             .setRemoveVideo(removeVideo)
             .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
             .createAssetLoader(mediaItem, internalLooper, componentListener);
+    effects = editedMediaItem.effects;
     samplePipelines = new ArrayList<>();
     muxerWrapper =
         new MuxerWrapper(outputPath, outputParcelFileDescriptor, muxerFactory, componentListener);
@@ -490,7 +481,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
-            audioProcessors,
+            effects.audioProcessors,
             generateSilentAudio ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
@@ -502,8 +493,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
-            videoEffects,
-            frameProcessorFactory,
+            effects.videoEffects,
+            effects.frameProcessorFactory,
             encoderFactory,
             muxerWrapper,
             /* errorConsumer= */ this::onTransformationError,
@@ -534,7 +525,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {
         return true;
       }
-      if (!audioProcessors.isEmpty()) {
+      if (!effects.audioProcessors.isEmpty()) {
         return true;
       }
       if (generateSilentAudio) {
@@ -582,8 +573,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       // TODO(b/265927935): consider generalizing this logic.
-      for (int i = 0; i < videoEffects.size(); i++) {
-        Effect videoEffect = videoEffects.get(i);
+      for (int i = 0; i < effects.videoEffects.size(); i++) {
+        Effect videoEffect = effects.videoEffects.get(i);
         if (videoEffect instanceof Presentation) {
           Presentation presentation = (Presentation) videoEffect;
           // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
