@@ -43,11 +43,14 @@ import android.os.ParcelFileDescriptor;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.Presentation;
+import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.DefaultExtractorsFactory;
@@ -726,6 +729,23 @@ public final class TransformerEndToEndTest {
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
 
     assertThat(transformationException).hasCauseThat().isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void startTransformation_withNoOpEffects_transmuxes() throws Exception {
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    int mediaItemHeightPixels = 720;
+    List<Effect> videoEffects = new ArrayList<>();
+    videoEffects.add(Presentation.createForHeight(mediaItemHeightPixels));
+    videoEffects.add(new ScaleToFitTransformation.Builder().build());
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setVideoEffects(videoEffects).build();
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    // Video transcoding in unit tests is not supported.
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
   }
 
   @Test

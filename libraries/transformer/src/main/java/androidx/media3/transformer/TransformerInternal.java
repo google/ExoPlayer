@@ -43,6 +43,9 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
+import androidx.media3.common.util.Size;
+import androidx.media3.effect.Presentation;
+import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -577,16 +580,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (inputFormat.pixelWidthHeightRatio != 1f) {
         return true;
       }
-      // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
-      int decodedHeight =
-          (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
-      if (transformationRequest.outputHeight != C.LENGTH_UNSET
-          && transformationRequest.outputHeight != decodedHeight) {
-        return true;
+
+      // TODO(b/265927935): consider generalizing this logic.
+      for (int i = 0; i < videoEffects.size(); i++) {
+        Effect videoEffect = videoEffects.get(i);
+        if (videoEffect instanceof Presentation) {
+          Presentation presentation = (Presentation) videoEffect;
+          // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
+          int decodedWidth =
+              (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+          int decodedHeight =
+              (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+          Size outputSize = presentation.configure(decodedWidth, decodedHeight);
+          if (outputSize.getWidth() != decodedWidth || outputSize.getHeight() != decodedHeight) {
+            return true;
+          }
+        } else if (videoEffect instanceof ScaleToFitTransformation) {
+          ScaleToFitTransformation scaleToFitTransformation =
+              (ScaleToFitTransformation) videoEffect;
+          if (scaleToFitTransformation.scaleX != 1f
+              || scaleToFitTransformation.scaleY != 1f
+              || scaleToFitTransformation.rotationDegrees != 0f) {
+            return true;
+          }
+        } else {
+          return true;
+        }
       }
-      if (!videoEffects.isEmpty()) {
-        return true;
-      }
+
       return false;
     }
   }
