@@ -48,6 +48,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
+import com.google.android.exoplayer2.effect.Presentation;
+import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -58,6 +60,7 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -726,6 +729,23 @@ public final class TransformerEndToEndTest {
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
 
     assertThat(transformationException).hasCauseThat().isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void startTransformation_withNoOpEffects_transmuxes() throws Exception {
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    int mediaItemHeightPixels = 720;
+    List<Effect> videoEffects = new ArrayList<>();
+    videoEffects.add(Presentation.createForHeight(mediaItemHeightPixels));
+    videoEffects.add(new ScaleToFitTransformation.Builder().build());
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setVideoEffects(videoEffects).build();
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    // Video transcoding in unit tests is not supported.
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
   }
 
   @Test

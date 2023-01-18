@@ -90,6 +90,13 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
     }
   }
 
+  /** The multiplier by which the frame will scale horizontally, along the x-axis. */
+  public final float scaleX;
+  /** The multiplier by which the frame will scale vertically, along the y-axis. */
+  public final float scaleY;
+  /** How much to rotate the frame counterclockwise, in degrees. */
+  public final float rotationDegrees;
+
   private final Matrix transformationMatrix;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
@@ -101,6 +108,9 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
    * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
    */
   private ScaleToFitTransformation(float scaleX, float scaleY, float rotationDegrees) {
+    this.scaleX = scaleX;
+    this.scaleY = scaleY;
+    this.rotationDegrees = rotationDegrees;
     transformationMatrix = new Matrix();
     transformationMatrix.postScale(scaleX, scaleY);
     transformationMatrix.postRotate(rotationDegrees);
