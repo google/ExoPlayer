@@ -184,6 +184,7 @@ public class TransformationTestResult {
             .putOpt(
                 "fallbackDetails", fallbackDetails != null ? fallbackDetails.asJsonObject() : null)
             .putOpt("filePath", filePath)
+            .putOpt("colorInfo", transformationResult.colorInfo)
             .putOpt("videoDecoderName", transformationResult.videoDecoderName)
             .putOpt("videoEncoderName", transformationResult.videoEncoderName)
             .putOpt("testException", exceptionAsJsonObject(testException))
