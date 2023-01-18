@@ -1650,8 +1650,8 @@ public class MatroskaExtractor implements Extractor {
   }
 
   /**
-   * Called by {@link #writeSampleData(ExtractorInput, Track, int)} when the sample has been
-   * written. Returns the final sample size and resets state for the next sample.
+   * Called by {@link #writeSampleData(ExtractorInput, Track, int, boolean)} when the sample has
+   * been written. Returns the final sample size and resets state for the next sample.
    */
   private int finishWriteSampleData() {
     int sampleSize = sampleBytesWritten;
@@ -1659,7 +1659,7 @@ public class MatroskaExtractor implements Extractor {
     return sampleSize;
   }
 
-  /** Resets state used by {@link #writeSampleData(ExtractorInput, Track, int)}. */
+  /** Resets state used by {@link #writeSampleData(ExtractorInput, Track, int, boolean)}. */
   private void resetWriteSampleData() {
     sampleBytesRead = 0;
     sampleBytesWritten = 0;
