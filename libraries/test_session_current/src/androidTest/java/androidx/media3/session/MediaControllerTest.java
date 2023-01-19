@@ -888,6 +888,37 @@ public class MediaControllerTest {
   }
 
   @Test
+  public void getCurrentPosition_afterPause_returnsCorrectPosition() throws Exception {
+    long testCurrentPosition = 100L;
+    PlaybackParameters testPlaybackParameters = new PlaybackParameters(/* speed= */ 2.0f);
+    long testTimeDiff = 50L;
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlaybackState(Player.STATE_READY)
+            .setPlayWhenReady(true)
+            .setCurrentPosition(testCurrentPosition)
+            .setDuration(10_000L)
+            .setPlaybackParameters(testPlaybackParameters)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    long currentPositionMs =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setTimeDiffMs(testTimeDiff);
+                  controller.pause();
+                  return controller.getCurrentPosition();
+                });
+
+    long expectedCurrentPositionMs =
+        testCurrentPosition + (long) (testTimeDiff * testPlaybackParameters.speed);
+    assertThat(currentPositionMs).isEqualTo(expectedCurrentPositionMs);
+  }
+
+  @Test
   public void getContentPosition_whenPlayingAd_doesNotAdvance() throws Exception {
     long testContentPosition = 100L;
     Bundle playerConfig =
