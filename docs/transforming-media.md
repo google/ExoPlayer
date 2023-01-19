@@ -37,14 +37,16 @@ Transformer transformer =
        .addListener(transformerListener)
        .build();
 // Start the transformation.
-transformer.startTransformation(
-   new EditedMediaItem(inputMediaItem), outputPath);
+transformer.startTransformation(inputMediaItem, outputPath);
 ~~~
 {: .language-java}
 
-`startTransformation` receives an `EditedMediaItem` describing the input, and a
-path or a `ParcelFileDescriptor` indicating where the output should be written.
-The input can be a progressive or an adaptive stream, but the output is always a
+Other parameters, such as the `MediaSource.Factory`, can be passed to the
+builder.
+
+`startTransformation` receives a `MediaItem` describing the input, and a path or
+a `ParcelFileDescriptor` indicating where the output should be written. The
+input can be a progressive or an adaptive stream, but the output is always a
 progressive stream. For adaptive inputs, the highest resolution tracks are
 always selected for the transformation. The input can be of any container format
 supported by ExoPlayer (see the [Supported formats page][] for details), but the
@@ -63,16 +65,12 @@ app is notified of events via the listener passed to the `Transformer` builder.
 Transformer.Listener transformerListener =
    new Transformer.Listener() {
      @Override
-     public void onTransformationCompleted(
-        MediaItem inputMediaItem, TransformationResult result) {
+     public void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
        playOutput();
      }
 
      @Override
-     public void onTransformationError(
-        MediaItem inputMediaItem,
-        TransformationResult result,
-        TransformationException exception) {
+     public void onTransformationError(MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {
        displayError(e);
      }
    };
@@ -90,15 +88,13 @@ the `updateProgressInUi` method could be implemented to update a progress bar
 displayed to the user.
 
 ~~~
-transformer.startTransformation(
-   new EditedMediaItem(inputMediaItem), outputPath);
+transformer.startTransformation(inputMediaItem, outputPath);
 ProgressHolder progressHolder = new ProgressHolder();
 mainHandler.post(
    new Runnable() {
      @Override
      public void run() {
-       @ProgressState int progressState =
-          transformer.getProgress(progressHolder);
+       @ProgressState int progressState = transformer.getProgress(progressHolder);
        updateProgressInUi(progressState, progressHolder);
        if (progressState != PROGRESS_STATE_NOT_STARTED) {
          mainHandler.postDelayed(/* r= */ this, /* delayMillis= */ 500);
@@ -127,8 +123,7 @@ Transformer transformer =
        .setFlattenForSlowMotion(true)
        .addListener(transformerListener)
        .build();
-transformer.startTransformation(
-   new EditedMediaItem(inputMediaItem), outputPath);
+transformer.startTransformation(inputMediaItem, outputPath);
 ~~~
 {: .language-java}
 
