@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_ID_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT;
@@ -588,7 +589,12 @@ import java.util.List;
   }
 
   public Timeline getCurrentTimelineWithCommandCheck() {
-    return isCommandAvailable(COMMAND_GET_TIMELINE) ? getCurrentTimeline() : Timeline.EMPTY;
+    if (isCommandAvailable(COMMAND_GET_TIMELINE)) {
+      return getCurrentTimeline();
+    } else if (isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)) {
+      return new CurrentMediaItemOnlyTimeline(this);
+    }
+    return Timeline.EMPTY;
   }
 
   @Override
@@ -1163,6 +1169,77 @@ import java.util.List;
       case Player.COMMAND_SET_VOLUME:
       default:
         return 0;
+    }
+  }
+
+  private static final class CurrentMediaItemOnlyTimeline extends Timeline {
+
+    private static final Object UID = new Object();
+
+    @Nullable private final MediaItem mediaItem;
+    private final boolean isSeekable;
+    private final boolean isDynamic;
+    @Nullable private final MediaItem.LiveConfiguration liveConfiguration;
+    private final long durationUs;
+
+    public CurrentMediaItemOnlyTimeline(PlayerWrapper player) {
+      mediaItem = player.getCurrentMediaItem();
+      isSeekable = player.isCurrentMediaItemSeekable();
+      isDynamic = player.isCurrentMediaItemDynamic();
+      liveConfiguration =
+          player.isCurrentMediaItemLive() ? MediaItem.LiveConfiguration.UNSET : null;
+      durationUs = msToUs(player.getContentDuration());
+    }
+
+    @Override
+    public int getWindowCount() {
+      return 1;
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+      window.set(
+          UID,
+          mediaItem,
+          /* manifest= */ null,
+          /* presentationStartTimeMs= */ C.TIME_UNSET,
+          /* windowStartTimeMs= */ C.TIME_UNSET,
+          /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+          isSeekable,
+          isDynamic,
+          liveConfiguration,
+          /* defaultPositionUs= */ 0,
+          durationUs,
+          /* firstPeriodIndex= */ 0,
+          /* lastPeriodIndex= */ 0,
+          /* positionInFirstPeriodUs= */ 0);
+      return window;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return 1;
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      period.set(
+          /* id= */ UID,
+          /* uid= */ UID,
+          /* windowIndex= */ 0,
+          durationUs,
+          /* positionInWindowUs= */ 0);
+      return period;
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      return UID.equals(uid) ? 0 : C.INDEX_UNSET;
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      return UID;
     }
   }
 }

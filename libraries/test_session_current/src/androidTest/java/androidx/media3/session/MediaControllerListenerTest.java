@@ -2215,7 +2215,7 @@ public class MediaControllerListenerTest {
   }
 
   @Test
-  public void onTimelineChanged_playerCommandUnavailable_emptyTimelineMediaItemAndMetadata()
+  public void onTimelineChanged_playerCommandUnavailable_reducesTimelineToOneItem()
       throws Exception {
     int testMediaItemsSize = 2;
     List<MediaItem> testMediaItemList = MediaTestUtils.createMediaItems(testMediaItemsSize);
@@ -2227,8 +2227,6 @@ public class MediaControllerListenerTest {
     CountDownLatch latch = new CountDownLatch(3);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
-    List<Timeline> onEventsTimelines = new ArrayList<>();
-    AtomicReference<MediaMetadata> metadataFromGetterRef = new AtomicReference<>();
     AtomicReference<Boolean> isCurrentMediaItemNullRef = new AtomicReference<>();
     List<Player.Events> eventsList = new ArrayList<>();
     Player.Listener listener =
@@ -2237,7 +2235,6 @@ public class MediaControllerListenerTest {
           public void onTimelineChanged(Timeline timeline, int reason) {
             timelineFromParamRef.set(timeline);
             timelineFromGetterRef.set(controller.getCurrentTimeline());
-            metadataFromGetterRef.set(controller.getMediaMetadata());
             isCurrentMediaItemNullRef.set(controller.getCurrentMediaItem() == null);
             latch.countDown();
           }
@@ -2245,7 +2242,6 @@ public class MediaControllerListenerTest {
           @Override
           public void onEvents(Player player, Player.Events events) {
             // onEvents is called twice.
-            onEventsTimelines.add(player.getCurrentTimeline());
             eventsList.add(events);
             latch.countDown();
           }
@@ -2256,27 +2252,17 @@ public class MediaControllerListenerTest {
     remoteSession.getMockPlayer().notifyAvailableCommandsChanged(commandsWithoutGetTimeline);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(timelineFromParamRef.get()).isEqualTo(Timeline.EMPTY);
-    assertThat(onEventsTimelines).hasSize(2);
-    for (int i = 0; i < onEventsTimelines.get(1).getWindowCount(); i++) {
-      assertThat(
-              onEventsTimelines
-                  .get(1)
-                  .getWindow(/* windowIndex= */ i, new Timeline.Window())
-                  .mediaItem)
-          .isEqualTo(MediaItem.EMPTY);
-    }
-    assertThat(metadataFromGetterRef.get()).isEqualTo(MediaMetadata.EMPTY);
-    assertThat(isCurrentMediaItemNullRef.get()).isTrue();
+    assertThat(timelineFromParamRef.get().getWindowCount()).isEqualTo(1);
+    assertThat(timelineFromGetterRef.get().getWindowCount()).isEqualTo(1);
+    assertThat(isCurrentMediaItemNullRef.get()).isFalse();
     assertThat(eventsList).hasSize(2);
     assertThat(getEventsAsList(eventsList.get(0)))
         .containsExactly(Player.EVENT_AVAILABLE_COMMANDS_CHANGED);
-    assertThat(getEventsAsList(eventsList.get(1)))
-        .containsExactly(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION);
+    assertThat(getEventsAsList(eventsList.get(1))).containsExactly(Player.EVENT_TIMELINE_CHANGED);
   }
 
   @Test
-  public void onTimelineChanged_sessionCommandUnavailable_emptyTimelineMediaItemAndMetadata()
+  public void onTimelineChanged_sessionCommandUnavailable_reducesTimelineToOneItem()
       throws Exception {
     int testMediaItemsSize = 2;
     List<MediaItem> testMediaItemList = MediaTestUtils.createMediaItems(testMediaItemsSize);
@@ -2288,7 +2274,6 @@ public class MediaControllerListenerTest {
     CountDownLatch latch = new CountDownLatch(3);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
-    AtomicReference<MediaMetadata> metadataFromGetterRef = new AtomicReference<>();
     AtomicReference<Boolean> isCurrentMediaItemNullRef = new AtomicReference<>();
     List<Player.Events> eventsList = new ArrayList<>();
     Player.Listener listener =
@@ -2297,7 +2282,6 @@ public class MediaControllerListenerTest {
           public void onTimelineChanged(Timeline timeline, int reason) {
             timelineFromParamRef.set(timeline);
             timelineFromGetterRef.set(controller.getCurrentTimeline());
-            metadataFromGetterRef.set(controller.getMediaMetadata());
             isCurrentMediaItemNullRef.set(controller.getCurrentMediaItem() == null);
             latch.countDown();
           }
@@ -2315,14 +2299,13 @@ public class MediaControllerListenerTest {
     remoteSession.setAvailableCommands(SessionCommands.EMPTY, commandsWithoutGetTimeline);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(timelineFromParamRef.get()).isEqualTo(Timeline.EMPTY);
-    assertThat(metadataFromGetterRef.get()).isEqualTo(MediaMetadata.EMPTY);
-    assertThat(isCurrentMediaItemNullRef.get()).isTrue();
+    assertThat(timelineFromParamRef.get().getWindowCount()).isEqualTo(1);
+    assertThat(timelineFromGetterRef.get().getWindowCount()).isEqualTo(1);
+    assertThat(isCurrentMediaItemNullRef.get()).isFalse();
     assertThat(eventsList).hasSize(2);
     assertThat(getEventsAsList(eventsList.get(0)))
         .containsExactly(Player.EVENT_AVAILABLE_COMMANDS_CHANGED);
-    assertThat(getEventsAsList(eventsList.get(1)))
-        .containsExactly(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION);
+    assertThat(getEventsAsList(eventsList.get(1))).containsExactly(Player.EVENT_TIMELINE_CHANGED);
   }
 
   /** This also tests {@link MediaController#getAvailableCommands()}. */

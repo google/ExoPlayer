@@ -376,7 +376,32 @@ public class PlayerInfoTest {
                     /* currentLiveOffsetMs= */ 3000,
                     /* contentDurationMs= */ 27000,
                     /* contentBufferedPositionMs= */ 15000))
-            .setTimeline(new FakeTimeline(/* windowCount= */ 10))
+            .setTimeline(
+                new FakeTimeline(
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* periodCount= */ 2,
+                        /* id= */ new Object(),
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ true,
+                        /* durationUs= */ 5000),
+                    new FakeTimeline.TimelineWindowDefinition(
+                        /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 1000)))
             .build();
 
     PlayerInfo infoAfterBundling =
@@ -421,7 +446,21 @@ public class PlayerInfoTest {
     assertThat(infoAfterBundling.sessionPositionInfo.currentLiveOffsetMs).isEqualTo(3000);
     assertThat(infoAfterBundling.sessionPositionInfo.contentDurationMs).isEqualTo(27000);
     assertThat(infoAfterBundling.sessionPositionInfo.contentBufferedPositionMs).isEqualTo(15000);
-    assertThat(infoAfterBundling.timeline).isEqualTo(Timeline.EMPTY);
+    assertThat(infoAfterBundling.timeline.getWindowCount()).isEqualTo(1);
+    Timeline.Window window =
+        infoAfterBundling.timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    assertThat(window.durationUs).isEqualTo(5000);
+    assertThat(window.firstPeriodIndex).isEqualTo(0);
+    assertThat(window.lastPeriodIndex).isEqualTo(1);
+    Timeline.Period period =
+        infoAfterBundling.timeline.getPeriod(/* periodIndex= */ 0, new Timeline.Period());
+    assertThat(period.durationUs)
+        .isEqualTo(
+            2500 + FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US);
+    assertThat(period.windowIndex).isEqualTo(0);
+    infoAfterBundling.timeline.getPeriod(/* periodIndex= */ 1, period);
+    assertThat(period.durationUs).isEqualTo(2500);
+    assertThat(period.windowIndex).isEqualTo(0);
   }
 
   @Test
