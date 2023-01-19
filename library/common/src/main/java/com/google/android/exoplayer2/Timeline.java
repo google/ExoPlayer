@@ -1405,6 +1405,38 @@ public abstract class Timeline implements Bundleable {
   }
 
   /**
+   * Returns a {@link Bundle} containing just the specified {@link Window}.
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
+   * Window#toBundle()} and {@link Period#toBundle()}.
+   *
+   * @param windowIndex The index of the {@link Window} to include in the {@link Bundle}.
+   */
+  public final Bundle toBundleWithOneWindowOnly(int windowIndex) {
+    Window window = getWindow(windowIndex, new Window(), /* defaultPositionProjectionUs= */ 0);
+
+    List<Bundle> periodBundles = new ArrayList<>();
+    Period period = new Period();
+    for (int i = window.firstPeriodIndex; i <= window.lastPeriodIndex; i++) {
+      getPeriod(i, period, /* setIds= */ false);
+      period.windowIndex = 0;
+      periodBundles.add(period.toBundle());
+    }
+
+    window.lastPeriodIndex = window.lastPeriodIndex - window.firstPeriodIndex;
+    window.firstPeriodIndex = 0;
+    Bundle windowBundle = window.toBundle();
+
+    Bundle bundle = new Bundle();
+    BundleUtil.putBinder(
+        bundle, FIELD_WINDOWS, new BundleListRetriever(ImmutableList.of(windowBundle)));
+    BundleUtil.putBinder(bundle, FIELD_PERIODS, new BundleListRetriever(periodBundles));
+    bundle.putIntArray(FIELD_SHUFFLED_WINDOW_INDICES, new int[] {0});
+    return bundle;
+  }
+
+  /**
    * Object that can restore a {@link Timeline} from a {@link Bundle}.
    *
    * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
