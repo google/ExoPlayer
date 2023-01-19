@@ -319,33 +319,35 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     mediaStyle.setShowActionsInCompactView(compactViewIndices);
 
     // Set metadata info in the notification.
-    MediaMetadata metadata = player.getMediaMetadata();
-    builder
-        .setContentTitle(getNotificationContentTitle(metadata))
-        .setContentText(getNotificationContentText(metadata));
-    @Nullable
-    ListenableFuture<Bitmap> bitmapFuture =
-        mediaSession.getBitmapLoader().loadBitmapFromMetadata(metadata);
-    if (bitmapFuture != null) {
-      if (pendingOnBitmapLoadedFutureCallback != null) {
-        pendingOnBitmapLoadedFutureCallback.discardIfPending();
-      }
-      if (bitmapFuture.isDone()) {
-        try {
-          builder.setLargeIcon(Futures.getDone(bitmapFuture));
-        } catch (ExecutionException e) {
-          Log.w(TAG, getBitmapLoadErrorMessage(e));
+    if (player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+      MediaMetadata metadata = player.getMediaMetadata();
+      builder
+          .setContentTitle(getNotificationContentTitle(metadata))
+          .setContentText(getNotificationContentText(metadata));
+      @Nullable
+      ListenableFuture<Bitmap> bitmapFuture =
+          mediaSession.getBitmapLoader().loadBitmapFromMetadata(metadata);
+      if (bitmapFuture != null) {
+        if (pendingOnBitmapLoadedFutureCallback != null) {
+          pendingOnBitmapLoadedFutureCallback.discardIfPending();
         }
-      } else {
-        pendingOnBitmapLoadedFutureCallback =
-            new OnBitmapLoadedFutureCallback(
-                notificationId, builder, onNotificationChangedCallback);
-        Futures.addCallback(
-            bitmapFuture,
-            pendingOnBitmapLoadedFutureCallback,
-            // This callback must be executed on the next looper iteration, after this method has
-            // returned a media notification.
-            mainHandler::post);
+        if (bitmapFuture.isDone()) {
+          try {
+            builder.setLargeIcon(Futures.getDone(bitmapFuture));
+          } catch (ExecutionException e) {
+            Log.w(TAG, getBitmapLoadErrorMessage(e));
+          }
+        } else {
+          pendingOnBitmapLoadedFutureCallback =
+              new OnBitmapLoadedFutureCallback(
+                  notificationId, builder, onNotificationChangedCallback);
+          Futures.addCallback(
+              bitmapFuture,
+              pendingOnBitmapLoadedFutureCallback,
+              // This callback must be executed on the next looper iteration, after this method has
+              // returned a media notification.
+              mainHandler::post);
+        }
       }
     }
 
