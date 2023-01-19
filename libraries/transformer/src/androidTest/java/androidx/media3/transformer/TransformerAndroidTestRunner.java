@@ -211,7 +211,10 @@ public class TransformerAndroidTestRunner {
         throw transformationTestResult.analysisException;
       }
       return transformationTestResult;
-    } catch (UnsupportedOperationException | InterruptedException | IOException e) {
+    } catch (InterruptedException
+        | IOException
+        | TimeoutException
+        | UnsupportedOperationException e) {
       resultJson.put(
           "transformationResult",
           new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
@@ -227,12 +230,16 @@ public class TransformerAndroidTestRunner {
    * @param testId An identifier for the test.
    * @param editedMediaItem The {@link EditedMediaItem} to transform.
    * @return The {@link TransformationTestResult}.
+   * @throws IllegalStateException See {@link Transformer#startTransformation(EditedMediaItem,
+   *     String)}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
    * @throws IOException If an error occurs opening the output file for writing.
+   * @throws TimeoutException If the transformation has not completed after {@linkplain
+   *     Builder#setTimeoutSeconds(int) the given timeout}.
    */
   private TransformationTestResult runInternal(String testId, EditedMediaItem editedMediaItem)
-      throws InterruptedException, IOException {
+      throws InterruptedException, IOException, TimeoutException {
     MediaItem mediaItem = editedMediaItem.mediaItem;
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
         && requestCalculateSsim) {
@@ -319,31 +326,25 @@ public class TransformerAndroidTestRunner {
             });
 
     // Block here until timeout reached or latch is counted down.
-    boolean timeoutReached = !countDownLatch.await(timeoutSeconds, SECONDS);
-    long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
-
-    @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
+    if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
+      throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
+    }
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
+    if (unexpectedException != null) {
+      throw new IllegalStateException(
+          "Unexpected exception starting the transformer.", unexpectedException);
+    }
+
+    long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
+    @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
     @Nullable
     TransformationException transformationException = transformationExceptionReference.get();
 
-    @Nullable Exception testException = null;
-    if (timeoutReached) {
-      testException =
-          new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
-    } else if (unexpectedException != null) {
-      testException =
-          new IllegalStateException(
-              "Unexpected exception starting the transformer.", unexpectedException);
-    } else if (transformationException != null) {
-      testException = transformationException;
-    }
-
-    if (testException != null) {
+    if (transformationException != null) {
       return new TransformationTestResult.Builder(checkNotNull(transformationResultReference.get()))
           .setElapsedTimeMs(elapsedTimeMs)
           .setFallbackDetails(fallbackDetails)
-          .setTestException(testException)
+          .setTestException(transformationException)
           .build();
     }
 
