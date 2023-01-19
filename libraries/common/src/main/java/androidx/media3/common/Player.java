@@ -605,9 +605,15 @@ public interface Player {
   }
 
   /**
-   * Listener of all changes in the Player.
+   * Listener for changes in a {@link Player}.
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
+   *
+   * <p>If the return value of a {@link Player} getter changes due to a change in {@linkplain
+   * #onAvailableCommandsChanged(Commands) command availability}, the corresponding listener
+   * method(s) will be invoked. If the return value of a {@link Player} getter does not change
+   * because the corresponding command is {@linkplain #onAvailableCommandsChanged(Commands) not
+   * available}, the corresponding listener method will not be invoked.
    */
   interface Listener {
 
@@ -616,9 +622,6 @@ public interface Player {
      *
      * <p>State changes and events that happen within one {@link Looper} message queue iteration are
      * reported together and only after all individual callbacks were triggered.
-     *
-     * <p>Only state changes represented by {@linkplain Event events} are reported through this
-     * method.
      *
      * <p>Listeners should prefer this method over individual callbacks in the following cases:
      *
@@ -645,7 +648,7 @@ public interface Player {
     default void onEvents(Player player, Events events) {}
 
     /**
-     * Called when the timeline has been refreshed.
+     * Called when the value of {@link Player#getCurrentTimeline()} changes.
      *
      * <p>Note that the current {@link MediaItem} or playback position may change as a result of a
      * timeline change. If playback can't continue smoothly because of this timeline change, a
@@ -664,9 +667,8 @@ public interface Player {
      * Called when playback transitions to a media item or starts repeating a media item according
      * to the current {@link #getRepeatMode() repeat mode}.
      *
-     * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
-     * consequence of a playlist change or {@linkplain #onAvailableCommandsChanged(Commands) a
-     * change in available commands}.
+     * <p>Note that this callback is also called when the value of {@link #getCurrentTimeline()}
+     * becomes non-empty or empty.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -678,7 +680,7 @@ public interface Player {
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
     /**
-     * Called when the tracks change.
+     * Called when the value of {@link Player#getCurrentTracks()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -688,14 +690,7 @@ public interface Player {
     default void onTracksChanged(Tracks tracks) {}
 
     /**
-     * Called when the combined {@link MediaMetadata} changes.
-     *
-     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata
-     * MediaItem metadata}, the static metadata in the media's {@link Format#metadata Format}, and
-     * any timed metadata that has been parsed from the media and output via {@link
-     * Listener#onMetadata(Metadata)}. If a field is populated in the {@link
-     * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
-     * timed metadata.
+     * Called when the value of {@link Player#getMediaMetadata()} changes.
      *
      * <p>This method may be called multiple times in quick succession.
      *
@@ -707,7 +702,7 @@ public interface Player {
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
-     * Called when the playlist {@link MediaMetadata} changes.
+     * Called when the value of {@link Player#getPlaylistMetadata()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -876,10 +871,10 @@ public interface Player {
         PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {}
 
     /**
-     * Called when the current playback parameters change. The playback parameters may change due to
-     * a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player itself may change
-     * them (for example, if audio playback switches to passthrough or offload mode, where speed
-     * adjustment is no longer possible).
+     * Called when the value of {@link #getPlaybackParameters()} changes. The playback parameters
+     * may change due to a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player
+     * itself may change them (for example, if audio playback switches to passthrough or offload
+     * mode, where speed adjustment is no longer possible).
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -940,7 +935,7 @@ public interface Player {
     default void onAudioSessionIdChanged(int audioSessionId) {}
 
     /**
-     * Called when the audio attributes change.
+     * Called when the value of {@link #getAudioAttributes()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -950,7 +945,7 @@ public interface Player {
     default void onAudioAttributesChanged(AudioAttributes audioAttributes) {}
 
     /**
-     * Called when the volume changes.
+     * Called when the value of {@link #getVolume()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -980,7 +975,7 @@ public interface Player {
     default void onDeviceInfoChanged(DeviceInfo deviceInfo) {}
 
     /**
-     * Called when the device volume or mute state changes.
+     * Called when the value of {@link #getDeviceVolume()} or {@link #isDeviceMuted()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -1024,7 +1019,7 @@ public interface Player {
     default void onRenderedFirstFrame() {}
 
     /**
-     * Called when there is a change in the {@linkplain Cue cues}.
+     * Called when the value of {@link #getCurrentCues()} changes.
      *
      * <p>Both this method and {@link #onCues(CueGroup)} are called when there is a change in the
      * cues. You should only implement one or the other.
@@ -1039,7 +1034,7 @@ public interface Player {
     default void onCues(List<Cue> cues) {}
 
     /**
-     * Called when there is a change in the {@link CueGroup}.
+     * Called when the value of {@link #getCurrentCues()} changes.
      *
      * <p>Both this method and {@link #onCues(List)} are called when there is a change in the cues.
      * You should only implement one or the other.
@@ -1404,7 +1399,7 @@ public interface Player {
 
   /**
    * Commands that indicate which method calls are currently permitted on a particular {@code
-   * Player} instance, and which corresponding {@link Player.Listener} methods will be invoked.
+   * Player} instance.
    *
    * <p>The currently available commands can be inspected with {@link #getAvailableCommands()} and
    * {@link #isCommandAvailable(int)}.
