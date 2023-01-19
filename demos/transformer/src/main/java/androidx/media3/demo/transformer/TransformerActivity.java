@@ -74,6 +74,8 @@ import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.DefaultMuxer;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
@@ -207,8 +209,9 @@ public final class TransformerActivity extends AppCompatActivity {
     MediaItem mediaItem = createMediaItem(bundle, uri);
     try {
       Transformer transformer = createTransformer(bundle, filePath);
+      EditedMediaItem editedMediaItem = createEditedMediaItem(mediaItem, bundle);
       transformationStopwatch.start();
-      transformer.startTransformation(mediaItem, filePath);
+      transformer.startTransformation(editedMediaItem, filePath);
       this.transformer = transformer;
     } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);
@@ -265,8 +268,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "progressViewGroup",
     "debugFrame",
   })
-  private Transformer createTransformer(@Nullable Bundle bundle, String filePath)
-      throws PackageManager.NameNotFoundException {
+  private Transformer createTransformer(@Nullable Bundle bundle, String filePath) {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
     if (bundle != null) {
       TransformationRequest.Builder requestBuilder = new TransformationRequest.Builder();
@@ -282,29 +284,6 @@ public final class TransformerActivity extends AppCompatActivity {
       }
       requestBuilder.setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE));
       transformerBuilder.setTransformationRequest(requestBuilder.build());
-
-      transformerBuilder.setAudioProcessors(createAudioProcessorsFromBundle(bundle));
-
-      ImmutableList.Builder<Effect> effectsListBuilder =
-          new ImmutableList.Builder<Effect>().addAll(createVideoEffectsFromBundle(bundle));
-      float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
-      float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
-      float rotateDegrees =
-          bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
-      if (scaleX != 1f || scaleY != 1f || rotateDegrees != 0f) {
-        effectsListBuilder.add(
-            new ScaleToFitTransformation.Builder()
-                .setScale(scaleX, scaleY)
-                .setRotationDegrees(rotateDegrees)
-                .build());
-      }
-      int resolutionHeight =
-          bundle.getInt(
-              ConfigurationActivity.RESOLUTION_HEIGHT, /* defaultValue= */ C.LENGTH_UNSET);
-      if (resolutionHeight != C.LENGTH_UNSET) {
-        effectsListBuilder.add(Presentation.createForHeight(resolutionHeight));
-      }
-      transformerBuilder.setVideoEffects(effectsListBuilder.build());
 
       transformerBuilder
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
@@ -356,6 +335,24 @@ public final class TransformerActivity extends AppCompatActivity {
       throw new IllegalStateException("Could not create the transformer output file");
     }
     return file;
+  }
+
+  @RequiresNonNull({
+    "inputCardView",
+    "outputPlayerView",
+    "transformationStopwatch",
+    "progressViewGroup",
+  })
+  private EditedMediaItem createEditedMediaItem(MediaItem mediaItem, @Nullable Bundle bundle)
+      throws PackageManager.NameNotFoundException {
+    if (bundle == null) {
+      return new EditedMediaItem(mediaItem);
+    }
+
+    ImmutableList<AudioProcessor> audioProcessors = createAudioProcessorsFromBundle(bundle);
+    ImmutableList<Effect> videoEffects = createVideoEffectsFromBundle(bundle);
+    Effects effects = new Effects(audioProcessors, videoEffects);
+    return new EditedMediaItem(mediaItem, effects);
   }
 
   private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {
@@ -516,6 +513,24 @@ public final class TransformerActivity extends AppCompatActivity {
     @Nullable OverlayEffect overlayEffect = createOverlayEffectFromBundle(bundle, selectedEffects);
     if (overlayEffect != null) {
       effects.add(overlayEffect);
+    }
+
+    float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
+    float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
+    float rotateDegrees =
+        bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
+    if (scaleX != 1f || scaleY != 1f || rotateDegrees != 0f) {
+      effects.add(
+          new ScaleToFitTransformation.Builder()
+              .setScale(scaleX, scaleY)
+              .setRotationDegrees(rotateDegrees)
+              .build());
+    }
+
+    int resolutionHeight =
+        bundle.getInt(ConfigurationActivity.RESOLUTION_HEIGHT, /* defaultValue= */ C.LENGTH_UNSET);
+    if (resolutionHeight != C.LENGTH_UNSET) {
+      effects.add(Presentation.createForHeight(resolutionHeight));
     }
 
     return effects.build();

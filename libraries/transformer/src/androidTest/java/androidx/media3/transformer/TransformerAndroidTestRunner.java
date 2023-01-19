@@ -183,12 +183,26 @@ public class TransformerAndroidTestRunner {
    * @throws Exception The cause of the transformation not completing.
    */
   public TransformationTestResult run(String testId, MediaItem mediaItem) throws Exception {
+    return run(testId, new EditedMediaItem(mediaItem));
+  }
+
+  /**
+   * Transforms the {@link EditedMediaItem}, saving a summary of the transformation to the
+   * application cache.
+   *
+   * @param testId A unique identifier for the transformer test run.
+   * @param editedMediaItem The {@link EditedMediaItem} to transform.
+   * @return The {@link TransformationTestResult}.
+   * @throws Exception The cause of the transformation not completing.
+   */
+  public TransformationTestResult run(String testId, EditedMediaItem editedMediaItem)
+      throws Exception {
     JSONObject resultJson = new JSONObject();
     if (inputValues != null) {
       resultJson.put("inputValues", JSONObject.wrap(inputValues));
     }
     try {
-      TransformationTestResult transformationTestResult = runInternal(testId, mediaItem);
+      TransformationTestResult transformationTestResult = runInternal(testId, editedMediaItem);
       resultJson.put("transformationResult", transformationTestResult.asJsonObject());
       if (transformationTestResult.testException != null) {
         throw transformationTestResult.testException;
@@ -208,17 +222,18 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Transforms the {@link MediaItem}.
+   * Transforms the {@link EditedMediaItem}.
    *
    * @param testId An identifier for the test.
-   * @param mediaItem The {@link MediaItem} to transform.
+   * @param editedMediaItem The {@link EditedMediaItem} to transform.
    * @return The {@link TransformationTestResult}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
    * @throws IOException If an error occurs opening the output file for writing.
    */
-  private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
+  private TransformationTestResult runInternal(String testId, EditedMediaItem editedMediaItem)
       throws InterruptedException, IOException {
+    MediaItem mediaItem = editedMediaItem.mediaItem;
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
         && requestCalculateSsim) {
       throw new UnsupportedOperationException(
@@ -293,7 +308,8 @@ public class TransformerAndroidTestRunner {
         .runOnMainSync(
             () -> {
               try {
-                testTransformer.startTransformation(mediaItem, outputVideoFile.getAbsolutePath());
+                testTransformer.startTransformation(
+                    editedMediaItem, outputVideoFile.getAbsolutePath());
                 // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
                 // propagate.
               } catch (Exception e) {

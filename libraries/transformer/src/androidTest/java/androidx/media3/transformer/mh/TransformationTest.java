@@ -26,12 +26,15 @@ import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
 import android.net.Uri;
+import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -195,17 +198,16 @@ public class TransformationTest {
     String testId = TAG + "_transformFrameRotation";
     Context context = ApplicationProvider.getApplicationContext();
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setVideoEffects(
-                ImmutableList.of(
-                    new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(
-            /* testId= */ testId,
-            MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+        .run(/* testId= */ testId, editedMediaItem);
   }
 }

@@ -47,6 +47,7 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.Presentation;
@@ -129,9 +130,10 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_videoOnlyPassthrough_completesSuccessfully() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
@@ -140,10 +142,11 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_audioOnlyPassthrough_completesSuccessfully() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
 
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
-
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -159,9 +162,11 @@ public final class TransformerEndToEndTest {
                     .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -171,9 +176,10 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_audioAndVideo_completesSuccessfully() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
@@ -193,8 +199,9 @@ public final class TransformerEndToEndTest {
                     .setStartsAtKeyFrame(true)
                     .build())
             .build();
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem);
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -210,9 +217,10 @@ public final class TransformerEndToEndTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_WITH_SUBTITLES);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_WITH_SUBTITLES));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_WITH_SUBTITLES));
@@ -222,15 +230,16 @@ public final class TransformerEndToEndTest {
   public void startTransformation_successiveTransformations_completesSuccessfully()
       throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
     // Transform first media item.
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
     Files.delete(Paths.get(outputPath));
 
     // Transform second media item.
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
@@ -239,21 +248,24 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_concurrentTransformations_throwsError() {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
 
     assertThrows(
-        IllegalStateException.class, () -> transformer.startTransformation(mediaItem, outputPath));
+        IllegalStateException.class,
+        () -> transformer.startTransformation(editedMediaItem, outputPath));
   }
 
   @Test
   public void startTransformation_removeAudio_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false).setRemoveAudio(true).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -264,9 +276,10 @@ public final class TransformerEndToEndTest {
   public void startTransformation_removeVideo_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false).setRemoveVideo(true).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -279,9 +292,11 @@ public final class TransformerEndToEndTest {
         createTransformerBuilder(/* enableFallback= */ false)
             .experimentalSetGenerateSilentAudio(true)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -294,9 +309,10 @@ public final class TransformerEndToEndTest {
         createTransformerBuilder(/* enableFallback= */ false)
             .experimentalSetGenerateSilentAudio(true)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
@@ -309,9 +325,10 @@ public final class TransformerEndToEndTest {
             .experimentalSetGenerateSilentAudio(true)
             .setRemoveAudio(true)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -325,9 +342,10 @@ public final class TransformerEndToEndTest {
             .experimentalSetGenerateSilentAudio(true)
             .setRemoveVideo(true)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
@@ -339,9 +357,10 @@ public final class TransformerEndToEndTest {
         createTransformerBuilder(/* enableFallback= */ false)
             .experimentalSetGenerateSilentAudio(true)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -352,13 +371,13 @@ public final class TransformerEndToEndTest {
   public void startTransformation_adjustSampleRate_completesSuccessfully() throws Exception {
     SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
     sonicAudioProcessor.setOutputSampleRateHz(48000);
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .setAudioProcessors(ImmutableList.of(sonicAudioProcessor))
-            .build();
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(sonicAudioProcessor);
+    Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -376,14 +395,15 @@ public final class TransformerEndToEndTest {
             .addListener(mockListener2)
             .addListener(mockListener3)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
-    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener2).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(eq(editedMediaItem.mediaItem), any());
+    verify(mockListener2).onTransformationCompleted(eq(editedMediaItem.mediaItem), any());
+    verify(mockListener3).onTransformationCompleted(eq(editedMediaItem.mediaItem), any());
   }
 
   @Test
@@ -399,16 +419,21 @@ public final class TransformerEndToEndTest {
             .setTransformationRequest( // Request transcoding so that decoder is used.
                 new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationException exception =
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
 
-    verify(mockListener1).onTransformationError(eq(mediaItem), any(), eq(exception));
-    verify(mockListener2).onTransformationError(eq(mediaItem), any(), eq(exception));
-    verify(mockListener3).onTransformationError(eq(mediaItem), any(), eq(exception));
+    verify(mockListener1)
+        .onTransformationError(eq(editedMediaItem.mediaItem), any(), eq(exception));
+    verify(mockListener2)
+        .onTransformationError(eq(editedMediaItem.mediaItem), any(), eq(exception));
+    verify(mockListener3)
+        .onTransformationError(eq(editedMediaItem.mediaItem), any(), eq(exception));
   }
 
   @Test
@@ -426,17 +451,27 @@ public final class TransformerEndToEndTest {
             .addListener(mockListener2)
             .addListener(mockListener3)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     verify(mockListener1)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            editedMediaItem.mediaItem,
+            originalTransformationRequest,
+            fallbackTransformationRequest);
     verify(mockListener2)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            editedMediaItem.mediaItem,
+            originalTransformationRequest,
+            fallbackTransformationRequest);
     verify(mockListener3)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            editedMediaItem.mediaItem,
+            originalTransformationRequest,
+            fallbackTransformationRequest);
   }
 
   @Test
@@ -452,14 +487,15 @@ public final class TransformerEndToEndTest {
             .addListener(mockListener3)
             .build();
     Transformer transformer2 = transformer1.buildUpon().removeListener(mockListener2).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer2.startTransformation(mediaItem, outputPath);
+    transformer2.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer2);
 
-    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener2, never()).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(eq(editedMediaItem.mediaItem), any());
+    verify(mockListener2, never()).onTransformationCompleted(eq(editedMediaItem.mediaItem), any());
+    verify(mockListener3).onTransformationCompleted(eq(editedMediaItem.mediaItem), any());
   }
 
   @Test
@@ -469,9 +505,10 @@ public final class TransformerEndToEndTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_WITH_SEF_SLOW_MOTION);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_WITH_SEF_SLOW_MOTION));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_WITH_SEF_SLOW_MOTION));
@@ -480,9 +517,10 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_completesWithValidBitrate() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationResult result = TransformerTestRunner.runLooper(transformer);
 
     assertThat(result.averageAudioBitrate).isGreaterThan(0);
@@ -499,9 +537,10 @@ public final class TransformerEndToEndTest {
                         MimeTypes.AUDIO_AMR_NB) // unsupported by encoder, supported by muxer
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationException exception =
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
@@ -519,9 +558,11 @@ public final class TransformerEndToEndTest {
                     .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(
+            MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationException exception =
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
@@ -533,9 +574,10 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_withIoError_completesWithError() {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri("asset:///non-existing-path.mp4");
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri("asset:///non-existing-path.mp4"));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationException exception =
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
@@ -554,15 +596,19 @@ public final class TransformerEndToEndTest {
         new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false).addListener(mockListener).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
     verify(mockListener)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            editedMediaItem.mediaItem,
+            originalTransformationRequest,
+            fallbackTransformationRequest);
   }
 
   @Test
@@ -575,15 +621,19 @@ public final class TransformerEndToEndTest {
         new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ true).addListener(mockListener).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
     verify(mockListener)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            editedMediaItem.mediaItem,
+            originalTransformationRequest,
+            fallbackTransformationRequest);
   }
 
   @Test
@@ -600,9 +650,10 @@ public final class TransformerEndToEndTest {
             .setAssetLoaderFactory(assetLoaderFactory)
             .setMuxerFactory(muxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationException exception =
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
@@ -616,9 +667,10 @@ public final class TransformerEndToEndTest {
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false).setMuxerFactory(muxerFactory).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
@@ -627,14 +679,15 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_afterCancellation_completesSuccessfully() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     transformer.cancel();
     Files.delete(Paths.get(outputPath));
 
     // This would throw if the previous transformation had not been cancelled.
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationResult transformationResult = TransformerTestRunner.runLooper(transformer);
 
     // TODO(b/264974805): Make transformation output deterministic and check it against dump file.
@@ -648,7 +701,8 @@ public final class TransformerEndToEndTest {
     Looper looper = anotherThread.getLooper();
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false).setLooper(looper).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
     AtomicReference<Exception> exception = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -656,7 +710,7 @@ public final class TransformerEndToEndTest {
         .post(
             () -> {
               try {
-                transformer.startTransformation(mediaItem, outputPath);
+                transformer.startTransformation(editedMediaItem, outputPath);
                 TransformerTestRunner.runLooper(transformer);
               } catch (Exception e) {
                 exception.set(e);
@@ -673,7 +727,8 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_fromWrongThread_throwsError() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
     HandlerThread anotherThread = new HandlerThread("AnotherThread");
     AtomicReference<IllegalStateException> illegalStateException = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -683,7 +738,7 @@ public final class TransformerEndToEndTest {
         .post(
             () -> {
               try {
-                transformer.startTransformation(mediaItem, outputPath);
+                transformer.startTransformation(editedMediaItem, outputPath);
               } catch (IllegalStateException e) {
                 illegalStateException.set(e);
               } finally {
@@ -704,9 +759,10 @@ public final class TransformerEndToEndTest {
             .setAssetLoaderFactory(
                 new FakeAssetLoader.Factory(SUPPORTED_OUTPUT_TYPE_DECODED, sampleConsumerRef))
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     runLooperUntil(transformer.getApplicationLooper(), () -> sampleConsumerRef.get() != null);
 
     assertThat(sampleConsumerRef.get().expectsDecodedData()).isTrue();
@@ -716,14 +772,16 @@ public final class TransformerEndToEndTest {
   public void startTransformation_withAssetLoaderNotDecodingAndDecodingNeeded_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
-            .setAudioProcessors(ImmutableList.of(new SonicAudioProcessor()))
             .setAssetLoaderFactory(
                 new FakeAssetLoader.Factory(
                     SUPPORTED_OUTPUT_TYPE_ENCODED, /* sampleConsumerRef= */ null))
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(new SonicAudioProcessor());
+    Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformationException transformationException =
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
@@ -733,15 +791,17 @@ public final class TransformerEndToEndTest {
 
   @Test
   public void startTransformation_withNoOpEffects_transmuxes() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
     int mediaItemHeightPixels = 720;
-    List<Effect> videoEffects = new ArrayList<>();
-    videoEffects.add(Presentation.createForHeight(mediaItemHeightPixels));
-    videoEffects.add(new ScaleToFitTransformation.Builder().build());
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false).setVideoEffects(videoEffects).build();
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            Presentation.createForHeight(mediaItemHeightPixels),
+            new ScaleToFitTransformation.Builder().build());
+    Effects effects = new Effects(ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     // Video transcoding in unit tests is not supported.
@@ -751,7 +811,8 @@ public final class TransformerEndToEndTest {
   @Test
   public void getProgress_knownDuration_returnsConsistentStates() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
     AtomicBoolean foundInconsistentState = new AtomicBoolean();
@@ -787,7 +848,7 @@ public final class TransformerEndToEndTest {
           }
         };
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     progressHandler.sendEmptyMessage(0);
     TransformerTestRunner.runLooper(transformer);
 
@@ -797,7 +858,8 @@ public final class TransformerEndToEndTest {
   @Test
   public void getProgress_knownDuration_givesIncreasingPercentages() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
     List<Integer> progresses = new ArrayList<>();
     Handler progressHandler =
         new Handler(Looper.myLooper()) {
@@ -816,7 +878,7 @@ public final class TransformerEndToEndTest {
           }
         };
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     progressHandler.sendEmptyMessage(0);
     TransformerTestRunner.runLooper(transformer);
 
@@ -832,10 +894,11 @@ public final class TransformerEndToEndTest {
   @Test
   public void getProgress_noCurrentTransformation_returnsNoTransformation() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
 
     @Transformer.ProgressState int stateBeforeTransform = transformer.getProgress(progressHolder);
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
     @Transformer.ProgressState int stateAfterTransform = transformer.getProgress(progressHolder);
 
@@ -846,7 +909,8 @@ public final class TransformerEndToEndTest {
   @Test
   public void getProgress_unknownDuration_returnsConsistentStates() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_UNKNOWN_DURATION);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_UNKNOWN_DURATION));
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
     AtomicBoolean foundInconsistentState = new AtomicBoolean();
@@ -879,7 +943,7 @@ public final class TransformerEndToEndTest {
           }
         };
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     progressHandler.sendEmptyMessage(0);
     TransformerTestRunner.runLooper(transformer);
 
@@ -913,9 +977,10 @@ public final class TransformerEndToEndTest {
   @Test
   public void cancel_afterCompletion_doesNotThrow() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY));
 
-    transformer.startTransformation(mediaItem, outputPath);
+    transformer.startTransformation(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
     transformer.cancel();
   }
