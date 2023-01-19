@@ -1627,10 +1627,28 @@ public interface Player {
   int COMMAND_SET_REPEAT_MODE = 15;
 
   /**
-   * Command to get the currently playing {@link MediaItem}.
+   * Command to get information about the currently playing {@link MediaItem}.
    *
-   * <p>The {@link #getCurrentMediaItem()} method must only be called if this command is {@linkplain
-   * #isCommandAvailable(int) available}.
+   * <p>The following methods must only be called if this command is {@linkplain
+   * #isCommandAvailable(int) available}:
+   *
+   * <ul>
+   *   <li>{@link #getCurrentMediaItem()}
+   *   <li>{@link #isCurrentMediaItemDynamic()}
+   *   <li>{@link #isCurrentMediaItemLive()}
+   *   <li>{@link #isCurrentMediaItemSeekable()}
+   *   <li>{@link #getCurrentLiveOffset()}
+   *   <li>{@link #getDuration()}
+   *   <li>{@link #getCurrentPosition()}
+   *   <li>{@link #getBufferedPosition()}
+   *   <li>{@link #getContentDuration()}
+   *   <li>{@link #getContentPosition()}
+   *   <li>{@link #getContentBufferedPosition()}
+   *   <li>{@link #getTotalBufferedDuration()}
+   *   <li>{@link #isPlayingAd()}
+   *   <li>{@link #getCurrentAdGroupIndex()}
+   *   <li>{@link #getCurrentAdIndexInAdGroup()}
+   * </ul>
    */
   int COMMAND_GET_CURRENT_MEDIA_ITEM = 16;
 
@@ -1650,8 +1668,6 @@ public interface Player {
    *   <li>{@link #getPreviousMediaItemIndex()}
    *   <li>{@link #hasPreviousMediaItem()}
    *   <li>{@link #hasNextMediaItem()}
-   *   <li>{@link #getCurrentAdGroupIndex()}
-   *   <li>{@link #getCurrentAdIndexInAdGroup()}
    * </ul>
    */
   int COMMAND_GET_TIMELINE = 17;
@@ -2681,18 +2697,27 @@ public interface Player {
   /**
    * Returns the duration of the current content or ad in milliseconds, or {@link C#TIME_UNSET} if
    * the duration is not known.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getDuration();
 
   /**
    * Returns the playback position in the current content or ad, in milliseconds, or the prospective
    * position in milliseconds if the {@link #getCurrentTimeline() current timeline} is empty.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getCurrentPosition();
 
   /**
    * Returns an estimate of the position in the current content or ad up to which data is buffered,
    * in milliseconds.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getBufferedPosition();
 
@@ -2706,6 +2731,9 @@ public interface Player {
   /**
    * Returns an estimate of the total buffered duration from the current position, in milliseconds.
    * This includes pre-buffered data for subsequent ads and {@linkplain MediaItem media items}.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getTotalBufferedDuration();
 
@@ -2718,6 +2746,9 @@ public interface Player {
   /**
    * Returns whether the current {@link MediaItem} is dynamic (may change when the {@link Timeline}
    * is updated), or {@code false} if the {@link Timeline} is empty.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    *
    * @see Timeline.Window#isDynamic
    */
@@ -2733,6 +2764,9 @@ public interface Player {
    * Returns whether the current {@link MediaItem} is live, or {@code false} if the {@link Timeline}
    * is empty.
    *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
+   *
    * @see Timeline.Window#isLive()
    */
   boolean isCurrentMediaItemLive();
@@ -2747,6 +2781,9 @@ public interface Player {
    *
    * <p>Note that this offset may rely on an accurate local time, so this method may return an
    * incorrect value if the difference between system clock and server clock is unknown.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getCurrentLiveOffset();
 
@@ -2760,18 +2797,26 @@ public interface Player {
    * Returns whether the current {@link MediaItem} is seekable, or {@code false} if the {@link
    * Timeline} is empty.
    *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
+   *
    * @see Timeline.Window#isSeekable
    */
   boolean isCurrentMediaItemSeekable();
 
-  /** Returns whether the player is currently playing an ad. */
+  /**
+   * Returns whether the player is currently playing an ad.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
+   */
   boolean isPlayingAd();
 
   /**
    * If {@link #isPlayingAd()} returns true, returns the index of the ad group in the period
    * currently being played. Returns {@link C#INDEX_UNSET} otherwise.
    *
-   * <p>This method must only be called if {@link #COMMAND_GET_TIMELINE} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
    * #getAvailableCommands() available}.
    */
   int getCurrentAdGroupIndex();
@@ -2780,7 +2825,7 @@ public interface Player {
    * If {@link #isPlayingAd()} returns true, returns the index of the ad in its ad group. Returns
    * {@link C#INDEX_UNSET} otherwise.
    *
-   * <p>This method must only be called if {@link #COMMAND_GET_TIMELINE} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
    * #getAvailableCommands() available}.
    */
   int getCurrentAdIndexInAdGroup();
@@ -2789,6 +2834,9 @@ public interface Player {
    * If {@link #isPlayingAd()} returns {@code true}, returns the duration of the current content in
    * milliseconds, or {@link C#TIME_UNSET} if the duration is not known. If there is no ad playing,
    * the returned duration is the same as that returned by {@link #getDuration()}.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getContentDuration();
 
@@ -2796,6 +2844,9 @@ public interface Player {
    * If {@link #isPlayingAd()} returns {@code true}, returns the content position that will be
    * played once all ads in the ad group have finished playing, in milliseconds. If there is no ad
    * playing, the returned position is the same as that returned by {@link #getCurrentPosition()}.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getContentPosition();
 
@@ -2803,6 +2854,9 @@ public interface Player {
    * If {@link #isPlayingAd()} returns {@code true}, returns an estimate of the content position in
    * the current content up to which data is buffered, in milliseconds. If there is no ad playing,
    * the returned position is the same as that returned by {@link #getBufferedPosition()}.
+   *
+   * <p>This method must only be called if {@link #COMMAND_GET_CURRENT_MEDIA_ITEM} is {@linkplain
+   * #getAvailableCommands() available}.
    */
   long getContentBufferedPosition();
 
