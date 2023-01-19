@@ -255,6 +255,12 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     if (textRendererNeedsUpdate) {
       // If textRendererNeedsUpdate then subtitle must be non-null.
       checkNotNull(subtitle);
+
+      // MIREGO: added this check to prevent crash
+      if (subtitle.getEventTimeCount() == 0) {
+        return;
+      }
+
       // textRendererNeedsUpdate is set and we're playing. Update the renderer.
       long presentationTimeUs = getPresentationTimeUs(getCurrentEventTimeUs(positionUs));
       CueGroup cueGroup = new CueGroup(subtitle.getCues(positionUs), presentationTimeUs);
