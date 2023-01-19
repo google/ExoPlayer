@@ -25,10 +25,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,20 +51,22 @@ public final class RepeatedTranscodeTest {
         new TransformerAndroidTestRunner.Builder(
                 context,
                 new Transformer.Builder(context)
-                    .setVideoEffects(
-                        ImmutableList.of(
-                            new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
                     .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
       TransformationTestResult testResult =
           transformerRunner.run(
-              /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
-              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
+              /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i, editedMediaItem);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -79,12 +84,15 @@ public final class RepeatedTranscodeTest {
                 context,
                 new Transformer.Builder(context)
                     .setRemoveAudio(true)
-                    .setVideoEffects(
-                        ImmutableList.of(
-                            new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
                     .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
@@ -92,7 +100,7 @@ public final class RepeatedTranscodeTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
-              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
+              editedMediaItem);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 

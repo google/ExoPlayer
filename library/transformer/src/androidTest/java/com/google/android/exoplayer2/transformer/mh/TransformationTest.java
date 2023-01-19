@@ -33,10 +33,13 @@ import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -195,17 +198,16 @@ public class TransformationTest {
     String testId = TAG + "_transformFrameRotation";
     Context context = ApplicationProvider.getApplicationContext();
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setVideoEffects(
-                ImmutableList.of(
-                    new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()))
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(
-            /* testId= */ testId,
-            MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+        .run(/* testId= */ testId, editedMediaItem);
   }
 }

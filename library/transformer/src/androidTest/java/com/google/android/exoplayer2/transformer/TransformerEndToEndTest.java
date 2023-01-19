@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.Presentation;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,10 +45,13 @@ public class TransformerEndToEndTest {
   public void videoEditing_completesWithConsistentFrameCount() throws Exception {
     Transformer transformer =
         new Transformer.Builder(context)
-            .setVideoEffects(ImmutableList.of(Presentation.createForHeight(480)))
             .setEncoderFactory(
                 new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
+    ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
     // Result of the following command:
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
     int expectedFrameCount = 30;
@@ -55,9 +59,7 @@ public class TransformerEndToEndTest {
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(
-                /* testId= */ "videoEditing_completesWithConsistentFrameCount",
-                MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)));
+            .run(/* testId= */ "videoEditing_completesWithConsistentFrameCount", editedMediaItem);
 
     assertThat(result.transformationResult.videoFrameCount).isEqualTo(expectedFrameCount);
   }
@@ -67,18 +69,19 @@ public class TransformerEndToEndTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
-            .setVideoEffects(ImmutableList.of(Presentation.createForHeight(480)))
             .setEncoderFactory(
                 new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
+    ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
     long expectedDurationMs = 967;
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(
-                /* testId= */ "videoOnly_completesWithConsistentDuration",
-                MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)));
+            .run(/* testId= */ "videoOnly_completesWithConsistentDuration", editedMediaItem);
 
     assertThat(result.transformationResult.durationMs).isEqualTo(expectedDurationMs);
   }

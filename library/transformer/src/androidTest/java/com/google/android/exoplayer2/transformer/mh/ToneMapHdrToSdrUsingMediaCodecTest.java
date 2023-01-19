@@ -28,11 +28,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
+import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Log;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -80,7 +83,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
-      return;
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -88,7 +90,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           .isAnyOf(
               TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-      return;
     }
   }
 
@@ -125,7 +126,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
-      return;
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -133,7 +133,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           .isAnyOf(
               TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-      return;
     }
   }
 
@@ -148,9 +147,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                 new TransformationRequest.Builder()
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
                     .build())
-            .setVideoEffects(
-                ImmutableList.of(
-                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -165,15 +161,19 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                   }
                 })
             .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
-      return;
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -181,7 +181,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           .isAnyOf(
               TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-      return;
     }
   }
 
@@ -196,9 +195,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                 new TransformationRequest.Builder()
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
                     .build())
-            .setVideoEffects(
-                ImmutableList.of(
-                    new ScaleToFitTransformation.Builder().setRotationDegrees(180).build()))
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -213,15 +209,19 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                   }
                 })
             .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
 
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+              .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
-      return;
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -229,7 +229,6 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           .isAnyOf(
               TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-      return;
     }
   }
 }
