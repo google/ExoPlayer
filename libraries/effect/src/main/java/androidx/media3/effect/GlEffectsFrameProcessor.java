@@ -69,6 +69,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      * required, and {@link ColorInfo#colorTransfer outputColorInfo.colorTransfer} must be {@link
      * C#COLOR_TRANSFER_ST2084}.
      *
+     * <p>{@link Effect}s are applied on {@link C#COLOR_RANGE_FULL} colors with {@code null} {@link
+     * ColorInfo#hdrStaticInfo}. {@code inputColorInfo}'s {@link ColorInfo#hdrStaticInfo} and {@code
+     * outputColorInfo}'s {@link ColorInfo#colorRange} values are currently ignored, in favor of
+     * {@code null} and {@link C#COLOR_RANGE_FULL}, respectively.
+     *
      * <p>Pass a {@link MoreExecutors#directExecutor() direct listenerExecutor} if invoking the
      * {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is desired.
      */
