@@ -795,7 +795,9 @@ public class MockPlayer implements Player {
 
   @Override
   public boolean isCurrentMediaItemDynamic() {
-    throw new UnsupportedOperationException();
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty()
+        && timeline.getWindow(getCurrentMediaItemIndex(), new Timeline.Window()).isDynamic;
   }
 
   /**
@@ -809,7 +811,9 @@ public class MockPlayer implements Player {
 
   @Override
   public boolean isCurrentMediaItemLive() {
-    throw new UnsupportedOperationException();
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty()
+        && timeline.getWindow(getCurrentMediaItemIndex(), new Timeline.Window()).isLive();
   }
 
   /**
@@ -823,7 +827,9 @@ public class MockPlayer implements Player {
 
   @Override
   public boolean isCurrentMediaItemSeekable() {
-    throw new UnsupportedOperationException();
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty()
+        && timeline.getWindow(getCurrentMediaItemIndex(), new Timeline.Window()).isSeekable;
   }
 
   @Override

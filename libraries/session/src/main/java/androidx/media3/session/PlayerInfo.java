@@ -823,6 +823,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     bundle.putBoolean(FIELD_SHUFFLE_MODE_ENABLED, shuffleModeEnabled);
     if (!excludeTimeline && canAccessTimeline) {
       bundle.putBundle(FIELD_TIMELINE, timeline.toBundle());
+    } else if (!canAccessTimeline && canAccessCurrentMediaItem && !timeline.isEmpty()) {
+      bundle.putBundle(
+          FIELD_TIMELINE,
+          timeline.toBundleWithOneWindowOnly(sessionPositionInfo.positionInfo.mediaItemIndex));
     }
     bundle.putBundle(FIELD_VIDEO_SIZE, videoSize.toBundle());
     if (availableCommands.contains(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {

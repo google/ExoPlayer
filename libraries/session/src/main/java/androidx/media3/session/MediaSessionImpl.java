@@ -810,8 +810,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      // Note: OK to omit mediaItem here, because PlayerInfo changed message will copy playerInfo
-      //       with sessionPositionInfo, which includes current window index.
       session.playerInfo = session.playerInfo.copyWithMediaItemTransitionReason(reason);
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
           /* excludeTimeline= */ true, /* excludeTracks= */ true);
