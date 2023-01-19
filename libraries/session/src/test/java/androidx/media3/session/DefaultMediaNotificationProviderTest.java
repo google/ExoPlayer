@@ -20,6 +20,7 @@ import static androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_C
 import static androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_NOTIFICATION_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -629,6 +630,33 @@ public class DefaultMediaNotificationProviderTest {
     assertThat(isMediaMetadataArtistEqualToNotificationContentText).isTrue();
   }
 
+  @Test
+  public void
+      setMediaMetadata_withoutAvailableCommandToGetMetadata_doesNotUseMetadataForNotification() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(context).build();
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    MediaSession mockMediaSession =
+        createMockMediaSessionForNotification(
+            new MediaMetadata.Builder().setArtist("artist").setTitle("title").build(),
+            /* getMetadataCommandAvailable= */ false);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            ImmutableList.of(),
+            defaultActionFactory,
+            mock(MediaNotification.Provider.Callback.class));
+
+    assertThat(NotificationCompat.getContentText(notification.notification)).isNull();
+    assertThat(NotificationCompat.getContentTitle(notification.notification)).isNull();
+  }
+
   /**
    * {@link DefaultMediaNotificationProvider} is designed to be extendable. Public constructor
    * should not be removed.
@@ -721,9 +749,22 @@ public class DefaultMediaNotificationProviderTest {
   }
 
   private static MediaSession createMockMediaSessionForNotification(MediaMetadata mediaMetadata) {
+    return createMockMediaSessionForNotification(
+        mediaMetadata, /* getMetadataCommandAvailable= */ true);
+  }
+
+  private static MediaSession createMockMediaSessionForNotification(
+      MediaMetadata mediaMetadata, boolean getMetadataCommandAvailable) {
     Player mockPlayer = mock(Player.class);
-    when(mockPlayer.getAvailableCommands()).thenReturn(Commands.EMPTY);
-    when(mockPlayer.getMediaMetadata()).thenReturn(mediaMetadata);
+    when(mockPlayer.isCommandAvailable(anyInt())).thenReturn(false);
+    if (getMetadataCommandAvailable) {
+      when(mockPlayer.getAvailableCommands())
+          .thenReturn(new Commands.Builder().add(Player.COMMAND_GET_MEDIA_ITEMS_METADATA).build());
+      when(mockPlayer.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)).thenReturn(true);
+      when(mockPlayer.getMediaMetadata()).thenReturn(mediaMetadata);
+    } else {
+      when(mockPlayer.getAvailableCommands()).thenReturn(Commands.EMPTY);
+    }
     MediaSession mockMediaSession = mock(MediaSession.class);
     when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
     MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
