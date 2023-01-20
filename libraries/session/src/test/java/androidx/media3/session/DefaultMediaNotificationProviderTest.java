@@ -68,13 +68,20 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
             .build();
     Commands commands = new Commands.Builder().addAllCommands().build();
+    MediaSession mockMediaSession = mock(MediaSession.class);
 
     List<CommandButton> mediaButtonsWhenPlaying =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, /* customLayout= */ ImmutableList.of(), /* showPauseButton= */ true);
+            mockMediaSession,
+            commands,
+            /* customLayout= */ ImmutableList.of(),
+            /* showPauseButton= */ true);
     List<CommandButton> mediaButtonWhenPaused =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, /* customLayout= */ ImmutableList.of(), /* showPauseButton= */ false);
+            mockMediaSession,
+            commands,
+            /* customLayout= */ ImmutableList.of(),
+            /* showPauseButton= */ false);
 
     assertThat(mediaButtonsWhenPlaying).hasSize(3);
     assertThat(mediaButtonsWhenPlaying.get(1).playerCommand).isEqualTo(Player.COMMAND_PLAY_PAUSE);
@@ -93,6 +100,7 @@ public class DefaultMediaNotificationProviderTest {
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
             .build();
+    MediaSession mockMediaSession = mock(MediaSession.class);
     Commands commands = new Commands.Builder().addAllCommands().build();
     SessionCommand customSessionCommand = new SessionCommand("", Bundle.EMPTY);
     CommandButton customCommandButton =
@@ -104,7 +112,10 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtons =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, ImmutableList.of(customCommandButton), /* showPauseButton= */ true);
+            mockMediaSession,
+            commands,
+            ImmutableList.of(customCommandButton),
+            /* showPauseButton= */ true);
 
     assertThat(mediaButtons).hasSize(4);
     assertThat(mediaButtons.get(0).playerCommand)
@@ -119,6 +130,7 @@ public class DefaultMediaNotificationProviderTest {
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
             .build();
+    MediaSession mockMediaSession = mock(MediaSession.class);
     Commands commands = new Commands.Builder().build();
     SessionCommand customSessionCommand = new SessionCommand("action1", Bundle.EMPTY);
     CommandButton customCommandButton =
@@ -130,7 +142,10 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtons =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, ImmutableList.of(customCommandButton), /* showPauseButton= */ true);
+            mockMediaSession,
+            commands,
+            ImmutableList.of(customCommandButton),
+            /* showPauseButton= */ true);
 
     assertThat(mediaButtons).containsExactly(customCommandButton);
   }
@@ -703,17 +718,19 @@ public class DefaultMediaNotificationProviderTest {
     DefaultMediaNotificationProvider unused =
         new DefaultMediaNotificationProvider(context) {
           @Override
-          public List<CommandButton> getMediaButtons(
+          public ImmutableList<CommandButton> getMediaButtons(
+              MediaSession mediaSession,
               Player.Commands playerCommands,
-              List<CommandButton> customLayout,
+              ImmutableList<CommandButton> customLayout,
               boolean showPauseButton) {
-            return super.getMediaButtons(playerCommands, customLayout, showPauseButton);
+            return super.getMediaButtons(
+                mediaSession, playerCommands, customLayout, showPauseButton);
           }
 
           @Override
           public int[] addNotificationActions(
               MediaSession mediaSession,
-              List<CommandButton> mediaButtons,
+              ImmutableList<CommandButton> mediaButtons,
               NotificationCompat.Builder builder,
               MediaNotification.ActionFactory actionFactory) {
             return super.addNotificationActions(mediaSession, mediaButtons, builder, actionFactory);
