@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
  *   <li>{@link C#ENCODING_PCM_FLOAT} ({@link #isActive()} will return {@code false})
  * </ul>
  */
-/* package */ final class FloatResamplingAudioProcessor extends BaseAudioProcessor {
+/* package */ final class ToFloatPcmAudioProcessor extends BaseAudioProcessor {
 
   private static final int FLOAT_NAN_AS_INT = Float.floatToIntBits(Float.NaN);
   private static final double PCM_32_BIT_INT_TO_PCM_32_BIT_FLOAT_FACTOR = 1.0 / 0x7FFFFFFF;
