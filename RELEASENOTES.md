@@ -43,6 +43,9 @@
         `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
     *   Use `onMediaMetadataChanged` to trigger updates of the platform media
         session ([#219](https://github.com/androidx/media/issues/219)).
+    *   Add the media session as an argument of `getMediaButtons()` of the
+        `DefaultMediaNotificationProvider` and use immutable lists for clarity
+        ([#216](https://github.com/androidx/media/issues/216)).
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
