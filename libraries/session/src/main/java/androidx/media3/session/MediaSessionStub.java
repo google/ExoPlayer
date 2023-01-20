@@ -63,6 +63,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media3.common.BundleListRetriever;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MediaMetadata;
@@ -79,6 +80,7 @@ import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.session.MediaSession.MediaItemsWithStartPosition;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -196,6 +198,30 @@ import java.util.concurrent.ExecutionException;
                     if (!sessionImpl.isReleased()) {
                       mediaItemPlayerTask.run(
                           sessionImpl.getPlayerWrapper(), controller, mediaItems);
+                    }
+                  },
+                  new SessionResult(SessionResult.RESULT_SUCCESS)));
+    };
+  }
+
+  private static <K extends MediaSessionImpl>
+      SessionTask<ListenableFuture<SessionResult>, K> handleMediaItemsWithStartPositionWhenReady(
+          SessionTask<ListenableFuture<MediaItemsWithStartPosition>, K> mediaItemsTask,
+          MediaItemsWithStartPositionPlayerTask mediaItemPlayerTask) {
+    return (sessionImpl, controller, sequenceNumber) -> {
+      if (sessionImpl.isReleased()) {
+        return Futures.immediateFuture(
+            new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
+      }
+      return transformFutureAsync(
+          mediaItemsTask.run(sessionImpl, controller, sequenceNumber),
+          mediaItemsWithStartPosition ->
+              postOrRunWithCompletion(
+                  sessionImpl.getApplicationHandler(),
+                  () -> {
+                    if (!sessionImpl.isReleased()) {
+                      mediaItemPlayerTask.run(
+                          sessionImpl.getPlayerWrapper(), controller, mediaItemsWithStartPosition);
                     }
                   },
                   new SessionResult(SessionResult.RESULT_SUCCESS)));
@@ -851,26 +877,8 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void setMediaItem(
       @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle mediaItemBundle) {
-    if (caller == null || mediaItemBundle == null) {
-      return;
-    }
-    MediaItem mediaItem;
-    try {
-      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
-    } catch (RuntimeException e) {
-      Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
-      return;
-    }
-    queueSessionTaskWithPlayerCommand(
-        caller,
-        sequenceNumber,
-        COMMAND_SET_MEDIA_ITEM,
-        sendSessionResultWhenReady(
-            handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequenceNum) ->
-                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-                (playerWrapper, controller, mediaItems) ->
-                    playerWrapper.setMediaItems(mediaItems))));
+    setMediaItemWithResetPosition(
+        caller, sequenceNumber, mediaItemBundle, /* resetPosition= */ true);
   }
 
   @Override
@@ -894,11 +902,35 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_SET_MEDIA_ITEM,
         sendSessionResultWhenReady(
-            handleMediaItemsWhenReady(
+            handleMediaItemsWithStartPositionWhenReady(
                 (sessionImpl, controller, sequenceNum) ->
-                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-                (player, controller, mediaItems) ->
-                    player.setMediaItems(mediaItems, /* startIndex= */ 0, startPositionMs))));
+                    sessionImpl.onSetMediaItemsOnHandler(
+                        controller,
+                        ImmutableList.of(mediaItem),
+                        /* startIndex= */ 0,
+                        startPositionMs),
+                (player, controller, mediaItemsWithStartPosition) -> {
+                  if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+                    if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
+                        && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
+                      player.setMediaItems(
+                          mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
+                    } else {
+                      player.setMediaItems(
+                          mediaItemsWithStartPosition.mediaItems,
+                          mediaItemsWithStartPosition.startIndex,
+                          mediaItemsWithStartPosition.startPositionMs);
+                    }
+                  } else {
+                    if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
+                      player.setMediaItem(
+                          mediaItemsWithStartPosition.mediaItems.get(0),
+                          mediaItemsWithStartPosition.startPositionMs);
+                    } else {
+                      player.clearMediaItems();
+                    }
+                  }
+                })));
   }
 
   @Override
@@ -922,11 +954,27 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_SET_MEDIA_ITEM,
         sendSessionResultWhenReady(
-            handleMediaItemsWhenReady(
+            handleMediaItemsWithStartPositionWhenReady(
                 (sessionImpl, controller, sequenceNum) ->
-                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-                (player, controller, mediaItems) ->
-                    player.setMediaItems(mediaItems, resetPosition))));
+                    sessionImpl.onSetMediaItemsOnHandler(
+                        controller,
+                        ImmutableList.of(mediaItem),
+                        resetPosition
+                            ? C.INDEX_UNSET
+                            : sessionImpl.getPlayerWrapper().getCurrentMediaItemIndex(),
+                        resetPosition
+                            ? C.TIME_UNSET
+                            : sessionImpl.getPlayerWrapper().getCurrentPosition()),
+                (player, controller, mediaItemsWithStartPosition) -> {
+                  if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
+                      && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
+                    MediaUtils.setMediaItemsWithDefaultStartIndexAndPosition(
+                        player, mediaItemsWithStartPosition);
+                  } else {
+                    MediaUtils.setMediaItemsWithSpecifiedStartIndexAndPosition(
+                        player, mediaItemsWithStartPosition);
+                  }
+                })));
   }
 
   @Override
@@ -934,29 +982,8 @@ import java.util.concurrent.ExecutionException;
       @Nullable IMediaController caller,
       int sequenceNumber,
       @Nullable IBinder mediaItemsRetriever) {
-    if (caller == null || mediaItemsRetriever == null) {
-      return;
-    }
-    List<MediaItem> mediaItemList;
-    try {
-      mediaItemList =
-          BundleableUtil.fromBundleList(
-              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
-    } catch (RuntimeException e) {
-      Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
-      return;
-    }
-
-    queueSessionTaskWithPlayerCommand(
-        caller,
-        sequenceNumber,
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        sendSessionResultWhenReady(
-            handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequenceNum) ->
-                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
-                (playerWrapper, controller, mediaItems) ->
-                    playerWrapper.setMediaItems(mediaItems))));
+    setMediaItemsWithResetPosition(
+        caller, sequenceNumber, mediaItemsRetriever, /* resetPosition= */ true);
   }
 
   @Override
@@ -982,11 +1009,29 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
-            handleMediaItemsWhenReady(
+            handleMediaItemsWithStartPositionWhenReady(
                 (sessionImpl, controller, sequenceNum) ->
-                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
-                (player, controller, mediaItems) ->
-                    player.setMediaItems(mediaItems, resetPosition))));
+                    sessionImpl.onSetMediaItemsOnHandler(
+                        controller,
+                        mediaItemList,
+                        resetPosition
+                            ? C.INDEX_UNSET
+                            : sessionImpl.getPlayerWrapper().getCurrentMediaItemIndex(),
+                        resetPosition
+                            ? C.TIME_UNSET
+                            : sessionImpl.getPlayerWrapper().getCurrentPosition()),
+                (player, controller, mediaItemsWithStartPosition) -> {
+                  if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
+                      && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
+                    player.setMediaItems(
+                        mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
+                  } else {
+                    player.setMediaItems(
+                        mediaItemsWithStartPosition.mediaItems,
+                        mediaItemsWithStartPosition.startIndex,
+                        mediaItemsWithStartPosition.startPositionMs);
+                  }
+                })));
   }
 
   @Override
@@ -1013,11 +1058,29 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
-            handleMediaItemsWhenReady(
+            handleMediaItemsWithStartPositionWhenReady(
                 (sessionImpl, controller, sequenceNum) ->
-                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
-                (player, controller, mediaItems) ->
-                    player.setMediaItems(mediaItems, startIndex, startPositionMs))));
+                    sessionImpl.onSetMediaItemsOnHandler(
+                        controller,
+                        mediaItemList,
+                        (startIndex == C.INDEX_UNSET)
+                            ? sessionImpl.getPlayerWrapper().getCurrentMediaItemIndex()
+                            : startIndex,
+                        (startIndex == C.INDEX_UNSET)
+                            ? sessionImpl.getPlayerWrapper().getCurrentPosition()
+                            : startPositionMs),
+                (player, controller, mediaItemsWithStartPosition) -> {
+                  if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
+                      && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
+                    player.setMediaItems(
+                        mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
+                  } else {
+                    player.setMediaItems(
+                        mediaItemsWithStartPosition.mediaItems,
+                        mediaItemsWithStartPosition.startIndex,
+                        mediaItemsWithStartPosition.startPositionMs);
+                  }
+                })));
   }
 
   @Override
@@ -1622,6 +1685,13 @@ import java.util.concurrent.ExecutionException;
 
   private interface ControllerPlayerTask {
     void run(PlayerWrapper player, ControllerInfo controller);
+  }
+
+  private interface MediaItemsWithStartPositionPlayerTask {
+    void run(
+        PlayerWrapper player,
+        ControllerInfo controller,
+        MediaItemsWithStartPosition mediaItemsWithStartPosition);
   }
 
   /* package */ static final class Controller2Cb implements ControllerCb {
