@@ -69,6 +69,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.session.MediaSession.MediaItemsWithStartPosition;
 import androidx.media3.session.SequencedFutureManager.SequencedFuture;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -522,6 +523,13 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return checkNotNull(
         callback.onAddMediaItems(instance, controller, mediaItems),
         "onAddMediaItems must return a non-null future");
+  }
+
+  protected ListenableFuture<MediaItemsWithStartPosition> onSetMediaItemsOnHandler(
+      ControllerInfo controller, List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+    return checkNotNull(
+        callback.onSetMediaItems(instance, controller, mediaItems, startIndex, startPositionMs),
+        "onSetMediaItems must return a non-null future");
   }
 
   protected boolean isReleased() {

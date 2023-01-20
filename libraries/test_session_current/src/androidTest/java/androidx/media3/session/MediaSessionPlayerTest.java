@@ -300,7 +300,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItem(item);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
@@ -316,7 +316,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItem(item);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
@@ -332,7 +332,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItem(item);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
@@ -344,9 +344,9 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItems(items);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).isEqualTo(items);
-    assertThat(player.resetPosition).isFalse();
+    assertThat(player.resetPosition).isTrue();
   }
 
   @Test
@@ -382,7 +382,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItems(list);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems.size()).isEqualTo(listSize);
     for (int i = 0; i < listSize; i++) {
       assertThat(player.mediaItems.get(i).mediaId).isEqualTo(list.get(i).mediaId);
@@ -395,7 +395,7 @@ public class MediaSessionPlayerTest {
     // Make client app to generate a long list, and call setMediaItems() with it.
     controller.createAndSetFakeMediaItems(listSize);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).isNotNull();
     assertThat(player.mediaItems.size()).isEqualTo(listSize);
     for (int i = 0; i < listSize; i++) {
@@ -824,7 +824,7 @@ public class MediaSessionPlayerTest {
     controller.setMediaItemsPreparePlayAddItemsSeek(initialItems, addedItems, /* seekIndex= */ 3);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     boolean setMediaItemsCalledBeforePrepare =
-        player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS);
+        player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION);
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
     boolean addMediaItemsCalledBeforeSeek =
         player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS);

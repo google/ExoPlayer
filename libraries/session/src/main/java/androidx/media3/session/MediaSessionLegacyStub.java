@@ -85,6 +85,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.session.MediaSession.MediaItemsWithStartPosition;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
@@ -711,18 +712,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_SET_MEDIA_ITEM,
         controller -> {
-          ListenableFuture<List<MediaItem>> mediaItemsFuture =
-              sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem));
+          ListenableFuture<MediaItemsWithStartPosition> mediaItemsFuture =
+              sessionImpl.onSetMediaItemsOnHandler(
+                  controller, ImmutableList.of(mediaItem), C.INDEX_UNSET, C.TIME_UNSET);
           Futures.addCallback(
               mediaItemsFuture,
-              new FutureCallback<List<MediaItem>>() {
+              new FutureCallback<MediaItemsWithStartPosition>() {
                 @Override
-                public void onSuccess(List<MediaItem> mediaItems) {
+                public void onSuccess(MediaItemsWithStartPosition mediaItemsWithStartPosition) {
                   postOrRun(
                       sessionImpl.getApplicationHandler(),
                       () -> {
                         PlayerWrapper player = sessionImpl.getPlayerWrapper();
-                        player.setMediaItems(mediaItems);
+                        if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
+                            && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
+                          MediaUtils.setMediaItemsWithDefaultStartIndexAndPosition(
+                              player, mediaItemsWithStartPosition);
+                        } else {
+                          MediaUtils.setMediaItemsWithSpecifiedStartIndexAndPosition(
+                              player, mediaItemsWithStartPosition);
+                        }
                         @Player.State int playbackState = player.getPlaybackState();
                         if (playbackState == Player.STATE_IDLE) {
                           player.prepareIfCommandAvailable();

@@ -58,6 +58,8 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
@@ -1055,13 +1057,13 @@ public class MediaSession {
 
     /**
      * Called when a controller requested to add new {@linkplain MediaItem media items} to the
-     * playlist via one of the {@code Player.addMediaItem(s)} or {@code Player.setMediaItem(s)}
-     * methods.
+     * playlist via one of the {@code Player.addMediaItem(s)} methods. Unless overriden, {@link
+     * Callback#onSetMediaItems} will direct {@code Player.setMediaItem(s)} to this method as well.
      *
-     * <p>This callback is also called when an app is using a legacy {@link
-     * MediaControllerCompat.TransportControls} to prepare or play media (for instance when browsing
-     * the catalogue and then selecting an item for preparation from Android Auto that is using the
-     * legacy Media1 library).
+     * <p>In addition, unless {@link Callback#onSetMediaItems} is overridden, this callback is also
+     * called when an app is using a legacy {@link MediaControllerCompat.TransportControls} to
+     * prepare or play media (for instance when browsing the catalogue and then selecting an item
+     * for preparation from Android Auto that is using the legacy Media1 library).
      *
      * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
      * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
@@ -1074,8 +1076,8 @@ public class MediaSession {
      * the {@link MediaItem media items} have been resolved, the session will call {@link
      * Player#setMediaItems} or {@link Player#addMediaItems} as requested.
      *
-     * <p>Interoperability: This method will be called in response to the following {@link
-     * MediaControllerCompat} methods:
+     * <p>Interoperability: This method will be called, unless {@link Callback#onSetMediaItems} is
+     * overridden, in response to the following {@link MediaControllerCompat} methods:
      *
      * <ul>
      *   <li>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
@@ -1102,6 +1104,156 @@ public class MediaSession {
     default ListenableFuture<List<MediaItem>> onAddMediaItems(
         MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
       return Futures.immediateFailedFuture(new UnsupportedOperationException());
+    }
+
+    /**
+     * Called when a controller requested to set {@linkplain MediaItem media items} to the playlist
+     * via one of the {@code Player.setMediaItem(s)} methods. The default implementation calls
+     * {@link Callback#onAddMediaItems}. Override this method if you want to modify/set the starting
+     * index/position for the {@code Player.setMediaItem(s)} methods.
+     *
+     * <p>This callback is also called when an app is using a legacy {@link
+     * MediaControllerCompat.TransportControls} to prepare or play media (for instance when browsing
+     * the catalogue and then selecting an item for preparation from Android Auto that is using the
+     * legacy Media1 library).
+     *
+     * <p>Note that the requested {@linkplain MediaItem media items} in the
+     * MediaItemsWithStartPosition don't have a {@link MediaItem.LocalConfiguration} (for example, a
+     * URI) and need to be updated to make them playable by the underlying {@link Player}.
+     * Typically, this implementation should be able to identify the correct item by its {@link
+     * MediaItem#mediaId} and/or the {@link MediaItem#requestMetadata}.
+     *
+     * <p>Return a {@link ListenableFuture} with the resolved {@linkplain
+     * MediaItemsWithStartPosition media items and starting index and position}. You can also return
+     * the items directly by using Guava's {@link Futures#immediateFuture(Object)}. Once the {@link
+     * MediaItemsWithStartPosition} has been resolved, the session will call {@link
+     * Player#setMediaItems} as requested. If the resolved {@link
+     * MediaItemsWithStartPosition#startIndex startIndex} is {@link
+     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and {@link
+     * MediaItemsWithStartPosition#startPositionMs startPositionMs} is {@link
+     * androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then the session will call {@link
+     * Player#setMediaItem(MediaItem, boolean)} with {@code resetPosition} set to {@code true}.
+     *
+     * <p>Interoperability: This method will be called in response to the following {@link
+     * MediaControllerCompat} methods:
+     *
+     * <ul>
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
+     *   <li>{@link MediaControllerCompat.TransportControls#addQueueItem addQueueItem}
+     * </ul>
+     *
+     * The values of {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri}, {@link
+     * MediaItem.RequestMetadata#searchQuery} and {@link MediaItem.RequestMetadata#extras} will be
+     * set to match the legacy method call. The session will call {@link Player#setMediaItems} or
+     * {@link Player#addMediaItems}, followed by {@link Player#prepare()} and {@link Player#play()}
+     * as appropriate once the {@link MediaItem} has been resolved.
+     *
+     * @param mediaSession The session for this event.
+     * @param controller The controller information.
+     * @param mediaItems The list of requested {@linkplain MediaItem media items}.
+     * @param startIndex The start index in the {@link MediaItem} list from which to start playing.
+     *     If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
+     *     startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then caller
+     *     is requesting to set media items with default index and position.
+     * @param startPositionMs The starting position in the media item from where to start playing.
+     *     If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
+     *     startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then caller
+     *     is requesting to set media items with default index and position.
+     * @return A {@link ListenableFuture} with a {@link MediaItemsWithStartPosition} containing a
+     *     list of resolved {@linkplain MediaItem media items}, and a starting index and position
+     *     that are playable by the underlying {@link Player}. If returned {@link
+     *     MediaItemsWithStartPosition#startIndex} is {@link androidx.media3.common.C#INDEX_UNSET
+     *     C.INDEX_UNSET} and {@link MediaItemsWithStartPosition#startPositionMs} is {@link
+     *     androidx.media3.common.C#TIME_UNSET C.TIME_UNSET}, then {@linkplain
+     *     Player#setMediaItems(List, boolean) Player#setMediaItems(List, true)} will be called to
+     *     set media items with default index and position.
+     */
+    @UnstableApi
+    default ListenableFuture<MediaItemsWithStartPosition> onSetMediaItems(
+        MediaSession mediaSession,
+        ControllerInfo controller,
+        List<MediaItem> mediaItems,
+        int startIndex,
+        long startPositionMs) {
+      return Util.transformFutureAsync(
+          onAddMediaItems(mediaSession, controller, mediaItems),
+          (mediaItemList) ->
+              Futures.immediateFuture(
+                  new MediaItemsWithStartPosition(mediaItemList, startIndex, startPositionMs)));
+    }
+  }
+
+  /** Representation of list of media items and where to start playing */
+  @UnstableApi
+  public static final class MediaItemsWithStartPosition {
+    /** List of {@link MediaItem media items}. */
+    public final ImmutableList<MediaItem> mediaItems;
+    /**
+     * Index to start playing at in {@link MediaItem} list.
+     *
+     * <p>If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
+     * startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then the
+     * requested start is the default index and position. If only startIndex is {@link
+     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET}, then the requested start is the
+     * {@linkplain Player#getCurrentMediaItemIndex() current index} and {@linkplain
+     * Player#getContentPosition() position}.
+     */
+    public final int startIndex;
+    /**
+     * Position to start playing from in starting media item.
+     *
+     * <p>If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
+     * startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then the
+     * requested start is the default start index that takes into account whether {@link
+     * Player#getShuffleModeEnabled() shuffling is enabled} and the {@linkplain
+     * Timeline.Window#defaultPositionUs} default position}. If only startIndex is {@link
+     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET}, then the requested start is the
+     * {@linkplain Player#getCurrentMediaItemIndex() current index} and {@linkplain
+     * Player#getContentPosition() position}.
+     */
+    public final long startPositionMs;
+
+    /**
+     * Create an instance.
+     *
+     * @param mediaItems List of {@link MediaItem media items}.
+     * @param startIndex Index to start playing at in {@link MediaItem} list.
+     * @param startPositionMs Position to start playing from in starting media item.
+     */
+    public MediaItemsWithStartPosition(
+        List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+      this.mediaItems = ImmutableList.copyOf(mediaItems);
+      this.startIndex = startIndex;
+      this.startPositionMs = startPositionMs;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof MediaItemsWithStartPosition)) {
+        return false;
+      }
+
+      MediaItemsWithStartPosition other = (MediaItemsWithStartPosition) obj;
+
+      return mediaItems.equals(other.mediaItems)
+          && Util.areEqual(startIndex, other.startIndex)
+          && Util.areEqual(startPositionMs, other.startPositionMs);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = mediaItems.hashCode();
+      result = 31 * result + startIndex;
+      result = 31 * result + Longs.hashCode(startPositionMs);
+      return result;
     }
   }
 

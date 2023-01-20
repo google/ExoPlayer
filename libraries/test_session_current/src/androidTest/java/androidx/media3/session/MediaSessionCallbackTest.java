@@ -29,6 +29,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
@@ -368,14 +369,14 @@ public class MediaSessionCallbackTest {
         controllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItem(mediaItem);
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
 
     assertThat(requestedMediaItems.get()).containsExactly(mediaItem);
     assertThat(player.mediaItems).containsExactly(updateMediaItemWithLocalConfiguration(mediaItem));
   }
 
   @Test
-  public void onAddMediaItems_withSetMediaItemWithIndex() throws Exception {
+  public void onAddMediaItems_withSetMediaItemWithStartPosition() throws Exception {
     MediaItem mediaItem = createMediaItem("mediaId");
     AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
     MediaSession.Callback callback =
@@ -452,7 +453,7 @@ public class MediaSessionCallbackTest {
         controllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItems(mediaItems);
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
 
     assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
     assertThat(player.mediaItems)
@@ -461,7 +462,7 @@ public class MediaSessionCallbackTest {
   }
 
   @Test
-  public void onAddMediaItems_withSetMediaItemsWithStartPosition() throws Exception {
+  public void onAddMediaItems_withSetMediaItemsWithStartIndex() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
     AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
     MediaSession.Callback callback =
@@ -643,6 +644,170 @@ public class MediaSessionCallbackTest {
                 updateMediaItemsWithLocalConfiguration(mediaItems)))
         .inOrder();
     assertThat(player.index).isEqualTo(1);
+  }
+
+  @Test
+  public void onSetMediaItems_withSetMediaItemWithStartPosition_callsPlayerWithStartIndex()
+      throws Exception {
+    MediaItem mediaItem = createMediaItem("mediaId");
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onSetMediaItems(
+              MediaSession mediaSession,
+              ControllerInfo controller,
+              List<MediaItem> mediaItems,
+              int startIndex,
+              long startPositionMs) {
+            requestedMediaItems.set(mediaItems);
+
+            return Futures.immediateFuture(
+                new MediaSession.MediaItemsWithStartPosition(
+                    updateMediaItemsWithLocalConfiguration(mediaItems),
+                    startIndex,
+                    /* startPosition = testStartPosition * 2 */ 200));
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setCallback(callback).build());
+    RemoteMediaController controller =
+        controllerTestRule.createRemoteController(session.getToken());
+
+    controller.setMediaItem(mediaItem, /* startPositionMs= */ 100);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
+
+    assertThat(requestedMediaItems.get()).containsExactly(mediaItem);
+    assertThat(player.mediaItems).containsExactly(updateMediaItemWithLocalConfiguration(mediaItem));
+    assertThat(player.startMediaItemIndex).isEqualTo(0);
+    assertThat(player.startPositionMs).isEqualTo(200);
+  }
+
+  @Test
+  public void onSetMediaItems_withSetMediaItemsWithStartIndex_callsPlayerWithStartIndex()
+      throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onSetMediaItems(
+              MediaSession mediaSession,
+              ControllerInfo controller,
+              List<MediaItem> mediaItems,
+              int startIndex,
+              long startPositionMs) {
+            requestedMediaItems.set(mediaItems);
+
+            return Futures.immediateFuture(
+                new MediaSession.MediaItemsWithStartPosition(
+                    updateMediaItemsWithLocalConfiguration(mediaItems),
+                    startIndex,
+                    /* startPosition= */ 200));
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setCallback(callback).build());
+    RemoteMediaController controller =
+        controllerTestRule.createRemoteController(session.getToken());
+
+    controller.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 100);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
+
+    assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
+    assertThat(player.mediaItems)
+        .containsExactlyElementsIn(updateMediaItemsWithLocalConfiguration(mediaItems))
+        .inOrder();
+    assertThat(player.startMediaItemIndex).isEqualTo(1);
+    assertThat(player.startPositionMs).isEqualTo(200);
+  }
+
+  @Test
+  public void onSetMediaItems_withIndexPositionUnset_callsPlayerWithResetPosition()
+      throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onSetMediaItems(
+              MediaSession mediaSession,
+              ControllerInfo controller,
+              List<MediaItem> mediaItems,
+              int startIndex,
+              long startPositionMs) {
+            requestedMediaItems.set(mediaItems);
+
+            return Futures.immediateFuture(
+                new MediaSession.MediaItemsWithStartPosition(
+                    updateMediaItemsWithLocalConfiguration(mediaItems),
+                    C.INDEX_UNSET,
+                    C.TIME_UNSET));
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setCallback(callback).build());
+    RemoteMediaController controller =
+        controllerTestRule.createRemoteController(session.getToken());
+
+    controller.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 100);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
+
+    assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
+    assertThat(player.mediaItems)
+        .containsExactlyElementsIn(updateMediaItemsWithLocalConfiguration(mediaItems))
+        .inOrder();
+    assertThat(player.resetPosition).isEqualTo(true);
+  }
+
+  @Test
+  public void onSetMediaItems_withStartIndexUnset_callsPlayerWithCurrentIndexAndPosition()
+      throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onSetMediaItems(
+              MediaSession mediaSession,
+              ControllerInfo controller,
+              List<MediaItem> mediaItems,
+              int startIndex,
+              long startPositionMs) {
+            requestedMediaItems.set(mediaItems);
+
+            return Futures.immediateFuture(
+                new MediaSession.MediaItemsWithStartPosition(
+                    updateMediaItemsWithLocalConfiguration(mediaItems),
+                    startIndex,
+                    startPositionMs));
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setCallback(callback).build());
+    RemoteMediaController controller =
+        controllerTestRule.createRemoteController(session.getToken());
+    controller.setMediaItems(mediaItems, true);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
+
+    // Model that player played to next item. Current media item index and position have changed
+    player.currentMediaItemIndex = 1;
+    player.currentPosition = 200;
+
+    // Re-set media items with start index and position as current index and position
+    controller.setMediaItems(mediaItems, C.INDEX_UNSET, /* startPosition= */ 0);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
+
+    assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
+    assertThat(player.mediaItems)
+        .containsExactlyElementsIn(updateMediaItemsWithLocalConfiguration(mediaItems))
+        .inOrder();
+    assertThat(player.startMediaItemIndex).isEqualTo(1);
+    assertThat(player.startPositionMs).isEqualTo(200);
   }
 
   @Test

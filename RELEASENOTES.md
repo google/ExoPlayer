@@ -46,6 +46,9 @@
     *   Add the media session as an argument of `getMediaButtons()` of the
         `DefaultMediaNotificationProvider` and use immutable lists for clarity
         ([#216](https://github.com/androidx/media/issues/216)).
+    *   Add `onSetMediaItems` callback listener to provide means to modify/set
+        `MediaItem` list, starting index and position by session before setting
+        onto Player ([#156](https://github.com/androidx/media/issues/156)).
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
