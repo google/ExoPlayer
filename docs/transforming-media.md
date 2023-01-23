@@ -70,7 +70,7 @@ Transformer.Listener transformerListener =
      }
 
      @Override
-     public void onTransformationError(MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {
+     public void onTransformationError(MediaItem inputMediaItem, TransformationException exception) {
        displayError(e);
      }
    };
@@ -96,7 +96,7 @@ mainHandler.post(
      public void run() {
        @ProgressState int progressState = transformer.getProgress(progressHolder);
        updateProgressInUi(progressState, progressHolder);
-       if (progressState != PROGRESS_STATE_NOT_STARTED) {
+       if (progressState != PROGRESS_STATE_NO_TRANSFORMATION) {
          mainHandler.postDelayed(/* r= */ this, /* delayMillis= */ 500);
        }
      }
