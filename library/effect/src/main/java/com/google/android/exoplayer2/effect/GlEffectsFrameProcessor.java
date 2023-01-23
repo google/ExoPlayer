@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.view.Surface;
@@ -376,6 +377,22 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   @VisibleForTesting
   /* package */ FrameProcessingTaskExecutor getTaskExecutor() {
     return frameProcessingTaskExecutor;
+  }
+
+  /**
+   * Sets the default size for input buffers, for the case where the producer providing input does
+   * not override the buffer size.
+   *
+   * <p>When input comes from a media codec it's not necessary to call this method because the codec
+   * (producer) sets the buffer size automatically. For the case where input comes from CameraX,
+   * call this method after instantiation to ensure that buffers are handled at full resolution. See
+   * {@link SurfaceTexture#setDefaultBufferSize(int, int)} for more information.
+   *
+   * @param width The default width for input buffers, in pixels.
+   * @param height The default height for input buffers, in pixels.
+   */
+  public void setInputDefaultBufferSize(int width, int height) {
+    inputExternalTextureManager.getSurfaceTexture().setDefaultBufferSize(width, height);
   }
 
   @Override
