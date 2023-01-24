@@ -24,6 +24,8 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -72,6 +74,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      * ColorInfo#hdrStaticInfo}. {@code inputColorInfo}'s {@link ColorInfo#hdrStaticInfo} and {@code
      * outputColorInfo}'s {@link ColorInfo#colorRange} values are currently ignored, in favor of
      * {@code null} and {@link C#COLOR_RANGE_FULL}, respectively.
+     *
+     * <p>The OpenGL context will use OpenGL version {@code 3}, and textures will be {@link
+     * GLES30#GL_RGBA16F} and {@link GLES30#GL_HALF_FLOAT} if {@code inputColorInfo} or {@code
+     * outputColorInfo} {@linkplain ColorInfo#isTransferHdr} are HDR}, and OpenGL version {@code 2}
+     * with {@link GLES20#GL_RGBA} and {@link GLES20#GL_UNSIGNED_BYTE} otherwise. It will be
+     * configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_1010102} if {@code outputColorInfo}
+     * {@linkplain ColorInfo#isTransferHdr is HDR}, and {@link
+     * GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_8888} otherwise.
      *
      * <p>Pass a {@link MoreExecutors#directExecutor() direct listenerExecutor} if invoking the
      * {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is desired.
