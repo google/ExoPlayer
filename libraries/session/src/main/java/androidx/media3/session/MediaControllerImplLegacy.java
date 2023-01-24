@@ -46,6 +46,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import androidx.media.VolumeProviderCompat;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
@@ -1878,9 +1879,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Note: Sets the available player command here although it can be obtained before session is
     // ready. It's to follow the decision on MediaController to disallow any commands before
     // connection is made.
+    int volumeControlType =
+        newLegacyPlayerInfo.playbackInfoCompat != null
+            ? newLegacyPlayerInfo.playbackInfoCompat.getVolumeControl()
+            : VolumeProviderCompat.VOLUME_CONTROL_FIXED;
     availablePlayerCommands =
         (oldControllerInfo.availablePlayerCommands == Commands.EMPTY)
-            ? MediaUtils.convertToPlayerCommands(sessionFlags, isSessionReady)
+            ? MediaUtils.convertToPlayerCommands(
+                newLegacyPlayerInfo.playbackStateCompat,
+                volumeControlType,
+                sessionFlags,
+                isSessionReady)
             : oldControllerInfo.availablePlayerCommands;
 
     PlaybackException playerError =

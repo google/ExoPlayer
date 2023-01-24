@@ -153,6 +153,20 @@ public class TestUtils {
     return list.build();
   }
 
+  /**
+   * Returns an {@link ImmutableList} with the {@linkplain Player.Command Commands} contained in
+   * {@code commands}. The contents of the list are in matching order with the {@linkplain
+   * Player.Command Commands} returned by {@link Player.Commands#get(int)}.
+   */
+  // TODO(b/254265256): Move this method off test-session-common.
+  public static ImmutableList<@Player.Command Integer> getCommandsAsList(Player.Commands commands) {
+    ImmutableList.Builder<@Player.Command Integer> list = new ImmutableList.Builder<>();
+    for (int i = 0; i < commands.size(); i++) {
+      list.add(commands.get(i));
+    }
+    return list.build();
+  }
+
   /** Returns the bytes of a scaled asset file. */
   public static byte[] getByteArrayForScaledBitmap(Context context, String fileName)
       throws IOException {

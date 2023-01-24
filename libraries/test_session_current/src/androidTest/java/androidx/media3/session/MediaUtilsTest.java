@@ -18,12 +18,12 @@ package androidx.media3.session;
 import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE;
 import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
-import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
 import static androidx.media3.common.MimeTypes.AUDIO_AAC;
 import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
+import static androidx.media3.test.session.common.TestUtils.getCommandsAsList;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -43,6 +43,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.VolumeProviderCompat;
 import androidx.media.utils.MediaConstants;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -480,19 +481,399 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToPlayerCommands() {
-    long sessionFlags = FLAG_HANDLES_QUEUE_COMMANDS;
+  public void convertToPlayerCommands_withNoActions_onlyDefaultCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(/* capabilities= */ 0).build();
+
     Player.Commands playerCommands =
-        MediaUtils.convertToPlayerCommands(sessionFlags, /* isSessionReady= */ true);
-    assertThat(playerCommands.contains(Player.COMMAND_GET_TIMELINE)).isTrue();
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsExactly(
+            Player.COMMAND_GET_TIMELINE,
+            Player.COMMAND_GET_CURRENT_MEDIA_ITEM,
+            Player.COMMAND_GET_DEVICE_VOLUME,
+            Player.COMMAND_GET_MEDIA_ITEMS_METADATA,
+            Player.COMMAND_GET_AUDIO_ATTRIBUTES);
   }
 
   @Test
-  public void convertToPlayerCommands_whenSessionIsNotReady_disallowsShuffle() {
-    long sessionFlags = FLAG_HANDLES_QUEUE_COMMANDS;
+  public void convertToPlayerCommands_withJustPlayAction_playPauseCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PLAY).build();
+
     Player.Commands playerCommands =
-        MediaUtils.convertToPlayerCommands(sessionFlags, /* isSessionReady= */ false);
-    assertThat(playerCommands.contains(Player.COMMAND_SET_SHUFFLE_MODE)).isFalse();
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).doesNotContain(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withJustPauseAction_playPauseCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PAUSE).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).doesNotContain(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withPlayAndPauseAction_playPauseCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withPlayPauseAction_playPauseCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withPrepareAction_prepareCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PREPARE).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withRewindAction_seekBackCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_REWIND).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_SEEK_BACK);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withFastForwardAction_seekForwardCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_FAST_FORWARD)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_SEEK_FORWARD);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSeekToAction_seekInCurrentMediaItemCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_SEEK_TO).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .contains(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSkipToNextAction_seekToNextCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SEEK_TO_NEXT, Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSkipToPreviousAction_seekToPreviousCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(
+            Player.COMMAND_SEEK_TO_PREVIOUS, Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromActionsWithoutPrepareFromAction_setMediaItemCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_URI)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsNoneOf(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPrepareFromActionsWithoutPlayFromAction_setMediaItemCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_URI)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsNoneOf(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromAndPrepareFromMediaId_setMediaItemPrepareAndPlayAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromAndPrepareFromSearch_setMediaItemPrepareAndPlayAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromAndPrepareFromUri_setMediaItemPrepareAndPlayAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_URI
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_URI)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSetPlaybackSpeedAction_setSpeedCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_SET_SPEED_AND_PITCH);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withStopAction_stopCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_STOP).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_STOP);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withRelativeVolumeControl_adjustVolumeCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(/* capabilities= */ 0).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_RELATIVE,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_ADJUST_DEVICE_VOLUME);
+    assertThat(getCommandsAsList(playerCommands)).doesNotContain(Player.COMMAND_SET_DEVICE_VOLUME);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withAbsoluteVolumeControl_adjustVolumeCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(/* capabilities= */ 0).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_ADJUST_DEVICE_VOLUME, Player.COMMAND_SET_DEVICE_VOLUME);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withShuffleRepeatActionsAndSessionReady_shuffleAndRepeatCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                    | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_REPEAT_MODE, Player.COMMAND_SET_SHUFFLE_MODE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withShuffleRepeatActionsAndSessionNotReady_shuffleAndRepeatCommandsNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                    | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ false);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsNoneOf(Player.COMMAND_SET_REPEAT_MODE, Player.COMMAND_SET_SHUFFLE_MODE);
   }
 
   @Test
