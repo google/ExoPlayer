@@ -270,6 +270,7 @@ import java.util.Set;
   }
 
   /** Returns a human-readable representation of a video progress update. */
+  @SuppressWarnings("RestrictedApi") // VideoProgressUpdate.equals() is annotated as hidden.
   public static String getStringForVideoProgressUpdate(VideoProgressUpdate videoProgressUpdate) {
     if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
       return "not ready";
