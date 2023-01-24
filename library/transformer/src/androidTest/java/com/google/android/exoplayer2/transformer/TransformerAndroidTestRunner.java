@@ -204,8 +204,8 @@ public class TransformerAndroidTestRunner {
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, editedMediaItem);
       resultJson.put("transformationResult", transformationTestResult.asJsonObject());
-      if (transformationTestResult.testException != null) {
-        throw transformationTestResult.testException;
+      if (transformationTestResult.transformationResult.transformationException != null) {
+        throw transformationTestResult.transformationResult.transformationException;
       }
       if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
         throw transformationTestResult.analysisException;
@@ -257,8 +257,6 @@ public class TransformerAndroidTestRunner {
 
     AtomicReference<@NullableType FallbackDetails> fallbackDetailsReference =
         new AtomicReference<>();
-    AtomicReference<@NullableType TransformationException> transformationExceptionReference =
-        new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
     AtomicReference<@NullableType TransformationResult> transformationResultReference =
         new AtomicReference<>();
@@ -282,7 +280,6 @@ public class TransformerAndroidTestRunner {
                       MediaItem inputMediaItem,
                       TransformationResult result,
                       TransformationException exception) {
-                    transformationExceptionReference.set(exception);
                     transformationResultReference.set(result);
                     countDownLatch.countDown();
                   }
@@ -337,14 +334,12 @@ public class TransformerAndroidTestRunner {
 
     long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
     @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
-    @Nullable
-    TransformationException transformationException = transformationExceptionReference.get();
+    TransformationResult transformationResult = checkNotNull(transformationResultReference.get());
 
-    if (transformationException != null) {
-      return new TransformationTestResult.Builder(checkNotNull(transformationResultReference.get()))
+    if (transformationResult.transformationException != null) {
+      return new TransformationTestResult.Builder(transformationResult)
           .setElapsedTimeMs(elapsedTimeMs)
           .setFallbackDetails(fallbackDetails)
-          .setTestException(transformationException)
           .build();
     }
 

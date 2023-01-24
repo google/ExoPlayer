@@ -37,7 +37,6 @@ public class TransformationTestResult {
     private long elapsedTimeMs;
     private double ssim;
     @Nullable private FallbackDetails fallbackDetails;
-    @Nullable private Exception testException;
     @Nullable private Exception analysisException;
 
     /** Creates a new {@link Builder}. */
@@ -106,20 +105,6 @@ public class TransformationTestResult {
     }
 
     /**
-     * Sets an {@link Exception} that occurred during the test.
-     *
-     * <p>{@code null} represents an unset or unknown value.
-     *
-     * @param testException The {@link Exception} thrown during the test.
-     * @return This {@link Builder}.
-     */
-    @CanIgnoreReturnValue
-    public Builder setTestException(@Nullable Exception testException) {
-      this.testException = testException;
-      return this;
-    }
-
-    /**
      * Sets an {@link Exception} that occurred during post-transformation analysis.
      *
      * <p>{@code null} represents an unset or unknown value.
@@ -136,13 +121,7 @@ public class TransformationTestResult {
     /** Builds the {@link TransformationTestResult} instance. */
     public TransformationTestResult build() {
       return new TransformationTestResult(
-          transformationResult,
-          filePath,
-          elapsedTimeMs,
-          ssim,
-          fallbackDetails,
-          testException,
-          analysisException);
+          transformationResult, filePath, elapsedTimeMs, ssim, fallbackDetails, analysisException);
     }
   }
 
@@ -167,8 +146,6 @@ public class TransformationTestResult {
    * {@code null} if no fallback occurred.
    */
   @Nullable public final FallbackDetails fallbackDetails;
-  /** The {@link Exception} thrown during the test, or {@code null} if nothing was thrown. */
-  @Nullable public final Exception testException;
   /**
    * The {@link Exception} thrown during post-transformation analysis, or {@code null} if nothing
    * was thrown.
@@ -187,7 +164,9 @@ public class TransformationTestResult {
             .putOpt("colorInfo", transformationResult.colorInfo)
             .putOpt("videoDecoderName", transformationResult.videoDecoderName)
             .putOpt("videoEncoderName", transformationResult.videoEncoderName)
-            .putOpt("testException", exceptionAsJsonObject(testException))
+            .putOpt(
+                "testException",
+                exceptionAsJsonObject(transformationResult.transformationException))
             .putOpt("analysisException", exceptionAsJsonObject(analysisException));
 
     if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
@@ -238,14 +217,12 @@ public class TransformationTestResult {
       long elapsedTimeMs,
       double ssim,
       @Nullable FallbackDetails fallbackDetails,
-      @Nullable Exception testException,
       @Nullable Exception analysisException) {
     this.transformationResult = transformationResult;
     this.filePath = filePath;
     this.elapsedTimeMs = elapsedTimeMs;
     this.ssim = ssim;
     this.fallbackDetails = fallbackDetails;
-    this.testException = testException;
     this.analysisException = analysisException;
     this.throughputFps =
         elapsedTimeMs != C.TIME_UNSET && transformationResult.videoFrameCount > 0
