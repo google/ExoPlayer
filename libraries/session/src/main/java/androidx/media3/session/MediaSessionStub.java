@@ -221,7 +221,7 @@ import java.util.concurrent.ExecutionException;
                   () -> {
                     if (!sessionImpl.isReleased()) {
                       mediaItemPlayerTask.run(
-                          sessionImpl.getPlayerWrapper(), controller, mediaItemsWithStartPosition);
+                          sessionImpl.getPlayerWrapper(), mediaItemsWithStartPosition);
                     }
                   },
                   new SessionResult(SessionResult.RESULT_SUCCESS)));
@@ -909,28 +909,7 @@ import java.util.concurrent.ExecutionException;
                         ImmutableList.of(mediaItem),
                         /* startIndex= */ 0,
                         startPositionMs),
-                (player, controller, mediaItemsWithStartPosition) -> {
-                  if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
-                    if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
-                        && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
-                      player.setMediaItems(
-                          mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
-                    } else {
-                      player.setMediaItems(
-                          mediaItemsWithStartPosition.mediaItems,
-                          mediaItemsWithStartPosition.startIndex,
-                          mediaItemsWithStartPosition.startPositionMs);
-                    }
-                  } else {
-                    if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
-                      player.setMediaItem(
-                          mediaItemsWithStartPosition.mediaItems.get(0),
-                          mediaItemsWithStartPosition.startPositionMs);
-                    } else {
-                      player.clearMediaItems();
-                    }
-                  }
-                })));
+                MediaUtils::setMediaItemsWithStartIndexAndPosition)));
   }
 
   @Override
@@ -965,16 +944,7 @@ import java.util.concurrent.ExecutionException;
                         resetPosition
                             ? C.TIME_UNSET
                             : sessionImpl.getPlayerWrapper().getCurrentPosition()),
-                (player, controller, mediaItemsWithStartPosition) -> {
-                  if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
-                      && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
-                    MediaUtils.setMediaItemsWithDefaultStartIndexAndPosition(
-                        player, mediaItemsWithStartPosition);
-                  } else {
-                    MediaUtils.setMediaItemsWithSpecifiedStartIndexAndPosition(
-                        player, mediaItemsWithStartPosition);
-                  }
-                })));
+                MediaUtils::setMediaItemsWithStartIndexAndPosition)));
   }
 
   @Override
@@ -1020,18 +990,7 @@ import java.util.concurrent.ExecutionException;
                         resetPosition
                             ? C.TIME_UNSET
                             : sessionImpl.getPlayerWrapper().getCurrentPosition()),
-                (player, controller, mediaItemsWithStartPosition) -> {
-                  if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
-                      && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
-                    player.setMediaItems(
-                        mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
-                  } else {
-                    player.setMediaItems(
-                        mediaItemsWithStartPosition.mediaItems,
-                        mediaItemsWithStartPosition.startIndex,
-                        mediaItemsWithStartPosition.startPositionMs);
-                  }
-                })));
+                MediaUtils::setMediaItemsWithStartIndexAndPosition)));
   }
 
   @Override
@@ -1069,18 +1028,7 @@ import java.util.concurrent.ExecutionException;
                         (startIndex == C.INDEX_UNSET)
                             ? sessionImpl.getPlayerWrapper().getCurrentPosition()
                             : startPositionMs),
-                (player, controller, mediaItemsWithStartPosition) -> {
-                  if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
-                      && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
-                    player.setMediaItems(
-                        mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
-                  } else {
-                    player.setMediaItems(
-                        mediaItemsWithStartPosition.mediaItems,
-                        mediaItemsWithStartPosition.startIndex,
-                        mediaItemsWithStartPosition.startPositionMs);
-                  }
-                })));
+                MediaUtils::setMediaItemsWithStartIndexAndPosition)));
   }
 
   @Override
@@ -1688,10 +1636,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   private interface MediaItemsWithStartPositionPlayerTask {
-    void run(
-        PlayerWrapper player,
-        ControllerInfo controller,
-        MediaItemsWithStartPosition mediaItemsWithStartPosition);
+    void run(PlayerWrapper player, MediaItemsWithStartPosition mediaItemsWithStartPosition);
   }
 
   /* package */ static final class Controller2Cb implements ControllerCb {
