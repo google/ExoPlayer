@@ -29,11 +29,13 @@ import com.google.android.exoplayer2.util.FrameProcessingException;
 public interface GlEffect extends Effect {
 
   /**
-   * Returns a {@link SingleFrameGlTextureProcessor} that applies the effect.
+   * Returns a {@link GlTextureProcessor} that applies the effect.
    *
    * @param context A {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
+   * @throws FrameProcessingException If an error occurs while creating the {@link
+   *     GlTextureProcessor}.
    */
   GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException;
