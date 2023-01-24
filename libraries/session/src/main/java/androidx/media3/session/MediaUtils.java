@@ -1368,30 +1368,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             : Util.constrainValue((int) ((bufferedPositionMs * 100) / durationMs), 0, 100);
   }
 
-  public static void setMediaItemsWithDefaultStartIndexAndPosition(
+  public static void setMediaItemsWithStartIndexAndPosition(
       PlayerWrapper player, MediaSession.MediaItemsWithStartPosition mediaItemsWithStartPosition) {
-    if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
-      player.setMediaItems(mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
-    } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
-      player.setMediaItem(mediaItemsWithStartPosition.mediaItems.get(0), /* resetPosition= */ true);
+    if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET) {
+      if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+        player.setMediaItems(mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
+      } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
+        player.setMediaItem(
+            mediaItemsWithStartPosition.mediaItems.get(0), /* resetPosition= */ true);
+      }
     } else {
-      player.clearMediaItems();
-    }
-  }
-
-  public static void setMediaItemsWithSpecifiedStartIndexAndPosition(
-      PlayerWrapper player, MediaSession.MediaItemsWithStartPosition mediaItemsWithStartPosition) {
-    if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
-      player.setMediaItems(
-          mediaItemsWithStartPosition.mediaItems,
-          mediaItemsWithStartPosition.startIndex,
-          mediaItemsWithStartPosition.startPositionMs);
-    } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
-      player.setMediaItem(
-          mediaItemsWithStartPosition.mediaItems.get(0),
-          mediaItemsWithStartPosition.startPositionMs);
-    } else {
-      player.clearMediaItems();
+      if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+        player.setMediaItems(
+            mediaItemsWithStartPosition.mediaItems,
+            mediaItemsWithStartPosition.startIndex,
+            mediaItemsWithStartPosition.startPositionMs);
+      } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
+        player.setMediaItem(
+            mediaItemsWithStartPosition.mediaItems.get(0),
+            mediaItemsWithStartPosition.startPositionMs);
+      }
     }
   }
 

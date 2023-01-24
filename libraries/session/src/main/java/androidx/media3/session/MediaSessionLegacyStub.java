@@ -724,14 +724,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                       sessionImpl.getApplicationHandler(),
                       () -> {
                         PlayerWrapper player = sessionImpl.getPlayerWrapper();
-                        if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET
-                            && mediaItemsWithStartPosition.startPositionMs == C.TIME_UNSET) {
-                          MediaUtils.setMediaItemsWithDefaultStartIndexAndPosition(
-                              player, mediaItemsWithStartPosition);
-                        } else {
-                          MediaUtils.setMediaItemsWithSpecifiedStartIndexAndPosition(
-                              player, mediaItemsWithStartPosition);
-                        }
+                        MediaUtils.setMediaItemsWithStartIndexAndPosition(
+                            player, mediaItemsWithStartPosition);
                         @Player.State int playbackState = player.getPlaybackState();
                         if (playbackState == Player.STATE_IDLE) {
                           player.prepareIfCommandAvailable();

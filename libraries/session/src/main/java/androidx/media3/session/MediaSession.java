@@ -1129,9 +1129,7 @@ public class MediaSession {
      * MediaItemsWithStartPosition} has been resolved, the session will call {@link
      * Player#setMediaItems} as requested. If the resolved {@link
      * MediaItemsWithStartPosition#startIndex startIndex} is {@link
-     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and {@link
-     * MediaItemsWithStartPosition#startPositionMs startPositionMs} is {@link
-     * androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then the session will call {@link
+     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} then the session will call {@link
      * Player#setMediaItem(MediaItem, boolean)} with {@code resetPosition} set to {@code true}.
      *
      * <p>Interoperability: This method will be called in response to the following {@link
@@ -1156,14 +1154,12 @@ public class MediaSession {
      * @param mediaSession The session for this event.
      * @param controller The controller information.
      * @param mediaItems The list of requested {@linkplain MediaItem media items}.
-     * @param startIndex The start index in the {@link MediaItem} list from which to start playing.
-     *     If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
-     *     startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then caller
-     *     is requesting to set media items with default index and position.
-     * @param startPositionMs The starting position in the media item from where to start playing.
-     *     If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
-     *     startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then caller
-     *     is requesting to set media items with default index and position.
+     * @param startIndex The start index in the {@link MediaItem} list from which to start playing,
+     *     or {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} to start playing from the
+     *     default index in the playlist.
+     * @param startPositionMs The starting position in the media item from where to start playing,
+     *     or {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} to start playing from the
+     *     default position in the media item. This value is ignored if startIndex is C.INDEX_UNSET
      * @return A {@link ListenableFuture} with a {@link MediaItemsWithStartPosition} containing a
      *     list of resolved {@linkplain MediaItem media items}, and a starting index and position
      *     that are playable by the underlying {@link Player}. If returned {@link
@@ -1196,25 +1192,17 @@ public class MediaSession {
     /**
      * Index to start playing at in {@link MediaItem} list.
      *
-     * <p>If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
-     * startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then the
-     * requested start is the default index and position. If only startIndex is {@link
-     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET}, then the requested start is the
-     * {@linkplain Player#getCurrentMediaItemIndex() current index} and {@linkplain
-     * Player#getContentPosition() position}.
+     * <p>The start index in the {@link MediaItem} list from which to start playing, or {@link
+     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} to start playing from the default index
+     * in the playlist.
      */
     public final int startIndex;
     /**
      * Position to start playing from in starting media item.
      *
-     * <p>If startIndex is {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} and
-     * startPositionMs is {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} then the
-     * requested start is the default start index that takes into account whether {@link
-     * Player#getShuffleModeEnabled() shuffling is enabled} and the {@linkplain
-     * Timeline.Window#defaultPositionUs} default position}. If only startIndex is {@link
-     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET}, then the requested start is the
-     * {@linkplain Player#getCurrentMediaItemIndex() current index} and {@linkplain
-     * Player#getContentPosition() position}.
+     * <p>The starting position in the media item from where to start playing, or {@link
+     * androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} to start playing from the default position
+     * in the media item. This value is ignored if startIndex is C.INDEX_UNSET
      */
     public final long startPositionMs;
 
