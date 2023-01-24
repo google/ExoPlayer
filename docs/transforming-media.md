@@ -71,7 +71,7 @@ Transformer.Listener transformerListener =
 
      @Override
      public void onTransformationError(MediaItem inputMediaItem, TransformationException exception) {
-       displayError(e);
+       displayError(exception);
      }
    };
 ~~~
