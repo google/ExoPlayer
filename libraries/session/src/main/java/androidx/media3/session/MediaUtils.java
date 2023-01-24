@@ -19,13 +19,17 @@ import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_Q
 import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static androidx.media3.common.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_GET_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_PREPARE;
+import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
+import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
@@ -65,6 +69,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
+import androidx.media.VolumeProviderCompat;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -1070,40 +1075,101 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Converts {@link MediaControllerCompat#getFlags() session flags} and {@link
-   * MediaControllerCompat#isSessionReady whether session is ready} to {@link Player.Commands}.
+   * Converts {@link PlaybackStateCompat}, {@link
+   * MediaControllerCompat.PlaybackInfo#getVolumeControl() volume control type}, {@link
+   * MediaControllerCompat#getFlags() session flags} and {@link MediaControllerCompat#isSessionReady
+   * whether the session is ready} to {@link Player.Commands}.
    *
-   * @param sessionFlags The session flag.
+   * @param playbackStateCompat The {@link PlaybackStateCompat}.
+   * @param volumeControlType The {@link MediaControllerCompat.PlaybackInfo#getVolumeControl()
+   *     volume control type}.
+   * @param sessionFlags The session flags.
    * @param isSessionReady Whether the session compat is ready.
    * @return The converted player commands.
    */
-  public static Player.Commands convertToPlayerCommands(long sessionFlags, boolean isSessionReady) {
+  public static Player.Commands convertToPlayerCommands(
+      @Nullable PlaybackStateCompat playbackStateCompat,
+      int volumeControlType,
+      long sessionFlags,
+      boolean isSessionReady) {
     Commands.Builder playerCommandsBuilder = new Commands.Builder();
+    long actions = playbackStateCompat == null ? 0 : playbackStateCompat.getActions();
+    if ((hasAction(actions, PlaybackStateCompat.ACTION_PLAY)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PAUSE))
+        || hasAction(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE)) {
+      playerCommandsBuilder.add(COMMAND_PLAY_PAUSE);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_PREPARE)) {
+      playerCommandsBuilder.add(COMMAND_PREPARE);
+    }
+    if ((hasAction(actions, PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID))
+        || (hasAction(actions, PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH))
+        || (hasAction(actions, PlaybackStateCompat.ACTION_PREPARE_FROM_URI)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PLAY_FROM_URI))) {
+      // Require both PREPARE and PLAY actions as we have no logic to handle having just one action.
+      playerCommandsBuilder.addAll(COMMAND_SET_MEDIA_ITEM, COMMAND_PREPARE);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_REWIND)) {
+      playerCommandsBuilder.add(COMMAND_SEEK_BACK);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_FAST_FORWARD)) {
+      playerCommandsBuilder.add(COMMAND_SEEK_FORWARD);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SEEK_TO)) {
+      playerCommandsBuilder.addAll(
+          COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_DEFAULT_POSITION);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)) {
+      playerCommandsBuilder.addAll(COMMAND_SEEK_TO_NEXT, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)) {
+      playerCommandsBuilder.addAll(COMMAND_SEEK_TO_PREVIOUS, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED)) {
+      playerCommandsBuilder.add(COMMAND_SET_SPEED_AND_PITCH);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_STOP)) {
+      playerCommandsBuilder.add(COMMAND_STOP);
+    }
+    if (volumeControlType == VolumeProviderCompat.VOLUME_CONTROL_RELATIVE) {
+      playerCommandsBuilder.add(COMMAND_ADJUST_DEVICE_VOLUME);
+    } else if (volumeControlType == VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE) {
+      playerCommandsBuilder.addAll(COMMAND_ADJUST_DEVICE_VOLUME, COMMAND_SET_DEVICE_VOLUME);
+    }
     playerCommandsBuilder.addAll(
-        COMMAND_PLAY_PAUSE,
-        COMMAND_PREPARE,
-        COMMAND_STOP,
-        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-        COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_GET_DEVICE_VOLUME,
-        COMMAND_SET_DEVICE_VOLUME,
-        COMMAND_ADJUST_DEVICE_VOLUME,
         COMMAND_GET_TIMELINE,
-        COMMAND_SEEK_TO_PREVIOUS,
-        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
-        COMMAND_SEEK_TO_NEXT,
-        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_SET_MEDIA_ITEM);
-    boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
-    if (includePlaylistCommands) {
+        COMMAND_GET_AUDIO_ATTRIBUTES);
+    if ((sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0) {
       playerCommandsBuilder.add(COMMAND_CHANGE_MEDIA_ITEMS);
+      if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
+        playerCommandsBuilder.add(Player.COMMAND_SEEK_TO_MEDIA_ITEM);
+      }
     }
     if (isSessionReady) {
-      playerCommandsBuilder.addAll(COMMAND_SET_SHUFFLE_MODE, COMMAND_SET_REPEAT_MODE);
+      if (hasAction(actions, PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
+        playerCommandsBuilder.add(COMMAND_SET_REPEAT_MODE);
+      }
+      if (hasAction(actions, PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
+        playerCommandsBuilder.add(COMMAND_SET_SHUFFLE_MODE);
+      }
     }
     return playerCommandsBuilder.build();
+  }
+
+  /**
+   * Checks if the set of actions contains the specified action.
+   *
+   * @param actions A bit set of actions.
+   * @param action The action to check.
+   * @return Whether the action is contained in the set.
+   */
+  private static boolean hasAction(long actions, @PlaybackStateCompat.Actions long action) {
+    return (actions & action) != 0;
   }
 
   /**
