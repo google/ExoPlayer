@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -371,8 +372,7 @@ public class SpeedChangingAudioProcessorTest {
   }
 
   private static ByteBuffer getAudioProcessorOutput(AudioProcessor audioProcessor) {
-    ByteBuffer concatenatedOutputBuffers =
-        ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+    ByteBuffer concatenatedOutputBuffers = EMPTY_BUFFER;
     while (true) {
       ByteBuffer outputBuffer = audioProcessor.getOutput();
       if (!outputBuffer.hasRemaining()) {
