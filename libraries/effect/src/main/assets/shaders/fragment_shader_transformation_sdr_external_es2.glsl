@@ -36,7 +36,7 @@ uniform int uOutputColorTransfer;
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
 
-// Transforms a single channel from optical to electrical SDR using the SMPTE 
+// Transforms a single channel from electrical to optical SDR using the SMPTE 
 // 170M OETF.
 float smpte170mEotfSingleChannel(float electricalChannel) {
   // Specification:
@@ -46,7 +46,7 @@ float smpte170mEotfSingleChannel(float electricalChannel) {
     : pow((electricalChannel + 0.099) / 1.099, gamma);
 }
 
-// Transforms electronical to optical SDR using the SMPTE 170M EOTF.
+// Transforms electrical to optical SDR using the SMPTE 170M EOTF.
 vec3 smpte170mEotf(vec3 electricalColor) {
   return vec3(
     smpte170mEotfSingleChannel(electricalColor.r),
