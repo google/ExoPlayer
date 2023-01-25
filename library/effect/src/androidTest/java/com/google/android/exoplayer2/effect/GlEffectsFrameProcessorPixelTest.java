@@ -50,7 +50,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -107,21 +106,20 @@ public final class GlEffectsFrameProcessorPixelTest {
   /** Input PQ video of which we only use the first frame. */
   private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-1080p.mp4";
 
-  private @MonotonicNonNull GlEffectsFrameProcessorTestRunner glEffectsFrameProcessorTestRunner;
+  private @MonotonicNonNull FrameProcessorTestRunner frameProcessorTestRunner;
 
   @After
   public void release() {
-    checkNotNull(glEffectsFrameProcessorTestRunner).release();
+    checkNotNull(frameProcessorTestRunner).release();
   }
 
   @Test
   public void noEffects_matchesGoldenFile() throws Exception {
     String testId = "noEffects_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId).build();
+    frameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -132,13 +130,13 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
     String testId = "noEffects_withFrameCache_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(new FrameCache(/* capacity= */ 5))
             .build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -149,11 +147,11 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void setPixelWidthHeightRatio_matchesGoldenFile() throws Exception {
     String testId = "setPixelWidthHeightRatio_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId).setPixelWidthHeightRatio(2f).build();
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId).setPixelWidthHeightRatio(2f).build();
     Bitmap expectedBitmap = readBitmap(SCALE_WIDE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -166,13 +164,13 @@ public final class GlEffectsFrameProcessorPixelTest {
     String testId = "matrixTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects((MatrixTransformation) (long presentationTimeNs) -> translateRightMatrix)
             .build();
     Bitmap expectedBitmap = readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -185,15 +183,15 @@ public final class GlEffectsFrameProcessorPixelTest {
     String testId = "matrixAndScaleToFitTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix,
                 new ScaleToFitTransformation.Builder().setRotationDegrees(45).build())
             .build();
     Bitmap expectedBitmap = readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -206,15 +204,15 @@ public final class GlEffectsFrameProcessorPixelTest {
     String testId = "scaleToFitAndMatrixTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 new ScaleToFitTransformation.Builder().setRotationDegrees(45).build(),
                 (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix)
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -225,13 +223,13 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void presentation_createForHeight_matchesGoldenFile() throws Exception {
     String testId = "presentation_createForHeight_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(Presentation.createForHeight(480))
             .build();
     Bitmap expectedBitmap = readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -242,8 +240,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void cropThenPresentation_matchesGoldenFile() throws Exception {
     String testId = "cropThenPresentation_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 new Crop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ -.5f, /* top= */ .5f),
                 Presentation.createForAspectRatio(
@@ -251,7 +249,7 @@ public final class GlEffectsFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -262,13 +260,13 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void scaleToFitTransformation_rotate45_matchesGoldenFile() throws Exception {
     String testId = "scaleToFitTransformation_rotate45_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build())
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -279,8 +277,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void twoWrappedScaleToFitTransformations_matchesGoldenFile() throws Exception {
     String testId = "twoWrappedScaleToFitTransformations_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 new GlEffectWrapper(
                     new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()),
@@ -291,7 +289,7 @@ public final class GlEffectsFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE_THEN_SCALE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -310,20 +308,20 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
     full10StepRotationAndCenterCrop.add(centerCrop);
 
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("centerCrop")
             .setEffects(centerCrop)
             .build();
-    Bitmap centerCropResultBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
-    glEffectsFrameProcessorTestRunner.release();
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    Bitmap centerCropResultBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
+    frameProcessorTestRunner.release();
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("full10StepRotationAndCenterCrop")
             .setEffects(full10StepRotationAndCenterCrop.build())
             .build();
     Bitmap fullRotationAndCenterCropResultBitmap =
-        glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+        frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -340,13 +338,11 @@ public final class GlEffectsFrameProcessorPixelTest {
             new RgbAdjustment.Builder().setRedScale(5).build(),
             new RgbAdjustment.Builder().setGreenScale(5).build(),
             new RgbAdjustment.Builder().setBlueScale(5).build());
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
-            .setEffects(increaseBrightness)
-            .build();
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId).setEffects(increaseBrightness).build();
     Bitmap expectedBitmap = readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -370,24 +366,24 @@ public final class GlEffectsFrameProcessorPixelTest {
             new RgbAdjustment.Builder().setBlueScale(5).build(),
             new Rotation(/* degrees= */ 90),
             centerCrop);
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("centerCrop")
             .setEffects(
                 new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
                 centerCrop)
             .build();
     Bitmap centerCropAndBrightnessIncreaseResultBitmap =
-        glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+        frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    glEffectsFrameProcessorTestRunner.release();
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner.release();
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("full4StepRotationBrightnessIncreaseAndCenterCrop")
             .setEffects(increaseBrightnessFullRotationCenterCrop)
             .build();
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap =
-        glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+        frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -417,24 +413,24 @@ public final class GlEffectsFrameProcessorPixelTest {
             new Rotation(/* degrees= */ 90),
             new FrameCache(/* capacity= */ 2),
             centerCrop);
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("centerCrop")
             .setEffects(
                 new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
                 centerCrop)
             .build();
     Bitmap centerCropAndBrightnessIncreaseResultBitmap =
-        glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
-    glEffectsFrameProcessorTestRunner.release();
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+        frameProcessorTestRunner.processFirstFrameAndEnd();
+    frameProcessorTestRunner.release();
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("full4StepRotationBrightnessIncreaseAndCenterCrop")
             .setEffects(increaseBrightnessFullRotationCenterCrop)
             .build();
 
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap =
-        glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+        frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -448,15 +444,15 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void grayscaleThenIncreaseRedChannel_matchesGoldenFile() throws Exception {
     String testId = "grayscaleThenIncreaseRedChannel_matchesGoldenFile";
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 RgbFilter.createGrayscaleFilter(),
                 new RgbAdjustment.Builder().setRedScale(3).build())
             .build();
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -481,15 +477,15 @@ public final class GlEffectsFrameProcessorPixelTest {
             .setColorRange(C.COLOR_RANGE_LIMITED)
             .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
             .build();
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
             .setInputColorInfo(hlgColor)
             .setOutputColorInfo(toneMapSdrColor)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -514,15 +510,15 @@ public final class GlEffectsFrameProcessorPixelTest {
             .setColorRange(C.COLOR_RANGE_LIMITED)
             .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
             .build();
-    glEffectsFrameProcessorTestRunner =
-        new GlEffectsFrameProcessorTestRunner.Builder(testId)
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
             .setInputColorInfo(pqColor)
             .setOutputColorInfo(toneMapSdrColor)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = glEffectsFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -533,41 +529,55 @@ public final class GlEffectsFrameProcessorPixelTest {
   // TODO(b/227624622): Add a test for HDR input after BitmapPixelTestUtil can read HDR bitmaps,
   //  using GlEffectWrapper to ensure usage of intermediate textures.
 
-  /* A test runner for {@link GlEffectsFrameProcessor} tests. */
-  private static final class GlEffectsFrameProcessorTestRunner {
+  /* A test runner for {@link FrameProcessor} tests. */
+  private static final class FrameProcessorTestRunner {
 
-    /** A builder for {@link GlEffectsFrameProcessorTestRunner} instances. */
+    /** A builder for {@link FrameProcessorTestRunner} instances. */
     public static final class Builder {
-      private final String testId;
-      private String outputFileLabel;
-      private @Nullable ImmutableList<Effect> effects;
-      private String videoAssetPath;
+      private @MonotonicNonNull String testId;
+      private FrameProcessor.@MonotonicNonNull Factory frameProcessorFactory;
+      private @MonotonicNonNull String videoAssetPath;
+      private @MonotonicNonNull String outputFileLabel;
+      private @MonotonicNonNull ImmutableList<Effect> effects;
       private float pixelWidthHeightRatio;
-      private ColorInfo inputColorInfo;
-      private ColorInfo outputColorInfo;
+      private @MonotonicNonNull ColorInfo inputColorInfo;
+      private @MonotonicNonNull ColorInfo outputColorInfo;
 
-      /**
-       * Creates a new instance with default values.
-       *
-       * @param testId Test ID used to generate output files.
-       */
-      public Builder(String testId) {
-        this.testId = testId;
-        outputFileLabel = "";
-        videoAssetPath = INPUT_SDR_MP4_ASSET_STRING;
+      /** Creates a new instance with default values. */
+      public Builder() {
         pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
-        inputColorInfo = ColorInfo.SDR_BT709_LIMITED;
-        outputColorInfo = ColorInfo.SDR_BT709_LIMITED;
       }
 
       /**
-       * Sets the effects used.
+       * Sets the test ID, used to generate output files.
        *
-       * <p>The default value is an empty list.
+       * <p>This is a required value.
        */
       @CanIgnoreReturnValue
-      public Builder setEffects(List<Effect> effects) {
-        this.effects = ImmutableList.copyOf(effects);
+      public Builder setTestId(String testId) {
+        this.testId = testId;
+        return this;
+      }
+
+      /**
+       * Sets the {@link FrameProcessor.Factory}.
+       *
+       * <p>This is a required value.
+       */
+      @CanIgnoreReturnValue
+      public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
+        this.frameProcessorFactory = frameProcessorFactory;
+        return this;
+      }
+
+      /**
+       * Sets the input video asset path.
+       *
+       * <p>This is a required value.
+       */
+      @CanIgnoreReturnValue
+      public Builder setVideoAssetPath(String videoAssetPath) {
+        this.videoAssetPath = videoAssetPath;
         return this;
       }
 
@@ -590,19 +600,19 @@ public final class GlEffectsFrameProcessorPixelTest {
        * <p>The default value is an empty list.
        */
       @CanIgnoreReturnValue
-      public Builder setEffects(Effect... effects) {
+      public Builder setEffects(List<Effect> effects) {
         this.effects = ImmutableList.copyOf(effects);
         return this;
       }
 
       /**
-       * Sets the input video asset path.
+       * Sets the effects used.
        *
-       * <p>The default value is {@link #INPUT_SDR_MP4_ASSET_STRING}.
+       * <p>The default value is an empty list.
        */
       @CanIgnoreReturnValue
-      public Builder setVideoAssetPath(String videoAssetPath) {
-        this.videoAssetPath = videoAssetPath;
+      public Builder setEffects(Effect... effects) {
+        this.effects = ImmutableList.copyOf(effects);
         return this;
       }
 
@@ -620,7 +630,7 @@ public final class GlEffectsFrameProcessorPixelTest {
       /**
        * Sets the input color.
        *
-       * <p>The default value is {@link ColorInfo.SDR_BT709_LIMITED}.
+       * <p>The default value is {@link ColorInfo#SDR_BT709_LIMITED}.
        */
       @CanIgnoreReturnValue
       public Builder setInputColorInfo(ColorInfo inputColorInfo) {
@@ -631,7 +641,7 @@ public final class GlEffectsFrameProcessorPixelTest {
       /**
        * Sets the output color.
        *
-       * <p>The default value is {@link ColorInfo.SDR_BT709_LIMITED}.
+       * <p>The default value is {@link ColorInfo#SDR_BT709_LIMITED}.
        */
       @CanIgnoreReturnValue
       public Builder setOutputColorInfo(ColorInfo outputColorInfo) {
@@ -639,15 +649,20 @@ public final class GlEffectsFrameProcessorPixelTest {
         return this;
       }
 
-      public GlEffectsFrameProcessorTestRunner build() throws FrameProcessingException {
-        return new GlEffectsFrameProcessorTestRunner(
+      public FrameProcessorTestRunner build() throws FrameProcessingException {
+        checkStateNotNull(testId, "testId must be set.");
+        checkStateNotNull(frameProcessorFactory, "frameProcessorFactory must be set.");
+        checkStateNotNull(videoAssetPath, "videoAssetPath must be set.");
+
+        return new FrameProcessorTestRunner(
             testId,
-            outputFileLabel,
-            effects == null ? ImmutableList.of() : effects,
+            frameProcessorFactory,
             videoAssetPath,
+            outputFileLabel == null ? "" : outputFileLabel,
+            effects == null ? ImmutableList.of() : effects,
             pixelWidthHeightRatio,
-            inputColorInfo,
-            outputColorInfo);
+            inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
+            outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo);
       }
     }
 
@@ -661,68 +676,67 @@ public final class GlEffectsFrameProcessorPixelTest {
     private static final int FRAME_PROCESSING_WAIT_MS = 5000;
 
     private final String testId;
-    private final String outputFileLabel;
     private final String videoAssetPath;
+    private final String outputFileLabel;
     private final float pixelWidthHeightRatio;
     private final AtomicReference<FrameProcessingException> frameProcessingException;
 
-    private final GlEffectsFrameProcessor glEffectsFrameProcessor;
+    private final FrameProcessor frameProcessor;
 
     private volatile @MonotonicNonNull ImageReader outputImageReader;
     private volatile boolean frameProcessingEnded;
 
-    private GlEffectsFrameProcessorTestRunner(
+    private FrameProcessorTestRunner(
         String testId,
+        FrameProcessor.Factory frameProcessorFactory,
+        String videoAssetPath,
         String outputFileLabel,
         ImmutableList<Effect> effects,
-        String videoAssetPath,
         float pixelWidthHeightRatio,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo)
         throws FrameProcessingException {
       this.testId = testId;
-      this.outputFileLabel = outputFileLabel;
       this.videoAssetPath = videoAssetPath;
+      this.outputFileLabel = outputFileLabel;
       this.pixelWidthHeightRatio = pixelWidthHeightRatio;
       frameProcessingException = new AtomicReference<>();
 
-      glEffectsFrameProcessor =
-          checkNotNull(
-              new GlEffectsFrameProcessor.Factory()
-                  .create(
-                      getApplicationContext(),
-                      effects,
-                      DebugViewProvider.NONE,
-                      inputColorInfo,
-                      outputColorInfo,
-                      /* releaseFramesAutomatically= */ true,
-                      MoreExecutors.directExecutor(),
-                      new FrameProcessor.Listener() {
-                        @Override
-                        public void onOutputSizeChanged(int width, int height) {
-                          outputImageReader =
-                              ImageReader.newInstance(
-                                  width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-                          checkNotNull(glEffectsFrameProcessor)
-                              .setOutputSurfaceInfo(
-                                  new SurfaceInfo(outputImageReader.getSurface(), width, height));
-                        }
+      frameProcessor =
+          frameProcessorFactory.create(
+              getApplicationContext(),
+              effects,
+              DebugViewProvider.NONE,
+              inputColorInfo,
+              outputColorInfo,
+              /* releaseFramesAutomatically= */ true,
+              MoreExecutors.directExecutor(),
+              new FrameProcessor.Listener() {
+                @Override
+                public void onOutputSizeChanged(int width, int height) {
+                  outputImageReader =
+                      ImageReader.newInstance(
+                          width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+                  checkNotNull(frameProcessor)
+                      .setOutputSurfaceInfo(
+                          new SurfaceInfo(outputImageReader.getSurface(), width, height));
+                }
 
-                        @Override
-                        public void onOutputFrameAvailable(long presentationTimeUs) {
-                          // Do nothing as frames are released automatically.
-                        }
+                @Override
+                public void onOutputFrameAvailable(long presentationTimeUs) {
+                  // Do nothing as frames are released automatically.
+                }
 
-                        @Override
-                        public void onFrameProcessingError(FrameProcessingException exception) {
-                          frameProcessingException.set(exception);
-                        }
+                @Override
+                public void onFrameProcessingError(FrameProcessingException exception) {
+                  frameProcessingException.set(exception);
+                }
 
-                        @Override
-                        public void onFrameProcessingEnded() {
-                          frameProcessingEnded = true;
-                        }
-                      }));
+                @Override
+                public void onFrameProcessingEnded() {
+                  frameProcessingEnded = true;
+                }
+              });
     }
 
     public Bitmap processFirstFrameAndEnd() throws Exception {
@@ -731,13 +745,13 @@ public final class GlEffectsFrameProcessorPixelTest {
           new DecodeOneFrameUtil.Listener() {
             @Override
             public void onContainerExtracted(MediaFormat mediaFormat) {
-              glEffectsFrameProcessor.setInputFrameInfo(
+              frameProcessor.setInputFrameInfo(
                   new FrameInfo.Builder(
                           mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
                           mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                       .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                       .build());
-              glEffectsFrameProcessor.registerInputFrame();
+              frameProcessor.registerInputFrame();
             }
 
             @Override
@@ -745,8 +759,8 @@ public final class GlEffectsFrameProcessorPixelTest {
               // Do nothing.
             }
           },
-          glEffectsFrameProcessor.getInputSurface());
-      checkNotNull(glEffectsFrameProcessor).signalEndOfInput();
+          frameProcessor.getInputSurface());
+      frameProcessor.signalEndOfInput();
       Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
       assertThat(frameProcessingEnded).isTrue();
@@ -760,10 +774,17 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     public void release() {
-      if (glEffectsFrameProcessor != null) {
-        glEffectsFrameProcessor.release();
+      if (frameProcessor != null) {
+        frameProcessor.release();
       }
     }
+  }
+
+  public FrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(String testId) {
+    return new FrameProcessorTestRunner.Builder()
+        .setTestId(testId)
+        .setFrameProcessorFactory(new GlEffectsFrameProcessor.Factory())
+        .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING);
   }
 
   /**
