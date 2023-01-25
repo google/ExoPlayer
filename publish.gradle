@@ -46,6 +46,7 @@ afterEvaluate {
                             project.objects.named(DocsType, DocsType.SOURCES))
                         variant.outgoing.artifact(androidSourcesJar)
                         components.release.addVariantsFromConfiguration(variant) {}
+                    }
                     pom {
                         name =
                             findProperty('releaseName')
