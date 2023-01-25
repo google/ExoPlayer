@@ -27,6 +27,7 @@ import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
@@ -118,7 +119,6 @@ public class EncoderPerformanceAnalysisTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setRemoveAudio(true)
             .setEncoderFactory(
                 new AndroidTestUtil.ForceEncodeEncoderFactory(
                     /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
@@ -129,10 +129,14 @@ public class EncoderPerformanceAnalysisTest {
                         .setEnableFallback(false)
                         .build()))
             .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(fileUri)))
+            .setRemoveAudio(true)
+            .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
+        .run(testId, editedMediaItem);
   }
 }

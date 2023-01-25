@@ -74,12 +74,15 @@ public class HdrEditingTest {
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer = new Transformer.Builder(context).build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)))
+            .build();
 
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, editedMediaItem);
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
     } catch (TransformationException exception) {
@@ -96,12 +99,15 @@ public class HdrEditingTest {
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer = new Transformer.Builder(context).build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)))
+            .build();
 
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+              .run(testId, editedMediaItem);
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_HLG);
     } catch (TransformationException exception) {
@@ -127,7 +133,8 @@ public class HdrEditingTest {
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     TransformationTestResult transformationTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -151,7 +158,8 @@ public class HdrEditingTest {
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     TransformationTestResult transformationTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -194,7 +202,8 @@ public class HdrEditingTest {
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     try {
       TransformationTestResult transformationTestResult =
@@ -249,7 +258,8 @@ public class HdrEditingTest {
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     try {
       TransformationTestResult transformationTestResult =
@@ -283,11 +293,12 @@ public class HdrEditingTest {
     }
 
     Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER));
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(
-            testId,
-            MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER)));
+        .run(testId, editedMediaItem);
   }
 
   private static boolean deviceSupportsHdrEditing(String mimeType, ColorInfo colorInfo) {

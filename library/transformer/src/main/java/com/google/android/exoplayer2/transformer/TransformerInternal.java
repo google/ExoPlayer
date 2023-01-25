@@ -118,8 +118,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable String outputPath,
       @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
       TransformationRequest transformationRequest,
-      boolean removeAudio,
-      boolean removeVideo,
       boolean generateSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -144,8 +142,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
     assetLoader =
         assetLoaderFactory
-            .setRemoveAudio(removeAudio)
-            .setRemoveVideo(removeVideo)
+            .setRemoveAudio(editedMediaItem.removeAudio)
+            .setRemoveVideo(editedMediaItem.removeVideo)
             .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
             .createAssetLoader(mediaItem, internalLooper, componentListener);
     effects = editedMediaItem.effects;

@@ -173,34 +173,24 @@ public final class Transformer {
     }
 
     /**
-     * Sets whether to remove the audio from the output.
-     *
-     * <p>The default value is {@code false}.
-     *
-     * <p>The audio and video cannot both be removed because the output would not contain any
-     * samples.
-     *
-     * @param removeAudio Whether to remove the audio.
-     * @return This builder.
+     * @deprecated Use {@link EditedMediaItem.Builder#setRemoveAudio(boolean)} to remove the audio
+     *     from the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
+     *     String)} or {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
      */
     @CanIgnoreReturnValue
+    @Deprecated
     public Builder setRemoveAudio(boolean removeAudio) {
       this.removeAudio = removeAudio;
       return this;
     }
 
     /**
-     * Sets whether to remove the video from the output.
-     *
-     * <p>The default value is {@code false}.
-     *
-     * <p>The audio and video cannot both be removed because the output would not contain any
-     * samples.
-     *
-     * @param removeVideo Whether to remove the video.
-     * @return This builder.
+     * @deprecated Use {@link EditedMediaItem.Builder#setRemoveVideo(boolean)} to remove the video
+     *     from the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
+     *     String)} or {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
      */
     @CanIgnoreReturnValue
+    @Deprecated
     public Builder setRemoveVideo(boolean removeVideo) {
       this.removeVideo = removeVideo;
       return this;
@@ -382,7 +372,9 @@ public final class Transformer {
      *
      * <p>This method is experimental and may be removed or changed without warning.
      *
-     * <p>To replace existing audio with silence, call {@link #setRemoveAudio(boolean)} as well.
+     * <p>To replace existing audio with silence, {@linkplain
+     * EditedMediaItem.Builder#setRemoveAudio(boolean) remove the audio} from the {@link
+     * EditedMediaItem} to transform.
      *
      * <p>Audio properties/format:
      *
@@ -719,8 +711,11 @@ public final class Transformer {
   @Deprecated
   public void startTransformation(MediaItem mediaItem, String path) {
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem(
-            mediaItem, new Effects(audioProcessors, videoEffects, frameProcessorFactory));
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(removeAudio)
+            .setRemoveVideo(removeVideo)
+            .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
+            .build();
     startTransformationInternal(editedMediaItem, path, /* parcelFileDescriptor= */ null);
   }
 
@@ -731,8 +726,11 @@ public final class Transformer {
   @RequiresApi(26)
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor) {
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem(
-            mediaItem, new Effects(audioProcessors, videoEffects, frameProcessorFactory));
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(removeAudio)
+            .setRemoveVideo(removeVideo)
+            .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
+            .build();
     startTransformationInternal(editedMediaItem, /* path= */ null, parcelFileDescriptor);
   }
 
@@ -763,8 +761,6 @@ public final class Transformer {
             path,
             parcelFileDescriptor,
             transformationRequest,
-            removeAudio,
-            removeVideo,
             generateSilentAudio,
             assetLoaderFactory,
             encoderFactory,

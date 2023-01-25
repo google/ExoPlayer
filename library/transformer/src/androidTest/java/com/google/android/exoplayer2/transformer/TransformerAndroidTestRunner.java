@@ -174,19 +174,6 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Transforms the {@link MediaItem}, saving a summary of the transformation to the application
-   * cache.
-   *
-   * @param testId A unique identifier for the transformer test run.
-   * @param mediaItem The {@link MediaItem} to transform.
-   * @return The {@link TransformationTestResult}.
-   * @throws Exception The cause of the transformation not completing.
-   */
-  public TransformationTestResult run(String testId, MediaItem mediaItem) throws Exception {
-    return run(testId, new EditedMediaItem(mediaItem));
-  }
-
-  /**
    * Transforms the {@link EditedMediaItem}, saving a summary of the transformation to the
    * application cache.
    *

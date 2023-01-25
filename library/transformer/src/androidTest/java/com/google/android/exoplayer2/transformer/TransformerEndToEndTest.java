@@ -51,7 +51,8 @@ public class TransformerEndToEndTest {
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
     ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
     // Result of the following command:
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
     int expectedFrameCount = 30;
@@ -68,14 +69,14 @@ public class TransformerEndToEndTest {
   public void videoOnly_completesWithConsistentDuration() throws Exception {
     Transformer transformer =
         new Transformer.Builder(context)
-            .setRemoveAudio(true)
             .setEncoderFactory(
                 new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
     ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
     long expectedDurationMs = 967;
 
     TransformationTestResult result =
@@ -100,11 +101,12 @@ public class TransformerEndToEndTest {
                     .setEndPositionMs(clippingEndMs)
                     .build())
             .build();
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(/* testId= */ "clippedMedia_completesWithClippedDuration", mediaItem);
+            .run(/* testId= */ "clippedMedia_completesWithClippedDuration", editedMediaItem);
 
     assertThat(result.transformationResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
@@ -114,6 +116,9 @@ public class TransformerEndToEndTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new VideoUnsupportedEncoderFactory(context))
+            .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
             .setRemoveAudio(true)
             .build();
 
@@ -125,7 +130,7 @@ public class TransformerEndToEndTest {
                     .build()
                     .run(
                         /* testId= */ "videoEncoderFormatUnsupported_completesWithError",
-                        MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING))));
+                        editedMediaItem));
 
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
