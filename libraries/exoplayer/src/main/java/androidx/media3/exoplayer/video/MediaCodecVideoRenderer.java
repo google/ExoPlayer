@@ -587,6 +587,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   public boolean isReady() {
     if (super.isReady()
+        && (!frameProcessorManager.isEnabled() || frameProcessorManager.isReady())
         && (renderedFirstFrameAfterReset
             || (placeholderSurface != null && displaySurface == placeholderSurface)
             || getCodec() == null
@@ -729,8 +730,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
       @State int state = getState();
       @Nullable MediaCodecAdapter codec = getCodec();
-      // When FrameProcessorManager is enabled, set FrameProcessorManager's display surface when
-      // surface's resolution is set on receiving MSG_SET_VIDEO_OUTPUT_RESOLUTION.
       if (codec != null && !frameProcessorManager.isEnabled()) {
         if (Util.SDK_INT >= 23 && displaySurface != null && !codecNeedsSetOutputSurfaceWorkaround) {
           setOutputSurfaceV23(codec, displaySurface);
@@ -747,6 +746,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         if (state == STATE_STARTED) {
           // Set joining deadline to report MediaCodecVideoRenderer is ready.
           setJoiningDeadlineMs();
+        }
+        // When FrameProcessorManager is enabled, set FrameProcessorManager's display surface and an
+        // unknown size.
+        if (frameProcessorManager.isEnabled()) {
+          frameProcessorManager.setOutputSurfaceInfo(displaySurface, Size.UNKNOWN);
         }
       } else {
         // The display surface has been removed.
@@ -1893,6 +1897,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return frameProcessor != null;
     }
 
+    /** Returns whether {@code FrameProcessorManager} is ready to accept input frames. */
+    public boolean isReady() {
+      return currentSurfaceAndSize == null || !currentSurfaceAndSize.second.equals(Size.UNKNOWN);
+    }
+
     /** Whether the {@link FrameProcessor} has released the last frame in the current stream. */
     public boolean releasedLastFrame() {
       return releasedLastFrame;
@@ -2105,7 +2114,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * this method.
      *
      * @param format The {@link Format} associated with the frame.
-     * @param isLastBuffer Whether the buffer is the last from the deocder to register.
+     * @param isLastBuffer Whether the buffer is the last from the decoder to register.
      * @return Whether {@link MediaCodec} should render the frame to {@link FrameProcessor}.
      */
     public boolean maybeRegisterFrame(
