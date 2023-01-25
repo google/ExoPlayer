@@ -59,6 +59,9 @@ import org.junit.runner.RunWith;
 /**
  * Pixel test for frame processing via {@link GlEffectsFrameProcessor}.
  *
+ * <p>Uses a {@link GlEffectsFrameProcessor} to process one frame, and checks that the actual output
+ * matches expected output, either from a golden file or from another edit.
+ *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
  * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
@@ -112,8 +115,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_noEdits_producesExpectedOutput() throws Exception {
-    String testId = "processData_noEdits";
+  public void noEffects_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
@@ -127,8 +130,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_noEditsWithCache_leavesFrameUnchanged() throws Exception {
-    String testId = "processData_noEditsWithCache";
+  public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_withFrameCache_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId)
             .setEffects(new FrameCache(/* capacity= */ 5))
@@ -144,8 +147,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withPixelWidthHeightRatio_producesExpectedOutput() throws Exception {
-    String testId = "processData_withPixelWidthHeightRatio";
+  public void setPixelWidthHeightRatio_matchesGoldenFile() throws Exception {
+    String testId = "setPixelWidthHeightRatio_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId).setPixelWidthHeightRatio(2f).build();
     Bitmap expectedBitmap = readBitmap(SCALE_WIDE_PNG_ASSET_PATH);
@@ -159,9 +162,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withMatrixTransformation_translateRight_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withMatrixTransformation_translateRight";
+  public void matrixTransformation_matchesGoldenFile() throws Exception {
+    String testId = "matrixTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     glEffectsFrameProcessorTestRunner =
@@ -179,9 +181,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withMatrixAndScaleToFitTransformation_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withMatrixAndScaleToFitTransformation";
+  public void matrixAndScaleToFitTransformation_matchesGoldenFile() throws Exception {
+    String testId = "matrixAndScaleToFitTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     glEffectsFrameProcessorTestRunner =
@@ -201,9 +202,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withScaleToFitAndMatrixTransformation_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withScaleToFitAndMatrixTransformation";
+  public void scaleToFitAndMatrixTransformation_matchesGoldenFile() throws Exception {
+    String testId = "scaleToFitAndMatrixTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     glEffectsFrameProcessorTestRunner =
@@ -223,9 +223,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withPresentation_createForHeight_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withPresentation_createForHeight";
+  public void presentation_createForHeight_matchesGoldenFile() throws Exception {
+    String testId = "presentation_createForHeight_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId)
             .setEffects(Presentation.createForHeight(480))
@@ -241,8 +240,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withCropThenPresentation_producesExpectedOutput() throws Exception {
-    String testId = "processData_withCropThenPresentation";
+  public void cropThenPresentation_matchesGoldenFile() throws Exception {
+    String testId = "cropThenPresentation_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId)
             .setEffects(
@@ -261,9 +260,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withScaleToFitTransformation_rotate45_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withScaleToFitTransformation_rotate45";
+  public void scaleToFitTransformation_rotate45_matchesGoldenFile() throws Exception {
+    String testId = "scaleToFitTransformation_rotate45_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId)
             .setEffects(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build())
@@ -279,9 +277,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_withTwoWrappedScaleToFitTransformations_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withTwoWrappedScaleToFitTransformations";
+  public void twoWrappedScaleToFitTransformations_matchesGoldenFile() throws Exception {
+    String testId = "twoWrappedScaleToFitTransformations_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId)
             .setEffects(
@@ -303,11 +300,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void
-      processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation()
-          throws Exception {
-    String testId =
-        "processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation";
+  public void manyComposedMatrixEffects_matchesSingleEffect() throws Exception {
+    String testId = "manyComposedMatrixEffects_matchesSingleEffect";
     Crop centerCrop =
         new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
     ImmutableList.Builder<Effect> full10StepRotationAndCenterCrop = new ImmutableList.Builder<>();
@@ -339,8 +333,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_increaseBrightness_producesExpectedOutput() throws Exception {
-    String testId = "processData_increaseBrightness";
+  public void increaseBrightness_matchesGoldenFile() throws Exception {
+    String testId = "increaseBrightness_matchesGoldenFile";
     ImmutableList<Effect> increaseBrightness =
         ImmutableList.of(
             new RgbAdjustment.Builder().setRedScale(5).build(),
@@ -361,9 +355,9 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void processData_fullRotationIncreaseBrightnessAndCenterCrop_producesExpectedOutput()
+  public void manyComposedMatrixAndRgbEffects_producesSameOutputAsCombinedEffects()
       throws Exception {
-    String testId = "drawFrame_fullRotationIncreaseBrightnessAndCenterCrop";
+    String testId = "manyComposedMatrixAndRgbEffects_producesSameOutputAsCombinedEffects";
     Crop centerCrop =
         new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
     ImmutableList<Effect> increaseBrightnessFullRotationCenterCrop =
@@ -405,10 +399,10 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void
-      processData_fullRotationIncreaseBrightnessAndCenterCropWithCache_leavesFrameUnchanged()
-          throws Exception {
-    String testId = "processData_fullRotationIncreaseBrightnessAndCenterCropWithCache";
+  public void manyComposedMatrixAndRgbEffects_withFrameCache_producesSameOutputAsCombinedEffects()
+      throws Exception {
+    String testId =
+        "manyComposedMatrixAndRgbEffects_withFrameCache_producesSameOutputAsCombinedEffects";
     Crop centerCrop =
         new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
     ImmutableList<Effect> increaseBrightnessFullRotationCenterCrop =
@@ -452,9 +446,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  public void drawFrame_grayscaleAndIncreaseRedChannel_producesGrayscaleAndRedImage()
-      throws Exception {
-    String testId = "drawFrame_grayscaleAndIncreaseRedChannel";
+  public void grayscaleThenIncreaseRedChannel_matchesGoldenFile() throws Exception {
+    String testId = "grayscaleThenIncreaseRedChannel_matchesGoldenFile";
     glEffectsFrameProcessorTestRunner =
         new GlEffectsFrameProcessorTestRunner.Builder(testId)
             .setEffects(
@@ -473,9 +466,9 @@ public final class GlEffectsFrameProcessorPixelTest {
 
   @Test
   @Ignore("b/261877288 Test can only run on physical devices because decoder can't decode HLG.")
-  public void drawHlgFrame_toneMap_producesExpectedOutput() throws Exception {
+  public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
     // TODO(b/239735341): Move this test to mobileharness testing.
-    String testId = "drawHlgFrame_toneMap";
+    String testId = "toneMap_hlgFrame_matchesGoldenFile";
     ColorInfo hlgColor =
         new ColorInfo.Builder()
             .setColorSpace(C.COLOR_SPACE_BT2020)
@@ -506,9 +499,9 @@ public final class GlEffectsFrameProcessorPixelTest {
 
   @Test
   @Ignore("b/261877288 Test can only run on physical devices because decoder can't decode PQ.")
-  public void drawPqFrame_toneMap_producesExpectedOutput() throws Exception {
+  public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
     // TODO(b/239735341): Move this test to mobileharness testing.
-    String testId = "drawPqFrame_toneMap";
+    String testId = "toneMap_pqFrame_matchesGoldenFile";
     ColorInfo pqColor =
         new ColorInfo.Builder()
             .setColorSpace(C.COLOR_SPACE_BT2020)
