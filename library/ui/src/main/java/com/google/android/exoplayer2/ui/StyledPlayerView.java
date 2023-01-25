@@ -15,7 +15,11 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TRACKS;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.getDrawable;
@@ -529,10 +533,12 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
       oldPlayer.removeListener(componentListener);
-      if (surfaceView instanceof TextureView) {
-        oldPlayer.clearVideoTextureView((TextureView) surfaceView);
-      } else if (surfaceView instanceof SurfaceView) {
-        oldPlayer.clearVideoSurfaceView((SurfaceView) surfaceView);
+      if (oldPlayer.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+        if (surfaceView instanceof TextureView) {
+          oldPlayer.clearVideoTextureView((TextureView) surfaceView);
+        } else if (surfaceView instanceof SurfaceView) {
+          oldPlayer.clearVideoSurfaceView((SurfaceView) surfaceView);
+        }
       }
     }
     if (subtitleView != null) {
@@ -735,7 +741,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    if (player != null && player.isPlayingAd()) {
+    if (player != null
+        && player.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)
+        && player.isPlayingAd()) {
       return super.dispatchKeyEvent(event);
     }
 
@@ -1239,7 +1247,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     }
     int playbackState = player.getPlaybackState();
     return controllerAutoShow
-        && !player.getCurrentTimeline().isEmpty()
+        && (!player.isCommandAvailable(COMMAND_GET_TIMELINE)
+            || !player.getCurrentTimeline().isEmpty())
         && (playbackState == Player.STATE_IDLE
             || playbackState == Player.STATE_ENDED
             || !checkNotNull(player).getPlayWhenReady());
@@ -1254,12 +1263,17 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   private boolean isPlayingAd() {
-    return player != null && player.isPlayingAd() && player.getPlayWhenReady();
+    return player != null
+        && player.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)
+        && player.isPlayingAd()
+        && player.getPlayWhenReady();
   }
 
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
     @Nullable Player player = this.player;
-    if (player == null || player.getCurrentTracks().isEmpty()) {
+    if (player == null
+        || !player.isCommandAvailable(COMMAND_GET_TRACKS)
+        || player.getCurrentTracks().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
         closeShutter();
@@ -1283,7 +1297,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     closeShutter();
     // Display artwork if enabled and available, else hide it.
     if (useArtwork()) {
-      if (setArtworkFromMediaMetadata(player.getMediaMetadata())) {
+      if (setArtworkFromMediaMetadata(player)) {
         return;
       }
       if (setDrawableArtwork(defaultArtwork)) {
@@ -1295,7 +1309,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   @RequiresNonNull("artworkView")
-  private boolean setArtworkFromMediaMetadata(MediaMetadata mediaMetadata) {
+  private boolean setArtworkFromMediaMetadata(Player player) {
+    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+      return false;
+    }
+    MediaMetadata mediaMetadata = player.getMediaMetadata();
     if (mediaMetadata.artworkData == null) {
       return false;
     }
@@ -1514,10 +1532,14 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
       Player player = checkNotNull(StyledPlayerView.this.player);
-      Timeline timeline = player.getCurrentTimeline();
+      Timeline timeline =
+          player.isCommandAvailable(COMMAND_GET_TIMELINE)
+              ? player.getCurrentTimeline()
+              : Timeline.EMPTY;
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
-      } else if (!player.getCurrentTracks().isEmpty()) {
+      } else if (player.isCommandAvailable(COMMAND_GET_TRACKS)
+          && !player.getCurrentTracks().isEmpty()) {
         lastPeriodUidWithTracks =
             timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
       } else if (lastPeriodUidWithTracks != null) {

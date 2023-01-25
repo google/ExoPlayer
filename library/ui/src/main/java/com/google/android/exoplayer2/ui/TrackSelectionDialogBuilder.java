@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TRACKS;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -100,7 +103,9 @@ public final class TrackSelectionDialogBuilder {
       Context context, CharSequence title, Player player, @C.TrackType int trackType) {
     this.context = context;
     this.title = title;
-    List<Tracks.Group> allTrackGroups = player.getCurrentTracks().getGroups();
+    Tracks tracks =
+        player.isCommandAvailable(COMMAND_GET_TRACKS) ? player.getCurrentTracks() : Tracks.EMPTY;
+    List<Tracks.Group> allTrackGroups = tracks.getGroups();
     trackGroups = new ArrayList<>();
     for (int i = 0; i < allTrackGroups.size(); i++) {
       Tracks.Group trackGroup = allTrackGroups.get(i);
@@ -111,6 +116,9 @@ public final class TrackSelectionDialogBuilder {
     overrides = player.getTrackSelectionParameters().overrides;
     callback =
         (isDisabled, overrides) -> {
+          if (!player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
+            return;
+          }
           TrackSelectionParameters.Builder parametersBuilder =
               player.getTrackSelectionParameters().buildUpon();
           parametersBuilder.setTrackTypeDisabled(trackType, isDisabled);
