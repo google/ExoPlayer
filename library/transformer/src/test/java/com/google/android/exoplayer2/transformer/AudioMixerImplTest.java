@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteBuffer;
+import static com.google.android.exoplayer2.testutil.TestUtil.createFloatArray;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -317,26 +317,5 @@ public final class AudioMixerImplTest {
     mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ -1_000);
 
     assertThat(mixer.getOutput().remaining()).isEqualTo(0);
-  }
-
-  private static ByteBuffer createByteBuffer(float[] content) {
-    ByteBuffer buffer =
-        ByteBuffer.allocateDirect(content.length * 4).order(ByteOrder.nativeOrder());
-    buffer.asFloatBuffer().put(content);
-    return buffer;
-  }
-
-  private static ByteBuffer createByteBuffer(short[] content) {
-    ByteBuffer byteBuffer =
-        ByteBuffer.allocateDirect(content.length * 2).order(ByteOrder.nativeOrder());
-    byteBuffer.asShortBuffer().put(content);
-    return byteBuffer;
-  }
-
-  private static float[] createFloatArray(ByteBuffer byteBuffer) {
-    FloatBuffer buffer = byteBuffer.asFloatBuffer();
-    float[] content = new float[buffer.remaining()];
-    buffer.get(content);
-    return content;
   }
 }
