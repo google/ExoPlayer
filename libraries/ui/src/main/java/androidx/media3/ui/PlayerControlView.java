@@ -15,11 +15,22 @@
  */
 package androidx.media3.ui;
 
+import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
+import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
+import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
+import static androidx.media3.common.Player.COMMAND_PREPARE;
 import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
 import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
+import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
+import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
+import static androidx.media3.common.Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS;
 import static androidx.media3.common.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
 import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
 import static androidx.media3.common.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
@@ -35,6 +46,7 @@ import static androidx.media3.common.Player.EVENT_TRACKS_CHANGED;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.getDrawable;
+import static androidx.media3.common.util.Util.msToUs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -798,7 +810,7 @@ public class PlayerControlView extends FrameLayout {
    */
   public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.repeatToggleModes = repeatToggleModes;
-    if (player != null) {
+    if (player != null && player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)) {
       @Player.RepeatMode int currentMode = player.getRepeatMode();
       if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE
           && currentMode != Player.REPEAT_MODE_OFF) {
@@ -1062,7 +1074,7 @@ public class PlayerControlView extends FrameLayout {
     }
 
     @Nullable Player player = this.player;
-    if (player == null) {
+    if (player == null || !player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)) {
       updateButton(/* enabled= */ false, repeatToggleButton);
       repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
       repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
@@ -1096,7 +1108,7 @@ public class PlayerControlView extends FrameLayout {
     @Nullable Player player = this.player;
     if (!controlViewLayoutManager.getShowButton(shuffleButton)) {
       updateButton(/* enabled= */ false, shuffleButton);
-    } else if (player == null) {
+    } else if (player == null || !player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)) {
       updateButton(/* enabled= */ false, shuffleButton);
       shuffleButton.setImageDrawable(shuffleOffButtonDrawable);
       shuffleButton.setContentDescription(shuffleOffContentDescription);
@@ -1120,8 +1132,8 @@ public class PlayerControlView extends FrameLayout {
     textTrackSelectionAdapter.clear();
     audioTrackSelectionAdapter.clear();
     if (player == null
-        || !player.isCommandAvailable(Player.COMMAND_GET_TRACKS)
-        || !player.isCommandAvailable(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
+        || !player.isCommandAvailable(COMMAND_GET_TRACKS)
+        || !player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
       return;
     }
     Tracks tracks = player.getCurrentTracks();
@@ -1162,12 +1174,14 @@ public class PlayerControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    multiWindowTimeBar =
-        showMultiWindowTimeBar && canShowMultiWindowTimeBar(player.getCurrentTimeline(), window);
+    multiWindowTimeBar = showMultiWindowTimeBar && canShowMultiWindowTimeBar(player, window);
     currentWindowOffset = 0;
     long durationUs = 0;
     int adGroupCount = 0;
-    Timeline timeline = player.getCurrentTimeline();
+    Timeline timeline =
+        player.isCommandAvailable(COMMAND_GET_TIMELINE)
+            ? player.getCurrentTimeline()
+            : Timeline.EMPTY;
     if (!timeline.isEmpty()) {
       int currentWindowIndex = player.getCurrentMediaItemIndex();
       int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
@@ -1209,6 +1223,11 @@ public class PlayerControlView extends FrameLayout {
         }
         durationUs += window.durationUs;
       }
+    } else if (player.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)) {
+      long playerDurationMs = player.getContentDuration();
+      if (playerDurationMs != C.TIME_UNSET) {
+        durationUs = msToUs(playerDurationMs);
+      }
     }
     long durationMs = Util.usToMs(durationUs);
     if (durationView != null) {
@@ -1236,7 +1255,7 @@ public class PlayerControlView extends FrameLayout {
     @Nullable Player player = this.player;
     long position = 0;
     long bufferedPosition = 0;
-    if (player != null) {
+    if (player != null && player.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)) {
       position = currentWindowOffset + player.getContentPosition();
       bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
     }
@@ -1314,7 +1333,7 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void setPlaybackSpeed(float speed) {
-    if (player == null) {
+    if (player == null || !player.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)) {
       return;
     }
     player.setPlaybackParameters(player.getPlaybackParameters().withSpeed(speed));
@@ -1335,11 +1354,12 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void seekToTimeBarPosition(Player player, long positionMs) {
-    int windowIndex;
-    Timeline timeline = player.getCurrentTimeline();
-    if (multiWindowTimeBar && !timeline.isEmpty()) {
+    if (multiWindowTimeBar
+        && player.isCommandAvailable(COMMAND_GET_TIMELINE)
+        && player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+      Timeline timeline = player.getCurrentTimeline();
       int windowCount = timeline.getWindowCount();
-      windowIndex = 0;
+      int windowIndex = 0;
       while (true) {
         long windowDurationMs = timeline.getWindow(windowIndex, window).getDurationMs();
         if (positionMs < windowDurationMs) {
@@ -1352,15 +1372,11 @@ public class PlayerControlView extends FrameLayout {
         positionMs -= windowDurationMs;
         windowIndex++;
       }
-    } else {
-      windowIndex = player.getCurrentMediaItemIndex();
+      player.seekTo(windowIndex, positionMs);
+    } else if (player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
+      player.seekTo(positionMs);
     }
-    seekTo(player, windowIndex, positionMs);
     updateProgress();
-  }
-
-  private void seekTo(Player player, int windowIndex, long positionMs) {
-    player.seekTo(windowIndex, positionMs);
   }
 
   private void onFullScreenButtonClicked(View v) {
@@ -1440,10 +1456,12 @@ public class PlayerControlView extends FrameLayout {
     }
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
       if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
-        if (player.getPlaybackState() != Player.STATE_ENDED) {
+        if (player.getPlaybackState() != Player.STATE_ENDED
+            && player.isCommandAvailable(COMMAND_SEEK_FORWARD)) {
           player.seekForward();
         }
-      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
+          && player.isCommandAvailable(COMMAND_SEEK_BACK)) {
         player.seekBack();
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
@@ -1458,10 +1476,14 @@ public class PlayerControlView extends FrameLayout {
             dispatchPause(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_NEXT:
-            player.seekToNext();
+            if (player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+              player.seekToNext();
+            }
             break;
           case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-            player.seekToPrevious();
+            if (player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+              player.seekToPrevious();
+            }
             break;
           default:
             break;
@@ -1501,7 +1523,10 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private boolean shouldEnablePlayPauseButton() {
-    return player != null && !player.getCurrentTimeline().isEmpty();
+    return player != null
+        && player.isCommandAvailable(COMMAND_PLAY_PAUSE)
+        && (!player.isCommandAvailable(COMMAND_GET_TIMELINE)
+            || !player.getCurrentTimeline().isEmpty());
   }
 
   private boolean shouldShowPauseButton() {
@@ -1522,16 +1547,21 @@ public class PlayerControlView extends FrameLayout {
 
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
-    if (state == Player.STATE_IDLE) {
+    if (state == Player.STATE_IDLE && player.isCommandAvailable(COMMAND_PREPARE)) {
       player.prepare();
-    } else if (state == Player.STATE_ENDED) {
-      seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
+    } else if (state == Player.STATE_ENDED
+        && player.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)) {
+      player.seekToDefaultPosition();
     }
-    player.play();
+    if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+      player.play();
+    }
   }
 
   private void dispatchPause(Player player) {
-    player.pause();
+    if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+      player.pause();
+    }
   }
 
   @SuppressLint("InlinedApi")
@@ -1547,13 +1577,18 @@ public class PlayerControlView extends FrameLayout {
   }
 
   /**
-   * Returns whether the specified {@code timeline} can be shown on a multi-window time bar.
+   * Returns whether the specified {@code player} can be shown on a multi-window time bar.
    *
-   * @param timeline The {@link Timeline} to check.
+   * @param player The {@link Player} to check.
    * @param window A scratch {@link Timeline.Window} instance.
    * @return Whether the specified timeline can be shown on a multi-window time bar.
    */
-  private static boolean canShowMultiWindowTimeBar(Timeline timeline, Timeline.Window window) {
+  private static boolean canShowMultiWindowTimeBar(Player player, Timeline.Window window) {
+    if (!player.isCommandAvailable(COMMAND_GET_TIMELINE)
+        || !player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+      return false;
+    }
+    Timeline timeline = player.getCurrentTimeline();
     if (timeline.getWindowCount() > MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR) {
       return false;
     }
@@ -1674,22 +1709,33 @@ public class PlayerControlView extends FrameLayout {
       }
       controlViewLayoutManager.resetHideCallbacks();
       if (nextButton == view) {
-        player.seekToNext();
+        if (player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+          player.seekToNext();
+        }
       } else if (previousButton == view) {
-        player.seekToPrevious();
+        if (player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+          player.seekToPrevious();
+        }
       } else if (fastForwardButton == view) {
-        if (player.getPlaybackState() != Player.STATE_ENDED) {
+        if (player.getPlaybackState() != Player.STATE_ENDED
+            && player.isCommandAvailable(COMMAND_SEEK_FORWARD)) {
           player.seekForward();
         }
       } else if (rewindButton == view) {
-        player.seekBack();
+        if (player.isCommandAvailable(COMMAND_SEEK_BACK)) {
+          player.seekBack();
+        }
       } else if (playPauseButton == view) {
         dispatchPlayPause(player);
       } else if (repeatToggleButton == view) {
-        player.setRepeatMode(
-            RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
+        if (player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)) {
+          player.setRepeatMode(
+              RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
+        }
       } else if (shuffleButton == view) {
-        player.setShuffleModeEnabled(!player.getShuffleModeEnabled());
+        if (player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)) {
+          player.setShuffleModeEnabled(!player.getShuffleModeEnabled());
+        }
       } else if (settingsButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
         displaySettingsWindow(settingsAdapter, settingsButton);
@@ -1892,7 +1938,8 @@ public class PlayerControlView extends FrameLayout {
       holder.checkView.setVisibility(isTrackSelectionOff ? VISIBLE : INVISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
-            if (player != null) {
+            if (player != null
+                && player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
               player.setTrackSelectionParameters(
@@ -1933,7 +1980,8 @@ public class PlayerControlView extends FrameLayout {
       holder.checkView.setVisibility(hasSelectionOverride ? INVISIBLE : VISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
-            if (player == null) {
+            if (player == null
+                || !player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
               return;
             }
             TrackSelectionParameters trackSelectionParameters =
@@ -2036,6 +2084,9 @@ public class PlayerControlView extends FrameLayout {
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
             v -> {
+              if (!player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
+                return;
+              }
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
               player.setTrackSelectionParameters(

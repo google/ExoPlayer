@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 public class DefaultMediaDescriptionAdapterTest {
 
   @Test
-  public void getters_returnMediaMetadataValues() {
+  public void getters_withGetMetatadataCommandAvailable_returnMediaMetadataValues() {
     Context context = ApplicationProvider.getApplicationContext();
     Player player = mock(Player.class);
     MediaMetadata mediaMetadata =
@@ -43,6 +43,7 @@ public class DefaultMediaDescriptionAdapterTest {
         PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     DefaultMediaDescriptionAdapter adapter = new DefaultMediaDescriptionAdapter(pendingIntent);
 
+    when(player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)).thenReturn(true);
     when(player.getMediaMetadata()).thenReturn(mediaMetadata);
 
     assertThat(adapter.createCurrentContentIntent(player)).isEqualTo(pendingIntent);
@@ -50,5 +51,23 @@ public class DefaultMediaDescriptionAdapterTest {
         .isEqualTo(mediaMetadata.displayTitle.toString());
     assertThat(adapter.getCurrentContentText(player).toString())
         .isEqualTo(mediaMetadata.artist.toString());
+  }
+
+  @Test
+  public void getters_withoutGetMetatadataCommandAvailable_returnMediaMetadataValues() {
+    Context context = ApplicationProvider.getApplicationContext();
+    Player player = mock(Player.class);
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder().setDisplayTitle("display title").setArtist("artist").build();
+    PendingIntent pendingIntent =
+        PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+    DefaultMediaDescriptionAdapter adapter = new DefaultMediaDescriptionAdapter(pendingIntent);
+
+    when(player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)).thenReturn(false);
+    when(player.getMediaMetadata()).thenReturn(mediaMetadata);
+
+    assertThat(adapter.createCurrentContentIntent(player)).isEqualTo(pendingIntent);
+    assertThat(adapter.getCurrentContentTitle(player).toString()).isEqualTo("");
+    assertThat(adapter.getCurrentContentText(player)).isNull();
   }
 }
