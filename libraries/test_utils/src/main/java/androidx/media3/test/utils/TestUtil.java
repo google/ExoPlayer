@@ -52,6 +52,8 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,12 +125,35 @@ public class TestUtil {
    * @return The equivalent byte array.
    */
   public static byte[] createByteArray(int... bytes) {
-    byte[] byteArray = new byte[bytes.length];
-    for (int i = 0; i < byteArray.length; i++) {
+    byte[] array = new byte[bytes.length];
+    for (int i = 0; i < array.length; i++) {
       Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      byteArray[i] = (byte) bytes[i];
+      array[i] = (byte) bytes[i];
     }
-    return byteArray;
+    return array;
+  }
+
+  /** Gets the underlying data of the {@link ByteBuffer} as a {@code float[]}. */
+  public static float[] createFloatArray(ByteBuffer byteBuffer) {
+    FloatBuffer buffer = byteBuffer.asFloatBuffer();
+    float[] content = new float[buffer.remaining()];
+    buffer.get(content);
+    return content;
+  }
+
+  /** Creates a {@link ByteBuffer} containing the {@code data}. */
+  public static ByteBuffer createByteBuffer(float[] data) {
+    ByteBuffer buffer =
+        ByteBuffer.allocateDirect(data.length * C.BYTES_PER_FLOAT).order(ByteOrder.nativeOrder());
+    buffer.asFloatBuffer().put(data);
+    return buffer;
+  }
+
+  /** Creates a {@link ByteBuffer} containing the {@code data}. */
+  public static ByteBuffer createByteBuffer(short[] data) {
+    ByteBuffer buffer = ByteBuffer.allocateDirect(data.length * 2).order(ByteOrder.nativeOrder());
+    buffer.asShortBuffer().put(data);
+    return buffer;
   }
 
   /**
