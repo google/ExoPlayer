@@ -30,15 +30,6 @@ import org.junit.runner.RunWith;
 public class TransformerBuilderTest {
 
   @Test
-  public void build_removeAudioAndVideo_throws() {
-    Context context = ApplicationProvider.getApplicationContext();
-
-    assertThrows(
-        IllegalStateException.class,
-        () -> new Transformer.Builder(context).setRemoveAudio(true).setRemoveVideo(true).build());
-  }
-
-  @Test
   public void build_withUnsupportedAudioMimeType_throws() {
     Context context = ApplicationProvider.getApplicationContext();
     TransformationRequest transformationRequest =

@@ -55,6 +55,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -287,7 +288,6 @@ public class SsimMapperTest {
 
       Transformer transformer =
           new Transformer.Builder(context)
-              .setRemoveAudio(true)
               .setTransformationRequest(
                   new TransformationRequest.Builder().setVideoMimeType(outputMimeType).build())
               .setEncoderFactory(
@@ -300,6 +300,10 @@ public class SsimMapperTest {
                       .setEnableFallback(false)
                       .build())
               .build();
+      EditedMediaItem editedMediaItem =
+          new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(videoUri)))
+              .setRemoveAudio(true)
+              .build();
 
       transformationsLeft--;
 
@@ -308,7 +312,7 @@ public class SsimMapperTest {
               .setInputValues(inputValues)
               .setRequestCalculateSsim(true)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(videoUri)))
+              .run(testId, editedMediaItem)
               .ssim;
 
       checkState(ssim != SSIM_UNSET, "SSIM has not been calculated.");

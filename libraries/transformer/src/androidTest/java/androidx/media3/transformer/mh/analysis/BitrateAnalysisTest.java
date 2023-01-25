@@ -42,6 +42,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
@@ -142,7 +143,6 @@ public class BitrateAnalysisTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setRemoveAudio(true)
             .setEncoderFactory(
                 new AndroidTestUtil.ForceEncodeEncoderFactory(
                     /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
@@ -154,11 +154,15 @@ public class BitrateAnalysisTest {
                         .setEnableFallback(false)
                         .build()))
             .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(fileUri)))
+            .setRemoveAudio(true)
+            .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
         .setRequestCalculateSsim(true)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
+        .run(testId, editedMediaItem);
   }
 }

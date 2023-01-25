@@ -59,10 +59,13 @@ public class TransformationTest {
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -70,10 +73,13 @@ public class TransformationTest {
     String testId = TAG + "_transformWithoutDecodeEncode";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     // No need to calculate SSIM because no decode/encoding, so input frames match output frames.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -82,7 +88,6 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setRemoveAudio(true)
             .setEncoderFactory(
                 new ForceEncodeEncoderFactory(
                     /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
@@ -90,10 +95,14 @@ public class TransformationTest {
                             new VideoEncoderSettings.Builder().setBitrate(5_000_000).build())
                         .build()))
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -113,11 +122,13 @@ public class TransformationTest {
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING));
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -136,11 +147,14 @@ public class TransformationTest {
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING)))
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -150,12 +164,15 @@ public class TransformationTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
-            .setRemoveAudio(true)
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -165,11 +182,14 @@ public class TransformationTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
+            .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
             .setRemoveVideo(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -188,9 +208,11 @@ public class TransformationTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING))).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING)));
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -204,7 +226,8 @@ public class TransformationTest {
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem = new EditedMediaItem(mediaItem, effects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()

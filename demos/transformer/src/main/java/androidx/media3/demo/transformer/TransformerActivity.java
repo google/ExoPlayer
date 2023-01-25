@@ -286,8 +286,6 @@ public final class TransformerActivity extends AppCompatActivity {
       transformerBuilder.setTransformationRequest(requestBuilder.build());
 
       transformerBuilder
-          .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
-          .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
           .experimentalSetGenerateSilentAudio(
               bundle.getBoolean(ConfigurationActivity.GENERATE_SILENT_AUDIO))
           .setEncoderFactory(
@@ -345,14 +343,17 @@ public final class TransformerActivity extends AppCompatActivity {
   })
   private EditedMediaItem createEditedMediaItem(MediaItem mediaItem, @Nullable Bundle bundle)
       throws PackageManager.NameNotFoundException {
+    EditedMediaItem.Builder editedMediaItemBuilder = new EditedMediaItem.Builder(mediaItem);
     if (bundle == null) {
-      return new EditedMediaItem(mediaItem);
+      return editedMediaItemBuilder.build();
     }
-
     ImmutableList<AudioProcessor> audioProcessors = createAudioProcessorsFromBundle(bundle);
     ImmutableList<Effect> videoEffects = createVideoEffectsFromBundle(bundle);
-    Effects effects = new Effects(audioProcessors, videoEffects);
-    return new EditedMediaItem(mediaItem, effects);
+    return editedMediaItemBuilder
+        .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
+        .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+        .setEffects(new Effects(audioProcessors, videoEffects))
+        .build();
   }
 
   private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {
