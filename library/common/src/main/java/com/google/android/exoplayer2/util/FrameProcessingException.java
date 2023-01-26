@@ -17,7 +17,10 @@ package com.google.android.exoplayer2.util;
 
 import com.google.android.exoplayer2.C;
 
-/** Thrown when an exception occurs while applying effects to video frames. */
+/**
+ * Thrown when an exception occurs while preparing an {@link Effect}, or applying an {@link Effect}
+ * to video frames.
+ */
 public final class FrameProcessingException extends Exception {
 
   /**
