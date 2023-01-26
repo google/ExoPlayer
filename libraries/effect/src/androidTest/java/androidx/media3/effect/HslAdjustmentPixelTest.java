@@ -162,7 +162,7 @@ public final class HslAdjustmentPixelTest {
   }
 
   @Test
-  public void drawFrame_rotateHueByNegative90Degrees_producesExpectedOutput() throws Exception {
+  public void drawFrame_rotateHueByNegative90Degrees_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_rotateHueByNegative90Degrees";
     HslAdjustment negativeHueRotation90Degrees = new HslAdjustment.Builder().adjustHue(-90).build();
     hslProcessor = negativeHueRotation90Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
@@ -180,7 +180,7 @@ public final class HslAdjustmentPixelTest {
   }
 
   @Test
-  public void drawFrame_rotateHueBy60Degrees_producesExpectedOutput() throws Exception {
+  public void drawFrame_rotateHueBy60Degrees_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_rotateHueBy60Degrees";
     HslAdjustment hueRotation60Degrees = new HslAdjustment.Builder().adjustHue(60).build();
     hslProcessor = hueRotation60Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
@@ -309,7 +309,7 @@ public final class HslAdjustmentPixelTest {
   }
 
   @Test
-  public void drawFrame_adjustAllHslSettings_producesExpectedOutput() throws Exception {
+  public void drawFrame_adjustAllHslSettings_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_adjustAllHslSettings";
     HslAdjustment allHslSettingsAdjusted =
         new HslAdjustment.Builder().adjustHue(60).adjustSaturation(30).adjustLightness(50).build();

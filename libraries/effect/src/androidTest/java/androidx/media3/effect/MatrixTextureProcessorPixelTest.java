@@ -97,7 +97,7 @@ public final class MatrixTextureProcessorPixelTest {
   }
 
   @Test
-  public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
+  public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
     MatrixTransformation noEditsTransformation = (long presentationTimeUs) -> identityMatrix;
@@ -117,7 +117,7 @@ public final class MatrixTextureProcessorPixelTest {
   }
 
   @Test
-  public void drawFrame_translateRight_producesExpectedOutput() throws Exception {
+  public void drawFrame_translateRight_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
@@ -139,7 +139,7 @@ public final class MatrixTextureProcessorPixelTest {
   }
 
   @Test
-  public void drawFrame_scaleNarrow_producesExpectedOutput() throws Exception {
+  public void drawFrame_scaleNarrow_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
@@ -160,7 +160,7 @@ public final class MatrixTextureProcessorPixelTest {
   }
 
   @Test
-  public void drawFrame_rotate90_producesExpectedOutput() throws Exception {
+  public void drawFrame_rotate90_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
