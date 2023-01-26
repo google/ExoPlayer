@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.util.Size;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Specifies a 4x4 transformation {@link Matrix} to apply in the vertex shader for each frame.
+ * Specifies a 4x4 transformation {@link Matrix} to apply in the vertex shader for each input frame.
  *
  * <p>The matrix is applied to points given in normalized device coordinates (-1 to 1 on x, y, and z
  * axes). Transformed pixels that are moved outside of the normal device coordinate range are

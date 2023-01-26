@@ -72,9 +72,9 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
      *
      * <p>The default value, 0, corresponds to not applying any rotation.
      *
-     * <p>The output frame's width and height are automatically adjusted to preserve all input
-     * pixels. The rotated input frame is fitted inside an enclosing black rectangle if its edges
-     * aren't parallel to the x and y axes.
+     * <p>The output frame's width and height are adjusted to preserve all input pixels. The rotated
+     * input frame is fitted inside an enclosing black rectangle if its edges aren't parallel to the
+     * x and y axes, to form the output frame.
      *
      * @param rotationDegrees The counterclockwise rotation, in degrees.
      * @return This builder.
