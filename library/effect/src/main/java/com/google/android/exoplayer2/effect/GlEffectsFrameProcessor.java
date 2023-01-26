@@ -75,16 +75,16 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      * outputColorInfo}'s {@link ColorInfo#colorRange} values are currently ignored, in favor of
      * {@code null} and {@link C#COLOR_RANGE_FULL}, respectively.
      *
-     * <p>The OpenGL context will use OpenGL version {@code 3}, and textures will be {@link
-     * GLES30#GL_RGBA16F} and {@link GLES30#GL_HALF_FLOAT} if {@code inputColorInfo} or {@code
-     * outputColorInfo} {@linkplain ColorInfo#isTransferHdr} are HDR}, and OpenGL version {@code 2}
-     * with {@link GLES20#GL_RGBA} and {@link GLES20#GL_UNSIGNED_BYTE} otherwise. It will be
-     * configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_1010102} if {@code outputColorInfo}
-     * {@linkplain ColorInfo#isTransferHdr is HDR}, and {@link
-     * GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_8888} otherwise.
+     * <p>If {@code inputColorInfo} or {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr}
+     * are HDR}, textures will use {@link GLES30#GL_RGBA16F} and {@link GLES30#GL_HALF_FLOAT}.
+     * Otherwise, textures will use {@link GLES20#GL_RGBA} and {@link GLES20#GL_UNSIGNED_BYTE}.
      *
-     * <p>Pass a {@link MoreExecutors#directExecutor() direct listenerExecutor} if invoking the
-     * {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is desired.
+     * <p>If {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr is HDR}, the context will
+     * be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_1010102}. Otherwise, the context
+     * will be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
+     *
+     * <p>If invoking the {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is
+     * desired, pass a {@link MoreExecutors#directExecutor() direct listenerExecutor}.
      */
     @Override
     public GlEffectsFrameProcessor create(
