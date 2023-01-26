@@ -101,7 +101,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
+  public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_noEdits";
     presentationTextureProcessor =
         Presentation.createForHeight(C.LENGTH_UNSET)
@@ -122,8 +122,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_changeAspectRatio_scaleToFit_narrow_producesExpectedOutput()
-      throws Exception {
+  public void drawFrame_changeAspectRatio_scaleToFit_narrow_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT)
@@ -144,8 +143,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_changeAspectRatio_scaleToFit_wide_producesExpectedOutput()
-      throws Exception {
+  public void drawFrame_changeAspectRatio_scaleToFit_wide_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT)
@@ -166,7 +164,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow_producesExpectedOutput()
+  public void drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow_matchesGoldenFile()
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationTextureProcessor =
@@ -189,7 +187,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_changeAspectRatio_scaleToFitWithCrop_wide_producesExpectedOutput()
+  public void drawFrame_changeAspectRatio_scaleToFitWithCrop_wide_matchesGoldenFile()
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationTextureProcessor =
@@ -212,8 +210,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_changeAspectRatio_stretchToFit_narrow_producesExpectedOutput()
-      throws Exception {
+  public void drawFrame_changeAspectRatio_stretchToFit_narrow_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_STRETCH_TO_FIT)
@@ -234,8 +231,7 @@ public final class PresentationPixelTest {
   }
 
   @Test
-  public void drawFrame_changeAspectRatio_stretchToFit_wide_producesExpectedOutput()
-      throws Exception {
+  public void drawFrame_changeAspectRatio_stretchToFit_wide_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_STRETCH_TO_FIT)

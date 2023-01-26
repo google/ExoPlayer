@@ -92,7 +92,7 @@ public final class CropPixelTest {
   }
 
   @Test
-  public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
+  public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_noEdits";
     cropTextureProcessor =
         new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1)
@@ -113,7 +113,7 @@ public final class CropPixelTest {
   }
 
   @Test
-  public void drawFrame_cropSmaller_producesExpectedOutput() throws Exception {
+  public void drawFrame_cropSmaller_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_cropSmaller";
     cropTextureProcessor =
         new Crop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
@@ -134,7 +134,7 @@ public final class CropPixelTest {
   }
 
   @Test
-  public void drawFrame_cropLarger_producesExpectedOutput() throws Exception {
+  public void drawFrame_cropLarger_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_cropLarger";
     cropTextureProcessor =
         new Crop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
