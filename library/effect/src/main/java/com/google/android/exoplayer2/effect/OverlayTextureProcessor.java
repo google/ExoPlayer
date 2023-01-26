@@ -56,11 +56,11 @@ import com.google.common.collect.ImmutableList;
       throws FrameProcessingException {
     super(useHdr);
     checkArgument(!useHdr, "OverlayTextureProcessor does not support HDR colors yet.");
-    // TODO: If the limit on the number of overlays ever becomes and issue, investigate expanding it
-    //  in relation to common device limits.
+    // The maximum number of samplers allowed in a single GL program is 16.
+    // We use one for every overlay and one for the video.
     checkArgument(
-        overlays.size() <= 8,
-        "OverlayTextureProcessor does not more than 8 overlays in the same processor yet.");
+        overlays.size() <= 15,
+        "OverlayTextureProcessor does not support more than 15 overlays in the same processor.");
     this.overlays = overlays;
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
     overlayMatrix = GlUtil.create4x4IdentityMatrix();
