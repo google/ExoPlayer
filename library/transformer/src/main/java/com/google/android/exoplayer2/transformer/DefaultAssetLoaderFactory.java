@@ -32,20 +32,34 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * Creates an instance.
    *
    * @param context The {@link Context}.
-   * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
-   *     transform when an {@link ExoPlayerAssetLoader} is used.
    * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
    *     necessary).
    * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
    *     testing.
    */
   public DefaultAssetLoaderFactory(
+      Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
+    assetLoaderFactory = new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param context The {@link Context}.
+   * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
+   *     necessary).
+   * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
+   *     testing.
+   * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
+   *     transform when an {@link ExoPlayerAssetLoader} is used.
+   */
+  public DefaultAssetLoaderFactory(
       Context context,
-      MediaSource.Factory mediaSourceFactory,
       Codec.DecoderFactory decoderFactory,
-      Clock clock) {
+      Clock clock,
+      MediaSource.Factory mediaSourceFactory) {
     assetLoaderFactory =
-        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, decoderFactory, clock);
+        new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory);
   }
 
   @Override

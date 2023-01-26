@@ -32,10 +32,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -51,6 +48,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A transformer to transform media inputs.
@@ -84,9 +82,10 @@ public final class Transformer {
     private ImmutableList<Effect> videoEffects;
     private boolean removeAudio;
     private boolean removeVideo;
+    private boolean flattenForSlowMotion;
     private boolean generateSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
-    @Nullable private AssetLoader.Factory assetLoaderFactory;
+    private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
     private FrameProcessor.Factory frameProcessorFactory;
     private Codec.EncoderFactory encoderFactory;
     private Muxer.Factory muxerFactory;
@@ -197,14 +196,14 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Use {@link TransformationRequest.Builder#setFlattenForSlowMotion(boolean)}
-     *     instead.
+     * @deprecated Use {@link EditedMediaItem.Builder#setFlattenForSlowMotion(boolean)} to flatten
+     *     the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
+     *     String)} or {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
-      transformationRequest =
-          transformationRequest.buildUpon().setFlattenForSlowMotion(flattenForSlowMotion).build();
+      this.flattenForSlowMotion = flattenForSlowMotion;
       return this;
     }
 
@@ -417,15 +416,8 @@ public final class Transformer {
         checkSampleMimeType(transformationRequest.videoMimeType);
       }
       if (assetLoaderFactory == null) {
-        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-        if (transformationRequest.flattenForSlowMotion) {
-          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
-        }
-        MediaSource.Factory mediaSourceFactory =
-            new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
-        Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
         assetLoaderFactory =
-            new DefaultAssetLoaderFactory(context, mediaSourceFactory, decoderFactory, clock);
+            new DefaultAssetLoaderFactory(context, new DefaultDecoderFactory(context), clock);
       }
       return new Transformer(
           context,
@@ -434,6 +426,7 @@ public final class Transformer {
           videoEffects,
           removeAudio,
           removeVideo,
+          flattenForSlowMotion,
           generateSilentAudio,
           listeners,
           assetLoaderFactory,
@@ -554,6 +547,7 @@ public final class Transformer {
   private final ImmutableList<Effect> videoEffects;
   private final boolean removeAudio;
   private final boolean removeVideo;
+  private final boolean flattenForSlowMotion;
   private final boolean generateSilentAudio;
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
@@ -573,6 +567,7 @@ public final class Transformer {
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
+      boolean flattenForSlowMotion,
       boolean generateSilentAudio,
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
@@ -589,6 +584,7 @@ public final class Transformer {
     this.videoEffects = videoEffects;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
+    this.flattenForSlowMotion = flattenForSlowMotion;
     this.generateSilentAudio = generateSilentAudio;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
@@ -710,10 +706,16 @@ public final class Transformer {
    */
   @Deprecated
   public void startTransformation(MediaItem mediaItem, String path) {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && flattenForSlowMotion) {
+      throw new IllegalArgumentException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
+            .setFlattenForSlowMotion(flattenForSlowMotion)
             .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
             .build();
     startTransformationInternal(editedMediaItem, path, /* parcelFileDescriptor= */ null);
@@ -725,10 +727,16 @@ public final class Transformer {
   @Deprecated
   @RequiresApi(26)
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor) {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && flattenForSlowMotion) {
+      throw new IllegalArgumentException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
+            .setFlattenForSlowMotion(flattenForSlowMotion)
             .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
             .build();
     startTransformationInternal(editedMediaItem, /* path= */ null, parcelFileDescriptor);
@@ -738,22 +746,16 @@ public final class Transformer {
       EditedMediaItem editedMediaItem,
       @Nullable String path,
       @Nullable ParcelFileDescriptor parcelFileDescriptor) {
-    MediaItem mediaItem = editedMediaItem.mediaItem;
-    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && transformationRequest.flattenForSlowMotion) {
-      // TODO(b/233986762): Support clipping with SEF flattening.
-      throw new IllegalArgumentException(
-          "Clipping is not supported when slow motion flattening is requested");
-    }
     verifyApplicationThread();
     if (transformerInternal != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
     TransformerInternalListener transformerInternalListener =
-        new TransformerInternalListener(mediaItem);
+        new TransformerInternalListener(editedMediaItem.mediaItem);
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
     FallbackListener fallbackListener =
-        new FallbackListener(mediaItem, listeners, applicationHandler, transformationRequest);
+        new FallbackListener(
+            editedMediaItem.mediaItem, listeners, applicationHandler, transformationRequest);
     transformerInternal =
         new TransformerInternal(
             context,

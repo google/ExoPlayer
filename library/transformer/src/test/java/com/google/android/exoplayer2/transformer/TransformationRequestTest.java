@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -35,9 +36,10 @@ public class TransformationRequestTest {
 
   private static TransformationRequest createTestTransformationRequest() {
     return new TransformationRequest.Builder()
-        .setFlattenForSlowMotion(true)
+        .setResolution(720)
         .setAudioMimeType(MimeTypes.AUDIO_AAC)
         .setVideoMimeType(MimeTypes.VIDEO_H264)
+        .setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
         .build();
   }
 }

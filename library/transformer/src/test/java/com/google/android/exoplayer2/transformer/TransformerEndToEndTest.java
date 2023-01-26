@@ -502,13 +502,10 @@ public final class TransformerEndToEndTest {
 
   @Test
   public void startTransformation_flattenForSlowMotion_completesSuccessfully() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
-            .build();
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_WITH_SEF_SLOW_MOTION))
+            .setFlattenForSlowMotion(true)
             .build();
 
     transformer.startTransformation(editedMediaItem, outputPath);
@@ -645,7 +642,7 @@ public final class TransformerEndToEndTest {
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
     Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     AssetLoader.Factory assetLoaderFactory =
-        new ExoPlayerAssetLoader.Factory(context, mediaSourceFactory, decoderFactory, clock);
+        new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory);
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)

@@ -33,7 +33,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -99,7 +98,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final AssetLoader assetLoader;
-  private final Effects effects;
   private final List<SamplePipeline> samplePipelines;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
@@ -138,15 +136,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
-    MediaItem mediaItem = editedMediaItem.mediaItem;
-    ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
+    ComponentListener componentListener = new ComponentListener(editedMediaItem, fallbackListener);
     assetLoader =
         assetLoaderFactory
             .setRemoveAudio(editedMediaItem.removeAudio)
             .setRemoveVideo(editedMediaItem.removeVideo)
-            .setFlattenVideoForSlowMotion(transformationRequest.flattenForSlowMotion)
-            .createAssetLoader(mediaItem, internalLooper, componentListener);
-    effects = editedMediaItem.effects;
+            .setFlattenVideoForSlowMotion(editedMediaItem.flattenForSlowMotion)
+            .createAssetLoader(editedMediaItem.mediaItem, internalLooper, componentListener);
     samplePipelines = new ArrayList<>();
     muxerWrapper =
         new MuxerWrapper(outputPath, outputParcelFileDescriptor, muxerFactory, componentListener);
@@ -324,7 +320,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private class ComponentListener implements AssetLoader.Listener, MuxerWrapper.Listener {
 
-    private final MediaItem mediaItem;
+    private final EditedMediaItem editedMediaItem;
     private final FallbackListener fallbackListener;
     private final AtomicInteger trackCount;
 
@@ -332,8 +328,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private volatile long durationUs;
 
-    public ComponentListener(MediaItem mediaItem, FallbackListener fallbackListener) {
-      this.mediaItem = mediaItem;
+    public ComponentListener(EditedMediaItem editedMediaItem, FallbackListener fallbackListener) {
+      this.editedMediaItem = editedMediaItem;
       this.fallbackListener = fallbackListener;
       trackCount = new AtomicInteger();
       durationUs = C.TIME_UNSET;
@@ -479,7 +475,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
-            effects.audioProcessors,
+            editedMediaItem.flattenForSlowMotion,
+            editedMediaItem.effects.audioProcessors,
             generateSilentAudio ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
@@ -491,8 +488,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
-            effects.videoEffects,
-            effects.frameProcessorFactory,
+            editedMediaItem.effects.videoEffects,
+            editedMediaItem.effects.frameProcessorFactory,
             encoderFactory,
             muxerWrapper,
             /* errorConsumer= */ this::onTransformationError,
@@ -520,10 +517,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
         return true;
       }
-      if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {
+      if (editedMediaItem.flattenForSlowMotion && isSlowMotion(inputFormat)) {
         return true;
       }
-      if (!effects.audioProcessors.isEmpty()) {
+      if (!editedMediaItem.effects.audioProcessors.isEmpty()) {
         return true;
       }
       if (generateSilentAudio) {
@@ -549,7 +546,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private boolean shouldTranscodeVideo(
         Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
       if ((streamStartPositionUs - streamOffsetUs) != 0
-          && !mediaItem.clippingConfiguration.startsAtKeyFrame) {
+          && !editedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
         return true;
       }
       if (encoderFactory.videoNeedsEncoding()) {
@@ -571,8 +568,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       // TODO(b/265927935): consider generalizing this logic.
-      for (int i = 0; i < effects.videoEffects.size(); i++) {
-        Effect videoEffect = effects.videoEffects.get(i);
+      for (int i = 0; i < editedMediaItem.effects.videoEffects.size(); i++) {
+        Effect videoEffect = editedMediaItem.effects.videoEffects.get(i);
         if (videoEffect instanceof Presentation) {
           Presentation presentation = (Presentation) videoEffect;
           // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.

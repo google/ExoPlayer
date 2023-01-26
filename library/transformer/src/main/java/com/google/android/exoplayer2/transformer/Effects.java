@@ -47,8 +47,7 @@ public final class Effects {
    *     They are applied in the order of the list, and buffers will only be modified by that {@link
    *     AudioProcessor} if it {@link AudioProcessor#isActive()} based on the current configuration.
    * @param videoEffects The list of {@link Effect} instances to apply to each video frame. They are
-   *     applied in the order of the list, after {@linkplain
-   *     TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
+   *     applied in the order of the list.
    * @param frameProcessorFactory The {@link FrameProcessor.Factory} for the {@link FrameProcessor}
    *     to use when applying the {@code videoEffects} to the video frames.
    */
