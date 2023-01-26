@@ -272,8 +272,6 @@ public final class TransformerActivity extends AppCompatActivity {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
     if (bundle != null) {
       TransformationRequest.Builder requestBuilder = new TransformationRequest.Builder();
-      requestBuilder.setFlattenForSlowMotion(
-          bundle.getBoolean(ConfigurationActivity.SHOULD_FLATTEN_FOR_SLOW_MOTION));
       @Nullable String audioMimeType = bundle.getString(ConfigurationActivity.AUDIO_MIME_TYPE);
       if (audioMimeType != null) {
         requestBuilder.setAudioMimeType(audioMimeType);
@@ -352,6 +350,8 @@ public final class TransformerActivity extends AppCompatActivity {
     return editedMediaItemBuilder
         .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
         .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+        .setFlattenForSlowMotion(
+            bundle.getBoolean(ConfigurationActivity.SHOULD_FLATTEN_FOR_SLOW_MOTION))
         .setEffects(new Effects(audioProcessors, videoEffects))
         .build();
   }

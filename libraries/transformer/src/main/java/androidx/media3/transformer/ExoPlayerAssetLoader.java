@@ -47,10 +47,13 @@ import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.video.VideoRendererEventListener;
+import androidx.media3.extractor.DefaultExtractorsFactory;
+import androidx.media3.extractor.mp4.Mp4Extractor;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -62,34 +65,50 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
   public static final class Factory implements AssetLoader.Factory {
 
     private final Context context;
-    private final MediaSource.Factory mediaSourceFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final Clock clock;
+    @Nullable private final MediaSource.Factory mediaSourceFactory;
 
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenVideoForSlowMotion;
 
     /**
-     * Creates an instance.
+     * Creates an instance using a {@link DefaultMediaSourceFactory}.
      *
      * @param context The {@link Context}.
-     * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
-     *     transform.
      * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
      *     necessary).
      * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
      *     testing.
      */
-    public Factory(
-        Context context,
-        MediaSource.Factory mediaSourceFactory,
-        Codec.DecoderFactory decoderFactory,
-        Clock clock) {
+    public Factory(Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
       this.context = context;
-      this.mediaSourceFactory = mediaSourceFactory;
       this.decoderFactory = decoderFactory;
       this.clock = clock;
+      this.mediaSourceFactory = null;
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param context The {@link Context}.
+     * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
+     *     necessary).
+     * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
+     *     testing.
+     * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
+     *     transform.
+     */
+    public Factory(
+        Context context,
+        Codec.DecoderFactory decoderFactory,
+        Clock clock,
+        MediaSource.Factory mediaSourceFactory) {
+      this.context = context;
+      this.decoderFactory = decoderFactory;
+      this.clock = clock;
+      this.mediaSourceFactory = mediaSourceFactory;
     }
 
     @Override
@@ -115,6 +134,14 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     @Override
     public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
+      MediaSource.Factory mediaSourceFactory = this.mediaSourceFactory;
+      if (mediaSourceFactory == null) {
+        DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+        if (flattenVideoForSlowMotion) {
+          defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
+        }
+        mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
+      }
       return new ExoPlayerAssetLoader(
           context,
           mediaItem,

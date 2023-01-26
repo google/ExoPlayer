@@ -15,10 +15,13 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.extractor.mp4.Mp4Extractor;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -34,6 +37,7 @@ public class EditedMediaItem {
 
     private boolean removeAudio;
     private boolean removeVideo;
+    private boolean flattenForSlowMotion;
     private @MonotonicNonNull Effects effects;
 
     /**
@@ -80,6 +84,47 @@ public class EditedMediaItem {
     }
 
     /**
+     * Sets whether to flatten the {@link MediaItem} if it contains slow motion markers.
+     *
+     * <p>The default value is {@code false}.
+     *
+     * <p>The flattened output is obtained by removing the slow motion metadata and by actually
+     * slowing down the parts of the video and audio streams defined in this metadata.
+     *
+     * <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. Flattening has
+     * no effect if the input does not contain this metadata type.
+     *
+     * <p>For SEF slow motion media, the following assumptions are made on the input:
+     *
+     * <ul>
+     *   <li>The input container format is (unfragmented) MP4.
+     *   <li>The input contains an AVC video elementary stream with temporal SVC.
+     *   <li>The recording frame rate of the video is 120 or 240 fps.
+     * </ul>
+     *
+     * <p>If using an {@link ExoPlayerAssetLoader.Factory} with a provided {@link
+     * MediaSource.Factory}, make sure that {@link Mp4Extractor#FLAG_READ_SEF_DATA} is set on the
+     * {@link Mp4Extractor} used. Otherwise, the slow motion metadata will be ignored and the input
+     * won't be flattened.
+     *
+     * <p>Using slow motion flattening together with {@link MediaItem.ClippingConfiguration} is not
+     * supported yet.
+     *
+     * @param flattenForSlowMotion Whether to flatten for slow motion.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
+      // TODO(b/233986762): Support clipping with SEF flattening.
+      checkArgument(
+          mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+              || !flattenForSlowMotion,
+          "Slow motion flattening is not supported when clipping is requested");
+      this.flattenForSlowMotion = flattenForSlowMotion;
+      return this;
+    }
+
+    /**
      * Sets the {@link Effects} to apply to the {@link MediaItem}.
      *
      * <p>The default value is an empty {@link Effects} instance.
@@ -100,21 +145,28 @@ public class EditedMediaItem {
             new Effects(
                 /* audioProcessors= */ ImmutableList.of(), /* videoEffects= */ ImmutableList.of());
       }
-      return new EditedMediaItem(mediaItem, removeAudio, removeVideo, effects);
+      return new EditedMediaItem(
+          mediaItem, removeAudio, removeVideo, flattenForSlowMotion, effects);
     }
   }
 
   /* package */ final MediaItem mediaItem;
   /* package */ final boolean removeAudio;
   /* package */ final boolean removeVideo;
+  /* package */ final boolean flattenForSlowMotion;
   /* package */ final Effects effects;
 
   private EditedMediaItem(
-      MediaItem mediaItem, boolean removeAudio, boolean removeVideo, Effects effects) {
+      MediaItem mediaItem,
+      boolean removeAudio,
+      boolean removeVideo,
+      boolean flattenForSlowMotion,
+      Effects effects) {
     checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed");
     this.mediaItem = mediaItem;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
+    this.flattenForSlowMotion = flattenForSlowMotion;
     this.effects = effects;
   }
 }

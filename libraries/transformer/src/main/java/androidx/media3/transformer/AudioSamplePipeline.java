@@ -63,6 +63,7 @@ import org.checkerframework.dataflow.qual.Pure;
       long streamStartPositionUs,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
+      boolean flattenForSlowMotion,
       ImmutableList<AudioProcessor> audioProcessors,
       long generateSilentAudioDurationUs,
       Codec.EncoderFactory encoderFactory,
@@ -89,7 +90,7 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    if (transformationRequest.flattenForSlowMotion) {
+    if (flattenForSlowMotion) {
       audioProcessors =
           new ImmutableList.Builder<AudioProcessor>()
               .add(new SpeedChangingAudioProcessor(new SegmentSpeedProvider(inputFormat)))

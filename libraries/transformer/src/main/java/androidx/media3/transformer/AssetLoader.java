@@ -76,7 +76,7 @@ public interface AssetLoader {
      * this is done on decoded samples.
      *
      * <p>For more information on slow motion flattening, see {@link
-     * TransformationRequest.Builder#setFlattenForSlowMotion(boolean)}.
+     * EditedMediaItem.Builder#setFlattenForSlowMotion(boolean)}.
      */
     @CanIgnoreReturnValue
     Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion);

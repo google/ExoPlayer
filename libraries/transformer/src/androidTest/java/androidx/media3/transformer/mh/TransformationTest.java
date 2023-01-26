@@ -35,7 +35,6 @@ import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
-import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
@@ -203,13 +202,11 @@ public class TransformationTest {
       return;
     }
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING))).build();
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING)))
+            .setFlattenForSlowMotion(true)
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(testId, editedMediaItem);

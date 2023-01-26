@@ -38,4 +38,19 @@ public final class EditedMediaItemBuilderTest {
                 .setRemoveVideo(true)
                 .build());
   }
+
+  @Test
+  public void setFlattenForSlowMotion_forClippedMediaItem_throws() {
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(1000).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("Uri")
+            .setClippingConfiguration(clippingConfiguration)
+            .build();
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new EditedMediaItem.Builder(mediaItem).setFlattenForSlowMotion(true).build());
+  }
 }
