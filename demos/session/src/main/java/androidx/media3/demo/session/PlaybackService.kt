@@ -15,7 +15,6 @@
  */
 package androidx.media3.demo.session
 
-import android.app.Notification.BigTextStyle
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent.*
@@ -272,32 +271,27 @@ class PlaybackService : MediaLibraryService() {
      * background.
      */
     override fun onForegroundServiceStartNotAllowedException() {
-      createNotificationAndNotify()
+      val notificationManagerCompat = NotificationManagerCompat.from(this@PlaybackService)
+      ensureNotificationChannel(notificationManagerCompat)
+      val pendingIntent =
+        TaskStackBuilder.create(this@PlaybackService).run {
+          addNextIntent(Intent(this@PlaybackService, MainActivity::class.java))
+
+          val immutableFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
+          getPendingIntent(0, immutableFlag or FLAG_UPDATE_CURRENT)
+        }
+      val builder =
+        NotificationCompat.Builder(this@PlaybackService, CHANNEL_ID)
+          .setContentIntent(pendingIntent)
+          .setSmallIcon(R.drawable.media3_notification_small_icon)
+          .setContentTitle(getString(R.string.notification_content_title))
+          .setStyle(
+            NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_content_text))
+          )
+          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+          .setAutoCancel(true)
+      notificationManagerCompat.notify(NOTIFICATION_ID, builder.build())
     }
-  }
-
-  private fun createNotificationAndNotify() {
-    var notificationManagerCompat = NotificationManagerCompat.from(this)
-    ensureNotificationChannel(notificationManagerCompat)
-    var pendingIntent =
-      TaskStackBuilder.create(this).run {
-        addNextIntent(Intent(this@PlaybackService, MainActivity::class.java))
-
-        val immutableFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
-        getPendingIntent(0, immutableFlag or FLAG_UPDATE_CURRENT)
-      }
-
-    var builder =
-      NotificationCompat.Builder(this, CHANNEL_ID)
-        .setContentIntent(pendingIntent)
-        .setSmallIcon(R.drawable.media3_notification_small_icon)
-        .setContentTitle(getString(R.string.notification_content_title))
-        .setStyle(
-          NotificationCompat.BigTextStyle().bigText(getString(R.string.notification_content_text))
-        )
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setAutoCancel(true)
-    notificationManagerCompat.notify(NOTIFICATION_ID, builder.build())
   }
 
   private fun ensureNotificationChannel(notificationManagerCompat: NotificationManagerCompat) {
