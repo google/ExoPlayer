@@ -1010,7 +1010,10 @@ public class PlayerControlView extends FrameLayout {
     boolean enableFastForward = false;
     boolean enableNext = false;
     if (player != null) {
-      enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+      enableSeeking =
+          (showMultiWindowTimeBar && canShowMultiWindowTimeBar(player, window))
+              ? player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)
+              : player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
       enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
       enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
       enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
@@ -1126,6 +1129,7 @@ public class PlayerControlView extends FrameLayout {
   private void updateTrackLists() {
     initTrackSelectionAdapter();
     updateButton(textTrackSelectionAdapter.getItemCount() > 0, subtitleButton);
+    updateSettingsButton();
   }
 
   private void initTrackSelectionAdapter() {
@@ -1301,6 +1305,11 @@ public class PlayerControlView extends FrameLayout {
     playbackSpeedAdapter.updateSelectedIndex(player.getPlaybackParameters().speed);
     settingsAdapter.setSubTextAtPosition(
         SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedAdapter.getSelectedText());
+    updateSettingsButton();
+  }
+
+  private void updateSettingsButton() {
+    updateButton(settingsAdapter.hasSettingsToShow(), settingsButton);
   }
 
   private void updateSettingsWindowSize() {
@@ -1354,25 +1363,26 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void seekToTimeBarPosition(Player player, long positionMs) {
-    if (multiWindowTimeBar
-        && player.isCommandAvailable(COMMAND_GET_TIMELINE)
-        && player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
-      Timeline timeline = player.getCurrentTimeline();
-      int windowCount = timeline.getWindowCount();
-      int windowIndex = 0;
-      while (true) {
-        long windowDurationMs = timeline.getWindow(windowIndex, window).getDurationMs();
-        if (positionMs < windowDurationMs) {
-          break;
-        } else if (windowIndex == windowCount - 1) {
-          // Seeking past the end of the last window should seek to the end of the timeline.
-          positionMs = windowDurationMs;
-          break;
+    if (multiWindowTimeBar) {
+      if (player.isCommandAvailable(COMMAND_GET_TIMELINE)
+          && player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+        Timeline timeline = player.getCurrentTimeline();
+        int windowCount = timeline.getWindowCount();
+        int windowIndex = 0;
+        while (true) {
+          long windowDurationMs = timeline.getWindow(windowIndex, window).getDurationMs();
+          if (positionMs < windowDurationMs) {
+            break;
+          } else if (windowIndex == windowCount - 1) {
+            // Seeking past the end of the last window should seek to the end of the timeline.
+            positionMs = windowDurationMs;
+            break;
+          }
+          positionMs -= windowDurationMs;
+          windowIndex++;
         }
-        positionMs -= windowDurationMs;
-        windowIndex++;
+        player.seekTo(windowIndex, positionMs);
       }
-      player.seekTo(windowIndex, positionMs);
     } else if (player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
       player.seekTo(positionMs);
     }
@@ -1584,15 +1594,14 @@ public class PlayerControlView extends FrameLayout {
    * @return Whether the specified timeline can be shown on a multi-window time bar.
    */
   private static boolean canShowMultiWindowTimeBar(Player player, Timeline.Window window) {
-    if (!player.isCommandAvailable(COMMAND_GET_TIMELINE)
-        || !player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+    if (!player.isCommandAvailable(COMMAND_GET_TIMELINE)) {
       return false;
     }
     Timeline timeline = player.getCurrentTimeline();
-    if (timeline.getWindowCount() > MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR) {
+    int windowCount = timeline.getWindowCount();
+    if (windowCount <= 1 || windowCount > MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR) {
       return false;
     }
-    int windowCount = timeline.getWindowCount();
     for (int i = 0; i < windowCount; i++) {
       if (timeline.getWindow(i, window).durationUs == C.TIME_UNSET) {
         return false;
@@ -1635,17 +1644,24 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onEvents(Player player, Events events) {
-      if (events.containsAny(EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED)) {
+      if (events.containsAny(
+          EVENT_PLAYBACK_STATE_CHANGED,
+          EVENT_PLAY_WHEN_READY_CHANGED,
+          EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updatePlayPauseButton();
       }
       if (events.containsAny(
-          EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
+          EVENT_PLAYBACK_STATE_CHANGED,
+          EVENT_PLAY_WHEN_READY_CHANGED,
+          EVENT_IS_PLAYING_CHANGED,
+          EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateProgress();
       }
-      if (events.contains(EVENT_REPEAT_MODE_CHANGED)) {
+      if (events.containsAny(EVENT_REPEAT_MODE_CHANGED, EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateRepeatModeButton();
       }
-      if (events.contains(EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+      if (events.containsAny(
+          EVENT_SHUFFLE_MODE_ENABLED_CHANGED, EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateShuffleButton();
       }
       if (events.containsAny(
@@ -1658,13 +1674,14 @@ public class PlayerControlView extends FrameLayout {
           EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateNavigation();
       }
-      if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
+      if (events.containsAny(
+          EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED, EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateTimeline();
       }
-      if (events.contains(EVENT_PLAYBACK_PARAMETERS_CHANGED)) {
+      if (events.containsAny(EVENT_PLAYBACK_PARAMETERS_CHANGED, EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updatePlaybackSpeedList();
       }
-      if (events.contains(EVENT_TRACKS_CHANGED)) {
+      if (events.containsAny(EVENT_TRACKS_CHANGED, EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateTrackLists();
       }
     }
@@ -1774,6 +1791,14 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onBindViewHolder(SettingViewHolder holder, int position) {
+      if (shouldShowSetting(position)) {
+        holder.itemView.setLayoutParams(
+            new RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+      } else {
+        holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+      }
+
       holder.mainTextView.setText(mainTexts[position]);
 
       if (subTexts[position] == null) {
@@ -1801,6 +1826,26 @@ public class PlayerControlView extends FrameLayout {
 
     public void setSubTextAtPosition(int position, String subText) {
       this.subTexts[position] = subText;
+    }
+
+    public boolean hasSettingsToShow() {
+      return shouldShowSetting(SETTINGS_AUDIO_TRACK_SELECTION_POSITION)
+          || shouldShowSetting(SETTINGS_PLAYBACK_SPEED_POSITION);
+    }
+
+    private boolean shouldShowSetting(int position) {
+      if (player == null) {
+        return false;
+      }
+      switch (position) {
+        case SETTINGS_AUDIO_TRACK_SELECTION_POSITION:
+          return player.isCommandAvailable(COMMAND_GET_TRACKS)
+              && player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS);
+        case SETTINGS_PLAYBACK_SPEED_POSITION:
+          return player.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH);
+        default:
+          return true;
+      }
     }
   }
 
