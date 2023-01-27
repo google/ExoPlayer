@@ -121,6 +121,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final ConnectionTimeoutHandler connectionTimeoutHandler;
   private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
+  private final String appPackageName;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
 
   private volatile long connectionTimeoutMs;
@@ -133,6 +134,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Handler handler) {
     sessionImpl = session;
     Context context = sessionImpl.getContext();
+    appPackageName = context.getPackageName();
     sessionManager = MediaSessionManager.getSessionManager(context);
     controllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
     connectionTimeoutHandler =
@@ -225,7 +227,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     switch (keyCode) {
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
       case KeyEvent.KEYCODE_HEADSETHOOK:
-        if (keyEvent.getRepeatCount() == 0) {
+        // Double tap detection only for media button events from external sources (for instance
+        // Bluetooth). Media button events from the app package are coming from the notification
+        // below targetApiLevel 33.
+        if (!appPackageName.equals(remoteUserInfo.getPackageName())
+            && keyEvent.getRepeatCount() == 0) {
           if (mediaPlayPauseKeyHandler.hasPendingMediaPlayPauseKey()) {
             mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
             onSkipToNext();
