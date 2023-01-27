@@ -33,7 +33,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -125,18 +124,6 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
-    int decodedWidth =
-        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
-    int decodedHeight =
-        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
-
-    ImmutableList.Builder<Effect> effectsListBuilder =
-        new ImmutableList.Builder<Effect>().addAll(effects);
-    if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
-      effectsListBuilder.add(Presentation.createForHeight(transformationRequest.outputHeight));
-    }
-
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
@@ -165,7 +152,7 @@ import org.checkerframework.dataflow.qual.Pure;
       frameProcessor =
           frameProcessorFactory.create(
               context,
-              effectsListBuilder.build(),
+              effects,
               debugViewProvider,
               frameProcessorInputColor,
               frameProcessorOutputColor,
@@ -212,6 +199,11 @@ import org.checkerframework.dataflow.qual.Pure;
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
     }
+    // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
+    int decodedWidth =
+        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+    int decodedHeight =
+        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
     firstFrameInfo =
         new FrameInfo.Builder(decodedWidth, decodedHeight)
             .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)

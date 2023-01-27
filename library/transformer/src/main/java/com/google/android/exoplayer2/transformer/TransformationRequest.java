@@ -23,6 +23,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -129,29 +130,6 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height of the displayed video.
-     *
-     * <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
-     * other transformations.
-     *
-     * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
-     *
-     * <p>The default value, {@link C#LENGTH_UNSET}, leaves the width and height unchanged.
-     *
-     * <p>Note that the output encoded video's dimensions may be swapped from the displayed video's
-     * dimensions, if the displayed video's height > width. This is to improve compatibility among
-     * different device encoders.
-     *
-     * @param outputHeight The output height of the displayed video, in pixels.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setResolution(int outputHeight) {
-      this.outputHeight = outputHeight;
-      return this;
-    }
-
-    /**
      * Sets the video MIME type of the output.
      *
      * <p>The default value is {@code null} which corresponds to using the same MIME type as the
@@ -247,6 +225,13 @@ public final class TransformationRequest {
       return this;
     }
 
+    @CanIgnoreReturnValue
+    // TODO(b/255953153): remove this method once fallback has been refactored.
+    /* package */ Builder setResolution(int outputHeight) {
+      this.outputHeight = outputHeight;
+      return this;
+    }
+
     /** Builds a {@link TransformationRequest} instance. */
     public TransformationRequest build() {
       return new TransformationRequest(outputHeight, audioMimeType, videoMimeType, hdrMode);
@@ -254,9 +239,18 @@ public final class TransformationRequest {
   }
 
   /**
-   * The requested height of the output video, or {@link C#LENGTH_UNSET} if inferred from the input.
+   * The requested height of the output video.
    *
-   * @see Builder#setResolution(int)
+   * <p>This field is
+   *
+   * <ul>
+   *   <li>Always set to {@link C#LENGTH_UNSET} in the {@code originalTransformationRequest}
+   *       parameter of {@link Transformer.Listener#onFallbackApplied(MediaItem,
+   *       TransformationRequest, TransformationRequest)}.
+   *   <li>Set to {@link C#LENGTH_UNSET} in the {@code fallbackTransformationRequest} parameter of
+   *       {@link Transformer.Listener#onFallbackApplied(MediaItem, TransformationRequest,
+   *       TransformationRequest)} to indicate that it is inferred from the input.
+   * </ul>
    */
   public final int outputHeight;
   /**

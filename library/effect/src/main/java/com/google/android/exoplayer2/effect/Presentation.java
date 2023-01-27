@@ -127,7 +127,7 @@ public final class Presentation implements MatrixTransformation {
    * Creates a new {@link Presentation} instance.
    *
    * <p>The output frame will have the given height. Width will scale to preserve the input aspect
-   * ratio.
+   * ratio. For example, a 1920x1440 video can be scaled to 640x480 by passing a height of 480.
    *
    * @param height The height of the output frame, in pixels.
    */

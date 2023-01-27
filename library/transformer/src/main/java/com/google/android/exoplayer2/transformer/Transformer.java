@@ -496,8 +496,8 @@ public final class Transformer {
     }
 
     /**
-     * Called when fallback to an alternative {@link TransformationRequest} is necessary to comply
-     * with muxer or device constraints.
+     * Called when falling back to an alternative {@link TransformationRequest} or changing the
+     * video frames' resolution is necessary to comply with muxer or device constraints.
      *
      * @param inputMediaItem The {@link MediaItem} for which the transformation is requested.
      * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
@@ -658,6 +658,10 @@ public final class Transformer {
    * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
    * highest bitrate video and audio streams are selected.
    *
+   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
+   * swapped if the height is larger than the width. This is to improve compatibility among
+   * different device encoders.
+   *
    * @param editedMediaItem The {@link MediaItem} to transform, with the transformations to apply to
    *     it.
    * @param path The path to the output file.
@@ -683,6 +687,10 @@ public final class Transformer {
    * <p>The output can contain at most one video track and one audio track. Other track types are
    * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
    * highest bitrate video and audio streams are selected.
+   *
+   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
+   * swapped if the height is larger than the width. This is to improve compatibility among
+   * different device encoders.
    *
    * @param editedMediaItem The {@link MediaItem} to transform, with the transformations to apply to
    *     it.
