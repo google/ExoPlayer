@@ -1673,15 +1673,15 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     /**
-     * Advances {@link #firstSampleToOutputIndex} to point to the sync sample before the specified
-     * seek time in the current fragment.
+     * Advances {@link #firstSampleToOutputIndex} to point to the sync sample at or before the
+     * specified seek time in the current fragment.
      *
      * @param timeUs The seek time, in microseconds.
      */
     public void seek(long timeUs) {
       int searchIndex = currentSampleIndex;
       while (searchIndex < fragment.sampleCount
-          && fragment.getSamplePresentationTimeUs(searchIndex) < timeUs) {
+          && fragment.getSamplePresentationTimeUs(searchIndex) <= timeUs) {
         if (fragment.sampleIsSyncFrameTable[searchIndex]) {
           firstSampleToOutputIndex = searchIndex;
         }
