@@ -482,7 +482,8 @@ public final class DefaultAudioSink implements AudioSink {
   private AudioAttributes audioAttributes;
   @Nullable private MediaPositionParameters afterDrainParameters;
   private MediaPositionParameters mediaPositionParameters;
-  private PlaybackParameters audioTrackPlaybackParameters;
+  private PlaybackParameters playbackParameters;
+  private boolean skipSilenceEnabled;
 
   @Nullable private ByteBuffer avSyncHeader;
   private int bytesUntilNextAvSync;
@@ -539,11 +540,9 @@ public final class DefaultAudioSink implements AudioSink {
     auxEffectInfo = new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, 0f);
     mediaPositionParameters =
         new MediaPositionParameters(
-            PlaybackParameters.DEFAULT,
-            DEFAULT_SKIP_SILENCE,
-            /* mediaTimeUs= */ 0,
-            /* audioTrackPositionUs= */ 0);
-    audioTrackPlaybackParameters = PlaybackParameters.DEFAULT;
+            PlaybackParameters.DEFAULT, /* mediaTimeUs= */ 0, /* audioTrackPositionUs= */ 0);
+    playbackParameters = PlaybackParameters.DEFAULT;
+    skipSilenceEnabled = DEFAULT_SKIP_SILENCE;
     mediaPositionParametersCheckpoints = new ArrayDeque<>();
     initializationExceptionPendingExceptionHolder =
         new PendingExceptionHolder<>(AUDIO_TRACK_RETRY_DURATION_MS);
@@ -846,8 +845,8 @@ public final class DefaultAudioSink implements AudioSink {
       startMediaTimeUsNeedsSync = false;
       startMediaTimeUsNeedsInit = false;
 
-      if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
-        setAudioTrackPlaybackParametersV23(audioTrackPlaybackParameters);
+      if (useAudioTrackPlaybackParams()) {
+        setAudioTrackPlaybackParametersV23();
       }
       applyAudioProcessorPlaybackParametersAndSkipSilence(presentationTimeUs);
 
@@ -1200,34 +1199,34 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    playbackParameters =
+    this.playbackParameters =
         new PlaybackParameters(
             constrainValue(playbackParameters.speed, MIN_PLAYBACK_SPEED, MAX_PLAYBACK_SPEED),
             constrainValue(playbackParameters.pitch, MIN_PITCH, MAX_PITCH));
-    if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
-      setAudioTrackPlaybackParametersV23(playbackParameters);
+    if (useAudioTrackPlaybackParams()) {
+      setAudioTrackPlaybackParametersV23();
     } else {
-      setAudioProcessorPlaybackParametersAndSkipSilence(
-          playbackParameters, getSkipSilenceEnabled());
+      setAudioProcessorPlaybackParameters(playbackParameters);
     }
   }
 
   @Override
   public PlaybackParameters getPlaybackParameters() {
-    return enableAudioTrackPlaybackParams
-        ? audioTrackPlaybackParameters
-        : getAudioProcessorPlaybackParameters();
+    return playbackParameters;
   }
 
   @Override
   public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-    setAudioProcessorPlaybackParametersAndSkipSilence(
-        getAudioProcessorPlaybackParameters(), skipSilenceEnabled);
+    this.skipSilenceEnabled = skipSilenceEnabled;
+    // Skip silence is applied together with the AudioProcessor playback parameters after draining
+    // the pipeline. Force a drain by re-applying the current playback parameters.
+    setAudioProcessorPlaybackParameters(
+        useAudioTrackPlaybackParams() ? PlaybackParameters.DEFAULT : playbackParameters);
   }
 
   @Override
   public boolean getSkipSilenceEnabled() {
-    return getMediaPositionParameters().skipSilence;
+    return skipSilenceEnabled;
   }
 
   @Override
@@ -1420,10 +1419,7 @@ public final class DefaultAudioSink implements AudioSink {
     framesPerEncodedSample = 0;
     mediaPositionParameters =
         new MediaPositionParameters(
-            getAudioProcessorPlaybackParameters(),
-            getSkipSilenceEnabled(),
-            /* mediaTimeUs= */ 0,
-            /* audioTrackPositionUs= */ 0);
+            playbackParameters, /* mediaTimeUs= */ 0, /* audioTrackPositionUs= */ 0);
     startMediaTimeUs = 0;
     afterDrainParameters = null;
     mediaPositionParametersCheckpoints.clear();
@@ -1439,13 +1435,13 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @RequiresApi(23)
-  private void setAudioTrackPlaybackParametersV23(PlaybackParameters audioTrackPlaybackParameters) {
+  private void setAudioTrackPlaybackParametersV23() {
     if (isAudioTrackInitialized()) {
       PlaybackParams playbackParams =
           new PlaybackParams()
               .allowDefaults()
-              .setSpeed(audioTrackPlaybackParameters.speed)
-              .setPitch(audioTrackPlaybackParameters.pitch)
+              .setSpeed(playbackParameters.speed)
+              .setPitch(playbackParameters.pitch)
               .setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_FAIL);
       try {
         audioTrack.setPlaybackParams(playbackParams);
@@ -1453,63 +1449,48 @@ public final class DefaultAudioSink implements AudioSink {
         Log.w(TAG, "Failed to set playback params", e);
       }
       // Update the speed using the actual effective speed from the audio track.
-      audioTrackPlaybackParameters =
+      playbackParameters =
           new PlaybackParameters(
               audioTrack.getPlaybackParams().getSpeed(), audioTrack.getPlaybackParams().getPitch());
-      audioTrackPositionTracker.setAudioTrackPlaybackSpeed(audioTrackPlaybackParameters.speed);
-    }
-    this.audioTrackPlaybackParameters = audioTrackPlaybackParameters;
-  }
-
-  private void setAudioProcessorPlaybackParametersAndSkipSilence(
-      PlaybackParameters playbackParameters, boolean skipSilence) {
-    MediaPositionParameters currentMediaPositionParameters = getMediaPositionParameters();
-    if (!playbackParameters.equals(currentMediaPositionParameters.playbackParameters)
-        || skipSilence != currentMediaPositionParameters.skipSilence) {
-      MediaPositionParameters mediaPositionParameters =
-          new MediaPositionParameters(
-              playbackParameters,
-              skipSilence,
-              /* mediaTimeUs= */ C.TIME_UNSET,
-              /* audioTrackPositionUs= */ C.TIME_UNSET);
-      if (isAudioTrackInitialized()) {
-        // Drain the audio processors so we can determine the frame position at which the new
-        // parameters apply.
-        this.afterDrainParameters = mediaPositionParameters;
-      } else {
-        // Update the audio processor chain parameters now. They will be applied to the audio
-        // processors during initialization.
-        this.mediaPositionParameters = mediaPositionParameters;
-      }
+      audioTrackPositionTracker.setAudioTrackPlaybackSpeed(playbackParameters.speed);
     }
   }
 
-  private PlaybackParameters getAudioProcessorPlaybackParameters() {
-    return getMediaPositionParameters().playbackParameters;
-  }
-
-  private MediaPositionParameters getMediaPositionParameters() {
-    // Mask the already set parameters.
-    return afterDrainParameters != null
-        ? afterDrainParameters
-        : !mediaPositionParametersCheckpoints.isEmpty()
-            ? mediaPositionParametersCheckpoints.getLast()
-            : mediaPositionParameters;
+  private void setAudioProcessorPlaybackParameters(PlaybackParameters playbackParameters) {
+    MediaPositionParameters mediaPositionParameters =
+        new MediaPositionParameters(
+            playbackParameters,
+            /* mediaTimeUs= */ C.TIME_UNSET,
+            /* audioTrackPositionUs= */ C.TIME_UNSET);
+    if (isAudioTrackInitialized()) {
+      // Drain the audio processors so we can determine the frame position at which the new
+      // parameters apply.
+      this.afterDrainParameters = mediaPositionParameters;
+    } else {
+      // Update the audio processor chain parameters now. They will be applied to the audio
+      // processors during initialization.
+      this.mediaPositionParameters = mediaPositionParameters;
+    }
   }
 
   private void applyAudioProcessorPlaybackParametersAndSkipSilence(long presentationTimeUs) {
-    PlaybackParameters playbackParameters =
+    PlaybackParameters audioProcessorPlaybackParameters;
+    if (!useAudioTrackPlaybackParams()) {
+      playbackParameters =
+          shouldApplyAudioProcessorPlaybackParameters()
+              ? audioProcessorChain.applyPlaybackParameters(playbackParameters)
+              : PlaybackParameters.DEFAULT;
+      audioProcessorPlaybackParameters = playbackParameters;
+    } else {
+      audioProcessorPlaybackParameters = PlaybackParameters.DEFAULT;
+    }
+    skipSilenceEnabled =
         shouldApplyAudioProcessorPlaybackParameters()
-            ? audioProcessorChain.applyPlaybackParameters(getAudioProcessorPlaybackParameters())
-            : PlaybackParameters.DEFAULT;
-    boolean skipSilenceEnabled =
-        shouldApplyAudioProcessorPlaybackParameters()
-            ? audioProcessorChain.applySkipSilenceEnabled(getSkipSilenceEnabled())
+            ? audioProcessorChain.applySkipSilenceEnabled(skipSilenceEnabled)
             : DEFAULT_SKIP_SILENCE;
     mediaPositionParametersCheckpoints.add(
         new MediaPositionParameters(
-            playbackParameters,
-            skipSilenceEnabled,
+            audioProcessorPlaybackParameters,
             /* mediaTimeUs= */ max(0, presentationTimeUs),
             /* audioTrackPositionUs= */ configuration.framesToDurationUs(getWrittenFrames())));
     setupAudioProcessors();
@@ -1533,6 +1514,10 @@ public final class DefaultAudioSink implements AudioSink {
     return !tunneling
         && MimeTypes.AUDIO_RAW.equals(configuration.inputFormat.sampleMimeType)
         && !shouldUseFloatOutput(configuration.inputFormat.pcmEncoding);
+  }
+
+  private boolean useAudioTrackPlaybackParams() {
+    return configuration != null && enableAudioTrackPlaybackParams && Util.SDK_INT >= 23;
   }
 
   /**
@@ -1856,20 +1841,14 @@ public final class DefaultAudioSink implements AudioSink {
 
     /** The playback parameters. */
     public final PlaybackParameters playbackParameters;
-    /** Whether to skip silences. */
-    public final boolean skipSilence;
     /** The media time from which the playback parameters apply, in microseconds. */
     public final long mediaTimeUs;
     /** The audio track position from which the playback parameters apply, in microseconds. */
     public final long audioTrackPositionUs;
 
     private MediaPositionParameters(
-        PlaybackParameters playbackParameters,
-        boolean skipSilence,
-        long mediaTimeUs,
-        long audioTrackPositionUs) {
+        PlaybackParameters playbackParameters, long mediaTimeUs, long audioTrackPositionUs) {
       this.playbackParameters = playbackParameters;
-      this.skipSilence = skipSilence;
       this.mediaTimeUs = mediaTimeUs;
       this.audioTrackPositionUs = audioTrackPositionUs;
     }
