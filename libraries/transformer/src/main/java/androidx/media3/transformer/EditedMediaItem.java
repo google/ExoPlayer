@@ -28,7 +28,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link MediaItem} with the transformations to apply to it. */
 @UnstableApi
-public class EditedMediaItem {
+public final class EditedMediaItem {
 
   /** A builder for {@link EditedMediaItem} instances. */
   public static final class Builder {
