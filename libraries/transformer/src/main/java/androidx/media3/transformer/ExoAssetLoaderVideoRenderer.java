@@ -68,7 +68,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected void initDecoder(Format inputFormat) throws TransformationException {
     boolean isDecoderToneMappingRequired =
         ColorInfo.isTransferHdr(inputFormat.colorInfo)
-            && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedColorInfo());
+            && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedInputColorInfo());
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
