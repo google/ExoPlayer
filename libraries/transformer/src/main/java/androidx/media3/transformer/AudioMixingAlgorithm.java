@@ -76,7 +76,8 @@ import java.nio.ByteBuffer;
       case C.ENCODING_PCM_FLOAT:
         return new FloatAudioMixingAlgorithm(mixingAudioFormat);
       default:
-        throw new UnhandledAudioFormatException(mixingAudioFormat);
+        throw new UnhandledAudioFormatException(
+            "No supported mixing algorithm available.", mixingAudioFormat);
     }
   }
 }

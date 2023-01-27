@@ -101,11 +101,15 @@ public interface AudioProcessor {
     }
   }
 
-  /** Exception thrown when a processor can't be configured for a given input audio format. */
+  /** Exception thrown when the given {@link AudioFormat} can not be handled. */
   final class UnhandledAudioFormatException extends Exception {
 
     public UnhandledAudioFormatException(AudioFormat inputAudioFormat) {
-      super("Unhandled format: " + inputAudioFormat);
+      this("Unhandled input format:", inputAudioFormat);
+    }
+
+    public UnhandledAudioFormatException(String message, AudioFormat audioFormat) {
+      super(message + " " + audioFormat);
     }
   }
 
