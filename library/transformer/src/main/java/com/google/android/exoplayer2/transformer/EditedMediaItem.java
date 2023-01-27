@@ -26,7 +26,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link MediaItem} with the transformations to apply to it. */
-public class EditedMediaItem {
+public final class EditedMediaItem {
 
   /** A builder for {@link EditedMediaItem} instances. */
   public static final class Builder {
