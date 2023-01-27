@@ -20,9 +20,12 @@
         for seeking.
     *   Use theme when loading drawables on API 21+
         ([#220](https://github.com/androidx/media/issues/220)).
+*   Extractors:
     *   Throw a ParserException instead of a NullPointerException if the sample
         table (stbl) is missing a required sample description (stsd) when
         parsing trak atoms.
+    *   Correctly skip samples when seeking directly to a sync frame in fMP4
+        ([#10941](https://github.com/google/ExoPlayer/issues/10941)).
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
