@@ -197,6 +197,39 @@ public final class MergingMediaPeriodTest {
     assertThat(firstSelectionChild2).isEqualTo(secondSelectionChild2);
   }
 
+  // https://github.com/google/ExoPlayer/issues/10930
+  @Test
+  public void selectTracks_withIdenticalFormats_selectsMatchingPeriod() throws Exception {
+    MergingMediaPeriod mergingMediaPeriod =
+        prepareMergingPeriod(
+            new MergingPeriodDefinition(
+                /* timeOffsetUs= */ 0, /* singleSampleTimeUs= */ 123_000, childFormat11),
+            new MergingPeriodDefinition(
+                /* timeOffsetUs= */ -3000, /* singleSampleTimeUs= */ 456_000, childFormat11));
+
+    ExoTrackSelection[] selectionArray = {
+      new FixedTrackSelection(mergingMediaPeriod.getTrackGroups().get(1), /* track= */ 0)
+    };
+
+    SampleStream[] streams = new SampleStream[1];
+    mergingMediaPeriod.selectTracks(
+        selectionArray,
+        /* mayRetainStreamFlags= */ new boolean[2],
+        streams,
+        /* streamResetFlags= */ new boolean[2],
+        /* positionUs= */ 0);
+    mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
+
+    FormatHolder formatHolder = new FormatHolder();
+    DecoderInputBuffer inputBuffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    streams[0].readData(formatHolder, inputBuffer, FLAG_REQUIRE_FORMAT);
+
+    assertThat(streams[0].readData(formatHolder, inputBuffer, /* readFlags= */ 0))
+        .isEqualTo(C.RESULT_BUFFER_READ);
+    assertThat(inputBuffer.timeUs).isEqualTo(456_000 - 3000);
+  }
+
   private MergingMediaPeriod prepareMergingPeriod(MergingPeriodDefinition... definitions)
       throws Exception {
     MediaPeriod[] mediaPeriods = new MediaPeriod[definitions.length];

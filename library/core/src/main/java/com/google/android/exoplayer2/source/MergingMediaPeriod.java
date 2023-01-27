@@ -117,17 +117,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (int i = 0; i < selections.length; i++) {
       Integer streamChildIndex = streams[i] == null ? null : streamPeriodIndices.get(streams[i]);
       streamChildIndices[i] = streamChildIndex == null ? C.INDEX_UNSET : streamChildIndex;
-      selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
         TrackGroup mergedTrackGroup = selections[i].getTrackGroup();
-        TrackGroup childTrackGroup =
-            checkNotNull(childTrackGroupByMergedTrackGroup.get(mergedTrackGroup));
-        for (int j = 0; j < periods.length; j++) {
-          if (periods[j].getTrackGroups().indexOf(childTrackGroup) != C.INDEX_UNSET) {
-            selectionChildIndices[i] = j;
-            break;
-          }
-        }
+        // mergedTrackGroup.id is 'periods array index' + ":" + childTrackGroup.id
+        selectionChildIndices[i] =
+            Integer.parseInt(mergedTrackGroup.id.substring(0, mergedTrackGroup.id.indexOf(":")));
+      } else {
+        selectionChildIndices[i] = C.INDEX_UNSET;
       }
     }
     streamPeriodIndices.clear();
