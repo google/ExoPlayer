@@ -79,7 +79,7 @@ public interface SampleConsumer {
    *
    * <p>Should only be used for raw video data.
    */
-  default ColorInfo getExpectedColorInfo() {
+  default ColorInfo getExpectedInputColorInfo() {
     throw new UnsupportedOperationException();
   }
 

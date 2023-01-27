@@ -209,8 +209,8 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public ColorInfo getExpectedColorInfo() {
-      return sampleConsumer.getExpectedColorInfo();
+    public ColorInfo getExpectedInputColorInfo() {
+      return sampleConsumer.getExpectedInputColorInfo();
     }
 
     @Override

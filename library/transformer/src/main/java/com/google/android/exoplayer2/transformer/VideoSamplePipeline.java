@@ -218,7 +218,7 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public ColorInfo getExpectedColorInfo() {
+  public ColorInfo getExpectedInputColorInfo() {
     return frameProcessorInputColor;
   }
 
