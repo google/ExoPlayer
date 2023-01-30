@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
@@ -54,7 +53,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableMap;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** An {@link AssetLoader} implementation that uses an {@link ExoPlayer} to load samples. */
 public final class ExoPlayerAssetLoader implements AssetLoader {
@@ -66,10 +64,6 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     private final Codec.DecoderFactory decoderFactory;
     private final Clock clock;
     @Nullable private final MediaSource.Factory mediaSourceFactory;
-
-    private boolean removeAudio;
-    private boolean removeVideo;
-    private boolean flattenVideoForSlowMotion;
 
     /**
      * Creates an instance using a {@link DefaultMediaSourceFactory}.
@@ -110,51 +104,22 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     }
 
     @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
-      this.removeAudio = removeAudio;
-      return this;
-    }
-
-    @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
-      this.removeVideo = removeVideo;
-      return this;
-    }
-
-    @Override
-    @CanIgnoreReturnValue
-    public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
-      this.flattenVideoForSlowMotion = flattenVideoForSlowMotion;
-      return this;
-    }
-
-    @Override
-    public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
+    public AssetLoader createAssetLoader(
+        EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
       MediaSource.Factory mediaSourceFactory = this.mediaSourceFactory;
       if (mediaSourceFactory == null) {
         DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-        if (flattenVideoForSlowMotion) {
+        if (editedMediaItem.flattenForSlowMotion) {
           defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
         }
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
       return new ExoPlayerAssetLoader(
-          context,
-          mediaItem,
-          removeAudio,
-          removeVideo,
-          flattenVideoForSlowMotion,
-          mediaSourceFactory,
-          decoderFactory,
-          looper,
-          listener,
-          clock);
+          context, editedMediaItem, mediaSourceFactory, decoderFactory, looper, listener, clock);
     }
   }
 
-  private final MediaItem mediaItem;
+  private final EditedMediaItem editedMediaItem;
   private final CapturingDecoderFactory decoderFactory;
   private final ExoPlayer player;
 
@@ -162,16 +127,13 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
   private ExoPlayerAssetLoader(
       Context context,
-      MediaItem mediaItem,
-      boolean removeAudio,
-      boolean removeVideo,
-      boolean flattenForSlowMotion,
+      EditedMediaItem editedMediaItem,
       MediaSource.Factory mediaSourceFactory,
       Codec.DecoderFactory decoderFactory,
       Looper looper,
       Listener listener,
       Clock clock) {
-    this.mediaItem = mediaItem;
+    this.editedMediaItem = editedMediaItem;
     this.decoderFactory = new CapturingDecoderFactory(decoderFactory);
 
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
@@ -193,7 +155,11 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
         new ExoPlayer.Builder(
                 context,
                 new RenderersFactoryImpl(
-                    removeAudio, removeVideo, flattenForSlowMotion, this.decoderFactory, listener))
+                    editedMediaItem.removeAudio,
+                    editedMediaItem.removeVideo,
+                    editedMediaItem.flattenForSlowMotion,
+                    this.decoderFactory,
+                    listener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -212,7 +178,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
   @Override
   public void start() {
-    player.setMediaItem(mediaItem);
+    player.setMediaItem(editedMediaItem.mediaItem);
     player.prepare();
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
   }

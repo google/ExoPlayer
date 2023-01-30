@@ -18,10 +18,8 @@ package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
 import android.os.Looper;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** The default {@link AssetLoader.Factory} implementation. */
 public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
@@ -63,27 +61,8 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   }
 
   @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
-    return assetLoaderFactory.setRemoveAudio(removeAudio);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
-    return assetLoaderFactory.setRemoveVideo(removeVideo);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
-    assetLoaderFactory.setFlattenVideoForSlowMotion(flattenVideoForSlowMotion);
-    return this;
-  }
-
-  @Override
   public AssetLoader createAssetLoader(
-      MediaItem mediaItem, Looper looper, AssetLoader.Listener listener) {
-    return assetLoaderFactory.createAssetLoader(mediaItem, looper, listener);
+      EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
+    return assetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
   }
 }
