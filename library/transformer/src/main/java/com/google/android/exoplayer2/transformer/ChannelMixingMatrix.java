@@ -49,6 +49,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
   private final float[] coefficients;
   private final boolean isZero;
   private final boolean isDiagonal;
+  private final boolean isIdentity;
 
   /**
    * Creates a standard channel mixing matrix that converts from {@code inputChannelCount} channels
@@ -71,31 +72,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
         createMixingCoefficients(inputChannelCount, outputChannelCount));
   }
 
-  private static float[] createMixingCoefficients(int inputChannelCount, int outputChannelCount) {
-    if (inputChannelCount == outputChannelCount) {
-      int channelCount = inputChannelCount;
-      float[] coefficients = new float[channelCount * channelCount];
-      for (int c = 0; c < channelCount; c++) {
-        coefficients[channelCount * c + c] = 1f;
-      }
-      return coefficients;
-    }
-    if (inputChannelCount == 1 && outputChannelCount == 2) {
-      // Mono -> stereo.
-      return new float[] {1f, 1f};
-    }
-    if (inputChannelCount == 2 && outputChannelCount == 1) {
-      // Stereo -> mono.
-      return new float[] {0.5f, 0.5f};
-    }
-    throw new UnsupportedOperationException(
-        "Default channel mixing coefficients for "
-            + inputChannelCount
-            + "->"
-            + outputChannelCount
-            + " are not yet implemented.");
-  }
-
   /**
    * Creates a matrix with the given coefficients in row-major order.
    *
@@ -114,20 +90,28 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
     this.coefficients = checkCoefficientsValid(coefficients);
 
     // Calculate matrix properties.
-    boolean hasNonZero = false;
-    boolean hasNonZeroOutOfDiagonal = false;
-    for (int i = 0; i < inputChannelCount; i++) {
-      for (int o = 0; o < outputChannelCount; o++) {
-        if (getMixingCoefficient(i, o) != 0f) {
-          hasNonZero = true;
-          if (i != o) {
-            hasNonZeroOutOfDiagonal = true;
+    boolean allDiagonalCoefficientsAreOne = true;
+    boolean allCoefficientsAreZero = true;
+    boolean allNonDiagonalCoefficientsAreZero = true;
+    for (int row = 0; row < inputChannelCount; row++) {
+      for (int col = 0; col < outputChannelCount; col++) {
+        float coefficient = getMixingCoefficient(row, col);
+        boolean onDiagonal = row == col;
+
+        if (coefficient != 1f && onDiagonal) {
+          allDiagonalCoefficientsAreOne = false;
+        }
+        if (coefficient != 0f) {
+          allCoefficientsAreZero = false;
+          if (!onDiagonal) {
+            allNonDiagonalCoefficientsAreZero = false;
           }
         }
       }
     }
-    isZero = !hasNonZero;
-    isDiagonal = isSquare() && !hasNonZeroOutOfDiagonal;
+    isZero = allCoefficientsAreZero;
+    isDiagonal = isSquare() && allNonDiagonalCoefficientsAreZero;
+    isIdentity = isDiagonal && allDiagonalCoefficientsAreOne;
   }
 
   public int getInputChannelCount() {
@@ -158,6 +142,11 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
     return isDiagonal;
   }
 
+  /** Returns whether this is an identity matrix. */
+  public boolean isIdentity() {
+    return isIdentity;
+  }
+
   /** Returns a new matrix with the given scaling factor applied to all coefficients. */
   public ChannelMixingMatrix scaleBy(float scale) {
     float[] scaledCoefficients = new float[coefficients.length];
@@ -165,6 +154,34 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
       scaledCoefficients[i] = scale * coefficients[i];
     }
     return new ChannelMixingMatrix(inputChannelCount, outputChannelCount, scaledCoefficients);
+  }
+
+  private static float[] createMixingCoefficients(int inputChannelCount, int outputChannelCount) {
+    if (inputChannelCount == outputChannelCount) {
+      return initializeIdentityMatrix(outputChannelCount);
+    }
+    if (inputChannelCount == 1 && outputChannelCount == 2) {
+      // Mono -> stereo.
+      return new float[] {1f, 1f};
+    }
+    if (inputChannelCount == 2 && outputChannelCount == 1) {
+      // Stereo -> mono.
+      return new float[] {0.5f, 0.5f};
+    }
+    throw new UnsupportedOperationException(
+        "Default channel mixing coefficients for "
+            + inputChannelCount
+            + "->"
+            + outputChannelCount
+            + " are not yet implemented.");
+  }
+
+  private static float[] initializeIdentityMatrix(int channelCount) {
+    float[] coefficients = new float[channelCount * channelCount];
+    for (int c = 0; c < channelCount; c++) {
+      coefficients[channelCount * c + c] = 1f;
+    }
+    return coefficients;
   }
 
   private static float[] checkCoefficientsValid(float[] coefficients) {

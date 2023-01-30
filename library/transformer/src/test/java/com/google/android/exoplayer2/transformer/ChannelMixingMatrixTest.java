@@ -26,6 +26,51 @@ import org.junit.runner.RunWith;
 public class ChannelMixingMatrixTest {
 
   @Test
+  public void onesOnDiagonal_1To1_hasCorrectProperties() {
+    int inputCount = 1;
+    int outputCount = 1;
+    float[] coefficients = new float[] {1f};
+    ChannelMixingMatrix matrix = new ChannelMixingMatrix(inputCount, outputCount, coefficients);
+    assertThat(matrix.isZero()).isFalse();
+    assertThat(matrix.isSquare()).isTrue();
+    assertThat(matrix.isDiagonal()).isTrue();
+    assertThat(matrix.isIdentity()).isTrue();
+  }
+
+  @Test
+  public void onesOnDiagonal_2To3_hasCorrectProperties() {
+    int inputCount = 2;
+    int outputCount = 3;
+    float[] coefficients =
+        new float[] {
+          1f, 0f, 0f,
+          0f, 1f, 0f,
+        };
+    ChannelMixingMatrix matrix = new ChannelMixingMatrix(inputCount, outputCount, coefficients);
+    assertThat(matrix.isZero()).isFalse();
+    assertThat(matrix.isSquare()).isFalse();
+    assertThat(matrix.isDiagonal()).isFalse();
+    assertThat(matrix.isIdentity()).isFalse();
+  }
+
+  @Test
+  public void onesOnDiagonal_3To3_hasCorrectProperties() {
+    int inputCount = 3;
+    int outputCount = 3;
+    float[] coefficients =
+        new float[] {
+          1f, 0f, 0f,
+          0f, 1f, 0f,
+          0f, 0f, 1f
+        };
+    ChannelMixingMatrix matrix = new ChannelMixingMatrix(inputCount, outputCount, coefficients);
+    assertThat(matrix.isZero()).isFalse();
+    assertThat(matrix.isSquare()).isTrue();
+    assertThat(matrix.isDiagonal()).isTrue();
+    assertThat(matrix.isIdentity()).isTrue();
+  }
+
+  @Test
   public void allZeroValues_3To2_hasCorrectProperties() {
     int inputCount = 3;
     int outputCount = 2;
@@ -40,6 +85,7 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isTrue();
     assertThat(matrix.isSquare()).isFalse();
     assertThat(matrix.isDiagonal()).isFalse();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 
   @Test
@@ -57,6 +103,7 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isTrue();
     assertThat(matrix.isSquare()).isTrue();
     assertThat(matrix.isDiagonal()).isTrue();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 
   @Test
@@ -74,6 +121,7 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isTrue();
     assertThat(matrix.isSquare()).isFalse();
     assertThat(matrix.isDiagonal()).isFalse();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 
   @Test
@@ -91,6 +139,7 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isFalse();
     assertThat(matrix.isSquare()).isFalse();
     assertThat(matrix.isDiagonal()).isFalse();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 
   @Test
@@ -107,6 +156,7 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isFalse();
     assertThat(matrix.isSquare()).isTrue();
     assertThat(matrix.isDiagonal()).isFalse();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 
   @Test
@@ -125,6 +175,7 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isFalse();
     assertThat(matrix.isSquare()).isTrue();
     assertThat(matrix.isDiagonal()).isTrue();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 
   @Test
@@ -141,5 +192,6 @@ public class ChannelMixingMatrixTest {
     assertThat(matrix.isZero()).isFalse();
     assertThat(matrix.isSquare()).isFalse();
     assertThat(matrix.isDiagonal()).isFalse();
+    assertThat(matrix.isIdentity()).isFalse();
   }
 }
