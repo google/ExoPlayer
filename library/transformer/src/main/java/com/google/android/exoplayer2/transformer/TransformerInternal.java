@@ -28,7 +28,6 @@ import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -113,8 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public TransformerInternal(
       Context context,
       EditedMediaItem editedMediaItem,
-      @Nullable String outputPath,
-      @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
+      String outputPath,
       TransformationRequest transformationRequest,
       boolean generateSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
@@ -144,8 +142,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             .setFlattenVideoForSlowMotion(editedMediaItem.flattenForSlowMotion)
             .createAssetLoader(editedMediaItem.mediaItem, internalLooper, componentListener);
     samplePipelines = new ArrayList<>();
-    muxerWrapper =
-        new MuxerWrapper(outputPath, outputParcelFileDescriptor, muxerFactory, componentListener);
+    muxerWrapper = new MuxerWrapper(outputPath, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();
     transformationResultBuilder = new TransformationResult.Builder();
     // It's safe to use "this" because we don't send a message before exiting the constructor.

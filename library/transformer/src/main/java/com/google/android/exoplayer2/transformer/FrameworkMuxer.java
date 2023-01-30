@@ -24,9 +24,7 @@ import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
-import android.os.ParcelFileDescriptor;
 import android.util.SparseLongArray;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
@@ -69,21 +67,6 @@ import java.nio.ByteBuffer;
       MediaMuxer mediaMuxer;
       try {
         mediaMuxer = new MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-      } catch (IOException e) {
-        throw new MuxerException("Error creating muxer", e);
-      }
-      return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs, videoDurationMs);
-    }
-
-    @RequiresApi(26)
-    @Override
-    public FrameworkMuxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException {
-      MediaMuxer mediaMuxer;
-      try {
-        mediaMuxer =
-            new MediaMuxer(
-                parcelFileDescriptor.getFileDescriptor(),
-                MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
       } catch (IOException e) {
         throw new MuxerException("Error creating muxer", e);
       }

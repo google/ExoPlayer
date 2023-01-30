@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import android.os.ParcelFileDescriptor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.common.collect.ImmutableList;
@@ -63,11 +62,6 @@ public final class DefaultMuxer implements Muxer {
     @Override
     public Muxer create(String path) throws MuxerException {
       return new DefaultMuxer(muxerFactory.create(path));
-    }
-
-    @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException {
-      return new DefaultMuxer(muxerFactory.create(parcelFileDescriptor));
     }
 
     @Override

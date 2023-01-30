@@ -21,10 +21,8 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.os.Looper;
-import android.os.ParcelFileDescriptor;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -149,8 +147,8 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@linkplain AudioProcessor audio processors} in an {@link
-     *     EditedMediaItem}, and pass it to {@link #startTransformation(EditedMediaItem, String)} or
-     *     {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+     *     EditedMediaItem}, and pass it to {@link #startTransformation(EditedMediaItem, String)}
+     *     instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -161,8 +159,7 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@linkplain Effect video effects} in an {@link EditedMediaItem}, and pass
-     *     it to {@link #startTransformation(EditedMediaItem, String)} or {@link
-     *     #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+     *     it to {@link #startTransformation(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -174,7 +171,7 @@ public final class Transformer {
     /**
      * @deprecated Use {@link EditedMediaItem.Builder#setRemoveAudio(boolean)} to remove the audio
      *     from the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
-     *     String)} or {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+     *     String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -186,7 +183,7 @@ public final class Transformer {
     /**
      * @deprecated Use {@link EditedMediaItem.Builder#setRemoveVideo(boolean)} to remove the video
      *     from the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
-     *     String)} or {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+     *     String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -198,7 +195,7 @@ public final class Transformer {
     /**
      * @deprecated Use {@link EditedMediaItem.Builder#setFlattenForSlowMotion(boolean)} to flatten
      *     the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
-     *     String)} or {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+     *     String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -277,8 +274,7 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@link FrameProcessor.Factory} in an {@link EditedMediaItem}, and pass it
-     *     to {@link #startTransformation(EditedMediaItem, String)} or {@link
-     *     #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
+     *     to {@link #startTransformation(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -671,42 +667,7 @@ public final class Transformer {
    * @throws IllegalStateException If a transformation is already in progress.
    */
   public void startTransformation(EditedMediaItem editedMediaItem, String path) {
-    startTransformationInternal(editedMediaItem, path, /* parcelFileDescriptor= */ null);
-  }
-
-  /**
-   * Starts an asynchronous operation to transform the given {@link MediaItem}.
-   *
-   * <p>The transformation state is notified through the {@linkplain Builder#addListener(Listener)
-   * listener}.
-   *
-   * <p>Concurrent transformations on the same Transformer object are not allowed.
-   *
-   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
-   *
-   * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
-   * highest bitrate video and audio streams are selected.
-   *
-   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
-   * swapped if the height is larger than the width. This is to improve compatibility among
-   * different device encoders.
-   *
-   * @param editedMediaItem The {@link MediaItem} to transform, with the transformations to apply to
-   *     it.
-   * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
-   *     The file referenced by this ParcelFileDescriptor should not be used before the
-   *     transformation is completed. It is the responsibility of the caller to close the
-   *     ParcelFileDescriptor. This can be done after this method returns.
-   * @throws IllegalArgumentException If the file descriptor is invalid.
-   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
-   * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws IllegalStateException If a transformation is already in progress.
-   */
-  @RequiresApi(26)
-  public void startTransformation(
-      EditedMediaItem editedMediaItem, ParcelFileDescriptor parcelFileDescriptor) {
-    startTransformationInternal(editedMediaItem, /* path= */ null, parcelFileDescriptor);
+    startTransformationInternal(editedMediaItem, path);
   }
 
   /**
@@ -726,34 +687,10 @@ public final class Transformer {
             .setFlattenForSlowMotion(flattenForSlowMotion)
             .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
             .build();
-    startTransformationInternal(editedMediaItem, path, /* parcelFileDescriptor= */ null);
+    startTransformationInternal(editedMediaItem, path);
   }
 
-  /**
-   * @deprecated Use {@link #startTransformation(EditedMediaItem, ParcelFileDescriptor)} instead.
-   */
-  @Deprecated
-  @RequiresApi(26)
-  public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor) {
-    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && flattenForSlowMotion) {
-      throw new IllegalArgumentException(
-          "Clipping is not supported when slow motion flattening is requested");
-    }
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem)
-            .setRemoveAudio(removeAudio)
-            .setRemoveVideo(removeVideo)
-            .setFlattenForSlowMotion(flattenForSlowMotion)
-            .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
-            .build();
-    startTransformationInternal(editedMediaItem, /* path= */ null, parcelFileDescriptor);
-  }
-
-  private void startTransformationInternal(
-      EditedMediaItem editedMediaItem,
-      @Nullable String path,
-      @Nullable ParcelFileDescriptor parcelFileDescriptor) {
+  private void startTransformationInternal(EditedMediaItem editedMediaItem, String path) {
     verifyApplicationThread();
     if (transformerInternal != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
@@ -769,7 +706,6 @@ public final class Transformer {
             context,
             editedMediaItem,
             path,
-            parcelFileDescriptor,
             transformationRequest,
             generateSilentAudio,
             assetLoaderFactory,

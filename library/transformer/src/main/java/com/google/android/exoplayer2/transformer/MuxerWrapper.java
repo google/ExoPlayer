@@ -23,7 +23,6 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import android.os.ParcelFileDescriptor;
 import android.util.SparseArray;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
@@ -65,8 +64,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private static final long MAX_TRACK_WRITE_AHEAD_US = Util.msToUs(500);
 
-  @Nullable private final String outputPath;
-  @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
+  private final String outputPath;
   private final Muxer.Factory muxerFactory;
   private final Listener listener;
   private final SparseArray<TrackInfo> trackTypeToInfo;
@@ -82,17 +80,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isAborted;
   private @MonotonicNonNull Muxer muxer;
 
-  public MuxerWrapper(
-      @Nullable String outputPath,
-      @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
-      Muxer.Factory muxerFactory,
-      Listener listener) {
-    if (outputPath == null && outputParcelFileDescriptor == null) {
-      throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
-    }
-
+  public MuxerWrapper(String outputPath, Muxer.Factory muxerFactory, Listener listener) {
     this.outputPath = outputPath;
-    this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
     this.listener = listener;
 
@@ -302,25 +291,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @EnsuresNonNull("muxer")
   private void ensureMuxerInitialized() throws Muxer.MuxerException {
     if (muxer == null) {
-      if (outputPath != null) {
-        muxer = muxerFactory.create(outputPath);
-      } else {
-        checkNotNull(outputParcelFileDescriptor);
-        muxer = muxerFactory.create(outputParcelFileDescriptor);
-      }
+      muxer = muxerFactory.create(outputPath);
     }
   }
 
   /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
   private long getCurrentOutputSizeBytes() {
-    long fileSize = C.LENGTH_UNSET;
-
-    if (outputPath != null) {
-      fileSize = new File(outputPath).length();
-    } else if (outputParcelFileDescriptor != null) {
-      fileSize = outputParcelFileDescriptor.getStatSize();
-    }
-
+    long fileSize = new File(outputPath).length();
     return fileSize > 0 ? fileSize : C.LENGTH_UNSET;
   }
 
