@@ -476,7 +476,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final ConditionVariable releasingConditionVariable;
   private final AudioTrackPositionTracker audioTrackPositionTracker;
   private final ArrayDeque<MediaPositionParameters> mediaPositionParametersCheckpoints;
-  private final boolean enableAudioTrackPlaybackParams;
+  private final boolean preferAudioTrackPlaybackParams;
   private final @OffloadMode int offloadMode;
   private @MonotonicNonNull StreamEventCallbackV29 offloadStreamEventCallbackV29;
   private final PendingExceptionHolder<InitializationException>
@@ -535,7 +535,7 @@ public final class DefaultAudioSink implements AudioSink {
     audioCapabilities = builder.audioCapabilities;
     audioProcessorChain = builder.audioProcessorChain;
     enableFloatOutput = Util.SDK_INT >= 21 && builder.enableFloatOutput;
-    enableAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
+    preferAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
     offloadMode = Util.SDK_INT >= 29 ? builder.offloadMode : OFFLOAD_MODE_DISABLED;
     audioTrackBufferSizeProvider = builder.audioTrackBufferSizeProvider;
     releasingConditionVariable = new ConditionVariable(Clock.DEFAULT);
@@ -625,6 +625,7 @@ public final class DefaultAudioSink implements AudioSink {
     int outputSampleRate;
     int outputChannelConfig;
     int outputPcmFrameSize;
+    boolean enableAudioTrackPlaybackParams;
 
     if (MimeTypes.AUDIO_RAW.equals(inputFormat.sampleMimeType)) {
       Assertions.checkArgument(Util.isEncodingLinearPcm(inputFormat.pcmEncoding));
@@ -673,6 +674,7 @@ public final class DefaultAudioSink implements AudioSink {
       outputSampleRate = outputFormat.sampleRate;
       outputChannelConfig = Util.getAudioTrackChannelConfig(outputFormat.channelCount);
       outputPcmFrameSize = Util.getPcmFrameSize(outputEncoding, outputFormat.channelCount);
+      enableAudioTrackPlaybackParams = preferAudioTrackPlaybackParams;
     } else {
       // Audio processing is not supported in offload or passthrough mode.
       audioProcessingPipeline = new AudioProcessingPipeline(ImmutableList.of());
@@ -684,6 +686,8 @@ public final class DefaultAudioSink implements AudioSink {
         outputEncoding =
             MimeTypes.getEncoding(checkNotNull(inputFormat.sampleMimeType), inputFormat.codecs);
         outputChannelConfig = Util.getAudioTrackChannelConfig(inputFormat.channelCount);
+        // Offload requires AudioTrack playback parameters to apply speed changes quickly.
+        enableAudioTrackPlaybackParams = true;
       } else {
         outputMode = OUTPUT_MODE_PASSTHROUGH;
         @Nullable
@@ -695,6 +699,9 @@ public final class DefaultAudioSink implements AudioSink {
         }
         outputEncoding = encodingAndChannelConfig.first;
         outputChannelConfig = encodingAndChannelConfig.second;
+        // Passthrough only supports AudioTrack playback parameters, but we only enable it this was
+        // specifically requested by the app.
+        enableAudioTrackPlaybackParams = preferAudioTrackPlaybackParams;
       }
     }
 
@@ -730,7 +737,8 @@ public final class DefaultAudioSink implements AudioSink {
             outputChannelConfig,
             outputEncoding,
             bufferSize,
-            audioProcessingPipeline);
+            audioProcessingPipeline,
+            enableAudioTrackPlaybackParams);
     if (isAudioTrackInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
     } else {
@@ -1525,12 +1533,14 @@ public final class DefaultAudioSink implements AudioSink {
     //   would require decoding/re-encoding; and
     // - when outputting float PCM audio, because SonicAudioProcessor outputs 16-bit integer PCM.
     return !tunneling
-        && MimeTypes.AUDIO_RAW.equals(configuration.inputFormat.sampleMimeType)
+        && configuration.outputMode == OUTPUT_MODE_PCM
         && !shouldUseFloatOutput(configuration.inputFormat.pcmEncoding);
   }
 
   private boolean useAudioTrackPlaybackParams() {
-    return configuration != null && enableAudioTrackPlaybackParams && Util.SDK_INT >= 23;
+    return configuration != null
+        && configuration.enableAudioTrackPlaybackParams
+        && Util.SDK_INT >= 23;
   }
 
   /**
@@ -1968,6 +1978,7 @@ public final class DefaultAudioSink implements AudioSink {
     public final @C.Encoding int outputEncoding;
     public final int bufferSize;
     public final AudioProcessingPipeline audioProcessingPipeline;
+    public final boolean enableAudioTrackPlaybackParams;
 
     public Configuration(
         Format inputFormat,
@@ -1978,7 +1989,8 @@ public final class DefaultAudioSink implements AudioSink {
         int outputChannelConfig,
         int outputEncoding,
         int bufferSize,
-        AudioProcessingPipeline audioProcessingPipeline) {
+        AudioProcessingPipeline audioProcessingPipeline,
+        boolean enableAudioTrackPlaybackParams) {
       this.inputFormat = inputFormat;
       this.inputPcmFrameSize = inputPcmFrameSize;
       this.outputMode = outputMode;
@@ -1988,6 +2000,7 @@ public final class DefaultAudioSink implements AudioSink {
       this.outputEncoding = outputEncoding;
       this.bufferSize = bufferSize;
       this.audioProcessingPipeline = audioProcessingPipeline;
+      this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
     }
 
     public Configuration copyWithBufferSize(int bufferSize) {
@@ -2000,16 +2013,18 @@ public final class DefaultAudioSink implements AudioSink {
           outputChannelConfig,
           outputEncoding,
           bufferSize,
-          audioProcessingPipeline);
+          audioProcessingPipeline,
+          enableAudioTrackPlaybackParams);
     }
 
     /** Returns if the configurations are sufficiently compatible to reuse the audio track. */
-    public boolean canReuseAudioTrack(Configuration audioTrackConfiguration) {
-      return audioTrackConfiguration.outputMode == outputMode
-          && audioTrackConfiguration.outputEncoding == outputEncoding
-          && audioTrackConfiguration.outputSampleRate == outputSampleRate
-          && audioTrackConfiguration.outputChannelConfig == outputChannelConfig
-          && audioTrackConfiguration.outputPcmFrameSize == outputPcmFrameSize;
+    public boolean canReuseAudioTrack(Configuration newConfiguration) {
+      return newConfiguration.outputMode == outputMode
+          && newConfiguration.outputEncoding == outputEncoding
+          && newConfiguration.outputSampleRate == outputSampleRate
+          && newConfiguration.outputChannelConfig == outputChannelConfig
+          && newConfiguration.outputPcmFrameSize == outputPcmFrameSize
+          && newConfiguration.enableAudioTrackPlaybackParams == enableAudioTrackPlaybackParams;
     }
 
     public long inputFramesToDurationUs(long frameCount) {
