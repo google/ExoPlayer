@@ -25,8 +25,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.Size;
@@ -36,7 +34,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -75,21 +72,9 @@ public final class GlEffectsFrameProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/increase_brightness.png";
   public static final String GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/grayscale_then_increase_red_channel.png";
-  // This file is generated on a Pixel 7, because the emulator isn't able to decode HLG to generate
-  // this file.
-  public static final String TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_hlg_to_sdr.png";
-  // This file is generated on a Pixel 7, because the emulator isn't able to decode PQ to generate
-  // this file.
-  public static final String TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_pq_to_sdr.png";
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_SDR_MP4_ASSET_STRING = "media/mp4/sample.mp4";
-  /** Input HLG video of which we only use the first frame. */
-  private static final String INPUT_HLG_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
-  /** Input PQ video of which we only use the first frame. */
-  private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-1080p.mp4";
 
   private @MonotonicNonNull FrameProcessorTestRunner frameProcessorTestRunner;
 
@@ -445,76 +430,11 @@ public final class GlEffectsFrameProcessorPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  @Test
-  @Ignore("b/261877288 Test can only run on physical devices because decoder can't decode HLG.")
-  public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
-    // TODO(b/239735341): Move this test to mobileharness testing.
-    String testId = "toneMap_hlgFrame_matchesGoldenFile";
-    ColorInfo hlgColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT2020)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_HLG)
-            .build();
-    ColorInfo toneMapSdrColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT709)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
-            .build();
-    frameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
-            .setInputColorInfo(hlgColor)
-            .setOutputColorInfo(toneMapSdrColor)
-            .build();
-    Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
-
-    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
-
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  @Test
-  @Ignore("b/261877288 Test can only run on physical devices because decoder can't decode PQ.")
-  public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
-    // TODO(b/239735341): Move this test to mobileharness testing.
-    String testId = "toneMap_pqFrame_matchesGoldenFile";
-    ColorInfo pqColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT2020)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_ST2084)
-            .build();
-    ColorInfo toneMapSdrColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT709)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
-            .build();
-    frameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
-            .setInputColorInfo(pqColor)
-            .setOutputColorInfo(toneMapSdrColor)
-            .build();
-    Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
-
-    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
-
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
   // TODO(b/227624622): Add a test for HDR input after BitmapPixelTestUtil can read HDR bitmaps,
   //  using GlEffectWrapper to ensure usage of intermediate textures.
 
-  public FrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(String testId) {
+  private FrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
+      String testId) {
     return new FrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setFrameProcessorFactory(new GlEffectsFrameProcessor.Factory())
