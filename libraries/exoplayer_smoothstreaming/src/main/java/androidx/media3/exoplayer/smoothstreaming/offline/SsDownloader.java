@@ -93,7 +93,29 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
             .build(),
         new SsManifestParser(),
         cacheDataSourceFactory,
-        executor);
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_US
+    );
+  }
+
+  /**
+   * @deprecated Use {@link SsDownloader#SsDownloader(MediaItem, Parser,
+   * CacheDataSource.Factory, Executor, long)} instead.
+   */
+  @Deprecated
+  public SsDownloader(
+      MediaItem mediaItem,
+      Parser<SsManifest> manifestParser,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor
+  ) {
+    super(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_US
+    );
   }
 
   /**
@@ -106,13 +128,24 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
    *     Providing an {@link Executor} that uses multiple threads will speed up the download by
    *     allowing parts of it to be executed in parallel.
+   * @param maxMergedSegmentStartTimeDiffMs The maximum difference of the start time of two segments,
+   *     up to which the segments (of the same URI) should be merged into a single download segment,
+   *     in milliseconds.
    */
   public SsDownloader(
       MediaItem mediaItem,
       Parser<SsManifest> manifestParser,
       CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    super(mediaItem, manifestParser, cacheDataSourceFactory, executor);
+      Executor executor,
+      long maxMergedSegmentStartTimeDiffMs
+  ) {
+    super(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        maxMergedSegmentStartTimeDiffMs
+    );
   }
 
   @Override
