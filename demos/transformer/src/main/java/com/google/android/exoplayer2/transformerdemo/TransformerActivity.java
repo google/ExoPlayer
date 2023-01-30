@@ -738,9 +738,9 @@ public final class TransformerActivity extends AppCompatActivity {
 
       // Update the UI on the main thread and wait for the output surface to be available.
       CountDownLatch surfaceCreatedCountDownLatch = new CountDownLatch(1);
-      SurfaceView surfaceView = new SurfaceView(/* context= */ TransformerActivity.this);
       runOnUiThread(
           () -> {
+            surfaceView = new SurfaceView(/* context= */ TransformerActivity.this);
             AspectRatioFrameLayout debugFrame = checkNotNull(TransformerActivity.this.debugFrame);
             debugFrame.addView(surfaceView);
             debugFrame.setAspectRatio((float) width / height);
@@ -772,7 +772,6 @@ public final class TransformerActivity extends AppCompatActivity {
         Thread.currentThread().interrupt();
         return null;
       }
-      this.surfaceView = surfaceView;
       return surfaceView;
     }
   }
