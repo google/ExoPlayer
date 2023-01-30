@@ -73,6 +73,8 @@
         Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
         `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
         instead.
+    *   Remove `Transformer.startTransformation(MediaItem,
+        ParcelFileDescriptor)`.
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.

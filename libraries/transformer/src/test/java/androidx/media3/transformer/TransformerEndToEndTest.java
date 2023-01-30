@@ -39,7 +39,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -1137,12 +1136,6 @@ public final class TransformerEndToEndTest {
     @Override
     public Muxer create(String path) throws Muxer.MuxerException {
       testMuxer = new TestMuxer(path, defaultMuxerFactory);
-      return testMuxer;
-    }
-
-    @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws Muxer.MuxerException {
-      testMuxer = new TestMuxer("FD:" + parcelFileDescriptor.getFd(), defaultMuxerFactory);
       return testMuxer;
     }
 

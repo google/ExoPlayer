@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer;
 
-import android.os.ParcelFileDescriptor;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -58,18 +57,6 @@ public interface Muxer {
      * @throws MuxerException If an error occurs opening the output file for writing.
      */
     Muxer create(String path) throws MuxerException;
-
-    /**
-     * Returns a new muxer writing to a file descriptor.
-     *
-     * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the
-     *     output. The file referenced by this ParcelFileDescriptor should not be used before the
-     *     muxer is released. It is the responsibility of the caller to close the
-     *     ParcelFileDescriptor. This can be done after this method returns.
-     * @throws IllegalArgumentException If the file descriptor is invalid.
-     * @throws MuxerException If an error occurs opening the output file descriptor for writing.
-     */
-    Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException;
 
     /**
      * Returns the supported sample {@linkplain MimeTypes MIME types} for the given {@link
