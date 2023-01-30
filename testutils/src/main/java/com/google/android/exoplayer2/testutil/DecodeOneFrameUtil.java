@@ -20,20 +20,27 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.round;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
+import android.media.MediaCodecList;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.view.Surface;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Utilities for decoding a frame for tests. */
 public class DecodeOneFrameUtil {
+  public static final String NO_DECODER_SUPPORT_ERROR_STRING =
+      "No MediaCodec decoders on this device support this value.";
 
   /** Listener for decoding events. */
   public interface Listener {
@@ -124,9 +131,13 @@ public class DecodeOneFrameUtil {
       }
 
       checkStateNotNull(mediaFormat);
+      if (!isSupportedByDecoder(mediaFormat)) {
+        throw new UnsupportedOperationException(NO_DECODER_SUPPORT_ERROR_STRING);
+      }
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaCodec = MediaCodec.createDecoderByType(mimeType);
+
       mediaCodec.configure(mediaFormat, surface, /* crypto= */ null, /* flags= */ 0);
       mediaCodec.start();
       int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
@@ -169,6 +180,39 @@ public class DecodeOneFrameUtil {
         mediaCodec.release();
       }
     }
+  }
+
+  /**
+   * Returns whether a decoder supports this {@link MediaFormat}.
+   *
+   * <p>Capability check is similar to
+   * com.google.android.exoplayer2.transformer.EncoderUtil.java#findCodecForFormat().
+   */
+  private static boolean isSupportedByDecoder(MediaFormat format) {
+    if (Util.SDK_INT < 21) {
+      throw new UnsupportedOperationException("Unable to detect decoder support under API 21.");
+    }
+    // TODO(b/266923205): De-duplicate logic from EncoderUtil.java#findCodecForFormat().
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+    // Format must not include KEY_FRAME_RATE on API21.
+    // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
+    float frameRate = Format.NO_VALUE;
+    if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+      try {
+        frameRate = format.getFloat(MediaFormat.KEY_FRAME_RATE);
+      } catch (ClassCastException e) {
+        frameRate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
+      }
+      // Clears the frame rate field.
+      format.setString(MediaFormat.KEY_FRAME_RATE, null);
+    }
+
+    @Nullable String mediaCodecName = mediaCodecList.findDecoderForFormat(format);
+
+    if (Util.SDK_INT == 21) {
+      MediaFormatUtil.maybeSetInteger(format, MediaFormat.KEY_FRAME_RATE, round(frameRate));
+    }
+    return mediaCodecName != null;
   }
 
   private DecodeOneFrameUtil() {}
