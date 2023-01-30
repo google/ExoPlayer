@@ -1779,6 +1779,269 @@ public class MediaControllerWithMediaSessionCompatTest {
     assertThat(totalBufferedDurationMs).isEqualTo(testTotalBufferedDurationMs);
   }
 
+  @Test
+  public void prepare_empty_correctInitializationState() throws Exception {
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+
+    // Assert the constructed timeline and start index after connecting to an empty session.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(0);
+    assertThat(currentMediaItemIndex).isEqualTo(0);
+  }
+
+  @Test
+  public void prepare_withMetadata_callsPrepareFromMediaId() throws Exception {
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    session.setMetadata(
+        new MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "mediaItem_2")
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "Title")
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Subtitle")
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "Artist")
+            .build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)) {
+              countDownLatch.countDown();
+            }
+          }
+        });
+
+    // Assert the constructed timeline and start index for preparation.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(1);
+    assertThat(currentMediaItemIndex).isEqualTo(0);
+
+    threadTestRule.getHandler().postAndSync(controller::prepare);
+
+    // Assert whether the correct preparation method has been called and received by the session.
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    int callbackMethodCount =
+        session.getCallbackMethodCount(
+            MediaSessionCompatProviderService.METHOD_ON_PREPARE_FROM_MEDIA_ID);
+    assertThat(callbackMethodCount).isEqualTo(1);
+  }
+
+  @Test
+  public void prepare_withMetadataAndActiveQueueItemId_callsPrepareFromMediaId() throws Exception {
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setActiveQueueItemId(4)
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    session.setMetadata(
+        new MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "mediaItem_2")
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "Title")
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Subtitle")
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "Artist")
+            .build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)) {
+              countDownLatch.countDown();
+            }
+          }
+        });
+
+    // Assert the constructed timeline and start index for preparation.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(1);
+    assertThat(currentMediaItemIndex).isEqualTo(0);
+
+    threadTestRule.getHandler().postAndSync(controller::prepare);
+
+    // Assert whether the correct preparation method has been called and received by the session.
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    int callbackMethodCount =
+        session.getCallbackMethodCount(
+            MediaSessionCompatProviderService.METHOD_ON_PREPARE_FROM_MEDIA_ID);
+    assertThat(callbackMethodCount).isEqualTo(1);
+  }
+
+  @Test
+  public void prepare_withQueue_callsPrepare() throws Exception {
+    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(10);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testMediaItems);
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    session.setQueue(testQueue);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)) {
+              countDownLatch.countDown();
+            }
+          }
+        });
+
+    // Assert the constructed timeline and start index for preparation.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(10);
+    assertThat(currentMediaItemIndex).isEqualTo(0);
+
+    threadTestRule.getHandler().postAndSync(controller::prepare);
+
+    // Assert whether the correct preparation method has been called and received by the session.
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    int callbackMethodCount =
+        session.getCallbackMethodCount(MediaSessionCompatProviderService.METHOD_ON_PREPARE);
+    assertThat(callbackMethodCount).isEqualTo(1);
+  }
+
+  @Test
+  public void prepare_withQueueAndActiveQueueItemId_callsPrepare() throws Exception {
+    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(10);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testMediaItems);
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setActiveQueueItemId(5)
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    session.setQueue(testQueue);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)) {
+              countDownLatch.countDown();
+            }
+          }
+        });
+
+    // Assert the constructed timeline and start index for preparation.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(10);
+    assertThat(currentMediaItemIndex).isEqualTo(5);
+
+    threadTestRule.getHandler().postAndSync(controller::prepare);
+
+    // Assert whether the correct preparation method has been called and received by the session.
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    int callbackMethodCount =
+        session.getCallbackMethodCount(MediaSessionCompatProviderService.METHOD_ON_PREPARE);
+    assertThat(callbackMethodCount).isEqualTo(1);
+  }
+
+  @Test
+  public void prepare_withQueueAndMetadata_callsPrepareFromMediaId() throws Exception {
+    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(10);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testMediaItems);
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    session.setMetadata(
+        new MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "mediaItem_2")
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "Title")
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "Subtitle")
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "Artist")
+            .build());
+    session.setQueue(testQueue);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)) {
+              countDownLatch.countDown();
+            }
+          }
+        });
+
+    // Assert the constructed timeline and start index for preparation.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(11);
+    assertThat(currentMediaItemIndex).isEqualTo(10);
+
+    threadTestRule.getHandler().postAndSync(controller::prepare);
+
+    // Assert whether the correct preparation method has been called and received by the session.
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    int callbackMethodCount =
+        session.getCallbackMethodCount(
+            MediaSessionCompatProviderService.METHOD_ON_PREPARE_FROM_MEDIA_ID);
+    assertThat(callbackMethodCount).isEqualTo(1);
+  }
+
+  @Test
+  public void prepare_withQueueAndMetadataAndActiveQueueItemId_callsPrepare() throws Exception {
+    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(10);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testMediaItems);
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setActiveQueueItemId(4)
+            .setState(PlaybackStateCompat.STATE_NONE, /* position= */ 0, /* playbackSpeed= */ 0.0f)
+            .build());
+    session.setMetadata(
+        new MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "mediaItem_5")
+            .build());
+    session.setQueue(testQueue);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)) {
+              countDownLatch.countDown();
+            }
+          }
+        });
+
+    // Assert the constructed timeline and start index for preparation.
+    int mediaItemCount = threadTestRule.getHandler().postAndSync(controller::getMediaItemCount);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemCount).isEqualTo(10);
+    assertThat(currentMediaItemIndex).isEqualTo(4);
+
+    threadTestRule.getHandler().postAndSync(controller::prepare);
+
+    // Assert whether the correct preparation method has been called and received by the session.
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    int callbackMethodCount =
+        session.getCallbackMethodCount(MediaSessionCompatProviderService.METHOD_ON_PREPARE);
+    assertThat(callbackMethodCount).isEqualTo(1);
+  }
+
   @Nullable
   private Bitmap getBitmapFromMetadata(MediaMetadata metadata) throws Exception {
     @Nullable Bitmap bitmap = null;

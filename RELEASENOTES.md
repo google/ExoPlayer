@@ -54,6 +54,8 @@
         onto Player ([#156](https://github.com/androidx/media/issues/156)).
     *   Avoid double tap detection for non-Bluetooth media button events
         ([#233](https://github.com/androidx/media/issues/233)).
+    *   Make `QueueTimeline` more robust in case of a shady legacy session state
+        ([#241](https://github.com/androidx/media/issues/241)).
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
