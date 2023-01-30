@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
-import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
@@ -44,7 +43,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 /* package */ final class CompositeAssetLoader implements AssetLoader, AssetLoader.Listener {
 
-  private final List<MediaItem> mediaItems;
+  private final List<EditedMediaItem> editedMediaItems;
   private final AtomicInteger currentMediaItemIndex;
   private final AssetLoader.Factory assetLoaderFactory;
   private final HandlerWrapper handler;
@@ -58,12 +57,12 @@ import java.util.concurrent.atomic.AtomicLong;
   private volatile long currentDurationUs;
 
   public CompositeAssetLoader(
-      List<MediaItem> mediaItems,
+      List<EditedMediaItem> editedMediaItems,
       AssetLoader.Factory assetLoaderFactory,
       Looper looper,
       Listener listener,
       Clock clock) {
-    this.mediaItems = mediaItems;
+    this.editedMediaItems = editedMediaItems;
     this.assetLoaderFactory = assetLoaderFactory;
     compositeAssetLoaderListener = listener;
     currentMediaItemIndex = new AtomicInteger();
@@ -75,7 +74,7 @@ import java.util.concurrent.atomic.AtomicLong;
     // constructor.
     @SuppressWarnings("nullness:argument.type.incompatible")
     AssetLoader currentAssetLoader =
-        assetLoaderFactory.createAssetLoader(mediaItems.get(0), looper, /* listener= */ this);
+        assetLoaderFactory.createAssetLoader(editedMediaItems.get(0), looper, /* listener= */ this);
     this.currentAssetLoader = currentAssetLoader;
   }
 
@@ -87,7 +86,7 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
     int progressState = currentAssetLoader.getProgress(progressHolder);
-    int mediaItemCount = mediaItems.size();
+    int mediaItemCount = editedMediaItems.size();
     if (mediaItemCount == 1 || progressState == PROGRESS_STATE_NOT_STARTED) {
       return progressState;
     }
@@ -116,7 +115,7 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public void onDurationUs(long durationUs) {
     currentDurationUs = durationUs;
-    if (mediaItems.size() == 1) {
+    if (editedMediaItems.size() == 1) {
       compositeAssetLoaderListener.onDurationUs(durationUs);
     } else if (currentMediaItemIndex.get() == 0) {
       // TODO(b/252537210): support silent audio track for sequence of AssetLoaders (silent audio
@@ -194,7 +193,7 @@ import java.util.concurrent.atomic.AtomicLong;
       DecoderInputBuffer inputBuffer = checkStateNotNull(sampleConsumer.getInputBuffer());
       if (inputBuffer.isEndOfStream()) {
         nonEndedTracks.decrementAndGet();
-        if (currentMediaItemIndex.get() < mediaItems.size() - 1) {
+        if (currentMediaItemIndex.get() < editedMediaItems.size() - 1) {
           if (nonEndedTracks.get() == 0) {
             switchAssetLoader();
           }
@@ -233,7 +232,7 @@ import java.util.concurrent.atomic.AtomicLong;
     @Override
     public void signalEndOfVideoInput() {
       nonEndedTracks.decrementAndGet();
-      if (currentMediaItemIndex.get() < mediaItems.size() - 1) {
+      if (currentMediaItemIndex.get() < editedMediaItems.size() - 1) {
         if (nonEndedTracks.get() == 0) {
           switchAssetLoader();
           sampleConsumer.setVideoOffsetToAddUs(totalDurationUs.get());
@@ -248,10 +247,11 @@ import java.util.concurrent.atomic.AtomicLong;
       handler.post(
           () -> {
             currentAssetLoader.release();
-            MediaItem mediaItem = mediaItems.get(currentMediaItemIndex.incrementAndGet());
+            EditedMediaItem editedMediaItem =
+                editedMediaItems.get(currentMediaItemIndex.incrementAndGet());
             currentAssetLoader =
                 assetLoaderFactory.createAssetLoader(
-                    mediaItem,
+                    editedMediaItem,
                     checkNotNull(Looper.myLooper()),
                     /* listener= */ CompositeAssetLoader.this);
             currentAssetLoader.start();

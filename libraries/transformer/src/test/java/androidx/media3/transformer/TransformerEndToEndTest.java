@@ -1229,22 +1229,8 @@ public final class TransformerEndToEndTest {
       }
 
       @Override
-      public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
-        return this;
-      }
-
-      @Override
-      public AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener) {
+      public AssetLoader createAssetLoader(
+          EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
         return new FakeAssetLoader(listener, supportedOutputTypes, sampleConsumerRef);
       }
     }

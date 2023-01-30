@@ -136,11 +136,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Looper internalLooper = internalHandlerThread.getLooper();
     ComponentListener componentListener = new ComponentListener(editedMediaItem, fallbackListener);
     assetLoader =
-        assetLoaderFactory
-            .setRemoveAudio(editedMediaItem.removeAudio)
-            .setRemoveVideo(editedMediaItem.removeVideo)
-            .setFlattenVideoForSlowMotion(editedMediaItem.flattenForSlowMotion)
-            .createAssetLoader(editedMediaItem.mediaItem, internalLooper, componentListener);
+        assetLoaderFactory.createAssetLoader(editedMediaItem, internalLooper, componentListener);
     samplePipelines = new ArrayList<>();
     muxerWrapper = new MuxerWrapper(outputPath, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();

@@ -18,11 +18,9 @@ package androidx.media3.transformer;
 
 import android.content.Context;
 import android.os.Looper;
-import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** The default {@link AssetLoader.Factory} implementation. */
 @UnstableApi
@@ -65,27 +63,8 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   }
 
   @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setRemoveAudio(boolean removeAudio) {
-    return assetLoaderFactory.setRemoveAudio(removeAudio);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setRemoveVideo(boolean removeVideo) {
-    return assetLoaderFactory.setRemoveVideo(removeVideo);
-  }
-
-  @Override
-  @CanIgnoreReturnValue
-  public AssetLoader.Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion) {
-    assetLoaderFactory.setFlattenVideoForSlowMotion(flattenVideoForSlowMotion);
-    return this;
-  }
-
-  @Override
   public AssetLoader createAssetLoader(
-      MediaItem mediaItem, Looper looper, AssetLoader.Listener listener) {
-    return assetLoaderFactory.createAssetLoader(mediaItem, looper, listener);
+      EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
+    return assetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
   }
 }

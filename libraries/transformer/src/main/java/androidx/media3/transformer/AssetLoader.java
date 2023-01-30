@@ -22,10 +22,8 @@ import android.os.Looper;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.media3.common.Format;
-import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableMap;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,61 +36,34 @@ import java.lang.annotation.Target;
  *
  * <p>Only audio and video samples are supported. Both audio and video tracks can be provided by a
  * single asset loader, but outputting multiple tracks of the same type is not supported.
+ *
+ * <p>An asset loader is responsible for {@linkplain EditedMediaItem.Builder#setRemoveAudio(boolean)
+ * removing audio} or {@linkplain EditedMediaItem.Builder#setRemoveVideo(boolean) video} if
+ * requested.
+ *
+ * <p>If {@linkplain EditedMediaItem.Builder#setFlattenForSlowMotion(boolean) slow motion
+ * flattening} is requested, the asset loader should flatten the video track for media containing
+ * slow motion markers. This is usually done prior to decoding. The audio samples are flattened
+ * after they are output by the {@link AssetLoader}, because this is done on decoded samples.
  */
 @UnstableApi
 public interface AssetLoader {
 
-  /**
-   * A factory for {@link AssetLoader} instances.
-   *
-   * <p>The setters in this interface will be called with the values used to build and start the
-   * {@link Transformer}.
-   */
+  /** A factory for {@link AssetLoader} instances. */
   interface Factory {
 
     /**
-     * Sets whether to remove the audio samples from the output (if any).
+     * Creates an {@link AssetLoader} instance.
      *
-     * <p>The audio and video cannot both be removed because the output would not contain any
-     * samples.
-     */
-    @CanIgnoreReturnValue
-    Factory setRemoveAudio(boolean removeAudio);
-
-    /**
-     * Sets whether to remove the video samples from the output (if any).
-     *
-     * <p>The audio and video cannot both be removed because the output would not contain any
-     * samples.
-     */
-    @CanIgnoreReturnValue
-    Factory setRemoveVideo(boolean removeVideo);
-
-    /**
-     * Sets whether the video samples should be flattened prior to decoding for media containing
-     * slow motion markers.
-     *
-     * <p>The audio samples are flattened after they are output by the {@link AssetLoader}, because
-     * this is done on decoded samples.
-     *
-     * <p>For more information on slow motion flattening, see {@link
-     * EditedMediaItem.Builder#setFlattenForSlowMotion(boolean)}.
-     */
-    @CanIgnoreReturnValue
-    Factory setFlattenVideoForSlowMotion(boolean flattenVideoForSlowMotion);
-
-    /**
-     * Creates an {@link AssetLoader} instance. All the setters in this factory must be called
-     * before creating the {@link AssetLoader}.
-     *
-     * @param mediaItem The {@link MediaItem} to load.
+     * @param editedMediaItem The {@link EditedMediaItem} to load.
      * @param looper The {@link Looper} that's used to access the {@link AssetLoader} after it's
      *     been created.
      * @param listener The {@link Listener} on which the {@link AssetLoader} should notify of
      *     events.
      * @return An {@link AssetLoader}.
      */
-    AssetLoader createAssetLoader(MediaItem mediaItem, Looper looper, Listener listener);
+    AssetLoader createAssetLoader(
+        EditedMediaItem editedMediaItem, Looper looper, Listener listener);
   }
 
   /**

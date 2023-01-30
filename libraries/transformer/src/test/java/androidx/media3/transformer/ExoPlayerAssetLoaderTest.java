@@ -117,12 +117,10 @@ public class ExoPlayerAssetLoaderTest {
       Looper looper, AssetLoader.Listener listener, Clock clock) {
     Context context = ApplicationProvider.getApplicationContext();
     Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
-    MediaItem mediaItem = MediaItem.fromUri("asset:///media/mp4/sample.mp4");
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/mp4/sample.mp4")).build();
     return new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock)
-        .setRemoveAudio(false)
-        .setRemoveVideo(false)
-        .setFlattenVideoForSlowMotion(false)
-        .createAssetLoader(mediaItem, looper, listener);
+        .createAssetLoader(editedMediaItem, looper, listener);
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {
