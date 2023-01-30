@@ -49,9 +49,13 @@ import java.util.concurrent.Executor;
 @UnstableApi
 public class MediaSessionCompatProviderService extends Service {
 
+  public static final String METHOD_ON_PREPARE_FROM_MEDIA_ID = "onPrepareFromMediaId";
+  public static final String METHOD_ON_PREPARE = "onPrepare";
+
   private static final String TAG = "MSCProviderService";
 
   Map<String, MediaSessionCompat> sessionMap = new HashMap<>();
+  Map<String, CallCountingCallback> callbackMap = new HashMap<>();
   RemoteMediaSessionCompatStub sessionBinder;
 
   TestHandler handler;
@@ -88,7 +92,10 @@ public class MediaSessionCompatProviderService extends Service {
             () -> {
               MediaSessionCompat session =
                   new MediaSessionCompat(MediaSessionCompatProviderService.this, sessionTag);
+              CallCountingCallback callback = new CallCountingCallback(sessionTag);
+              session.setCallback(callback);
               sessionMap.put(sessionTag, session);
+              callbackMap.put(sessionTag, callback);
             });
       } catch (Exception e) {
         Log.e(TAG, "Exception occurred while creating MediaSessionCompat", e);
@@ -212,15 +219,61 @@ public class MediaSessionCompatProviderService extends Service {
     }
 
     @Override
-    public void setCaptioningEnabled(String sessionTag, boolean enabled) throws RemoteException {
+    public void setCaptioningEnabled(String sessionTag, boolean enabled) {
       MediaSessionCompat session = sessionMap.get(sessionTag);
       session.setCaptioningEnabled(enabled);
     }
 
     @Override
-    public void setSessionExtras(String sessionTag, Bundle extras) throws RemoteException {
+    public void setSessionExtras(String sessionTag, Bundle extras) {
       MediaSessionCompat session = sessionMap.get(sessionTag);
       session.setExtras(extras);
+    }
+
+    @Override
+    public int getCallbackMethodCount(String sessionTag, String methodName) {
+      CallCountingCallback callCountingCallback = callbackMap.get(sessionTag);
+      if (callCountingCallback != null) {
+        Integer count = callCountingCallback.callbackCallCounters.get(methodName);
+        return count != null ? count : 0;
+      }
+      return 0;
+    }
+  }
+
+  private class CallCountingCallback extends MediaSessionCompat.Callback {
+
+    private final String sessionTag;
+    private final Map<String, Integer> callbackCallCounters;
+
+    public CallCountingCallback(String sessionTag) {
+      this.sessionTag = sessionTag;
+      callbackCallCounters = new HashMap<>();
+    }
+
+    @Override
+    public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+      countCallbackCall(METHOD_ON_PREPARE_FROM_MEDIA_ID);
+      sessionMap
+          .get(sessionTag)
+          .setMetadata(
+              new MediaMetadataCompat.Builder()
+                  .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
+                  .build());
+    }
+
+    @Override
+    public void onPrepare() {
+      countCallbackCall(METHOD_ON_PREPARE);
+      sessionMap.get(sessionTag).setMetadata(new MediaMetadataCompat.Builder().build());
+    }
+
+    private void countCallbackCall(String callbackName) {
+      int count = 0;
+      if (callbackCallCounters.containsKey(callbackName)) {
+        count = callbackCallCounters.get(callbackName);
+      }
+      callbackCallCounters.put(callbackName, ++count);
     }
   }
 }

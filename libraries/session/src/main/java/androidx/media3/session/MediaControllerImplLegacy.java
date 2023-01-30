@@ -1829,6 +1829,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   + " MediaItem.");
           MediaItem fakeMediaItem =
               MediaUtils.convertToMediaItem(newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
+          // Ad a tag to make sure the fake media item can't have an equal instance by accident.
+          fakeMediaItem = fakeMediaItem.buildUpon().setTag(new Object()).build();
           currentTimeline = currentTimeline.copyWithFakeMediaItem(fakeMediaItem);
           currentMediaItemIndex = currentTimeline.getWindowCount() - 1;
         } else {
@@ -1843,7 +1845,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (hasMediaMetadataCompat) {
           MediaItem mediaItem =
               MediaUtils.convertToMediaItem(
-                  currentTimeline.getMediaItemAt(currentMediaItemIndex).mediaId,
+                  checkNotNull(currentTimeline.getMediaItemAt(currentMediaItemIndex)).mediaId,
                   newLegacyPlayerInfo.mediaMetadataCompat,
                   ratingType);
           currentTimeline =
@@ -2000,7 +2002,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       MediaItem oldCurrentMediaItem =
           checkStateNotNull(oldControllerInfo.playerInfo.getCurrentMediaItem());
       int oldCurrentMediaItemIndexInNewTimeline =
-          ((QueueTimeline) newControllerInfo.playerInfo.timeline).findIndexOf(oldCurrentMediaItem);
+          ((QueueTimeline) newControllerInfo.playerInfo.timeline).indexOf(oldCurrentMediaItem);
       if (oldCurrentMediaItemIndexInNewTimeline == C.INDEX_UNSET) {
         // Old current item is removed.
         discontinuityReason = Player.DISCONTINUITY_REASON_REMOVE;
