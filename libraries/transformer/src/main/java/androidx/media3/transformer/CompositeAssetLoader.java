@@ -153,7 +153,9 @@ import java.util.concurrent.atomic.AtomicLong;
       sampleConsumersByTrackType.put(trackType, sampleConsumer);
       return sampleConsumer;
     }
-    return checkStateNotNull(sampleConsumersByTrackType.get(trackType));
+    return checkStateNotNull(
+        sampleConsumersByTrackType.get(trackType),
+        "The preceding MediaItem does not contain any track of type " + trackType);
   }
 
   @Override
