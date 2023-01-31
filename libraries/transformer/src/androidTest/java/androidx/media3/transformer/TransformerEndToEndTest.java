@@ -101,12 +101,11 @@ public class TransformerEndToEndTest {
                     .setEndPositionMs(clippingEndMs)
                     .build())
             .build();
-    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(/* testId= */ "clippedMedia_completesWithClippedDuration", editedMediaItem);
+            .run(/* testId= */ "clippedMedia_completesWithClippedDuration", mediaItem);
 
     assertThat(result.transformationResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
