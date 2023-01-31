@@ -2158,8 +2158,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      */
     public void releaseProcessedFrames(long positionUs, long elapsedRealtimeUs) {
       checkStateNotNull(frameProcessor);
-      // Locking the entire releasing flow may block the FrameProcessor thread running
-      // onOutputFrameAvailable().
       while (!processedFramesTimestampsUs.isEmpty()) {
         boolean isStarted = renderer.getState() == STATE_STARTED;
         long bufferPresentationTimeUs = checkNotNull(processedFramesTimestampsUs.peek());
@@ -2173,8 +2171,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
         boolean shouldReleaseFrameImmediately = renderer.shouldForceRender(positionUs, earlyUs);
         if (shouldReleaseFrameImmediately) {
-          releaseOutputFrame(FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY);
+          releaseProcessedFrameInternal(FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY);
           break;
+        } else if (!isStarted || positionUs == renderer.initialPositionUs) {
+          return;
         }
 
         // Only release frames that are reasonably close to presentation.
@@ -2193,7 +2193,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         //  FrameProcessor input frames in this case.
         boolean isLastFrame = processedLastFrame && processedFramesTimestampsUs.size() == 1;
         if (renderer.shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastFrame)) {
-          releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
+          releaseProcessedFrameInternal(FrameProcessor.DROP_OUTPUT_FRAME);
           continue;
         }
 
@@ -2209,7 +2209,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
           renderer.maybeNotifyVideoSizeChanged(processedFrameSize);
         }
-        releaseOutputFrame(adjustedFrameReleaseTimeNs);
+        releaseProcessedFrameInternal(adjustedFrameReleaseTimeNs);
         if (isLastFrame) {
           releasedLastFrame = true;
         }
@@ -2235,7 +2235,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       canEnableFrameProcessing = true;
     }
 
-    private void releaseOutputFrame(long releaseTimeNs) {
+    private void releaseProcessedFrameInternal(long releaseTimeNs) {
       checkStateNotNull(frameProcessor);
       frameProcessor.releaseOutputFrame(releaseTimeNs);
       processedFramesTimestampsUs.remove();
