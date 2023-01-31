@@ -25,9 +25,22 @@ import com.google.common.collect.ImmutableList;
 /** Effects to apply to a {@link MediaItem}. */
 public final class Effects {
 
-  /* package */ final ImmutableList<AudioProcessor> audioProcessors;
-  /* package */ final ImmutableList<Effect> videoEffects;
-  /* package */ final FrameProcessor.Factory frameProcessorFactory;
+  /**
+   * The list of {@linkplain AudioProcessor audio processors} to apply to audio buffers. They are
+   * applied in the order of the list, and buffers will only be modified by that {@link
+   * AudioProcessor} if it {@link AudioProcessor#isActive()} based on the current configuration.
+   */
+  public final ImmutableList<AudioProcessor> audioProcessors;
+  /**
+   * The list of {@linkplain Effect video effects} to apply to each frame. They are applied in the
+   * order of the list.
+   */
+  public final ImmutableList<Effect> videoEffects;
+  /**
+   * The {@link FrameProcessor.Factory} for the {@link FrameProcessor} to use when applying the
+   * {@code videoEffects} to the video frames.
+   */
+  public final FrameProcessor.Factory frameProcessorFactory;
 
   /**
    * Creates an instance using a {@link GlEffectsFrameProcessor.Factory}.
@@ -43,13 +56,9 @@ public final class Effects {
   /**
    * Creates an instance.
    *
-   * @param audioProcessors The list of {@link AudioProcessor} instances to apply to audio buffers.
-   *     They are applied in the order of the list, and buffers will only be modified by that {@link
-   *     AudioProcessor} if it {@link AudioProcessor#isActive()} based on the current configuration.
-   * @param videoEffects The list of {@link Effect} instances to apply to each video frame. They are
-   *     applied in the order of the list.
-   * @param frameProcessorFactory The {@link FrameProcessor.Factory} for the {@link FrameProcessor}
-   *     to use when applying the {@code videoEffects} to the video frames.
+   * @param audioProcessors The {@link #audioProcessors}.
+   * @param videoEffects The {@link #videoEffects}.
+   * @param frameProcessorFactory The {@link #frameProcessorFactory}.
    */
   public Effects(
       ImmutableList<AudioProcessor> audioProcessors,

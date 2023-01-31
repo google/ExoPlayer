@@ -24,12 +24,13 @@ import com.google.common.collect.ImmutableList;
  */
 public final class EditedMediaItemSequence {
 
-  /* package */ final ImmutableList<EditedMediaItem> editedMediaItems;
+  /** The {@link EditedMediaItem} instances in the sequence. */
+  public final ImmutableList<EditedMediaItem> editedMediaItems;
 
   /**
    * Creates an instance.
    *
-   * @param editedMediaItems The {@link EditedMediaItem} instances in the sequence.
+   * @param editedMediaItems The {@link #editedMediaItems}.
    */
   public EditedMediaItemSequence(ImmutableList<EditedMediaItem> editedMediaItems) {
     this.editedMediaItems = editedMediaItems;

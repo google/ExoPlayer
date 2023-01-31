@@ -26,16 +26,19 @@ import com.google.common.collect.ImmutableList;
  */
 public final class Composition {
 
-  /* package */ final ImmutableList<EditedMediaItemSequence> sequences;
-  /* package */ final Effects effects;
+  /**
+   * The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem} instances from
+   * different sequences that are overlapping in time will be mixed in the output.
+   */
+  public final ImmutableList<EditedMediaItemSequence> sequences;
+  /** The {@link Effects} to apply to the composition. */
+  public final Effects effects;
 
   /**
    * Creates an instance.
    *
-   * @param sequences The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem}
-   *     instances from different sequences that are overlapping in time will be mixed in the
-   *     output.
-   * @param effects The {@link Effects} to apply to the composition.
+   * @param sequences The {@link #sequences}.
+   * @param effects The {@link #effects}.
    */
   public Composition(ImmutableList<EditedMediaItemSequence> sequences, Effects effects) {
     this.sequences = sequences;
