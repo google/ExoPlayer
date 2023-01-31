@@ -88,19 +88,7 @@ public final class EditedMediaItem {
      *
      * <p>The default value is {@code false}.
      *
-     * <p>The flattened output is obtained by removing the slow motion metadata and by actually
-     * slowing down the parts of the video and audio streams defined in this metadata.
-     *
-     * <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. Flattening has
-     * no effect if the input does not contain this metadata type.
-     *
-     * <p>For SEF slow motion media, the following assumptions are made on the input:
-     *
-     * <ul>
-     *   <li>The input container format is (unfragmented) MP4.
-     *   <li>The input contains an AVC video elementary stream with temporal SVC.
-     *   <li>The recording frame rate of the video is 120 or 240 fps.
-     * </ul>
+     * <p>See {@link #flattenForSlowMotion} for more information about slow motion flattening.
      *
      * <p>If using an {@link ExoPlayerAssetLoader.Factory} with a provided {@link
      * MediaSource.Factory}, make sure that {@link Mp4Extractor#FLAG_READ_SEF_DATA} is set on the
@@ -150,11 +138,32 @@ public final class EditedMediaItem {
     }
   }
 
-  /* package */ final MediaItem mediaItem;
-  /* package */ final boolean removeAudio;
-  /* package */ final boolean removeVideo;
-  /* package */ final boolean flattenForSlowMotion;
-  /* package */ final Effects effects;
+  /** The {@link MediaItem} on which transformations are applied. */
+  public final MediaItem mediaItem;
+  /** Whether to remove the audio from the {@link #mediaItem}. */
+  public final boolean removeAudio;
+  /** Whether to remove the video from the {@link #mediaItem}. */
+  public final boolean removeVideo;
+  /**
+   * Whether to flatten the {@link #mediaItem} if it contains slow motion markers.
+   *
+   * <p>The flattened output is obtained by removing the slow motion metadata and by actually
+   * slowing down the parts of the video and audio streams defined in this metadata.
+   *
+   * <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. Flattening has
+   * no effect if the input does not contain this metadata type.
+   *
+   * <p>For SEF slow motion media, the following assumptions are made on the input:
+   *
+   * <ul>
+   *   <li>The input container format is (unfragmented) MP4.
+   *   <li>The input contains an AVC video elementary stream with temporal SVC.
+   *   <li>The recording frame rate of the video is 120 or 240 fps.
+   * </ul>
+   */
+  public final boolean flattenForSlowMotion;
+  /** The {@link Effects} to apply to the {@link #mediaItem}. */
+  public final Effects effects;
 
   private EditedMediaItem(
       MediaItem mediaItem,
