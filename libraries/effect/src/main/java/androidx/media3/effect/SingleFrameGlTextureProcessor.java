@@ -74,8 +74,9 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
    * @param inputWidth The input width, in pixels.
    * @param inputHeight The input height, in pixels.
    * @return The output width and height of frames processed through {@link #drawFrame(int, long)}.
+   * @throws FrameProcessingException If an error occurs while configuring.
    */
-  public abstract Size configure(int inputWidth, int inputHeight);
+  public abstract Size configure(int inputWidth, int inputHeight) throws FrameProcessingException;
 
   /**
    * Draws one frame.
@@ -144,7 +145,8 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   }
 
   @EnsuresNonNull("outputTexture")
-  private void configureOutputTexture(int inputWidth, int inputHeight) throws GlUtil.GlException {
+  private void configureOutputTexture(int inputWidth, int inputHeight)
+      throws GlUtil.GlException, FrameProcessingException {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     Size outputSize = configure(inputWidth, inputHeight);
