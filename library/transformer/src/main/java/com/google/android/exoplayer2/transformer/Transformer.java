@@ -662,7 +662,6 @@ public final class Transformer {
    *     it.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
-   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
    */
@@ -671,9 +670,30 @@ public final class Transformer {
   }
 
   /**
-   * @deprecated Use {@link #startTransformation(EditedMediaItem, String)} instead.
+   * Starts an asynchronous operation to transform the given {@link MediaItem}.
+   *
+   * <p>The transformation state is notified through the {@linkplain Builder#addListener(Listener)
+   * listener}.
+   *
+   * <p>Concurrent transformations on the same Transformer object are not allowed.
+   *
+   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
+   *
+   * <p>The output can contain at most one video track and one audio track. Other track types are
+   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
+   * highest bitrate video and audio streams are selected.
+   *
+   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
+   * swapped if the height is larger than the width. This is to improve compatibility among
+   * different device encoders.
+   *
+   * @param mediaItem The {@link MediaItem} to transform.
+   * @param path The path to the output file.
+   * @throws IllegalArgumentException If the path is invalid.
+   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
+   * @throws IllegalStateException If this method is called from the wrong thread.
+   * @throws IllegalStateException If a transformation is already in progress.
    */
-  @Deprecated
   public void startTransformation(MediaItem mediaItem, String path) {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
         && flattenForSlowMotion) {

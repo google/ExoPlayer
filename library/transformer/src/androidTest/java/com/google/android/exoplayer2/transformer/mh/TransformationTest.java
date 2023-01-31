@@ -60,11 +60,10 @@ public class TransformationTest {
             .build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
-    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .build()
-        .run(testId, editedMediaItem);
+        .run(testId, mediaItem);
   }
 
   @Test
@@ -74,11 +73,8 @@ public class TransformationTest {
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
-    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     // No need to calculate SSIM because no decode/encoding, so input frames match output frames.
-    new TransformerAndroidTestRunner.Builder(context, transformer)
-        .build()
-        .run(testId, editedMediaItem);
+    new TransformerAndroidTestRunner.Builder(context, transformer).build().run(testId, mediaItem);
   }
 
   @Test
@@ -122,12 +118,11 @@ public class TransformationTest {
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING));
-    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
-        .run(testId, editedMediaItem);
+        .run(testId, mediaItem);
   }
 
   @Test
@@ -146,14 +141,12 @@ public class TransformationTest {
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING)))
-            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING));
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
-        .run(testId, editedMediaItem);
+        .run(testId, mediaItem);
   }
 
   @Test

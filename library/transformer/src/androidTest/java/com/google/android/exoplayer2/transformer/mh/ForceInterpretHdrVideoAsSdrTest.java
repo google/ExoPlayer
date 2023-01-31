@@ -28,7 +28,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
-import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
@@ -68,14 +67,12 @@ public class ForceInterpretHdrVideoAsSdrTest {
                         TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
                     .build())
             .build();
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)))
-            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, editedMediaItem);
+              .run(testId, mediaItem);
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
@@ -107,14 +104,12 @@ public class ForceInterpretHdrVideoAsSdrTest {
                         TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
                     .build())
             .build();
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)))
-            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
     try {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, editedMediaItem);
+              .run(testId, mediaItem);
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
