@@ -125,6 +125,7 @@ import java.util.List;
   private ImmutableList<float[]> visiblePolygon;
 
   private final GlProgram glProgram;
+  private @C.ColorTransfer int outputColorTransfer;
 
   /**
    * Creates a new instance.
@@ -156,6 +157,7 @@ import java.util.List;
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
+        /* outputColorTransfer= */ C.COLOR_TRANSFER_LINEAR,
         useHdr);
   }
 
@@ -242,6 +244,7 @@ import java.util.List;
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
+        outputColorInfo.colorTransfer,
         isInputTransferHdr);
   }
 
@@ -296,6 +299,7 @@ import java.util.List;
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
+        outputColorInfo.colorTransfer,
         outputIsHdr);
   }
 
@@ -307,6 +311,7 @@ import java.util.List;
    *     apply to each frame in order. Can be empty to apply no vertex transformations.
    * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
    *     empty to apply no color transformations.
+   * @param outputColorTransfer The output {@link C.ColorTransfer}.
    * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
    *     EXT_YUV_target} OpenGL extension.
    */
@@ -314,9 +319,11 @@ import java.util.List;
       GlProgram glProgram,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
+      int outputColorTransfer,
       boolean useHdr) {
     super(useHdr);
     this.glProgram = glProgram;
+    this.outputColorTransfer = outputColorTransfer;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
     this.useHdr = useHdr;
@@ -389,6 +396,23 @@ import java.util.List;
     } catch (GlUtil.GlException e) {
       throw new FrameProcessingException(e);
     }
+  }
+
+  /**
+   * Sets the output {@link C.ColorTransfer}.
+   *
+   * <p>This method must not be called on {@code MatrixTextureProcessor} instances that output
+   * {@linkplain C#COLOR_TRANSFER_LINEAR linear colors}.
+   */
+  public void setOutputColorTransfer(@C.ColorTransfer int colorTransfer) {
+    checkState(outputColorTransfer != C.COLOR_TRANSFER_LINEAR);
+    outputColorTransfer = colorTransfer;
+    glProgram.setIntUniform("uOutputColorTransfer", colorTransfer);
+  }
+
+  /** Returns the output {@link C.ColorTransfer}. */
+  public @C.ColorTransfer int getOutputColorTransfer() {
+    return outputColorTransfer;
   }
 
   /**

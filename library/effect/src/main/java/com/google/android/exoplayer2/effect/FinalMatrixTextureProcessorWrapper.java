@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
@@ -422,7 +423,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       debugSurfaceViewWrapper.maybeRenderToSurfaceView(
           () -> {
             GlUtil.clearOutputFrame();
+            @C.ColorTransfer
+            int configuredColorTransfer = matrixTextureProcessor.getOutputColorTransfer();
+            matrixTextureProcessor.setOutputColorTransfer(
+                checkNotNull(debugSurfaceViewWrapper).outputColorTransfer);
             matrixTextureProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+            matrixTextureProcessor.setOutputColorTransfer(configuredColorTransfer);
           });
     } catch (FrameProcessingException | GlUtil.GlException e) {
       Log.d(TAG, "Error rendering to debug preview", e);
@@ -434,9 +440,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * and makes rendering a no-op if not.
    */
   private static final class SurfaceViewWrapper implements SurfaceHolder.Callback {
+    public final @C.ColorTransfer int outputColorTransfer;
     private final EGLDisplay eglDisplay;
     private final EGLContext eglContext;
-    private final boolean useHdr;
 
     @GuardedBy("this")
     @Nullable
@@ -453,7 +459,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         EGLDisplay eglDisplay, EGLContext eglContext, boolean useHdr, SurfaceView surfaceView) {
       this.eglDisplay = eglDisplay;
       this.eglContext = eglContext;
-      this.useHdr = useHdr;
+      // Screen output supports only BT.2020 PQ (ST2084) for HDR.
+      this.outputColorTransfer = useHdr ? C.COLOR_TRANSFER_ST2084 : C.COLOR_TRANSFER_SDR;
       surfaceView.getHolder().addCallback(this);
       surface = surfaceView.getHolder().getSurface();
       width = surfaceView.getWidth();
@@ -473,13 +480,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       if (eglSurface == null) {
-        // Screen output supports only BT.2020 PQ (ST2084).
         eglSurface =
             GlUtil.createEglSurface(
-                eglDisplay,
-                surface,
-                useHdr ? C.COLOR_TRANSFER_ST2084 : C.COLOR_TRANSFER_SDR,
-                /* isEncoderInputSurface= */ false);
+                eglDisplay, surface, outputColorTransfer, /* isEncoderInputSurface= */ false);
       }
       EGLSurface eglSurface = this.eglSurface;
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
