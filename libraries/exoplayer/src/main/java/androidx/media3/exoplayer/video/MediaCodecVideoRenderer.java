@@ -689,8 +689,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         Size outputResolution = (Size) checkNotNull(message);
         if (outputResolution.getWidth() != 0
             && outputResolution.getHeight() != 0
-            && displaySurface != null
-            && frameProcessorManager.isEnabled()) {
+            && displaySurface != null) {
           frameProcessorManager.setOutputSurfaceInfo(displaySurface, outputResolution);
         }
         break;
@@ -1170,19 +1169,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return false;
     }
 
-    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderRealtimeUs;
-    boolean shouldRenderFirstFrame =
-        !renderedFirstFrameAfterEnable
-            ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
-            : !renderedFirstFrameAfterReset;
-    // Don't force output until we joined and the position reached the current stream.
-    boolean forceRenderOutputBuffer =
-        joiningDeadlineMs == C.TIME_UNSET
-            && positionUs >= outputStreamOffsetUs
-            && (shouldRenderFirstFrame
-                || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
+    boolean forceRenderOutputBuffer = shouldForceRender(positionUs, earlyUs);
     if (forceRenderOutputBuffer) {
-      // TODO(b/238302341): Handle releasing the force rendered frames in FrameProcessor.
       boolean notifyFrameMetaDataListener;
       if (frameProcessorManager.isEnabled()) {
         notifyFrameMetaDataListener = false;
@@ -1273,6 +1261,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     // We're either not playing, or it's not time to render the frame yet.
     return false;
+  }
+
+  /** Returns whether a buffer or a processed frame should be force rendered. */
+  private boolean shouldForceRender(long positionUs, long earlyUs) {
+    boolean isStarted = getState() == STATE_STARTED;
+    boolean shouldRenderFirstFrame =
+        !renderedFirstFrameAfterEnable
+            ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
+            : !renderedFirstFrameAfterReset;
+    long elapsedSinceLastRenderUs = SystemClock.elapsedRealtime() * 1000 - lastRenderRealtimeUs;
+    // Don't force output until we joined and the position reached the current stream.
+    return joiningDeadlineMs == C.TIME_UNSET
+        && positionUs >= getOutputStreamOffsetUs()
+        && (shouldRenderFirstFrame
+            || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
   }
 
   /**
@@ -1531,16 +1534,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
   protected void renderOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
-    if (!frameProcessorManager.isEnabled()) {
-      maybeNotifyVideoSizeChanged(decodedVideoSize);
-    }
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, true);
     TraceUtil.endSection();
-    lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    maybeNotifyRenderedFirstFrame();
+    if (!frameProcessorManager.isEnabled()) {
+      lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      maybeNotifyVideoSizeChanged(decodedVideoSize);
+      maybeNotifyRenderedFirstFrame();
+    }
   }
 
   /**
@@ -1559,16 +1562,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @RequiresApi(21)
   protected void renderOutputBufferV21(
       MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
-    if (!frameProcessorManager.isEnabled()) {
-      maybeNotifyVideoSizeChanged(decodedVideoSize);
-    }
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
-    lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    maybeNotifyRenderedFirstFrame();
+    if (!frameProcessorManager.isEnabled()) {
+      lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      maybeNotifyVideoSizeChanged(decodedVideoSize);
+      maybeNotifyRenderedFirstFrame();
+    }
   }
 
   private boolean shouldUsePlaceholderSurface(MediaCodecInfo codecInfo) {
@@ -2017,6 +2020,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         throw renderer.createRendererException(
             e, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
+
+      if (currentSurfaceAndSize != null) {
+        Size outputSurfaceSize = currentSurfaceAndSize.second;
+        frameProcessor.setOutputSurfaceInfo(
+            new SurfaceInfo(
+                currentSurfaceAndSize.first,
+                outputSurfaceSize.getWidth(),
+                outputSurfaceSize.getHeight()));
+      }
+
       setInputFormat(inputFormat);
       return true;
     }
@@ -2035,9 +2048,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     /**
      * Sets the output surface info.
      *
-     * <p>Caller must ensure the {@code FrameProcessorManager} {@link #isEnabled()} before calling
-     * this method.
-     *
      * @param outputSurface The {@link Surface} to which {@link FrameProcessor} outputs.
      * @param outputResolution The {@link Size} of the output resolution.
      */
@@ -2047,10 +2057,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           && currentSurfaceAndSize.second.equals(outputResolution)) {
         return;
       }
-      checkNotNull(frameProcessor)
-          .setOutputSurfaceInfo(
-              new SurfaceInfo(
-                  outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
+      currentSurfaceAndSize = Pair.create(outputSurface, outputResolution);
+      if (isEnabled()) {
+        checkNotNull(frameProcessor)
+            .setOutputSurfaceInfo(
+                new SurfaceInfo(
+                    outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
+      }
     }
 
     /**
@@ -2152,6 +2165,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Locking the entire releasing flow may block the FrameProcessor thread running
       // onOutputFrameAvailable().
       while (!processedFramesTimestampsUs.isEmpty()) {
+        boolean isStarted = renderer.getState() == STATE_STARTED;
         long bufferPresentationTimeUs = checkNotNull(processedFramesTimestampsUs.peek());
         long earlyUs =
             renderer.calculateEarlyTimeUs(
@@ -2159,7 +2173,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 elapsedRealtimeUs,
                 SystemClock.elapsedRealtime() * 1000,
                 bufferPresentationTimeUs,
-                renderer.getState() == STATE_STARTED);
+                isStarted);
+
+        boolean shouldReleaseFrameImmediately = renderer.shouldForceRender(positionUs, earlyUs);
+        if (shouldReleaseFrameImmediately) {
+          releaseOutputFrame(FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY);
+          break;
+        }
 
         // Only release frames that are reasonably close to presentation.
         // This way frameReleaseHelper.onNextFrame() is called only once for each frame.
@@ -2177,8 +2197,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         //  FrameProcessor input frames in this case.
         boolean isLastFrame = processedLastFrame && processedFramesTimestampsUs.size() == 1;
         if (renderer.shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastFrame)) {
-          frameProcessor.releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
-          processedFramesTimestampsUs.remove();
+          releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
           continue;
         }
 
@@ -2194,8 +2213,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
           renderer.maybeNotifyVideoSizeChanged(processedFrameSize);
         }
-        frameProcessor.releaseOutputFrame(adjustedFrameReleaseTimeNs);
-        processedFramesTimestampsUs.remove();
+        releaseOutputFrame(adjustedFrameReleaseTimeNs);
         if (isLastFrame) {
           releasedLastFrame = true;
         }
@@ -2219,6 +2237,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       processedFramesTimestampsUs.clear();
       canEnableFrameProcessing = true;
+    }
+
+    private void releaseOutputFrame(long releaseTimeNs) {
+      checkStateNotNull(frameProcessor);
+      frameProcessor.releaseOutputFrame(releaseTimeNs);
+      processedFramesTimestampsUs.remove();
+      renderer.lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      if (releaseTimeNs != FrameProcessor.DROP_OUTPUT_FRAME) {
+        renderer.maybeNotifyRenderedFirstFrame();
+      }
     }
 
     private static final class FrameProcessorAccessor {
