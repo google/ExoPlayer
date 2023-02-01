@@ -83,6 +83,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowMediaCodec;
 import org.robolectric.shadows.ShadowMediaCodecList;
@@ -110,6 +111,7 @@ public final class TransformerEndToEndTest {
   private TestMuxer testMuxer;
   private FakeClock clock;
   private ProgressHolder progressHolder;
+  private ArgumentCaptor<Composition> compositionArgumentCaptor;
 
   @Before
   public void setUp() throws Exception {
@@ -117,6 +119,7 @@ public final class TransformerEndToEndTest {
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
     clock = new FakeClock(/* isAutoAdvancing= */ true);
     progressHolder = new ProgressHolder();
+    compositionArgumentCaptor = ArgumentCaptor.forClass(Composition.class);
     createEncodersAndDecoders();
   }
 
@@ -389,9 +392,10 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
-    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener2).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(compositionArgumentCaptor.capture(), any());
+    Composition composition = compositionArgumentCaptor.getValue();
+    verify(mockListener2).onTransformationCompleted(eq(composition), any());
+    verify(mockListener3).onTransformationCompleted(eq(composition), any());
   }
 
   @Test
@@ -414,9 +418,11 @@ public final class TransformerEndToEndTest {
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
 
-    verify(mockListener1).onTransformationError(eq(mediaItem), any(), eq(exception));
-    verify(mockListener2).onTransformationError(eq(mediaItem), any(), eq(exception));
-    verify(mockListener3).onTransformationError(eq(mediaItem), any(), eq(exception));
+    verify(mockListener1)
+        .onTransformationError(compositionArgumentCaptor.capture(), any(), eq(exception));
+    Composition composition = compositionArgumentCaptor.getValue();
+    verify(mockListener2).onTransformationError(eq(composition), any(), eq(exception));
+    verify(mockListener3).onTransformationError(eq(composition), any(), eq(exception));
   }
 
   @Test
@@ -440,11 +446,119 @@ public final class TransformerEndToEndTest {
     TransformerTestRunner.runLooper(transformer);
 
     verify(mockListener1)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            compositionArgumentCaptor.capture(),
+            eq(originalTransformationRequest),
+            eq(fallbackTransformationRequest));
+    Composition composition = compositionArgumentCaptor.getValue();
     verify(mockListener2)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            composition, originalTransformationRequest, fallbackTransformationRequest);
     verify(mockListener3)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            composition, originalTransformationRequest, fallbackTransformationRequest);
+  }
+
+  @Test
+  public void startTransformation_success_callsDeprecatedCompletionCallbacks() throws Exception {
+    AtomicBoolean deprecatedFallbackCalled1 = new AtomicBoolean();
+    AtomicBoolean deprecatedFallbackCalled2 = new AtomicBoolean();
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onTransformationCompleted(MediaItem inputMediaItem) {
+                    deprecatedFallbackCalled1.set(true);
+                  }
+                })
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onTransformationCompleted(
+                      MediaItem inputMediaItem, TransformationResult result) {
+                    deprecatedFallbackCalled2.set(true);
+                  }
+                })
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    assertThat(deprecatedFallbackCalled1.get()).isTrue();
+    assertThat(deprecatedFallbackCalled2.get()).isTrue();
+  }
+
+  @Test
+  public void startTransformation_withError_callsDeprecatedErrorCallbacks() throws Exception {
+    AtomicBoolean deprecatedFallbackCalled1 = new AtomicBoolean();
+    AtomicBoolean deprecatedFallbackCalled2 = new AtomicBoolean();
+    AtomicBoolean deprecatedFallbackCalled3 = new AtomicBoolean();
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onTransformationError(MediaItem inputMediaItem, Exception exception) {
+                    deprecatedFallbackCalled1.set(true);
+                  }
+                })
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onTransformationError(
+                      MediaItem inputMediaItem, TransformationException exception) {
+                    deprecatedFallbackCalled2.set(true);
+                  }
+                })
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onTransformationError(
+                      MediaItem inputMediaItem,
+                      TransformationResult result,
+                      TransformationException exception) {
+                    deprecatedFallbackCalled3.set(true);
+                  }
+                })
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri("invalid.uri");
+
+    transformer.startTransformation(mediaItem, outputPath);
+    try {
+      TransformerTestRunner.runLooper(transformer);
+    } catch (TransformationException transformationException) {
+      // Ignore exception thrown.
+    }
+
+    assertThat(deprecatedFallbackCalled1.get()).isTrue();
+    assertThat(deprecatedFallbackCalled2.get()).isTrue();
+    assertThat(deprecatedFallbackCalled3.get()).isTrue();
+  }
+
+  @Test
+  public void startTransformation_withFallback_callsDeprecatedFallbackCallbacks() throws Exception {
+    AtomicBoolean deprecatedFallbackCalled = new AtomicBoolean();
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ true)
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onFallbackApplied(
+                      MediaItem inputMediaItem,
+                      TransformationRequest originalTransformationRequest,
+                      TransformationRequest fallbackTransformationRequest) {
+                    deprecatedFallbackCalled.set(true);
+                  }
+                })
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    assertThat(deprecatedFallbackCalled.get()).isTrue();
   }
 
   @Test
@@ -465,9 +579,10 @@ public final class TransformerEndToEndTest {
     transformer2.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer2);
 
-    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener2, never()).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(compositionArgumentCaptor.capture(), any());
+    verify(mockListener2, never()).onTransformationCompleted(any(Composition.class), any());
+    verify(mockListener3)
+        .onTransformationCompleted(eq(compositionArgumentCaptor.getValue()), any());
   }
 
   @Test
@@ -569,7 +684,10 @@ public final class TransformerEndToEndTest {
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
     verify(mockListener)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            any(Composition.class),
+            eq(originalTransformationRequest),
+            eq(fallbackTransformationRequest));
   }
 
   @Test
@@ -590,7 +708,10 @@ public final class TransformerEndToEndTest {
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
     verify(mockListener)
-        .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+        .onFallbackApplied(
+            any(Composition.class),
+            eq(originalTransformationRequest),
+            eq(fallbackTransformationRequest));
   }
 
   @Test
@@ -750,7 +871,7 @@ public final class TransformerEndToEndTest {
         ImmutableList.of(
             Presentation.createForHeight(mediaItemHeightPixels),
             new ScaleToFitTransformation.Builder().build());
-    Effects effects = new Effects(ImmutableList.of(), videoEffects);
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 

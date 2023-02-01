@@ -135,8 +135,8 @@ public final class Transformer {
      * Sets the {@link TransformationRequest} which configures the editing and transcoding options.
      *
      * <p>Actual applied values may differ, per device capabilities. {@link
-     * Listener#onFallbackApplied(MediaItem, TransformationRequest, TransformationRequest)} will be
-     * invoked with the actual applied values.
+     * Listener#onFallbackApplied(Composition, TransformationRequest, TransformationRequest)} will
+     * be invoked with the actual applied values.
      *
      * @param transformationRequest The {@link TransformationRequest}.
      * @return This builder.
@@ -449,31 +449,42 @@ public final class Transformer {
   public interface Listener {
 
     /**
-     * @deprecated Use {@link #onTransformationCompleted(MediaItem, TransformationResult)} instead.
+     * @deprecated Use {@link #onTransformationCompleted(Composition, TransformationResult)}
+     *     instead.
      */
     @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem) {}
 
     /**
-     * Called when the transformation is completed successfully.
-     *
-     * @param inputMediaItem The {@link MediaItem} for which the transformation is completed.
-     * @param result The {@link TransformationResult} of the transformation.
+     * @deprecated Use {@link #onTransformationCompleted(Composition, TransformationResult)}
+     *     instead.
      */
+    @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
       onTransformationCompleted(inputMediaItem);
     }
 
     /**
-     * @deprecated Use {@link #onTransformationError(MediaItem, TransformationResult,
-     *     TransformationException)}.
+     * Called when the transformation is completed successfully.
+     *
+     * @param composition The {@link Composition} for which the transformation is completed.
+     * @param result The {@link TransformationResult} of the transformation.
+     */
+    default void onTransformationCompleted(Composition composition, TransformationResult result) {
+      MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
+      onTransformationCompleted(mediaItem, result);
+    }
+
+    /**
+     * @deprecated Use {@link #onTransformationError(Composition, TransformationResult,
+     *     TransformationException)} instead.
      */
     @Deprecated
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
 
     /**
-     * @deprecated Use {@link #onTransformationError(MediaItem, TransformationResult,
-     *     TransformationException)}.
+     * @deprecated Use {@link #onTransformationError(Composition, TransformationResult,
+     *     TransformationException)} instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -482,22 +493,43 @@ public final class Transformer {
     }
 
     /**
-     * Called if an exception occurs during the transformation.
-     *
-     * @param inputMediaItem The {@link MediaItem} for which the exception occurs.
-     * @param result The {@link TransformationResult} of the transformation.
-     * @param exception The {@link TransformationException} describing the exception.
+     * @deprecated Use {@link #onTransformationError(Composition, TransformationResult,
+     *     TransformationException)} instead.
      */
+    @Deprecated
     default void onTransformationError(
         MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {
       onTransformationError(inputMediaItem, exception);
     }
 
     /**
+     * Called if an exception occurs during the transformation.
+     *
+     * @param composition The {@link Composition} for which the exception occurs.
+     * @param result The {@link TransformationResult} of the transformation.
+     * @param exception The {@link TransformationException} describing the exception.
+     */
+    default void onTransformationError(
+        Composition composition, TransformationResult result, TransformationException exception) {
+      MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
+      onTransformationError(mediaItem, result, exception);
+    }
+
+    /**
+     * @deprecated Use {@link #onFallbackApplied(Composition, TransformationRequest,
+     *     TransformationRequest)} instead.
+     */
+    @Deprecated
+    default void onFallbackApplied(
+        MediaItem inputMediaItem,
+        TransformationRequest originalTransformationRequest,
+        TransformationRequest fallbackTransformationRequest) {}
+
+    /**
      * Called when falling back to an alternative {@link TransformationRequest} or changing the
      * video frames' resolution is necessary to comply with muxer or device constraints.
      *
-     * @param inputMediaItem The {@link MediaItem} for which the transformation is requested.
+     * @param composition The {@link Composition} for which the transformation is requested.
      * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
      *     building {@link Transformer}.
      * @param fallbackTransformationRequest The alternative {@link TransformationRequest}, with
@@ -506,9 +538,12 @@ public final class Transformer {
      *     {@link TransformationRequest#hdrMode} values set.
      */
     default void onFallbackApplied(
-        MediaItem inputMediaItem,
+        Composition composition,
         TransformationRequest originalTransformationRequest,
-        TransformationRequest fallbackTransformationRequest) {}
+        TransformationRequest fallbackTransformationRequest) {
+      MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
+      onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
+    }
   }
 
   /**
@@ -717,12 +752,14 @@ public final class Transformer {
     if (transformerInternal != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition = new Composition(ImmutableList.of(sequence), Effects.EMPTY);
     TransformerInternalListener transformerInternalListener =
-        new TransformerInternalListener(editedMediaItem.mediaItem);
+        new TransformerInternalListener(composition);
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
     FallbackListener fallbackListener =
-        new FallbackListener(
-            editedMediaItem.mediaItem, listeners, applicationHandler, transformationRequest);
+        new FallbackListener(composition, listeners, applicationHandler, transformationRequest);
     transformerInternal =
         new TransformerInternal(
             context,
@@ -753,7 +790,7 @@ public final class Transformer {
    * Returns the current {@link ProgressState} and updates {@code progressHolder} with the current
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
-   * <p>After a transformation {@linkplain Listener#onTransformationCompleted(MediaItem,
+   * <p>After a transformation {@linkplain Listener#onTransformationCompleted(Composition,
    * TransformationResult) completes}, this method returns {@link #PROGRESS_STATE_NOT_STARTED}.
    *
    * @param progressHolder A {@link ProgressHolder}, updated to hold the percentage progress if
@@ -793,10 +830,10 @@ public final class Transformer {
 
   private final class TransformerInternalListener implements TransformerInternal.Listener {
 
-    private final MediaItem mediaItem;
+    private final Composition composition;
 
-    public TransformerInternalListener(MediaItem mediaItem) {
-      this.mediaItem = mediaItem;
+    public TransformerInternalListener(Composition composition) {
+      this.composition = composition;
     }
 
     @Override
@@ -805,7 +842,7 @@ public final class Transformer {
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onTransformationCompleted(mediaItem, transformationResult));
+          listener -> listener.onTransformationCompleted(composition, transformationResult));
       listeners.flushEvents();
     }
 
@@ -815,7 +852,7 @@ public final class Transformer {
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onTransformationError(mediaItem, result, exception));
+          listener -> listener.onTransformationError(composition, result, exception));
       listeners.flushEvents();
     }
   }

@@ -43,12 +43,20 @@ import org.robolectric.shadows.ShadowMediaCodecList;
 /** Unit tests for {@link VideoSamplePipeline.EncoderWrapper}. */
 @RunWith(AndroidJUnit4.class)
 public final class VideoEncoderWrapperTest {
+  private static final Composition FAKE_COMPOSITION =
+      new Composition(
+          ImmutableList.of(
+              new EditedMediaItemSequence(
+                  ImmutableList.of(
+                      new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))),
+          Effects.EMPTY);
+
   private final TransformationRequest emptyTransformationRequest =
       new TransformationRequest.Builder().build();
   private final FakeVideoEncoderFactory fakeEncoderFactory = new FakeVideoEncoderFactory();
   private final FallbackListener fallbackListener =
       new FallbackListener(
-          MediaItem.fromUri(Uri.EMPTY),
+          FAKE_COMPOSITION,
           new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, (listener, flags) -> {}),
           Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null),
           emptyTransformationRequest);

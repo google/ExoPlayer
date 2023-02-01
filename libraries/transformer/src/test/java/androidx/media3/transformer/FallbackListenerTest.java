@@ -29,6 +29,7 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -37,14 +38,20 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(AndroidJUnit4.class)
 public class FallbackListenerTest {
 
-  private static final MediaItem PLACEHOLDER_MEDIA_ITEM = MediaItem.fromUri(Uri.EMPTY);
+  private static final Composition PLACEHOLDER_COMPOSITION =
+      new Composition(
+          ImmutableList.of(
+              new EditedMediaItemSequence(
+                  ImmutableList.of(
+                      new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))),
+          Effects.EMPTY);
 
   @Test
   public void onTransformationRequestFinalized_withoutTrackCountSet_throwsException() {
     TransformationRequest transformationRequest = new TransformationRequest.Builder().build();
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM, createListenerSet(), createHandler(), transformationRequest);
+            PLACEHOLDER_COMPOSITION, createListenerSet(), createHandler(), transformationRequest);
 
     assertThrows(
         IllegalStateException.class,
@@ -56,7 +63,7 @@ public class FallbackListenerTest {
     TransformationRequest transformationRequest = new TransformationRequest.Builder().build();
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM, createListenerSet(), createHandler(), transformationRequest);
+            PLACEHOLDER_COMPOSITION, createListenerSet(), createHandler(), transformationRequest);
 
     fallbackListener.setTrackCount(1);
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
@@ -71,7 +78,7 @@ public class FallbackListenerTest {
     Transformer.Listener mockListener = mock(Transformer.Listener.class);
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM,
+            PLACEHOLDER_COMPOSITION,
             createListenerSet(mockListener),
             createHandler(),
             originalRequest);
@@ -80,7 +87,7 @@ public class FallbackListenerTest {
     fallbackListener.onTransformationRequestFinalized(unchangedRequest);
     ShadowLooper.idleMainLooper();
 
-    verify(mockListener, never()).onFallbackApplied(any(), any(), any());
+    verify(mockListener, never()).onFallbackApplied(any(Composition.class), any(), any());
   }
 
   @Test
@@ -92,7 +99,7 @@ public class FallbackListenerTest {
     Transformer.Listener mockListener = mock(Transformer.Listener.class);
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM,
+            PLACEHOLDER_COMPOSITION,
             createListenerSet(mockListener),
             createHandler(),
             originalRequest);
@@ -102,7 +109,7 @@ public class FallbackListenerTest {
     ShadowLooper.idleMainLooper();
 
     verify(mockListener)
-        .onFallbackApplied(PLACEHOLDER_MEDIA_ITEM, originalRequest, audioFallbackRequest);
+        .onFallbackApplied(PLACEHOLDER_COMPOSITION, originalRequest, audioFallbackRequest);
   }
 
   @Test
@@ -122,7 +129,7 @@ public class FallbackListenerTest {
     Transformer.Listener mockListener = mock(Transformer.Listener.class);
     FallbackListener fallbackListener =
         new FallbackListener(
-            PLACEHOLDER_MEDIA_ITEM,
+            PLACEHOLDER_COMPOSITION,
             createListenerSet(mockListener),
             createHandler(),
             originalRequest);
@@ -133,7 +140,7 @@ public class FallbackListenerTest {
     ShadowLooper.idleMainLooper();
 
     verify(mockListener)
-        .onFallbackApplied(PLACEHOLDER_MEDIA_ITEM, originalRequest, mergedFallbackRequest);
+        .onFallbackApplied(PLACEHOLDER_COMPOSITION, originalRequest, mergedFallbackRequest);
   }
 
   private static ListenerSet<Transformer.Listener> createListenerSet(
