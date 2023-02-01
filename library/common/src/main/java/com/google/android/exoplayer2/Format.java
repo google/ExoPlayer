@@ -108,6 +108,13 @@ import java.util.UUID;
  * <ul>
  *   <li>{@link #accessibilityChannel}
  * </ul>
+ *
+ * <h2 id="image-formats">Fields relevant to image formats</h2>
+ *
+ * <ul>
+ *   <li>{@link #tileCountHorizontal}
+ *   <li>{@link #tileCountVertical}
+ * </ul>
  */
 public final class Format implements Bundleable {
 
@@ -167,6 +174,11 @@ public final class Format implements Bundleable {
 
     private int accessibilityChannel;
 
+    // Image specific
+
+    private int tileCountHorizontal;
+    private int tileCountVertical;
+
     // Provided by the source.
 
     private @C.CryptoType int cryptoType;
@@ -190,6 +202,9 @@ public final class Format implements Bundleable {
       pcmEncoding = NO_VALUE;
       // Text specific.
       accessibilityChannel = NO_VALUE;
+      // Image specific.
+      tileCountHorizontal = NO_VALUE;
+      tileCountVertical = NO_VALUE;
       // Provided by the source.
       cryptoType = C.CRYPTO_TYPE_NONE;
     }
@@ -234,6 +249,9 @@ public final class Format implements Bundleable {
       this.encoderPadding = format.encoderPadding;
       // Text specific.
       this.accessibilityChannel = format.accessibilityChannel;
+      // Image specific.
+      this.tileCountHorizontal = format.tileCountHorizontal;
+      this.tileCountVertical = format.tileCountVertical;
       // Provided by the source.
       this.cryptoType = format.cryptoType;
     }
@@ -609,6 +627,32 @@ public final class Format implements Bundleable {
       return this;
     }
 
+    // Image specific.
+
+    /**
+     * Sets {@link Format#tileCountHorizontal}. The default value is {@link #NO_VALUE}.
+     *
+     * @param tileCountHorizontal The {@link Format#accessibilityChannel}.
+     * @return The builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setTileCountHorizontal(int tileCountHorizontal) {
+      this.tileCountHorizontal = tileCountHorizontal;
+      return this;
+    }
+
+    /**
+     * Sets {@link Format#tileCountVertical}. The default value is {@link #NO_VALUE}.
+     *
+     * @param tileCountVertical The {@link Format#accessibilityChannel}.
+     * @return The builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setTileCountVertical(int tileCountVertical) {
+      this.tileCountVertical = tileCountVertical;
+      return this;
+    }
+
     // Provided by source.
 
     /**
@@ -780,6 +824,15 @@ public final class Format implements Bundleable {
 
   /** The Accessibility channel, or {@link #NO_VALUE} if not known or applicable. */
   public final int accessibilityChannel;
+
+  // Image specific.
+
+  /**
+   * The number of horizontal tiles in an image, or {@link #NO_VALUE} if not known or applicable.
+   */
+  public final int tileCountHorizontal;
+  /** The number of vertical tiles in an image, or {@link #NO_VALUE} if not known or applicable. */
+  public final int tileCountVertical;
 
   // Provided by source.
 
@@ -1004,6 +1057,9 @@ public final class Format implements Bundleable {
     encoderPadding = builder.encoderPadding == NO_VALUE ? 0 : builder.encoderPadding;
     // Text specific.
     accessibilityChannel = builder.accessibilityChannel;
+    // Image specific.
+    tileCountHorizontal = builder.tileCountHorizontal;
+    tileCountVertical = builder.tileCountVertical;
     // Provided by source.
     if (builder.cryptoType == C.CRYPTO_TYPE_NONE && drmInitData != null) {
       // Encrypted content cannot use CRYPTO_TYPE_NONE.
@@ -1250,6 +1306,9 @@ public final class Format implements Bundleable {
       result = 31 * result + encoderPadding;
       // Text specific.
       result = 31 * result + accessibilityChannel;
+      // Image specific.
+      result = 31 * result + tileCountHorizontal;
+      result = 31 * result + tileCountVertical;
       // Provided by the source.
       result = 31 * result + cryptoType;
       hashCode = result;
@@ -1286,6 +1345,8 @@ public final class Format implements Bundleable {
         && encoderDelay == other.encoderDelay
         && encoderPadding == other.encoderPadding
         && accessibilityChannel == other.accessibilityChannel
+        && tileCountHorizontal == other.tileCountHorizontal
+        && tileCountVertical == other.tileCountVertical
         && cryptoType == other.cryptoType
         && Float.compare(frameRate, other.frameRate) == 0
         && Float.compare(pixelWidthHeightRatio, other.pixelWidthHeightRatio) == 0
@@ -1480,6 +1541,8 @@ public final class Format implements Bundleable {
   private static final String FIELD_ENCODER_PADDING = Util.intToStringMaxRadix(27);
   private static final String FIELD_ACCESSIBILITY_CHANNEL = Util.intToStringMaxRadix(28);
   private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(29);
+  private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(30);
+  private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(31);
 
   @Override
   public Bundle toBundle() {
@@ -1535,6 +1598,9 @@ public final class Format implements Bundleable {
     bundle.putInt(FIELD_ENCODER_PADDING, encoderPadding);
     // Text specific.
     bundle.putInt(FIELD_ACCESSIBILITY_CHANNEL, accessibilityChannel);
+    // Image specific.
+    bundle.putInt(FIELD_TILE_COUNT_HORIZONTAL, tileCountHorizontal);
+    bundle.putInt(FIELD_TILE_COUNT_VERTICAL, tileCountVertical);
     // Source specific.
     bundle.putInt(FIELD_CRYPTO_TYPE, cryptoType);
     return bundle;
@@ -1599,6 +1665,10 @@ public final class Format implements Bundleable {
         // Text specific.
         .setAccessibilityChannel(
             bundle.getInt(FIELD_ACCESSIBILITY_CHANNEL, DEFAULT.accessibilityChannel))
+        // Image specific.
+        .setTileCountHorizontal(
+            bundle.getInt(FIELD_TILE_COUNT_HORIZONTAL, DEFAULT.tileCountHorizontal))
+        .setTileCountVertical(bundle.getInt(FIELD_TILE_COUNT_VERTICAL, DEFAULT.tileCountVertical))
         // Source specific.
         .setCryptoType(bundle.getInt(FIELD_CRYPTO_TYPE, DEFAULT.cryptoType));
 

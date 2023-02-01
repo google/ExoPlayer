@@ -555,7 +555,9 @@ public class DashManifestParser extends DefaultHandler
                 ? C.TRACK_TYPE_VIDEO
                 : MimeTypes.BASE_TYPE_TEXT.equals(contentType)
                     ? C.TRACK_TYPE_TEXT
-                    : C.TRACK_TYPE_UNKNOWN;
+                    : MimeTypes.BASE_TYPE_IMAGE.equals(contentType)
+                        ? C.TRACK_TYPE_IMAGE
+                        : C.TRACK_TYPE_UNKNOWN;
   }
 
   /**
@@ -808,6 +810,7 @@ public class DashManifestParser extends DefaultHandler
     roleFlags |= parseRoleFlagsFromAccessibilityDescriptors(accessibilityDescriptors);
     roleFlags |= parseRoleFlagsFromProperties(essentialProperties);
     roleFlags |= parseRoleFlagsFromProperties(supplementalProperties);
+    @Nullable Pair<Integer, Integer> tileCounts = parseTileCountFromProperties(essentialProperties);
 
     Format.Builder formatBuilder =
         new Format.Builder()
@@ -818,7 +821,9 @@ public class DashManifestParser extends DefaultHandler
             .setPeakBitrate(bitrate)
             .setSelectionFlags(selectionFlags)
             .setRoleFlags(roleFlags)
-            .setLanguage(language);
+            .setLanguage(language)
+            .setTileCountHorizontal(tileCounts != null ? tileCounts.first : Format.NO_VALUE)
+            .setTileCountVertical(tileCounts != null ? tileCounts.second : Format.NO_VALUE);
 
     if (MimeTypes.isVideo(sampleMimeType)) {
       formatBuilder.setWidth(width).setHeight(height).setFrameRate(frameRate);
@@ -1625,6 +1630,41 @@ public class DashManifestParser extends DefaultHandler
       return defaultValue;
     }
     return attributeValue.split(",");
+  }
+
+  // Thumbnail tile information parsing
+
+  /**
+   * Parses given descriptors for thumbnail tile information.
+   *
+   * @param essentialProperties List of descriptors that contain thumbnail tile information.
+   * @return A pair of Integer values, where the first is the count of horizontal tiles and the
+   *     second is the count of vertical tiles, or null if no thumbnail tile information is found.
+   */
+  @Nullable
+  protected Pair<Integer, Integer> parseTileCountFromProperties(
+      List<Descriptor> essentialProperties) {
+    for (int i = 0; i < essentialProperties.size(); i++) {
+      Descriptor descriptor = essentialProperties.get(i);
+      if ((Ascii.equalsIgnoreCase("http://dashif.org/thumbnail_tile", descriptor.schemeIdUri)
+              || Ascii.equalsIgnoreCase(
+                  "http://dashif.org/guidelines/thumbnail_tile", descriptor.schemeIdUri))
+          && descriptor.value != null) {
+        String size = descriptor.value;
+        String[] sizeSplit = Util.split(size, "x");
+        if (sizeSplit.length != 2) {
+          continue;
+        }
+        try {
+          int tileCountHorizontal = Integer.parseInt(sizeSplit[0]);
+          int tileCountVertical = Integer.parseInt(sizeSplit[1]);
+          return Pair.create(tileCountHorizontal, tileCountVertical);
+        } catch (NumberFormatException e) {
+          // Ignore property if it's malformed.
+        }
+      }
+    }
+    return null;
   }
 
   // Utility methods.
