@@ -20,6 +20,9 @@
         for seeking.
     *   Use theme when loading drawables on API 21+
         ([#220](https://github.com/androidx/media/issues/220)).
+    *   Add `ConcatenatingMediaSource2` that allows combining multiple media
+        items into a single window
+        ([#247](https://github.com/androidx/media/issues/247)).
 *   Extractors:
     *   Throw a ParserException instead of a NullPointerException if the sample
         table (stbl) is missing a required sample description (stsd) when
