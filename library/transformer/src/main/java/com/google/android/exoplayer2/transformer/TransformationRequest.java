@@ -23,7 +23,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -245,10 +244,10 @@ public final class TransformationRequest {
    *
    * <ul>
    *   <li>Always set to {@link C#LENGTH_UNSET} in the {@code originalTransformationRequest}
-   *       parameter of {@link Transformer.Listener#onFallbackApplied(MediaItem,
+   *       parameter of {@link Transformer.Listener#onFallbackApplied(Composition,
    *       TransformationRequest, TransformationRequest)}.
    *   <li>Set to {@link C#LENGTH_UNSET} in the {@code fallbackTransformationRequest} parameter of
-   *       {@link Transformer.Listener#onFallbackApplied(MediaItem, TransformationRequest,
+   *       {@link Transformer.Listener#onFallbackApplied(Composition, TransformationRequest,
    *       TransformationRequest)} to indicate that it is inferred from the input.
    * </ul>
    */

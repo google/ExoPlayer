@@ -25,6 +25,11 @@ import com.google.common.collect.ImmutableList;
 /** Effects to apply to a {@link MediaItem}. */
 public final class Effects {
 
+  /** An empty {@link Effects} instance. */
+  public static final Effects EMPTY =
+      new Effects(
+          /* audioProcessors= */ ImmutableList.of(), /* videoEffects= */ ImmutableList.of());
+
   /**
    * The list of {@linkplain AudioProcessor audio processors} to apply to audio buffers. They are
    * applied in the order of the list, and buffers will only be modified by that {@link

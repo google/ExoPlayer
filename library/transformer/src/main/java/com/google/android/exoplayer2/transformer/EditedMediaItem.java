@@ -21,9 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link MediaItem} with the transformations to apply to it. */
 public final class EditedMediaItem {
@@ -36,7 +34,7 @@ public final class EditedMediaItem {
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
-    private @MonotonicNonNull Effects effects;
+    private Effects effects;
 
     /**
      * Creates an instance.
@@ -45,6 +43,7 @@ public final class EditedMediaItem {
      */
     public Builder(MediaItem mediaItem) {
       this.mediaItem = mediaItem;
+      effects = Effects.EMPTY;
     }
 
     /**
@@ -113,7 +112,7 @@ public final class EditedMediaItem {
     /**
      * Sets the {@link Effects} to apply to the {@link MediaItem}.
      *
-     * <p>The default value is an empty {@link Effects} instance.
+     * <p>The default value is {@link Effects#EMPTY}.
      *
      * @param effects The {@link Effects} to apply.
      * @return This builder.
@@ -126,11 +125,6 @@ public final class EditedMediaItem {
 
     /** Builds an {@link EditedMediaItem} instance. */
     public EditedMediaItem build() {
-      if (effects == null) {
-        effects =
-            new Effects(
-                /* audioProcessors= */ ImmutableList.of(), /* videoEffects= */ ImmutableList.of());
-      }
       return new EditedMediaItem(
           mediaItem, removeAudio, removeVideo, flattenForSlowMotion, effects);
     }

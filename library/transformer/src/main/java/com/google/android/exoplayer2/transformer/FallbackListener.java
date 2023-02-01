@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
@@ -31,7 +30,7 @@ import com.google.android.exoplayer2.util.Util;
  */
 /* package */ final class FallbackListener {
 
-  private final MediaItem mediaItem;
+  private final Composition composition;
   private final TransformationRequest originalTransformationRequest;
   private final ListenerSet<Transformer.Listener> transformerListeners;
   private final HandlerWrapper transformerListenerHandler;
@@ -42,7 +41,7 @@ import com.google.android.exoplayer2.util.Util;
   /**
    * Creates a new instance.
    *
-   * @param mediaItem The {@link MediaItem} to transform.
+   * @param composition The {@link Composition} to transform.
    * @param transformerListeners The {@linkplain Transformer.Listener listeners} to call {@link
    *     Transformer.Listener#onFallbackApplied} on.
    * @param transformerListenerHandler The {@link HandlerWrapper} to call {@link
@@ -50,11 +49,11 @@ import com.google.android.exoplayer2.util.Util;
    * @param originalTransformationRequest The original {@link TransformationRequest}.
    */
   public FallbackListener(
-      MediaItem mediaItem,
+      Composition composition,
       ListenerSet<Transformer.Listener> transformerListeners,
       HandlerWrapper transformerListenerHandler,
       TransformationRequest originalTransformationRequest) {
-    this.mediaItem = mediaItem;
+    this.composition = composition;
     this.transformerListeners = transformerListeners;
     this.transformerListenerHandler = transformerListenerHandler;
     this.originalTransformationRequest = originalTransformationRequest;
@@ -79,7 +78,7 @@ import com.google.android.exoplayer2.util.Util;
    *
    * <p>Fallback is applied if the finalized {@code TransformationRequest} is different from the
    * original {@code TransformationRequest}. If fallback is applied, calls {@link
-   * Transformer.Listener#onFallbackApplied(MediaItem, TransformationRequest,
+   * Transformer.Listener#onFallbackApplied(Composition, TransformationRequest,
    * TransformationRequest)} once this method has been called for each track.
    *
    * @param transformationRequest The final {@link TransformationRequest} for a track.
@@ -115,7 +114,7 @@ import com.google.android.exoplayer2.util.Util;
                   /* eventFlag= */ C.INDEX_UNSET,
                   listener ->
                       listener.onFallbackApplied(
-                          mediaItem,
+                          composition,
                           originalTransformationRequest,
                           newFallbackTransformationRequest)));
     }
