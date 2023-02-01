@@ -134,7 +134,7 @@ import org.checkerframework.dataflow.qual.Pure;
     // TODO(b/259570024): investigate overhauling fallback.
     @Nullable
     String supportedMimeType =
-        selectEncoderAndMuxerSupportedMimeType(requestedMimeType, muxerSupportedMimeTypes);
+        findSupportedMimeTypeForEncoderAndMuxer(requestedMimeType, muxerSupportedMimeTypes);
     if (supportedMimeType == null) {
       throw createNoSupportedMimeTypeException(requestedOutputFormat);
     }
@@ -340,12 +340,12 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Nullable
-  private static String selectEncoderAndMuxerSupportedMimeType(
-      String requestedMimeType, List<String> muxerSupportedMimeTypes) {
-    if (!EncoderUtil.getSupportedEncoders(requestedMimeType).isEmpty()) {
-      return requestedMimeType;
+  private static String findSupportedMimeTypeForEncoderAndMuxer(
+      String preferredMimeType, List<String> muxerSupportedMimeTypes) {
+    if (!EncoderUtil.getSupportedEncoders(preferredMimeType).isEmpty()) {
+      return preferredMimeType;
     } else {
-      // No encoder supports the requested MIME type.
+      // No encoder supports the preferred MIME type.
       for (int i = 0; i < muxerSupportedMimeTypes.size(); i++) {
         String mimeType = muxerSupportedMimeTypes.get(i);
         if (!EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {

@@ -436,10 +436,22 @@ import org.checkerframework.dataflow.qual.Pure;
 
       @Nullable
       String supportedMimeType =
-          selectEncoderAndMuxerSupportedMimeType(
+          findSupportedMimeTypeForEncoderAndMuxer(
               requestedOutputMimeType, muxerSupportedMimeTypes, requestedEncoderFormat.colorInfo);
       if (supportedMimeType == null) {
-        throw createNoSupportedMimeTypeException(requestedEncoderFormat);
+        if (ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo)) {
+          throw TransformationException.createForCodec(
+              new IllegalStateException(
+                  "No MIME type supported by both encoder and muxer for requested HDR colorInfo: "
+                      + requestedEncoderFormat.colorInfo),
+              /* isVideo= */ true,
+              /* isDecoder= */ false,
+              requestedEncoderFormat,
+              /* mediaCodecName= */ null,
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+        } else {
+          throw createNoSupportedMimeTypeException(requestedEncoderFormat);
+        }
       }
 
       encoder =
@@ -448,12 +460,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
       Format encoderSupportedFormat = encoder.getConfigurationFormat();
       checkState(supportedMimeType.equals(encoderSupportedFormat.sampleMimeType));
-      if (ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo)
-          && !supportedEncoderNamesForHdrEditing.contains(encoder.getName())) {
-        throw createEncodingException(
-            new IllegalStateException("Selected encoder doesn't support HDR editing"),
-            encoderSupportedFormat);
-      }
+
       boolean isInputToneMapped =
           ColorInfo.isTransferHdr(inputFormat.colorInfo)
               && !ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo);
@@ -531,34 +538,28 @@ import org.checkerframework.dataflow.qual.Pure;
       releaseEncoder = true;
     }
 
-    private TransformationException createEncodingException(Exception cause, Format format) {
-      return TransformationException.createForCodec(
-          cause,
-          /* isVideo= */ true,
-          /* isDecoder= */ false,
-          format,
-          checkNotNull(encoder).getName(),
-          TransformationException.ERROR_CODE_ENCODING_FAILED);
-    }
-
     /**
-     * Finds a {@linkplain MimeTypes MIME type} that is supported by both the encoder and the muxer.
+     * Finds a {@linkplain MimeTypes MIME type} that is supported by the encoder and the muxer.
      *
-     * @param requestedMimeType The requested {@linkplain MimeTypes MIME type}.
+     * <p>HDR editing support is checked if the {@link ColorInfo} is HDR.
+     *
+     * @param preferredMimeType The preferred {@linkplain MimeTypes MIME type}, returned if
+     *     supported.
      * @param muxerSupportedMimeTypes The list of sample {@linkplain MimeTypes MIME types} that the
      *     muxer supports.
-     * @param colorInfo The requested encoding {@link ColorInfo}, if available.
+     * @param colorInfo The optional encoding {@link ColorInfo}. If a HDR color info is provided,
+     *     only encoders that support it will be considered.
      * @return A {@linkplain MimeTypes MIME type} that is supported by an encoder and the muxer, or
      *     {@code null} if no such {@linkplain MimeTypes MIME type} exists.
      */
     @Nullable
-    private static String selectEncoderAndMuxerSupportedMimeType(
-        String requestedMimeType,
+    private static String findSupportedMimeTypeForEncoderAndMuxer(
+        String preferredMimeType,
         List<String> muxerSupportedMimeTypes,
         @Nullable ColorInfo colorInfo) {
       ImmutableList<String> mimeTypesToCheck =
           new ImmutableList.Builder<String>()
-              .add(requestedMimeType)
+              .add(preferredMimeType)
               .add(MimeTypes.VIDEO_H265)
               .add(MimeTypes.VIDEO_H264)
               .addAll(muxerSupportedMimeTypes)
