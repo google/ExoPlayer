@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import static com.google.android.exoplayer2.effect.OverlayTextureProcessorPixelTest.OVERLAY_PNG_ASSET_PATH;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
@@ -34,6 +35,7 @@ import com.google.android.exoplayer2.util.Size;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,6 +54,9 @@ import org.junit.runner.RunWith;
 public final class GlEffectsFrameProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+  // This file is generated on a Pixel 7, because the emulator isn't able to generate this file.
+  public static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
   public static final String SCALE_WIDE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_wide.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
@@ -160,6 +165,26 @@ public final class GlEffectsFrameProcessorPixelTest {
                 new ScaleToFitTransformation.Builder().setRotationDegrees(45).build())
             .build();
     Bitmap expectedBitmap = readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
+
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  @Ignore("b/267031388 Test can only run on physical devices because emulator cannot produce image")
+  public void bitmapOverlay_matchesGoldenFile() throws Exception {
+    String testId = "bitmapOverlay_matchesGoldenFile";
+    Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
+    BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setEffects(new OverlayEffect(ImmutableList.of(bitmapOverlay)))
+            .build();
+    Bitmap expectedBitmap = readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
