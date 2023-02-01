@@ -58,7 +58,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class OverlayTextureProcessorPixelTest {
-  public static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/overlay/100winners.png";
+  public static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/overlay/media3test.png";
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   public static final String OVERLAY_BITMAP_DEFAULT =
@@ -132,9 +132,9 @@ public class OverlayTextureProcessorPixelTest {
   public void drawFrame_bitmapOverlay_blendsBitmapIntoFrame() throws Exception {
     String testId = "drawFrame_bitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
-    BitmapOverlay scaledBitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
+    BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
     overlayTextureProcessor =
-        new OverlayEffect(ImmutableList.of(scaledBitmapOverlay))
+        new OverlayEffect(ImmutableList.of(bitmapOverlay))
             .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());

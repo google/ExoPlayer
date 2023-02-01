@@ -234,6 +234,21 @@ import com.google.common.collect.ImmutableList;
             .append("  } else {\n")
             .append("    return clamp(overlayAlpha/videoAlpha, 0.0, 1.0);\n")
             .append("  }\n")
+            .append("}\n")
+            .append("")
+            .append("float srgbEotfSingleChannel(float srgb) {\n")
+            .append("  return srgb <= 0.04045 ? srgb / 12.92 : pow((srgb + 0.055) / 1.055, 2.4);\n")
+            .append("}\n")
+            .append("// sRGB EOTF.\n")
+            .append("vec3 applyEotf(const vec3 srgb) {\n")
+            .append("// Reference implementation:\n")
+            .append(
+                "// https://cs.android.com/android/platform/superproject/+/master:frameworks/native/libs/renderengine/gl/ProgramCache.cpp;drc=de09f10aa504fd8066370591a00c9ff1cafbb7fa;l=235\n")
+            .append("  return vec3(\n")
+            .append("    srgbEotfSingleChannel(srgb.r),\n")
+            .append("    srgbEotfSingleChannel(srgb.g),\n")
+            .append("    srgbEotfSingleChannel(srgb.b)\n")
+            .append("  );\n")
             .append("}\n");
 
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
@@ -253,15 +268,22 @@ import com.google.common.collect.ImmutableList;
       shader
           .append(
               Util.formatInvariant(
-                  "  vec4 overlayColor%d = getClampToBorderOverlayColor(\n", texUnitIndex))
+                  "  vec4 electricalOverlayColor%d = getClampToBorderOverlayColor(\n",
+                  texUnitIndex))
           .append(
               Util.formatInvariant(
                   "    uOverlayTexSampler%d, vOverlayTexSamplingCoord%d, uOverlayAlpha%d);\n",
                   texUnitIndex, texUnitIndex, texUnitIndex))
+          .append(Util.formatInvariant("  vec4 opticalOverlayColor%d = vec4(\n", texUnitIndex))
+          .append(
+              Util.formatInvariant(
+                  "    applyEotf(electricalOverlayColor%d.rgb), electricalOverlayColor%d.a);\n",
+                  texUnitIndex, texUnitIndex))
           .append("  fragColor = mix(\n")
           .append(
               Util.formatInvariant(
-                  "    fragColor, overlayColor%d, getMixAlpha(videoColor.a, overlayColor%d.a));\n",
+                  "    fragColor, opticalOverlayColor%d, getMixAlpha(videoColor.a,"
+                      + " opticalOverlayColor%d.a));\n",
                   texUnitIndex, texUnitIndex));
     }
 
