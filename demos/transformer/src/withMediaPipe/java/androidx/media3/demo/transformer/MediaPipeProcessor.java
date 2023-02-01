@@ -232,6 +232,12 @@ import java.util.concurrent.Future;
   }
 
   @Override
+  public void flush() {
+    // TODO(b/238302341) Support seeking in MediaPipeProcessor.
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void release() {
     if (isSingleFrameGraph) {
       frameProcessor.close();

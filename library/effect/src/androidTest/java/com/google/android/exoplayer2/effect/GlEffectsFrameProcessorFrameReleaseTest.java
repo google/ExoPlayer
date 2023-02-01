@@ -421,6 +421,11 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     }
 
     @Override
+    public void flush() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void release() {
       // Do nothing as destroying the OpenGL context destroys the texture.
     }

@@ -68,6 +68,14 @@ public interface GlTextureProcessor {
      *     #queueInputFrame(TextureInfo, long) queue} the input frame.
      */
     default void onInputFrameProcessed(TextureInfo inputTexture) {}
+
+    /**
+     * Called when the {@link GlTextureProcessor} has been flushed.
+     *
+     * <p>The implementation shall not assume the {@link GlTextureProcessor} is {@linkplain
+     * #onReadyToAcceptInputFrame ready to accept another input frame} when this method is called.
+     */
+    default void onFlush() {}
   }
 
   /**
@@ -167,6 +175,15 @@ public interface GlTextureProcessor {
    * last frame of the previous input stream.
    */
   void signalEndOfCurrentInputStream();
+
+  /**
+   * Flushes the {@code GlTextureProcessor}.
+   *
+   * <p>The texture processor should reclaim the ownership of its allocated textures, {@linkplain
+   * InputListener#onFlush notify} its {@link InputListener} about the flush event, and {@linkplain
+   * InputListener#onReadyToAcceptInputFrame report its availability} if necessary.
+   */
+  void flush();
 
   /**
    * Releases all resources.

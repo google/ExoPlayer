@@ -92,6 +92,13 @@ import java.util.Queue;
   }
 
   @Override
+  public synchronized void onFlush() {
+    consumingGlTextureProcessorInputCapacity = 0;
+    availableFrames.clear();
+    frameProcessingTaskExecutor.submit(producingGlTextureProcessor::flush);
+  }
+
+  @Override
   public synchronized void onOutputFrameAvailable(
       TextureInfo outputTexture, long presentationTimeUs) {
     if (consumingGlTextureProcessorInputCapacity > 0) {
