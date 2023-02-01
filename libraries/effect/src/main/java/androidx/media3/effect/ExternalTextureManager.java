@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Set to null on any thread. Read and set to non-null on the GL thread only.
   @Nullable private volatile FrameInfo currentFrame;
 
+  // TODO(b/238302341) Remove the use of after flush task, block the calling thread instead.
   @Nullable private volatile FrameProcessingTask onFlushCompleteTask;
 
   private long previousStreamOffsetUs;
@@ -97,6 +98,7 @@ import java.util.concurrent.atomic.AtomicInteger;
                   if (numberOfFramesToDropOnBecomingAvailable > 0) {
                     numberOfFramesToDropOnBecomingAvailable--;
                     surfaceTexture.updateTexImage();
+                    maybeExecuteAfterFlushTask();
                   } else {
                     availableFrameCount++;
                     maybeQueueFrameToExternalTextureProcessor();
@@ -184,10 +186,14 @@ import java.util.concurrent.atomic.AtomicInteger;
     externalTextureProcessorInputCapacity.set(0);
     currentFrame = null;
     pendingFrames.clear();
+    maybeExecuteAfterFlushTask();
+  }
 
-    if (onFlushCompleteTask != null) {
-      frameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
+  private void maybeExecuteAfterFlushTask() {
+    if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
+      return;
     }
+    frameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
   }
 
   @WorkerThread
