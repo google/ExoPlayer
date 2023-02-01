@@ -1056,9 +1056,11 @@ public final class DashMediaSource extends BaseMediaSource {
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       List<Representation> representations = adaptationSet.representations;
-      // Exclude text adaptation sets from duration calculations, if we have at least one audio
-      // or video adaptation set. See: https://github.com/google/ExoPlayer/issues/4029
-      if ((haveAudioVideoAdaptationSets && adaptationSet.type == C.TRACK_TYPE_TEXT)
+      // Exclude other adaptation sets from duration calculations, if we have at least one audio or
+      // video adaptation set. See: https://github.com/google/ExoPlayer/issues/4029.
+      boolean adaptationSetIsNotAudioVideo =
+          adaptationSet.type != C.TRACK_TYPE_AUDIO && adaptationSet.type != C.TRACK_TYPE_VIDEO;
+      if ((haveAudioVideoAdaptationSets && adaptationSetIsNotAudioVideo)
           || representations.isEmpty()) {
         continue;
       }
@@ -1088,9 +1090,11 @@ public final class DashMediaSource extends BaseMediaSource {
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       List<Representation> representations = adaptationSet.representations;
-      // Exclude text adaptation sets from duration calculations, if we have at least one audio
-      // or video adaptation set. See: https://github.com/google/ExoPlayer/issues/4029
-      if ((haveAudioVideoAdaptationSets && adaptationSet.type == C.TRACK_TYPE_TEXT)
+      // Exclude other adaptation sets from duration calculations, if we have at least one audio or
+      // video adaptation set. See: https://github.com/google/ExoPlayer/issues/4029
+      boolean adaptationSetIsNotAudioVideo =
+          adaptationSet.type != C.TRACK_TYPE_AUDIO && adaptationSet.type != C.TRACK_TYPE_VIDEO;
+      if ((haveAudioVideoAdaptationSets && adaptationSetIsNotAudioVideo)
           || representations.isEmpty()) {
         continue;
       }

@@ -115,6 +115,8 @@ public final class FormatTest {
         .setEncoderPadding(1002)
         .setAccessibilityChannel(2)
         .setCryptoType(C.CRYPTO_TYPE_CUSTOM_BASE)
+        .setTileCountHorizontal(20)
+        .setTileCountVertical(40)
         .build();
   }
 
