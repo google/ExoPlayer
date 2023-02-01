@@ -184,11 +184,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void signalEndOfCurrentInputStream() {
     checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
-
+    android.util.Log.e("LYC", "Signal end");
     streamOffsetUsQueue.remove();
     if (streamOffsetUsQueue.isEmpty()) {
       frameProcessorListenerExecutor.execute(frameProcessorListener::onFrameProcessingEnded);
     }
+  }
+
+  @Override
+  public void flush() {
+    // Drops all frames that aren't released yet.
+    availableFrames.clear();
+    if (matrixTextureProcessor != null) {
+      matrixTextureProcessor.flush();
+    }
+    inputListener.onFlush();
+    inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override

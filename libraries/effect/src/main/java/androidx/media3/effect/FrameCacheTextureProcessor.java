@@ -157,6 +157,16 @@ import java.util.concurrent.Executor;
   }
 
   @Override
+  public void flush() {
+    freeOutputTextures.addAll(inUseOutputTextures);
+    inUseOutputTextures.clear();
+    inputListener.onFlush();
+    for (int i = 0; i < freeOutputTextures.size(); i++) {
+      inputListener.onReadyToAcceptInputFrame();
+    }
+  }
+
+  @Override
   public void release() throws FrameProcessingException {
     try {
       deleteAllOutputTextures();

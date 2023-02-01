@@ -43,17 +43,22 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final float[] textureTransformMatrix;
   private final Queue<FrameInfo> pendingFrames;
 
-  // Incremented on any thread when a frame becomes available on the surfaceTexture, decremented on
-  // the GL thread only.
-  private final AtomicInteger availableFrameCount;
   // Incremented on any thread, decremented on the GL thread only.
   private final AtomicInteger externalTextureProcessorInputCapacity;
+  // Counts the frames that are registered before flush but are made available after flush.
+  // Read and written only on GL thread.
+  private int numberOfFramesToDropOnBecomingAvailable;
+
+  // Read and written only on GL thread.
+  private int availableFrameCount;
 
   // Set to true on any thread. Read on the GL thread only.
   private volatile boolean inputStreamEnded;
   // The frame that is sent downstream and is not done processing yet.
   // Set to null on any thread. Read and set to non-null on the GL thread only.
   @Nullable private volatile FrameInfo currentFrame;
+
+  @Nullable private volatile FrameProcessingTask onFlushCompleteTask;
 
   private long previousStreamOffsetUs;
 
@@ -79,30 +84,53 @@ import java.util.concurrent.atomic.AtomicInteger;
     surfaceTexture = new SurfaceTexture(externalTexId);
     textureTransformMatrix = new float[16];
     pendingFrames = new ConcurrentLinkedQueue<>();
-    availableFrameCount = new AtomicInteger();
     externalTextureProcessorInputCapacity = new AtomicInteger();
+
     previousStreamOffsetUs = C.TIME_UNSET;
   }
 
   public SurfaceTexture getSurfaceTexture() {
     surfaceTexture.setOnFrameAvailableListener(
-        unused -> {
-          availableFrameCount.getAndIncrement();
-          frameProcessingTaskExecutor.submit(this::maybeQueueFrameToExternalTextureProcessor);
-        });
+        unused ->
+            frameProcessingTaskExecutor.submit(
+                () -> {
+                  if (numberOfFramesToDropOnBecomingAvailable > 0) {
+                    numberOfFramesToDropOnBecomingAvailable--;
+                    surfaceTexture.updateTexImage();
+                  } else {
+                    availableFrameCount++;
+                    maybeQueueFrameToExternalTextureProcessor();
+                  }
+                }));
     return surfaceTexture;
   }
 
   @Override
   public void onReadyToAcceptInputFrame() {
-    externalTextureProcessorInputCapacity.getAndIncrement();
-    frameProcessingTaskExecutor.submit(this::maybeQueueFrameToExternalTextureProcessor);
+    frameProcessingTaskExecutor.submit(
+        () -> {
+          externalTextureProcessorInputCapacity.incrementAndGet();
+          maybeQueueFrameToExternalTextureProcessor();
+        });
   }
 
   @Override
   public void onInputFrameProcessed(TextureInfo inputTexture) {
-    currentFrame = null;
-    frameProcessingTaskExecutor.submit(this::maybeQueueFrameToExternalTextureProcessor);
+    frameProcessingTaskExecutor.submit(
+        () -> {
+          currentFrame = null;
+          maybeQueueFrameToExternalTextureProcessor();
+        });
+  }
+
+  /** Sets the task to run on completing flushing, or {@code null} to clear any task. */
+  public void setOnFlushCompleteListener(@Nullable FrameProcessingTask task) {
+    onFlushCompleteTask = task;
+  }
+
+  @Override
+  public void onFlush() {
+    frameProcessingTaskExecutor.submit(this::flush);
   }
 
   /**
@@ -131,12 +159,14 @@ import java.util.concurrent.atomic.AtomicInteger;
    *
    * @see FrameProcessor#signalEndOfInput()
    */
-  @WorkerThread
   public void signalEndOfInput() {
-    inputStreamEnded = true;
-    if (pendingFrames.isEmpty() && currentFrame == null) {
-      externalTextureProcessor.signalEndOfCurrentInputStream();
-    }
+    frameProcessingTaskExecutor.submit(
+        () -> {
+          inputStreamEnded = true;
+          if (pendingFrames.isEmpty() && currentFrame == null) {
+            externalTextureProcessor.signalEndOfCurrentInputStream();
+          }
+        });
   }
 
   public void release() {
@@ -144,19 +174,36 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @WorkerThread
+  private void flush() {
+    // A frame that is registered before flush may arrive after flush.
+    numberOfFramesToDropOnBecomingAvailable = pendingFrames.size() - availableFrameCount;
+    while (availableFrameCount > 0) {
+      availableFrameCount--;
+      surfaceTexture.updateTexImage();
+    }
+    externalTextureProcessorInputCapacity.set(0);
+    currentFrame = null;
+    pendingFrames.clear();
+
+    if (onFlushCompleteTask != null) {
+      frameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
+    }
+  }
+
+  @WorkerThread
   private void maybeQueueFrameToExternalTextureProcessor() {
     if (externalTextureProcessorInputCapacity.get() == 0
-        || availableFrameCount.get() == 0
+        || availableFrameCount == 0
         || currentFrame != null) {
       return;
     }
 
     surfaceTexture.updateTexImage();
-    availableFrameCount.getAndDecrement();
+    availableFrameCount--;
     this.currentFrame = pendingFrames.peek();
 
     FrameInfo currentFrame = checkStateNotNull(this.currentFrame);
-    externalTextureProcessorInputCapacity.getAndDecrement();
+    externalTextureProcessorInputCapacity.decrementAndGet();
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
     externalTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
     long frameTimeNs = surfaceTexture.getTimestamp();

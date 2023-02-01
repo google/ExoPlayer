@@ -44,6 +44,7 @@ import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -455,6 +456,20 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     frameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
+  }
+
+  @Override
+  public void flush() {
+    try {
+      frameProcessingTaskExecutor.flush();
+      CountDownLatch latch = new CountDownLatch(1);
+      inputExternalTextureManager.setOnFlushCompleteListener(latch::countDown);
+      frameProcessingTaskExecutor.submit(finalTextureProcessorWrapper::flush);
+      latch.await();
+      inputExternalTextureManager.setOnFlushCompleteListener(null);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   @Override

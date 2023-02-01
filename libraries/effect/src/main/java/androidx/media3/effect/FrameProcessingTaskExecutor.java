@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import java.util.ArrayDeque;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -76,7 +77,7 @@ import java.util.concurrent.RejectedExecutionException;
         return;
       }
       try {
-        wrapTaskAndSubmitToExecutorService(task, /* isReleaseTask= */ false);
+        wrapTaskAndSubmitToExecutorService(task, /* isFlushOrReleaseTask= */ false);
       } catch (RejectedExecutionException e) {
         executionException = e;
       }
@@ -108,6 +109,32 @@ import java.util.concurrent.RejectedExecutionException;
   }
 
   /**
+   * Flushes all scheduled tasks.
+   *
+   * <p>During flush, the {@code FrameProcessingTaskExecutor} ignores the {@linkplain #submit
+   * submission of new tasks}. The tasks that are submitted before flushing are either executed or
+   * canceled when this method returns.
+   */
+  @SuppressWarnings("FutureReturnValueIgnored")
+  public void flush() throws InterruptedException {
+    synchronized (lock) {
+      shouldCancelTasks = true;
+      highPriorityTasks.clear();
+    }
+
+    CountDownLatch latch = new CountDownLatch(1);
+    wrapTaskAndSubmitToExecutorService(
+        () -> {
+          synchronized (lock) {
+            shouldCancelTasks = false;
+          }
+          latch.countDown();
+        },
+        /* isFlushOrReleaseTask= */ true);
+    latch.await();
+  }
+
+  /**
    * Cancels remaining tasks, runs the given release task, and shuts down the background thread.
    *
    * @param releaseTask A {@link FrameProcessingTask} to execute before shutting down the background
@@ -122,7 +149,7 @@ import java.util.concurrent.RejectedExecutionException;
       highPriorityTasks.clear();
     }
     Future<?> releaseFuture =
-        wrapTaskAndSubmitToExecutorService(releaseTask, /* isReleaseTask= */ true);
+        wrapTaskAndSubmitToExecutorService(releaseTask, /* isFlushOrReleaseTask= */ true);
     singleThreadExecutorService.shutdown();
     try {
       if (!singleThreadExecutorService.awaitTermination(releaseWaitTimeMs, MILLISECONDS)) {
@@ -135,12 +162,12 @@ import java.util.concurrent.RejectedExecutionException;
   }
 
   private Future<?> wrapTaskAndSubmitToExecutorService(
-      FrameProcessingTask defaultPriorityTask, boolean isReleaseTask) {
+      FrameProcessingTask defaultPriorityTask, boolean isFlushOrReleaseTask) {
     return singleThreadExecutorService.submit(
         () -> {
           try {
             synchronized (lock) {
-              if (shouldCancelTasks && !isReleaseTask) {
+              if (shouldCancelTasks && !isFlushOrReleaseTask) {
                 return;
               }
             }

@@ -176,6 +176,14 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
 
   @Override
   @CallSuper
+  public void flush() {
+    outputTextureInUse = false;
+    inputListener.onFlush();
+    inputListener.onReadyToAcceptInputFrame();
+  }
+
+  @Override
+  @CallSuper
   public void release() throws FrameProcessingException {
     if (outputTexture != null) {
       try {

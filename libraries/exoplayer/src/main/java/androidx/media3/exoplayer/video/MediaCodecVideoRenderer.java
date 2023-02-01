@@ -563,6 +563,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
+    if (frameProcessorManager.isEnabled()) {
+      frameProcessorManager.flush();
+    }
     clearRenderedFirstFrame();
     frameReleaseHelper.onPositionReset();
     lastBufferPresentationTimeUs = C.TIME_UNSET;
@@ -1908,6 +1911,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     /** Whether the {@link FrameProcessor} has released the last frame in the current stream. */
     public boolean releasedLastFrame() {
       return releasedLastFrame;
+    }
+
+    /**
+     * Flushes the {@link FrameProcessor}.
+     *
+     * <p>Caller must ensure frame processing {@linkplain #isEnabled() is enabled} before calling
+     * this method.
+     */
+    public void flush() {
+      checkStateNotNull(frameProcessor);
+      frameProcessor.flush();
+      processedFramesTimestampsUs.clear();
+      handler.removeCallbacksAndMessages(/* token= */ null);
+
+      if (registeredLastFrame) {
+        registeredLastFrame = false;
+        processedLastFrame = false;
+        releasedLastFrame = false;
+      }
     }
 
     /**

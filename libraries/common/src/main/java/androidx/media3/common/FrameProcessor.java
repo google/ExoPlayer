@@ -212,6 +212,16 @@ public interface FrameProcessor {
   void signalEndOfInput();
 
   /**
+   * Flushes the {@code FrameProcessor}.
+   *
+   * <p>All the frames that are {@linkplain #registerInputFrame() registered} prior to calling this
+   * method are no longer considered to be registered when this method returns.
+   *
+   * <p>{@link Listener} methods invoked prior to calling this method should be ignored.
+   */
+  void flush();
+
+  /**
    * Releases all resources.
    *
    * <p>If the frame processor is released before it has {@linkplain
