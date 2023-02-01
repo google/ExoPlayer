@@ -2191,9 +2191,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 bufferPresentationTimeUs,
                 isStarted);
 
+        boolean isLastFrame = processedLastFrame && processedFramesTimestampsUs.size() == 1;
         boolean shouldReleaseFrameImmediately = renderer.shouldForceRender(positionUs, earlyUs);
         if (shouldReleaseFrameImmediately) {
-          releaseProcessedFrameInternal(FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY);
+          releaseProcessedFrameInternal(
+              FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY, isLastFrame);
           break;
         } else if (!isStarted || positionUs == renderer.initialPositionUs) {
           return;
@@ -2213,9 +2215,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
         // TODO(b/238302341) Handle very late buffers and drop to key frame. Need to flush
         //  FrameProcessor input frames in this case.
-        boolean isLastFrame = processedLastFrame && processedFramesTimestampsUs.size() == 1;
         if (renderer.shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastFrame)) {
-          releaseProcessedFrameInternal(FrameProcessor.DROP_OUTPUT_FRAME);
+          releaseProcessedFrameInternal(FrameProcessor.DROP_OUTPUT_FRAME, isLastFrame);
           continue;
         }
 
@@ -2231,10 +2232,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
           renderer.maybeNotifyVideoSizeChanged(processedFrameSize);
         }
-        releaseProcessedFrameInternal(adjustedFrameReleaseTimeNs);
-        if (isLastFrame) {
-          releasedLastFrame = true;
-        }
+        releaseProcessedFrameInternal(adjustedFrameReleaseTimeNs, isLastFrame);
       }
     }
 
@@ -2257,13 +2255,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       canEnableFrameProcessing = true;
     }
 
-    private void releaseProcessedFrameInternal(long releaseTimeNs) {
+    private void releaseProcessedFrameInternal(long releaseTimeNs, boolean isLastFrame) {
       checkStateNotNull(frameProcessor);
       frameProcessor.releaseOutputFrame(releaseTimeNs);
       processedFramesTimestampsUs.remove();
       renderer.lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
       if (releaseTimeNs != FrameProcessor.DROP_OUTPUT_FRAME) {
         renderer.maybeNotifyRenderedFirstFrame();
+      }
+      if (isLastFrame) {
+        releasedLastFrame = true;
       }
     }
 
