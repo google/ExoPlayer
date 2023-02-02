@@ -31,6 +31,9 @@
         `Subtitle.getEventTime` if a subtitle file contains no cues.
     *   SubRip: Add support for UTF-16 files if they start with a byte order
         mark.
+*   DASH:
+    *   Add full parsing for image adaptation sets, including tile counts
+        ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
 *   UI:
     *   Fix the deprecated
         `PlayerView.setControllerVisibilityListener(PlayerControlView.VisibilityListener)`
