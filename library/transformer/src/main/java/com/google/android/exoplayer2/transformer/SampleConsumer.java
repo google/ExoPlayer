@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -60,6 +61,20 @@ public interface SampleConsumer {
    * <p>Should only be used for compressed data and raw audio data.
    */
   default void queueInputBuffer() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Provides an input {@link Bitmap} to the consumer.
+   *
+   * <p>Should only be used for image data.
+   *
+   * @param inputBitmap The {@link Bitmap} queued to the consumer.
+   * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
+   * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
+   *     second.
+   */
+  default void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
     throw new UnsupportedOperationException();
   }
 
