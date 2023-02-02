@@ -252,11 +252,19 @@ public class DashManifestParserTest {
                 ApplicationProvider.getApplicationContext(), SAMPLE_MPD_IMAGES));
 
     AdaptationSet adaptationSet = manifest.getPeriod(0).adaptationSets.get(0);
-    Format format = adaptationSet.representations.get(0).format;
+    Format format0 = adaptationSet.representations.get(0).format;
+    Format format1 = adaptationSet.representations.get(1).format;
 
-    assertThat(format.sampleMimeType).isEqualTo("image/jpeg");
-    assertThat(format.width).isEqualTo(320);
-    assertThat(format.height).isEqualTo(180);
+    assertThat(format0.sampleMimeType).isEqualTo("image/jpeg");
+    assertThat(format0.width).isEqualTo(320);
+    assertThat(format0.height).isEqualTo(180);
+    assertThat(format0.tileCountHorizontal).isEqualTo(12);
+    assertThat(format0.tileCountVertical).isEqualTo(16);
+    assertThat(format1.sampleMimeType).isEqualTo("image/jpeg");
+    assertThat(format1.width).isEqualTo(640);
+    assertThat(format1.height).isEqualTo(360);
+    assertThat(format1.tileCountHorizontal).isEqualTo(2);
+    assertThat(format1.tileCountVertical).isEqualTo(4);
   }
 
   @Test
