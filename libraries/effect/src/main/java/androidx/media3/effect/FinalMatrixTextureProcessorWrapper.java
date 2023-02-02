@@ -367,7 +367,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
         debugSurfaceViewWrapper =
             new SurfaceViewWrapper(
-                eglDisplay, eglContext, ColorInfo.isTransferHdr(outputColorInfo), debugSurfaceView);
+                eglDisplay, eglContext, debugSurfaceView, outputColorInfo.colorTransfer);
       }
       this.debugSurfaceView = debugSurfaceView;
     }
@@ -467,11 +467,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private int height;
 
     public SurfaceViewWrapper(
-        EGLDisplay eglDisplay, EGLContext eglContext, boolean useHdr, SurfaceView surfaceView) {
+        EGLDisplay eglDisplay,
+        EGLContext eglContext,
+        SurfaceView surfaceView,
+        @C.ColorTransfer int outputColorTransfer) {
       this.eglDisplay = eglDisplay;
       this.eglContext = eglContext;
       // Screen output supports only BT.2020 PQ (ST2084) for HDR.
-      this.outputColorTransfer = useHdr ? C.COLOR_TRANSFER_ST2084 : C.COLOR_TRANSFER_SDR;
+      this.outputColorTransfer =
+          outputColorTransfer == C.COLOR_TRANSFER_HLG
+              ? C.COLOR_TRANSFER_ST2084
+              : outputColorTransfer;
       surfaceView.getHolder().addCallback(this);
       surface = surfaceView.getHolder().getSurface();
       width = surfaceView.getWidth();
