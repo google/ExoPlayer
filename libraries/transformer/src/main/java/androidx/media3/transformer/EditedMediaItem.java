@@ -18,6 +18,8 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 
+import androidx.annotation.IntRange;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -36,15 +38,22 @@ public final class EditedMediaItem {
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
+    private long durationUs;
+    private int frameRate;
     private Effects effects;
 
     /**
      * Creates an instance.
      *
+     * <p>For image inputs, the values passed into {@link #setRemoveAudio}, {@link #setRemoveVideo}
+     * and {@link #setFlattenForSlowMotion} will be ignored.
+     *
      * @param mediaItem The {@link MediaItem} on which transformations are applied.
      */
     public Builder(MediaItem mediaItem) {
       this.mediaItem = mediaItem;
+      durationUs = C.TIME_UNSET;
+      frameRate = C.RATE_UNSET_INT;
       effects = Effects.EMPTY;
     }
 
@@ -112,6 +121,38 @@ public final class EditedMediaItem {
     }
 
     /**
+     * Sets the duration of the output video in microseconds.
+     *
+     * <p>This should be set for inputs that don't have an implicit duration (e.g. images). It will
+     * be ignored for inputs that do have an implicit duration (e.g. video).
+     *
+     * <p>The default value is {@link C#TIME_UNSET}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setDurationUs(long durationUs) {
+      checkArgument(durationUs > 0);
+      this.durationUs = durationUs;
+      return this;
+    }
+
+    /**
+     * Sets the frame rate of the output video in frames per second.
+     *
+     * <p>This should be set for inputs that don't have an implicit frame rate (e.g. images). It
+     * will be ignored for inputs that do have an implicit frame rate (e.g. video).
+     *
+     * <p>The default value is {@link C#RATE_UNSET_INT}.
+     */
+    // TODO(b/210593170): Remove/deprecate frameRate parameter when frameRate parameter is added to
+    //     transformer.
+    @CanIgnoreReturnValue
+    public Builder setFrameRate(@IntRange(from = 0) int frameRate) {
+      checkArgument(frameRate > 0);
+      this.frameRate = frameRate;
+      return this;
+    }
+
+    /**
      * Sets the {@link Effects} to apply to the {@link MediaItem}.
      *
      * <p>The default value is {@link Effects#EMPTY}.
@@ -128,7 +169,13 @@ public final class EditedMediaItem {
     /** Builds an {@link EditedMediaItem} instance. */
     public EditedMediaItem build() {
       return new EditedMediaItem(
-          mediaItem, removeAudio, removeVideo, flattenForSlowMotion, effects);
+          mediaItem,
+          removeAudio,
+          removeVideo,
+          flattenForSlowMotion,
+          durationUs,
+          frameRate,
+          effects);
     }
   }
 
@@ -156,6 +203,11 @@ public final class EditedMediaItem {
    * </ul>
    */
   public final boolean flattenForSlowMotion;
+  /** The duration of the image in the output video, in microseconds. */
+  public final long durationUs;
+  /** The frame rate of the image in the output video, in frames per second. */
+  @IntRange(from = 0)
+  public final int frameRate;
   /** The {@link Effects} to apply to the {@link #mediaItem}. */
   public final Effects effects;
 
@@ -164,12 +216,16 @@ public final class EditedMediaItem {
       boolean removeAudio,
       boolean removeVideo,
       boolean flattenForSlowMotion,
+      long durationUs,
+      int frameRate,
       Effects effects) {
     checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed");
     this.mediaItem = mediaItem;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
+    this.durationUs = durationUs;
+    this.frameRate = frameRate;
     this.effects = effects;
   }
 }

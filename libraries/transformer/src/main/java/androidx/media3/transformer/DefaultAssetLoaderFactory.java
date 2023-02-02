@@ -16,18 +16,29 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.os.Looper;
+import androidx.annotation.Nullable;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
+import com.google.common.collect.ImmutableList;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The default {@link AssetLoader.Factory} implementation. */
 @UnstableApi
 public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
 
-  private final AssetLoader.Factory assetLoaderFactory;
+  private final Context context;
+  private final Codec.DecoderFactory decoderFactory;
+  private final Clock clock;
+  private final MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
 
+  private AssetLoader.@MonotonicNonNull Factory imageAssetLoaderFactory;
+  private AssetLoader.@MonotonicNonNull Factory exoPlayerAssetLoaderFactory;
   /**
    * Creates an instance.
    *
@@ -39,7 +50,10 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    */
   public DefaultAssetLoaderFactory(
       Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
-    assetLoaderFactory = new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock);
+    this.context = context;
+    this.decoderFactory = decoderFactory;
+    this.clock = clock;
+    this.mediaSourceFactory = null;
   }
 
   /**
@@ -58,13 +72,42 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
       Codec.DecoderFactory decoderFactory,
       Clock clock,
       MediaSource.Factory mediaSourceFactory) {
-    assetLoaderFactory =
-        new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory);
+    this.context = context;
+    this.decoderFactory = decoderFactory;
+    this.clock = clock;
+    this.mediaSourceFactory = mediaSourceFactory;
   }
 
   @Override
   public AssetLoader createAssetLoader(
       EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
-    return assetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
+    MediaItem mediaItem = editedMediaItem.mediaItem;
+    if (isImage(mediaItem.localConfiguration)) {
+      if (imageAssetLoaderFactory == null) {
+        imageAssetLoaderFactory = new ImageAssetLoader.Factory();
+      }
+      return imageAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
+    }
+    if (exoPlayerAssetLoaderFactory == null) {
+      exoPlayerAssetLoaderFactory =
+          mediaSourceFactory != null
+              ? new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory)
+              : new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock);
+    }
+    return exoPlayerAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
+  }
+
+  private static boolean isImage(@Nullable MediaItem.LocalConfiguration localConfiguration) {
+    if (localConfiguration == null) {
+      return false;
+    }
+    ImmutableList<String> supportedImageTypes = ImmutableList.of(".png", ".webp", ".jpg", ".jpeg");
+    String uriPath = checkNotNull(localConfiguration.uri.getPath());
+    int fileExtensionStart = uriPath.lastIndexOf(".");
+    if (fileExtensionStart < 0) {
+      return false;
+    }
+    String extension = uriPath.substring(fileExtensionStart);
+    return supportedImageTypes.contains(extension);
   }
 }
