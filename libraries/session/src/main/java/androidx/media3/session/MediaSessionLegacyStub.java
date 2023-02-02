@@ -126,6 +126,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private volatile long connectionTimeoutMs;
   @Nullable private FutureCallback<Bitmap> pendingBitmapLoadCallback;
+  private int sessionFlags;
 
   public MediaSessionLegacyStub(
       MediaSessionImpl session,
@@ -160,8 +161,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (sessionActivity != null) {
       sessionCompat.setSessionActivity(sessionActivity);
     }
-
-    sessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
 
     @SuppressWarnings("nullness:assignment")
     @Initialized
@@ -252,6 +251,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         break;
     }
     return false;
+  }
+
+  private void maybeUpdateFlags(PlayerWrapper playerWrapper) {
+    int newFlags =
+        playerWrapper.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)
+            ? MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
+            : 0;
+    if (sessionFlags != newFlags) {
+      sessionFlags = newFlags;
+      sessionCompat.setFlags(sessionFlags);
+    }
   }
 
   private void handleMediaPlayPauseOnHandler(RemoteUserInfo remoteUserInfo) {
@@ -895,6 +905,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public void onAvailableCommandsChangedFromPlayer(int seq, Player.Commands availableCommands) {
+      PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+      maybeUpdateFlags(playerWrapper);
+      sessionImpl.getSessionCompat().setPlaybackState(playerWrapper.createPlaybackStateCompat());
+    }
+
+    @Override
     public void onDisconnected(int seq) throws RemoteException {
       // Calling MediaSessionCompat#release() is already done in release().
     }
@@ -936,6 +953,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       onDeviceInfoChanged(seq, newPlayerWrapper.getDeviceInfo());
 
       // Rest of changes are all notified via PlaybackStateCompat.
+      maybeUpdateFlags(newPlayerWrapper);
       @Nullable MediaItem newMediaItem = newPlayerWrapper.getCurrentMediaItemWithCommandCheck();
       if (oldPlayerWrapper == null
           || !Util.areEqual(oldPlayerWrapper.getCurrentMediaItemWithCommandCheck(), newMediaItem)) {

@@ -17,21 +17,28 @@
 package androidx.media3.session;
 
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
+import static androidx.media3.test.session.common.TestUtils.getEventsAsList;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.annotation.Nullable;
+import androidx.core.util.Predicate;
 import androidx.media3.common.C;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
+import androidx.media3.common.SimpleBasePlayer;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Consumer;
@@ -1261,6 +1268,173 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     releasePlayer(player);
   }
 
+  @Test
+  public void playerWithCommandChangeMediaItems_flagHandleQueueIsAdvertised() throws Exception {
+    Player player =
+        createPlayerWithAvailableCommand(createDefaultPlayer(), Player.COMMAND_CHANGE_MEDIA_ITEMS);
+    MediaSession mediaSession =
+        createMediaSession(
+            player,
+            new MediaSession.Callback() {
+              @Override
+              public ListenableFuture<List<MediaItem>> onAddMediaItems(
+                  MediaSession mediaSession,
+                  MediaSession.ControllerInfo controller,
+                  List<MediaItem> mediaItems) {
+                return Futures.immediateFuture(
+                    ImmutableList.of(MediaItem.fromUri("asset://media/wav/sample.wav")));
+              }
+            });
+    MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
+
+    // Wait until a playback state is sent to the controller.
+    getFirstPlaybackState(controllerCompat, threadTestRule.getHandler());
+    assertThat(controllerCompat.getFlags() & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
+        .isNotEqualTo(0);
+
+    ArrayList<Timeline> receivedTimelines = new ArrayList<>();
+    ArrayList<Integer> receivedTimelineReasons = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(2);
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            receivedTimelines.add(timeline);
+            receivedTimelineReasons.add(reason);
+            latch.countDown();
+          }
+        };
+    player.addListener(listener);
+
+    controllerCompat.addQueueItem(
+        new MediaDescriptionCompat.Builder().setMediaId("mediaId").build());
+    controllerCompat.addQueueItem(
+        new MediaDescriptionCompat.Builder().setMediaId("mediaId").build(), /* index= */ 0);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedTimelines).hasSize(2);
+    assertThat(receivedTimelines.get(0).getWindowCount()).isEqualTo(1);
+    assertThat(receivedTimelines.get(1).getWindowCount()).isEqualTo(2);
+    assertThat(receivedTimelineReasons)
+        .containsExactly(
+            Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+            Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+
+    mediaSession.release();
+    releasePlayer(player);
+  }
+
+  @Test
+  public void playerWithoutCommandChangeMediaItems_flagHandleQueueNotAdvertised() throws Exception {
+    Player player =
+        createPlayerWithExcludedCommand(createDefaultPlayer(), Player.COMMAND_CHANGE_MEDIA_ITEMS);
+    MediaSession mediaSession =
+        createMediaSession(
+            player,
+            new MediaSession.Callback() {
+              @Override
+              public ListenableFuture<List<MediaItem>> onAddMediaItems(
+                  MediaSession mediaSession,
+                  MediaSession.ControllerInfo controller,
+                  List<MediaItem> mediaItems) {
+                return Futures.immediateFuture(
+                    ImmutableList.of(MediaItem.fromUri("asset://media/wav/sample.wav")));
+              }
+            });
+    MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
+
+    // Wait until a playback state is sent to the controller.
+    getFirstPlaybackState(controllerCompat, threadTestRule.getHandler());
+    assertThat(controllerCompat.getFlags() & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
+        .isEqualTo(0);
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            controllerCompat.addQueueItem(
+                new MediaDescriptionCompat.Builder().setMediaId("mediaId").build()));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            controllerCompat.addQueueItem(
+                new MediaDescriptionCompat.Builder().setMediaId("mediaId").build(),
+                /* index= */ 0));
+
+    mediaSession.release();
+    releasePlayer(player);
+  }
+
+  @Test
+  public void playerChangesAvailableCommands_actionsAreUpdated() throws Exception {
+    // TODO(b/261158047): Add COMMAND_RELEASE to the available commands so that we can release the
+    //  player.
+    ControllingCommandsPlayer player =
+        new ControllingCommandsPlayer(
+            Player.Commands.EMPTY, threadTestRule.getHandler().getLooper());
+    MediaSession mediaSession = createMediaSession(player);
+    MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
+    LinkedBlockingDeque<PlaybackStateCompat> receivedPlaybackStateCompats =
+        new LinkedBlockingDeque<>();
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            receivedPlaybackStateCompats.add(state);
+          }
+        };
+    controllerCompat.registerCallback(callback, threadTestRule.getHandler());
+
+    ArrayList<Player.Events> receivedEvents = new ArrayList<>();
+    ConditionVariable eventsArrived = new ConditionVariable();
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            receivedEvents.add(events);
+            eventsArrived.open();
+          }
+        });
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              player.setAvailableCommands(
+                  new Player.Commands.Builder().add(Player.COMMAND_PREPARE).build());
+            });
+
+    assertThat(eventsArrived.block(TIMEOUT_MS)).isTrue();
+    assertThat(getEventsAsList(receivedEvents.get(0)))
+        .containsExactly(Player.EVENT_AVAILABLE_COMMANDS_CHANGED);
+    assertThat(
+            waitUntilPlaybackStateArrived(
+                receivedPlaybackStateCompats,
+                /* predicate= */ playbackStateCompat ->
+                    (playbackStateCompat.getActions() & PlaybackStateCompat.ACTION_PREPARE) != 0))
+        .isTrue();
+
+    eventsArrived.open();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              player.setAvailableCommands(Player.Commands.EMPTY);
+            });
+
+    assertThat(eventsArrived.block(TIMEOUT_MS)).isTrue();
+    assertThat(
+            waitUntilPlaybackStateArrived(
+                receivedPlaybackStateCompats,
+                /* predicate= */ playbackStateCompat ->
+                    (playbackStateCompat.getActions() & PlaybackStateCompat.ACTION_PREPARE) == 0))
+        .isTrue();
+    assertThat(getEventsAsList(receivedEvents.get(1)))
+        .containsExactly(Player.EVENT_AVAILABLE_COMMANDS_CHANGED);
+
+    mediaSession.release();
+    // This player is instantiated to use the threadTestRule, so it's released on that thread.
+    threadTestRule.getHandler().postAndSync(player::release);
+  }
+
   private PlaybackStateCompat getFirstPlaybackState(
       MediaControllerCompat mediaControllerCompat, Handler handler) throws InterruptedException {
     LinkedBlockingDeque<PlaybackStateCompat> playbackStateCompats = new LinkedBlockingDeque<>();
@@ -1347,6 +1521,21 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
         player, Player.Commands.EMPTY, new Player.Commands.Builder().add(excludedCommand).build());
   }
 
+  private static boolean waitUntilPlaybackStateArrived(
+      LinkedBlockingDeque<PlaybackStateCompat> playbackStateCompats,
+      Predicate<PlaybackStateCompat> predicate)
+      throws InterruptedException {
+    while (true) {
+      @Nullable
+      PlaybackStateCompat playbackStateCompat = playbackStateCompats.poll(TIMEOUT_MS, MILLISECONDS);
+      if (playbackStateCompat == null) {
+        return false;
+      } else if (predicate.test(playbackStateCompat)) {
+        return true;
+      }
+    }
+  }
+
   /**
    * Returns an {@link Player} where {@code availableCommands} are always included and {@code
    * excludedCommands} are always excluded from the {@linkplain Player#getAvailableCommands()
@@ -1370,5 +1559,30 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
         return getAvailableCommands().contains(command);
       }
     };
+  }
+
+  private static class ControllingCommandsPlayer extends SimpleBasePlayer {
+
+    private Commands availableCommands;
+
+    public ControllingCommandsPlayer(Commands availableCommands, Looper applicationLooper) {
+      super(applicationLooper);
+      this.availableCommands = availableCommands;
+    }
+
+    public void setAvailableCommands(Commands availableCommands) {
+      this.availableCommands = availableCommands;
+      invalidateState();
+    }
+
+    @Override
+    protected State getState() {
+      return new State.Builder().setAvailableCommands(availableCommands).build();
+    }
+
+    @Override
+    protected ListenableFuture<?> handleRelease() {
+      return Futures.immediateVoidFuture();
+    }
   }
 }
