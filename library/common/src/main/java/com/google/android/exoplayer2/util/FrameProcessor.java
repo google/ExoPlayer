@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.opengl.EGLExt;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -121,6 +122,20 @@ public interface FrameProcessor {
 
   /** Indicates the frame should be dropped after {@link #releaseOutputFrame(long)} is invoked. */
   long DROP_OUTPUT_FRAME = -2;
+
+  /**
+   * Provides an input {@link Bitmap} to the {@link FrameProcessor}.
+   *
+   * <p>Can be called on any thread.
+   *
+   * @param inputBitmap The {@link Bitmap} queued to the {@link FrameProcessor}.
+   * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
+   * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
+   *     second.
+   */
+  // TODO(b/262693274): Remove duration & frameRate parameters when EditedMediaItem can be signalled
+  //     down to the processors.
+  void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate);
 
   /**
    * Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from.

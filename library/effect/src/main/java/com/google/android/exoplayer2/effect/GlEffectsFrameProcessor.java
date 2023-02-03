@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
@@ -406,6 +407,9 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   public void setInputDefaultBufferSize(int width, int height) {
     inputExternalTextureManager.getSurfaceTexture().setDefaultBufferSize(width, height);
   }
+
+  @Override
+  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {}
 
   @Override
   public Surface getInputSurface() {
