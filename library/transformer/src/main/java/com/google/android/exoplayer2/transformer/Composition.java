@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * A composition of {@link MediaItem} instances, with transformations to apply to them.
@@ -44,9 +45,9 @@ public final class Composition {
    * @param sequences The {@link #sequences}.
    * @param effects The {@link #effects}.
    */
-  public Composition(ImmutableList<EditedMediaItemSequence> sequences, Effects effects) {
+  public Composition(List<EditedMediaItemSequence> sequences, Effects effects) {
     checkArgument(!sequences.isEmpty());
-    this.sequences = sequences;
+    this.sequences = ImmutableList.copyOf(sequences);
     this.effects = effects;
   }
 }

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * A sequence of {@link EditedMediaItem} instances.
@@ -38,8 +39,8 @@ public final class EditedMediaItemSequence {
    *
    * @param editedMediaItems The {@link #editedMediaItems}.
    */
-  public EditedMediaItemSequence(ImmutableList<EditedMediaItem> editedMediaItems) {
+  public EditedMediaItemSequence(List<EditedMediaItem> editedMediaItems) {
     checkArgument(!editedMediaItems.isEmpty());
-    this.editedMediaItems = editedMediaItems;
+    this.editedMediaItems = ImmutableList.copyOf(editedMediaItems);
   }
 }
