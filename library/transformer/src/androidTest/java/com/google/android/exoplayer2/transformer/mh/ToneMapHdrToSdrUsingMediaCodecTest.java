@@ -88,9 +88,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -132,9 +130,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -181,9 +177,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -230,9 +224,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 }

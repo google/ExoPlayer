@@ -87,7 +87,9 @@ public class HdrEditingTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+          .isAnyOf(
+              TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -110,7 +112,9 @@ public class HdrEditingTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+          .isAnyOf(
+              TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -213,9 +217,7 @@ public class HdrEditingTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
     }
   }
@@ -269,9 +271,7 @@ public class HdrEditingTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
     }
   }
