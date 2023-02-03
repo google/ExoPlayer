@@ -678,10 +678,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       Format format, @TransformationException.ErrorCode int errorCode) {
     return TransformationException.createForCodec(
         new IllegalArgumentException("The requested encoding format is not supported."),
+        errorCode,
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
-        format,
-        /* mediaCodecName= */ null,
-        errorCode);
+        format);
   }
 }

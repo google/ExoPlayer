@@ -89,11 +89,10 @@ import org.checkerframework.dataflow.qual.Pure;
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
               new IllegalArgumentException("Interpreting HDR video as SDR is not supported."),
+              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED,
               /* isVideo= */ true,
               /* isDecoder= */ true,
-              firstInputFormat,
-              /* mediaCodecName= */ null,
-              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
+              firstInputFormat);
         }
         firstInputFormat =
             firstInputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
@@ -102,21 +101,19 @@ import org.checkerframework.dataflow.qual.Pure;
           throw TransformationException.createForCodec(
               new IllegalArgumentException(
                   "OpenGL-based HDR to SDR tone mapping is not supported."),
+              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED,
               /* isVideo= */ true,
               /* isDecoder= */ true,
-              firstInputFormat,
-              /* mediaCodecName= */ null,
-              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
+              firstInputFormat);
         }
         isGlToneMapping = true;
       } else if (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround()) {
         throw TransformationException.createForCodec(
             new IllegalArgumentException("HDR editing and tone mapping is not supported."),
+            TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
             /* isVideo= */ true,
             /* isDecoder= */ false,
-            firstInputFormat,
-            /* mediaCodecName= */ null,
-            TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+            firstInputFormat);
       }
     }
 
@@ -449,11 +446,10 @@ import org.checkerframework.dataflow.qual.Pure;
               new IllegalStateException(
                   "No MIME type supported by both encoder and muxer for requested HDR colorInfo: "
                       + requestedEncoderFormat.colorInfo),
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               /* isVideo= */ true,
               /* isDecoder= */ false,
-              requestedEncoderFormat,
-              /* mediaCodecName= */ null,
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+              requestedEncoderFormat);
         } else {
           throw createNoSupportedMimeTypeException(requestedEncoderFormat);
         }

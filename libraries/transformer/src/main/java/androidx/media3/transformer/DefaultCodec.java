@@ -45,6 +45,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -66,6 +67,8 @@ public final class DefaultCodec implements Codec {
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
   private final int maxPendingFrameCount;
+  private final boolean isDecoder;
+  private final boolean isVideo;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -98,17 +101,18 @@ public final class DefaultCodec implements Codec {
       throws TransformationException {
     this.configurationFormat = configurationFormat;
     this.configurationMediaFormat = configurationMediaFormat;
+    this.isDecoder = isDecoder;
+    isVideo = MimeTypes.isVideo(checkNotNull(configurationFormat.sampleMimeType));
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
 
-    boolean isVideo = MimeTypes.isVideo(checkNotNull(configurationFormat.sampleMimeType));
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
-    boolean requestedHdrToneMapping;
+    boolean requestedHdrToneMapping =
+        SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
+
     try {
-      requestedHdrToneMapping =
-          SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
       if (SDK_INT >= 29 && requestedHdrToneMapping) {
@@ -131,8 +135,21 @@ public final class DefaultCodec implements Codec {
         mediaCodec.release();
       }
 
-      throw createInitializationTransformationException(
-          e, configurationMediaFormat, isVideo, isDecoder, mediaCodecName);
+      @TransformationException.ErrorCode int errorCode;
+      if (e instanceof IOException || e instanceof MediaCodec.CodecException) {
+        errorCode =
+            isDecoder
+                ? TransformationException.ERROR_CODE_DECODER_INIT_FAILED
+                : TransformationException.ERROR_CODE_ENCODER_INIT_FAILED;
+      } else if (e instanceof IllegalArgumentException) {
+        errorCode =
+            isDecoder
+                ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
+                : TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
+      } else {
+        errorCode = TransformationException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+      }
+      throw createTransformationException(e, errorCode, mediaCodecName);
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
@@ -355,17 +372,24 @@ public final class DefaultCodec implements Codec {
   }
 
   private TransformationException createTransformationException(Exception cause) {
-    boolean isDecoder = !mediaCodec.getCodecInfo().isEncoder();
-    boolean isVideo = MimeTypes.isVideo(configurationFormat.sampleMimeType);
-    return TransformationException.createForCodec(
+    return createTransformationException(
         cause,
-        isVideo,
-        isDecoder,
-        configurationMediaFormat,
-        getName(),
         isDecoder
             ? TransformationException.ERROR_CODE_DECODING_FAILED
-            : TransformationException.ERROR_CODE_ENCODING_FAILED);
+            : TransformationException.ERROR_CODE_ENCODING_FAILED,
+        getName());
+  }
+
+  /** Creates a {@link TransformationException} with specific {@link MediaCodec} details. */
+  private TransformationException createTransformationException(
+      @UnknownInitialization DefaultCodec this,
+      Exception cause,
+      @TransformationException.ErrorCode int errorCode,
+      String mediaCodecName) {
+    String codecDetails =
+        "mediaFormat=" + configurationMediaFormat + ", mediaCodecName=" + mediaCodecName;
+    return TransformationException.createForCodec(
+        cause, errorCode, isVideo, isDecoder, codecDetails);
   }
 
   private static boolean areColorTransfersEqual(
@@ -379,37 +403,6 @@ public final class DefaultCodec implements Codec {
       transfer2 = colorInfo2.colorTransfer;
     }
     return transfer1 == transfer2;
-  }
-
-  private static TransformationException createInitializationTransformationException(
-      Exception cause,
-      MediaFormat mediaFormat,
-      boolean isVideo,
-      boolean isDecoder,
-      @Nullable String mediaCodecName) {
-    if (cause instanceof IOException || cause instanceof MediaCodec.CodecException) {
-      return TransformationException.createForCodec(
-          cause,
-          isVideo,
-          isDecoder,
-          mediaFormat,
-          mediaCodecName,
-          isDecoder
-              ? TransformationException.ERROR_CODE_DECODER_INIT_FAILED
-              : TransformationException.ERROR_CODE_ENCODER_INIT_FAILED);
-    }
-    if (cause instanceof IllegalArgumentException) {
-      return TransformationException.createForCodec(
-          cause,
-          isVideo,
-          isDecoder,
-          mediaFormat,
-          mediaCodecName,
-          isDecoder
-              ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
-              : TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
-    }
-    return TransformationException.createForUnexpected(cause);
   }
 
   private static Format convertToFormat(MediaFormat mediaFormat) {

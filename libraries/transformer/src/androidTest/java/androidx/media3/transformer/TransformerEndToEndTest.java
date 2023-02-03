@@ -154,11 +154,10 @@ public class TransformerEndToEndTest {
     public Codec createForVideoEncoding(Format format) throws TransformationException {
       throw TransformationException.createForCodec(
           new IllegalArgumentException(),
+          TransformationException.ERROR_CODE_ENCODER_INIT_FAILED,
           /* isVideo= */ true,
           /* isDecoder= */ false,
-          format,
-          /* mediaCodecName= */ null,
-          TransformationException.ERROR_CODE_ENCODER_INIT_FAILED);
+          format);
     }
 
     @Override

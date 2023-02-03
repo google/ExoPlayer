@@ -112,10 +112,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static TransformationException createTransformationException(Format format) {
     return TransformationException.createForCodec(
         new IllegalArgumentException("The requested decoding format is not supported."),
+        TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ true,
-        format,
-        /* mediaCodecName= */ null,
-        TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+        format);
   }
 }
