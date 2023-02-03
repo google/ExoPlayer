@@ -57,9 +57,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public interface Listener {
 
-    void onTransformationCompleted(TransformationResult result);
+    void onCompleted(TransformationResult result);
 
-    void onTransformationError(TransformationResult result, TransformationException exception);
+    void onError(TransformationResult result, TransformationException exception);
   }
 
   /**
@@ -299,12 +299,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       TransformationException finalException = exception;
       applicationHandler.post(
           () ->
-              listener.onTransformationError(
+              listener.onError(
                   transformationResultBuilder.setTransformationException(finalException).build(),
                   finalException));
     } else {
-      applicationHandler.post(
-          () -> listener.onTransformationCompleted(transformationResultBuilder.build()));
+      applicationHandler.post(() -> listener.onCompleted(transformationResultBuilder.build()));
     }
   }
 
@@ -334,7 +333,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // AssetLoader.Listener and MuxerWrapper.Listener implementation.
 
     @Override
-    public void onTransformationError(TransformationException transformationException) {
+    public void onError(TransformationException transformationException) {
       internalHandler
           .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, transformationException)
           .sendToTarget();
@@ -350,7 +349,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public void onTrackCount(int trackCount) {
       if (trackCount <= 0) {
-        onTransformationError(
+        onError(
             TransformationException.createForAssetLoader(
                 new IllegalStateException("AssetLoader instances must provide at least 1 track."),
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
@@ -492,7 +491,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             firstEditedMediaItem.effects.frameProcessorFactory,
             encoderFactory,
             muxerWrapper,
-            /* errorConsumer= */ this::onTransformationError,
+            /* errorConsumer= */ this::onError,
             fallbackListener,
             debugViewProvider);
       } else {

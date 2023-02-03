@@ -189,8 +189,8 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public void onTransformationError(TransformationException exception) {
-    compositeAssetLoaderListener.onTransformationError(exception);
+  public void onError(TransformationException exception) {
+    compositeAssetLoaderListener.onError(exception);
   }
 
   private final class SampleConsumerWrapper implements SampleConsumer {

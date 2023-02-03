@@ -100,9 +100,9 @@ public final class ImageAssetLoader implements AssetLoader {
                   bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate);
               sampleConsumer.signalEndOfVideoInput();
             } catch (TransformationException e) {
-              listener.onTransformationError(e);
+              listener.onError(e);
             } catch (RuntimeException e) {
-              listener.onTransformationError(
+              listener.onError(
                   TransformationException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
             }
             progress = 100;
@@ -110,7 +110,7 @@ public final class ImageAssetLoader implements AssetLoader {
 
           @Override
           public void onFailure(Throwable t) {
-            listener.onTransformationError(
+            listener.onError(
                 TransformationException.createForAssetLoader(t, ERROR_CODE_IO_UNSPECIFIED));
           }
         },
