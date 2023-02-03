@@ -22,12 +22,15 @@ import static androidx.media3.common.util.Util.SDK_INT;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaFormat;
+import android.os.Build;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.MediaFormatUtil;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -74,9 +77,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public Codec createForVideoDecoding(
       Format format, Surface outputSurface, boolean requestSdrToneMapping)
       throws TransformationException {
+    checkNotNull(format.sampleMimeType);
+    if (ColorInfo.isTransferHdr(format.colorInfo)) {
+      if (requestSdrToneMapping && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
+        throw createTransformationException(
+            format, /* reason= */ "Tone-mapping HDR is not supported.");
+      }
+      if (SDK_INT < 29) {
+        // TODO(b/266837571, b/267171669): Remove API version restriction after fixing linked bugs.
+        throw createTransformationException(format, /* reason= */ "Decoding HDR is not supported.");
+      }
+    }
+
     MediaFormat mediaFormat =
-        MediaFormat.createVideoFormat(
-            checkNotNull(format.sampleMimeType), format.width, format.height);
+        MediaFormat.createVideoFormat(format.sampleMimeType, format.width, format.height);
     MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
     MediaFormatUtil.maybeSetInteger(
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
@@ -108,10 +122,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
   }
 
+  private static boolean deviceNeedsNoToneMappingWorkaround() {
+    // Pixel build ID prefix does not support tone mapping. See http://b/249297370#comment8.
+    return Util.MANUFACTURER.equals("Google")
+        && (
+        /* Pixel 6 */ Build.ID.startsWith("TP1A")
+            || Build.ID.startsWith(/* Pixel Watch */ "rwd9.220429.053"));
+  }
+
   @RequiresNonNull("#1.sampleMimeType")
   private static TransformationException createTransformationException(Format format) {
+    return createTransformationException(format, "The requested decoding format is not supported.");
+  }
+
+  @RequiresNonNull("#1.sampleMimeType")
+  private static TransformationException createTransformationException(
+      Format format, String reason) {
     return TransformationException.createForCodec(
-        new IllegalArgumentException("The requested decoding format is not supported."),
+        new IllegalArgumentException(reason),
         TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ true,

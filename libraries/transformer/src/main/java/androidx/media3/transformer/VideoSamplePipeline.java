@@ -26,7 +26,6 @@ import static androidx.media3.transformer.TransformationRequest.HDR_MODE_TONE_MA
 
 import android.content.Context;
 import android.media.MediaCodec;
-import android.os.Build;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -97,23 +96,7 @@ import org.checkerframework.dataflow.qual.Pure;
         firstInputFormat =
             firstInputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
       } else if (transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL) {
-        if (SDK_INT < 29) {
-          throw TransformationException.createForCodec(
-              new IllegalArgumentException(
-                  "OpenGL-based HDR to SDR tone mapping is not supported."),
-              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED,
-              /* isVideo= */ true,
-              /* isDecoder= */ true,
-              firstInputFormat);
-        }
         isGlToneMapping = true;
-      } else if (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround()) {
-        throw TransformationException.createForCodec(
-            new IllegalArgumentException("HDR editing and tone mapping is not supported."),
-            TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-            /* isVideo= */ true,
-            /* isDecoder= */ false,
-            firstInputFormat);
       }
     }
 
@@ -330,14 +313,6 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     return supportedRequestBuilder.build();
-  }
-
-  private static boolean deviceNeedsNoToneMappingWorkaround() {
-    // Pixel build ID prefix does not support tone mapping. See http://b/249297370#comment8.
-    return Util.MANUFACTURER.equals("Google")
-        && (
-        /* Pixel 6 */ Build.ID.startsWith("TP1A")
-            || Build.ID.startsWith(/* Pixel Watch */ "rwd9.220429.053"));
   }
 
   /**
