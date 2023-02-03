@@ -37,10 +37,11 @@ import com.google.android.exoplayer2.util.MimeTypes;
 
   private boolean muxerWrapperTrackAdded;
 
-  public SamplePipeline(Format inputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
+  public SamplePipeline(
+      Format firstInputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.muxerWrapper = muxerWrapper;
-    trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
+    trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
   }
 
   protected static TransformationException createNoSupportedMimeTypeException(

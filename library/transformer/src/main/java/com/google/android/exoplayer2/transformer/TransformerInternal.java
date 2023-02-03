@@ -361,12 +361,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public SampleConsumer onTrackAdded(
-        Format format,
+        Format firstInputFormat,
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
         long streamOffsetUs)
         throws TransformationException {
-      int trackType = MimeTypes.getTrackType(format.sampleMimeType);
+      int trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
       if (!trackAdded) {
         if (generateSilentAudio) {
           if (trackCount.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
@@ -384,7 +384,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       SamplePipeline samplePipeline =
-          getSamplePipeline(format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
+          getSamplePipeline(
+              firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
       compositeAssetLoader.addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
@@ -452,17 +453,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Private methods.
 
     private SamplePipeline getSamplePipeline(
-        Format inputFormat,
+        Format firstInputFormat,
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
         long streamOffsetUs)
         throws TransformationException {
       checkState(supportedOutputTypes != 0);
-      boolean isAudio = MimeTypes.isAudio(inputFormat.sampleMimeType);
+      boolean isAudio = MimeTypes.isAudio(firstInputFormat.sampleMimeType);
       boolean shouldTranscode =
           isAudio
-              ? shouldTranscodeAudio(inputFormat)
-              : shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
+              ? shouldTranscodeAudio(firstInputFormat)
+              : shouldTranscodeVideo(firstInputFormat, streamStartPositionUs, streamOffsetUs);
       boolean assetLoaderNeverDecodes = (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) == 0;
       checkState(!shouldTranscode || !assetLoaderNeverDecodes);
       boolean assetLoaderAlwaysDecodes =
@@ -470,7 +471,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean shouldUseTranscodingPipeline = shouldTranscode || assetLoaderAlwaysDecodes;
       if (isAudio && shouldUseTranscodingPipeline) {
         return new AudioSamplePipeline(
-            inputFormat,
+            firstInputFormat,
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
@@ -483,7 +484,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else if (shouldUseTranscodingPipeline) {
         return new VideoSamplePipeline(
             context,
-            inputFormat,
+            firstInputFormat,
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
@@ -496,7 +497,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             debugViewProvider);
       } else {
         return new EncodedSamplePipeline(
-            inputFormat,
+            firstInputFormat,
             streamStartPositionUs,
             transformationRequest,
             muxerWrapper,
