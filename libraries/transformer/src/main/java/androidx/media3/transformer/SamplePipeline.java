@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -44,14 +45,22 @@ import androidx.media3.decoder.DecoderInputBuffer;
     trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
   }
 
-  protected static TransformationException createNoSupportedMimeTypeException(
-      Format requestedEncoderFormat) {
+  protected static TransformationException createNoSupportedMimeTypeException(Format format) {
+    String errorMessage = "No MIME type is supported by both encoder and muxer.";
+    int errorCode = TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
+    boolean isVideo = MimeTypes.isVideo(format.sampleMimeType);
+
+    if (isVideo && ColorInfo.isTransferHdr(format.colorInfo)) {
+      errorMessage += " Requested HDR colorInfo: " + format.colorInfo;
+      errorCode = TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED;
+    }
+
     return TransformationException.createForCodec(
-        new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
-        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
-        MimeTypes.isVideo(requestedEncoderFormat.sampleMimeType),
+        new IllegalArgumentException(errorMessage),
+        errorCode,
+        isVideo,
         /* isDecoder= */ false,
-        requestedEncoderFormat);
+        format);
   }
 
   @Override
