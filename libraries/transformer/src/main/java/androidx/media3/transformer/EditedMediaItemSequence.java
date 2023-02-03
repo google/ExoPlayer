@@ -15,6 +15,8 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 
@@ -26,7 +28,11 @@ import com.google.common.collect.ImmutableList;
 @UnstableApi
 public final class EditedMediaItemSequence {
 
-  /** The {@link EditedMediaItem} instances in the sequence. */
+  /**
+   * The {@link EditedMediaItem} instances in the sequence.
+   *
+   * <p>This list must not be empty.
+   */
   public final ImmutableList<EditedMediaItem> editedMediaItems;
 
   /**
@@ -35,6 +41,7 @@ public final class EditedMediaItemSequence {
    * @param editedMediaItems The {@link #editedMediaItems}.
    */
   public EditedMediaItemSequence(ImmutableList<EditedMediaItem> editedMediaItems) {
+    checkArgument(!editedMediaItems.isEmpty());
     this.editedMediaItems = editedMediaItems;
   }
 }

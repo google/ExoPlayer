@@ -57,12 +57,12 @@ import java.util.concurrent.atomic.AtomicLong;
   private volatile long currentDurationUs;
 
   public CompositeAssetLoader(
-      List<EditedMediaItem> editedMediaItems,
+      EditedMediaItemSequence sequence,
       AssetLoader.Factory assetLoaderFactory,
       Looper looper,
       Listener listener,
       Clock clock) {
-    this.editedMediaItems = editedMediaItems;
+    this.editedMediaItems = sequence.editedMediaItems;
     this.assetLoaderFactory = assetLoaderFactory;
     compositeAssetLoaderListener = listener;
     currentMediaItemIndex = new AtomicInteger();
