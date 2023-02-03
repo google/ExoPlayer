@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
  */
-/* package */ abstract class SamplePipeline implements SampleConsumer {
+/* package */ abstract class SamplePipeline implements SampleConsumer, OnMediaItemChangedListener {
 
   private final long streamStartPositionUs;
   private final MuxerWrapper muxerWrapper;

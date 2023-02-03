@@ -96,7 +96,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Clock clock;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
-  private final AssetLoader assetLoader;
+  private final CompositeAssetLoader compositeAssetLoader;
   private final List<SamplePipeline> samplePipelines;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
@@ -136,7 +136,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Looper internalLooper = internalHandlerThread.getLooper();
     EditedMediaItemSequence sequence = composition.sequences.get(0);
     ComponentListener componentListener = new ComponentListener(sequence, fallbackListener);
-    assetLoader =
+    compositeAssetLoader =
         new CompositeAssetLoader(
             sequence, assetLoaderFactory, internalLooper, componentListener, clock);
     samplePipelines = new ArrayList<>();
@@ -220,7 +220,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void startInternal() {
-    assetLoader.start();
+    compositeAssetLoader.start();
   }
 
   private void registerSamplePipelineInternal(SamplePipeline samplePipeline) {
@@ -243,7 +243,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
-    ImmutableMap<Integer, String> decoderNames = assetLoader.getDecoderNames();
+    ImmutableMap<Integer, String> decoderNames = compositeAssetLoader.getDecoderNames();
     transformationResultBuilder
         .setAudioDecoderName(decoderNames.get(C.TRACK_TYPE_AUDIO))
         .setVideoDecoderName(decoderNames.get(C.TRACK_TYPE_VIDEO))
@@ -257,7 +257,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       try {
         try {
-          assetLoader.release();
+          compositeAssetLoader.release();
         } finally {
           try {
             for (int i = 0; i < samplePipelines.size(); i++) {
@@ -309,7 +309,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void updateProgressInternal(ProgressHolder progressHolder) {
-    progressState = assetLoader.getProgress(progressHolder);
+    progressState = compositeAssetLoader.getProgress(progressHolder);
     transformerConditionVariable.open();
   }
 
@@ -366,10 +366,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long streamStartPositionUs,
         long streamOffsetUs)
         throws TransformationException {
+      int trackType = MimeTypes.getTrackType(format.sampleMimeType);
       if (!trackAdded) {
         if (generateSilentAudio) {
-          if (this.trackCount.get() == 1 && MimeTypes.isVideo(format.sampleMimeType)) {
-            this.trackCount.incrementAndGet();
+          if (trackCount.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
+            trackCount.incrementAndGet();
           } else {
             generateSilentAudio = false;
           }
@@ -384,6 +385,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       SamplePipeline samplePipeline =
           getSamplePipeline(format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
+      compositeAssetLoader.addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
       if (generateSilentAudio) {
@@ -399,6 +401,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 SUPPORTED_OUTPUT_TYPE_DECODED,
                 streamStartPositionUs,
                 streamOffsetUs);
+        compositeAssetLoader.addOnMediaItemChangedListener(audioSamplePipeline, C.TRACK_TYPE_AUDIO);
         internalHandler
             .obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, audioSamplePipeline)
             .sendToTarget();

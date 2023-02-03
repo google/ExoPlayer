@@ -110,15 +110,6 @@ public interface SampleConsumer {
   }
 
   /**
-   * Sets the offset to add to the video timestamps, in microseconds.
-   *
-   * <p>Should only be used for raw video data.
-   */
-  default void setVideoOffsetToAddUs(long offsetToAddUs) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Informs the consumer that a frame will be queued to the {@linkplain #getInputSurface() input
    * surface}.
    *

@@ -57,6 +57,8 @@ import org.checkerframework.dataflow.qual.Pure;
   private long nextEncoderInputBufferTimeUs;
   private long encoderBufferDurationRemainder;
 
+  private volatile long mediaItemOffsetUs;
+
   // TODO(b/260618558): Move silent audio generation upstream of this component.
   public AudioSamplePipeline(
       Format inputFormat,
@@ -152,6 +154,12 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
+  public void onMediaItemChanged(
+      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
+    this.mediaItemOffsetUs = mediaItemOffsetUs;
+  }
+
+  @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
     return availableInputBuffers.peek();
@@ -159,7 +167,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void queueInputBuffer() {
-    pendingInputBuffers.add(availableInputBuffers.remove());
+    DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
+    inputBuffer.timeUs += mediaItemOffsetUs;
+    pendingInputBuffers.add(inputBuffer);
   }
 
   @Override
