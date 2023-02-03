@@ -25,6 +25,7 @@ import static androidx.media3.transformer.TransformationRequest.HDR_MODE_TONE_MA
 import static androidx.media3.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.MediaCodec;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -205,6 +206,11 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
+  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+    frameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+  }
+
+  @Override
   public Surface getInputSurface() {
     return frameProcessor.getInputSurface();
   }
@@ -352,10 +358,15 @@ import org.checkerframework.dataflow.qual.Pure;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
 
-      requestedOutputMimeType =
-          transformationRequest.videoMimeType != null
-              ? transformationRequest.videoMimeType
-              : checkNotNull(inputFormat.sampleMimeType);
+      String inputSampleMimeType = checkNotNull(inputFormat.sampleMimeType);
+
+      if (transformationRequest.videoMimeType != null) {
+        requestedOutputMimeType = transformationRequest.videoMimeType;
+      } else if (MimeTypes.isImage(inputSampleMimeType)) {
+        requestedOutputMimeType = MimeTypes.VIDEO_H265;
+      } else {
+        requestedOutputMimeType = inputSampleMimeType;
+      }
       supportedEncoderNamesForHdrEditing =
           EncoderUtil.getSupportedEncoderNamesForHdrEditing(
               requestedOutputMimeType, inputFormat.colorInfo);

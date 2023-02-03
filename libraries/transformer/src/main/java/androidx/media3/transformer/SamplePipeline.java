@@ -34,7 +34,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   private final long streamStartPositionUs;
   private final MuxerWrapper muxerWrapper;
-  private final @C.TrackType int trackType;
+  private final @C.TrackType int outputTrackType;
 
   private boolean muxerWrapperTrackAdded;
 
@@ -42,7 +42,10 @@ import androidx.media3.decoder.DecoderInputBuffer;
       Format firstInputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.muxerWrapper = muxerWrapper;
-    trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
+    outputTrackType =
+        MimeTypes.isImage(firstInputFormat.sampleMimeType)
+            ? C.TRACK_TYPE_VIDEO
+            : MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
   }
 
   protected static TransformationException createNoSupportedMimeTypeException(Format format) {
@@ -113,7 +116,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
     }
 
     if (isMuxerInputEnded()) {
-      muxerWrapper.endTrack(trackType);
+      muxerWrapper.endTrack(outputTrackType);
       return false;
     }
 
@@ -127,7 +130,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
     //  buffer from all samples so that they are guaranteed to start from zero in the output file.
     try {
       if (!muxerWrapper.writeSample(
-          trackType,
+          outputTrackType,
           checkStateNotNull(muxerInputBuffer.data),
           muxerInputBuffer.isKeyFrame(),
           samplePresentationTimeUs)) {
