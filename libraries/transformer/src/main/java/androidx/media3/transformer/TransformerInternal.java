@@ -43,7 +43,7 @@ import androidx.media3.common.util.Size;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -243,10 +243,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
-    ImmutableMap<Integer, String> decoderNames = compositeAssetLoader.getDecoderNames();
+    ImmutableList<TransformationResult.ProcessedInput> processedInputs =
+        compositeAssetLoader.getProcessedInputs();
     transformationResultBuilder
-        .setAudioDecoderName(decoderNames.get(C.TRACK_TYPE_AUDIO))
-        .setVideoDecoderName(decoderNames.get(C.TRACK_TYPE_VIDEO))
+        .setProcessedInputs(processedInputs)
         .setAudioEncoderName(encoderFactory.getAudioEncoderName())
         .setVideoEncoderName(encoderFactory.getVideoEncoderName());
 

@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.AndroidTestUtil.exceptionAsJsonObject;
+import static androidx.media3.transformer.AndroidTestUtil.processedInputsAsJsonArray;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -156,18 +157,21 @@ public class TransformationTestResult {
   public JSONObject asJsonObject() throws JSONException {
     JSONObject jsonObject =
         new JSONObject()
-            .putOpt("audioDecoderName", transformationResult.audioDecoderName)
             .putOpt("audioEncoderName", transformationResult.audioEncoderName)
             .putOpt(
                 "fallbackDetails", fallbackDetails != null ? fallbackDetails.asJsonObject() : null)
             .putOpt("filePath", filePath)
             .putOpt("colorInfo", transformationResult.colorInfo)
-            .putOpt("videoDecoderName", transformationResult.videoDecoderName)
             .putOpt("videoEncoderName", transformationResult.videoEncoderName)
             .putOpt(
                 "testException",
                 exceptionAsJsonObject(transformationResult.transformationException))
             .putOpt("analysisException", exceptionAsJsonObject(analysisException));
+
+    if (!transformationResult.processedInputs.isEmpty()) {
+      jsonObject.put(
+          "processedInputs", processedInputsAsJsonArray(transformationResult.processedInputs));
+    }
 
     if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
       jsonObject.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
