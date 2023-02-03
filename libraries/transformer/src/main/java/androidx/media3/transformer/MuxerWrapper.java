@@ -53,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     void onEnded(long durationMs, long fileSizeBytes);
 
-    void onTransformationError(TransformationException transformationException);
+    void onError(TransformationException transformationException);
   }
 
   /**
@@ -276,7 +276,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              listener.onTransformationError(
+              listener.onError(
                   TransformationException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "

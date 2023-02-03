@@ -302,7 +302,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
         trackCount++;
       }
       if (trackCount == 0) {
-        assetLoaderListener.onTransformationError(
+        assetLoaderListener.onError(
             TransformationException.createForAssetLoader(
                 new IllegalStateException("The asset loader has no track to output."),
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
@@ -322,8 +322,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
           checkNotNull(
               TransformationException.NAME_TO_ERROR_CODE.getOrDefault(
                   error.getErrorCodeName(), ERROR_CODE_UNSPECIFIED));
-      assetLoaderListener.onTransformationError(
-          TransformationException.createForAssetLoader(error, errorCode));
+      assetLoaderListener.onError(TransformationException.createForAssetLoader(error, errorCode));
     }
   }
 }

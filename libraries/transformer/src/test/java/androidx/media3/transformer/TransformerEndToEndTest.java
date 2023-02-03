@@ -392,10 +392,10 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
-    verify(mockListener1).onTransformationCompleted(compositionArgumentCaptor.capture(), any());
+    verify(mockListener1).onCompleted(compositionArgumentCaptor.capture(), any());
     Composition composition = compositionArgumentCaptor.getValue();
-    verify(mockListener2).onTransformationCompleted(eq(composition), any());
-    verify(mockListener3).onTransformationCompleted(eq(composition), any());
+    verify(mockListener2).onCompleted(eq(composition), any());
+    verify(mockListener3).onCompleted(eq(composition), any());
   }
 
   @Test
@@ -418,11 +418,10 @@ public final class TransformerEndToEndTest {
         assertThrows(
             TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
 
-    verify(mockListener1)
-        .onTransformationError(compositionArgumentCaptor.capture(), any(), eq(exception));
+    verify(mockListener1).onError(compositionArgumentCaptor.capture(), any(), eq(exception));
     Composition composition = compositionArgumentCaptor.getValue();
-    verify(mockListener2).onTransformationError(eq(composition), any(), eq(exception));
-    verify(mockListener3).onTransformationError(eq(composition), any(), eq(exception));
+    verify(mockListener2).onError(eq(composition), any(), eq(exception));
+    verify(mockListener3).onError(eq(composition), any(), eq(exception));
   }
 
   @Test
@@ -579,10 +578,9 @@ public final class TransformerEndToEndTest {
     transformer2.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer2);
 
-    verify(mockListener1).onTransformationCompleted(compositionArgumentCaptor.capture(), any());
-    verify(mockListener2, never()).onTransformationCompleted(any(Composition.class), any());
-    verify(mockListener3)
-        .onTransformationCompleted(eq(compositionArgumentCaptor.getValue()), any());
+    verify(mockListener1).onCompleted(compositionArgumentCaptor.capture(), any());
+    verify(mockListener2, never()).onCompleted(any(Composition.class), any());
+    verify(mockListener3).onCompleted(eq(compositionArgumentCaptor.getValue()), any());
   }
 
   @Test

@@ -110,7 +110,7 @@ public interface AssetLoader {
      * Called if an error occurs in the asset loader. In this case, the asset loader will be
      * {@linkplain #release() released} automatically.
      */
-    void onTransformationError(TransformationException exception);
+    void onError(TransformationException exception);
   }
 
   /**

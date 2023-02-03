@@ -219,7 +219,7 @@ public final class Transformer {
     }
 
     /**
-     * Adds a {@link Transformer.Listener} to listen to the transformation events.
+     * Adds a {@link Transformer.Listener} to listen to the export events.
      *
      * <p>This is equivalent to {@link Transformer#addListener(Listener)}.
      *
@@ -445,19 +445,17 @@ public final class Transformer {
     }
   }
 
-  /** A listener for the transformation events. */
+  /** A listener for the export events. */
   public interface Listener {
 
     /**
-     * @deprecated Use {@link #onTransformationCompleted(Composition, TransformationResult)}
-     *     instead.
+     * @deprecated Use {@link #onCompleted(Composition, TransformationResult)} instead.
      */
     @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem) {}
 
     /**
-     * @deprecated Use {@link #onTransformationCompleted(Composition, TransformationResult)}
-     *     instead.
+     * @deprecated Use {@link #onCompleted(Composition, TransformationResult)} instead.
      */
     @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
@@ -465,26 +463,26 @@ public final class Transformer {
     }
 
     /**
-     * Called when the transformation is completed successfully.
+     * Called when the export is completed successfully.
      *
-     * @param composition The {@link Composition} for which the transformation is completed.
-     * @param result The {@link TransformationResult} of the transformation.
+     * @param composition The {@link Composition} for which the export is completed.
+     * @param result The {@link TransformationResult} of the export.
      */
-    default void onTransformationCompleted(Composition composition, TransformationResult result) {
+    default void onCompleted(Composition composition, TransformationResult result) {
       MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
       onTransformationCompleted(mediaItem, result);
     }
 
     /**
-     * @deprecated Use {@link #onTransformationError(Composition, TransformationResult,
-     *     TransformationException)} instead.
+     * @deprecated Use {@link #onError(Composition, TransformationResult, TransformationException)}
+     *     instead.
      */
     @Deprecated
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
 
     /**
-     * @deprecated Use {@link #onTransformationError(Composition, TransformationResult,
-     *     TransformationException)} instead.
+     * @deprecated Use {@link #onError(Composition, TransformationResult, TransformationException)}
+     *     instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -493,8 +491,8 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Use {@link #onTransformationError(Composition, TransformationResult,
-     *     TransformationException)} instead.
+     * @deprecated Use {@link #onError(Composition, TransformationResult, TransformationException)}
+     *     instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -503,13 +501,15 @@ public final class Transformer {
     }
 
     /**
-     * Called if an exception occurs during the transformation.
+     * Called if an exception occurs during the export.
      *
      * @param composition The {@link Composition} for which the exception occurs.
-     * @param result The {@link TransformationResult} of the transformation.
-     * @param exception The {@link TransformationException} describing the exception.
+     * @param result The {@link TransformationResult} of the export.
+     * @param exception The {@link TransformationException} describing the exception. This is the
+     *     same instance as the {@linkplain TransformationResult#transformationException exception}
+     *     in {@code result}.
      */
-    default void onTransformationError(
+    default void onError(
         Composition composition, TransformationResult result, TransformationException exception) {
       MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
       onTransformationError(mediaItem, result, exception);
@@ -529,7 +529,7 @@ public final class Transformer {
      * Called when falling back to an alternative {@link TransformationRequest} or changing the
      * video frames' resolution is necessary to comply with muxer or device constraints.
      *
-     * @param composition The {@link Composition} for which the transformation is requested.
+     * @param composition The {@link Composition} for which the export is requested.
      * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
      *     building {@link Transformer}.
      * @param fallbackTransformationRequest The alternative {@link TransformationRequest}, with
@@ -646,7 +646,7 @@ public final class Transformer {
   }
 
   /**
-   * Adds a {@link Transformer.Listener} to listen to the transformation events.
+   * Adds a {@link Transformer.Listener} to listen to the export events.
    *
    * @param listener A {@link Transformer.Listener}.
    * @throws IllegalStateException If this method is called from the wrong thread.
@@ -790,8 +790,8 @@ public final class Transformer {
    * Returns the current {@link ProgressState} and updates {@code progressHolder} with the current
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
-   * <p>After a transformation {@linkplain Listener#onTransformationCompleted(Composition,
-   * TransformationResult) completes}, this method returns {@link #PROGRESS_STATE_NOT_STARTED}.
+   * <p>After a transformation {@linkplain Listener#onCompleted(Composition, TransformationResult)
+   * completes}, this method returns {@link #PROGRESS_STATE_NOT_STARTED}.
    *
    * @param progressHolder A {@link ProgressHolder}, updated to hold the percentage progress if
    *     {@link #PROGRESS_STATE_AVAILABLE available}.
@@ -837,22 +837,21 @@ public final class Transformer {
     }
 
     @Override
-    public void onTransformationCompleted(TransformationResult transformationResult) {
+    public void onCompleted(TransformationResult transformationResult) {
       // TODO(b/213341814): Add event flags for Transformer events.
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onTransformationCompleted(composition, transformationResult));
+          listener -> listener.onCompleted(composition, transformationResult));
       listeners.flushEvents();
     }
 
     @Override
-    public void onTransformationError(
-        TransformationResult result, TransformationException exception) {
+    public void onError(TransformationResult result, TransformationException exception) {
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onTransformationError(composition, result, exception));
+          listener -> listener.onError(composition, result, exception));
       listeners.flushEvents();
     }
   }
