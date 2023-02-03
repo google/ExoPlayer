@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
@@ -26,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
@@ -49,6 +51,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private final HandlerWrapper handler;
   private final Listener compositeAssetLoaderListener;
   private final Map<Integer, SampleConsumer> sampleConsumersByTrackType;
+  private final Map<Integer, OnMediaItemChangedListener> mediaItemChangedListenersByTrackType;
   private final AtomicLong totalDurationUs;
   private final AtomicInteger nonEndedTracks;
 
@@ -68,6 +71,7 @@ import java.util.concurrent.atomic.AtomicLong;
     currentMediaItemIndex = new AtomicInteger();
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
+    mediaItemChangedListenersByTrackType = new HashMap<>();
     totalDurationUs = new AtomicLong();
     nonEndedTracks = new AtomicInteger();
     // It's safe to use "this" because we don't start the AssetLoader before exiting the
@@ -110,6 +114,21 @@ import java.util.concurrent.atomic.AtomicLong;
     currentAssetLoader.release();
   }
 
+  /**
+   * Adds an {@link OnMediaItemChangedListener} for the given track type.
+   *
+   * <p>There can't be more than one {@link OnMediaItemChangedListener} for the same track type.
+   *
+   * @param onMediaItemChangedListener The {@link OnMediaItemChangedListener}.
+   * @param trackType The {@link C.TrackType} for which to listen to {@link MediaItem} change
+   *     events.
+   */
+  public void addOnMediaItemChangedListener(
+      OnMediaItemChangedListener onMediaItemChangedListener, @C.TrackType int trackType) {
+    checkArgument(mediaItemChangedListenersByTrackType.get(trackType) == null);
+    mediaItemChangedListenersByTrackType.put(trackType, onMediaItemChangedListener);
+  }
+
   // AssetLoader.Listener implementation.
 
   @Override
@@ -144,17 +163,29 @@ import java.util.concurrent.atomic.AtomicLong;
       long streamOffsetUs)
       throws TransformationException {
     int trackType = MimeTypes.getTrackType(format.sampleMimeType);
+    SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
-      SampleConsumer sampleConsumer =
+      sampleConsumer =
           new SampleConsumerWrapper(
               compositeAssetLoaderListener.onTrackAdded(
                   format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs));
       sampleConsumersByTrackType.put(trackType, sampleConsumer);
-      return sampleConsumer;
+    } else {
+      sampleConsumer =
+          checkStateNotNull(
+              sampleConsumersByTrackType.get(trackType),
+              "The preceding MediaItem does not contain any track of type " + trackType);
     }
-    return checkStateNotNull(
-        sampleConsumersByTrackType.get(trackType),
-        "The preceding MediaItem does not contain any track of type " + trackType);
+    @Nullable
+    OnMediaItemChangedListener onMediaItemChangedListener =
+        mediaItemChangedListenersByTrackType.get(trackType);
+    if (onMediaItemChangedListener != null) {
+      onMediaItemChangedListener.onMediaItemChanged(
+          editedMediaItems.get(currentMediaItemIndex.get()),
+          format,
+          /* mediaItemOffsetUs= */ totalDurationUs.get());
+    }
+    return sampleConsumer;
   }
 
   @Override
@@ -200,7 +231,6 @@ import java.util.concurrent.atomic.AtomicLong;
           return;
         }
       }
-      inputBuffer.timeUs += totalDurationUs.get();
       sampleConsumer.queueInputBuffer();
     }
 
@@ -220,11 +250,6 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public void setVideoOffsetToAddUs(long offsetToAddUs) {
-      sampleConsumer.setVideoOffsetToAddUs(offsetToAddUs);
-    }
-
-    @Override
     public void registerVideoFrame() {
       sampleConsumer.registerVideoFrame();
     }
@@ -235,7 +260,6 @@ import java.util.concurrent.atomic.AtomicLong;
       if (currentMediaItemIndex.get() < editedMediaItems.size() - 1) {
         if (nonEndedTracks.get() == 0) {
           switchAssetLoader();
-          sampleConsumer.setVideoOffsetToAddUs(totalDurationUs.get());
         }
         return;
       }

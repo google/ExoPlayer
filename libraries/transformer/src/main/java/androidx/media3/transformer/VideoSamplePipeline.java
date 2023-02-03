@@ -209,7 +209,13 @@ import org.checkerframework.dataflow.qual.Pure;
             .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
             .setStreamOffsetUs(streamOffsetUs)
             .build();
-    frameProcessor.setInputFrameInfo(firstFrameInfo);
+  }
+
+  @Override
+  public void onMediaItemChanged(
+      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
+    frameProcessor.setInputFrameInfo(
+        new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(mediaItemOffsetUs).build());
   }
 
   @Override
@@ -220,12 +226,6 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   public ColorInfo getExpectedInputColorInfo() {
     return frameProcessorInputColor;
-  }
-
-  @Override
-  public void setVideoOffsetToAddUs(long offsetToAddUs) {
-    frameProcessor.setInputFrameInfo(
-        new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(offsetToAddUs).build());
   }
 
   @Override

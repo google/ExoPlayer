@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
   private final Queue<DecoderInputBuffer> availableInputBuffers;
   private final Queue<DecoderInputBuffer> pendingInputBuffers;
 
+  private volatile long mediaItemOffsetUs;
   private volatile boolean inputEnded;
 
   public EncodedSamplePipeline(
@@ -57,6 +58,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
   }
 
   @Override
+  public void onMediaItemChanged(
+      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
+    this.mediaItemOffsetUs = mediaItemOffsetUs;
+  }
+
+  @Override
   public boolean expectsDecodedData() {
     return false;
   }
@@ -73,6 +80,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
     if (inputBuffer.isEndOfStream()) {
       inputEnded = true;
     } else {
+      inputBuffer.timeUs += mediaItemOffsetUs;
       pendingInputBuffers.add(inputBuffer);
     }
   }
