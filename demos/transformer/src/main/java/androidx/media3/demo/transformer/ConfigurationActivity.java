@@ -15,10 +15,12 @@
  */
 package androidx.media3.demo.transformer;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_VIDEO;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.SDK_INT;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,7 +45,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.util.Util;
 import androidx.media3.transformer.TransformationRequest;
 import com.google.android.material.slider.RangeSlider;
 import com.google.android.material.slider.Slider;
@@ -288,7 +289,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     videoMimeSpinner.setAdapter(videoMimeAdapter);
     videoMimeAdapter.addAll(
         SAME_AS_INPUT_OPTION, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_H264, MimeTypes.VIDEO_MP4V);
-    if (Util.SDK_INT >= 24) {
+    if (SDK_INT >= 24) {
       videoMimeAdapter.add(MimeTypes.VIDEO_H265);
     }
 
@@ -487,13 +488,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
   }
 
   private void selectLocalFile(View view) {
-    int permissionStatus =
-        ActivityCompat.checkSelfPermission(
-            ConfigurationActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
-    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
-      String[] neededPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+    String permission = SDK_INT >= 33 ? READ_MEDIA_VIDEO : READ_EXTERNAL_STORAGE;
+    if (ActivityCompat.checkSelfPermission(/* context= */ this, permission)
+        != PackageManager.PERMISSION_GRANTED) {
       ActivityCompat.requestPermissions(
-          ConfigurationActivity.this, neededPermissions, FILE_PERMISSION_REQUEST_CODE);
+          /* activity= */ this, new String[] {permission}, FILE_PERMISSION_REQUEST_CODE);
     } else {
       launchLocalFilePicker();
     }

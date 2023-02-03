@@ -16,9 +16,11 @@
 package androidx.media3.demo.transformer;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_VIDEO;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 
 import android.app.Activity;
@@ -44,6 +46,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
@@ -52,7 +55,6 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.Util;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.DrawableOverlay;
@@ -195,7 +197,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugFrame",
   })
   private void startTransformation() {
-    requestTransformerPermission();
+    requestReadVideoPermission(/* activity= */ this);
 
     Intent intent = getIntent();
     Uri uri = checkNotNull(intent.getData());
@@ -683,12 +685,11 @@ public final class TransformerActivity extends AppCompatActivity {
     }
   }
 
-  private void requestTransformerPermission() {
-    if (Util.SDK_INT < 23) {
-      return;
-    }
-    if (checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-      requestPermissions(new String[] {READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
+  private static void requestReadVideoPermission(AppCompatActivity activity) {
+    String permission = SDK_INT >= 33 ? READ_MEDIA_VIDEO : READ_EXTERNAL_STORAGE;
+    if (ActivityCompat.checkSelfPermission(activity, permission)
+        != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(activity, new String[] {permission}, /* requestCode= */ 0);
     }
   }
 
