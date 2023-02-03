@@ -126,7 +126,7 @@ public final class EditedMediaItem {
      * <p>This should be set for inputs that don't have an implicit duration (e.g. images). It will
      * be ignored for inputs that do have an implicit duration (e.g. video).
      *
-     * <p>The default value is {@link C#TIME_UNSET}.
+     * <p>No duration is set by default.
      */
     @CanIgnoreReturnValue
     public Builder setDurationUs(long durationUs) {
@@ -141,7 +141,7 @@ public final class EditedMediaItem {
      * <p>This should be set for inputs that don't have an implicit frame rate (e.g. images). It
      * will be ignored for inputs that do have an implicit frame rate (e.g. video).
      *
-     * <p>The default value is {@link C#RATE_UNSET_INT}.
+     * <p>No frame rate is set by default.
      */
     // TODO(b/210593170): Remove/deprecate frameRate parameter when frameRate parameter is added to
     //     transformer.
