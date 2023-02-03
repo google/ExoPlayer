@@ -48,11 +48,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
       Format requestedEncoderFormat) {
     return TransformationException.createForCodec(
         new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
+        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         MimeTypes.isVideo(requestedEncoderFormat.sampleMimeType),
         /* isDecoder= */ false,
-        requestedEncoderFormat,
-        /* mediaCodecName= */ null,
-        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+        requestedEncoderFormat);
   }
 
   @Override
