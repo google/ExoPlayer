@@ -165,7 +165,8 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
-            .setLooper(looper);
+            .setLooper(looper)
+            .setUsePlatformDiagnostics(false);
     if (clock != Clock.DEFAULT) {
       // Transformer.Builder#setClock is also @VisibleForTesting, so if we're using a non-default
       // clock we must be in a test context.
