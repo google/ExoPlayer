@@ -441,18 +441,7 @@ import org.checkerframework.dataflow.qual.Pure;
           findSupportedMimeTypeForEncoderAndMuxer(
               requestedOutputMimeType, muxerSupportedMimeTypes, requestedEncoderFormat.colorInfo);
       if (supportedMimeType == null) {
-        if (ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo)) {
-          throw TransformationException.createForCodec(
-              new IllegalStateException(
-                  "No MIME type supported by both encoder and muxer for requested HDR colorInfo: "
-                      + requestedEncoderFormat.colorInfo),
-              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
-              /* isVideo= */ true,
-              /* isDecoder= */ false,
-              requestedEncoderFormat);
-        } else {
-          throw createNoSupportedMimeTypeException(requestedEncoderFormat);
-        }
+        throw createNoSupportedMimeTypeException(requestedEncoderFormat);
       }
 
       encoder =

@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 
 /**
  * Pipeline for processing media data.
@@ -44,14 +45,22 @@ import com.google.android.exoplayer2.util.MimeTypes;
     trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
   }
 
-  protected static TransformationException createNoSupportedMimeTypeException(
-      Format requestedEncoderFormat) {
+  protected static TransformationException createNoSupportedMimeTypeException(Format format) {
+    String errorMessage = "No MIME type is supported by both encoder and muxer.";
+    int errorCode = TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
+    boolean isVideo = MimeTypes.isVideo(format.sampleMimeType);
+
+    if (isVideo && ColorInfo.isTransferHdr(format.colorInfo)) {
+      errorMessage += " Requested HDR colorInfo: " + format.colorInfo;
+      errorCode = TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED;
+    }
+
     return TransformationException.createForCodec(
-        new IllegalArgumentException("No MIME type is supported by both encoder and muxer."),
-        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
-        MimeTypes.isVideo(requestedEncoderFormat.sampleMimeType),
+        new IllegalArgumentException(errorMessage),
+        errorCode,
+        isVideo,
         /* isDecoder= */ false,
-        requestedEncoderFormat);
+        format);
   }
 
   @Override
