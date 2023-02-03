@@ -56,7 +56,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   public static final class Builder {
     private final Context context;
 
-    @Nullable private EncoderSelector encoderSelector;
+    @Nullable private EncoderSelector videoEncoderSelector;
     @Nullable private VideoEncoderSettings requestedVideoEncoderSettings;
     private boolean enableFallback;
 
@@ -72,8 +72,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
      * <p>The default value is {@link EncoderSelector#DEFAULT}.
      */
     @CanIgnoreReturnValue
-    public Builder setVideoEncoderSelector(EncoderSelector encoderSelector) {
-      this.encoderSelector = encoderSelector;
+    public Builder setVideoEncoderSelector(EncoderSelector videoEncoderSelector) {
+      this.videoEncoderSelector = videoEncoderSelector;
       return this;
     }
 
@@ -121,14 +121,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     /** Creates an instance of {@link DefaultEncoderFactory}, using defaults if values are unset. */
     @SuppressWarnings("deprecation")
     public DefaultEncoderFactory build() {
-      if (encoderSelector == null) {
-        encoderSelector = EncoderSelector.DEFAULT;
+      if (videoEncoderSelector == null) {
+        videoEncoderSelector = EncoderSelector.DEFAULT;
       }
       if (requestedVideoEncoderSettings == null) {
         requestedVideoEncoderSettings = VideoEncoderSettings.DEFAULT;
       }
       return new DefaultEncoderFactory(
-          context, encoderSelector, requestedVideoEncoderSettings, enableFallback);
+          context, videoEncoderSelector, requestedVideoEncoderSettings, enableFallback);
     }
   }
 
@@ -450,6 +450,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   /** Returns a list of encoders that support the requested resolution most closely. */
   private static ImmutableList<MediaCodecInfo> filterEncodersByResolution(
       List<MediaCodecInfo> encoders, String mimeType, int requestedWidth, int requestedHeight) {
+    // TODO(b/267740292): Investigate the fallback logic that might prefer software encoders.
     return filterEncoders(
         encoders,
         /* cost= */ (encoderInfo) -> {
