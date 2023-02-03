@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * A sequence of {@link EditedMediaItem} instances.
@@ -40,8 +41,8 @@ public final class EditedMediaItemSequence {
    *
    * @param editedMediaItems The {@link #editedMediaItems}.
    */
-  public EditedMediaItemSequence(ImmutableList<EditedMediaItem> editedMediaItems) {
+  public EditedMediaItemSequence(List<EditedMediaItem> editedMediaItems) {
     checkArgument(!editedMediaItems.isEmpty());
-    this.editedMediaItems = editedMediaItems;
+    this.editedMediaItems = ImmutableList.copyOf(editedMediaItems);
   }
 }

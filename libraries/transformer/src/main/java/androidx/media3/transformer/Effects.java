@@ -22,6 +22,7 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.effect.GlEffectsFrameProcessor;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /** Effects to apply to a {@link MediaItem}. */
 @UnstableApi
@@ -52,11 +53,10 @@ public final class Effects {
   /**
    * Creates an instance using a {@link GlEffectsFrameProcessor.Factory}.
    *
-   * <p>This is equivalent to calling {@link Effects#Effects(ImmutableList, ImmutableList,
-   * FrameProcessor.Factory)} with a {@link GlEffectsFrameProcessor.Factory}.
+   * <p>This is equivalent to calling {@link Effects#Effects(List, List, FrameProcessor.Factory)}
+   * with a {@link GlEffectsFrameProcessor.Factory}.
    */
-  public Effects(
-      ImmutableList<AudioProcessor> audioProcessors, ImmutableList<Effect> videoEffects) {
+  public Effects(List<AudioProcessor> audioProcessors, List<Effect> videoEffects) {
     this(audioProcessors, videoEffects, new GlEffectsFrameProcessor.Factory());
   }
 
@@ -68,11 +68,11 @@ public final class Effects {
    * @param frameProcessorFactory The {@link #frameProcessorFactory}.
    */
   public Effects(
-      ImmutableList<AudioProcessor> audioProcessors,
-      ImmutableList<Effect> videoEffects,
+      List<AudioProcessor> audioProcessors,
+      List<Effect> videoEffects,
       FrameProcessor.Factory frameProcessorFactory) {
-    this.audioProcessors = audioProcessors;
-    this.videoEffects = videoEffects;
+    this.audioProcessors = ImmutableList.copyOf(audioProcessors);
+    this.videoEffects = ImmutableList.copyOf(videoEffects);
     this.frameProcessorFactory = frameProcessorFactory;
   }
 }
