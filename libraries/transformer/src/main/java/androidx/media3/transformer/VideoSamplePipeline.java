@@ -69,7 +69,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   public VideoSamplePipeline(
       Context context,
-      Format inputFormat,
+      Format firstInputFormat,
       long streamStartPositionUs,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
@@ -81,21 +81,22 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
-    super(inputFormat, streamStartPositionUs, muxerWrapper);
+    super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
     boolean isGlToneMapping = false;
-    if (ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
+    if (ColorInfo.isTransferHdr(firstInputFormat.colorInfo)) {
       if (transformationRequest.hdrMode == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
               new IllegalArgumentException("Interpreting HDR video as SDR is not supported."),
               /* isVideo= */ true,
               /* isDecoder= */ true,
-              inputFormat,
+              firstInputFormat,
               /* mediaCodecName= */ null,
               TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
         }
-        inputFormat = inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+        firstInputFormat =
+            firstInputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
       } else if (transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL) {
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
@@ -103,7 +104,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   "OpenGL-based HDR to SDR tone mapping is not supported."),
               /* isVideo= */ true,
               /* isDecoder= */ true,
-              inputFormat,
+              firstInputFormat,
               /* mediaCodecName= */ null,
               TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
         }
@@ -113,7 +114,7 @@ import org.checkerframework.dataflow.qual.Pure;
             new IllegalArgumentException("HDR editing and tone mapping is not supported."),
             /* isVideo= */ true,
             /* isDecoder= */ false,
-            inputFormat,
+            firstInputFormat,
             /* mediaCodecName= */ null,
             TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
       }
@@ -127,7 +128,7 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
-            inputFormat,
+            firstInputFormat,
             muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
             fallbackListener);
@@ -136,7 +137,7 @@ import org.checkerframework.dataflow.qual.Pure;
     // If not tone mapping using OpenGL, the decoder will output the encoderInputColor,
     // possibly by tone mapping.
     frameProcessorInputColor =
-        isGlToneMapping ? checkNotNull(inputFormat.colorInfo) : encoderInputColor;
+        isGlToneMapping ? checkNotNull(firstInputFormat.colorInfo) : encoderInputColor;
     // For consistency with the Android platform, OpenGL tone mapping outputs colors with
     // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
     // C.COLOR_TRANSFER_SDR to the encoder.
@@ -199,14 +200,18 @@ import org.checkerframework.dataflow.qual.Pure;
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
     }
-    // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
+    // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
     int decodedWidth =
-        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+        (firstInputFormat.rotationDegrees % 180 == 0)
+            ? firstInputFormat.width
+            : firstInputFormat.height;
     int decodedHeight =
-        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+        (firstInputFormat.rotationDegrees % 180 == 0)
+            ? firstInputFormat.height
+            : firstInputFormat.width;
     firstFrameInfo =
         new FrameInfo.Builder(decodedWidth, decodedHeight)
-            .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
+            .setPixelWidthHeightRatio(firstInputFormat.pixelWidthHeightRatio)
             .setStreamOffsetUs(streamOffsetUs)
             .build();
   }

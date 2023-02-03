@@ -61,7 +61,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   // TODO(b/260618558): Move silent audio generation upstream of this component.
   public AudioSamplePipeline(
-      Format inputFormat,
+      Format firstInputFormat,
       long streamStartPositionUs,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
@@ -72,10 +72,11 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws TransformationException {
-    super(inputFormat, streamStartPositionUs, muxerWrapper);
+    super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
     if (generateSilentAudioDurationUs != C.TIME_UNSET) {
-      silentAudioGenerator = new SilentAudioGenerator(inputFormat, generateSilentAudioDurationUs);
+      silentAudioGenerator =
+          new SilentAudioGenerator(firstInputFormat, generateSilentAudioDurationUs);
     } else {
       silentAudioGenerator = null;
     }
@@ -95,7 +96,7 @@ import org.checkerframework.dataflow.qual.Pure;
     if (flattenForSlowMotion) {
       audioProcessors =
           new ImmutableList.Builder<AudioProcessor>()
-              .add(new SpeedChangingAudioProcessor(new SegmentSpeedProvider(inputFormat)))
+              .add(new SpeedChangingAudioProcessor(new SegmentSpeedProvider(firstInputFormat)))
               .addAll(audioProcessors)
               .build();
     }
@@ -103,8 +104,8 @@ import org.checkerframework.dataflow.qual.Pure;
     audioProcessingPipeline = new AudioProcessingPipeline(audioProcessors);
     AudioFormat pipelineInputAudioFormat =
         new AudioFormat(
-            inputFormat.sampleRate,
-            inputFormat.channelCount,
+            firstInputFormat.sampleRate,
+            firstInputFormat.channelCount,
             // The decoder uses ENCODING_PCM_16BIT by default.
             // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
             C.ENCODING_PCM_16BIT);
@@ -121,7 +122,7 @@ import org.checkerframework.dataflow.qual.Pure;
     String requestedMimeType =
         transformationRequest.audioMimeType != null
             ? transformationRequest.audioMimeType
-            : checkNotNull(inputFormat.sampleMimeType);
+            : checkNotNull(firstInputFormat.sampleMimeType);
     Format requestedOutputFormat =
         new Format.Builder()
             .setSampleMimeType(requestedMimeType)
