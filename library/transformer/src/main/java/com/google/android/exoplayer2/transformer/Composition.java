@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import com.google.android.exoplayer2.MediaItem;
 import com.google.common.collect.ImmutableList;
 
@@ -29,6 +31,8 @@ public final class Composition {
   /**
    * The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem} instances from
    * different sequences that are overlapping in time will be mixed in the output.
+   *
+   * <p>This list must not be empty.
    */
   public final ImmutableList<EditedMediaItemSequence> sequences;
   /** The {@link Effects} to apply to the composition. */
@@ -41,6 +45,7 @@ public final class Composition {
    * @param effects The {@link #effects}.
    */
   public Composition(ImmutableList<EditedMediaItemSequence> sequences, Effects effects) {
+    checkArgument(!sequences.isEmpty());
     this.sequences = sequences;
     this.effects = effects;
   }

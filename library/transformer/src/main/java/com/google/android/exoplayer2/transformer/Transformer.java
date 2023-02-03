@@ -761,7 +761,7 @@ public final class Transformer {
     transformerInternal =
         new TransformerInternal(
             context,
-            editedMediaItem,
+            composition,
             path,
             transformationRequest,
             generateSilentAudio,

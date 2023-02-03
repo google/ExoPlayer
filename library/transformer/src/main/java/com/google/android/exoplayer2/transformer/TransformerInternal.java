@@ -111,7 +111,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public TransformerInternal(
       Context context,
-      EditedMediaItem editedMediaItem,
+      Composition composition,
       String outputPath,
       TransformationRequest transformationRequest,
       boolean generateSilentAudio,
@@ -134,9 +134,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
-    ComponentListener componentListener = new ComponentListener(editedMediaItem, fallbackListener);
+    EditedMediaItemSequence sequence = composition.sequences.get(0);
+    ComponentListener componentListener = new ComponentListener(sequence, fallbackListener);
     assetLoader =
-        assetLoaderFactory.createAssetLoader(editedMediaItem, internalLooper, componentListener);
+        new CompositeAssetLoader(
+            sequence, assetLoaderFactory, internalLooper, componentListener, clock);
     samplePipelines = new ArrayList<>();
     muxerWrapper = new MuxerWrapper(outputPath, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();
@@ -313,7 +315,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private class ComponentListener implements AssetLoader.Listener, MuxerWrapper.Listener {
 
-    private final EditedMediaItem editedMediaItem;
+    // The first EditedMediaItem in the sequence determines which SamplePipeline to use.
+    private final EditedMediaItem firstEditedMediaItem;
     private final FallbackListener fallbackListener;
     private final AtomicInteger trackCount;
 
@@ -321,8 +324,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private volatile long durationUs;
 
-    public ComponentListener(EditedMediaItem editedMediaItem, FallbackListener fallbackListener) {
-      this.editedMediaItem = editedMediaItem;
+    public ComponentListener(EditedMediaItemSequence sequence, FallbackListener fallbackListener) {
+      firstEditedMediaItem = sequence.editedMediaItems.get(0);
       this.fallbackListener = fallbackListener;
       trackCount = new AtomicInteger();
       durationUs = C.TIME_UNSET;
@@ -468,8 +471,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
-            editedMediaItem.flattenForSlowMotion,
-            editedMediaItem.effects.audioProcessors,
+            firstEditedMediaItem.flattenForSlowMotion,
+            firstEditedMediaItem.effects.audioProcessors,
             generateSilentAudio ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
@@ -481,8 +484,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
-            editedMediaItem.effects.videoEffects,
-            editedMediaItem.effects.frameProcessorFactory,
+            firstEditedMediaItem.effects.videoEffects,
+            firstEditedMediaItem.effects.frameProcessorFactory,
             encoderFactory,
             muxerWrapper,
             /* errorConsumer= */ this::onTransformationError,
@@ -510,10 +513,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
         return true;
       }
-      if (editedMediaItem.flattenForSlowMotion && isSlowMotion(inputFormat)) {
+      if (firstEditedMediaItem.flattenForSlowMotion && isSlowMotion(inputFormat)) {
         return true;
       }
-      if (!editedMediaItem.effects.audioProcessors.isEmpty()) {
+      if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
         return true;
       }
       if (generateSilentAudio) {
@@ -539,7 +542,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private boolean shouldTranscodeVideo(
         Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
       if ((streamStartPositionUs - streamOffsetUs) != 0
-          && !editedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
+          && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
         return true;
       }
       if (encoderFactory.videoNeedsEncoding()) {
@@ -561,8 +564,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       // TODO(b/265927935): consider generalizing this logic.
-      for (int i = 0; i < editedMediaItem.effects.videoEffects.size(); i++) {
-        Effect videoEffect = editedMediaItem.effects.videoEffects.get(i);
+      for (int i = 0; i < firstEditedMediaItem.effects.videoEffects.size(); i++) {
+        Effect videoEffect = firstEditedMediaItem.effects.videoEffects.get(i);
         if (videoEffect instanceof Presentation) {
           Presentation presentation = (Presentation) videoEffect;
           // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -24,7 +26,11 @@ import com.google.common.collect.ImmutableList;
  */
 public final class EditedMediaItemSequence {
 
-  /** The {@link EditedMediaItem} instances in the sequence. */
+  /**
+   * The {@link EditedMediaItem} instances in the sequence.
+   *
+   * <p>This list must not be empty.
+   */
   public final ImmutableList<EditedMediaItem> editedMediaItems;
 
   /**
@@ -33,6 +39,7 @@ public final class EditedMediaItemSequence {
    * @param editedMediaItems The {@link #editedMediaItems}.
    */
   public EditedMediaItemSequence(ImmutableList<EditedMediaItem> editedMediaItems) {
+    checkArgument(!editedMediaItems.isEmpty());
     this.editedMediaItems = editedMediaItems;
   }
 }
