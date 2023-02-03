@@ -21,16 +21,30 @@ import android.media.MediaCodecInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 /** Selector of {@link MediaCodec} encoder instances. */
 @UnstableApi
 public interface EncoderSelector {
 
   /**
-   * Default implementation of {@link EncoderSelector}, which returns the preferred encoders for the
+   * Default implementation of {@code EncoderSelector}, which returns the preferred encoders for the
    * given {@link MimeTypes MIME type}.
+   *
+   * <p>The {@code EncoderSelector} selection result contains only hardware encoders if they exist,
+   * or only software encoders otherwise.
    */
-  EncoderSelector DEFAULT = EncoderUtil::getSupportedEncoders;
+  EncoderSelector DEFAULT =
+      mimeType -> {
+        ImmutableList<MediaCodecInfo> supportedEncoders =
+            EncoderUtil.getSupportedEncoders(mimeType);
+        ImmutableList<MediaCodecInfo> supportedHardwareEncoders =
+            ImmutableList.copyOf(
+                Iterables.filter(
+                    supportedEncoders,
+                    encoderInfo -> EncoderUtil.isHardwareAccelerated(encoderInfo, mimeType)));
+        return supportedHardwareEncoders.isEmpty() ? supportedEncoders : supportedHardwareEncoders;
+      };
 
   /**
    * Returns a list of encoders that can encode media in the specified {@code mimeType}, in priority
