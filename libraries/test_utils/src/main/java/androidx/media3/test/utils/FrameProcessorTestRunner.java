@@ -28,6 +28,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
 import androidx.annotation.RequiresApi;
+import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
@@ -225,6 +226,7 @@ public final class FrameProcessorTestRunner {
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
+            C.TRACK_TYPE_VIDEO,
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new FrameProcessor.Listener() {

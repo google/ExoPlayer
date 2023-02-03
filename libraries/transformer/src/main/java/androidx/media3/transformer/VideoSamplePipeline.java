@@ -154,6 +154,7 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               frameProcessorInputColor,
               frameProcessorOutputColor,
+              MimeTypes.getTrackType(firstInputFormat.sampleMimeType),
               /* releaseFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
               new FrameProcessor.Listener() {

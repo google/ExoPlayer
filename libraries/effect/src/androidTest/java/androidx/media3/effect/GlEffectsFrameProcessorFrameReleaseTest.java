@@ -24,6 +24,7 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.FrameInfo;
@@ -295,6 +296,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                     DebugViewProvider.NONE,
                     /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    C.TRACK_TYPE_VIDEO,
                     releaseFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {
