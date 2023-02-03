@@ -94,6 +94,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
+        @C.TrackType int inputTrackType,
         boolean releaseFramesAutomatically,
         Executor listenerExecutor,
         Listener listener)

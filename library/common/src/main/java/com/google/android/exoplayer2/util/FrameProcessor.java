@@ -49,6 +49,8 @@ public interface FrameProcessor {
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param inputColorInfo The {@link ColorInfo} for input frames.
      * @param outputColorInfo The {@link ColorInfo} for output frames.
+     * @param inputTrackType The {@link C.TrackType} of the input. Supported track types are {@link
+     *     C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_IMAGE}.
      * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will render
      *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
      *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
@@ -66,6 +68,7 @@ public interface FrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
+        @C.TrackType int inputTrackType,
         boolean releaseFramesAutomatically,
         Executor executor,
         Listener listener)

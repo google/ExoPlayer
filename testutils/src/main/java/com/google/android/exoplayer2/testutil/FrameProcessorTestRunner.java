@@ -28,6 +28,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -223,6 +224,7 @@ public final class FrameProcessorTestRunner {
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
+            C.TRACK_TYPE_VIDEO,
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new FrameProcessor.Listener() {

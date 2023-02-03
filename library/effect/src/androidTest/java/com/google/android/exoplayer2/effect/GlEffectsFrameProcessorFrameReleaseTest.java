@@ -25,6 +25,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.FrameProcessingException;
@@ -295,6 +296,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                     DebugViewProvider.NONE,
                     /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    C.TRACK_TYPE_VIDEO,
                     releaseFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new FrameProcessor.Listener() {
