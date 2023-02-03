@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Size;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -243,10 +243,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
-    ImmutableMap<Integer, String> decoderNames = compositeAssetLoader.getDecoderNames();
+    ImmutableList<TransformationResult.ProcessedInput> processedInputs =
+        compositeAssetLoader.getProcessedInputs();
     transformationResultBuilder
-        .setAudioDecoderName(decoderNames.get(C.TRACK_TYPE_AUDIO))
-        .setVideoDecoderName(decoderNames.get(C.TRACK_TYPE_VIDEO))
+        .setProcessedInputs(processedInputs)
         .setAudioEncoderName(encoderFactory.getAudioEncoderName())
         .setVideoEncoderName(encoderFactory.getVideoEncoderName());
 

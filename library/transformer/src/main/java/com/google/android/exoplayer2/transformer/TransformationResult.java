@@ -20,32 +20,36 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Objects;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Information about the result of a transformation. */
 public final class TransformationResult {
   /** A builder for {@link TransformationResult} instances. */
   public static final class Builder {
+    private ImmutableList<ProcessedInput> processedInputs;
     private long durationMs;
     private long fileSizeBytes;
     private int averageAudioBitrate;
     private int channelCount;
     private @C.PcmEncoding int pcmEncoding;
     private int sampleRate;
-    @Nullable private String audioDecoderName;
     @Nullable private String audioEncoderName;
     private int averageVideoBitrate;
     @Nullable ColorInfo colorInfo;
     private int height;
     private int width;
     private int videoFrameCount;
-    @Nullable private String videoDecoderName;
     @Nullable private String videoEncoderName;
     @Nullable private TransformationException transformationException;
 
+    /** Creates a builder. */
     public Builder() {
+      processedInputs = ImmutableList.of();
       durationMs = C.TIME_UNSET;
       fileSizeBytes = C.LENGTH_UNSET;
       averageAudioBitrate = C.RATE_UNSET_INT;
@@ -55,6 +59,13 @@ public final class TransformationResult {
       averageVideoBitrate = C.RATE_UNSET_INT;
       height = C.LENGTH_UNSET;
       width = C.LENGTH_UNSET;
+    }
+
+    /** Sets the {@linkplain ProcessedInput processed inputs}. */
+    @CanIgnoreReturnValue
+    public Builder setProcessedInputs(ImmutableList<ProcessedInput> processedInputs) {
+      this.processedInputs = processedInputs;
+      return this;
     }
 
     /**
@@ -124,13 +135,6 @@ public final class TransformationResult {
       return this;
     }
 
-    /** Sets the name of the audio decoder used. */
-    @CanIgnoreReturnValue
-    public Builder setAudioDecoderName(@Nullable String audioDecoderName) {
-      this.audioDecoderName = audioDecoderName;
-      return this;
-    }
-
     /** Sets the name of the audio encoder used. */
     @CanIgnoreReturnValue
     public Builder setAudioEncoderName(@Nullable String audioEncoderName) {
@@ -193,13 +197,6 @@ public final class TransformationResult {
       return this;
     }
 
-    /** Sets the name of the video decoder used. */
-    @CanIgnoreReturnValue
-    public Builder setVideoDecoderName(@Nullable String videoDecoderName) {
-      this.videoDecoderName = videoDecoderName;
-      return this;
-    }
-
     /** Sets the name of the video encoder used. */
     @CanIgnoreReturnValue
     public Builder setVideoEncoderName(@Nullable String videoEncoderName) {
@@ -215,26 +212,53 @@ public final class TransformationResult {
       return this;
     }
 
+    /** Builds a {@link TransformationResult} instance. */
     public TransformationResult build() {
       return new TransformationResult(
+          processedInputs,
           durationMs,
           fileSizeBytes,
           averageAudioBitrate,
           channelCount,
           pcmEncoding,
           sampleRate,
-          audioDecoderName,
           audioEncoderName,
           averageVideoBitrate,
           colorInfo,
           height,
           width,
           videoFrameCount,
-          videoDecoderName,
           videoEncoderName,
           transformationException);
     }
   }
+
+  /** An input entirely or partially processed. */
+  public static final class ProcessedInput {
+    /** The processed {@link MediaItem}. */
+    public final MediaItem mediaItem;
+    /**
+     * The name of the audio decoder used to process {@code mediaItem}. This field is {@code null}
+     * if no audio decoder was used.
+     */
+    public final @MonotonicNonNull String audioDecoderName;
+    /**
+     * The name of the video decoder used to process {@code mediaItem}. This field is {@code null}
+     * if no video decoder was used.
+     */
+    public final @MonotonicNonNull String videoDecoderName;
+
+    /** Creates an instance. */
+    public ProcessedInput(
+        MediaItem mediaItem, @Nullable String audioDecoderName, @Nullable String videoDecoderName) {
+      this.mediaItem = mediaItem;
+      this.audioDecoderName = audioDecoderName;
+      this.videoDecoderName = videoDecoderName;
+    }
+  }
+
+  /** The list of {@linkplain ProcessedInput processed inputs}. */
+  public final ImmutableList<ProcessedInput> processedInputs;
 
   /** The duration of the file in milliseconds, or {@link C#TIME_UNSET} if unset or unknown. */
   public final long durationMs;
@@ -247,12 +271,10 @@ public final class TransformationResult {
   public final int averageAudioBitrate;
   /** The channel count of the audio, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final int channelCount;
-  /* The {@link C.PcmEncoding} of the audio, or {@link Format#NO_VALUE} if unset or unknown. */
+  /** The {@link C.PcmEncoding} of the audio, or {@link Format#NO_VALUE} if unset or unknown. */
   public final @C.PcmEncoding int pcmEncoding;
   /** The sample rate of the audio, or {@link C#RATE_UNSET_INT} if unset or unknown. */
   public final int sampleRate;
-  /** The name of the audio decoder used, or {@code null} if none were used. */
-  @Nullable public final String audioDecoderName;
   /** The name of the audio encoder used, or {@code null} if none were used. */
   @Nullable public final String audioEncoderName;
 
@@ -268,8 +290,6 @@ public final class TransformationResult {
   public final int width;
   /** The number of video frames. */
   public final int videoFrameCount;
-  /** The name of the video decoder used, or {@code null} if none were used. */
-  @Nullable public final String videoDecoderName;
   /** The name of the video encoder used, or {@code null} if none were used. */
   @Nullable public final String videoEncoderName;
 
@@ -280,56 +300,53 @@ public final class TransformationResult {
   @Nullable public final TransformationException transformationException;
 
   private TransformationResult(
+      ImmutableList<ProcessedInput> processedInputs,
       long durationMs,
       long fileSizeBytes,
       int averageAudioBitrate,
       int channelCount,
       @C.PcmEncoding int pcmEncoding,
       int sampleRate,
-      @Nullable String audioDecoderName,
       @Nullable String audioEncoderName,
       int averageVideoBitrate,
       @Nullable ColorInfo colorInfo,
       int height,
       int width,
       int videoFrameCount,
-      @Nullable String videoDecoderName,
       @Nullable String videoEncoderName,
       @Nullable TransformationException transformationException) {
+    this.processedInputs = processedInputs;
     this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
     this.channelCount = channelCount;
     this.pcmEncoding = pcmEncoding;
     this.sampleRate = sampleRate;
-    this.audioDecoderName = audioDecoderName;
     this.audioEncoderName = audioEncoderName;
     this.averageVideoBitrate = averageVideoBitrate;
     this.colorInfo = colorInfo;
     this.height = height;
     this.width = width;
     this.videoFrameCount = videoFrameCount;
-    this.videoDecoderName = videoDecoderName;
     this.videoEncoderName = videoEncoderName;
     this.transformationException = transformationException;
   }
 
   public Builder buildUpon() {
     return new Builder()
+        .setProcessedInputs(processedInputs)
         .setDurationMs(durationMs)
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)
         .setChannelCount(channelCount)
         .setPcmEncoding(pcmEncoding)
         .setSampleRate(sampleRate)
-        .setAudioDecoderName(audioDecoderName)
         .setAudioEncoderName(audioEncoderName)
         .setAverageVideoBitrate(averageVideoBitrate)
         .setColorInfo(colorInfo)
         .setHeight(height)
         .setWidth(width)
         .setVideoFrameCount(videoFrameCount)
-        .setVideoDecoderName(videoDecoderName)
         .setVideoEncoderName(videoEncoderName)
         .setTransformationException(transformationException);
   }
@@ -343,40 +360,38 @@ public final class TransformationResult {
       return false;
     }
     TransformationResult result = (TransformationResult) o;
-    return durationMs == result.durationMs
+    return Objects.equals(processedInputs, result.processedInputs)
+        && durationMs == result.durationMs
         && fileSizeBytes == result.fileSizeBytes
         && averageAudioBitrate == result.averageAudioBitrate
         && channelCount == result.channelCount
         && pcmEncoding == result.pcmEncoding
         && sampleRate == result.sampleRate
-        && Objects.equals(audioDecoderName, result.audioDecoderName)
         && Objects.equals(audioEncoderName, result.audioEncoderName)
         && averageVideoBitrate == result.averageVideoBitrate
         && Objects.equals(colorInfo, result.colorInfo)
         && height == result.height
         && width == result.width
         && videoFrameCount == result.videoFrameCount
-        && Objects.equals(videoDecoderName, result.videoDecoderName)
         && Objects.equals(videoEncoderName, result.videoEncoderName)
         && Objects.equals(transformationException, result.transformationException);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) durationMs;
+    int result = Objects.hashCode(processedInputs);
+    result = 31 * result + (int) durationMs;
     result = 31 * result + (int) fileSizeBytes;
     result = 31 * result + averageAudioBitrate;
     result = 31 * result + channelCount;
     result = 31 * result + pcmEncoding;
     result = 31 * result + sampleRate;
-    result = 31 * result + Objects.hashCode(audioDecoderName);
     result = 31 * result + Objects.hashCode(audioEncoderName);
     result = 31 * result + averageVideoBitrate;
     result = 31 * result + Objects.hashCode(colorInfo);
     result = 31 * result + height;
     result = 31 * result + width;
     result = 31 * result + videoFrameCount;
-    result = 31 * result + Objects.hashCode(videoDecoderName);
     result = 31 * result + Objects.hashCode(videoEncoderName);
     result = 31 * result + Objects.hashCode(transformationException);
     return result;

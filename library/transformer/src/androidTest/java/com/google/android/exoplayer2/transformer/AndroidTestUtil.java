@@ -26,6 +26,7 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.Log;
@@ -36,6 +37,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -499,6 +501,31 @@ public final class AndroidTestUtil {
         .put("model", Build.MODEL)
         .put("sdkVersion", Build.VERSION.SDK_INT)
         .put("fingerprint", Build.FINGERPRINT);
+  }
+
+  /**
+   * Creates a {@link JSONArray} from {@link TransformationResult.ProcessedInput processed inputs}.
+   *
+   * @param processedInputs The list of {@link TransformationResult.ProcessedInput} instances.
+   * @return A {@link JSONArray} containing {@link JSONObject} instances representing the {@link
+   *     TransformationResult.ProcessedInput} instances.
+   */
+  public static JSONArray processedInputsAsJsonArray(
+      ImmutableList<TransformationResult.ProcessedInput> processedInputs) throws JSONException {
+    JSONArray jsonArray = new JSONArray();
+    for (int i = 0; i < processedInputs.size(); i++) {
+      TransformationResult.ProcessedInput processedInput = processedInputs.get(i);
+      JSONObject jsonObject = new JSONObject();
+      @Nullable
+      MediaItem.LocalConfiguration localConfiguration = processedInput.mediaItem.localConfiguration;
+      if (localConfiguration != null) {
+        jsonObject.put("mediaItemUri", localConfiguration.uri);
+      }
+      jsonObject.putOpt("audioDecoderName", processedInput.audioDecoderName);
+      jsonObject.putOpt("videoDecoderName", processedInput.videoDecoderName);
+      jsonArray.put(jsonObject);
+    }
+    return jsonArray;
   }
 
   /**

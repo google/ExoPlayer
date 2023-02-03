@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +53,12 @@ import java.util.concurrent.atomic.AtomicLong;
   private final Listener compositeAssetLoaderListener;
   private final Map<Integer, SampleConsumer> sampleConsumersByTrackType;
   private final Map<Integer, OnMediaItemChangedListener> mediaItemChangedListenersByTrackType;
+  private final ImmutableList.Builder<TransformationResult.ProcessedInput> processedInputsBuilder;
   private final AtomicLong totalDurationUs;
   private final AtomicInteger nonEndedTracks;
 
   private AssetLoader currentAssetLoader;
+  private int processedInputsSize;
 
   private volatile long currentDurationUs;
 
@@ -72,6 +75,7 @@ import java.util.concurrent.atomic.AtomicLong;
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
     mediaItemChangedListenersByTrackType = new HashMap<>();
+    processedInputsBuilder = new ImmutableList.Builder<>();
     totalDurationUs = new AtomicLong();
     nonEndedTracks = new AtomicInteger();
     // It's safe to use "this" because we don't start the AssetLoader before exiting the
@@ -105,8 +109,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public ImmutableMap<Integer, String> getDecoderNames() {
-    // TODO(b/252537210): update TransformationResult to contain all the decoders used.
     return currentAssetLoader.getDecoderNames();
+  }
+
+  /**
+   * Returns the partially or entirely {@linkplain TransformationResult.ProcessedInput processed
+   * inputs}.
+   */
+  public ImmutableList<TransformationResult.ProcessedInput> getProcessedInputs() {
+    addCurrentProcessedInput();
+    return processedInputsBuilder.build();
   }
 
   @Override
@@ -193,6 +205,18 @@ import java.util.concurrent.atomic.AtomicLong;
     compositeAssetLoaderListener.onError(exception);
   }
 
+  private void addCurrentProcessedInput() {
+    int currentMediaItemIndex = this.currentMediaItemIndex.get();
+    if (currentMediaItemIndex >= processedInputsSize) {
+      MediaItem mediaItem = editedMediaItems.get(currentMediaItemIndex).mediaItem;
+      ImmutableMap<Integer, String> decoders = currentAssetLoader.getDecoderNames();
+      processedInputsBuilder.add(
+          new TransformationResult.ProcessedInput(
+              mediaItem, decoders.get(C.TRACK_TYPE_AUDIO), decoders.get(C.TRACK_TYPE_VIDEO)));
+      processedInputsSize++;
+    }
+  }
+
   private final class SampleConsumerWrapper implements SampleConsumer {
 
     private final SampleConsumer sampleConsumer;
@@ -270,6 +294,7 @@ import java.util.concurrent.atomic.AtomicLong;
       totalDurationUs.addAndGet(currentDurationUs);
       handler.post(
           () -> {
+            addCurrentProcessedInput();
             currentAssetLoader.release();
             EditedMediaItem editedMediaItem =
                 editedMediaItems.get(currentMediaItemIndex.incrementAndGet());
