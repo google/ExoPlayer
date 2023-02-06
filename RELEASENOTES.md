@@ -32,6 +32,12 @@ This release corresponds to the
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
+    *   Fix bug where some playbacks fail when tunneling is enabled and
+        `AudioProcessors` are active, e.g. for gapless trimming
+        ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
+*   Video:
+    *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
+        `HEVCProfileMain10`.
 *   Text:
     *   Fix `TextRenderer` passing an invalid (negative) index to
         `Subtitle.getEventTime` if a subtitle file contains no cues.
