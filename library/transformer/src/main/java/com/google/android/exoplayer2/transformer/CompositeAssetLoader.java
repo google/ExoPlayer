@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
+import android.graphics.Bitmap;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -256,6 +257,13 @@ import java.util.concurrent.atomic.AtomicLong;
         }
       }
       sampleConsumer.queueInputBuffer();
+    }
+
+    // TODO(262693274): Test that concatenate 2 images or an image and a video works as expected
+    //  once Image Asset Loader Implementation is complete.
+    @Override
+    public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+      sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
     }
 
     @Override
