@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for Lookup Tables via {@link ColorLutProcessor}.
+ * Pixel test for Lookup Tables via {@link ColorLutShaderProgram}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -70,7 +70,7 @@ public class SingleColorLutPixelTest {
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor colorLutProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram colorLutShaderProgram;
   private int inputTexId;
   private int inputWidth;
   private int inputHeight;
@@ -89,8 +89,8 @@ public class SingleColorLutPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (colorLutProcessor != null) {
-      colorLutProcessor.release();
+    if (colorLutShaderProgram != null) {
+      colorLutShaderProgram.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -99,14 +99,14 @@ public class SingleColorLutPixelTest {
   public void drawFrame_identityCubeLutSize2_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_identityLutCubeSize2";
     int[][][] cubeIdentityLut = createIdentityLutCube(/* length= */ 2);
-    colorLutProcessor =
+    colorLutShaderProgram =
         SingleColorLut.createFromCube(cubeIdentityLut)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -120,14 +120,14 @@ public class SingleColorLutPixelTest {
   public void drawFrame_identityCubeLutSize64_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_identityLutCubeSize64";
     int[][][] cubeIdentityLut = createIdentityLutCube(/* length= */ 64);
-    colorLutProcessor =
+    colorLutShaderProgram =
         SingleColorLut.createFromCube(cubeIdentityLut)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -141,14 +141,13 @@ public class SingleColorLutPixelTest {
   public void drawFrame_identityBitmapLutSize2_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_identityBitmapLutSize2";
     Bitmap bitmapLut = createIdentityLutBitmap(/* length= */ 2);
-    colorLutProcessor =
-        SingleColorLut.createFromBitmap(bitmapLut)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    colorLutShaderProgram =
+        SingleColorLut.createFromBitmap(bitmapLut).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -162,14 +161,13 @@ public class SingleColorLutPixelTest {
   public void drawFrame_identityBitmapLutSize64_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_identityBitmapLutSize64";
     Bitmap bitmapLut = createIdentityLutBitmap(/* length= */ 64);
-    colorLutProcessor =
-        SingleColorLut.createFromBitmap(bitmapLut)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    colorLutShaderProgram =
+        SingleColorLut.createFromBitmap(bitmapLut).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -183,14 +181,13 @@ public class SingleColorLutPixelTest {
   public void drawFrame_identityLutFromHaldImage_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_identityLutFromHaldImage";
     Bitmap bitmapLut = readBitmap(VERTICAL_HALD_IDENTITY_LUT);
-    colorLutProcessor =
-        SingleColorLut.createFromBitmap(bitmapLut)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+    colorLutShaderProgram =
+        SingleColorLut.createFromBitmap(bitmapLut).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -206,14 +203,14 @@ public class SingleColorLutPixelTest {
     int length = 3;
     int[][][] mapWhiteToGreen = createIdentityLutCube(length);
     mapWhiteToGreen[length - 1][length - 1][length - 1] = Color.GREEN;
-    colorLutProcessor =
+    colorLutShaderProgram =
         SingleColorLut.createFromCube(mapWhiteToGreen)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(LUT_MAP_WHITE_TO_GREEN_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -227,14 +224,14 @@ public class SingleColorLutPixelTest {
   public void drawFrame_applyInvertedLut_producesInvertedFrame() throws Exception {
     String testId = "drawFrame_applyInvertedLut";
     Bitmap invertedLutBitmap = readBitmap(VERTICAL_HALD_INVERTED_LUT);
-    colorLutProcessor =
+    colorLutShaderProgram =
         SingleColorLut.createFromBitmap(invertedLutBitmap)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -248,14 +245,14 @@ public class SingleColorLutPixelTest {
   public void drawFrame_applyGrayscaleLut_producesGrayscaleFrame() throws Exception {
     String testId = "drawFrame_applyGrayscaleLut";
     Bitmap grayscaleLutBitmap = readBitmap(VERTICAL_HALD_GRAYSCALE_LUT);
-    colorLutProcessor =
+    colorLutShaderProgram =
         SingleColorLut.createFromBitmap(grayscaleLutBitmap)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = colorLutProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = colorLutShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
-    colorLutProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    colorLutShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 

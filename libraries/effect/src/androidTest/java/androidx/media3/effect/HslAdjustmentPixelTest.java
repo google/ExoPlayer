@@ -75,7 +75,7 @@ public final class HslAdjustmentPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor hslProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram hslProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;
@@ -111,7 +111,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_noOpAdjustment_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_noOpAdjustment";
     HslAdjustment noOpAdjustment = new HslAdjustment.Builder().build();
-    hslProcessor = noOpAdjustment.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = noOpAdjustment.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
@@ -129,7 +129,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_minimumSaturation_producesGrayFrame() throws Exception {
     String testId = "drawFrame_minimumSaturation";
     HslAdjustment minimumSaturation = new HslAdjustment.Builder().adjustSaturation(-100).build();
-    hslProcessor = minimumSaturation.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = minimumSaturation.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(MINIMUM_SATURATION_PNG_ASSET_PATH);
 
@@ -147,7 +147,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_maximumSaturation_producesHighlySaturatedFrame() throws Exception {
     String testId = "drawFrame_maximumSaturation";
     HslAdjustment maximumSaturation = new HslAdjustment.Builder().adjustSaturation(100).build();
-    hslProcessor = maximumSaturation.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = maximumSaturation.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(MAXIMUM_SATURATION_PNG_ASSET_PATH);
 
@@ -165,7 +165,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_rotateHueByNegative90Degrees_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_rotateHueByNegative90Degrees";
     HslAdjustment negativeHueRotation90Degrees = new HslAdjustment.Builder().adjustHue(-90).build();
-    hslProcessor = negativeHueRotation90Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = negativeHueRotation90Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ROTATE_HUE_BY_NEGATIVE_90_DEGREES_PNG_ASSET_PATH);
 
@@ -183,7 +183,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_rotateHueBy60Degrees_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_rotateHueBy60Degrees";
     HslAdjustment hueRotation60Degrees = new HslAdjustment.Builder().adjustHue(60).build();
-    hslProcessor = hueRotation60Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = hueRotation60Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH);
 
@@ -202,7 +202,7 @@ public final class HslAdjustmentPixelTest {
       throws Exception {
     String testId = "drawFrame_rotateHueByNegative300Degrees";
     HslAdjustment hueRotation420Degrees = new HslAdjustment.Builder().adjustHue(-300).build();
-    hslProcessor = hueRotation420Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = hueRotation420Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH);
 
@@ -220,7 +220,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_rotateHueBy360Degrees_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_rotateHueBy360Degrees";
     HslAdjustment hueRotation360Degrees = new HslAdjustment.Builder().adjustHue(360).build();
-    hslProcessor = hueRotation360Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = hueRotation360Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
@@ -238,7 +238,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_minimumLightness_producesBlackFrame() throws Exception {
     String testId = "drawFrame_minimumLightness";
     HslAdjustment minimumLightness = new HslAdjustment.Builder().adjustLightness(-100).build();
-    hslProcessor = minimumLightness.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = minimumLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
         createArgb8888BitmapWithSolidColor(inputWidth, inputHeight, Color.BLACK);
@@ -257,7 +257,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_decreaseLightness_producesDarkerFrame() throws Exception {
     String testId = "drawFrame_decreaseLightness";
     HslAdjustment decreasedLightness = new HslAdjustment.Builder().adjustLightness(-50).build();
-    hslProcessor = decreasedLightness.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = decreasedLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(DECREASE_LIGHTNESS_PNG_ASSET_PATH);
 
@@ -275,7 +275,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_increaseLightness_producesBrighterFrame() throws Exception {
     String testId = "drawFrame_increaseLightness";
     HslAdjustment increasedLightness = new HslAdjustment.Builder().adjustLightness(50).build();
-    hslProcessor = increasedLightness.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = increasedLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(INCREASE_LIGHTNESS_PNG_ASSET_PATH);
 
@@ -293,7 +293,7 @@ public final class HslAdjustmentPixelTest {
   public void drawFrame_maximumLightness_producesWhiteFrame() throws Exception {
     String testId = "drawFrame_maximumLightness";
     HslAdjustment maximumLightness = new HslAdjustment.Builder().adjustLightness(100).build();
-    hslProcessor = maximumLightness.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = maximumLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
         createArgb8888BitmapWithSolidColor(inputWidth, inputHeight, Color.WHITE);
@@ -313,7 +313,7 @@ public final class HslAdjustmentPixelTest {
     String testId = "drawFrame_adjustAllHslSettings";
     HslAdjustment allHslSettingsAdjusted =
         new HslAdjustment.Builder().adjustHue(60).adjustSaturation(30).adjustLightness(50).build();
-    hslProcessor = allHslSettingsAdjusted.toGlTextureProcessor(context, /* useHdr= */ false);
+    hslProcessor = allHslSettingsAdjusted.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(ADJUST_ALL_HSL_SETTINGS_PNG_ASSET_PATH);
 

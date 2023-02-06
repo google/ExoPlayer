@@ -63,7 +63,7 @@ public final class CropPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor cropTextureProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram cropShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;
@@ -83,8 +83,8 @@ public final class CropPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (cropTextureProcessor != null) {
-      cropTextureProcessor.release();
+    if (cropShaderProgram != null) {
+      cropShaderProgram.release();
     }
     if (eglContext != null && eglDisplay != null) {
       GlUtil.destroyEglContext(eglDisplay, eglContext);
@@ -94,14 +94,14 @@ public final class CropPixelTest {
   @Test
   public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_noEdits";
-    cropTextureProcessor =
+    cropShaderProgram =
         new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = cropShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    cropTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    cropShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -115,14 +115,14 @@ public final class CropPixelTest {
   @Test
   public void drawFrame_cropSmaller_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_cropSmaller";
-    cropTextureProcessor =
+    cropShaderProgram =
         new Crop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = cropShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(CROP_SMALLER_PNG_ASSET_PATH);
 
-    cropTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    cropShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -136,14 +136,14 @@ public final class CropPixelTest {
   @Test
   public void drawFrame_cropLarger_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_cropLarger";
-    cropTextureProcessor =
+    cropShaderProgram =
         new Crop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = cropShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(CROP_LARGER_PNG_ASSET_PATH);
 
-    cropTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    cropShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 

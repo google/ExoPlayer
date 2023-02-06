@@ -25,9 +25,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link ChainingGlTextureProcessorListener}. */
+/** Tests for {@link ChainingGlShaderProgramListener}. */
 @RunWith(AndroidJUnit4.class)
-public final class ChainingGlTextureProcessorListenerTest {
+public final class ChainingGlShaderProgramListenerTest {
   private static final long EXECUTOR_WAIT_TIME_MS = 100;
 
   private final FrameProcessor.Listener mockFrameProcessorListener =
@@ -35,13 +35,11 @@ public final class ChainingGlTextureProcessorListenerTest {
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor =
       new FrameProcessingTaskExecutor(
           Util.newSingleThreadExecutor("Test"), mockFrameProcessorListener);
-  private final GlTextureProcessor mockProducingGlTextureProcessor = mock(GlTextureProcessor.class);
-  private final GlTextureProcessor mockConsumingGlTextureProcessor = mock(GlTextureProcessor.class);
-  private final ChainingGlTextureProcessorListener chainingGlTextureProcessorListener =
-      new ChainingGlTextureProcessorListener(
-          mockProducingGlTextureProcessor,
-          mockConsumingGlTextureProcessor,
-          frameProcessingTaskExecutor);
+  private final GlShaderProgram mockProducingGlShaderProgram = mock(GlShaderProgram.class);
+  private final GlShaderProgram mockConsumingGlShaderProgram = mock(GlShaderProgram.class);
+  private final ChainingGlShaderProgramListener chainingGlShaderProgramListener =
+      new ChainingGlShaderProgramListener(
+          mockProducingGlShaderProgram, mockConsumingGlShaderProgram, frameProcessingTaskExecutor);
 
   @After
   public void release() throws InterruptedException {
@@ -49,47 +47,47 @@ public final class ChainingGlTextureProcessorListenerTest {
   }
 
   @Test
-  public void onInputFrameProcessed_surrendersFrameToPreviousGlTextureProcessor()
+  public void onInputFrameProcessed_surrendersFrameToPreviousGlShaderProgram()
       throws InterruptedException {
     TextureInfo texture =
         new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
 
-    chainingGlTextureProcessorListener.onInputFrameProcessed(texture);
+    chainingGlShaderProgramListener.onInputFrameProcessed(texture);
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockProducingGlTextureProcessor).releaseOutputFrame(texture);
+    verify(mockProducingGlShaderProgram).releaseOutputFrame(texture);
   }
 
   @Test
-  public void onOutputFrameAvailable_afterAcceptsInputFrame_passesFrameToNextGlTextureProcessor()
-      throws InterruptedException {
-    TextureInfo texture =
-        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
-    long presentationTimeUs = 123;
-
-    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
-    chainingGlTextureProcessorListener.onOutputFrameAvailable(texture, presentationTimeUs);
-    Thread.sleep(EXECUTOR_WAIT_TIME_MS);
-
-    verify(mockConsumingGlTextureProcessor).queueInputFrame(texture, presentationTimeUs);
-  }
-
-  @Test
-  public void onOutputFrameAvailable_beforeAcceptsInputFrame_passesFrameToNextGlTextureProcessor()
+  public void onOutputFrameAvailable_afterAcceptsInputFrame_passesFrameToNextGlShaderProgram()
       throws InterruptedException {
     TextureInfo texture =
         new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
     long presentationTimeUs = 123;
 
-    chainingGlTextureProcessorListener.onOutputFrameAvailable(texture, presentationTimeUs);
-    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
+    chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
+    chainingGlShaderProgramListener.onOutputFrameAvailable(texture, presentationTimeUs);
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockConsumingGlTextureProcessor).queueInputFrame(texture, presentationTimeUs);
+    verify(mockConsumingGlShaderProgram).queueInputFrame(texture, presentationTimeUs);
   }
 
   @Test
-  public void onOutputFrameAvailable_twoFrames_passesFirstBeforeSecondToNextGlTextureProcessor()
+  public void onOutputFrameAvailable_beforeAcceptsInputFrame_passesFrameToNextGlShaderProgram()
+      throws InterruptedException {
+    TextureInfo texture =
+        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
+    long presentationTimeUs = 123;
+
+    chainingGlShaderProgramListener.onOutputFrameAvailable(texture, presentationTimeUs);
+    chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
+    Thread.sleep(EXECUTOR_WAIT_TIME_MS);
+
+    verify(mockConsumingGlShaderProgram).queueInputFrame(texture, presentationTimeUs);
+  }
+
+  @Test
+  public void onOutputFrameAvailable_twoFrames_passesFirstBeforeSecondToNextGlShaderProgram()
       throws InterruptedException {
     TextureInfo firstTexture =
         new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
@@ -98,25 +96,22 @@ public final class ChainingGlTextureProcessorListenerTest {
         new TextureInfo(/* texId= */ 2, /* fboId= */ 2, /* width= */ 100, /* height= */ 100);
     long secondPresentationTimeUs = 567;
 
-    chainingGlTextureProcessorListener.onOutputFrameAvailable(
-        firstTexture, firstPresentationTimeUs);
-    chainingGlTextureProcessorListener.onOutputFrameAvailable(
-        secondTexture, secondPresentationTimeUs);
-    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
-    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
+    chainingGlShaderProgramListener.onOutputFrameAvailable(firstTexture, firstPresentationTimeUs);
+    chainingGlShaderProgramListener.onOutputFrameAvailable(secondTexture, secondPresentationTimeUs);
+    chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
+    chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockConsumingGlTextureProcessor).queueInputFrame(firstTexture, firstPresentationTimeUs);
-    verify(mockConsumingGlTextureProcessor)
-        .queueInputFrame(secondTexture, secondPresentationTimeUs);
+    verify(mockConsumingGlShaderProgram).queueInputFrame(firstTexture, firstPresentationTimeUs);
+    verify(mockConsumingGlShaderProgram).queueInputFrame(secondTexture, secondPresentationTimeUs);
   }
 
   @Test
-  public void onOutputStreamEnded_signalsInputStreamEndedToNextGlTextureProcessor()
+  public void onOutputStreamEnded_signalsInputStreamEndedToNextGlShaderProgram()
       throws InterruptedException {
-    chainingGlTextureProcessorListener.onCurrentOutputStreamEnded();
+    chainingGlShaderProgramListener.onCurrentOutputStreamEnded();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockConsumingGlTextureProcessor).signalEndOfCurrentInputStream();
+    verify(mockConsumingGlShaderProgram).signalEndOfCurrentInputStream();
   }
 }

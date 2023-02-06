@@ -50,8 +50,8 @@ public class FrameCache implements GlEffect {
   }
 
   @Override
-  public GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new FrameCacheTextureProcessor(context, capacity, useHdr);
+    return new FrameCacheShaderProgram(context, capacity, useHdr);
   }
 }

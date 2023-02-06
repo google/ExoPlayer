@@ -25,7 +25,7 @@ import androidx.media3.common.util.Size;
 import java.io.IOException;
 
 /** Applies a {@link Contrast} to each frame in the fragment shader. */
-/* package */ final class ContrastProcessor extends SingleFrameGlTextureProcessor {
+/* package */ final class ContrastShaderProgram extends SingleFrameGlShaderProgram {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_contrast_es2.glsl";
 
@@ -40,7 +40,7 @@ import java.io.IOException;
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public ContrastProcessor(Context context, Contrast contrastEffect, boolean useHdr)
+  public ContrastShaderProgram(Context context, Contrast contrastEffect, boolean useHdr)
       throws FrameProcessingException {
     super(useHdr);
     // Use 1.0001f to avoid division by zero issues.

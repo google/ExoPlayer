@@ -16,12 +16,12 @@
 package androidx.media3.effect;
 
 /**
- * Interface for a {@link GlTextureProcessor} that samples from an external texture.
+ * Interface for a {@link GlShaderProgram} that samples from an external texture.
  *
  * <p>Use {@link #setTextureTransformMatrix(float[])} to provide the texture's transformation
  * matrix.
  */
-/* package */ interface ExternalTextureProcessor extends GlTextureProcessor {
+/* package */ interface ExternalShaderProgram extends GlShaderProgram {
 
   /**
    * Sets the texture transform matrix for converting an external surface texture's coordinates to

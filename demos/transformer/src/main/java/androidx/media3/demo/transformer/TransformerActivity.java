@@ -59,7 +59,7 @@ import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.DrawableOverlay;
 import androidx.media3.effect.GlEffect;
-import androidx.media3.effect.GlTextureProcessor;
+import androidx.media3.effect.GlShaderProgram;
 import androidx.media3.effect.HslAdjustment;
 import androidx.media3.effect.OverlayEffect;
 import androidx.media3.effect.OverlaySettings;
@@ -414,7 +414,7 @@ public final class TransformerActivity extends AppCompatActivity {
             (GlEffect)
                 (Context context, boolean useHdr) -> {
                   try {
-                    return (GlTextureProcessor)
+                    return (GlShaderProgram)
                         constructor.newInstance(
                             context,
                             useHdr,
@@ -424,7 +424,7 @@ public final class TransformerActivity extends AppCompatActivity {
                             /* outputStreamName= */ "output_video");
                   } catch (Exception e) {
                     runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
-                    throw new RuntimeException("Failed to load MediaPipe processor", e);
+                    throw new RuntimeException("Failed to load MediaPipeShaderProgram", e);
                   }
                 });
       } catch (Exception e) {
@@ -495,7 +495,7 @@ public final class TransformerActivity extends AppCompatActivity {
       effects.add(
           (GlEffect)
               (Context context, boolean useHdr) ->
-                  new PeriodicVignetteProcessor(
+                  new PeriodicVignetteShaderProgram(
                       context,
                       useHdr,
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),

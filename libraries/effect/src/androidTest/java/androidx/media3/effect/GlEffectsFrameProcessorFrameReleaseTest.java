@@ -370,7 +370,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   }
 
   /** Produces blank frames with the given timestamps. */
-  private static final class BlankFrameProducer implements GlTextureProcessor {
+  private static final class BlankFrameProducer implements GlShaderProgram {
 
     private @MonotonicNonNull TextureInfo blankTexture;
     private @MonotonicNonNull OutputListener outputListener;

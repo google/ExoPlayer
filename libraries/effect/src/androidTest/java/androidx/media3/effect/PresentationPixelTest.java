@@ -72,7 +72,7 @@ public final class PresentationPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor presentationTextureProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram presentationShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;
@@ -92,8 +92,8 @@ public final class PresentationPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (presentationTextureProcessor != null) {
-      presentationTextureProcessor.release();
+    if (presentationShaderProgram != null) {
+      presentationShaderProgram.release();
     }
     if (eglContext != null && eglDisplay != null) {
       GlUtil.destroyEglContext(eglDisplay, eglContext);
@@ -103,14 +103,14 @@ public final class PresentationPixelTest {
   @Test
   public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_noEdits";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForHeight(C.LENGTH_UNSET)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -124,14 +124,14 @@ public final class PresentationPixelTest {
   @Test
   public void drawFrame_changeAspectRatio_scaleToFit_narrow_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ASPECT_RATIO_SCALE_TO_FIT_NARROW_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -145,14 +145,14 @@ public final class PresentationPixelTest {
   @Test
   public void drawFrame_changeAspectRatio_scaleToFit_wide_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WIDE_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -167,15 +167,15 @@ public final class PresentationPixelTest {
   public void drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow_matchesGoldenFile()
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -190,15 +190,15 @@ public final class PresentationPixelTest {
   public void drawFrame_changeAspectRatio_scaleToFitWithCrop_wide_matchesGoldenFile()
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -212,14 +212,14 @@ public final class PresentationPixelTest {
   @Test
   public void drawFrame_changeAspectRatio_stretchToFit_narrow_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_STRETCH_TO_FIT)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ASPECT_RATIO_STRETCH_TO_FIT_NARROW_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -233,14 +233,14 @@ public final class PresentationPixelTest {
   @Test
   public void drawFrame_changeAspectRatio_stretchToFit_wide_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
-    presentationTextureProcessor =
+    presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_STRETCH_TO_FIT)
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = presentationShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ASPECT_RATIO_STRETCH_TO_FIT_WIDE_PNG_ASSET_PATH);
 
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    presentationShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 

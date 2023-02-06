@@ -152,8 +152,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
   /**
    * Creates the OpenGL context, surfaces, textures, and frame buffers, initializes {@link
-   * GlTextureProcessor} instances corresponding to the {@link GlEffect} instances, and returns a
-   * new {@code GlEffectsFrameProcessor}.
+   * GlShaderProgram} instances corresponding to the {@link GlEffect} instances, and returns a new
+   * {@code GlEffectsFrameProcessor}.
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
@@ -199,8 +199,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       }
     }
 
-    ImmutableList<GlTextureProcessor> textureProcessors =
-        getGlTextureProcessorsForGlEffects(
+    ImmutableList<GlShaderProgram> shaderPrograms =
+        getGlShaderProgramsForGlEffects(
             context,
             effects,
             eglDisplay,
@@ -213,29 +213,29 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             listener);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
-    chainTextureProcessorsWithListeners(
-        textureProcessors, frameProcessingTaskExecutor, listener, executor);
+    chainShaderProgramsWithListeners(
+        shaderPrograms, frameProcessingTaskExecutor, listener, executor);
 
     return new GlEffectsFrameProcessor(
         eglDisplay,
         eglContext,
         frameProcessingTaskExecutor,
-        textureProcessors,
+        shaderPrograms,
         releaseFramesAutomatically);
   }
 
   /**
    * Combines consecutive {@link GlMatrixTransformation} and {@link RgbMatrix} instances into a
-   * single {@link MatrixTextureProcessor} and converts all other {@link GlEffect} instances to
-   * separate {@link GlTextureProcessor} instances.
+   * single {@link MatrixShaderProgram} and converts all other {@link GlEffect} instances to
+   * separate {@link GlShaderProgram} instances.
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
-   * @return A non-empty list of {@link GlTextureProcessor} instances to apply in the given order.
-   *     The first is an {@link ExternalTextureProcessor} and the last is a {@link
-   *     FinalMatrixTextureProcessorWrapper}.
+   * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order. The
+   *     first is an {@link ExternalShaderProgram} and the last is a {@link
+   *     FinalMatrixShaderProgramWrapper}.
    */
-  private static ImmutableList<GlTextureProcessor> getGlTextureProcessorsForGlEffects(
+  private static ImmutableList<GlShaderProgram> getGlShaderProgramsForGlEffects(
       Context context,
       List<Effect> effects,
       EGLDisplay eglDisplay,
@@ -247,8 +247,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       Executor executor,
       Listener listener)
       throws FrameProcessingException {
-    ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
-        new ImmutableList.Builder<>();
+    ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
     ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
@@ -277,30 +276,30 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
       boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
       if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromExternalTexture) {
-        MatrixTextureProcessor matrixTextureProcessor;
+        MatrixShaderProgram matrixShaderProgram;
         if (sampleFromExternalTexture) {
-          matrixTextureProcessor =
-              MatrixTextureProcessor.createWithExternalSampler(
+          matrixShaderProgram =
+              MatrixShaderProgram.createWithExternalSampler(
                   context,
                   matrixTransformations,
                   rgbMatrices,
                   /* inputColorInfo= */ inputColorInfo,
                   /* outputColorInfo= */ linearColorInfo);
         } else {
-          matrixTextureProcessor =
-              MatrixTextureProcessor.create(
+          matrixShaderProgram =
+              MatrixShaderProgram.create(
                   context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
         }
-        textureProcessorListBuilder.add(matrixTextureProcessor);
+        shaderProgramListBuilder.add(matrixShaderProgram);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         rgbMatrixListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
-      textureProcessorListBuilder.add(glEffect.toGlTextureProcessor(context, isOutputTransferHdr));
+      shaderProgramListBuilder.add(glEffect.toGlShaderProgram(context, isOutputTransferHdr));
     }
 
-    textureProcessorListBuilder.add(
-        new FinalMatrixTextureProcessorWrapper(
+    shaderProgramListBuilder.add(
+        new FinalMatrixShaderProgramWrapper(
             context,
             eglDisplay,
             eglContext,
@@ -313,30 +312,28 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             releaseFramesAutomatically,
             executor,
             listener));
-    return textureProcessorListBuilder.build();
+    return shaderProgramListBuilder.build();
   }
 
   /**
-   * Chains the given {@link GlTextureProcessor} instances using {@link
-   * ChainingGlTextureProcessorListener} instances.
+   * Chains the given {@link GlShaderProgram} instances using {@link
+   * ChainingGlShaderProgramListener} instances.
    */
-  private static void chainTextureProcessorsWithListeners(
-      ImmutableList<GlTextureProcessor> textureProcessors,
+  private static void chainShaderProgramsWithListeners(
+      ImmutableList<GlShaderProgram> shaderPrograms,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
       Listener frameProcessorListener,
       Executor frameProcessorListenerExecutor) {
-    for (int i = 0; i < textureProcessors.size() - 1; i++) {
-      GlTextureProcessor producingGlTextureProcessor = textureProcessors.get(i);
-      GlTextureProcessor consumingGlTextureProcessor = textureProcessors.get(i + 1);
-      ChainingGlTextureProcessorListener chainingGlTextureProcessorListener =
-          new ChainingGlTextureProcessorListener(
-              producingGlTextureProcessor,
-              consumingGlTextureProcessor,
-              frameProcessingTaskExecutor);
-      producingGlTextureProcessor.setOutputListener(chainingGlTextureProcessorListener);
-      producingGlTextureProcessor.setErrorListener(
+    for (int i = 0; i < shaderPrograms.size() - 1; i++) {
+      GlShaderProgram producingGlShaderProgram = shaderPrograms.get(i);
+      GlShaderProgram consumingGlShaderProgram = shaderPrograms.get(i + 1);
+      ChainingGlShaderProgramListener chainingGlShaderProgramListener =
+          new ChainingGlShaderProgramListener(
+              producingGlShaderProgram, consumingGlShaderProgram, frameProcessingTaskExecutor);
+      producingGlShaderProgram.setOutputListener(chainingGlShaderProgramListener);
+      producingGlShaderProgram.setErrorListener(
           frameProcessorListenerExecutor, frameProcessorListener::onFrameProcessingError);
-      consumingGlTextureProcessor.setInputListener(chainingGlTextureProcessorListener);
+      consumingGlShaderProgram.setInputListener(chainingGlShaderProgramListener);
     }
   }
 
@@ -349,8 +346,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final ExternalTextureManager inputExternalTextureManager;
   private final Surface inputSurface;
   private final boolean releaseFramesAutomatically;
-  private final FinalMatrixTextureProcessorWrapper finalTextureProcessorWrapper;
-  private final ImmutableList<GlTextureProcessor> allTextureProcessors;
+  private final FinalMatrixShaderProgramWrapper finalShaderProgramWrapper;
+  private final ImmutableList<GlShaderProgram> allShaderPrograms;
 
   /**
    * Offset compared to original media presentation time that has been added to incoming frame
@@ -365,7 +362,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      ImmutableList<GlTextureProcessor> textureProcessors,
+      ImmutableList<GlShaderProgram> shaderPrograms,
       boolean releaseFramesAutomatically)
       throws FrameProcessingException {
 
@@ -374,17 +371,17 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
 
-    checkState(!textureProcessors.isEmpty());
-    checkState(textureProcessors.get(0) instanceof ExternalTextureProcessor);
-    checkState(getLast(textureProcessors) instanceof FinalMatrixTextureProcessorWrapper);
-    ExternalTextureProcessor inputExternalTextureProcessor =
-        (ExternalTextureProcessor) textureProcessors.get(0);
+    checkState(!shaderPrograms.isEmpty());
+    checkState(shaderPrograms.get(0) instanceof ExternalShaderProgram);
+    checkState(getLast(shaderPrograms) instanceof FinalMatrixShaderProgramWrapper);
+    ExternalShaderProgram inputExternalShaderProgram =
+        (ExternalShaderProgram) shaderPrograms.get(0);
     inputExternalTextureManager =
-        new ExternalTextureManager(inputExternalTextureProcessor, frameProcessingTaskExecutor);
-    inputExternalTextureProcessor.setInputListener(inputExternalTextureManager);
+        new ExternalTextureManager(inputExternalShaderProgram, frameProcessingTaskExecutor);
+    inputExternalShaderProgram.setInputListener(inputExternalTextureManager);
     inputSurface = new Surface(inputExternalTextureManager.getSurfaceTexture());
-    finalTextureProcessorWrapper = (FinalMatrixTextureProcessorWrapper) getLast(textureProcessors);
-    allTextureProcessors = textureProcessors;
+    finalShaderProgramWrapper = (FinalMatrixShaderProgramWrapper) getLast(shaderPrograms);
+    allShaderPrograms = shaderPrograms;
     previousStreamOffsetUs = C.TIME_UNSET;
   }
 
@@ -423,7 +420,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
 
     if (nextInputFrameInfo.streamOffsetUs != previousStreamOffsetUs) {
-      finalTextureProcessorWrapper.appendStream(nextInputFrameInfo.streamOffsetUs);
+      finalShaderProgramWrapper.appendStream(nextInputFrameInfo.streamOffsetUs);
       previousStreamOffsetUs = nextInputFrameInfo.streamOffsetUs;
     }
   }
@@ -444,7 +441,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    finalTextureProcessorWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
+    finalShaderProgramWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override
@@ -453,7 +450,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         !releaseFramesAutomatically,
         "Calling this method is not allowed when releaseFramesAutomatically is enabled");
     frameProcessingTaskExecutor.submitWithHighPriority(
-        () -> finalTextureProcessorWrapper.releaseOutputFrame(releaseTimeNs));
+        () -> finalShaderProgramWrapper.releaseOutputFrame(releaseTimeNs));
   }
 
   @Override
@@ -469,7 +466,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       frameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
       inputExternalTextureManager.setOnFlushCompleteListener(latch::countDown);
-      frameProcessingTaskExecutor.submit(finalTextureProcessorWrapper::flush);
+      frameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
       inputExternalTextureManager.setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
@@ -481,8 +478,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   public void release() {
     try {
       frameProcessingTaskExecutor.release(
-          /* releaseTask= */ this::releaseTextureProcessorsAndDestroyGlContext,
-          RELEASE_WAIT_TIME_MS);
+          /* releaseTask= */ this::releaseShaderProgramsAndDestroyGlContext, RELEASE_WAIT_TIME_MS);
     } catch (InterruptedException unexpected) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
@@ -513,15 +509,15 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   }
 
   /**
-   * Releases the {@link GlTextureProcessor} instances and destroys the OpenGL context.
+   * Releases the {@link GlShaderProgram} instances and destroys the OpenGL context.
    *
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
   @WorkerThread
-  private void releaseTextureProcessorsAndDestroyGlContext()
+  private void releaseShaderProgramsAndDestroyGlContext()
       throws GlUtil.GlException, FrameProcessingException {
-    for (int i = 0; i < allTextureProcessors.size(); i++) {
-      allTextureProcessors.get(i).release();
+    for (int i = 0; i < allShaderPrograms.size(); i++) {
+      allShaderPrograms.get(i).release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
