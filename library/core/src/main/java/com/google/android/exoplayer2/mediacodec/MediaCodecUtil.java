@@ -250,7 +250,7 @@ public final class MediaCodecUtil {
         return getVp9ProfileAndLevel(format.codecs, parts);
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
-        return getHevcProfileAndLevel(format.codecs, parts);
+        return getHevcProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_AV01:
         return getAv1ProfileAndLevel(format.codecs, parts, format.colorInfo);
       case CODEC_ID_MP4A:
@@ -729,7 +729,8 @@ public final class MediaCodecUtil {
   }
 
   @Nullable
-  private static Pair<Integer, Integer> getHevcProfileAndLevel(String codec, String[] parts) {
+  private static Pair<Integer, Integer> getHevcProfileAndLevel(
+      String codec, String[] parts, @Nullable ColorInfo colorInfo) {
     if (parts.length < 4) {
       // The codec has fewer parts than required by the HEVC codec string format.
       Log.w(TAG, "Ignoring malformed HEVC codec string: " + codec);
@@ -746,7 +747,15 @@ public final class MediaCodecUtil {
     if ("1".equals(profileString)) {
       profile = CodecProfileLevel.HEVCProfileMain;
     } else if ("2".equals(profileString)) {
-      profile = CodecProfileLevel.HEVCProfileMain10;
+      if (colorInfo != null && colorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084) {
+        profile = CodecProfileLevel.HEVCProfileMain10HDR10;
+      } else {
+        // For all other cases, we map to the Main10 profile. Note that this includes HLG
+        // HDR. On Android 13+, the platform guarantees that a decoder that advertises
+        // HEVCProfileMain10 will be able to decode HLG. This is not guaranteed for older
+        // Android versions, but we still map to Main10 for backwards compatibility.
+        profile = CodecProfileLevel.HEVCProfileMain10;
+      }
     } else {
       Log.w(TAG, "Unknown HEVC profile string: " + profileString);
       return null;
