@@ -111,8 +111,8 @@ public class HslAdjustment implements GlEffect {
   }
 
   @Override
-  public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new HslProcessor(context, /* hslAdjustment= */ this, useHdr);
+    return new HslShaderProgram(context, /* hslAdjustment= */ this, useHdr);
   }
 }

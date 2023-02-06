@@ -39,8 +39,8 @@ public class Contrast implements GlEffect {
   }
 
   @Override
-  public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new ContrastProcessor(context, this, useHdr);
+    return new ContrastShaderProgram(context, this, useHdr);
   }
 }

@@ -64,7 +64,7 @@ public final class RgbFilterPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTextureProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram matrixShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;
@@ -95,8 +95,8 @@ public final class RgbFilterPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (matrixTextureProcessor != null) {
-      matrixTextureProcessor.release();
+    if (matrixShaderProgram != null) {
+      matrixShaderProgram.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -105,11 +105,11 @@ public final class RgbFilterPixelTest {
   public void drawFrame_grayscale_producesGrayscaleImage() throws Exception {
     String testId = "drawFrame_grayscale";
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
-    matrixTextureProcessor = grayscaleMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    matrixShaderProgram = grayscaleMatrix.toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = matrixShaderProgram.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
-    matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -123,11 +123,11 @@ public final class RgbFilterPixelTest {
   public void drawFrame_inverted_producesInvertedFrame() throws Exception {
     String testId = "drawFrame_inverted";
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
-    matrixTextureProcessor = invertedMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    matrixShaderProgram = invertedMatrix.toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = matrixShaderProgram.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
-    matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 

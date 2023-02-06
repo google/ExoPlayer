@@ -32,15 +32,15 @@ public interface RgbMatrix extends GlEffect {
    * @param presentationTimeUs The timestamp of the frame to apply the matrix on.
    * @param useHdr If {@code true}, colors will be in linear RGB BT.2020. If {@code false}, colors
    *     will be in linear RGB BT.709. Must be consistent with {@code useHdr} in {@link
-   *     #toGlTextureProcessor(Context, boolean)}.
+   *     #toGlShaderProgram(Context, boolean)}.
    * @return The {@code RgbMatrix} to apply to the frame.
    */
   float[] getMatrix(long presentationTimeUs, boolean useHdr);
 
   @Override
-  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return MatrixTextureProcessor.create(
+    return MatrixShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(),
         /* rgbMatrices= */ ImmutableList.of(this),

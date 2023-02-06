@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 
 /** Applies zero or more {@link TextureOverlay}s onto each frame. */
-/* package */ final class OverlayTextureProcessor extends SingleFrameGlTextureProcessor {
+/* package */ final class OverlayShaderProgram extends SingleFrameGlShaderProgram {
 
   private static final int MATRIX_OFFSET = 0;
 
@@ -51,16 +51,16 @@ import com.google.common.collect.ImmutableList;
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public OverlayTextureProcessor(
+  public OverlayShaderProgram(
       Context context, boolean useHdr, ImmutableList<TextureOverlay> overlays)
       throws FrameProcessingException {
     super(useHdr);
-    checkArgument(!useHdr, "OverlayTextureProcessor does not support HDR colors yet.");
+    checkArgument(!useHdr, "OverlayShaderProgram does not support HDR colors yet.");
     // The maximum number of samplers allowed in a single GL program is 16.
     // We use one for every overlay and one for the video.
     checkArgument(
         overlays.size() <= 15,
-        "OverlayTextureProcessor does not support more than 15 overlays in the same processor.");
+        "OverlayShaderProgram does not support more than 15 overlays in the same instance.");
     this.overlays = overlays;
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
     overlayMatrix = GlUtil.create4x4IdentityMatrix();

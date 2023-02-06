@@ -21,7 +21,7 @@ import android.graphics.SurfaceTexture;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.effect.GlTextureProcessor.InputListener;
+import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.FrameProcessor;
@@ -32,19 +32,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Forwards externally produced frames that become available via a {@link SurfaceTexture} to an
- * {@link ExternalTextureProcessor} for consumption.
+ * {@link ExternalShaderProgram} for consumption.
  */
 /* package */ class ExternalTextureManager implements InputListener {
 
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-  private final ExternalTextureProcessor externalTextureProcessor;
+  private final ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
   private final SurfaceTexture surfaceTexture;
   private final float[] textureTransformMatrix;
   private final Queue<FrameInfo> pendingFrames;
 
   // Incremented on any thread, decremented on the GL thread only.
-  private final AtomicInteger externalTextureProcessorInputCapacity;
+  private final AtomicInteger externalShaderProgramInputCapacity;
   // Counts the frames that are registered before flush but are made available after flush.
   // Read and written only on GL thread.
   private int numberOfFramesToDropOnBecomingAvailable;
@@ -66,16 +66,16 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * Creates a new instance.
    *
-   * @param externalTextureProcessor The {@link ExternalTextureProcessor} for which this {@code
+   * @param externalShaderProgram The {@link ExternalShaderProgram} for which this {@code
    *     ExternalTextureManager} will be set as the {@link InputListener}.
    * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor}.
    * @throws FrameProcessingException If a problem occurs while creating the external texture.
    */
   public ExternalTextureManager(
-      ExternalTextureProcessor externalTextureProcessor,
+      ExternalShaderProgram externalShaderProgram,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor)
       throws FrameProcessingException {
-    this.externalTextureProcessor = externalTextureProcessor;
+    this.externalShaderProgram = externalShaderProgram;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
     try {
       externalTexId = GlUtil.createExternalTexture();
@@ -85,7 +85,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     surfaceTexture = new SurfaceTexture(externalTexId);
     textureTransformMatrix = new float[16];
     pendingFrames = new ConcurrentLinkedQueue<>();
-    externalTextureProcessorInputCapacity = new AtomicInteger();
+    externalShaderProgramInputCapacity = new AtomicInteger();
 
     previousStreamOffsetUs = C.TIME_UNSET;
   }
@@ -101,7 +101,7 @@ import java.util.concurrent.atomic.AtomicInteger;
                     maybeExecuteAfterFlushTask();
                   } else {
                     availableFrameCount++;
-                    maybeQueueFrameToExternalTextureProcessor();
+                    maybeQueueFrameToExternalShaderProgram();
                   }
                 }));
     return surfaceTexture;
@@ -111,8 +111,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void onReadyToAcceptInputFrame() {
     frameProcessingTaskExecutor.submit(
         () -> {
-          externalTextureProcessorInputCapacity.incrementAndGet();
-          maybeQueueFrameToExternalTextureProcessor();
+          externalShaderProgramInputCapacity.incrementAndGet();
+          maybeQueueFrameToExternalShaderProgram();
         });
   }
 
@@ -121,7 +121,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     frameProcessingTaskExecutor.submit(
         () -> {
           currentFrame = null;
-          maybeQueueFrameToExternalTextureProcessor();
+          maybeQueueFrameToExternalShaderProgram();
         });
   }
 
@@ -148,7 +148,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   /**
    * Returns the number of {@linkplain #registerInputFrame(FrameInfo) registered} frames that have
-   * not been sent to the downstream {@link ExternalTextureProcessor} yet.
+   * not been sent to the downstream {@link ExternalShaderProgram} yet.
    *
    * <p>Can be called on any thread.
    */
@@ -166,7 +166,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         () -> {
           inputStreamEnded = true;
           if (pendingFrames.isEmpty() && currentFrame == null) {
-            externalTextureProcessor.signalEndOfCurrentInputStream();
+            externalShaderProgram.signalEndOfCurrentInputStream();
           }
         });
   }
@@ -183,7 +183,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       availableFrameCount--;
       surfaceTexture.updateTexImage();
     }
-    externalTextureProcessorInputCapacity.set(0);
+    externalShaderProgramInputCapacity.set(0);
     currentFrame = null;
     pendingFrames.clear();
     maybeExecuteAfterFlushTask();
@@ -197,8 +197,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @WorkerThread
-  private void maybeQueueFrameToExternalTextureProcessor() {
-    if (externalTextureProcessorInputCapacity.get() == 0
+  private void maybeQueueFrameToExternalShaderProgram() {
+    if (externalShaderProgramInputCapacity.get() == 0
         || availableFrameCount == 0
         || currentFrame != null) {
       return;
@@ -209,28 +209,28 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.currentFrame = pendingFrames.peek();
 
     FrameInfo currentFrame = checkStateNotNull(this.currentFrame);
-    externalTextureProcessorInputCapacity.decrementAndGet();
+    externalShaderProgramInputCapacity.decrementAndGet();
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
-    externalTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    externalShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     long frameTimeNs = surfaceTexture.getTimestamp();
     long offsetToAddUs = currentFrame.offsetToAddUs;
     long streamOffsetUs = currentFrame.streamOffsetUs;
     if (streamOffsetUs != previousStreamOffsetUs) {
       if (previousStreamOffsetUs != C.TIME_UNSET) {
-        externalTextureProcessor.signalEndOfCurrentInputStream();
+        externalShaderProgram.signalEndOfCurrentInputStream();
       }
       previousStreamOffsetUs = streamOffsetUs;
     }
-    // Correct the presentation time so that processors don't see the stream offset.
+    // Correct the presentation time so that GlShaderPrograms don't see the stream offset.
     long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs - streamOffsetUs;
-    externalTextureProcessor.queueInputFrame(
+    externalShaderProgram.queueInputFrame(
         new TextureInfo(
             externalTexId, /* fboId= */ C.INDEX_UNSET, currentFrame.width, currentFrame.height),
         presentationTimeUs);
     checkStateNotNull(pendingFrames.remove());
 
     if (inputStreamEnded && pendingFrames.isEmpty()) {
-      externalTextureProcessor.signalEndOfCurrentInputStream();
+      externalShaderProgram.signalEndOfCurrentInputStream();
     }
   }
 }

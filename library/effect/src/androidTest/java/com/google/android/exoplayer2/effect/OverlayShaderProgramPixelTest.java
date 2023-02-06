@@ -49,7 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for texture processing via {@link OverlayTextureProcessor}.
+ * Pixel test for texture processing via {@link OverlayShaderProgram}.
  *
  * <p>Expected bitmaps are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -57,7 +57,7 @@ import org.junit.runner.RunWith;
  * bitmaps as recommended in {@link GlEffectsFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
-public class OverlayTextureProcessorPixelTest {
+public class OverlayShaderProgramPixelTest {
   public static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/overlay/media3test.png";
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
@@ -82,7 +82,7 @@ public class OverlayTextureProcessorPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor overlayTextureProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram overlayShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;
@@ -102,8 +102,8 @@ public class OverlayTextureProcessorPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (overlayTextureProcessor != null) {
-      overlayTextureProcessor.release();
+    if (overlayShaderProgram != null) {
+      overlayShaderProgram.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -111,14 +111,14 @@ public class OverlayTextureProcessorPixelTest {
   @Test
   public void drawFrame_noOverlay_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_noOverlay";
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(/* textureOverlays= */ ImmutableList.of())
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -133,14 +133,14 @@ public class OverlayTextureProcessorPixelTest {
     String testId = "drawFrame_bitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(bitmapOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_DEFAULT);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -178,14 +178,14 @@ public class OverlayTextureProcessorPixelTest {
             return overlaySettings;
           }
         };
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(staticBitmapOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_SCALED);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -205,14 +205,14 @@ public class OverlayTextureProcessorPixelTest {
         new OverlaySettings.Builder().setMatrix(translateMatrix).setAnchor(-1f, 1f).build();
     BitmapOverlay staticBitmapOverlay =
         BitmapOverlay.createStaticBitmapOverlay(overlayBitmap, overlaySettings);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(staticBitmapOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_ANCHORED);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -229,14 +229,14 @@ public class OverlayTextureProcessorPixelTest {
     OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0.5f).build();
     BitmapOverlay translucentBitmapOverlay =
         BitmapOverlay.createStaticBitmapOverlay(bitmap, overlaySettings);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(translucentBitmapOverlay))
-            .toGlTextureProcessor(context, false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_BITMAP_TRANSLUCENT);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -258,14 +258,14 @@ public class OverlayTextureProcessorPixelTest {
         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     TextOverlay staticTextOverlay =
         TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(staticTextOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -285,14 +285,14 @@ public class OverlayTextureProcessorPixelTest {
         /* end= */ 4,
         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     TextOverlay staticTextOverlay = TextOverlay.createStaticTextOverlay(overlayText);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(staticTextOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_DEFAULT);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -317,14 +317,14 @@ public class OverlayTextureProcessorPixelTest {
         new OverlaySettings.Builder().setMatrix(translateMatrix).build();
     TextOverlay staticTextOverlay =
         TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(staticTextOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_TRANSLATE);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -351,14 +351,14 @@ public class OverlayTextureProcessorPixelTest {
     Bitmap bitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings2 = new OverlaySettings.Builder().setAlpha(0.5f).build();
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(bitmap, overlaySettings2);
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(textOverlay, bitmapOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_MULTIPLE);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -388,14 +388,14 @@ public class OverlayTextureProcessorPixelTest {
     OverlaySettings overlaySettings2 = new OverlaySettings.Builder().setMatrix(scaleMatrix).build();
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(bitmap, overlaySettings2);
 
-    overlayTextureProcessor =
+    overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(bitmapOverlay, textOverlay))
-            .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = overlayTextureProcessor.configure(inputWidth, inputHeight);
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_OVERLAP);
 
-    overlayTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 

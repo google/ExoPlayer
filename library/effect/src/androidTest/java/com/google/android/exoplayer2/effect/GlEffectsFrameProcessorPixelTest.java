@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import static com.google.android.exoplayer2.effect.OverlayTextureProcessorPixelTest.OVERLAY_PNG_ASSET_PATH;
+import static com.google.android.exoplayer2.effect.OverlayShaderProgramPixelTest.OVERLAY_PNG_ASSET_PATH;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
@@ -503,9 +503,9 @@ public final class GlEffectsFrameProcessorPixelTest {
    * Wraps a {@link GlEffect} to prevent the {@link GlEffectsFrameProcessor} from detecting its
    * class and optimizing it.
    *
-   * <p>This ensures that {@link GlEffectsFrameProcessor} uses a separate {@link GlTextureProcessor}
+   * <p>This ensures that {@link GlEffectsFrameProcessor} uses a separate {@link GlShaderProgram}
    * for the wrapped {@link GlEffect} rather than merging it with preceding or subsequent {@link
-   * GlEffect} instances and applying them in one combined {@link GlTextureProcessor}.
+   * GlEffect} instances and applying them in one combined {@link GlShaderProgram}.
    */
   private static final class GlEffectWrapper implements GlEffect {
 
@@ -516,9 +516,9 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     @Override
-    public GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+    public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
         throws FrameProcessingException {
-      return effect.toGlTextureProcessor(context, useHdr);
+      return effect.toGlShaderProgram(context, useHdr);
     }
   }
 }

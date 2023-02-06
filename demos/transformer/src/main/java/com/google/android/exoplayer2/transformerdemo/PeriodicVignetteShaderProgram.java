@@ -13,58 +13,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.exoplayer2.effect;
+package com.google.android.exoplayer2.transformerdemo;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import com.google.android.exoplayer2.effect.SingleFrameGlShaderProgram;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import java.io.IOException;
 
-/** Applies a {@link ColorLut} to each frame in the fragment shader. */
-/* package */ final class ColorLutProcessor extends SingleFrameGlTextureProcessor {
-  private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_lut_es2.glsl";
+/**
+ * A {@link SingleFrameGlShaderProgram} that periodically dims the frames such that pixels are
+ * darker the further they are away from the frame center.
+ */
+/* package */ final class PeriodicVignetteShaderProgram extends SingleFrameGlShaderProgram {
+
+  private static final String VERTEX_SHADER_PATH = "vertex_shader_copy_es2.glsl";
+  private static final String FRAGMENT_SHADER_PATH = "fragment_shader_vignette_es2.glsl";
+  private static final float DIMMING_PERIOD_US = 5_600_000f;
 
   private final GlProgram glProgram;
-  private final ColorLut colorLut;
+  private final float minInnerRadius;
+  private final float deltaInnerRadius;
 
   /**
    * Creates a new instance.
    *
+   * <p>The inner radius of the vignette effect oscillates smoothly between {@code minInnerRadius}
+   * and {@code maxInnerRadius}.
+   *
+   * <p>The pixels between the inner radius and the {@code outerRadius} are darkened linearly based
+   * on their distance from {@code innerRadius}. All pixels outside {@code outerRadius} are black.
+   *
+   * <p>The parameters are given in normalized texture coordinates from 0 to 1.
+   *
    * @param context The {@link Context}.
-   * @param colorLut The {@link ColorLut} to apply to each frame in order.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
+   * @param centerX The x-coordinate of the center of the effect.
+   * @param centerY The y-coordinate of the center of the effect.
+   * @param minInnerRadius The lower bound of the radius that is unaffected by the effect.
+   * @param maxInnerRadius The upper bound of the radius that is unaffected by the effect.
+   * @param outerRadius The radius after which all pixels are black.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public ColorLutProcessor(Context context, ColorLut colorLut, boolean useHdr)
+  public PeriodicVignetteShaderProgram(
+      Context context,
+      boolean useHdr,
+      float centerX,
+      float centerY,
+      float minInnerRadius,
+      float maxInnerRadius,
+      float outerRadius)
       throws FrameProcessingException {
     super(useHdr);
-    // TODO(b/246315245): Add HDR support.
-    checkArgument(!useHdr, "LutProcessor does not support HDR colors.");
-    this.colorLut = colorLut;
-
+    checkArgument(minInnerRadius <= maxInnerRadius);
+    checkArgument(maxInnerRadius <= outerRadius);
+    this.minInnerRadius = minInnerRadius;
+    this.deltaInnerRadius = maxInnerRadius - minInnerRadius;
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     } catch (IOException | GlUtil.GlException e) {
       throw new FrameProcessingException(e);
     }
-
+    glProgram.setFloatsUniform("uCenter", new float[] {centerX, centerY});
+    glProgram.setFloatsUniform("uOuterRadius", new float[] {outerRadius});
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition",
         GlUtil.getNormalizedCoordinateBounds(),
         GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-
-    float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
-    glProgram.setFloatsUniform("uTransformationMatrix", identityMatrix);
-    glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
   }
 
   @Override
@@ -77,14 +99,15 @@ import java.io.IOException;
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
-      glProgram.setSamplerTexIdUniform(
-          "uColorLut", colorLut.getLutTextureId(presentationTimeUs), /* texUnitIndex= */ 1);
-      glProgram.setFloatUniform("uColorLutLength", colorLut.getLength(presentationTimeUs));
+      double theta = presentationTimeUs * 2 * Math.PI / DIMMING_PERIOD_US;
+      float innerRadius =
+          minInnerRadius + deltaInnerRadius * (0.5f - 0.5f * (float) Math.cos(theta));
+      glProgram.setFloatsUniform("uInnerRadius", new float[] {innerRadius});
       glProgram.bindAttributesAndUniforms();
-
+      // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new FrameProcessingException(e, presentationTimeUs);
     }
   }
 
@@ -92,7 +115,6 @@ import java.io.IOException;
   public void release() throws FrameProcessingException {
     super.release();
     try {
-      colorLut.release();
       glProgram.delete();
     } catch (GlUtil.GlException e) {
       throw new FrameProcessingException(e);

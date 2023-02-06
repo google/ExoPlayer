@@ -57,7 +57,7 @@ import com.google.android.exoplayer2.effect.BitmapOverlay;
 import com.google.android.exoplayer2.effect.Contrast;
 import com.google.android.exoplayer2.effect.DrawableOverlay;
 import com.google.android.exoplayer2.effect.GlEffect;
-import com.google.android.exoplayer2.effect.GlTextureProcessor;
+import com.google.android.exoplayer2.effect.GlShaderProgram;
 import com.google.android.exoplayer2.effect.HslAdjustment;
 import com.google.android.exoplayer2.effect.OverlayEffect;
 import com.google.android.exoplayer2.effect.OverlaySettings;
@@ -415,7 +415,7 @@ public final class TransformerActivity extends AppCompatActivity {
             (GlEffect)
                 (Context context, boolean useHdr) -> {
                   try {
-                    return (GlTextureProcessor)
+                    return (GlShaderProgram)
                         constructor.newInstance(
                             context,
                             useHdr,
@@ -425,7 +425,7 @@ public final class TransformerActivity extends AppCompatActivity {
                             /* outputStreamName= */ "output_video");
                   } catch (Exception e) {
                     runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
-                    throw new RuntimeException("Failed to load MediaPipe processor", e);
+                    throw new RuntimeException("Failed to load MediaPipeShaderProgram", e);
                   }
                 });
       } catch (Exception e) {
@@ -496,7 +496,7 @@ public final class TransformerActivity extends AppCompatActivity {
       effects.add(
           (GlEffect)
               (Context context, boolean useHdr) ->
-                  new PeriodicVignetteProcessor(
+                  new PeriodicVignetteShaderProgram(
                       context,
                       useHdr,
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),

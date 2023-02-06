@@ -45,7 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for contrast adjustment via {@link ContrastProcessor}.
+ * Pixel test for contrast adjustment via {@link ContrastShaderProgram}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -71,7 +71,7 @@ public class ContrastPixelTest {
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor contrastProcessor;
+  private @MonotonicNonNull SingleFrameGlShaderProgram contrastShaderProgram;
   private int inputTexId;
   private int inputWidth;
   private int inputHeight;
@@ -90,8 +90,8 @@ public class ContrastPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (contrastProcessor != null) {
-      contrastProcessor.release();
+    if (contrastShaderProgram != null) {
+      contrastShaderProgram.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -99,13 +99,13 @@ public class ContrastPixelTest {
   @Test
   public void drawFrame_noContrastChange_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_noContrastChange";
-    contrastProcessor =
-        new Contrast(/* contrast= */ 0.0f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    contrastShaderProgram =
+        new Contrast(/* contrast= */ 0.0f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    contrastShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -118,9 +118,9 @@ public class ContrastPixelTest {
   @Test
   public void drawFrame_minimumContrast_producesAllGrayFrame() throws Exception {
     String testId = "drawFrame_minimumContrast";
-    contrastProcessor =
-        new Contrast(/* contrast= */ -1.0f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    contrastShaderProgram =
+        new Contrast(/* contrast= */ -1.0f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
         createArgb8888BitmapWithSolidColor(
@@ -129,7 +129,7 @@ public class ContrastPixelTest {
             Color.rgb(
                 OPENGL_NEUTRAL_RGB_VALUE, OPENGL_NEUTRAL_RGB_VALUE, OPENGL_NEUTRAL_RGB_VALUE));
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    contrastShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -143,13 +143,13 @@ public class ContrastPixelTest {
   public void drawFrame_decreaseContrast_decreasesPixelsGreaterEqual128IncreasesBelow()
       throws Exception {
     String testId = "drawFrame_decreaseContrast";
-    contrastProcessor =
-        new Contrast(/* contrast= */ -0.75f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    contrastShaderProgram =
+        new Contrast(/* contrast= */ -0.75f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(DECREASE_CONTRAST_PNG_ASSET_PATH);
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    contrastShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -163,13 +163,13 @@ public class ContrastPixelTest {
   public void drawFrame_increaseContrast_increasesPixelsGreaterEqual128DecreasesBelow()
       throws Exception {
     String testId = "drawFrame_increaseContrast";
-    contrastProcessor =
-        new Contrast(/* contrast= */ 0.75f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    contrastShaderProgram =
+        new Contrast(/* contrast= */ 0.75f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(INCREASE_CONTRAST_PNG_ASSET_PATH);
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    contrastShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -182,13 +182,13 @@ public class ContrastPixelTest {
   @Test
   public void drawFrame_maximumContrast_pixelEither0or255() throws Exception {
     String testId = "drawFrame_maximumContrast";
-    contrastProcessor =
-        new Contrast(/* contrast= */ 1.0f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    contrastShaderProgram =
+        new Contrast(/* contrast= */ 1.0f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(MAXIMUM_CONTRAST_PNG_ASSET_PATH);
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    contrastShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 

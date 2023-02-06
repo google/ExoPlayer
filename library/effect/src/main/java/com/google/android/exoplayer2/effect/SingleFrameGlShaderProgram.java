@@ -30,13 +30,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Manages a GLSL shader program for processing a frame. Implementations generally copy input pixels
  * into an output frame, with changes to pixels specific to the implementation.
  *
- * <p>{@code SingleFrameGlTextureProcessor} implementations must produce exactly one output frame
- * per input frame with the same presentation timestamp. For more flexibility, implement {@link
- * GlTextureProcessor} directly.
+ * <p>{@code SingleFrameGlShaderProgram} implementations must produce exactly one output frame per
+ * input frame with the same presentation timestamp. For more flexibility, implement {@link
+ * GlShaderProgram} directly.
  *
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
  */
-public abstract class SingleFrameGlTextureProcessor implements GlTextureProcessor {
+public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
 
   private final boolean useHdr;
 
@@ -50,12 +50,12 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   private boolean outputTextureInUse;
 
   /**
-   * Creates a {@code SingleFrameGlTextureProcessor} instance.
+   * Creates a {@code SingleFrameGlShaderProgram} instance.
    *
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    */
-  public SingleFrameGlTextureProcessor(boolean useHdr) {
+  public SingleFrameGlShaderProgram(boolean useHdr) {
     this.useHdr = useHdr;
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
@@ -64,7 +64,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   }
 
   /**
-   * Configures the texture processor based on the input dimensions.
+   * Configures the instance based on the input dimensions.
    *
    * <p>This method must be called before {@linkplain #drawFrame(int,long) drawing} the first frame
    * and before drawing subsequent frames with different input dimensions.
@@ -79,9 +79,9 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   /**
    * Draws one frame.
    *
-   * <p>This method may only be called after the texture processor has been {@link #configure(int,
-   * int) configured}. The caller is responsible for focussing the correct render target before
-   * calling this method.
+   * <p>This method may only be called after the shader program has been {@link #configure(int, int)
+   * configured}. The caller is responsible for focussing the correct render target before calling
+   * this method.
    *
    * <p>A minimal implementation should tell OpenGL to use its shader program, bind the shader
    * program's vertex attributes and uniforms, and issue a drawing command.
@@ -116,7 +116,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   public final void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     checkState(
         !outputTextureInUse,
-        "The texture processor does not currently accept input frames. Release prior output frames"
+        "The shader program does not currently accept input frames. Release prior output frames"
             + " first.");
 
     try {

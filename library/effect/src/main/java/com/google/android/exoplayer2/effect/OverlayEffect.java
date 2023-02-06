@@ -37,8 +37,8 @@ public final class OverlayEffect implements GlEffect {
   }
 
   @Override
-  public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new OverlayTextureProcessor(context, useHdr, overlays);
+    return new OverlayShaderProgram(context, useHdr, overlays);
   }
 }

@@ -24,7 +24,7 @@ import android.content.Context;
 import android.opengl.EGL14;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.effect.GlTextureProcessor;
+import com.google.android.exoplayer2.effect.GlShaderProgram;
 import com.google.android.exoplayer2.effect.TextureInfo;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.LibraryLoader;
@@ -43,9 +43,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 /** Runs a MediaPipe graph on input frames. */
-/* package */ final class MediaPipeProcessor implements GlTextureProcessor {
+/* package */ final class MediaPipeShaderProgram implements GlShaderProgram {
 
-  private static final String THREAD_NAME = "Demo:MediaPipeProcessor";
+  private static final String THREAD_NAME = "Demo:MediaPipeShaderProgram";
   private static final long RELEASE_WAIT_TIME_MS = 100;
   private static final long RETRY_WAIT_TIME_MS = 1;
 
@@ -80,11 +80,11 @@ import java.util.concurrent.Future;
   private boolean acceptedFrame;
 
   /**
-   * Creates a new texture processor that wraps a MediaPipe graph.
+   * Creates a new shader program that wraps a MediaPipe graph.
    *
-   * <p>If {@code isSingleFrameGraph} is {@code false}, the {@code MediaPipeProcessor} may waste CPU
-   * time by continuously attempting to queue input frames to MediaPipe until they are accepted or
-   * waste memory if MediaPipe accepts and stores many frames internally.
+   * <p>If {@code isSingleFrameGraph} is {@code false}, the {@code MediaPipeShaderProgram} may waste
+   * CPU time by continuously attempting to queue input frames to MediaPipe until they are accepted
+   * or waste memory if MediaPipe accepts and stores many frames internally.
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
@@ -95,7 +95,7 @@ import java.util.concurrent.Future;
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
    */
-  public MediaPipeProcessor(
+  public MediaPipeShaderProgram(
       Context context,
       boolean useHdr,
       String graphName,
@@ -103,8 +103,8 @@ import java.util.concurrent.Future;
       String inputStreamName,
       String outputStreamName) {
     checkState(LOADER.isAvailable());
-    // TODO(b/227624622): Confirm whether MediaPipeProcessor could support HDR colors.
-    checkArgument(!useHdr, "MediaPipeProcessor does not support HDR colors.");
+    // TODO(b/227624622): Confirm whether MediaPipeShaderProgram could support HDR colors.
+    checkArgument(!useHdr, "MediaPipeShaderProgram does not support HDR colors.");
 
     this.isSingleFrameGraph = isSingleFrameGraph;
     singleThreadExecutorService =
@@ -233,7 +233,7 @@ import java.util.concurrent.Future;
 
   @Override
   public void flush() {
-    // TODO(b/238302341) Support seeking in MediaPipeProcessor.
+    // TODO(b/238302341) Support seeking in MediaPipeShaderProgram.
     throw new UnsupportedOperationException();
   }
 

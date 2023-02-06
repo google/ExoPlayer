@@ -51,19 +51,19 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Wrapper around a {@link GlTextureProcessor} that writes to the provided output surface and
- * optional debug surface view.
+ * Wrapper around a {@link GlShaderProgram} that writes to the provided output surface and optional
+ * debug surface view.
  *
- * <p>The wrapped {@link GlTextureProcessor} applies the {@link GlMatrixTransformation} and {@link
+ * <p>The wrapped {@link GlShaderProgram} applies the {@link GlMatrixTransformation} and {@link
  * RgbMatrix} instances passed to the constructor, followed by any transformations needed to convert
  * the frames to the dimensions specified by the provided {@link SurfaceInfo}.
  *
- * <p>This wrapper is used for the final {@link GlTextureProcessor} instance in the chain of {@link
- * GlTextureProcessor} instances used by {@link FrameProcessor}.
+ * <p>This wrapper is used for the final {@link GlShaderProgram} instance in the chain of {@link
+ * GlShaderProgram} instances used by {@link FrameProcessor}.
  */
-/* package */ final class FinalMatrixTextureProcessorWrapper implements ExternalTextureProcessor {
+/* package */ final class FinalMatrixShaderProgramWrapper implements ExternalShaderProgram {
 
-  private static final String TAG = "FinalProcessorWrapper";
+  private static final String TAG = "FinalShaderWrapper";
 
   private final Context context;
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
@@ -83,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private int inputWidth;
   private int inputHeight;
-  @Nullable private MatrixTextureProcessor matrixTextureProcessor;
+  @Nullable private MatrixShaderProgram matrixShaderProgram;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private InputListener inputListener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
@@ -99,7 +99,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private EGLSurface outputEglSurface;
 
-  public FinalMatrixTextureProcessorWrapper(
+  public FinalMatrixShaderProgramWrapper(
       Context context,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
@@ -167,7 +167,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void releaseOutputFrame(TextureInfo outputTexture) {
-    // The final texture processor writes to a surface so there is no texture to release.
+    // The final shader program writes to a surface so there is no texture to release.
     throw new UnsupportedOperationException();
   }
 
@@ -195,8 +195,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void flush() {
     // Drops all frames that aren't released yet.
     availableFrames.clear();
-    if (matrixTextureProcessor != null) {
-      matrixTextureProcessor.flush();
+    if (matrixShaderProgram != null) {
+      matrixShaderProgram.flush();
     }
     inputListener.onFlush();
     inputListener.onReadyToAcceptInputFrame();
@@ -205,8 +205,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   @WorkerThread
   public synchronized void release() throws FrameProcessingException {
-    if (matrixTextureProcessor != null) {
-      matrixTextureProcessor.release();
+    if (matrixShaderProgram != null) {
+      matrixShaderProgram.release();
     }
     try {
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
@@ -224,8 +224,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* destPost= */ 0,
         /* length= */ textureTransformMatrix.length);
 
-    if (matrixTextureProcessor != null) {
-      matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    if (matrixShaderProgram != null) {
+      matrixShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     }
   }
 
@@ -295,7 +295,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     EGLSurface outputEglSurface = this.outputEglSurface;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-    MatrixTextureProcessor matrixTextureProcessor = this.matrixTextureProcessor;
+    MatrixShaderProgram matrixShaderProgram = this.matrixShaderProgram;
 
     GlUtil.focusEglSurface(
         eglDisplay,
@@ -304,7 +304,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
     GlUtil.clearOutputFrame();
-    matrixTextureProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+    matrixShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(
         eglDisplay,
@@ -316,7 +316,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @EnsuresNonNullIf(
-      expression = {"outputSurfaceInfo", "outputEglSurface", "matrixTextureProcessor"},
+      expression = {"outputSurfaceInfo", "outputEglSurface", "matrixShaderProgram"},
       result = true)
   private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws FrameProcessingException, GlUtil.GlException {
@@ -340,9 +340,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (outputSurfaceInfo == null) {
-      if (matrixTextureProcessor != null) {
-        matrixTextureProcessor.release();
-        matrixTextureProcessor = null;
+      if (matrixShaderProgram != null) {
+        matrixShaderProgram.release();
+        matrixShaderProgram = null;
       }
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
       outputEglSurface = null;
@@ -372,13 +372,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.debugSurfaceView = debugSurfaceView;
     }
 
-    if (matrixTextureProcessor != null && outputSizeOrRotationChanged) {
-      matrixTextureProcessor.release();
-      matrixTextureProcessor = null;
+    if (matrixShaderProgram != null && outputSizeOrRotationChanged) {
+      matrixShaderProgram.release();
+      matrixShaderProgram = null;
       outputSizeOrRotationChanged = false;
     }
-    if (matrixTextureProcessor == null) {
-      matrixTextureProcessor = createMatrixTextureProcessorForOutputSurface(outputSurfaceInfo);
+    if (matrixShaderProgram == null) {
+      matrixShaderProgram = createMatrixShaderProgramForOutputSurface(outputSurfaceInfo);
     }
 
     this.outputSurfaceInfo = outputSurfaceInfo;
@@ -386,7 +386,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return true;
   }
 
-  private MatrixTextureProcessor createMatrixTextureProcessorForOutputSurface(
+  private MatrixShaderProgram createMatrixShaderProgramForOutputSurface(
       SurfaceInfo outputSurfaceInfo) throws FrameProcessingException {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<GlMatrixTransformation>().addAll(matrixTransformations);
@@ -400,46 +400,46 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Presentation.createForWidthAndHeight(
             outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
 
-    MatrixTextureProcessor matrixTextureProcessor;
+    MatrixShaderProgram matrixShaderProgram;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
         matrixTransformationListBuilder.build();
     if (sampleFromExternalTexture) {
-      matrixTextureProcessor =
-          MatrixTextureProcessor.createWithExternalSampler(
+      matrixShaderProgram =
+          MatrixShaderProgram.createWithExternalSampler(
               context,
               expandedMatrixTransformations,
               rgbMatrices,
               /* inputColorInfo= */ inputColorInfo,
               /* outputColorInfo= */ outputColorInfo);
     } else {
-      matrixTextureProcessor =
-          MatrixTextureProcessor.createApplyingOetf(
+      matrixShaderProgram =
+          MatrixShaderProgram.createApplyingOetf(
               context, expandedMatrixTransformations, rgbMatrices, outputColorInfo);
     }
 
-    matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    Size outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
+    matrixShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
+    Size outputSize = matrixShaderProgram.configure(inputWidth, inputHeight);
     checkState(outputSize.getWidth() == outputSurfaceInfo.width);
     checkState(outputSize.getHeight() == outputSurfaceInfo.height);
-    return matrixTextureProcessor;
+    return matrixShaderProgram;
   }
 
   private void maybeRenderFrameToDebugSurface(TextureInfo inputTexture, long presentationTimeUs) {
-    if (debugSurfaceViewWrapper == null || this.matrixTextureProcessor == null) {
+    if (debugSurfaceViewWrapper == null || this.matrixShaderProgram == null) {
       return;
     }
 
-    MatrixTextureProcessor matrixTextureProcessor = this.matrixTextureProcessor;
+    MatrixShaderProgram matrixShaderProgram = this.matrixShaderProgram;
     try {
       debugSurfaceViewWrapper.maybeRenderToSurfaceView(
           () -> {
             GlUtil.clearOutputFrame();
             @C.ColorTransfer
-            int configuredColorTransfer = matrixTextureProcessor.getOutputColorTransfer();
-            matrixTextureProcessor.setOutputColorTransfer(
+            int configuredColorTransfer = matrixShaderProgram.getOutputColorTransfer();
+            matrixShaderProgram.setOutputColorTransfer(
                 checkNotNull(debugSurfaceViewWrapper).outputColorTransfer);
-            matrixTextureProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
-            matrixTextureProcessor.setOutputColorTransfer(configuredColorTransfer);
+            matrixShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+            matrixShaderProgram.setOutputColorTransfer(configuredColorTransfer);
           });
     } catch (FrameProcessingException | GlUtil.GlException e) {
       Log.d(TAG, "Error rendering to debug preview", e);
