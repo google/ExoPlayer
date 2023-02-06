@@ -1174,9 +1174,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       if (frameProcessorManager.isEnabled()) {
         notifyFrameMetaDataListener = false;
         if (!frameProcessorManager.maybeRegisterFrame(format, presentationTimeUs, isLastBuffer)) {
-          // TODO(b/238302341): Handle FrameProcessor is unable to accept the force rendered buffer.
-          //  Treat the frame as dropped for now.
-          return true;
+          return false;
         }
       } else {
         notifyFrameMetaDataListener = true;
@@ -1450,6 +1448,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           droppedSourceBufferCount, /* droppedDecoderBufferCount= */ buffersInCodecCount);
     }
     flushOrReinitializeCodec();
+    if (frameProcessorManager.isEnabled()) {
+      frameProcessorManager.flush();
+    }
     return true;
   }
 
