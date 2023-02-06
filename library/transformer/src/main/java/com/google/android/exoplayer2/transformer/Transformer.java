@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -49,9 +50,9 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A transformer to transform media inputs.
+ * A transformer to export media inputs.
  *
- * <p>The same Transformer instance can be used to transform multiple inputs (sequentially, not
+ * <p>The same Transformer instance can be used to export multiple inputs (sequentially, not
  * concurrently).
  *
  * <p>Transformer instances must be accessed from a single application thread. For the vast majority
@@ -147,8 +148,7 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@linkplain AudioProcessor audio processors} in an {@link
-     *     EditedMediaItem}, and pass it to {@link #startTransformation(EditedMediaItem, String)}
-     *     instead.
+     *     EditedMediaItem}, and pass it to {@link #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -159,7 +159,7 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@linkplain Effect video effects} in an {@link EditedMediaItem}, and pass
-     *     it to {@link #startTransformation(EditedMediaItem, String)} instead.
+     *     it to {@link #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -170,8 +170,8 @@ public final class Transformer {
 
     /**
      * @deprecated Use {@link EditedMediaItem.Builder#setRemoveAudio(boolean)} to remove the audio
-     *     from the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
-     *     String)} instead.
+     *     from the {@link EditedMediaItem} passed to {@link #start(EditedMediaItem, String)}
+     *     instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -182,8 +182,8 @@ public final class Transformer {
 
     /**
      * @deprecated Use {@link EditedMediaItem.Builder#setRemoveVideo(boolean)} to remove the video
-     *     from the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
-     *     String)} instead.
+     *     from the {@link EditedMediaItem} passed to {@link #start(EditedMediaItem, String)}
+     *     instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -194,8 +194,7 @@ public final class Transformer {
 
     /**
      * @deprecated Use {@link EditedMediaItem.Builder#setFlattenForSlowMotion(boolean)} to flatten
-     *     the {@link EditedMediaItem} passed to {@link #startTransformation(EditedMediaItem,
-     *     String)} instead.
+     *     the {@link EditedMediaItem} passed to {@link #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -258,7 +257,7 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link AssetLoader.Factory} to be used to retrieve the samples to transform.
+     * Sets the {@link AssetLoader.Factory} to be used to retrieve the samples to export.
      *
      * <p>The default value is a {@link DefaultAssetLoaderFactory} built with a {@link
      * DefaultMediaSourceFactory} and a {@link DefaultDecoderFactory}.
@@ -274,7 +273,7 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@link FrameProcessor.Factory} in an {@link EditedMediaItem}, and pass it
-     *     to {@link #startTransformation(EditedMediaItem, String)} instead.
+     *     to {@link #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -329,13 +328,12 @@ public final class Transformer {
     }
 
     /**
-     * Sets a provider for views to show diagnostic information (if available) during
-     * transformation.
+     * Sets a provider for views to show diagnostic information (if available) during export.
      *
      * <p>This is intended for debugging. The default value is {@link DebugViewProvider#NONE}, which
      * doesn't show any debug info.
      *
-     * <p>Not all transformations will result in debug views being populated.
+     * <p>Not all exports will result in debug views being populated.
      *
      * @param debugViewProvider Provider for debug views.
      * @return This builder.
@@ -369,7 +367,7 @@ public final class Transformer {
      *
      * <p>To replace existing audio with silence, {@linkplain
      * EditedMediaItem.Builder#setRemoveAudio(boolean) remove the audio} from the {@link
-     * EditedMediaItem} to transform.
+     * EditedMediaItem} to export.
      *
      * <p>Audio properties/format:
      *
@@ -380,10 +378,9 @@ public final class Transformer {
      *   <li>Sample rate will be {@code 44100} hz. This can be modified by creating a {@link
      *       SonicAudioProcessor}, setting its {@linkplain
      *       SonicAudioProcessor#setOutputSampleRateHz(int) sample rate}, and passing it to the
-     *       {@link EditedMediaItem} used to start the transformation.
+     *       {@link EditedMediaItem} used to start the export.
      *   <li>Channel count will be {@code 2}. This can be modified by implementing a custom {@link
-     *       AudioProcessor} and passing it to the {@link EditedMediaItem} used to start the
-     *       transformation.
+     *       AudioProcessor} and passing it to the {@link EditedMediaItem} used to start the export.
      * </ul>
      *
      * @param generateSilentAudio Whether to generate silent audio for the output file if there is
@@ -676,12 +673,12 @@ public final class Transformer {
   }
 
   /**
-   * Starts an asynchronous operation to transform the given {@link MediaItem}.
+   * Starts an asynchronous operation to export the given {@link EditedMediaItem}.
    *
-   * <p>The transformation state is notified through the {@linkplain Builder#addListener(Listener)
+   * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
    * listener}.
    *
-   * <p>Concurrent transformations on the same Transformer object are not allowed.
+   * <p>Concurrent exports on the same Transformer object are not allowed.
    *
    * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
    *
@@ -693,62 +690,17 @@ public final class Transformer {
    * swapped if the height is larger than the width. This is to improve compatibility among
    * different device encoders.
    *
-   * @param editedMediaItem The {@link MediaItem} to transform, with the transformations to apply to
+   * @param editedMediaItem The {@link MediaItem} to export, with the transformations to apply to
    *     it.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws IllegalStateException If a transformation is already in progress.
+   * @throws IllegalStateException If an export is already in progress.
    */
-  public void startTransformation(EditedMediaItem editedMediaItem, String path) {
-    startTransformationInternal(editedMediaItem, path);
-  }
-
-  /**
-   * Starts an asynchronous operation to transform the given {@link MediaItem}.
-   *
-   * <p>The transformation state is notified through the {@linkplain Builder#addListener(Listener)
-   * listener}.
-   *
-   * <p>Concurrent transformations on the same Transformer object are not allowed.
-   *
-   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
-   *
-   * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
-   * highest bitrate video and audio streams are selected.
-   *
-   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
-   * swapped if the height is larger than the width. This is to improve compatibility among
-   * different device encoders.
-   *
-   * @param mediaItem The {@link MediaItem} to transform.
-   * @param path The path to the output file.
-   * @throws IllegalArgumentException If the path is invalid.
-   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
-   * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws IllegalStateException If a transformation is already in progress.
-   */
-  public void startTransformation(MediaItem mediaItem, String path) {
-    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && flattenForSlowMotion) {
-      throw new IllegalArgumentException(
-          "Clipping is not supported when slow motion flattening is requested");
-    }
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem)
-            .setRemoveAudio(removeAudio)
-            .setRemoveVideo(removeVideo)
-            .setFlattenForSlowMotion(flattenForSlowMotion)
-            .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
-            .build();
-    startTransformationInternal(editedMediaItem, path);
-  }
-
-  private void startTransformationInternal(EditedMediaItem editedMediaItem, String path) {
+  public void start(EditedMediaItem editedMediaItem, String path) {
     verifyApplicationThread();
     if (transformerInternal != null) {
-      throw new IllegalStateException("There is already a transformation in progress.");
+      throw new IllegalStateException("There is already a export in progress.");
     }
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
@@ -777,6 +729,56 @@ public final class Transformer {
   }
 
   /**
+   * Starts an asynchronous operation to export the given {@link MediaItem}.
+   *
+   * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
+   * listener}.
+   *
+   * <p>Concurrent exports on the same Transformer object are not allowed.
+   *
+   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
+   *
+   * <p>The output can contain at most one video track and one audio track. Other track types are
+   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
+   * highest bitrate video and audio streams are selected.
+   *
+   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
+   * swapped if the height is larger than the width. This is to improve compatibility among
+   * different device encoders.
+   *
+   * @param mediaItem The {@link MediaItem} to export.
+   * @param path The path to the output file.
+   * @throws IllegalArgumentException If the path is invalid.
+   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
+   * @throws IllegalStateException If this method is called from the wrong thread.
+   * @throws IllegalStateException If an export is already in progress.
+   */
+  public void start(MediaItem mediaItem, String path) {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && flattenForSlowMotion) {
+      throw new IllegalArgumentException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(removeAudio)
+            .setRemoveVideo(removeVideo)
+            .setFlattenForSlowMotion(flattenForSlowMotion)
+            .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
+            .build();
+    start(editedMediaItem, path);
+  }
+
+  /**
+   * @deprecated Use {@link #start(MediaItem, String)} instead.
+   */
+  @Deprecated
+  @InlineMe(replacement = "this.start(mediaItem, path)")
+  public void startTransformation(MediaItem mediaItem, String path) {
+    start(mediaItem, path);
+  }
+
+  /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
    * transformer and on which transformer events are received.
    */
@@ -788,7 +790,7 @@ public final class Transformer {
    * Returns the current {@link ProgressState} and updates {@code progressHolder} with the current
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
-   * <p>After a transformation {@linkplain Listener#onCompleted(Composition, TransformationResult)
+   * <p>After an export {@linkplain Listener#onCompleted(Composition,TransformationResult)
    * completes}, this method returns {@link #PROGRESS_STATE_NOT_STARTED}.
    *
    * @param progressHolder A {@link ProgressHolder}, updated to hold the percentage progress if
@@ -804,7 +806,7 @@ public final class Transformer {
   }
 
   /**
-   * Cancels the transformation that is currently in progress, if any.
+   * Cancels the export that is currently in progress, if any.
    *
    * @throws IllegalStateException If this method is called from the wrong thread.
    */

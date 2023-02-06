@@ -213,7 +213,7 @@ public final class TransformerActivity extends AppCompatActivity {
       Transformer transformer = createTransformer(bundle, filePath);
       EditedMediaItem editedMediaItem = createEditedMediaItem(mediaItem, bundle);
       transformationStopwatch.start();
-      transformer.startTransformation(editedMediaItem, filePath);
+      transformer.start(editedMediaItem, filePath);
       this.transformer = transformer;
     } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);

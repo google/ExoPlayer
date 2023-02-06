@@ -231,8 +231,7 @@ public class TransformerAndroidTestRunner {
    * @param testId An identifier for the test.
    * @param editedMediaItem The {@link EditedMediaItem} to transform.
    * @return The {@link TransformationTestResult}.
-   * @throws IllegalStateException See {@link Transformer#startTransformation(EditedMediaItem,
-   *     String)}.
+   * @throws IllegalStateException See {@link Transformer#start(EditedMediaItem, String)}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
    * @throws IOException If an error occurs opening the output file for writing.
@@ -313,8 +312,7 @@ public class TransformerAndroidTestRunner {
         .runOnMainSync(
             () -> {
               try {
-                testTransformer.startTransformation(
-                    editedMediaItem, outputVideoFile.getAbsolutePath());
+                testTransformer.start(editedMediaItem, outputVideoFile.getAbsolutePath());
                 // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
                 // propagate.
               } catch (Exception e) {
