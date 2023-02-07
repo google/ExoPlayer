@@ -91,4 +91,12 @@ public final class Crop implements MatrixTransformation {
   public Matrix getMatrix(long presentationTimeUs) {
     return checkStateNotNull(transformationMatrix, "configure must be called first");
   }
+
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    Size outputSize = configure(inputWidth, inputHeight);
+    return checkStateNotNull(transformationMatrix).isIdentity()
+        && inputWidth == outputSize.getWidth()
+        && inputHeight == outputSize.getHeight();
+  }
 }

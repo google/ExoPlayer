@@ -39,7 +39,9 @@ public final class ScaleToFitTransformationTest {
         new ScaleToFitTransformation.Builder().build();
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -54,7 +56,9 @@ public final class ScaleToFitTransformationTest {
             .build();
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * .5f));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -67,7 +71,9 @@ public final class ScaleToFitTransformationTest {
         new ScaleToFitTransformation.Builder().setScale(/* scaleX= */ 2f, /* scaleY= */ 1f).build();
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth * 2);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -80,7 +86,9 @@ public final class ScaleToFitTransformationTest {
         new ScaleToFitTransformation.Builder().setScale(/* scaleX= */ 1f, /* scaleY= */ 2f).build();
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight * 2);
   }
@@ -93,7 +101,9 @@ public final class ScaleToFitTransformationTest {
         new ScaleToFitTransformation.Builder().setRotationDegrees(90).build();
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(inputWidth);
   }
@@ -107,7 +117,9 @@ public final class ScaleToFitTransformationTest {
     long expectedOutputWidthHeight = 247;
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);
     assertThat(outputSize.getHeight()).isEqualTo(expectedOutputWidthHeight);
   }

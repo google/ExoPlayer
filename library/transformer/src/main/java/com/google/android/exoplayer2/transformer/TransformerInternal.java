@@ -32,8 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.effect.Presentation;
-import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
+import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.Clock;
@@ -42,7 +41,6 @@ import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Size;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -565,35 +563,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (inputFormat.pixelWidthHeightRatio != 1f) {
         return true;
       }
+      if (!areVideoEffectsAllNoOp(firstEditedMediaItem.effects.videoEffects, inputFormat)) {
+        return true;
+      }
+      return false;
+    }
 
-      // TODO(b/265927935): consider generalizing this logic.
-      for (int i = 0; i < firstEditedMediaItem.effects.videoEffects.size(); i++) {
-        Effect videoEffect = firstEditedMediaItem.effects.videoEffects.get(i);
-        if (videoEffect instanceof Presentation) {
-          Presentation presentation = (Presentation) videoEffect;
-          // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
-          int decodedWidth =
-              (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
-          int decodedHeight =
-              (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
-          Size outputSize = presentation.configure(decodedWidth, decodedHeight);
-          if (outputSize.getWidth() != decodedWidth || outputSize.getHeight() != decodedHeight) {
-            return true;
-          }
-        } else if (videoEffect instanceof ScaleToFitTransformation) {
-          ScaleToFitTransformation scaleToFitTransformation =
-              (ScaleToFitTransformation) videoEffect;
-          if (scaleToFitTransformation.scaleX != 1f
-              || scaleToFitTransformation.scaleY != 1f
-              || scaleToFitTransformation.rotationDegrees != 0f) {
-            return true;
-          }
-        } else {
-          return true;
+    /**
+     * Returns whether all {@code videoEffects} are {@linkplain GlEffect#isNoOp(int, int) no-ops},
+     * given an input {@link Format}.
+     */
+    private boolean areVideoEffectsAllNoOp(ImmutableList<Effect> videoEffects, Format inputFormat) {
+      int decodedWidth =
+          (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+      int decodedHeight =
+          (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+      for (int i = 0; i < videoEffects.size(); i++) {
+        Effect videoEffect = videoEffects.get(i);
+        if (!(videoEffect instanceof GlEffect)) {
+          // We cannot confirm whether Effect instances that are not GlEffect instances are
+          // no-ops.
+          return false;
+        }
+        GlEffect glEffect = (GlEffect) videoEffect;
+        if (!glEffect.isNoOp(decodedWidth, decodedHeight)) {
+          return false;
         }
       }
-
-      return false;
+      return true;
     }
   }
 }

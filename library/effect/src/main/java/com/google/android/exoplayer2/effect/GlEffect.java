@@ -38,4 +38,19 @@ public interface GlEffect extends Effect {
    */
   GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws FrameProcessingException;
+
+  /**
+   * Returns whether a {@link GlEffect} applies no change at every timestamp.
+   *
+   * <p>This can be used as a hint to skip this instance.
+   *
+   * @param inputWidth The input frame width, in pixels.
+   * @param inputHeight The input frame height, in pixels.
+   */
+  default boolean isNoOp(int inputWidth, int inputHeight) {
+    // TODO(b/265927935): Generalize this logic by implementing this method on all
+    //  subclasses, and deleting the default implementation here. Otherwise, some no-op effects may
+    //  not be properly detected or handled.
+    return false;
+  }
 }
