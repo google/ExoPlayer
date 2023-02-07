@@ -30,9 +30,9 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Effects;
+import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
-import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Effect;
@@ -78,12 +78,12 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
 
     try {
-      TransformationTestResult transformationTestResult =
+      ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
       Log.i(TAG, "Tone mapped.");
-      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -120,12 +120,12 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
 
     try {
-      TransformationTestResult transformationTestResult =
+      ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
       Log.i(TAG, "Tone mapped.");
-      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -167,12 +167,12 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     try {
-      TransformationTestResult transformationTestResult =
+      ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
-      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -214,12 +214,12 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     try {
-      TransformationTestResult transformationTestResult =
+      ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
-      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);

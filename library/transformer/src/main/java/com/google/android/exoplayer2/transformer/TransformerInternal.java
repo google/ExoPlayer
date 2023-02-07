@@ -57,9 +57,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public interface Listener {
 
-    void onCompleted(TransformationResult result);
+    void onCompleted(ExportResult exportResult);
 
-    void onError(TransformationResult result, TransformationException exception);
+    void onError(ExportResult exportResult, TransformationException exception);
   }
 
   /**
@@ -100,7 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final List<SamplePipeline> samplePipelines;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
-  private final TransformationResult.Builder transformationResultBuilder;
+  private final ExportResult.Builder exportResultBuilder;
 
   private boolean generateSilentAudio;
   private boolean isDrainingPipelines;
@@ -142,7 +142,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     samplePipelines = new ArrayList<>();
     muxerWrapper = new MuxerWrapper(outputPath, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();
-    transformationResultBuilder = new TransformationResult.Builder();
+    exportResultBuilder = new ExportResult.Builder();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper internalHandler =
@@ -243,9 +243,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void endInternal(
       @EndReason int endReason, @Nullable TransformationException transformationException) {
-    ImmutableList<TransformationResult.ProcessedInput> processedInputs =
+    ImmutableList<ExportResult.ProcessedInput> processedInputs =
         compositeAssetLoader.getProcessedInputs();
-    transformationResultBuilder
+    exportResultBuilder
         .setProcessedInputs(processedInputs)
         .setAudioEncoderName(encoderFactory.getAudioEncoderName())
         .setVideoEncoderName(encoderFactory.getVideoEncoderName());
@@ -300,10 +300,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       applicationHandler.post(
           () ->
               listener.onError(
-                  transformationResultBuilder.setTransformationException(finalException).build(),
+                  exportResultBuilder.setTransformationException(finalException).build(),
                   finalException));
     } else {
-      applicationHandler.post(() -> listener.onCompleted(transformationResultBuilder.build()));
+      applicationHandler.post(() -> listener.onCompleted(exportResultBuilder.build()));
     }
   }
 
@@ -416,32 +416,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onTrackEnded(
         @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
       if (trackType == C.TRACK_TYPE_AUDIO) {
-        transformationResultBuilder
+        exportResultBuilder
             .setAverageAudioBitrate(averageBitrate)
             .setPcmEncoding(format.pcmEncoding);
         if (format.channelCount != Format.NO_VALUE) {
-          transformationResultBuilder.setChannelCount(format.channelCount);
+          exportResultBuilder.setChannelCount(format.channelCount);
         }
         if (format.sampleRate != Format.NO_VALUE) {
-          transformationResultBuilder.setSampleRate(format.sampleRate);
+          exportResultBuilder.setSampleRate(format.sampleRate);
         }
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
-        transformationResultBuilder
+        exportResultBuilder
             .setAverageVideoBitrate(averageBitrate)
             .setColorInfo(format.colorInfo)
             .setVideoFrameCount(sampleCount);
         if (format.height != Format.NO_VALUE) {
-          transformationResultBuilder.setHeight(format.height);
+          exportResultBuilder.setHeight(format.height);
         }
         if (format.width != Format.NO_VALUE) {
-          transformationResultBuilder.setWidth(format.width);
+          exportResultBuilder.setWidth(format.width);
         }
       }
     }
 
     @Override
     public void onEnded(long durationMs, long fileSizeBytes) {
-      transformationResultBuilder.setDurationMs(durationMs).setFileSizeBytes(fileSizeBytes);
+      exportResultBuilder.setDurationMs(durationMs).setFileSizeBytes(fileSizeBytes);
 
       internalHandler
           .obtainMessage(

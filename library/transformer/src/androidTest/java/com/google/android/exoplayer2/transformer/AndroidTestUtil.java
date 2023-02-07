@@ -504,17 +504,17 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Creates a {@link JSONArray} from {@link TransformationResult.ProcessedInput processed inputs}.
+   * Creates a {@link JSONArray} from {@link ExportResult.ProcessedInput processed inputs}.
    *
-   * @param processedInputs The list of {@link TransformationResult.ProcessedInput} instances.
+   * @param processedInputs The list of {@link ExportResult.ProcessedInput} instances.
    * @return A {@link JSONArray} containing {@link JSONObject} instances representing the {@link
-   *     TransformationResult.ProcessedInput} instances.
+   *     ExportResult.ProcessedInput} instances.
    */
   public static JSONArray processedInputsAsJsonArray(
-      ImmutableList<TransformationResult.ProcessedInput> processedInputs) throws JSONException {
+      ImmutableList<ExportResult.ProcessedInput> processedInputs) throws JSONException {
     JSONArray jsonArray = new JSONArray();
     for (int i = 0; i < processedInputs.size(); i++) {
-      TransformationResult.ProcessedInput processedInput = processedInputs.get(i);
+      ExportResult.ProcessedInput processedInput = processedInputs.get(i);
       JSONObject jsonObject = new JSONObject();
       @Nullable
       MediaItem.LocalConfiguration localConfiguration = processedInput.mediaItem.localConfiguration;

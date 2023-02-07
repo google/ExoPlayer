@@ -69,14 +69,15 @@ import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.effect.SingleColorLut;
 import com.google.android.exoplayer2.effect.TextOverlay;
 import com.google.android.exoplayer2.effect.TextureOverlay;
+import com.google.android.exoplayer2.transformer.Composition;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.DefaultMuxer;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Effects;
+import com.google.android.exoplayer2.transformer.ExportResult;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
-import com.google.android.exoplayer2.transformer.TransformationResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
@@ -307,15 +308,16 @@ public final class TransformerActivity extends AppCompatActivity {
         .addListener(
             new Transformer.Listener() {
               @Override
-              public void onTransformationCompleted(
-                  MediaItem mediaItem, TransformationResult result) {
+              public void onCompleted(Composition composition, ExportResult exportResult) {
+                MediaItem mediaItem =
+                    composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
                 TransformerActivity.this.onTransformationCompleted(filePath, mediaItem);
               }
 
               @Override
-              public void onTransformationError(
-                  MediaItem mediaItem,
-                  TransformationResult result,
+              public void onError(
+                  Composition composition,
+                  ExportResult exportResult,
                   TransformationException exception) {
                 TransformerActivity.this.onTransformationError(exception);
               }

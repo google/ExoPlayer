@@ -26,8 +26,8 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
-import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
@@ -70,13 +70,13 @@ public final class TranscodeQualityTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setRequestCalculateSsim(true)
             .build()
             .run(testId, editedMediaItem);
 
-    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+    if (result.ssim != ExportTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
     }
   }
@@ -108,13 +108,13 @@ public final class TranscodeQualityTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setRequestCalculateSsim(true)
             .build()
             .run(testId, editedMediaItem);
 
-    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+    if (result.ssim != ExportTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
     }
   }
@@ -140,13 +140,13 @@ public final class TranscodeQualityTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setRequestCalculateSsim(true)
             .build()
             .run(testId, editedMediaItem);
 
-    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+    if (result.ssim != ExportTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
     }
   }

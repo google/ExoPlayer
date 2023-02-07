@@ -41,7 +41,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMO
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.getFormatForTestFile;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfInsufficientCodecSupport;
-import static com.google.android.exoplayer2.transformer.TransformationTestResult.SSIM_UNSET;
+import static com.google.android.exoplayer2.transformer.ExportTestResult.SSIM_UNSET;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.collect.Iterables.getLast;

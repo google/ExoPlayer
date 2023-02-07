@@ -174,36 +174,34 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Transforms the {@link EditedMediaItem}, saving a summary of the transformation to the
-   * application cache.
+   * Exports the {@link EditedMediaItem}, saving a summary of the export to the application cache.
    *
    * @param testId A unique identifier for the transformer test run.
-   * @param editedMediaItem The {@link EditedMediaItem} to transform.
-   * @return The {@link TransformationTestResult}.
-   * @throws Exception The cause of the transformation not completing.
+   * @param editedMediaItem The {@link EditedMediaItem} to export.
+   * @return The {@link ExportTestResult}.
+   * @throws Exception The cause of the export not completing.
    */
-  public TransformationTestResult run(String testId, EditedMediaItem editedMediaItem)
-      throws Exception {
+  public ExportTestResult run(String testId, EditedMediaItem editedMediaItem) throws Exception {
     JSONObject resultJson = new JSONObject();
     if (inputValues != null) {
       resultJson.put("inputValues", JSONObject.wrap(inputValues));
     }
     try {
-      TransformationTestResult transformationTestResult = runInternal(testId, editedMediaItem);
-      resultJson.put("transformationResult", transformationTestResult.asJsonObject());
-      if (transformationTestResult.transformationResult.transformationException != null) {
-        throw transformationTestResult.transformationResult.transformationException;
+      ExportTestResult exportTestResult = runInternal(testId, editedMediaItem);
+      resultJson.put("exportResult", exportTestResult.asJsonObject());
+      if (exportTestResult.exportResult.transformationException != null) {
+        throw exportTestResult.exportResult.transformationException;
       }
-      if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
-        throw transformationTestResult.analysisException;
+      if (!suppressAnalysisExceptions && exportTestResult.analysisException != null) {
+        throw exportTestResult.analysisException;
       }
-      return transformationTestResult;
+      return exportTestResult;
     } catch (InterruptedException
         | IOException
         | TimeoutException
         | UnsupportedOperationException e) {
       resultJson.put(
-          "transformationResult",
+          "exportResult",
           new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
       throw e;
     } finally {
@@ -212,33 +210,32 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Transforms the {@link MediaItem}, saving a summary of the transformation to the application
-   * cache.
+   * Exports the {@link MediaItem}, saving a summary of the export to the application cache.
    *
    * @param testId A unique identifier for the transformer test run.
-   * @param mediaItem The {@link MediaItem} to transform.
-   * @return The {@link TransformationTestResult}.
-   * @throws Exception The cause of the transformation not completing.
+   * @param mediaItem The {@link MediaItem} to export.
+   * @return The {@link ExportTestResult}.
+   * @throws Exception The cause of the export not completing.
    */
-  public TransformationTestResult run(String testId, MediaItem mediaItem) throws Exception {
+  public ExportTestResult run(String testId, MediaItem mediaItem) throws Exception {
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     return run(testId, editedMediaItem);
   }
 
   /**
-   * Transforms the {@link EditedMediaItem}.
+   * Exports the {@link EditedMediaItem}.
    *
    * @param testId An identifier for the test.
-   * @param editedMediaItem The {@link EditedMediaItem} to transform.
-   * @return The {@link TransformationTestResult}.
+   * @param editedMediaItem The {@link EditedMediaItem} to export.
+   * @return The {@link ExportTestResult}.
    * @throws IllegalStateException See {@link Transformer#start(EditedMediaItem, String)}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
    * @throws IOException If an error occurs opening the output file for writing.
-   * @throws TimeoutException If the transformation has not completed after {@linkplain
+   * @throws TimeoutException If the export has not completed after {@linkplain
    *     Builder#setTimeoutSeconds(int) the given timeout}.
    */
-  private TransformationTestResult runInternal(String testId, EditedMediaItem editedMediaItem)
+  private ExportTestResult runInternal(String testId, EditedMediaItem editedMediaItem)
       throws InterruptedException, IOException, TimeoutException {
     MediaItem mediaItem = editedMediaItem.mediaItem;
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
@@ -258,8 +255,7 @@ public class TransformerAndroidTestRunner {
     AtomicReference<@NullableType FallbackDetails> fallbackDetailsReference =
         new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
-    AtomicReference<@NullableType TransformationResult> transformationResultReference =
-        new AtomicReference<>();
+    AtomicReference<@NullableType ExportResult> exportResultReference = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
     long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
@@ -269,18 +265,17 @@ public class TransformerAndroidTestRunner {
             .addListener(
                 new Transformer.Listener() {
                   @Override
-                  public void onTransformationCompleted(
-                      MediaItem inputMediaItem, TransformationResult result) {
-                    transformationResultReference.set(result);
+                  public void onCompleted(Composition composition, ExportResult exportResult) {
+                    exportResultReference.set(exportResult);
                     countDownLatch.countDown();
                   }
 
                   @Override
-                  public void onTransformationError(
-                      MediaItem inputMediaItem,
-                      TransformationResult result,
+                  public void onError(
+                      Composition composition,
+                      ExportResult exportResult,
                       TransformationException exception) {
-                    transformationResultReference.set(result);
+                    exportResultReference.set(exportResult);
                     countDownLatch.countDown();
                   }
 
@@ -333,19 +328,19 @@ public class TransformerAndroidTestRunner {
 
     long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
     @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
-    TransformationResult transformationResult = checkNotNull(transformationResultReference.get());
+    ExportResult exportResult = checkNotNull(exportResultReference.get());
 
-    if (transformationResult.transformationException != null) {
-      return new TransformationTestResult.Builder(transformationResult)
+    if (exportResult.transformationException != null) {
+      return new ExportTestResult.Builder(exportResult)
           .setElapsedTimeMs(elapsedTimeMs)
           .setFallbackDetails(fallbackDetails)
           .build();
     }
 
     // No exceptions raised, transformation has succeeded.
-    TransformationTestResult.Builder testResultBuilder =
-        new TransformationTestResult.Builder(
-                checkNotNull(transformationResultReference.get())
+    ExportTestResult.Builder testResultBuilder =
+        new ExportTestResult.Builder(
+                checkNotNull(exportResultReference.get())
                     .buildUpon()
                     .setFileSizeBytes(outputVideoFile.length())
                     .build())
@@ -373,7 +368,7 @@ public class TransformerAndroidTestRunner {
     } catch (InterruptedException interruptedException) {
       // InterruptedException is a special unexpected case because it is not related to Ssim
       // calculation, so it should be thrown, rather than processed as part of the
-      // TransformationTestResult.
+      // ExportTestResult.
       throw interruptedException;
     } catch (Throwable analysisFailure) {
       if (Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus")) {
@@ -381,7 +376,7 @@ public class TransformerAndroidTestRunner {
         Log.i(TAG, testId + ": Skipping SSIM calculation due to known device-specific issue");
       } else {
         // Catch all (checked and unchecked) failures thrown by the SsimHelper and process them as
-        // part of the TransformationTestResult.
+        // part of the ExportTestResult.
         Exception analysisException =
             analysisFailure instanceof Exception
                 ? (Exception) analysisFailure
