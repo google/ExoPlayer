@@ -28,16 +28,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * @deprecated Use {@link ExportResult} instead.
- */
-@Deprecated
+/** Information about the result of an export. */
 @UnstableApi
-public final class TransformationResult {
-  /**
-   * @deprecated Use {@link ExportResult.Builder} instead.
-   */
-  @Deprecated
+public final class ExportResult {
+  /** A builder for {@link ExportResult} instances. */
   public static final class Builder {
     private ImmutableList<ProcessedInput> processedInputs;
     private long durationMs;
@@ -67,34 +61,6 @@ public final class TransformationResult {
       averageVideoBitrate = C.RATE_UNSET_INT;
       height = C.LENGTH_UNSET;
       width = C.LENGTH_UNSET;
-    }
-
-    /** Creates a builder from an {@link ExportResult}. */
-    /* package */ Builder(ExportResult exportResult) {
-      ImmutableList.Builder<ProcessedInput> processedInputsBuilder = new ImmutableList.Builder<>();
-      for (int i = 0; i < exportResult.processedInputs.size(); i++) {
-        ExportResult.ProcessedInput processedInput = exportResult.processedInputs.get(i);
-        processedInputsBuilder.add(
-            new ProcessedInput(
-                processedInput.mediaItem,
-                processedInput.audioDecoderName,
-                processedInput.videoDecoderName));
-      }
-      processedInputs = processedInputsBuilder.build();
-      durationMs = exportResult.durationMs;
-      fileSizeBytes = exportResult.fileSizeBytes;
-      averageAudioBitrate = exportResult.averageAudioBitrate;
-      channelCount = exportResult.channelCount;
-      pcmEncoding = exportResult.pcmEncoding;
-      sampleRate = exportResult.sampleRate;
-      audioEncoderName = exportResult.audioEncoderName;
-      averageVideoBitrate = exportResult.averageVideoBitrate;
-      colorInfo = exportResult.colorInfo;
-      height = exportResult.height;
-      width = exportResult.width;
-      videoFrameCount = exportResult.videoFrameCount;
-      videoEncoderName = exportResult.videoEncoderName;
-      transformationException = exportResult.transformationException;
     }
 
     /** Sets the {@linkplain ProcessedInput processed inputs}. */
@@ -240,7 +206,7 @@ public final class TransformationResult {
       return this;
     }
 
-    /** Sets the {@link TransformationException} that caused the transformation to fail. */
+    /** Sets the {@link TransformationException} that caused the export to fail. */
     @CanIgnoreReturnValue
     public Builder setTransformationException(
         @Nullable TransformationException transformationException) {
@@ -248,9 +214,9 @@ public final class TransformationResult {
       return this;
     }
 
-    /** Builds a {@link TransformationResult} instance. */
-    public TransformationResult build() {
-      return new TransformationResult(
+    /** Builds an {@link ExportResult} instance. */
+    public ExportResult build() {
+      return new ExportResult(
           processedInputs,
           durationMs,
           fileSizeBytes,
@@ -269,10 +235,7 @@ public final class TransformationResult {
     }
   }
 
-  /**
-   * @deprecated Use {@link ExportResult.ProcessedInput} instead.
-   */
-  @Deprecated
+  /** An input entirely or partially processed. */
   public static final class ProcessedInput {
     /** The processed {@link MediaItem}. */
     public final MediaItem mediaItem;
@@ -333,12 +296,12 @@ public final class TransformationResult {
   @Nullable public final String videoEncoderName;
 
   /**
-   * The {@link TransformationException} that caused the transformation to fail, or {@code null} if
-   * the transformation was a success.
+   * The {@link TransformationException} that caused the export to fail, or {@code null} if the
+   * export was a success.
    */
   @Nullable public final TransformationException transformationException;
 
-  private TransformationResult(
+  private ExportResult(
       ImmutableList<ProcessedInput> processedInputs,
       long durationMs,
       long fileSizeBytes,
@@ -395,10 +358,10 @@ public final class TransformationResult {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TransformationResult)) {
+    if (!(o instanceof ExportResult)) {
       return false;
     }
-    TransformationResult result = (TransformationResult) o;
+    ExportResult result = (ExportResult) o;
     return Objects.equals(processedInputs, result.processedInputs)
         && durationMs == result.durationMs
         && fileSizeBytes == result.fileSizeBytes

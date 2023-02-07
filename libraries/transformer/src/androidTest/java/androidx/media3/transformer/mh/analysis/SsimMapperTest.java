@@ -43,7 +43,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_3
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
 import static androidx.media3.transformer.AndroidTestUtil.getFormatForTestFile;
 import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfInsufficientCodecSupport;
-import static androidx.media3.transformer.TransformationTestResult.SSIM_UNSET;
+import static androidx.media3.transformer.ExportTestResult.SSIM_UNSET;
 import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;

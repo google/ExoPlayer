@@ -26,8 +26,8 @@ import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.TransformationRequest;
-import androidx.media3.transformer.TransformationTestResult;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
@@ -65,10 +65,10 @@ public final class RepeatedTranscodeTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TransformationTestResult testResult =
+      ExportTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i, editedMediaItem);
-      differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
+      differentOutputSizesBytes.add(checkNotNull(testResult.exportResult.fileSizeBytes));
     }
 
     assertWithMessage(
@@ -98,11 +98,11 @@ public final class RepeatedTranscodeTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TransformationTestResult testResult =
+      ExportTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
               editedMediaItem);
-      differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
+      differentOutputSizesBytes.add(checkNotNull(testResult.exportResult.fileSizeBytes));
     }
 
     assertWithMessage(
@@ -130,11 +130,11 @@ public final class RepeatedTranscodeTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TransformationTestResult testResult =
+      ExportTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
               editedMediaItem);
-      differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
+      differentOutputSizesBytes.add(checkNotNull(testResult.exportResult.fileSizeBytes));
     }
 
     assertWithMessage(

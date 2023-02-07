@@ -74,14 +74,15 @@ import androidx.media3.effect.TextureOverlay;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
+import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.DefaultMuxer;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
-import androidx.media3.transformer.TransformationResult;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
@@ -307,15 +308,16 @@ public final class TransformerActivity extends AppCompatActivity {
         .addListener(
             new Transformer.Listener() {
               @Override
-              public void onTransformationCompleted(
-                  MediaItem mediaItem, TransformationResult result) {
+              public void onCompleted(Composition composition, ExportResult exportResult) {
+                MediaItem mediaItem =
+                    composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
                 TransformerActivity.this.onTransformationCompleted(filePath, mediaItem);
               }
 
               @Override
-              public void onTransformationError(
-                  MediaItem mediaItem,
-                  TransformationResult result,
+              public void onError(
+                  Composition composition,
+                  ExportResult exportResult,
                   TransformationException exception) {
                 TransformerActivity.this.onTransformationError(exception);
               }

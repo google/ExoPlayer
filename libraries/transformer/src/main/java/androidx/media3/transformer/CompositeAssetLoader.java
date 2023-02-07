@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private final Listener compositeAssetLoaderListener;
   private final Map<Integer, SampleConsumer> sampleConsumersByTrackType;
   private final Map<Integer, OnMediaItemChangedListener> mediaItemChangedListenersByTrackType;
-  private final ImmutableList.Builder<TransformationResult.ProcessedInput> processedInputsBuilder;
+  private final ImmutableList.Builder<ExportResult.ProcessedInput> processedInputsBuilder;
   private final AtomicLong totalDurationUs;
   private final AtomicInteger nonEndedTracks;
 
@@ -114,10 +114,9 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   /**
-   * Returns the partially or entirely {@linkplain TransformationResult.ProcessedInput processed
-   * inputs}.
+   * Returns the partially or entirely {@linkplain ExportResult.ProcessedInput processed inputs}.
    */
-  public ImmutableList<TransformationResult.ProcessedInput> getProcessedInputs() {
+  public ImmutableList<ExportResult.ProcessedInput> getProcessedInputs() {
     addCurrentProcessedInput();
     return processedInputsBuilder.build();
   }
@@ -212,7 +211,7 @@ import java.util.concurrent.atomic.AtomicLong;
       MediaItem mediaItem = editedMediaItems.get(currentMediaItemIndex).mediaItem;
       ImmutableMap<Integer, String> decoders = currentAssetLoader.getDecoderNames();
       processedInputsBuilder.add(
-          new TransformationResult.ProcessedInput(
+          new ExportResult.ProcessedInput(
               mediaItem, decoders.get(C.TRACK_TYPE_AUDIO), decoders.get(C.TRACK_TYPE_VIDEO)));
       processedInputsSize++;
     }

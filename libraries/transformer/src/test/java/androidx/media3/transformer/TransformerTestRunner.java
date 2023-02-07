@@ -19,7 +19,6 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUntil;
 
-import androidx.media3.common.MediaItem;
 import androidx.media3.test.utils.robolectric.RobolectricUtil;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
@@ -33,46 +32,44 @@ public final class TransformerTestRunner {
 
   /**
    * Runs tasks of the {@linkplain Transformer#getApplicationLooper() transformer Looper} until the
-   * {@linkplain Transformer transformation} ends.
+   * {@linkplain Transformer export} ends.
    *
    * @param transformer The {@link Transformer}.
-   * @return The {@link TransformationResult}.
+   * @return The {@link ExportResult}.
    * @throws TransformationException If the transformation threw an exception.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    * @throws IllegalStateException If the method is not called from the main thread.
    */
-  public static TransformationResult runLooper(Transformer transformer)
+  public static ExportResult runLooper(Transformer transformer)
       throws TransformationException, TimeoutException {
-    AtomicReference<@NullableType TransformationResult> transformationResultRef =
-        new AtomicReference<>();
+    AtomicReference<@NullableType ExportResult> exportResultRef = new AtomicReference<>();
 
     transformer.addListener(
         new Transformer.Listener() {
           @Override
-          public void onTransformationCompleted(
-              MediaItem inputMediaItem, TransformationResult result) {
-            transformationResultRef.set(result);
+          public void onCompleted(Composition composition, ExportResult exportResult) {
+            exportResultRef.set(exportResult);
           }
 
           @Override
-          public void onTransformationError(
-              MediaItem inputMediaItem,
-              TransformationResult result,
+          public void onError(
+              Composition composition,
+              ExportResult exportResult,
               TransformationException exception) {
-            if (!Objects.equals(result.transformationException, exception)) {
-              result = result.buildUpon().setTransformationException(exception).build();
+            if (!Objects.equals(exportResult.transformationException, exception)) {
+              exportResult = exportResult.buildUpon().setTransformationException(exception).build();
             }
-            transformationResultRef.set(result);
+            exportResultRef.set(exportResult);
           }
         });
-    runLooperUntil(transformer.getApplicationLooper(), () -> transformationResultRef.get() != null);
+    runLooperUntil(transformer.getApplicationLooper(), () -> exportResultRef.get() != null);
 
-    TransformationResult result = checkNotNull(transformationResultRef.get());
-    if (result.transformationException != null) {
-      throw result.transformationException;
+    ExportResult exportResult = checkNotNull(exportResultRef.get());
+    if (exportResult.transformationException != null) {
+      throw exportResult.transformationException;
     }
 
-    return result;
+    return exportResult;
   }
 }

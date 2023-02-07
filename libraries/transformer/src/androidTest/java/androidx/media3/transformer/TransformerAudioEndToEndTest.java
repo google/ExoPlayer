@@ -53,12 +53,12 @@ public class TransformerAudioEndToEndTest {
             .setEffects(effects)
             .build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
             .build()
             .run(testId, editedMediaItem);
 
-    assertThat(result.transformationResult.channelCount).isEqualTo(2);
+    assertThat(result.exportResult.channelCount).isEqualTo(2);
   }
 
   @Test
@@ -76,12 +76,12 @@ public class TransformerAudioEndToEndTest {
             .setEffects(effects)
             .build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
             .build()
             .run(testId, editedMediaItem);
 
-    assertThat(result.transformationResult.pcmEncoding).isEqualTo(C.ENCODING_PCM_FLOAT);
+    assertThat(result.exportResult.pcmEncoding).isEqualTo(C.ENCODING_PCM_FLOAT);
   }
 
   @Test
@@ -100,12 +100,12 @@ public class TransformerAudioEndToEndTest {
             .setEffects(effects)
             .build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
             .build()
             .run(testId, editedMediaItem);
 
-    assertThat(result.transformationResult.pcmEncoding).isEqualTo(C.ENCODING_PCM_16BIT);
+    assertThat(result.exportResult.pcmEncoding).isEqualTo(C.ENCODING_PCM_16BIT);
   }
 
   private static Effects createForAudioProcessors(AudioProcessor... audioProcessors) {

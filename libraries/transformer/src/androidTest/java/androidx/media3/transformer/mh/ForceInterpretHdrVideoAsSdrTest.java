@@ -27,9 +27,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.transformer.AndroidTestUtil;
+import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
-import androidx.media3.transformer.TransformationTestResult;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
@@ -69,11 +69,11 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
     try {
-      TransformationTestResult transformationTestResult =
+      ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
       if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
@@ -106,11 +106,11 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
     try {
-      TransformationTestResult transformationTestResult =
+      ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
       if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED

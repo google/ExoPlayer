@@ -446,13 +446,13 @@ public final class Transformer {
   public interface Listener {
 
     /**
-     * @deprecated Use {@link #onCompleted(Composition, TransformationResult)} instead.
+     * @deprecated Use {@link #onCompleted(Composition, ExportResult)} instead.
      */
     @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem) {}
 
     /**
-     * @deprecated Use {@link #onCompleted(Composition, TransformationResult)} instead.
+     * @deprecated Use {@link #onCompleted(Composition, ExportResult)} instead.
      */
     @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
@@ -463,23 +463,22 @@ public final class Transformer {
      * Called when the export is completed successfully.
      *
      * @param composition The {@link Composition} for which the export is completed.
-     * @param result The {@link TransformationResult} of the export.
+     * @param exportResult The {@link ExportResult} of the export.
      */
-    default void onCompleted(Composition composition, TransformationResult result) {
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
+    default void onCompleted(Composition composition, ExportResult exportResult) {
       MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
-      onTransformationCompleted(mediaItem, result);
+      onTransformationCompleted(mediaItem, new TransformationResult.Builder(exportResult).build());
     }
 
     /**
-     * @deprecated Use {@link #onError(Composition, TransformationResult, TransformationException)}
-     *     instead.
+     * @deprecated Use {@link #onError(Composition, ExportResult, TransformationException)} instead.
      */
     @Deprecated
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
 
     /**
-     * @deprecated Use {@link #onError(Composition, TransformationResult, TransformationException)}
-     *     instead.
+     * @deprecated Use {@link #onError(Composition, ExportResult, TransformationException)} instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -488,8 +487,7 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Use {@link #onError(Composition, TransformationResult, TransformationException)}
-     *     instead.
+     * @deprecated Use {@link #onError(Composition, ExportResult, TransformationException)} instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -501,15 +499,17 @@ public final class Transformer {
      * Called if an exception occurs during the export.
      *
      * @param composition The {@link Composition} for which the exception occurs.
-     * @param result The {@link TransformationResult} of the export.
+     * @param exportResult The {@link ExportResult} of the export.
      * @param exception The {@link TransformationException} describing the exception. This is the
-     *     same instance as the {@linkplain TransformationResult#transformationException exception}
-     *     in {@code result}.
+     *     same instance as the {@linkplain ExportResult#transformationException exception} in
+     *     {@code result}.
      */
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
     default void onError(
-        Composition composition, TransformationResult result, TransformationException exception) {
+        Composition composition, ExportResult exportResult, TransformationException exception) {
       MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
-      onTransformationError(mediaItem, result, exception);
+      onTransformationError(
+          mediaItem, new TransformationResult.Builder(exportResult).build(), exception);
     }
 
     /**
@@ -534,6 +534,7 @@ public final class Transformer {
      *     TransformationRequest#videoMimeType}, {@link TransformationRequest#outputHeight}, and
      *     {@link TransformationRequest#hdrMode} values set.
      */
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
     default void onFallbackApplied(
         Composition composition,
         TransformationRequest originalTransformationRequest,
@@ -792,8 +793,8 @@ public final class Transformer {
    * Returns the current {@link ProgressState} and updates {@code progressHolder} with the current
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
-   * <p>After an export {@linkplain Listener#onCompleted(Composition,TransformationResult)
-   * completes}, this method returns {@link #PROGRESS_STATE_NOT_STARTED}.
+   * <p>After an export {@linkplain Listener#onCompleted(Composition, ExportResult) completes}, this
+   * method returns {@link #PROGRESS_STATE_NOT_STARTED}.
    *
    * @param progressHolder A {@link ProgressHolder}, updated to hold the percentage progress if
    *     {@link #PROGRESS_STATE_AVAILABLE available}.
@@ -839,21 +840,21 @@ public final class Transformer {
     }
 
     @Override
-    public void onCompleted(TransformationResult transformationResult) {
+    public void onCompleted(ExportResult exportResult) {
       // TODO(b/213341814): Add event flags for Transformer events.
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onCompleted(composition, transformationResult));
+          listener -> listener.onCompleted(composition, exportResult));
       listeners.flushEvents();
     }
 
     @Override
-    public void onError(TransformationResult result, TransformationException exception) {
+    public void onError(ExportResult exportResult, TransformationException exception) {
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onError(composition, result, exception));
+          listener -> listener.onError(composition, exportResult, exception));
       listeners.flushEvents();
     }
   }

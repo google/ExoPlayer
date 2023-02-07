@@ -57,12 +57,12 @@ public class TransformerEndToEndTest {
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
     int expectedFrameCount = 30;
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(/* testId= */ "videoEditing_completesWithConsistentFrameCount", editedMediaItem);
 
-    assertThat(result.transformationResult.videoFrameCount).isEqualTo(expectedFrameCount);
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
   }
 
   @Test
@@ -79,12 +79,12 @@ public class TransformerEndToEndTest {
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
     long expectedDurationMs = 967;
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(/* testId= */ "videoOnly_completesWithConsistentDuration", editedMediaItem);
 
-    assertThat(result.transformationResult.durationMs).isEqualTo(expectedDurationMs);
+    assertThat(result.exportResult.durationMs).isEqualTo(expectedDurationMs);
   }
 
   @Test
@@ -102,12 +102,12 @@ public class TransformerEndToEndTest {
                     .build())
             .build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(/* testId= */ "clippedMedia_completesWithClippedDuration", mediaItem);
 
-    assertThat(result.transformationResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+    assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
 
   @Test
