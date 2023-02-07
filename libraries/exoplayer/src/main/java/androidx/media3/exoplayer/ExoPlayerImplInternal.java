@@ -599,6 +599,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
           e = pendingRecoverableRendererError;
         }
         Log.e(TAG, "Playback error", e);
+        if (e.type == ExoPlaybackException.TYPE_RENDERER
+            && queue.getPlayingPeriod() != queue.getReadingPeriod()) {
+          // We encountered a renderer error while reading ahead. Force-update the playback position
+          // to the failing item to ensure the user-visible error is reported after the transition.
+          while (queue.getPlayingPeriod() != queue.getReadingPeriod()) {
+            queue.advancePlayingPeriod();
+          }
+          MediaPeriodHolder newPlayingPeriodHolder = checkNotNull(queue.getPlayingPeriod());
+          playbackInfo =
+              handlePositionDiscontinuity(
+                  newPlayingPeriodHolder.info.id,
+                  newPlayingPeriodHolder.info.startPositionUs,
+                  newPlayingPeriodHolder.info.requestedContentPositionUs,
+                  /* discontinuityStartPositionUs= */ newPlayingPeriodHolder.info.startPositionUs,
+                  /* reportDiscontinuity= */ true,
+                  Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+        }
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
