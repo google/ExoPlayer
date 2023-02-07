@@ -253,6 +253,7 @@ import java.lang.reflect.Method;
     if (audioTimestampPoller != null) {
       audioTimestampPoller.reset();
     }
+    resetSyncParams();
   }
 
   public long getCurrentPositionUs(boolean sourceEnded) {
@@ -282,7 +283,9 @@ import java.lang.reflect.Method;
         // getPlaybackHeadPositionUs() only has a granularity of ~20 ms, so we base the position off
         // the system clock (and a smoothed offset between it and the playhead position) so as to
         // prevent jitter in the reported positions.
-        positionUs = systemTimeUs + smoothedPlayheadOffsetUs;
+        positionUs =
+            Util.getMediaDurationForPlayoutDuration(
+                systemTimeUs + smoothedPlayheadOffsetUs, audioTrackPlaybackSpeed);
       }
       if (!sourceEnded) {
         positionUs = max(0, positionUs - latencyUs);
@@ -452,7 +455,9 @@ import java.lang.reflect.Method;
     long systemTimeUs = System.nanoTime() / 1000;
     if (systemTimeUs - lastPlayheadSampleTimeUs >= MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US) {
       // Take a new sample and update the smoothed offset between the system clock and the playhead.
-      playheadOffsets[nextPlayheadOffsetIndex] = playbackPositionUs - systemTimeUs;
+      playheadOffsets[nextPlayheadOffsetIndex] =
+          Util.getPlayoutDurationForMediaDuration(playbackPositionUs, audioTrackPlaybackSpeed)
+              - systemTimeUs;
       nextPlayheadOffsetIndex = (nextPlayheadOffsetIndex + 1) % MAX_PLAYHEAD_OFFSET_COUNT;
       if (playheadOffsetCount < MAX_PLAYHEAD_OFFSET_COUNT) {
         playheadOffsetCount++;
@@ -580,7 +585,9 @@ import java.lang.reflect.Method;
     if (stopTimestampUs != C.TIME_UNSET) {
       // Simulate the playback head position up to the total number of frames submitted.
       long elapsedTimeSinceStopUs = (SystemClock.elapsedRealtime() * 1000) - stopTimestampUs;
-      long framesSinceStop = (elapsedTimeSinceStopUs * outputSampleRate) / C.MICROS_PER_SECOND;
+      long mediaTimeSinceStopUs =
+          Util.getMediaDurationForPlayoutDuration(elapsedTimeSinceStopUs, audioTrackPlaybackSpeed);
+      long framesSinceStop = (mediaTimeSinceStopUs * outputSampleRate) / C.MICROS_PER_SECOND;
       return min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
     }
 
