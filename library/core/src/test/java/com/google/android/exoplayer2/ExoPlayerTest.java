@@ -50,6 +50,7 @@ import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfMediaItem;
+import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilError;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPositionDiscontinuity;
@@ -88,6 +89,7 @@ import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -99,9 +101,11 @@ import com.google.android.exoplayer2.Player.PositionInfo;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
@@ -126,6 +130,7 @@ import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAdaptiveDataSet;
 import com.google.android.exoplayer2.testutil.FakeAdaptiveMediaSource;
+import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
 import com.google.android.exoplayer2.testutil.FakeChunkSource;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -143,6 +148,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -150,9 +156,11 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
@@ -9732,24 +9740,30 @@ public final class ExoPlayerTest {
     FakeMediaSource source1 =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT);
     RenderersFactory renderersFactory =
-        (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
-            new Renderer[] {
-              new FakeRenderer(C.TRACK_TYPE_VIDEO),
-              new FakeRenderer(C.TRACK_TYPE_AUDIO) {
-                @Override
-                protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
-                    throws ExoPlaybackException {
-                  // Fail when enabling the renderer. This will happen during the period
-                  // transition while the reading and playing period are different.
-                  throw createRendererException(
-                      new IllegalStateException(),
-                      ExoPlayerTestRunner.AUDIO_FORMAT,
-                      PlaybackException.ERROR_CODE_UNSPECIFIED);
-                }
+        (eventHandler, videoListener, audioListener, textOutput, metadataOutput) -> {
+          HandlerWrapper handler =
+              SystemClock.DEFAULT.createHandler(eventHandler.getLooper(), /* callback= */ null);
+          return new Renderer[] {
+            new FakeVideoRenderer(handler, videoListener),
+            new FakeAudioRenderer(handler, audioListener) {
+              @Override
+              protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+                  throws ExoPlaybackException {
+                super.onEnabled(joining, mayRenderStartOfStream);
+                // Fail when enabling the renderer. This will happen during the period
+                // transition while the reading and playing period are different.
+                throw createRendererException(
+                    new IllegalStateException(),
+                    ExoPlayerTestRunner.AUDIO_FORMAT,
+                    PlaybackException.ERROR_CODE_UNSPECIFIED);
               }
-            };
+            }
+          };
+        };
     ExoPlayer player =
         new TestExoPlayerBuilder(context).setRenderersFactory(renderersFactory).build();
+    AnalyticsListener mockListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(mockListener);
     player.setMediaSources(ImmutableList.of(source0, source1));
     player.prepare();
     player.play();
@@ -9762,8 +9776,12 @@ public final class ExoPlayerTest {
             .getPeriod(/* periodIndex= */ 1, new Timeline.Period(), /* setIds= */ true)
             .uid;
     assertThat(error.mediaPeriodId.periodUid).isEqualTo(period1Uid);
-    // Verify test setup by checking that playing period was indeed different.
-    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    // Verify test setup by checking that enabling the renderer happened before the transition.
+    InOrder inOrderEvents = inOrder(mockListener);
+    inOrderEvents.verify(mockListener).onAudioEnabled(any(), any());
+    inOrderEvents
+        .verify(mockListener)
+        .onMediaItemTransition(any(), any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
   }
 
   @Test
@@ -12217,6 +12235,84 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_ENDED);
 
     // Assert that playing works without getting stuck due to the memory used by the back buffer.
+  }
+
+  @Test
+  public void rendererError_whileReadingAhead_isReportedAfterMediaItemTransition()
+      throws Exception {
+    // Throw an exception as soon as we try to process a buffer for the second item. This happens
+    // while the player is still playing the first item.
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setRenderersFactory(
+                new RenderersFactory() {
+                  @Override
+                  public Renderer[] createRenderers(
+                      Handler handler,
+                      VideoRendererEventListener videoListener,
+                      AudioRendererEventListener audioListener,
+                      TextOutput textOutput,
+                      MetadataOutput metadataOutput) {
+                    return new Renderer[] {
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener) {
+                        int streamChangeCount = 0;
+
+                        @Override
+                        protected void onStreamChanged(
+                            Format[] formats, long startPositionUs, long offsetUs)
+                            throws ExoPlaybackException {
+                          super.onStreamChanged(formats, startPositionUs, offsetUs);
+                          streamChangeCount++;
+                        }
+
+                        @Override
+                        protected boolean shouldProcessBuffer(
+                            long bufferTimeUs, long playbackPositionUs) {
+                          boolean shouldProcess =
+                              super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
+                          if (streamChangeCount == 2 && shouldProcess) {
+                            Util.sneakyThrow(
+                                createRendererException(
+                                    new IllegalStateException(),
+                                    /* format= */ null,
+                                    PlaybackException.ERROR_CODE_DECODING_FAILED));
+                          }
+                          return shouldProcess;
+                        }
+                      }
+                    };
+                  }
+                })
+            .build();
+    AnalyticsListener mockListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(mockListener);
+
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT),
+            new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT)));
+    player.prepare();
+    player.play();
+    runUntilError(player);
+    int mediaItemIndexAfterError = player.getCurrentMediaItemIndex();
+    player.release();
+
+    assertThat(mediaItemIndexAfterError).isEqualTo(1);
+    InOrder eventsInOrder = inOrder(mockListener);
+    // Verify the test setup by checking that the renderer format change happened before the
+    // position discontinuity.
+    eventsInOrder.verify(mockListener, times(2)).onDownstreamFormatChanged(any(), any());
+    eventsInOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(
+            any(), any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    eventsInOrder
+        .verify(mockListener)
+        .onMediaItemTransition(any(), any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    eventsInOrder.verify(mockListener).onPlayerError(any(), any());
   }
 
   // Internal methods.
