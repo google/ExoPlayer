@@ -214,6 +214,14 @@ public final class Presentation implements MatrixTransformation {
     return checkStateNotNull(transformationMatrix, "configure must be called first");
   }
 
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    configure(inputWidth, inputHeight);
+    return checkStateNotNull(transformationMatrix).isIdentity()
+        && inputWidth == Math.round(outputWidth)
+        && inputHeight == Math.round(outputHeight);
+  }
+
   @RequiresNonNull("transformationMatrix")
   private void applyAspectRatio() {
     float inputAspectRatio = outputWidth / outputHeight;

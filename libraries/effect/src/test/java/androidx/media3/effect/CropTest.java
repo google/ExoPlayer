@@ -37,7 +37,9 @@ public final class CropTest {
     Crop crop = new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1);
 
     Size outputSize = crop.configure(inputWidth, inputHeight);
+    boolean isNoOp = crop.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -53,7 +55,9 @@ public final class CropTest {
     Crop crop = new Crop(left, right, bottom, top);
 
     Size outputSize = crop.configure(inputWidth, inputHeight);
+    boolean isNoOp = crop.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
     assertThat(outputSize.getWidth()).isEqualTo(expectedPostCropWidth);

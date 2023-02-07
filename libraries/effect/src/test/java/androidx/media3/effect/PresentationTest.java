@@ -37,7 +37,9 @@ public final class PresentationTest {
     Presentation presentation = Presentation.createForHeight(C.LENGTH_UNSET);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -50,7 +52,9 @@ public final class PresentationTest {
     Presentation presentation = Presentation.createForHeight(requestedHeight);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
@@ -64,7 +68,9 @@ public final class PresentationTest {
         Presentation.createForAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * inputHeight));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -80,7 +86,9 @@ public final class PresentationTest {
             requestedWidth, requestedHeight, Presentation.LAYOUT_SCALE_TO_FIT);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(requestedWidth);
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
