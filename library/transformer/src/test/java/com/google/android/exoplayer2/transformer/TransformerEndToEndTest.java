@@ -379,7 +379,8 @@ public final class TransformerEndToEndTest {
   @Test
   public void startTransformation_concatenateMediaItemsWithSameFormat_completesSuccessfully()
       throws Exception {
-    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setTransmux(true).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(Effects.EMPTY).build();
@@ -419,6 +420,51 @@ public final class TransformerEndToEndTest {
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_skipped_concatenated"));
+  }
+
+  @Test
+  public void startTransformation_singleMediaItemAndTransmux_ignoresTransmux() throws Exception {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48000);
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setTransmux(true).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(sonicAudioProcessor);
+    Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+
+    transformer.start(editedMediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".48000hz"));
+  }
+
+  @Test
+  public void startTransformation_multipleMediaItemsWithEffectsAndTransmux_ignoresTransmux()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setTransmux(true).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    AudioProcessor audioProcessor = new SilenceSkippingAudioProcessor();
+    Effects effects =
+        new Effects(ImmutableList.of(audioProcessor), /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).setRemoveVideo(true).build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
+    Composition composition =
+        new Composition(ImmutableList.of(editedMediaItemSequence), Effects.EMPTY);
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    // The inputs should be transcoded even though transmuxing has been requested. This is because
+    // audio effects have been added to the first MediaItem in the sequence, so the transcoding
+    // audio sample pipeline should be picked to apply these effects.
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_skipped_concatenated"));
   }
