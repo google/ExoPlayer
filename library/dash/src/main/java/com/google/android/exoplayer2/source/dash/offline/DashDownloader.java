@@ -98,7 +98,30 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
    */
   public DashDownloader(
       MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
-    this(mediaItem, new DashManifestParser(), cacheDataSourceFactory, executor);
+    this(
+        mediaItem,
+        new DashManifestParser(),
+        cacheDataSourceFactory,
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_MS);
+  }
+
+  /**
+   * @deprecated Use {@link DashDownloader#DashDownloader(MediaItem, Parser,
+   *     CacheDataSource.Factory, Executor, long)} instead.
+   */
+  @Deprecated
+  public DashDownloader(
+      MediaItem mediaItem,
+      Parser<DashManifest> manifestParser,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    this(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_MS);
   }
 
   /**
@@ -111,13 +134,22 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
    *     Providing an {@link Executor} that uses multiple threads will speed up the download by
    *     allowing parts of it to be executed in parallel.
+   * @param maxMergedSegmentStartTimeDiffMs The maximum difference of the start time of two
+   *     segments, up to which the segments (of the same URI) should be merged into a single
+   *     download segment, in milliseconds.
    */
   public DashDownloader(
       MediaItem mediaItem,
       Parser<DashManifest> manifestParser,
       CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    super(mediaItem, manifestParser, cacheDataSourceFactory, executor);
+      Executor executor,
+      long maxMergedSegmentStartTimeDiffMs) {
+    super(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        maxMergedSegmentStartTimeDiffMs);
     baseUrlExclusionList = new BaseUrlExclusionList();
   }
 

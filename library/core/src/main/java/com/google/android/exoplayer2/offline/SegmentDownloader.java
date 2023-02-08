@@ -72,8 +72,9 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     }
   }
 
+  public static final long DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_MS = 20 * C.MILLIS_PER_SECOND;
+
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;
-  private static final long MAX_MERGED_SEGMENT_START_TIME_DIFF_US = 20 * C.MICROS_PER_SECOND;
 
   private final DataSpec manifestDataSpec;
   private final Parser<M> manifestParser;
@@ -83,6 +84,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final PriorityTaskManager priorityTaskManager;
   private final Executor executor;
+  private final long maxMergedSegmentStartTimeDiffUs;
 
   /**
    * The currently active runnables.
@@ -97,6 +99,24 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private volatile boolean isCanceled;
 
   /**
+   * @deprecated Use {@link SegmentDownloader#SegmentDownloader(MediaItem, Parser,
+   *     CacheDataSource.Factory, Executor, long)} instead.
+   */
+  @Deprecated
+  public SegmentDownloader(
+      MediaItem mediaItem,
+      Parser<M> manifestParser,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    this(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_MS);
+  }
+
+  /**
    * @param mediaItem The {@link MediaItem} to be downloaded.
    * @param manifestParser A parser for manifests belonging to the media to be downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
@@ -104,12 +124,16 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
    *     Providing an {@link Executor} that uses multiple threads will speed up the download by
    *     allowing parts of it to be executed in parallel.
+   * @param maxMergedSegmentStartTimeDiffMs The maximum difference of the start time of two
+   *     segments, up to which the segments (of the same URI) should be merged into a single
+   *     download segment, in milliseconds.
    */
   public SegmentDownloader(
       MediaItem mediaItem,
       Parser<M> manifestParser,
       CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
+      Executor executor,
+      long maxMergedSegmentStartTimeDiffMs) {
     checkNotNull(mediaItem.localConfiguration);
     this.manifestDataSpec = getCompressibleDataSpec(mediaItem.localConfiguration.uri);
     this.manifestParser = manifestParser;
@@ -120,6 +144,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
     priorityTaskManager = cacheDataSourceFactory.getUpstreamPriorityTaskManager();
     activeRunnables = new ArrayList<>();
+    maxMergedSegmentStartTimeDiffUs = Util.msToUs(maxMergedSegmentStartTimeDiffMs);
   }
 
   @Override
@@ -142,7 +167,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       // Sort the segments so that we download media in the right order from the start of the
       // content, and merge segments where possible to minimize the number of server round trips.
       Collections.sort(segments);
-      mergeSegments(segments, cacheKeyFactory);
+      mergeSegments(segments, cacheKeyFactory, maxMergedSegmentStartTimeDiffUs);
 
       // Scan the segments, removing any that are fully downloaded.
       int totalSegments = segments.size();
@@ -413,7 +438,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     }
   }
 
-  private static void mergeSegments(List<Segment> segments, CacheKeyFactory keyFactory) {
+  private static void mergeSegments(
+      List<Segment> segments, CacheKeyFactory keyFactory, long maxMergedSegmentStartTimeDiffUs) {
     HashMap<String, Integer> lastIndexByCacheKey = new HashMap<>();
     int nextOutIndex = 0;
     for (int i = 0; i < segments.size(); i++) {
@@ -422,7 +448,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       @Nullable Integer lastIndex = lastIndexByCacheKey.get(cacheKey);
       @Nullable Segment lastSegment = lastIndex == null ? null : segments.get(lastIndex);
       if (lastSegment == null
-          || segment.startTimeUs > lastSegment.startTimeUs + MAX_MERGED_SEGMENT_START_TIME_DIFF_US
+          || segment.startTimeUs > lastSegment.startTimeUs + maxMergedSegmentStartTimeDiffUs
           || !canMergeSegments(lastSegment.dataSpec, segment.dataSpec)) {
         lastIndexByCacheKey.put(cacheKey, nextOutIndex);
         segments.set(nextOutIndex, segment);
