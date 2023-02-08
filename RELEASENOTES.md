@@ -20,6 +20,9 @@
         for seeking.
     *   Use theme when loading drawables on API 21+
         ([#220](https://github.com/androidx/media/issues/220)).
+    *   Make the maximum difference of the start time of two segments to be
+        merged configurable in `SegmentDownloader` and subclasses
+        ([#248](https://github.com/androidx/media/pull/248)).
     *   Add `ConcatenatingMediaSource2` that allows combining multiple media
         items into a single window
         ([#247](https://github.com/androidx/media/issues/247)).
