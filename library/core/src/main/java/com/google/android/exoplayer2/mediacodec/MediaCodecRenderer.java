@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.audio.OggOpusAudioPacketizer;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -307,6 +308,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final long[] pendingOutputStreamStartPositionsUs;
   private final long[] pendingOutputStreamOffsetsUs;
   private final long[] pendingOutputStreamSwitchTimesUs;
+  private final OggOpusAudioPacketizer oggOpusAudioPacketizer;
 
   @Nullable private Format inputFormat;
   @Nullable private Format outputFormat;
@@ -408,6 +410,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // endianness.
     bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
     bypassBatchBuffer.data.order(ByteOrder.nativeOrder());
+    oggOpusAudioPacketizer = new OggOpusAudioPacketizer();
 
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
@@ -726,6 +729,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     bypassSampleBuffer.clear();
     bypassSampleBufferPending = false;
     bypassEnabled = false;
+    oggOpusAudioPacketizer.reset();
   }
 
   protected void releaseCodec() {
@@ -2311,6 +2315,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           }
           // Try to append the buffer to the batch buffer.
           bypassSampleBuffer.flip();
+
+          if (inputFormat != null
+              && inputFormat.sampleMimeType != null
+              && inputFormat.sampleMimeType.equals(MimeTypes.AUDIO_OPUS)) {
+            oggOpusAudioPacketizer.packetize(bypassSampleBuffer);
+          }
+
           if (!bypassBatchBuffer.append(bypassSampleBuffer)) {
             bypassSampleBufferPending = true;
             return;
