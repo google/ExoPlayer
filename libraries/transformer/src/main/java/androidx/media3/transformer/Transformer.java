@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -676,38 +677,55 @@ public final class Transformer {
   }
 
   /**
-   * Starts an asynchronous operation to export the given {@link EditedMediaItem}.
+   * Starts an asynchronous operation to export the given {@link Composition}.
+   *
+   * <p>This method is under implementation. Concatenating audio/video inputs with the same format
+   * and the same {@link Effects} applied is the only supported use case. More precisely:
+   *
+   * <ul>
+   *   <li>The {@link Composition} must contain exactly one {@link Composition#sequences
+   *       EditedMediaItemSequence} and its {@link Composition#effects Effects} must be {@linkplain
+   *       Effects#EMPTY empty}.
+   *   <li>The {@link EditedMediaItem} instances in the {@link EditedMediaItemSequence} must:
+   *       <ul>
+   *         <li>have identical tracks of the same format (after {@linkplain
+   *             EditedMediaItem#removeAudio audio} or {@linkplain EditedMediaItem#removeVideo
+   *             video} removal and {@linkplain EditedMediaItem#flattenForSlowMotion slow motion
+   *             flattening}).
+   *         <li>have identical {@link EditedMediaItem#effects Effects} applied.
+   *         <li>not represent an image.
+   *         <li>be such that either all or none requires transcoding.
+   *       </ul>
+   * </ul>
    *
    * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
    * listener}.
    *
    * <p>Concurrent exports on the same Transformer object are not allowed.
    *
-   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
+   * <p>If no custom {@link Transformer.Builder#setMuxerFactory(Muxer.Factory) Muxer.Factory} is
+   * specified, the output is an MP4 file.
    *
    * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
-   * highest bitrate video and audio streams are selected.
+   * ignored. For adaptive bitrate inputs, if no custom {@link
+   * Transformer.Builder#setAssetLoaderFactory(AssetLoader.Factory) AssetLoader.Factory} is
+   * specified, the highest bitrate video and audio streams are selected.
    *
-   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
-   * swapped if the height is larger than the width. This is to improve compatibility among
-   * different device encoders.
+   * <p>If exporting the video track entails transcoding, the output frames' dimensions will be
+   * swapped if the output video's height is larger than the width. This is to improve compatibility
+   * among different device encoders.
    *
-   * @param editedMediaItem The {@link MediaItem} to export, with the transformations to apply to
-   *     it.
+   * @param composition The {@link Composition} to export.
    * @param path The path to the output file.
-   * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If an export is already in progress.
    */
-  public void start(EditedMediaItem editedMediaItem, String path) {
+  public void start(Composition composition, String path) {
+    checkArgument(composition.sequences.size() == 1);
+    checkArgument(composition.effects == Effects.EMPTY);
     verifyApplicationThread();
-    if (transformerInternal != null) {
-      throw new IllegalStateException("There is already a export in progress.");
-    }
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
-    Composition composition = new Composition(ImmutableList.of(sequence), Effects.EMPTY);
+    checkState(transformerInternal == null, "There is already a export in progress.");
+
     TransformerInternalListener transformerInternalListener =
         new TransformerInternalListener(composition);
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
@@ -732,6 +750,37 @@ public final class Transformer {
   }
 
   /**
+   * Starts an asynchronous operation to export the given {@link EditedMediaItem}.
+   *
+   * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
+   * listener}.
+   *
+   * <p>Concurrent exports on the same Transformer object are not allowed.
+   *
+   * <p>If no custom {@link Transformer.Builder#setMuxerFactory(Muxer.Factory) Muxer.Factory} is
+   * specified, the output is an MP4 file.
+   *
+   * <p>The output can contain at most one video track and one audio track. Other track types are
+   * ignored. For adaptive bitrate inputs, if no custom {@link
+   * Transformer.Builder#setAssetLoaderFactory(AssetLoader.Factory) AssetLoader.Factory} is
+   * specified, the highest bitrate video and audio streams are selected.
+   *
+   * <p>If exporting the video track entails transcoding, the output frames' dimensions will be
+   * swapped if the output video's height is larger than the width. This is to improve compatibility
+   * among different device encoders.
+   *
+   * @param editedMediaItem The {@link EditedMediaItem} to export.
+   * @param path The path to the output file.
+   * @throws IllegalStateException If this method is called from the wrong thread.
+   * @throws IllegalStateException If an export is already in progress.
+   */
+  public void start(EditedMediaItem editedMediaItem, String path) {
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    start(new Composition(ImmutableList.of(sequence), Effects.EMPTY), path);
+  }
+
+  /**
    * Starts an asynchronous operation to export the given {@link MediaItem}.
    *
    * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
@@ -739,19 +788,20 @@ public final class Transformer {
    *
    * <p>Concurrent exports on the same Transformer object are not allowed.
    *
-   * <p>If no custom {@link Muxer.Factory} is specified, the output is an MP4 file.
+   * <p>If no custom {@link Transformer.Builder#setMuxerFactory(Muxer.Factory) Muxer.Factory} is
+   * specified, the output is an MP4 file.
    *
    * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate, if no custom {@link AssetLoader.Factory} is specified, the
-   * highest bitrate video and audio streams are selected.
+   * ignored. For adaptive bitrate inputs, if no custom {@link
+   * Transformer.Builder#setAssetLoaderFactory(AssetLoader.Factory) AssetLoader.Factory} is
+   * specified, the highest bitrate video and audio streams are selected.
    *
-   * <p>If encoding the output's video track is needed, the output frames' dimensions will be
-   * swapped if the height is larger than the width. This is to improve compatibility among
-   * different device encoders.
+   * <p>If exporting the video track entails transcoding, the output frames' dimensions will be
+   * swapped if the output video's height is larger than the width. This is to improve compatibility
+   * among different device encoders.
    *
    * @param mediaItem The {@link MediaItem} to export.
    * @param path The path to the output file.
-   * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If an export is already in progress.

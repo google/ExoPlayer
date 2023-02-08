@@ -51,6 +51,7 @@ import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.ScaleToFitTransformation;
+import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.DefaultExtractorsFactory;
@@ -373,6 +374,53 @@ public final class TransformerEndToEndTest {
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".48000hz"));
+  }
+
+  @Test
+  public void startTransformation_concatenateMediaItemsWithSameFormat_completesSuccessfully()
+      throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(Effects.EMPTY).build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
+    Composition composition =
+        new Composition(ImmutableList.of(editedMediaItemSequence), Effects.EMPTY);
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated"));
+  }
+
+  @Test
+  public void
+      startTransformation_concatenateMediaItemsWithSameFormatAndEffects_completesSuccessfully()
+          throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    AudioProcessor audioProcessor = new SilenceSkippingAudioProcessor();
+    Effects effects =
+        new Effects(ImmutableList.of(audioProcessor), /* videoEffects= */ ImmutableList.of());
+    // The video track must be removed in order for the export to end. Indeed, the
+    // Robolectric decoder just copies the input buffers to the output and the audio timestamps are
+    // therefore computed based on the encoded samples. As a result, the audio timestamps are much
+    // smaller than they should be and the muxer waits for more audio samples before writing video
+    // samples.
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).setRemoveVideo(true).build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
+    Composition composition =
+        new Composition(ImmutableList.of(editedMediaItemSequence), Effects.EMPTY);
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_skipped_concatenated"));
   }
 
   @Test
