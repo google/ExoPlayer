@@ -71,6 +71,7 @@ import androidx.media3.extractor.metadata.emsg.EventMessageDecoder;
 import androidx.media3.extractor.metadata.id3.PrivFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Ints;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -664,7 +665,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format format = Assertions.checkNotNull(formatHolder.format);
       if (sampleQueueIndex == primarySampleQueueIndex) {
         // Fill in primary sample format with information from the track format.
-        int chunkUid = sampleQueues[sampleQueueIndex].peekSourceId();
+        int chunkUid = Ints.checkedCast(sampleQueues[sampleQueueIndex].peekSourceId());
         int chunkIndex = 0;
         while (chunkIndex < mediaChunks.size() && mediaChunks.get(chunkIndex).uid != chunkUid) {
           chunkIndex++;
