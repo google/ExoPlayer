@@ -41,6 +41,8 @@
 *   Video:
     *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
         `HEVCProfileMain10`.
+    *   Encapsulate Opus frames in Ogg packets in direct playbacks
+        (passthrough).
 *   Text:
     *   Fix `TextRenderer` passing an invalid (negative) index to
         `Subtitle.getEventTime` if a subtitle file contains no cues.

@@ -67,6 +67,25 @@ public class OpusUtil {
   }
 
   /**
+   * Returns the number of audio samples in the given Ogg encapuslated Opus packet.
+   *
+   * <p>The buffer's position is not modified.
+   *
+   * @param buffer The audio packet.
+   * @return Returns the number of audio samples in the packet.
+   */
+  public static int parseOggPacketAudioSampleCount(ByteBuffer buffer) {
+    // RFC 3433 section 6 - The Ogg page format.
+    int numPageSegments = buffer.get(/* index= */ 26);
+    int indexFirstOpusPacket = 27 + numPageSegments; // Skip Ogg header and segment table.
+    long packetDurationUs =
+        getPacketDurationUs(
+            buffer.get(indexFirstOpusPacket),
+            buffer.limit() > 1 ? buffer.get(indexFirstOpusPacket + 1) : 0);
+    return (int) (packetDurationUs * SAMPLE_RATE / C.MICROS_PER_SECOND);
+  }
+
+  /**
    * Returns the number of audio samples in the given audio packet.
    *
    * <p>The buffer's position is not modified.
