@@ -112,6 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Composition composition,
       String outputPath,
       TransformationRequest transformationRequest,
+      boolean transmux,
       boolean generateSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -133,7 +134,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
     EditedMediaItemSequence sequence = composition.sequences.get(0);
-    ComponentListener componentListener = new ComponentListener(sequence, fallbackListener);
+    ComponentListener componentListener =
+        new ComponentListener(sequence, transmux, fallbackListener);
     compositeAssetLoader =
         new CompositeAssetLoader(
             sequence, assetLoaderFactory, internalLooper, componentListener, clock);
@@ -314,6 +316,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // The first EditedMediaItem in the sequence determines which SamplePipeline to use.
     private final EditedMediaItem firstEditedMediaItem;
+    private final int mediaItemCount;
+    private final boolean transmux;
     private final FallbackListener fallbackListener;
     private final AtomicInteger trackCount;
 
@@ -321,8 +325,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private volatile long durationUs;
 
-    public ComponentListener(EditedMediaItemSequence sequence, FallbackListener fallbackListener) {
+    public ComponentListener(
+        EditedMediaItemSequence sequence, boolean transmux, FallbackListener fallbackListener) {
       firstEditedMediaItem = sequence.editedMediaItems.get(0);
+      mediaItemCount = sequence.editedMediaItems.size();
+      this.transmux = transmux;
       this.fallbackListener = fallbackListener;
       trackCount = new AtomicInteger();
       durationUs = C.TIME_UNSET;
@@ -457,10 +464,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         throws TransformationException {
       checkState(supportedOutputTypes != 0);
       boolean isAudio = MimeTypes.isAudio(firstInputFormat.sampleMimeType);
-      boolean shouldTranscode =
-          isAudio
-              ? shouldTranscodeAudio(firstInputFormat)
-              : shouldTranscodeVideo(firstInputFormat, streamStartPositionUs, streamOffsetUs);
+      boolean shouldTranscode;
+      if (mediaItemCount > 1 && !transmux) {
+        shouldTranscode = true;
+      } else {
+        shouldTranscode =
+            isAudio
+                ? shouldTranscodeAudio(firstInputFormat)
+                : shouldTranscodeVideo(firstInputFormat, streamStartPositionUs, streamOffsetUs);
+      }
       boolean assetLoaderNeverDecodes = (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) == 0;
       checkState(!shouldTranscode || !assetLoaderNeverDecodes);
       boolean assetLoaderAlwaysDecodes =
