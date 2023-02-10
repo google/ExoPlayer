@@ -191,11 +191,13 @@ import java.nio.ByteBuffer;
 
   @Override
   public int dequeueInputBufferIndex() {
+    bufferEnqueuer.maybeThrowException();
     return asynchronousMediaCodecCallback.dequeueInputBufferIndex();
   }
 
   @Override
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
+    bufferEnqueuer.maybeThrowException();
     return asynchronousMediaCodecCallback.dequeueOutputBufferIndex(bufferInfo);
   }
 
