@@ -35,6 +35,8 @@
         parsing trak atoms.
     *   Correctly skip samples when seeking directly to a sync frame in fMP4
         ([#10941](https://github.com/google/ExoPlayer/issues/10941)).
+    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
+        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
 *   Audio:
     *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
