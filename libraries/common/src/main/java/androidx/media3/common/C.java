@@ -331,7 +331,10 @@ public final class C {
    */
   @UnstableApi public static final int ENCODING_OPUS = AudioFormat.ENCODING_OPUS;
 
-  /** Represents the behavior affecting whether spatialization will be used. */
+  /**
+   * Represents the behavior affecting whether spatialization will be used. One of {@link
+   * #SPATIALIZATION_BEHAVIOR_AUTO} or {@link #SPATIALIZATION_BEHAVIOR_NEVER}.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
