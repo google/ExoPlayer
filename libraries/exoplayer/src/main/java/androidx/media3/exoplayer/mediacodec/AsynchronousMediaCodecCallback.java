@@ -263,11 +263,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // else, pendingOutputFormat may already be non-null following a previous flush, and remains
     // set in this case.
 
+    // mediaCodecException is not reset to null. If the codec has raised an error, then it remains
+    // in FAILED_STATE even after flushing.
     availableInputBuffers.clear();
     availableOutputBuffers.clear();
     bufferInfos.clear();
     formats.clear();
-    mediaCodecException = null;
   }
 
   @GuardedBy("lock")
