@@ -127,19 +127,24 @@ public interface FrameProcessor {
   /**
    * Provides an input {@link Bitmap} to the {@link FrameProcessor}.
    *
+   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
+   * C#TRACK_TYPE_IMAGE} as the {@code inputTrackType}.
+   *
    * <p>Can be called on any thread.
    *
    * @param inputBitmap The {@link Bitmap} queued to the {@link FrameProcessor}.
    * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
    * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
-   *     second.
    */
-  // TODO(b/262693274): Remove duration & frameRate parameters when EditedMediaItem can be signalled
-  //     down to the processors.
-  void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate);
+  // TODO(b/262693274): Remove duration and frameRate parameters when EditedMediaItem can be
+  //  signalled down to the processors.
+  void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate);
 
   /**
    * Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from.
+   *
+   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
+   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
    *
    * <p>Can be called on any thread.
    */
@@ -167,6 +172,9 @@ public interface FrameProcessor {
    *
    * <p>Must be called before rendering a frame to the frame processor's input surface.
    *
+   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
+   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   *
    * <p>Can be called on any thread.
    *
    * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
@@ -177,6 +185,9 @@ public interface FrameProcessor {
   /**
    * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
+   *
+   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
+   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
    *
    * <p>Can be called on any thread.
    */
@@ -234,6 +245,9 @@ public interface FrameProcessor {
    *
    * <p>All the frames that are {@linkplain #registerInputFrame() registered} prior to calling this
    * method are no longer considered to be registered when this method returns.
+   *
+   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
+   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
    *
    * <p>{@link Listener} methods invoked prior to calling this method should be ignored.
    */

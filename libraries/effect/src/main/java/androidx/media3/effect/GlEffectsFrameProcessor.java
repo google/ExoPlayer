@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
@@ -108,6 +109,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       checkArgument(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
       checkArgument(outputColorInfo.isValid());
       checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
+      checkArgument(inputTrackType == C.TRACK_TYPE_VIDEO || inputTrackType == C.TRACK_TYPE_IMAGE);
 
       if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
           || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
@@ -134,6 +136,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                       debugViewProvider,
                       inputColorInfo,
                       outputColorInfo,
+                      /* isInputExternal= */ inputTrackType == C.TRACK_TYPE_VIDEO,
                       releaseFramesAutomatically,
                       singleThreadExecutorService,
                       listenerExecutor,
@@ -167,6 +170,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
+      boolean isInputExternal,
       boolean releaseFramesAutomatically,
       ExecutorService singleThreadExecutorService,
       Executor executor,
@@ -208,6 +212,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             debugViewProvider,
             inputColorInfo,
             outputColorInfo,
+            isInputExternal,
             releaseFramesAutomatically,
             executor,
             listener);
@@ -219,6 +224,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     return new GlEffectsFrameProcessor(
         eglDisplay,
         eglContext,
+        isInputExternal,
         frameProcessingTaskExecutor,
         shaderPrograms,
         releaseFramesAutomatically);
@@ -243,6 +249,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
+      boolean isInputExternal,
       boolean releaseFramesAutomatically,
       Executor executor,
       Listener listener)
@@ -251,7 +258,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
     ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
-    boolean sampleFromExternalTexture = true;
+    boolean sampleFromInputTexture = true;
     ColorInfo linearColorInfo =
         new ColorInfo(
             outputColorInfo.colorSpace, outputColorInfo.colorRange, C.COLOR_TRANSFER_LINEAR, null);
@@ -275,16 +282,18 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
           matrixTransformationListBuilder.build();
       ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
       boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
-      if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromExternalTexture) {
+      if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
         MatrixShaderProgram matrixShaderProgram;
-        if (sampleFromExternalTexture) {
-          matrixShaderProgram =
-              MatrixShaderProgram.createWithExternalSampler(
-                  context,
-                  matrixTransformations,
-                  rgbMatrices,
-                  /* inputColorInfo= */ inputColorInfo,
-                  /* outputColorInfo= */ linearColorInfo);
+        if (sampleFromInputTexture) {
+          if (isInputExternal) {
+            matrixShaderProgram =
+                MatrixShaderProgram.createWithExternalSampler(
+                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
+          } else {
+            matrixShaderProgram =
+                MatrixShaderProgram.createWithInternalSampler(
+                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
+          }
         } else {
           matrixShaderProgram =
               MatrixShaderProgram.create(
@@ -293,7 +302,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         shaderProgramListBuilder.add(matrixShaderProgram);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         rgbMatrixListBuilder = new ImmutableList.Builder<>();
-        sampleFromExternalTexture = false;
+        sampleFromInputTexture = false;
       }
       shaderProgramListBuilder.add(glEffect.toGlShaderProgram(context, isOutputTransferHdr));
     }
@@ -306,9 +315,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             matrixTransformationListBuilder.build(),
             rgbMatrixListBuilder.build(),
             debugViewProvider,
-            sampleFromExternalTexture,
-            /* inputColorInfo= */ sampleFromExternalTexture ? inputColorInfo : linearColorInfo,
+            /* inputColorInfo= */ sampleFromInputTexture ? inputColorInfo : linearColorInfo,
             outputColorInfo,
+            sampleFromInputTexture,
+            isInputExternal,
             releaseFramesAutomatically,
             executor,
             listener));
@@ -343,8 +353,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-  private final ExternalTextureManager inputExternalTextureManager;
-  private final Surface inputSurface;
+  private @MonotonicNonNull InternalTextureManager inputInternalTextureManager;
+  private @MonotonicNonNull ExternalTextureManager inputExternalTextureManager;
+  // TODO(262693274): Move this variable to ExternalTextureManager.
+  private @MonotonicNonNull Surface inputExternalSurface;
   private final boolean releaseFramesAutomatically;
   private final FinalMatrixShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
@@ -361,6 +373,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private GlEffectsFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
+      boolean isInputExternal,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
       ImmutableList<GlShaderProgram> shaderPrograms,
       boolean releaseFramesAutomatically)
@@ -372,14 +385,23 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     this.releaseFramesAutomatically = releaseFramesAutomatically;
 
     checkState(!shaderPrograms.isEmpty());
-    checkState(shaderPrograms.get(0) instanceof ExternalShaderProgram);
     checkState(getLast(shaderPrograms) instanceof FinalMatrixShaderProgramWrapper);
-    ExternalShaderProgram inputExternalShaderProgram =
-        (ExternalShaderProgram) shaderPrograms.get(0);
-    inputExternalTextureManager =
-        new ExternalTextureManager(inputExternalShaderProgram, frameProcessingTaskExecutor);
-    inputExternalShaderProgram.setInputListener(inputExternalTextureManager);
-    inputSurface = new Surface(inputExternalTextureManager.getSurfaceTexture());
+
+    GlShaderProgram inputShaderProgram = shaderPrograms.get(0);
+
+    if (isInputExternal) {
+      checkState(inputShaderProgram instanceof ExternalShaderProgram);
+      inputExternalTextureManager =
+          new ExternalTextureManager(
+              (ExternalShaderProgram) inputShaderProgram, frameProcessingTaskExecutor);
+      inputShaderProgram.setInputListener(inputExternalTextureManager);
+      inputExternalSurface = new Surface(inputExternalTextureManager.getSurfaceTexture());
+    } else {
+      inputInternalTextureManager =
+          new InternalTextureManager(inputShaderProgram, frameProcessingTaskExecutor);
+      inputShaderProgram.setInputListener(inputInternalTextureManager);
+    }
+
     finalShaderProgramWrapper = (FinalMatrixShaderProgramWrapper) getLast(shaderPrograms);
     allShaderPrograms = shaderPrograms;
     previousStreamOffsetUs = C.TIME_UNSET;
@@ -400,19 +422,27 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * call this method after instantiation to ensure that buffers are handled at full resolution. See
    * {@link SurfaceTexture#setDefaultBufferSize(int, int)} for more information.
    *
+   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
+   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   *
    * @param width The default width for input buffers, in pixels.
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    inputExternalTextureManager.getSurfaceTexture().setDefaultBufferSize(width, height);
+    checkNotNull(inputExternalTextureManager)
+        .getSurfaceTexture()
+        .setDefaultBufferSize(width, height);
   }
 
   @Override
-  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {}
+  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
+    checkNotNull(inputInternalTextureManager)
+        .queueInputBitmap(inputBitmap, durationUs, frameRate, /* useHdr= */ false);
+  }
 
   @Override
   public Surface getInputSurface() {
-    return inputSurface;
+    return checkNotNull(inputExternalSurface);
   }
 
   @Override
@@ -431,12 +461,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     checkStateNotNull(
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
-    inputExternalTextureManager.registerInputFrame(nextInputFrameInfo);
+    checkNotNull(inputExternalTextureManager).registerInputFrame(nextInputFrameInfo);
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return inputExternalTextureManager.getPendingFrameCount();
+    return checkNotNull(inputExternalTextureManager).getPendingFrameCount();
   }
 
   @Override
@@ -457,7 +487,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    frameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
+    if (inputInternalTextureManager != null) {
+      frameProcessingTaskExecutor.submit(inputInternalTextureManager::signalEndOfInput);
+    }
+    if (inputExternalTextureManager != null) {
+      frameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
+    }
   }
 
   @Override
@@ -465,7 +500,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     try {
       frameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
-      inputExternalTextureManager.setOnFlushCompleteListener(latch::countDown);
+      checkNotNull(inputExternalTextureManager).setOnFlushCompleteListener(latch::countDown);
       frameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
       inputExternalTextureManager.setOnFlushCompleteListener(null);
@@ -483,8 +518,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
     }
-    inputExternalTextureManager.release();
-    inputSurface.release();
+    if (inputExternalTextureManager != null) {
+      inputExternalTextureManager.release();
+      checkNotNull(inputExternalSurface).release();
+    }
   }
 
   /**
