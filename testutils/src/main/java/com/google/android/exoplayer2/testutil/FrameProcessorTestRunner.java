@@ -60,10 +60,12 @@ public final class FrameProcessorTestRunner {
     private float pixelWidthHeightRatio;
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
+    private @C.TrackType int inputTrackType;
 
     /** Creates a new instance with default values. */
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
+      inputTrackType = C.TRACK_TYPE_VIDEO;
     }
 
     /**
@@ -166,6 +168,16 @@ public final class FrameProcessorTestRunner {
       this.outputColorInfo = outputColorInfo;
       return this;
     }
+    /**
+     * Sets the input track type. See {@link FrameProcessor.Factory#create}.
+     *
+     * <p>The default value is {@link C#TRACK_TYPE_VIDEO}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setInputTrackType(@C.TrackType int inputTrackType) {
+      this.inputTrackType = inputTrackType;
+      return this;
+    }
 
     public FrameProcessorTestRunner build() throws FrameProcessingException {
       checkStateNotNull(testId, "testId must be set.");
@@ -180,7 +192,8 @@ public final class FrameProcessorTestRunner {
           effects == null ? ImmutableList.of() : effects,
           pixelWidthHeightRatio,
           inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
-          outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo);
+          outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo,
+          inputTrackType);
     }
   }
 
@@ -209,7 +222,8 @@ public final class FrameProcessorTestRunner {
       ImmutableList<Effect> effects,
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo)
+      ColorInfo outputColorInfo,
+      @C.TrackType int inputTrackType)
       throws FrameProcessingException {
     this.testId = testId;
     this.videoAssetPath = videoAssetPath;
@@ -224,7 +238,7 @@ public final class FrameProcessorTestRunner {
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
-            C.TRACK_TYPE_VIDEO,
+            inputTrackType,
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new FrameProcessor.Listener() {
@@ -276,6 +290,19 @@ public final class FrameProcessorTestRunner {
           }
         },
         frameProcessor.getInputSurface());
+    return endFrameProcessingAndGetImage();
+  }
+
+  public Bitmap processImageFrameAndEnd(Bitmap inputBitmap) throws Exception {
+    frameProcessor.setInputFrameInfo(
+        new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
+            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .build());
+    frameProcessor.queueInputBitmap(inputBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+    return endFrameProcessingAndGetImage();
+  }
+
+  private Bitmap endFrameProcessingAndGetImage() throws Exception {
     frameProcessor.signalEndOfInput();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 

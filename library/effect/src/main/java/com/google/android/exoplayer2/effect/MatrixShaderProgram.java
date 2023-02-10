@@ -67,6 +67,8 @@ import java.util.List;
       "shaders/fragment_shader_transformation_external_yuv_es3.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH =
       "shaders/fragment_shader_transformation_sdr_external_es2.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH =
+      "shaders/fragment_shader_transformation_sdr_internal_es2.glsl";
   private static final ImmutableList<float[]> NDC_SQUARE =
       ImmutableList.of(
           new float[] {-1, -1, 0, 1},
@@ -164,6 +166,48 @@ import java.util.List;
   /**
    * Creates a new instance.
    *
+   * <p>Input will be sampled from an internal (i.e. regular) texture.
+   *
+   * <p>Applies the {@linkplain ColorInfo#colorTransfer inputColorInfo EOTF} to convert from
+   * electrical color input, to intermediate optical {@link GlShaderProgram} color output, before
+   * {@code matrixTransformations} and {@code rgbMatrices} are applied. Also applies the {@linkplain
+   * ColorInfo#colorTransfer outputColorInfo OETF}, if needed, to convert back to an electrical
+   * color output.
+   *
+   * @param context The {@link Context}.
+   * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
+   *     apply to each frame in order. Can be empty to apply no vertex transformations.
+   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
+   *     empty to apply no color transformations.
+   * @param inputColorInfo The input electrical (nonlinear) {@link ColorInfo}.
+   * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
+   *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
+   *     ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
+   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
+   *     operation fails or is unsupported.
+   */
+  public static MatrixShaderProgram createWithInternalSampler(
+      Context context,
+      List<GlMatrixTransformation> matrixTransformations,
+      List<RgbMatrix> rgbMatrices,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo)
+      throws FrameProcessingException {
+    checkState(
+        !ColorInfo.isTransferHdr(inputColorInfo),
+        "MatrixShaderProgram doesn't support HDR internal sampler input yet.");
+    GlProgram glProgram =
+        createGlProgram(
+            context,
+            VERTEX_SHADER_TRANSFORMATION_PATH,
+            FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH);
+    return createWithSampler(
+        glProgram, matrixTransformations, rgbMatrices, inputColorInfo, outputColorInfo);
+  }
+
+  /**
+   * Creates a new instance.
+   *
    * <p>Input will be sampled from an external texture. The caller should use {@link
    * #setTextureTransformMatrix(float[])} to provide the transformation matrix associated with the
    * external texture.
@@ -202,50 +246,12 @@ import java.util.List;
         isInputTransferHdr
             ? FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH;
-    GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
-
-    @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
-    if (isInputTransferHdr) {
-      checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
-
-      // In HDR editing mode the decoder output is sampled in YUV.
-      if (!GlUtil.isYuvTargetExtensionSupported()) {
-        throw new FrameProcessingException(
-            "The EXT_YUV_target extension is required for HDR editing input.");
-      }
-      glProgram.setFloatsUniform(
-          "uYuvToRgbColorTransform",
-          inputColorInfo.colorRange == C.COLOR_RANGE_FULL
-              ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
-              : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
-
-      checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
-      glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
-      // TODO(b/239735341): Add a setBooleanUniform method to GlProgram.
-      glProgram.setIntUniform(
-          "uApplyHdrToSdrToneMapping",
-          /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? 1 : 0);
-      checkArgument(
-          outputColorTransfer != Format.NO_VALUE && outputColorTransfer != C.COLOR_TRANSFER_SDR);
-      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
-    } else {
-      checkArgument(
-          outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020,
-          "Converting from SDR to HDR is not supported.");
-      checkArgument(inputColorInfo.colorSpace == outputColorInfo.colorSpace);
-      checkArgument(
-          outputColorTransfer == C.COLOR_TRANSFER_SDR
-              || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
-      // The SDR shader automatically applies an COLOR_TRANSFER_SDR EOTF.
-      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
-    }
-
-    return new MatrixShaderProgram(
-        glProgram,
-        ImmutableList.copyOf(matrixTransformations),
-        ImmutableList.copyOf(rgbMatrices),
-        outputColorInfo.colorTransfer,
-        isInputTransferHdr);
+    return createWithSampler(
+        createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath),
+        matrixTransformations,
+        rgbMatrices,
+        inputColorInfo,
+        outputColorInfo);
   }
 
   /**
@@ -301,6 +307,58 @@ import java.util.List;
         ImmutableList.copyOf(rgbMatrices),
         outputColorInfo.colorTransfer,
         outputIsHdr);
+  }
+
+  private static MatrixShaderProgram createWithSampler(
+      GlProgram glProgram,
+      List<GlMatrixTransformation> matrixTransformations,
+      List<RgbMatrix> rgbMatrices,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo)
+      throws FrameProcessingException {
+    boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
+    @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
+    if (isInputTransferHdr) {
+      checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
+
+      // In HDR editing mode the decoder output is sampled in YUV.
+      if (!GlUtil.isYuvTargetExtensionSupported()) {
+        throw new FrameProcessingException(
+            "The EXT_YUV_target extension is required for HDR editing input.");
+      }
+      glProgram.setFloatsUniform(
+          "uYuvToRgbColorTransform",
+          inputColorInfo.colorRange == C.COLOR_RANGE_FULL
+              ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
+              : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
+
+      checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
+      glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
+      // TODO(b/239735341): Add a setBooleanUniform method to GlProgram.
+      glProgram.setIntUniform(
+          "uApplyHdrToSdrToneMapping",
+          /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? 1 : 0);
+      checkArgument(
+          outputColorTransfer != Format.NO_VALUE && outputColorTransfer != C.COLOR_TRANSFER_SDR);
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
+    } else {
+      checkArgument(
+          outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020,
+          "Converting from SDR to HDR is not supported.");
+      checkArgument(inputColorInfo.colorSpace == outputColorInfo.colorSpace);
+      checkArgument(
+          outputColorTransfer == C.COLOR_TRANSFER_SDR
+              || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
+      // The SDR shader automatically applies an COLOR_TRANSFER_SDR EOTF.
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
+    }
+
+    return new MatrixShaderProgram(
+        glProgram,
+        ImmutableList.copyOf(matrixTransformations),
+        ImmutableList.copyOf(rgbMatrices),
+        outputColorInfo.colorTransfer,
+        isInputTransferHdr);
   }
 
   /**

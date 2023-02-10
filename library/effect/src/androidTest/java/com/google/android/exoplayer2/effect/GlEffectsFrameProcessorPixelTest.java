@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import static com.google.android.exoplayer2.C.TRACK_TYPE_IMAGE;
 import static com.google.android.exoplayer2.effect.OverlayShaderProgramPixelTest.OVERLAY_PNG_ASSET_PATH;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
@@ -54,6 +55,8 @@ import org.junit.runner.RunWith;
 public final class GlEffectsFrameProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+  public static final String WRAPPED_CROP_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/image_input_with_wrapped_crop.png";
   // This file is generated on a Pixel 7, because the emulator isn't able to generate this file.
   public static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
@@ -101,6 +104,50 @@ public final class GlEffectsFrameProcessorPixelTest {
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
+
+  @Test
+  public void noEffects_withImageInput_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_withImageInput_matchesGoldenFile";
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setInputTrackType(TRACK_TYPE_IMAGE)
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = frameProcessorTestRunner.processImageFrameAndEnd(expectedBitmap);
+
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void wrappedCrop_withImageInput_matchesGoldenFile() throws Exception {
+    String testId = "wrappedCrop_withImageInput_matchesGoldenFile";
+    frameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setInputTrackType(TRACK_TYPE_IMAGE)
+            .setEffects(
+                new GlEffectWrapper(
+                    new Crop(
+                        /* left= */ -0.5f,
+                        /* right= */ 0.5f,
+                        /* bottom= */ -0.5f,
+                        /* top= */ 0.5f)))
+            .build();
+    Bitmap originalBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(WRAPPED_CROP_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = frameProcessorTestRunner.processImageFrameAndEnd(originalBitmap);
+
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+  // TODO(b/262693274): Once texture deletion is added to InternalTextureManager.java, add a test
+  //  queuing multiple input bitmaps to ensure successfully completion without errors.
 
   @Test
   public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
@@ -238,9 +285,10 @@ public final class GlEffectsFrameProcessorPixelTest {
     frameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
-                new Crop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ -.5f, /* top= */ .5f),
+                new Crop(
+                    /* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f),
                 Presentation.createForAspectRatio(
-                    /* aspectRatio= */ .5f, Presentation.LAYOUT_SCALE_TO_FIT))
+                    /* aspectRatio= */ 0.5f, Presentation.LAYOUT_SCALE_TO_FIT))
             .build();
     Bitmap expectedBitmap = readBitmap(CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH);
 
