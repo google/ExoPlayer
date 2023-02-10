@@ -145,6 +145,27 @@ This release corresponds to the
     *   Make `QueueTimeline` more robust in case of a shady legacy session state
         ([#241](https://github.com/androidx/media/issues/241)).
 * Cast extension:
+    *   Fix a bug where notification play/pause button doesn't update with
+        player state ([#192](https://github.com/androidx/media/issues/192)).
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
+    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
+        of folder described by the metadata.
+    *   Add `MediaMetadata.isBrowsable` as a replacement for
+        `MediaMetadata.folderType`. The folder type will be deprecated in the
+        next release.
+*   Transformer:
+    *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
+        Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
+        `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
+        instead.
+    *   Remove `Transformer.startTransformation(MediaItem,
+        ParcelFileDescriptor)`.
+*   Remove deprecated symbols:
+    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
+        instead.
+*   Cast extension
     *   Bump Cast SDK version to 21.2.0.
 * IMA extension:
     *   Map `PLAYER_STATE_LOADING` to `STATE_BUFFERING`
