@@ -81,6 +81,8 @@
         ([#233](https://github.com/androidx/media/issues/233)).
     *   Make `QueueTimeline` more robust in case of a shady legacy session state
         ([#241](https://github.com/androidx/media/issues/241)).
+    *   Fix a bug where notification play/pause button doesn't update with
+        player state ([#192](https://github.com/androidx/media/issues/192)).
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.

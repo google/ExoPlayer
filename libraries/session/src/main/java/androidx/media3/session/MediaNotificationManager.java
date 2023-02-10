@@ -219,9 +219,11 @@ import java.util.concurrent.TimeoutException;
     if (startInForegroundRequired) {
       startForeground(mediaNotification);
     } else {
-      maybeStopForegroundService(/* removeNotifications= */ false);
+      // Notification manager has to be updated first to avoid missing updates
+      // (https://github.com/androidx/media/issues/192).
       notificationManagerCompat.notify(
           mediaNotification.notificationId, mediaNotification.notification);
+      maybeStopForegroundService(/* removeNotifications= */ false);
     }
   }
 
