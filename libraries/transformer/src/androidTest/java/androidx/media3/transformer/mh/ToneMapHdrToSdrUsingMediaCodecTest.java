@@ -18,7 +18,7 @@ package androidx.media3.transformer.mh;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
-import static androidx.media3.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
+import static androidx.media3.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;

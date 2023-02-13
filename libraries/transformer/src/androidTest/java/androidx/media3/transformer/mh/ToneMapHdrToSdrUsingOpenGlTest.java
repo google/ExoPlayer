@@ -21,7 +21,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECO
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
-import static androidx.media3.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
+import static androidx.media3.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import android.content.Context;
