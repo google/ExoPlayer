@@ -95,9 +95,7 @@ public final class TransformationRequest {
    * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
    * look.
    *
-   * <p>Use of this flag may result in {@code
-   * TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED} or {@code
-   * ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
+   * <p>Use of this flag may result in {@code ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
    *
    * <p>This field is experimental, and will be renamed or removed in a future release.
    */

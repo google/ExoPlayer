@@ -55,7 +55,6 @@ import com.google.android.exoplayer2.video.ColorInfo;
 
     if (isVideo && ColorInfo.isTransferHdr(format.colorInfo)) {
       errorMessage += " Requested HDR colorInfo: " + format.colorInfo;
-      errorCode = TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED;
     }
 
     return TransformationException.createForCodec(
