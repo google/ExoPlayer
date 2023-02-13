@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -651,6 +652,12 @@ public class SimpleExoPlayer extends BasePlayer
   public boolean getSkipSilenceEnabled() {
     blockUntilConstructorFinished();
     return player.getSkipSilenceEnabled();
+  }
+
+  @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
+    blockUntilConstructorFinished();
+    player.setVideoEffects(videoEffects);
   }
 
   @Override

@@ -26,6 +26,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_S
 import static com.google.android.exoplayer2.Renderer.MSG_SET_PREFERRED_AUDIO_DEVICE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT_RESOLUTION;
@@ -86,6 +87,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
@@ -1226,6 +1228,12 @@ import java.util.concurrent.TimeoutException;
   public Timeline getCurrentTimeline() {
     verifyApplicationThread();
     return playbackInfo.timeline;
+  }
+
+  @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
+    verifyApplicationThread();
+    sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_VIDEO_EFFECTS, videoEffects);
   }
 
   @Override

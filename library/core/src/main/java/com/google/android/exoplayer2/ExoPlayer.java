@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
@@ -1455,6 +1456,24 @@ public interface ExoPlayer extends Player {
 
   /** Returns whether skipping silences in the audio stream is enabled. */
   boolean getSkipSilenceEnabled();
+
+  /**
+   * Sets a {@link List} of {@linkplain Effect video effects} that will be applied to each video
+   * frame.
+   *
+   * <p>The following limitations exist for using {@linkplain Effect video effects}:
+   *
+   * <ul>
+   *   <li>This feature works only with the default {@link MediaCodecVideoRenderer} and not custom
+   *       or extension {@linkplain Renderer video renderers}.
+   *   <li>This feature does not work with DRM-protected contents.
+   *   <li>This method should be called before calling {@link #prepare}.
+   * </ul>
+   *
+   * @param videoEffects The {@link List} of {@linkplain Effect video effects} to apply.
+   */
+  @RequiresApi(18)
+  void setVideoEffects(List<Effect> videoEffects);
 
   /**
    * Sets the {@link C.VideoScalingMode}.
