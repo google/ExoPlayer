@@ -36,7 +36,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,7 +56,6 @@ public final class GlEffectsFrameProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   public static final String WRAPPED_CROP_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/image_input_with_wrapped_crop.png";
-  // This file is generated on a Pixel 7, because the emulator isn't able to generate this file.
   public static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
   public static final String SCALE_WIDE_PNG_ASSET_PATH =
@@ -222,7 +220,6 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  @Ignore("b/267031388 Test can only run on physical devices because emulator cannot produce image")
   public void bitmapOverlay_matchesGoldenFile() throws Exception {
     String testId = "bitmapOverlay_matchesGoldenFile";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
