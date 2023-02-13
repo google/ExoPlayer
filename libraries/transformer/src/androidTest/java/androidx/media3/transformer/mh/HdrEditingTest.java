@@ -295,6 +295,6 @@ public class HdrEditingTest {
   }
 
   private static boolean deviceSupportsHdrEditing(String mimeType, ColorInfo colorInfo) {
-    return !EncoderUtil.getSupportedEncoderNamesForHdrEditing(mimeType, colorInfo).isEmpty();
+    return !EncoderUtil.getSupportedEncodersForHdrEditing(mimeType, colorInfo).isEmpty();
   }
 }
