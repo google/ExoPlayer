@@ -119,9 +119,9 @@ This release corresponds to the
         ([#233](https://github.com/androidx/media/issues/233)).
     *   Make `QueueTimeline` more robust in case of a shady legacy session state
         ([#241](https://github.com/androidx/media/issues/241)).
-*   Cast extension
+*   Cast extension:
     *   Bump Cast SDK version to 21.2.0.
-*   IMA extension
+*   IMA extension:
     *   Remove player listener of the `ImaServerSideAdInsertionMediaSource` on
         the application thread to avoid threading issues.
     *   Add a property `focusSkipButtonWhenAvailable` to the
@@ -133,7 +133,7 @@ This release corresponds to the
     *   Fix a bug which prevented playback from starting for a DAI stream
         without any ads.
     *   Bump IMA SDK version to 3.29.0.
-*   Demo app
+*   Demo app:
     *   Request notification permission for download notifications at runtime
         ([#10884](https://github.com/google/ExoPlayer/issues/10884)).
 
