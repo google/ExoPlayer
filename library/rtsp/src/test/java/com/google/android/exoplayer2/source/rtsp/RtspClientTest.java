@@ -389,4 +389,68 @@ public final class RtspClientTest {
     RobolectricUtil.runMainLooperUntil(timelineRequestFailed::get);
     assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
+
+  @Test
+  public void connectServerAndClient_sdpInDescribeResponseHasInvalidFmtpAttr_doesNotUpdateTimeline()
+      throws Exception {
+    class ResponseProvider implements RtspServer.ResponseProvider {
+      @Override
+      public RtspResponse getOptionsResponse() {
+        return new RtspResponse(
+            /* status= */ 200,
+            new RtspHeaders.Builder().add(RtspHeaders.PUBLIC, "OPTIONS, DESCRIBE").build());
+      }
+
+      @Override
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
+        String testMediaSdpInfo =
+            "v=0\r\n"
+                + "o=- 1600785369059721 1 IN IP4 192.168.2.176\r\n"
+                + "s=video, streamed by ExoPlayer\r\n"
+                + "i=test.mkv\r\n"
+                + "t=0 0\r\n"
+                + "a=tool:ExoPlayer\r\n"
+                + "a=type:broadcast\r\n"
+                + "a=control:*\r\n"
+                + "a=range:npt=0-30.102\r\n"
+                + "m=video 0 RTP/AVP 96\r\n"
+                + "c=IN IP4 0.0.0.0\r\n"
+                + "b=AS:500\r\n"
+                + "a=rtpmap:96 H264/90000\r\n"
+                + "a=fmtp:96"
+                + " packetization-mode=1;profile-level-id=64001F;sprop-parameter-sets=\r\n"
+                + "a=control:track1\r\n";
+        return RtspTestUtils.newDescribeResponseWithSdpMessage(
+            /* sessionDescription= */ testMediaSdpInfo,
+            // This session description has no tracks.
+            /* rtpPacketStreamDumps= */ ImmutableList.of(),
+            requestedUri);
+      }
+    }
+    rtspServer = new RtspServer(new ResponseProvider());
+
+    AtomicBoolean timelineRequestFailed = new AtomicBoolean();
+    rtspClient =
+        new RtspClient(
+            new SessionInfoListener() {
+              @Override
+              public void onSessionTimelineUpdated(
+                  RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {}
+
+              @Override
+              public void onSessionTimelineRequestFailed(
+                  String message, @Nullable Throwable cause) {
+                timelineRequestFailed.set(true);
+              }
+            },
+            EMPTY_PLAYBACK_LISTENER,
+            /* userAgent= */ "ExoPlayer:RtspClientTest",
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            SocketFactory.getDefault(),
+            /* debugLoggingEnabled= */ false);
+    rtspClient.start();
+
+    RobolectricUtil.runMainLooperUntil(timelineRequestFailed::get);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
+  }
 }
