@@ -28,11 +28,10 @@
         ([#247](https://github.com/androidx/media/issues/247)).
     *   Add `ExoPlayer.setVideoEffects()` for using `Effect` during video
         playback.
-*   Extractors:
     *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
         `int`. This changes the signatures of public methods
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
-    *   Extractors:
+*   Extractors:
     *   Throw a ParserException instead of a NullPointerException if the sample
         table (stbl) is missing a required sample description (stsd) when
         parsing trak atoms.
