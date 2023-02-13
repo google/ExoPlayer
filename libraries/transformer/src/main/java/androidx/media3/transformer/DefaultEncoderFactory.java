@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.transformer.TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
@@ -184,7 +183,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ false);
     if (mediaCodecName == null) {
-      throw createTransformationException(format);
+      throw createTransformationException(
+          format, /* errorString= */ "The requested audio encoding format is not supported.");
     }
     return new DefaultCodec(
         context,
@@ -223,7 +223,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             format, requestedVideoEncoderSettings, videoEncoderSelector, enableFallback);
 
     if (encoderAndClosestFormatSupport == null) {
-      throw createTransformationException(format);
+      throw createTransformationException(
+          format, /* errorString= */ "The requested video encoding format is not supported.");
     }
 
     MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.encoder;
@@ -291,7 +292,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010);
       } else {
-        throw createTransformationException(format, ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+        throw createTransformationException(
+            format, /* errorString= */ "Encoding HDR is not supported on this device.");
       }
     } else {
       mediaFormat.setInteger(
@@ -668,17 +670,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   @RequiresNonNull("#1.sampleMimeType")
-  private static TransformationException createTransformationException(Format format) {
-    return createTransformationException(
-        format, TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
-  }
-
-  @RequiresNonNull("#1.sampleMimeType")
   private static TransformationException createTransformationException(
-      Format format, @TransformationException.ErrorCode int errorCode) {
+      Format format, String errorString) {
     return TransformationException.createForCodec(
-        new IllegalArgumentException("The requested encoding format is not supported."),
-        errorCode,
+        new IllegalArgumentException(errorString),
+        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
         format);

@@ -76,8 +76,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
-          && exception.errorCode != TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED) {
+      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }
@@ -113,8 +112,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (TransformationException exception) {
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
-          && exception.errorCode != TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED) {
+      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }

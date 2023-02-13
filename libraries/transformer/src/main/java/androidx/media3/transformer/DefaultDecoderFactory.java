@@ -61,7 +61,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
     if (mediaCodecName == null) {
-      throw createTransformationException(format);
+      throw createTransformationException(
+          format, /* reason= */ "The requested decoding format is not supported.");
     }
     return new DefaultCodec(
         context,
@@ -81,11 +82,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
       if (requestSdrToneMapping && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
         throw createTransformationException(
-            format, /* reason= */ "Tone-mapping HDR is not supported.");
+            format, /* reason= */ "Tone-mapping HDR is not supported on this device.");
       }
       if (SDK_INT < 29) {
         // TODO(b/266837571, b/267171669): Remove API version restriction after fixing linked bugs.
-        throw createTransformationException(format, /* reason= */ "Decoding HDR is not supported.");
+        throw createTransformationException(
+            format, /* reason= */ "Decoding HDR is not supported on this device.");
       }
     }
 
@@ -116,7 +118,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
     if (mediaCodecName == null) {
-      throw createTransformationException(format);
+      throw createTransformationException(
+          format, /* reason= */ "The requested video decoding format is not supported.");
     }
     return new DefaultCodec(
         context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
@@ -128,11 +131,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && (
         /* Pixel 6 */ Build.ID.startsWith("TP1A")
             || Build.ID.startsWith(/* Pixel Watch */ "rwd9.220429.053"));
-  }
-
-  @RequiresNonNull("#1.sampleMimeType")
-  private static TransformationException createTransformationException(Format format) {
-    return createTransformationException(format, "The requested decoding format is not supported.");
   }
 
   @RequiresNonNull("#1.sampleMimeType")

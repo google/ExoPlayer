@@ -88,8 +88,9 @@ import org.checkerframework.dataflow.qual.Pure;
       if (transformationRequest.hdrMode == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
-              new IllegalArgumentException("Interpreting HDR video as SDR is not supported."),
-              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED,
+              new IllegalArgumentException(
+                  "Interpreting HDR video as SDR is not supported on this device."),
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
               /* isVideo= */ true,
               /* isDecoder= */ true,
               firstInputFormat);
