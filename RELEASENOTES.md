@@ -1,6 +1,9 @@
 # Release notes
 
-### Unreleased changes
+### 1.0.0-rc01 (2023-02-16)
+
+This release corresponds to the
+[ExoPlayer 2.18.3 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.3).
 
 *   Core library:
     *   Tweak the renderer's decoder ordering logic to uphold the
@@ -21,8 +24,8 @@
         items into a single window
         ([#247](https://github.com/androidx/media/issues/247)).
 *   Extractors:
-    *   Throw a ParserException instead of a NullPointerException if the sample
-        table (stbl) is missing a required sample description (stsd) when
+    *   Throw a `ParserException` instead of a `NullPointerException` if the
+        sample table (stbl) is missing a required sample description (stsd) when
         parsing trak atoms.
     *   Correctly skip samples when seeking directly to a sync frame in fMP4
         ([#10941](https://github.com/google/ExoPlayer/issues/10941)).
@@ -34,6 +37,14 @@
         `Subtitle.getEventTime` if a subtitle file contains no cues.
     *   SubRip: Add support for UTF-16 files if they start with a byte order
         mark.
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
+    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
+        of folder described by the metadata.
+    *   Add `MediaMetadata.isBrowsable` as a replacement for
+        `MediaMetadata.folderType`. The folder type will be deprecated in the
+        next release.
 *   DASH:
     *   Add full parsing for image adaptation sets, including tile counts
         ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
