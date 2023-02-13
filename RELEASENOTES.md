@@ -85,6 +85,10 @@
         ([#241](https://github.com/androidx/media/issues/241)).
     *   Fix a bug where notification play/pause button doesn't update with
         player state ([#192](https://github.com/androidx/media/issues/192)).
+*   RTSP:
+    *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
+        Describe response messages
+        ([#10971](https://github.com/google/ExoPlayer/issues/10971)).
 *   Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
