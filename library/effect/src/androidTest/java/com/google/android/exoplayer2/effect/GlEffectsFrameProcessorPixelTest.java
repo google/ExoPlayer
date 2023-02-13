@@ -373,13 +373,8 @@ public final class GlEffectsFrameProcessorPixelTest {
   @Test
   public void increaseBrightness_matchesGoldenFile() throws Exception {
     String testId = "increaseBrightness_matchesGoldenFile";
-    ImmutableList<Effect> increaseBrightness =
-        ImmutableList.of(
-            new RgbAdjustment.Builder().setRedScale(5).build(),
-            new RgbAdjustment.Builder().setGreenScale(5).build(),
-            new RgbAdjustment.Builder().setBlueScale(5).build());
     frameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId).setEffects(increaseBrightness).build();
+        getDefaultFrameProcessorTestRunnerBuilder(testId).setEffects(new Brightness(0.5f)).build();
     Bitmap expectedBitmap = readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
