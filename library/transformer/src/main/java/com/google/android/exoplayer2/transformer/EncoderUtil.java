@@ -78,10 +78,11 @@ public final class EncoderUtil {
   }
 
   /**
-   * Returns the names of encoders that support HDR editing for the given {@code mimeType} and
-   * {@code ColorInfo}, or an empty list if the format is unknown or not supported for HDR encoding.
+   * Returns a list of {@linkplain MediaCodecInfo encoders} that support HDR editing for the given
+   * {@code mimeType} and {@code ColorInfo}, or an empty list if the format is unknown or not
+   * supported for HDR encoding.
    */
-  public static ImmutableList<String> getSupportedEncoderNamesForHdrEditing(
+  public static ImmutableList<MediaCodecInfo> getSupportedEncodersForHdrEditing(
       String mimeType, @Nullable ColorInfo colorInfo) {
     if (Util.SDK_INT < 31 || colorInfo == null) {
       return ImmutableList.of();
@@ -90,7 +91,7 @@ public final class EncoderUtil {
     ImmutableList<MediaCodecInfo> encoders = getSupportedEncoders(mimeType);
     ImmutableList<Integer> allowedColorProfiles =
         getCodecProfilesForHdrFormat(mimeType, colorInfo.colorTransfer);
-    ImmutableList.Builder<String> resultBuilder = new ImmutableList.Builder<>();
+    ImmutableList.Builder<MediaCodecInfo> resultBuilder = new ImmutableList.Builder<>();
     for (int i = 0; i < encoders.size(); i++) {
       MediaCodecInfo mediaCodecInfo = encoders.get(i);
       if (mediaCodecInfo.isAlias()
@@ -101,7 +102,7 @@ public final class EncoderUtil {
       for (MediaCodecInfo.CodecProfileLevel codecProfileLevel :
           mediaCodecInfo.getCapabilitiesForType(mimeType).profileLevels) {
         if (allowedColorProfiles.contains(codecProfileLevel.profile)) {
-          resultBuilder.add(mediaCodecInfo.getName());
+          resultBuilder.add(mediaCodecInfo);
         }
       }
     }

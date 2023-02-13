@@ -165,23 +165,23 @@ public class EncoderUtilTest {
   }
 
   /**
-   * @see EncoderUtil#getSupportedEncoderNamesForHdrEditing(String, ColorInfo)
+   * @see EncoderUtil#getSupportedEncodersForHdrEditing(String, ColorInfo)
    */
   @Config(sdk = {30, 31})
   @Test
-  public void getSupportedEncoderNamesForHdrEditing_returnsEmptyList() {
+  public void getSupportedEncodersForHdrEditing_returnsEmptyList() {
     // This test is run on 30 and 31 because the tested logic differentiate at API31.
     // getSupportedEncoderNamesForHdrEditing returns an empty list for API < 31. It returns an empty
     // list for API >= 31 as well, because currently it is not possible to make ShadowMediaCodec
     // support HDR.
     assertThat(
-            EncoderUtil.getSupportedEncoderNamesForHdrEditing(
+            EncoderUtil.getSupportedEncodersForHdrEditing(
                 MIME_TYPE,
-                new ColorInfo(
-                    C.COLOR_SPACE_BT2020,
-                    C.COLOR_RANGE_FULL,
-                    C.COLOR_TRANSFER_HLG,
-                    /* hdrStaticInfo= */ null)))
+                new ColorInfo.Builder()
+                    .setColorSpace(C.COLOR_SPACE_BT2020)
+                    .setColorRange(C.COLOR_RANGE_FULL)
+                    .setColorTransfer(C.COLOR_TRANSFER_HLG)
+                    .build()))
         .isEmpty();
   }
 }

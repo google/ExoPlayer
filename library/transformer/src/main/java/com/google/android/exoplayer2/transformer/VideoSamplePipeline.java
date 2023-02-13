@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncoders;
+import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_KEEP_HDR;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
@@ -23,6 +25,7 @@ import static com.google.android.exoplayer2.transformer.TransformationRequest.HD
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
+import static com.google.android.exoplayer2.video.ColorInfo.isTransferHdr;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -84,7 +87,7 @@ import org.checkerframework.dataflow.qual.Pure;
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
     boolean isGlToneMapping = false;
-    if (ColorInfo.isTransferHdr(firstInputFormat.colorInfo)) {
+    if (isTransferHdr(firstInputFormat.colorInfo)) {
       if (transformationRequest.hdrMode == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
         if (SDK_INT < 29) {
           throw TransformationException.createForCodec(
@@ -339,7 +342,7 @@ import org.checkerframework.dataflow.qual.Pure;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
     private final String requestedOutputMimeType;
-    private final ImmutableList<String> supportedEncoderNamesForHdrEditing;
+    private final boolean isHdrEditingEnabled;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
@@ -358,7 +361,6 @@ import org.checkerframework.dataflow.qual.Pure;
       this.muxerSupportedMimeTypes = muxerSupportedMimeTypes;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
-
       String inputSampleMimeType = checkNotNull(inputFormat.sampleMimeType);
 
       if (transformationRequest.videoMimeType != null) {
@@ -368,18 +370,17 @@ import org.checkerframework.dataflow.qual.Pure;
       } else {
         requestedOutputMimeType = inputSampleMimeType;
       }
-      supportedEncoderNamesForHdrEditing =
-          EncoderUtil.getSupportedEncoderNamesForHdrEditing(
-              requestedOutputMimeType, inputFormat.colorInfo);
+
+      isHdrEditingEnabled =
+          transformationRequest.hdrMode == HDR_MODE_KEEP_HDR
+              && !getSupportedEncodersForHdrEditing(requestedOutputMimeType, inputFormat.colorInfo)
+                  .isEmpty();
     }
 
     /** Returns the {@link ColorInfo} expected from the input surface. */
     public ColorInfo getSupportedInputColor() {
-      boolean isHdrEditingEnabled =
-          transformationRequest.hdrMode == HDR_MODE_KEEP_HDR
-              && !supportedEncoderNamesForHdrEditing.isEmpty();
-      boolean isInputToneMapped =
-          !isHdrEditingEnabled && ColorInfo.isTransferHdr(inputFormat.colorInfo);
+
+      boolean isInputToneMapped = !isHdrEditingEnabled && isTransferHdr(inputFormat.colorInfo);
       if (isInputToneMapped) {
         // When tone-mapping HDR to SDR is enabled, assume we get BT.709 to avoid having the encoder
         // populate default color info, which depends on the resolution.
@@ -440,8 +441,8 @@ import org.checkerframework.dataflow.qual.Pure;
       checkState(supportedMimeType.equals(encoderSupportedFormat.sampleMimeType));
 
       boolean isInputToneMapped =
-          ColorInfo.isTransferHdr(inputFormat.colorInfo)
-              && !ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo);
+          isTransferHdr(inputFormat.colorInfo) && !isTransferHdr(requestedEncoderFormat.colorInfo);
+
       // HdrMode fallback is only supported from HDR_MODE_KEEP_HDR to
       // HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC.
       @TransformationRequest.HdrMode
@@ -557,10 +558,10 @@ import org.checkerframework.dataflow.qual.Pure;
       if (!muxerSupportedMimeTypes.contains(mimeType)) {
         return false;
       }
-      if (ColorInfo.isTransferHdr(colorInfo)) {
-        return !EncoderUtil.getSupportedEncoderNamesForHdrEditing(mimeType, colorInfo).isEmpty();
-      }
-      return !EncoderUtil.getSupportedEncoders(mimeType).isEmpty();
+
+      return isTransferHdr(colorInfo)
+          ? !getSupportedEncodersForHdrEditing(mimeType, colorInfo).isEmpty()
+          : !getSupportedEncoders(mimeType).isEmpty();
     }
   }
 }
