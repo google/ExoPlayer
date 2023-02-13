@@ -652,7 +652,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           default:
             throw new IllegalStateException();
         }
-      } catch (ParserException e) {
+      } catch (ParserException | IllegalArgumentException e) {
         dispatchRtspError(new RtspPlaybackException(e));
       }
     }
