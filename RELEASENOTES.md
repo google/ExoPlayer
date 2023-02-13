@@ -103,6 +103,8 @@ This release corresponds to the
     *   Add a method `focusSkipButton()` to the
         `ImaServerSideAdInsertionMediaSource.AdsLoader` to programmatically
         request to focus the skip button.
+    *   Fix a bug which prevented playback from starting for a DAI stream
+        without any ads.
     *   Bump IMA SDK version to 3.29.0.
 *   Demo app:
     *   Request notification permission for download notifications at runtime
