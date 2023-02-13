@@ -33,6 +33,7 @@ import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.BasePlayer;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
+import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -662,6 +663,12 @@ public class SimpleExoPlayer extends BasePlayer
   public boolean getSkipSilenceEnabled() {
     blockUntilConstructorFinished();
     return player.getSkipSilenceEnabled();
+  }
+
+  @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
+    blockUntilConstructorFinished();
+    player.setVideoEffects(videoEffects);
   }
 
   @Override

@@ -688,6 +688,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           }
         }
         break;
+      case MSG_SET_VIDEO_EFFECTS:
+        @SuppressWarnings("unchecked")
+        List<Effect> videoEffects = (List<Effect>) checkNotNull(message);
+        frameProcessorManager.setVideoEffects(videoEffects);
+        break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
         Size outputResolution = (Size) checkNotNull(message);
         if (outputResolution.getWidth() != 0

@@ -26,6 +26,9 @@
     *   Add `ConcatenatingMediaSource2` that allows combining multiple media
         items into a single window
         ([#247](https://github.com/androidx/media/issues/247)).
+    *   Add `ExoPlayer.setVideoEffects()` for using `Effect` during video
+        playback.
+*   Extractors:
     *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
         `int`. This changes the signatures of public methods
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.

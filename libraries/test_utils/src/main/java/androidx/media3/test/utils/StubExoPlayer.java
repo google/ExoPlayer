@@ -20,6 +20,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
+import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
@@ -249,6 +250,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public boolean getSkipSilenceEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
     throw new UnsupportedOperationException();
   }
 
