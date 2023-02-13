@@ -14,7 +14,7 @@ To generate new "expected" assets:
     and can be run locally, using go/crow:
 
     ```shell
-    crow --device generic_phone --api_level 31 --arch x86
+    crow --device generic_phone --api_level 33 --arch x86
     ```
 
 2.  Run the test.
