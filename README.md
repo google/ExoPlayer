@@ -5,15 +5,13 @@ Android, including local playback (via ExoPlayer) and media sessions.
 
 ## Current status
 
-AndroidX Media is currently in beta and we welcome your feedback via the
-[issue tracker][]. Please consult the [release notes][] for more details about
-the beta release.
+AndroidX Media is currently in release candidate and we welcome your feedback
+via the [issue tracker][]. Please consult the [release notes][] for more details
+about the current release.
 
 ExoPlayer's new home will be in AndroidX Media, but for now we are publishing it
-both in AndroidX Media and via the existing [ExoPlayer project][]. While
-AndroidX Media is in beta we recommend that production apps using ExoPlayer
-continue to depend on the existing ExoPlayer project. We are still handling
-ExoPlayer issues on the [ExoPlayer issue tracker][].
+both in AndroidX Media and via the existing [ExoPlayer project][] and we are
+still handling ExoPlayer issues on the [ExoPlayer issue tracker][].
 
 You'll find some [Media3 documentation on developer.android.com][], including a
 [migration guide for existing ExoPlayer and MediaSession users][].
