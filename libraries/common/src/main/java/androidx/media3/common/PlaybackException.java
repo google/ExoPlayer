@@ -228,6 +228,13 @@ public class PlaybackException extends Exception implements Bundleable {
   /** Caused by an expired DRM license being loaded into an open DRM session. */
   public static final int ERROR_CODE_DRM_LICENSE_EXPIRED = 6008;
 
+  // Frame processing errors (7xxx).
+
+  /** Caused by a failure when initializing a {@link FrameProcessor}. */
+  @UnstableApi public static final int ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED = 7000;
+  /** Caused by a failure when processing a frame. */
+  @UnstableApi public static final int ERROR_CODE_FRAME_PROCESSING_FAILED = 7001;
+
   /**
    * Player implementations that want to surface custom errors can use error codes greater than this
    * value, so as to avoid collision with other error codes defined in this class.
@@ -305,6 +312,10 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_DRM_DEVICE_REVOKED";
       case ERROR_CODE_DRM_LICENSE_EXPIRED:
         return "ERROR_CODE_DRM_LICENSE_EXPIRED";
+      case ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED:
+        return "ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED";
+      case ERROR_CODE_FRAME_PROCESSING_FAILED:
+        return "ERROR_CODE_FRAME_PROCESSING_FAILED";
       default:
         if (errorCode >= CUSTOM_ERROR_CODE_BASE) {
           return "custom error code";

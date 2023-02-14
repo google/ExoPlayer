@@ -2036,8 +2036,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                             renderer.createRendererException(
                                 exception,
                                 inputFormat,
-                                // TODO(b/238302341) Add relevant error codes for frame processing.
-                                PlaybackException.ERROR_CODE_UNSPECIFIED));
+                                PlaybackException.ERROR_CODE_FRAME_PROCESSING_FAILED));
                       }
 
                       @Override
@@ -2047,7 +2046,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     });
       } catch (Exception e) {
         throw renderer.createRendererException(
-            e, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
+            e, inputFormat, PlaybackException.ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED);
       }
 
       if (currentSurfaceAndSize != null) {
