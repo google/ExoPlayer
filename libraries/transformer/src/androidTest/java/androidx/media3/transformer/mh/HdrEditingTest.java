@@ -56,17 +56,17 @@ import org.junit.runner.RunWith;
 public class HdrEditingTest {
   public static final String TAG = "HdrEditingTest";
   private static final ColorInfo HDR10_DEFAULT_COLOR_INFO =
-      new ColorInfo(
-          C.COLOR_SPACE_BT2020,
-          C.COLOR_RANGE_LIMITED,
-          C.COLOR_TRANSFER_ST2084,
-          /* hdrStaticInfo= */ null);
+      new ColorInfo.Builder()
+          .setColorSpace(C.COLOR_SPACE_BT2020)
+          .setColorRange(C.COLOR_RANGE_LIMITED)
+          .setColorTransfer(C.COLOR_TRANSFER_ST2084)
+          .build();
   private static final ColorInfo HLG10_DEFAULT_COLOR_INFO =
-      new ColorInfo(
-          C.COLOR_SPACE_BT2020,
-          C.COLOR_RANGE_LIMITED,
-          C.COLOR_TRANSFER_HLG,
-          /* hdrStaticInfo= */ null);
+      new ColorInfo.Builder()
+          .setColorSpace(C.COLOR_SPACE_BT2020)
+          .setColorRange(C.COLOR_RANGE_LIMITED)
+          .setColorTransfer(C.COLOR_TRANSFER_HLG)
+          .build();
 
   @Test
   public void transform_noRequestedTranscode_hdr10File_transformsOrThrows() throws Exception {

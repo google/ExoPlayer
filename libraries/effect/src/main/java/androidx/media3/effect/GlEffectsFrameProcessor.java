@@ -260,8 +260,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
     boolean sampleFromInputTexture = true;
     ColorInfo linearColorInfo =
-        new ColorInfo(
-            outputColorInfo.colorSpace, outputColorInfo.colorRange, C.COLOR_TRANSFER_LINEAR, null);
+        outputColorInfo
+            .buildUpon()
+            .setColorTransfer(C.COLOR_TRANSFER_LINEAR)
+            .setHdrStaticInfo(null)
+            .build();
     for (int i = 0; i < effects.size(); i++) {
       Effect effect = effects.get(i);
       checkArgument(effect instanceof GlEffect, "GlEffectsFrameProcessor only supports GlEffects");

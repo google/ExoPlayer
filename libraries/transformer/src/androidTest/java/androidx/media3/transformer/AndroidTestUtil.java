@@ -103,11 +103,11 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setFrameRate(30.000f)
           .setColorInfo(
-              new ColorInfo(
-                  C.COLOR_SPACE_BT2020,
-                  C.COLOR_RANGE_LIMITED,
-                  C.COLOR_TRANSFER_HLG,
-                  /* hdrStaticInfo= */ null))
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorTransfer(C.COLOR_TRANSFER_HLG)
+                  .build())
           .build();
   public static final String MP4_ASSET_1080P_4_SECOND_HDR10 = "asset:///media/mp4/hdr10-1080p.mp4";
   public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
@@ -117,11 +117,11 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setFrameRate(23.517f)
           .setColorInfo(
-              new ColorInfo(
-                  C.COLOR_SPACE_BT2020,
-                  C.COLOR_RANGE_LIMITED,
-                  C.COLOR_TRANSFER_ST2084,
-                  /* hdrStaticInfo= */ null))
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorTransfer(C.COLOR_TRANSFER_ST2084)
+                  .build())
           .build();
   public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
       "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";

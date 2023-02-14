@@ -230,7 +230,12 @@ public final class MediaFormatUtil {
         || colorRange != Format.NO_VALUE
         || colorTransfer != Format.NO_VALUE
         || hdrStaticInfo != null) {
-      return new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+      return new ColorInfo.Builder()
+          .setColorSpace(colorSpace)
+          .setColorRange(colorRange)
+          .setColorTransfer(colorTransfer)
+          .setHdrStaticInfo(hdrStaticInfo)
+          .build();
     }
     return null;
   }
