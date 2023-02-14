@@ -250,9 +250,8 @@ public final class EncoderUtil {
       }
     }
 
-    // Fix frame being too wide or too tall.
-    width = videoCapabilities.getSupportedWidths().clamp(width);
-    int adjustedHeight = videoCapabilities.getSupportedHeightsFor(width).clamp(height);
+    int supportedWidth = videoCapabilities.getSupportedWidths().clamp(width);
+    int adjustedHeight = videoCapabilities.getSupportedHeightsFor(supportedWidth).clamp(height);
     if (adjustedHeight != height) {
       width =
           alignResolution((int) round((double) width * adjustedHeight / height), widthAlignment);
