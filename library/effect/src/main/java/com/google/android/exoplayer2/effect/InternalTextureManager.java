@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static java.lang.Math.round;
+import static java.lang.Math.floor;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
@@ -29,19 +29,31 @@ import com.google.android.exoplayer2.util.GlUtil;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/** Forwards a frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for consumption. */
+/**
+ * Forwards a frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for consumption
+ *
+ * <p>Methods in this class can be called from any thread.
+ */
 /* package */ class InternalTextureManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram shaderProgram;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
+  // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
 
   private int downstreamShaderProgramCapacity;
-  private int availableFrameCount;
-
+  private int framesToQueueForCurrentBitmap;
   private long currentPresentationTimeUs;
-  private long totalDurationUs;
   private boolean inputEnded;
+  private boolean outputEnded;
 
+  /**
+   * Creates a new instance.
+   *
+   * @param shaderProgram The {@link GlShaderProgram} for which this {@code InternalTextureManager}
+   *     will be set as the {@link GlShaderProgram.InputListener}.
+   * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor} that the methods of
+   *     this class run on.
+   */
   public InternalTextureManager(
       GlShaderProgram shaderProgram, FrameProcessingTaskExecutor frameProcessingTaskExecutor) {
     this.shaderProgram = shaderProgram;
@@ -51,6 +63,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
   @Override
   public void onReadyToAcceptInputFrame() {
+    // TODO(b/262693274): Delete texture when last duplicate of the frame comes back from the shader
+    //    program and change to only allocate one texId at a time. A change to the
+    //    onInputFrameProcessed() method signature to include presentationTimeUs will probably be
+    //    needed to do this.
     frameProcessingTaskExecutor.submit(
         () -> {
           downstreamShaderProgramCapacity++;
@@ -58,68 +74,15 @@ import java.util.concurrent.LinkedBlockingQueue;
         });
   }
 
-  @Override
-  public void onInputFrameProcessed(TextureInfo inputTexture) {
-    // TODO(b/262693274): Delete texture when last duplicate of the frame comes back from the shader
-    //    program and change to only allocate one texId at a time. A change to method signature to
-    //    include presentationTimeUs will probably be needed to do this.
-    frameProcessingTaskExecutor.submit(
-        () -> {
-          if (availableFrameCount == 0) {
-            signalEndOfInput();
-          }
-        });
-  }
-
+  /**
+   * Provides an input {@link Bitmap} to put into the video frames.
+   *
+   * @see FrameProcessor#queueInputBitmap
+   */
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
     frameProcessingTaskExecutor.submit(
         () -> setupBitmap(inputBitmap, durationUs, frameRate, useHdr));
-  }
-
-  @WorkerThread
-  private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
-      throws FrameProcessingException {
-    if (inputEnded) {
-      return;
-    }
-    try {
-      int bitmapTexId =
-          GlUtil.createTexture(
-              bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ useHdr);
-      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTexId);
-      GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-      GlUtil.checkGlError();
-
-      TextureInfo textureInfo =
-          new TextureInfo(
-              bitmapTexId, /* fboId= */ C.INDEX_UNSET, bitmap.getWidth(), bitmap.getHeight());
-      int timeIncrementUs = round(C.MICROS_PER_SECOND / frameRate);
-      availableFrameCount += round((frameRate * durationUs) / C.MICROS_PER_SECOND);
-      totalDurationUs += durationUs;
-      pendingBitmaps.add(
-          new BitmapFrameSequenceInfo(textureInfo, timeIncrementUs, totalDurationUs));
-    } catch (GlUtil.GlException e) {
-      throw FrameProcessingException.from(e);
-    }
-    maybeQueueToShaderProgram();
-  }
-
-  @WorkerThread
-  private void maybeQueueToShaderProgram() {
-    if (inputEnded || availableFrameCount == 0 || downstreamShaderProgramCapacity == 0) {
-      return;
-    }
-    availableFrameCount--;
-    downstreamShaderProgramCapacity--;
-
-    BitmapFrameSequenceInfo currentFrame = checkNotNull(pendingBitmaps.peek());
-    shaderProgram.queueInputFrame(currentFrame.textureInfo, currentPresentationTimeUs);
-
-    currentPresentationTimeUs += currentFrame.timeIncrementUs;
-    if (currentPresentationTimeUs >= currentFrame.endPresentationTimeUs) {
-      pendingBitmaps.remove();
-    }
   }
 
   /**
@@ -130,12 +93,71 @@ import java.util.concurrent.LinkedBlockingQueue;
   public void signalEndOfInput() {
     frameProcessingTaskExecutor.submit(
         () -> {
-          if (inputEnded) {
-            return;
-          }
           inputEnded = true;
-          shaderProgram.signalEndOfCurrentInputStream();
+          signalEndOfOutput();
         });
+  }
+
+  @WorkerThread
+  private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
+      throws FrameProcessingException {
+
+    if (inputEnded) {
+      return;
+    }
+    int bitmapTexId;
+    try {
+      bitmapTexId =
+          GlUtil.createTexture(
+              bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ useHdr);
+      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTexId);
+      GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+      GlUtil.checkGlError();
+    } catch (GlUtil.GlException e) {
+      throw FrameProcessingException.from(e);
+    }
+    TextureInfo textureInfo =
+        new TextureInfo(
+            bitmapTexId, /* fboId= */ C.INDEX_UNSET, bitmap.getWidth(), bitmap.getHeight());
+    int framesToAdd = (int) floor(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
+    long frameDurationUs = (long) floor(C.MICROS_PER_SECOND / frameRate);
+    pendingBitmaps.add(new BitmapFrameSequenceInfo(textureInfo, frameDurationUs, framesToAdd));
+
+    maybeQueueToShaderProgram();
+  }
+
+  @WorkerThread
+  private void maybeQueueToShaderProgram() {
+    if (pendingBitmaps.isEmpty() || downstreamShaderProgramCapacity == 0) {
+      return;
+    }
+
+    BitmapFrameSequenceInfo currentBitmap = checkNotNull(pendingBitmaps.peek());
+    if (framesToQueueForCurrentBitmap == 0) {
+      framesToQueueForCurrentBitmap = currentBitmap.numberOfFrames;
+    }
+
+    framesToQueueForCurrentBitmap--;
+    downstreamShaderProgramCapacity--;
+
+    shaderProgram.queueInputFrame(currentBitmap.textureInfo, currentPresentationTimeUs);
+
+    currentPresentationTimeUs += currentBitmap.frameDurationUs;
+    if (framesToQueueForCurrentBitmap == 0) {
+      pendingBitmaps.remove();
+      signalEndOfOutput();
+    }
+  }
+
+  @WorkerThread
+  private void signalEndOfOutput() {
+    if (framesToQueueForCurrentBitmap == 0
+        && pendingBitmaps.isEmpty()
+        && inputEnded
+        && !outputEnded) {
+      shaderProgram.signalEndOfCurrentInputStream();
+      outputEnded = true;
+    }
   }
 
   /**
@@ -144,14 +166,14 @@ import java.util.concurrent.LinkedBlockingQueue;
    */
   private static final class BitmapFrameSequenceInfo {
     public final TextureInfo textureInfo;
-    public final long timeIncrementUs;
-    public final long endPresentationTimeUs;
+    public final long frameDurationUs;
+    public final int numberOfFrames;
 
     public BitmapFrameSequenceInfo(
-        TextureInfo textureInfo, long timeIncrementUs, long endPresentationTimeUs) {
+        TextureInfo textureInfo, long frameDurationUs, int numberOfFrames) {
       this.textureInfo = textureInfo;
-      this.timeIncrementUs = timeIncrementUs;
-      this.endPresentationTimeUs = endPresentationTimeUs;
+      this.frameDurationUs = frameDurationUs;
+      this.numberOfFrames = numberOfFrames;
     }
   }
 }
