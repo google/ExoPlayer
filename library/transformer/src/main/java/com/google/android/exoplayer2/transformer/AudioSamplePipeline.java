@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -119,36 +118,32 @@ import org.checkerframework.dataflow.qual.Pure;
 
     audioProcessingPipeline.flush();
 
-    String requestedMimeType =
-        transformationRequest.audioMimeType != null
-            ? transformationRequest.audioMimeType
-            : checkNotNull(firstInputFormat.sampleMimeType);
-    Format requestedOutputFormat =
+    Format requestedEncoderFormat =
         new Format.Builder()
-            .setSampleMimeType(requestedMimeType)
+            .setSampleMimeType(
+                transformationRequest.audioMimeType != null
+                    ? transformationRequest.audioMimeType
+                    : checkNotNull(firstInputFormat.sampleMimeType))
             .setSampleRate(encoderInputAudioFormat.sampleRate)
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
             .build();
 
-    ImmutableList<String> muxerSupportedMimeTypes =
-        muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_AUDIO);
-
-    // TODO(b/259570024): investigate overhauling fallback.
-    @Nullable
-    String supportedMimeType =
-        findSupportedMimeTypeForEncoderAndMuxer(requestedMimeType, muxerSupportedMimeTypes);
-    if (supportedMimeType == null) {
-      throw createNoSupportedMimeTypeException(requestedOutputFormat);
-    }
-
     encoder =
         encoderFactory.createForAudioEncoding(
-            requestedOutputFormat.buildUpon().setSampleMimeType(supportedMimeType).build());
-    checkState(supportedMimeType.equals(encoder.getConfigurationFormat().sampleMimeType));
+            requestedEncoderFormat
+                .buildUpon()
+                .setSampleMimeType(
+                    findSupportedMimeTypeForEncoderAndMuxer(
+                        requestedEncoderFormat,
+                        muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_AUDIO)))
+                .build());
+
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
-            transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));
+            transformationRequest,
+            requestedEncoderFormat,
+            /* actualFormat= */ encoder.getConfigurationFormat()));
 
     // Use the same stream offset as the input stream for encoder input buffers.
     nextEncoderInputBufferTimeUs = streamOffsetUs;
@@ -348,23 +343,6 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderInputBuffer.flip();
     // Queuing EOS should only occur with an empty buffer.
     encoder.queueInputBuffer(encoderInputBuffer);
-  }
-
-  @Nullable
-  private static String findSupportedMimeTypeForEncoderAndMuxer(
-      String preferredMimeType, List<String> muxerSupportedMimeTypes) {
-    if (!EncoderUtil.getSupportedEncoders(preferredMimeType).isEmpty()) {
-      return preferredMimeType;
-    } else {
-      // No encoder supports the preferred MIME type.
-      for (int i = 0; i < muxerSupportedMimeTypes.size(); i++) {
-        String mimeType = muxerSupportedMimeTypes.get(i);
-        if (!EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {
-          return mimeType;
-        }
-      }
-    }
-    return null;
   }
 
   @Pure
