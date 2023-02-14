@@ -145,7 +145,8 @@ public final class GlEffectsFrameProcessorPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
   // TODO(b/262693274): Once texture deletion is added to InternalTextureManager.java, add a test
-  //  queuing multiple input bitmaps to ensure successfully completion without errors.
+  //  queuing multiple input bitmaps to ensure successfully completion without errors, ensuring the
+  //  correct number of frames haas been queued.
 
   @Test
   public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
