@@ -18,9 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.ColorInfo.isTransferHdr;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.SDK_INT;
-import static androidx.media3.transformer.EncoderUtil.getSupportedEncoders;
 import static androidx.media3.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
 import static androidx.media3.transformer.TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static androidx.media3.transformer.TransformationRequest.HDR_MODE_KEEP_HDR;
@@ -425,20 +423,16 @@ import org.checkerframework.dataflow.qual.Pure;
               .setColorInfo(getSupportedInputColor())
               .build();
 
-      @Nullable
-      String supportedMimeType =
-          findSupportedMimeTypeForEncoderAndMuxer(
-              requestedOutputMimeType, muxerSupportedMimeTypes, requestedEncoderFormat.colorInfo);
-      if (supportedMimeType == null) {
-        throw createNoSupportedMimeTypeException(requestedEncoderFormat);
-      }
-
       encoder =
           encoderFactory.createForVideoEncoding(
-              requestedEncoderFormat.buildUpon().setSampleMimeType(supportedMimeType).build());
+              requestedEncoderFormat
+                  .buildUpon()
+                  .setSampleMimeType(
+                      findSupportedMimeTypeForEncoderAndMuxer(
+                          requestedEncoderFormat, muxerSupportedMimeTypes))
+                  .build());
 
-      Format encoderSupportedFormat = encoder.getConfigurationFormat();
-      checkState(supportedMimeType.equals(encoderSupportedFormat.sampleMimeType));
+      Format actualEncoderFormat = encoder.getConfigurationFormat();
 
       boolean isInputToneMapped =
           isTransferHdr(inputFormat.colorInfo) && !isTransferHdr(requestedEncoderFormat.colorInfo);
@@ -456,14 +450,14 @@ import org.checkerframework.dataflow.qual.Pure;
               transformationRequest,
               /* hasOutputFormatRotation= */ outputRotationDegrees != 0,
               requestedEncoderFormat,
-              encoderSupportedFormat,
+              actualEncoderFormat,
               supportedFallbackHdrMode));
 
       encoderSurfaceInfo =
           new SurfaceInfo(
               encoder.getInputSurface(),
-              encoderSupportedFormat.width,
-              encoderSupportedFormat.height,
+              actualEncoderFormat.width,
+              actualEncoderFormat.height,
               outputRotationDegrees);
 
       if (releaseEncoder) {
@@ -515,53 +509,6 @@ import org.checkerframework.dataflow.qual.Pure;
         encoder.release();
       }
       releaseEncoder = true;
-    }
-
-    /**
-     * Finds a {@linkplain MimeTypes MIME type} that is supported by the encoder and the muxer.
-     *
-     * <p>HDR editing support is checked if the {@link ColorInfo} is HDR.
-     *
-     * @param preferredMimeType The preferred {@linkplain MimeTypes MIME type}, returned if
-     *     supported.
-     * @param muxerSupportedMimeTypes The list of sample {@linkplain MimeTypes MIME types} that the
-     *     muxer supports.
-     * @param colorInfo The optional encoding {@link ColorInfo}. If a HDR color info is provided,
-     *     only encoders that support it will be considered.
-     * @return A {@linkplain MimeTypes MIME type} that is supported by an encoder and the muxer, or
-     *     {@code null} if no such {@linkplain MimeTypes MIME type} exists.
-     */
-    @Nullable
-    private static String findSupportedMimeTypeForEncoderAndMuxer(
-        String preferredMimeType,
-        List<String> muxerSupportedMimeTypes,
-        @Nullable ColorInfo colorInfo) {
-      ImmutableList<String> mimeTypesToCheck =
-          new ImmutableList.Builder<String>()
-              .add(preferredMimeType)
-              .add(MimeTypes.VIDEO_H265)
-              .add(MimeTypes.VIDEO_H264)
-              .addAll(muxerSupportedMimeTypes)
-              .build();
-
-      for (int i = 0; i < mimeTypesToCheck.size(); i++) {
-        String mimeType = mimeTypesToCheck.get(i);
-        if (mimeTypeAndColorAreSupported(mimeType, muxerSupportedMimeTypes, colorInfo)) {
-          return mimeType;
-        }
-      }
-      return null;
-    }
-
-    private static boolean mimeTypeAndColorAreSupported(
-        String mimeType, List<String> muxerSupportedMimeTypes, @Nullable ColorInfo colorInfo) {
-      if (!muxerSupportedMimeTypes.contains(mimeType)) {
-        return false;
-      }
-
-      return isTransferHdr(colorInfo)
-          ? !getSupportedEncodersForHdrEditing(mimeType, colorInfo).isEmpty()
-          : !getSupportedEncoders(mimeType).isEmpty();
     }
   }
 }
