@@ -52,14 +52,14 @@ public final class ScaleToFitTransformationTest {
     int inputHeight = 150;
     ScaleToFitTransformation scaleToFitTransformation =
         new ScaleToFitTransformation.Builder()
-            .setScale(/* scaleX= */ .5f, /* scaleY= */ 1f)
+            .setScale(/* scaleX= */ 0.5f, /* scaleY= */ 1f)
             .build();
 
     Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
     boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isFalse();
-    assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * .5f));
+    assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * 0.5f));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 

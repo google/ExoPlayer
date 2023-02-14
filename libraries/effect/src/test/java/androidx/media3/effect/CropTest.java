@@ -48,9 +48,9 @@ public final class CropTest {
   public void configure_setCrop_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
-    float left = -.5f;
-    float right = .5f;
-    float bottom = .5f;
+    float left = -0.5f;
+    float right = 0.5f;
+    float bottom = 0.5f;
     float top = 1f;
     Crop crop = new Crop(left, right, bottom, top);
 

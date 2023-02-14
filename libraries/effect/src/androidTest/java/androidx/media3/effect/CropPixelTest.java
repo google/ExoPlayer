@@ -116,7 +116,7 @@ public final class CropPixelTest {
   public void drawFrame_cropSmaller_matchesGoldenFile() throws Exception {
     String testId = "drawFrame_cropSmaller";
     cropShaderProgram =
-        new Crop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
+        new Crop(/* left= */ -0.9f, /* right= */ 0.1f, /* bottom= */ -1f, /* top= */ 0.5f)
             .toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = cropShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
