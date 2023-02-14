@@ -163,6 +163,23 @@ public class EncoderUtilTest {
     assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
   }
 
+  @Test
+  public void getSupportedResolution_requestedReallyLarge_matchesAspectRatio() {
+    ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
+    MediaCodecInfo encoderInfo = supportedEncoders.get(0);
+
+    double aspectRatio = 1.5;
+    @Nullable
+    Size closestSupportedResolution =
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, MIME_TYPE, (int) (aspectRatio * 5000), 5000);
+
+    assertThat(closestSupportedResolution).isNotNull();
+    assertThat(
+            (double) closestSupportedResolution.getWidth() / closestSupportedResolution.getHeight())
+        .isEqualTo(aspectRatio);
+  }
+
   /**
    * @see EncoderUtil#getSupportedEncodersForHdrEditing(String, ColorInfo)
    */
