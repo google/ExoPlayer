@@ -128,11 +128,11 @@ import org.checkerframework.dataflow.qual.Pure;
     // C.COLOR_TRANSFER_SDR to the encoder.
     ColorInfo frameProcessorOutputColor =
         isGlToneMapping
-            ? new ColorInfo(
-                C.COLOR_SPACE_BT709,
-                C.COLOR_RANGE_LIMITED,
-                C.COLOR_TRANSFER_GAMMA_2_2,
-                /* hdrStaticInfo= */ null)
+            ? new ColorInfo.Builder()
+                .setColorSpace(C.COLOR_SPACE_BT709)
+                .setColorRange(C.COLOR_RANGE_LIMITED)
+                .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
+                .build()
             : encoderInputColor;
     try {
       frameProcessor =
