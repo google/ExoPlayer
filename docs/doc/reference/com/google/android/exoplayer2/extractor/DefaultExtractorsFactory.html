@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -326,6 +326,14 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
  by the factory.</div>
 </td>
 </tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsSubtitleFormats(java.util.List)">setTsSubtitleFormats</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;subtitleFormats)</code></th>
+<td class="colLast">
+<div class="block">Sets a list of subtitle formats to pass to the <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a> used by
+ <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -591,6 +599,26 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="ts/TsExtractor.html#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)"><code>TsExtractor(int)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setTsSubtitleFormats(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTsSubtitleFormats</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsSubtitleFormats&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;subtitleFormats)</pre>
+<div class="block">Sets a list of subtitle formats to pass to the <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a> used by
+ <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>subtitleFormats</code> - The subtitle formats.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The factory, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="ts/DefaultTsPayloadReaderFactory.html#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a></dd>
 </dl>
 </li>
 </ul>

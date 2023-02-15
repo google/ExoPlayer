@@ -556,7 +556,10 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle(boolean)">toBundle</a></span>&#8203;(boolean&nbsp;excludeMediaItems)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleWithOneWindowOnly(int)">toBundleWithOneWindowOnly</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> containing just the specified <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2" target="_top"><code>Timeline.Window</code></a>.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -1034,28 +1037,10 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/util/
 </dl>
 </li>
 </ul>
-<a id="toBundle(boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>toBundle</h4>
-<pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle&#8203;(boolean&nbsp;excludeMediaItems)</pre>
-<div class="block">
-
- <p>The <a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window)"><code>getWindow(int, Window)</code></a> windows} and <a href="#getPeriod(int,com.google.android.exoplayer2.Timeline.Period)"><code>periods</code></a> of
- an instance restored by <a href="#CREATOR"><code>CREATOR</code></a> may have missing fields as described in <a href="Timeline.Window.html#toBundle()"><code>Timeline.Window.toBundle()</code></a> and <a href="Timeline.Period.html#toBundle()"><code>Timeline.Period.toBundle()</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>excludeMediaItems</code> - Whether to exclude all <a href="Timeline.Window.html#mediaItem"><code>media items</code></a> of windows
-     in the timeline.</dd>
-</dl>
-</li>
-</ul>
 <a id="toBundle()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
@@ -1066,6 +1051,23 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/util/
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toBundleWithOneWindowOnly(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toBundleWithOneWindowOnly</h4>
+<pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundleWithOneWindowOnly&#8203;(int&nbsp;windowIndex)</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> containing just the specified <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2" target="_top"><code>Timeline.Window</code></a>.
+
+ <p>The <a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window)"><code>getWindow(int, Window)</code></a> windows} and <a href="#getPeriod(int,com.google.android.exoplayer2.Timeline.Period)"><code>periods</code></a> of
+ an instance restored by <a href="#CREATOR"><code>CREATOR</code></a> may have missing fields as described in <a href="Timeline.Window.html#toBundle()"><code>Timeline.Window.toBundle()</code></a> and <a href="Timeline.Period.html#toBundle()"><code>Timeline.Period.toBundle()</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - The index of the <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to include in the <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</dd>
 </dl>
 </li>
 </ul>

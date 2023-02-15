@@ -1,0 +1,752 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>SimpleBasePlayer.MediaItemData.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="SimpleBasePlayer.MediaItemData.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class SimpleBasePlayer.MediaItemData.Builder" class="title">Class SimpleBasePlayer.MediaItemData.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.SimpleBasePlayer.MediaItemData.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">SimpleBasePlayer.MediaItemData.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">A builder for <a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2"><code>SimpleBasePlayer.MediaItemData</code></a> objects.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</code></th>
+<td class="colLast">
+<div class="block">Creates the builder.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Builds the <a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2"><code>SimpleBasePlayer.MediaItemData</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultPositionUs(long)">setDefaultPositionUs</a></span>&#8203;(long&nbsp;defaultPositionUs)</code></th>
+<td class="colLast">
+<div class="block">Sets the default position relative to the start of the media item at which to begin
+ playback, in microseconds.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDurationUs(long)">setDurationUs</a></span>&#8203;(long&nbsp;durationUs)</code></th>
+<td class="colLast">
+<div class="block">Sets the duration of the media item, in microseconds.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setElapsedRealtimeEpochOffsetMs(long)">setElapsedRealtimeEpochOffsetMs</a></span>&#8203;(long&nbsp;elapsedRealtimeEpochOffsetMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the offset between <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> and the time since the Unix
+ epoch according to the clock of the media origin server.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIsDynamic(boolean)">setIsDynamic</a></span>&#8203;(boolean&nbsp;isDynamic)</code></th>
+<td class="colLast">
+<div class="block">Sets whether this media item may change over time, for example a moving live window.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIsPlaceholder(boolean)">setIsPlaceholder</a></span>&#8203;(boolean&nbsp;isPlaceholder)</code></th>
+<td class="colLast">
+<div class="block">Sets whether this media item contains placeholder information because the real information
+ has yet to be loaded.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIsSeekable(boolean)">setIsSeekable</a></span>&#8203;(boolean&nbsp;isSeekable)</code></th>
+<td class="colLast">
+<div class="block">Sets whether it's possible to seek within this media item.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">setLiveConfiguration</a></span>&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</code></th>
+<td class="colLast">
+<div class="block">Sets the active <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration</code></a>, or null if the media item is not live.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setManifest(java.lang.Object)">setManifest</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;manifest)</code></th>
+<td class="colLast">
+<div class="block">Sets the manifest of the media item.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaMetadata(com.google.android.exoplayer2.MediaMetadata)">setMediaMetadata</a></span>&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPeriods(java.util.List)">setPeriods</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SimpleBasePlayer.PeriodData.html" title="class in com.google.android.exoplayer2" target="_top">SimpleBasePlayer.PeriodData</a>&gt;&nbsp;periods)</code></th>
+<td class="colLast">
+<div class="block">Sets the list of <a href="SimpleBasePlayer.PeriodData.html" title="class in com.google.android.exoplayer2">periods</a> in this media item.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionInFirstPeriodUs(long)">setPositionInFirstPeriodUs</a></span>&#8203;(long&nbsp;positionInFirstPeriodUs)</code></th>
+<td class="colLast">
+<div class="block">Sets the position of the start of this media item relative to the start of the first period
+ belonging to it, in microseconds.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPresentationStartTimeMs(long)">setPresentationStartTimeMs</a></span>&#8203;(long&nbsp;presentationStartTimeMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the start time of the live presentation.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTracks(com.google.android.exoplayer2.Tracks)">setTracks</a></span>&#8203;(<a href="Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> of this media item.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUid(java.lang.Object)">setUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</code></th>
+<td class="colLast">
+<div class="block">Sets the unique identifier of this media item within a playlist.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWindowStartTimeMs(long)">setWindowStartTimeMs</a></span>&#8203;(long&nbsp;windowStartTimeMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the start time of the live window.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</pre>
+<div class="block">Creates the builder.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uid</code> - The unique identifier of the media item within a playlist. This value will be
+     set as <a href="Timeline.Window.html#uid"><code>Timeline.Window.uid</code></a> for this item.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setUid(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUid</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</pre>
+<div class="block">Sets the unique identifier of this media item within a playlist.
+
+ <p>This value will be set as <a href="Timeline.Window.html#uid"><code>Timeline.Window.uid</code></a> for this item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uid</code> - The unique identifier of this media item within a playlist.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTracks(com.google.android.exoplayer2.Tracks)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTracks</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setTracks&#8203;(<a href="Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks)</pre>
+<div class="block">Sets the <a href="Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> of this media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tracks</code> - The <a href="Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> of this media item.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMediaItem(com.google.android.exoplayer2.MediaItem)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaItem</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setMediaItem&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<div class="block">Sets the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMediaMetadata(com.google.android.exoplayer2.MediaMetadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaMetadata</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setMediaMetadata&#8203;(@Nullable
+                                                               <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</pre>
+<div class="block">Sets the <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.
+
+ <p>This data includes static data from the <a href="MediaItem.html#mediaMetadata"><code>MediaItem</code></a> and
+ the media's <a href="Format.html#metadata"><code>Format</code></a>, as well any dynamic metadata that has been
+ parsed from the media. If null, the metadata is assumed to be the simple combination of the
+ <a href="MediaItem.html#mediaMetadata"><code>MediaItem</code></a> metadata and the metadata of the selected <a href="Format.html#metadata"><code>Formats</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaMetadata</code> - The <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>, or null to assume that the metadata is the
+     simple combination of the <a href="MediaItem.html#mediaMetadata"><code>MediaItem</code></a> metadata and the
+     metadata of the selected <a href="Format.html#metadata"><code>Formats</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setManifest(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setManifest</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setManifest&#8203;(@Nullable
+                                                          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;manifest)</pre>
+<div class="block">Sets the manifest of the media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>manifest</code> - The manifest of the media item, or null if not applicable.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveConfiguration</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setLiveConfiguration&#8203;(@Nullable
+                                                                   <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</pre>
+<div class="block">Sets the active <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration</code></a>, or null if the media item is not live.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>liveConfiguration</code> - The active <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration</code></a>, or null if the
+     media item is not live.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPresentationStartTimeMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPresentationStartTimeMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setPresentationStartTimeMs&#8203;(long&nbsp;presentationStartTimeMs)</pre>
+<div class="block">Sets the start time of the live presentation.
+
+ <p>This value can only be set to anything other than <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the stream is
+ <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">live</a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>presentationStartTimeMs</code> - The start time of the live presentation, in milliseconds
+     since the Unix epoch, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setWindowStartTimeMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setWindowStartTimeMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setWindowStartTimeMs&#8203;(long&nbsp;windowStartTimeMs)</pre>
+<div class="block">Sets the start time of the live window.
+
+ <p>This value can only be set to anything other than <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the stream is
+ <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">live</a>. The value should also be greater or equal than the
+ <a href="#setPresentationStartTimeMs(long)">presentation start time</a>, if set.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowStartTimeMs</code> - The start time of the live window, in milliseconds since the Unix
+     epoch, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setElapsedRealtimeEpochOffsetMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setElapsedRealtimeEpochOffsetMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setElapsedRealtimeEpochOffsetMs&#8203;(long&nbsp;elapsedRealtimeEpochOffsetMs)</pre>
+<div class="block">Sets the offset between <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> and the time since the Unix
+ epoch according to the clock of the media origin server.
+
+ <p>This value can only be set to anything other than <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the stream is
+ <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">live</a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>elapsedRealtimeEpochOffsetMs</code> - The offset between <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> and the time since the Unix epoch according to the clock
+     of the media origin server, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setIsSeekable(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIsSeekable</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setIsSeekable&#8203;(boolean&nbsp;isSeekable)</pre>
+<div class="block">Sets whether it's possible to seek within this media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isSeekable</code> - Whether it's possible to seek within this media item.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setIsDynamic(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIsDynamic</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setIsDynamic&#8203;(boolean&nbsp;isDynamic)</pre>
+<div class="block">Sets whether this media item may change over time, for example a moving live window.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isDynamic</code> - Whether this media item may change over time, for example a moving live
+     window.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setDefaultPositionUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDefaultPositionUs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setDefaultPositionUs&#8203;(long&nbsp;defaultPositionUs)</pre>
+<div class="block">Sets the default position relative to the start of the media item at which to begin
+ playback, in microseconds.
+
+ <p>The default position must be less or equal to the <a href="#setDurationUs(long)">duration</a>,
+ is set.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>defaultPositionUs</code> - The default position relative to the start of the media item at
+     which to begin playback, in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setDurationUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDurationUs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setDurationUs&#8203;(long&nbsp;durationUs)</pre>
+<div class="block">Sets the duration of the media item, in microseconds.
+
+ <p>If both this duration and all <a href="#setPeriods(java.util.List)">period</a> durations are set, the sum
+ of this duration and the <a href="#setPositionInFirstPeriodUs(long)">offset in the first
+ period</a> must match the total duration of all periods.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>durationUs</code> - The duration of the media item, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+     if unknown.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPositionInFirstPeriodUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPositionInFirstPeriodUs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setPositionInFirstPeriodUs&#8203;(long&nbsp;positionInFirstPeriodUs)</pre>
+<div class="block">Sets the position of the start of this media item relative to the start of the first period
+ belonging to it, in microseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionInFirstPeriodUs</code> - The position of the start of this media item relative to the
+     start of the first period belonging to it, in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setIsPlaceholder(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIsPlaceholder</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setIsPlaceholder&#8203;(boolean&nbsp;isPlaceholder)</pre>
+<div class="block">Sets whether this media item contains placeholder information because the real information
+ has yet to be loaded.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isPlaceholder</code> - Whether this media item contains placeholder information because the
+     real information has yet to be loaded.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPeriods(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPeriods</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.MediaItemData.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData.Builder</a>&nbsp;setPeriods&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SimpleBasePlayer.PeriodData.html" title="class in com.google.android.exoplayer2" target="_top">SimpleBasePlayer.PeriodData</a>&gt;&nbsp;periods)</pre>
+<div class="block">Sets the list of <a href="SimpleBasePlayer.PeriodData.html" title="class in com.google.android.exoplayer2">periods</a> in this media item.
+
+ <p>All periods must have unique <a href="SimpleBasePlayer.PeriodData.Builder.html#setUid(java.lang.Object)">UIDs</a> and only the
+ last period is allowed to have an unset <a href="SimpleBasePlayer.PeriodData.Builder.html#setDurationUs(long)">duration</a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periods</code> - The list of <a href="SimpleBasePlayer.PeriodData.html" title="class in com.google.android.exoplayer2">periods</a> in this media item, or an empty
+     list to assume a single period without ads and the same duration as the media item.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="build()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData</a>&nbsp;build()</pre>
+<div class="block">Builds the <a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2"><code>SimpleBasePlayer.MediaItemData</code></a>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

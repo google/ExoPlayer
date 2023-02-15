@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -188,17 +188,265 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearPositionDiscontinuity()">clearPositionDiscontinuity</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Clears a previously set position discontinuity signal.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdBufferedPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">setAdBufferedPositionMs</a></span>&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;adBufferedPositionMsSupplier)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently
+ playing ad is buffered, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdPositionMs(long)">setAdPositionMs</a></span>&#8203;(long&nbsp;positionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the current ad playback position in milliseconds.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">setAdPositionMs</a></span>&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;adPositionMsSupplier)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current ad playback position in milliseconds.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">setAudioAttributes</a></span>&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
+<td class="colLast">
+<div class="block">Sets the current <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAvailableCommands(com.google.android.exoplayer2.Player.Commands)">setAvailableCommands</a></span>&#8203;(<a href="Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a>&nbsp;availableCommands)</code></th>
 <td class="colLast">
 <div class="block">Sets the available <a href="Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentBufferedPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">setContentBufferedPositionMs</a></span>&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;contentBufferedPositionMsSupplier)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently
+ playing content is buffered, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentPositionMs(long)">setContentPositionMs</a></span>&#8203;(long&nbsp;positionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the current content playback position in milliseconds.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">setContentPositionMs</a></span>&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;contentPositionMsSupplier)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current content playback position in
+ milliseconds.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCurrentAd(int,int)">setCurrentAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+            int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block">Sets the current ad indices, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is playing.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCurrentCues(com.google.android.exoplayer2.text.CueGroup)">setCurrentCues</a></span>&#8203;(<a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a>&nbsp;currentCues)</code></th>
+<td class="colLast">
+<div class="block">Sets the current <a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">cues</a>.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCurrentMediaItemIndex(int)">setCurrentMediaItemIndex</a></span>&#8203;(int&nbsp;currentMediaItemIndex)</code></th>
+<td class="colLast">
+<div class="block">Sets the current media item index.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceInfo(com.google.android.exoplayer2.DeviceInfo)">setDeviceInfo</a></span>&#8203;(<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;deviceInfo)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceVolume(int)">setDeviceVolume</a></span>&#8203;(int&nbsp;deviceVolume)</code></th>
+<td class="colLast">
+<div class="block">Sets the current device volume.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIsDeviceMuted(boolean)">setIsDeviceMuted</a></span>&#8203;(boolean&nbsp;isDeviceMuted)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the device is muted.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIsLoading(boolean)">setIsLoading</a></span>&#8203;(boolean&nbsp;isLoading)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the player is currently loading its source.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxSeekToPreviousPositionMs(long)">setMaxSeekToPreviousPositionMs</a></span>&#8203;(long&nbsp;maxSeekToPreviousPositionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the maximum position for which <a href="BasePlayer.html#seekToPrevious()"><code>BasePlayer.seekToPrevious()</code></a> seeks to the previous item,
+ in milliseconds.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNewlyRenderedFirstFrame(boolean)">setNewlyRenderedFirstFrame</a></span>&#8203;(boolean&nbsp;newlyRenderedFirstFrame)</code></th>
+<td class="colLast">
+<div class="block">Sets whether a frame has been rendered for the first time since setting the surface, a
+ rendering reset, or since the stream being rendered was changed.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a></span>&#8203;(<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
+<td class="colLast">
+<div class="block">Sets the currently active <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackState(@com.google.android.exoplayer2.Player.Stateint)">setPlaybackState</a></span>&#8203;(@com.google.android.exoplayer2.Player.State int&nbsp;playbackState)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Player.State.html" title="annotation in com.google.android.exoplayer2">state</a> of the player.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackSuppressionReason(@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">setPlaybackSuppressionReason</a></span>&#8203;(@com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</code></th>
+<td class="colLast">
+<div class="block">Sets the reason why playback is suppressed even if <a href="SimpleBasePlayer.html#getPlayWhenReady()"><code>SimpleBasePlayer.getPlayWhenReady()</code></a> is true.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayerError(com.google.android.exoplayer2.PlaybackException)">setPlayerError</a></span>&#8203;(<a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;playerError)</code></th>
+<td class="colLast">
+<div class="block">Sets last error that caused playback to fail, or null if there was no error.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaylist(java.util.List)">setPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2" target="_top">SimpleBasePlayer.MediaItemData</a>&gt;&nbsp;playlist)</code></th>
+<td class="colLast">
+<div class="block">Sets the list of <a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2"><code>media items</code></a> in the playlist.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">setPlaylistMetadata</a></span>&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;playlistMetadata)</code></th>
+<td class="colLast">
+<div class="block">Sets the playlist <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayWhenReady(boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)">setPlayWhenReady</a></span>&#8203;(boolean&nbsp;playWhenReady,
                 @com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int&nbsp;playWhenReadyChangeReason)</code></th>
 <td class="colLast">
 <div class="block">Sets whether playback should proceed when ready and not suppressed.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionDiscontinuity(@com.google.android.exoplayer2.Player.DiscontinuityReasonint,long)">setPositionDiscontinuity</a></span>&#8203;(@com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;positionDiscontinuityReason,
+                        long&nbsp;discontinuityPositionMs)</code></th>
+<td class="colLast">
+<div class="block">Signals that a position discontinuity happened since the last player update and sets the
+ reason for it.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a></span>&#8203;(@com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekBackIncrementMs(long)">setSeekBackIncrementMs</a></span>&#8203;(long&nbsp;seekBackIncrementMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment in milliseconds.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekForwardIncrementMs(long)">setSeekForwardIncrementMs</a></span>&#8203;(long&nbsp;seekForwardIncrementMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment in milliseconds.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colLast">
+<div class="block">Sets whether shuffling of media items is enabled.</div>
+</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSurfaceSize(com.google.android.exoplayer2.util.Size)">setSurfaceSize</a></span>&#8203;(<a href="util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a>&nbsp;surfaceSize)</code></th>
+<td class="colLast">
+<div class="block">Sets the size of the surface onto which the video is being rendered.</div>
+</td>
+</tr>
+<tr id="i32" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimedMetadata(com.google.android.exoplayer2.metadata.Metadata)">setTimedMetadata</a></span>&#8203;(<a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;timedMetadata)</code></th>
+<td class="colLast">
+<div class="block">Sets the most recent timed <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a>.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTotalBufferedDurationMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">setTotalBufferedDurationMs</a></span>&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;totalBufferedDurationMsSupplier)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated total buffered duration in
+ milliseconds.</div>
+</td>
+</tr>
+<tr id="i34" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setTrackSelectionParameters</a></span>&#8203;(<a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;trackSelectionParameters)</code></th>
+<td class="colLast">
+<div class="block">Sets the currently active <a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
+</td>
+</tr>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSize(com.google.android.exoplayer2.video.VideoSize)">setVideoSize</a></span>&#8203;(<a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</code></th>
+<td class="colLast">
+<div class="block">Sets the current video size.</div>
+</td>
+</tr>
+<tr id="i36" class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVolume(float)">setVolume</a></span>&#8203;(float&nbsp;volume)</code></th>
+<td class="colLast">
+<div class="block">Sets the current audio volume, with 0 being silence and 1 being unity gain (signal
+ unchanged).</div>
 </td>
 </tr>
 </table>
@@ -280,6 +528,668 @@ public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.go
      changing the value.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlaybackState(@com.google.android.exoplayer2.Player.Stateint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaybackState</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPlaybackState&#8203;(<a href="Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
+                                                       @com.google.android.exoplayer2.Player.State int&nbsp;playbackState)</pre>
+<div class="block">Sets the <a href="Player.State.html" title="annotation in com.google.android.exoplayer2">state</a> of the player.
+
+ <p>If the <a href="#setPlaylist(java.util.List)">playlist</a> is empty, the state must be either <a href="Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> or <a href="Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackState</code> - The <a href="Player.State.html" title="annotation in com.google.android.exoplayer2">state</a> of the player.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlaybackSuppressionReason(@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaybackSuppressionReason</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPlaybackSuppressionReason&#8203;(<a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@PlaybackSuppressionReason</a>
+                                                                   @com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</pre>
+<div class="block">Sets the reason why playback is suppressed even if <a href="SimpleBasePlayer.html#getPlayWhenReady()"><code>SimpleBasePlayer.getPlayWhenReady()</code></a> is true.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackSuppressionReason</code> - The <a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.PlaybackSuppressionReason</code></a> why playback
+     is suppressed even if <a href="SimpleBasePlayer.html#getPlayWhenReady()"><code>SimpleBasePlayer.getPlayWhenReady()</code></a> is true.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlayerError(com.google.android.exoplayer2.PlaybackException)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayerError</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPlayerError&#8203;(@Nullable
+                                                     <a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;playerError)</pre>
+<div class="block">Sets last error that caused playback to fail, or null if there was no error.
+
+ <p>The <a href="#setPlaybackState(@com.google.android.exoplayer2.Player.Stateint)">playback state</a> must be set to <a href="Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> while an error is set.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playerError</code> - The last error that caused playback to fail, or null if there was no
+     error.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRepeatMode</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setRepeatMode&#8203;(<a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+                                                    @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</pre>
+<div class="block">Sets the <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>repeatMode</code> - The <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setShuffleModeEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShuffleModeEnabled</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setShuffleModeEnabled&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="block">Sets whether shuffling of media items is enabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>shuffleModeEnabled</code> - Whether shuffling of media items is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setIsLoading(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIsLoading</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setIsLoading&#8203;(boolean&nbsp;isLoading)</pre>
+<div class="block">Sets whether the player is currently loading its source.
+
+ <p>The player can not be marked as loading if the <a href="#setPlaybackState(@com.google.android.exoplayer2.Player.Stateint)">state</a> is
+ <a href="Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> or <a href="Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isLoading</code> - Whether the player is currently loading its source.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSeekBackIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSeekBackIncrementMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setSeekBackIncrementMs&#8203;(long&nbsp;seekBackIncrementMs)</pre>
+<div class="block">Sets the <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>seekBackIncrementMs</code> - The <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSeekForwardIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSeekForwardIncrementMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setSeekForwardIncrementMs&#8203;(long&nbsp;seekForwardIncrementMs)</pre>
+<div class="block">Sets the <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>seekForwardIncrementMs</code> - The <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxSeekToPreviousPositionMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxSeekToPreviousPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setMaxSeekToPreviousPositionMs&#8203;(long&nbsp;maxSeekToPreviousPositionMs)</pre>
+<div class="block">Sets the maximum position for which <a href="BasePlayer.html#seekToPrevious()"><code>BasePlayer.seekToPrevious()</code></a> seeks to the previous item,
+ in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxSeekToPreviousPositionMs</code> - The maximum position for which <a href="BasePlayer.html#seekToPrevious()"><code>BasePlayer.seekToPrevious()</code></a>
+     seeks to the previous item, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaybackParameters</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPlaybackParameters&#8203;(<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="block">Sets the currently active <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackParameters</code> - The currently active <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTrackSelectionParameters</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setTrackSelectionParameters&#8203;(<a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;trackSelectionParameters)</pre>
+<div class="block">Sets the currently active <a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackSelectionParameters</code> - The currently active <a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioAttributes</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<div class="block">Sets the current <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioAttributes</code> - The current <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setVolume(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVolume</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setVolume&#8203;(@FloatRange(from=0.0,to=1.0)
+                                                float&nbsp;volume)</pre>
+<div class="block">Sets the current audio volume, with 0 being silence and 1 being unity gain (signal
+ unchanged).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>volume</code> - The current audio volume, with 0 being silence and 1 being unity gain (signal
+     unchanged).</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setVideoSize(com.google.android.exoplayer2.video.VideoSize)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoSize</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setVideoSize&#8203;(<a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</pre>
+<div class="block">Sets the current video size.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>videoSize</code> - The current video size.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setCurrentCues(com.google.android.exoplayer2.text.CueGroup)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCurrentCues</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setCurrentCues&#8203;(<a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a>&nbsp;currentCues)</pre>
+<div class="block">Sets the current <a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">cues</a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>currentCues</code> - The current <a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">cues</a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setDeviceInfo(com.google.android.exoplayer2.DeviceInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDeviceInfo</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setDeviceInfo&#8203;(<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;deviceInfo)</pre>
+<div class="block">Sets the <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>deviceInfo</code> - The <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setDeviceVolume(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDeviceVolume</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setDeviceVolume&#8203;(@IntRange(from=0L)
+                                                      int&nbsp;deviceVolume)</pre>
+<div class="block">Sets the current device volume.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>deviceVolume</code> - The current device volume.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setIsDeviceMuted(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIsDeviceMuted</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setIsDeviceMuted&#8203;(boolean&nbsp;isDeviceMuted)</pre>
+<div class="block">Sets whether the device is muted.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isDeviceMuted</code> - Whether the device is muted.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSurfaceSize(com.google.android.exoplayer2.util.Size)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSurfaceSize</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setSurfaceSize&#8203;(<a href="util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a>&nbsp;surfaceSize)</pre>
+<div class="block">Sets the size of the surface onto which the video is being rendered.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>surfaceSize</code> - The surface size. Dimensions may be <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown,
+     or 0 if the video is not rendered onto a surface.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setNewlyRenderedFirstFrame(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setNewlyRenderedFirstFrame</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setNewlyRenderedFirstFrame&#8203;(boolean&nbsp;newlyRenderedFirstFrame)</pre>
+<div class="block">Sets whether a frame has been rendered for the first time since setting the surface, a
+ rendering reset, or since the stream being rendered was changed.
+
+ <p>Note: As this will trigger a <a href="Player.Listener.html#onRenderedFirstFrame()"><code>Player.Listener.onRenderedFirstFrame()</code></a> event, the flag
+ should only be set for the first <a href="SimpleBasePlayer.State.html" title="class in com.google.android.exoplayer2"><code>SimpleBasePlayer.State</code></a> update after the first frame was rendered.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>newlyRenderedFirstFrame</code> - Whether the first frame was newly rendered.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTimedMetadata(com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTimedMetadata</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setTimedMetadata&#8203;(<a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;timedMetadata)</pre>
+<div class="block">Sets the most recent timed <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a>.
+
+ <p>Metadata with a <a href="metadata/Metadata.html#presentationTimeUs"><code>Metadata.presentationTimeUs</code></a> of <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> will not be
+ forwarded to listeners.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timedMetadata</code> - The most recent timed <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlaylist(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaylist</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPlaylist&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2" target="_top">SimpleBasePlayer.MediaItemData</a>&gt;&nbsp;playlist)</pre>
+<div class="block">Sets the list of <a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2"><code>media items</code></a> in the playlist.
+
+ <p>All items must have unique <a href="SimpleBasePlayer.MediaItemData.Builder.html#setUid(java.lang.Object)">UIDs</a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playlist</code> - The list of <a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2"><code>media items</code></a> in the playlist.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaylistMetadata</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPlaylistMetadata&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;playlistMetadata)</pre>
+<div class="block">Sets the playlist <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playlistMetadata</code> - The playlist <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setCurrentMediaItemIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCurrentMediaItemIndex</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setCurrentMediaItemIndex&#8203;(int&nbsp;currentMediaItemIndex)</pre>
+<div class="block">Sets the current media item index.
+
+ <p>The media item index must be less than the number of <a href="#setPlaylist(java.util.List)">media
+ items in the playlist</a>, if set.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>currentMediaItemIndex</code> - The current media item index, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> to
+     assume the default first item in the playlist.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setCurrentAd(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCurrentAd</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setCurrentAd&#8203;(int&nbsp;adGroupIndex,
+                                                   int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Sets the current ad indices, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is playing.
+
+ <p>Either both indices need to be <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> or both are not <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.
+
+ <p>Ads indices can only be set if there is a corresponding <a href="source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> defined
+ in the current <a href="SimpleBasePlayer.MediaItemData.Builder.html#setPeriods(java.util.List)">period</a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The current ad group index, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is
+     playing.</dd>
+<dd><code>adIndexInAdGroup</code> - The current ad index in the ad group, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if
+     no ad is playing.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setContentPositionMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setContentPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setContentPositionMs&#8203;(long&nbsp;positionMs)</pre>
+<div class="block">Sets the current content playback position in milliseconds.
+
+ <p>This position will be converted to an advancing <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> if the overall
+ state indicates an advancing playback position.
+
+ <p>This method overrides any other <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> set via <a href="#setContentPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)"><code>setContentPositionMs(PositionSupplier)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionMs</code> - The current content playback position in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default start position.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setContentPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setContentPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setContentPositionMs&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;contentPositionMsSupplier)</pre>
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current content playback position in
+ milliseconds.
+
+ <p>The supplier is expected to return the updated position on every call if the playback is
+ advancing, for example by using <a href="SimpleBasePlayer.PositionSupplier.html#getExtrapolating(long,float)"><code>SimpleBasePlayer.PositionSupplier.getExtrapolating(long, float)</code></a>.
+
+ <p>This method overrides any other position set via <a href="#setContentPositionMs(long)"><code>setContentPositionMs(long)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>contentPositionMsSupplier</code> - The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current content
+     playback position in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default
+     start position.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAdPositionMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setAdPositionMs&#8203;(long&nbsp;positionMs)</pre>
+<div class="block">Sets the current ad playback position in milliseconds. The value is unused if no ad is
+ playing.
+
+ <p>This position will be converted to an advancing <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> if the overall
+ state indicates an advancing ad playback position.
+
+ <p>This method overrides any other <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> set via <a href="#setAdPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)"><code>setAdPositionMs(PositionSupplier)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionMs</code> - The current ad playback position in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAdPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setAdPositionMs&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;adPositionMsSupplier)</pre>
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current ad playback position in milliseconds. The
+ value is unused if no ad is playing.
+
+ <p>The supplier is expected to return the updated position on every call if the playback is
+ advancing, for example by using <a href="SimpleBasePlayer.PositionSupplier.html#getExtrapolating(long,float)"><code>SimpleBasePlayer.PositionSupplier.getExtrapolating(long, float)</code></a>.
+
+ <p>This method overrides any other position set via <a href="#setAdPositionMs(long)"><code>setAdPositionMs(long)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adPositionMsSupplier</code> - The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current ad playback
+     position in milliseconds. The value is unused if no ad is playing.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setContentBufferedPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setContentBufferedPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setContentBufferedPositionMs&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;contentBufferedPositionMsSupplier)</pre>
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently
+ playing content is buffered, in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>contentBufferedPositionMsSupplier</code> - The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated
+     position up to which the currently playing content is buffered, in milliseconds, or
+     <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default start position.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAdBufferedPositionMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdBufferedPositionMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setAdBufferedPositionMs&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;adBufferedPositionMsSupplier)</pre>
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently
+ playing ad is buffered, in milliseconds. The value is unused if no ad is playing.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adBufferedPositionMsSupplier</code> - The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position
+     up to which the currently playing ad is buffered, in milliseconds. The value is unused
+     if no ad is playing.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTotalBufferedDurationMs(com.google.android.exoplayer2.SimpleBasePlayer.PositionSupplier)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTotalBufferedDurationMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setTotalBufferedDurationMs&#8203;(<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a>&nbsp;totalBufferedDurationMsSupplier)</pre>
+<div class="block">Sets the <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated total buffered duration in
+ milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>totalBufferedDurationMsSupplier</code> - The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated total
+     buffered duration in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPositionDiscontinuity(@com.google.android.exoplayer2.Player.DiscontinuityReasonint,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPositionDiscontinuity</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;setPositionDiscontinuity&#8203;(<a href="Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
+                                                               @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;positionDiscontinuityReason,
+                                                               long&nbsp;discontinuityPositionMs)</pre>
+<div class="block">Signals that a position discontinuity happened since the last player update and sets the
+ reason for it.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionDiscontinuityReason</code> - The <a href="Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">reason</a> for
+     the discontinuity.</dd>
+<dd><code>discontinuityPositionMs</code> - The position, in milliseconds, in the current content or ad
+     from which playback continues after the discontinuity.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="#clearPositionDiscontinuity()"><code>clearPositionDiscontinuity()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="clearPositionDiscontinuity()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearPositionDiscontinuity</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="SimpleBasePlayer.State.Builder.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.State.Builder</a>&nbsp;clearPositionDiscontinuity()</pre>
+<div class="block">Clears a previously set position discontinuity signal.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="#hasPositionDiscontinuity"><code>hasPositionDiscontinuity</code></a></dd>
 </dl>
 </li>
 </ul>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -154,6 +154,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_BYTES_PER_SECOND">MAX_BYTES_PER_SECOND</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum achievable Opus bitrate.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SAMPLE_RATE">SAMPLE_RATE</a></span></code></th>
 <td class="colLast">
 <div class="block">Opus streams are always 48000 Hz.</div>
@@ -191,6 +198,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Parses the channel count from an Opus Identification Header.</div>
 </td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPacketDurationUs(byte%5B%5D)">getPacketDurationUs</a></span>&#8203;(byte[]&nbsp;buffer)</code></th>
+<td class="colLast">
+<div class="block">Returns the duration of the given audio packet.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePacketAudioSampleCount(java.nio.ByteBuffer)">parsePacketAudioSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
+<td class="colLast">
+<div class="block">Returns the number of audio samples in the given audio packet.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -218,7 +239,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="SAMPLE_RATE">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>SAMPLE_RATE</h4>
 <pre>public static final&nbsp;int SAMPLE_RATE</pre>
@@ -226,6 +247,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.OpusUtil.SAMPLE_RATE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="MAX_BYTES_PER_SECOND">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MAX_BYTES_PER_SECOND</h4>
+<pre>public static final&nbsp;int MAX_BYTES_PER_SECOND</pre>
+<div class="block">Maximum achievable Opus bitrate.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.OpusUtil.MAX_BYTES_PER_SECOND">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -258,7 +293,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="buildInitializationData(byte[])">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>buildInitializationData</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;buildInitializationData&#8203;(byte[]&nbsp;header)</pre>
@@ -268,6 +303,40 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>header</code> - An Opus Identification Header, as defined by RFC 7845.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Codec initialization data suitable for an Opus <a href="https://developer.android.com/reference/android/media/MediaCodec#initialization">MediaCodec</a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="parsePacketAudioSampleCount(java.nio.ByteBuffer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parsePacketAudioSampleCount</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;parsePacketAudioSampleCount&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="block">Returns the number of audio samples in the given audio packet.
+
+ <p>The buffer's position is not modified.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>buffer</code> - The audio packet.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the number of audio samples in the packet.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPacketDurationUs(byte[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getPacketDurationUs</h4>
+<pre class="methodSignature">public static&nbsp;long&nbsp;getPacketDurationUs&#8203;(byte[]&nbsp;buffer)</pre>
+<div class="block">Returns the duration of the given audio packet.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>buffer</code> - The audio packet.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the duration of the given audio packet, in microseconds.</dd>
 </dl>
 </li>
 </ul>
