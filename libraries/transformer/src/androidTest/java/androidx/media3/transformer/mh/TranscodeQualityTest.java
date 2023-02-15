@@ -44,11 +44,11 @@ public final class TranscodeQualityTest {
     Context context = ApplicationProvider.getApplicationContext();
     String testId = "transformHighQualityTargetingAvcToAvc1920x1080_ssim";
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
+        /* inputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
       return;
     }
 
@@ -86,11 +86,11 @@ public final class TranscodeQualityTest {
     Context context = ApplicationProvider.getApplicationContext();
     String testId = "transcodeAvcToHevc_ssim";
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT
+        /* inputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT
             .buildUpon()
             .setSampleMimeType(MimeTypes.VIDEO_H265)
             .build())) {

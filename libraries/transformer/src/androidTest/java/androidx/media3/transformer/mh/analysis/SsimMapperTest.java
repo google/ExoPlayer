@@ -42,7 +42,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_7680W_4320H
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
 import static androidx.media3.transformer.AndroidTestUtil.getFormatForTestFile;
-import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfInsufficientCodecSupport;
+import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static androidx.media3.transformer.ExportTestResult.SSIM_UNSET;
 import static com.google.common.collect.Iterables.getLast;
 
@@ -141,11 +141,11 @@ public class SsimMapperTest {
         String.format(
             "ssim_search_VBR_%s", checkNotNull(getLast(FORWARD_SLASH_SPLITTER.split(mimeType))));
 
-    if (skipAndLogIfInsufficientCodecSupport(
+    if (skipAndLogIfFormatsUnsupported(
         ApplicationProvider.getApplicationContext(),
         testIdPrefix + "_codecSupport",
-        /* decodingFormat= */ getFormatForTestFile(fileUri),
-        /* encodingFormat= */ null)) {
+        /* inputFormat= */ getFormatForTestFile(fileUri),
+        /* outputFormat= */ null)) {
       return;
     }
 

@@ -580,43 +580,48 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Checks whether the test should be skipped because the device is incapable of decoding and
-   * encoding the given formats.
+   * Returns whether the test should be skipped because the device is incapable of decoding the
+   * input format, or encoding/muxing the output format. Assumes the input will always need to be
+   * decoded, and both encoded and muxed if {@code outputFormat} is non-null.
    *
    * <p>If the test should be skipped, logs the reason for skipping.
    *
    * @param context The {@link Context context}.
    * @param testId The test ID.
-   * @param decodingFormat The {@link Format format} to decode.
-   * @param encodingFormat The {@link Format format} to encode, optional.
+   * @param inputFormat The {@link Format format} to decode.
+   * @param outputFormat The {@link Format format} to encode/mux or {@code null} if the output won't
+   *     be encoded or muxed.
    * @return Whether the test should be skipped.
    */
-  public static boolean skipAndLogIfInsufficientCodecSupport(
-      Context context, String testId, Format decodingFormat, @Nullable Format encodingFormat)
+  public static boolean skipAndLogIfFormatsUnsupported(
+      Context context, String testId, Format inputFormat, @Nullable Format outputFormat)
       throws IOException, JSONException {
     boolean canDecode = false;
     @Nullable MediaCodecUtil.DecoderQueryException queryException = null;
     try {
-      canDecode = canDecode(decodingFormat);
+      canDecode = canDecode(inputFormat);
     } catch (MediaCodecUtil.DecoderQueryException e) {
       queryException = e;
     }
 
-    boolean canEncode = encodingFormat == null || canEncode(encodingFormat);
-
-    if (canDecode && canEncode) {
+    boolean canEncode = outputFormat == null || canEncode(outputFormat);
+    boolean canMux = outputFormat == null || canMux(outputFormat);
+    if (canDecode && canEncode && canMux) {
       return false;
     }
 
     StringBuilder skipReasonBuilder = new StringBuilder();
     if (!canDecode) {
-      skipReasonBuilder.append("Cannot decode ").append(decodingFormat).append('\n');
+      skipReasonBuilder.append("Cannot decode ").append(inputFormat).append('\n');
       if (queryException != null) {
         skipReasonBuilder.append(queryException).append('\n');
       }
     }
     if (!canEncode) {
-      skipReasonBuilder.append("Cannot encode ").append(encodingFormat);
+      skipReasonBuilder.append("Cannot encode ").append(outputFormat);
+    }
+    if (!canMux) {
+      skipReasonBuilder.append("Cannot mux ").append(outputFormat);
     }
     recordTestSkipped(context, testId, skipReasonBuilder.toString());
     return true;
@@ -714,7 +719,7 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Checks whether the top ranked encoder from {@link EncoderUtil#getSupportedEncoders} supports
+   * Returns whether the top ranked encoder from {@link EncoderUtil#getSupportedEncoders} supports
    * the given resolution and {@linkplain Format#averageBitrate bitrate}.
    *
    * <p>Assumes support encoding if the {@link Format#averageBitrate bitrate} is not set.
@@ -735,6 +740,14 @@ public final class AndroidTestUtil {
             || EncoderUtil.getSupportedBitrateRange(encoder, mimeType)
                 .contains(format.averageBitrate);
     return sizeSupported && bitrateSupported;
+  }
+
+  /** Returns whether the specified format can be muxed via the default muxer. */
+  private static boolean canMux(Format format) {
+    String mimeType = checkNotNull(format.sampleMimeType);
+    return new DefaultMuxer.Factory()
+        .getSupportedSampleMimeTypes(MimeTypes.getTrackType(mimeType))
+        .contains(mimeType);
   }
 
   /**

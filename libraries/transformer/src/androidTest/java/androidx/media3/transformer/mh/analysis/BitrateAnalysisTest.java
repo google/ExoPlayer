@@ -34,7 +34,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_3840W_2160H
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G;
-import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfInsufficientCodecSupport;
+import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 
 import android.content.Context;
 import android.net.Uri;
@@ -130,11 +130,11 @@ public class BitrateAnalysisTest {
     }
 
     Context context = ApplicationProvider.getApplicationContext();
-    if (skipAndLogIfInsufficientCodecSupport(
+    if (skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
-        /* encodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri)
+        /* inputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
+        /* outputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri)
             .buildUpon()
             .setAverageBitrate(bitrate)
             .build())) {

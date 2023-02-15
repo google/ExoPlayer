@@ -105,11 +105,11 @@ public class TransformationTest {
     String testId = TAG + "_transform4K60";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ MP4_REMOTE_4K60_PORTRAIT_FORMAT,
-        /* encodingFormat= */ null)) {
+        /* inputFormat= */ MP4_REMOTE_4K60_PORTRAIT_FORMAT,
+        /* outputFormat= */ null)) {
       return;
     }
 
@@ -130,11 +130,8 @@ public class TransformationTest {
     String testId = TAG + "_transform8K24";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
-        context,
-        testId,
-        /* decodingFormat= */ MP4_REMOTE_8K24_FORMAT,
-        /* encodingFormat= */ null)) {
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ MP4_REMOTE_8K24_FORMAT, /* outputFormat= */ null)) {
       return;
     }
     Transformer transformer =
