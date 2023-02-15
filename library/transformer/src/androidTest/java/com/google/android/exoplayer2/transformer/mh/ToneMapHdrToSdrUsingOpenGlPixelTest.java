@@ -21,7 +21,7 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBit
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfInsufficientCodecSupport;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
@@ -95,11 +95,11 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
       recordTestSkipped(getApplicationContext(), testId, SKIP_REASON_NO_YUV);
       return;
     }
-    if (skipAndLogIfInsufficientCodecSupport(
+    if (skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
-        /* decodingFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* encodingFormat= */ null)) {
+        /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
+        /* outputFormat= */ null)) {
       return;
     }
     ColorInfo hlgColor =
@@ -158,11 +158,11 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
       recordTestSkipped(getApplicationContext(), testId, SKIP_REASON_NO_YUV);
       return;
     }
-    if (skipAndLogIfInsufficientCodecSupport(
+    if (skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
-        /* decodingFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
-        /* encodingFormat= */ null)) {
+        /* inputFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
+        /* outputFormat= */ null)) {
       return;
     }
     ColorInfo pqColor =

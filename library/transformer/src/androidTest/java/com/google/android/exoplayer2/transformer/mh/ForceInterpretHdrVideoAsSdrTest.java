@@ -51,11 +51,11 @@ public class ForceInterpretHdrVideoAsSdrTest {
     String testId = "forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
-        /* encodingFormat= */ null)) {
+        /* inputFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
+        /* outputFormat= */ null)) {
       return;
     }
 
@@ -87,11 +87,11 @@ public class ForceInterpretHdrVideoAsSdrTest {
     String testId = "forceInterpretHdrVideoAsSdrTest_hlg10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* encodingFormat= */ null)) {
+        /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
+        /* outputFormat= */ null)) {
       return;
     }
 

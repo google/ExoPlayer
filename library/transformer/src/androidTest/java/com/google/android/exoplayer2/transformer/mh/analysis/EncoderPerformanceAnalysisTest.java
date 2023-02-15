@@ -96,11 +96,11 @@ public class EncoderPerformanceAnalysisTest {
             "analyzePerformance_%s_OpRate_%d_Priority_%d", filename, operatingRate, priority);
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
-        /* encodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri))) {
+        /* inputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
+        /* outputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri))) {
       return;
     }
 
