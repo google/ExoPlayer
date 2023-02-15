@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Interface for a frame processor that applies changes to individual video frames.
+ * Interface for a video frame processor that applies changes to individual video frames.
  *
  * <p>The changes are specified by {@link Effect} instances passed to {@link Factory#create}.
  *
@@ -37,13 +37,13 @@ import java.util.concurrent.Executor;
  * to the input {@link Surface}.
  */
 @UnstableApi
-public interface FrameProcessor {
+public interface VideoFrameProcessor {
   // TODO(b/243036513): Allow effects to be replaced.
 
-  /** A factory for {@link FrameProcessor} instances. */
+  /** A factory for {@link VideoFrameProcessor} instances. */
   interface Factory {
     /**
-     * Creates a new {@link FrameProcessor} instance.
+     * Creates a new {@link VideoFrameProcessor} instance.
      *
      * @param context A {@link Context}.
      * @param effects The {@link Effect} instances to apply to each frame. Applied on the {@code
@@ -55,18 +55,18 @@ public interface FrameProcessor {
      *     video) or not (e.g. from a {@link Bitmap}). See <a
      *     href="https://source.android.com/docs/core/graphics/arch-st#ext_texture">the
      *     SurfaceTexture docs</a> for more information on external textures.
-     * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will render
-     *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
-     *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
-     *     {@link FrameProcessor} will block until {@link #releaseOutputFrame(long)} is called, to
+     * @param releaseFramesAutomatically If {@code true}, the instance will render output frames to
+     *     the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface} automatically as
+     *     {@link VideoFrameProcessor} is done processing them. If {@code false}, the {@link
+     *     VideoFrameProcessor} will block until {@link #releaseOutputFrame(long)} is called, to
      *     render or drop the frame.
      * @param executor The {@link Executor} on which the {@code listener} is invoked.
      * @param listener A {@link Listener}.
      * @return A new instance.
-     * @throws FrameProcessingException If a problem occurs while creating the {@link
-     *     FrameProcessor}.
+     * @throws VideoFrameProcessingException If a problem occurs while creating the {@link
+     *     VideoFrameProcessor}.
      */
-    FrameProcessor create(
+    VideoFrameProcessor create(
         Context context,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
@@ -76,7 +76,7 @@ public interface FrameProcessor {
         boolean releaseFramesAutomatically,
         Executor executor,
         Listener listener)
-        throws FrameProcessingException;
+        throws VideoFrameProcessingException;
   }
 
   /**
@@ -106,15 +106,15 @@ public interface FrameProcessor {
     void onOutputFrameAvailable(long presentationTimeUs);
 
     /**
-     * Called when an exception occurs during asynchronous frame processing.
+     * Called when an exception occurs during asynchronous video frame processing.
      *
      * <p>If an error occurred, consuming and producing further frames will not work as expected and
-     * the {@link FrameProcessor} should be released.
+     * the {@link VideoFrameProcessor} should be released.
      */
-    void onFrameProcessingError(FrameProcessingException exception);
+    void onError(VideoFrameProcessingException exception);
 
-    /** Called after the {@link FrameProcessor} has produced its final output frame. */
-    void onFrameProcessingEnded();
+    /** Called after the {@link VideoFrameProcessor} has produced its final output frame. */
+    void onEnded();
   }
 
   /**
@@ -127,14 +127,14 @@ public interface FrameProcessor {
   long DROP_OUTPUT_FRAME = -2;
 
   /**
-   * Provides an input {@link Bitmap} to the {@link FrameProcessor}.
+   * Provides an input {@link Bitmap} to the {@code VideoFrameProcessor}.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code false}.
    *
    * <p>Can be called on any thread.
    *
-   * @param inputBitmap The {@link Bitmap} queued to the {@link FrameProcessor}.
+   * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
    * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
    * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
    *     second.
@@ -144,9 +144,10 @@ public interface FrameProcessor {
   void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate);
 
   /**
-   * Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from.
+   * Returns the input {@link Surface}, where {@code VideoFrameProcessor} consumes input frames
+   * from.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>Can be called on any thread.
@@ -171,11 +172,11 @@ public interface FrameProcessor {
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
   /**
-   * Informs the {@code FrameProcessor} that a frame will be queued to its input surface.
+   * Informs the {@code VideoFrameProcessor} that a frame will be queued to its input surface.
    *
-   * <p>Must be called before rendering a frame to the frame processor's input surface.
+   * <p>Must be called before rendering a frame to the {@code VideoFrameProcessor}'s input surface.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>Can be called on any thread.
@@ -189,7 +190,7 @@ public interface FrameProcessor {
    * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>Can be called on any thread.
@@ -201,7 +202,7 @@ public interface FrameProcessor {
    * dropped, they will be rendered to this output {@link SurfaceInfo}.
    *
    * <p>The new output {@link SurfaceInfo} is applied from the next output frame rendered onwards.
-   * If the output {@link SurfaceInfo} is {@code null}, the {@code FrameProcessor} will stop
+   * If the output {@link SurfaceInfo} is {@code null}, the {@code VideoFrameProcessor} will stop
    * rendering pending frames and resume rendering once a non-null {@link SurfaceInfo} is set.
    *
    * <p>If the dimensions given in {@link SurfaceInfo} do not match the {@linkplain
@@ -235,7 +236,7 @@ public interface FrameProcessor {
   void releaseOutputFrame(long releaseTimeNs);
 
   /**
-   * Informs the {@code FrameProcessor} that no further input frames should be accepted.
+   * Informs the {@code VideoFrameProcessor} that no further input frames should be accepted.
    *
    * <p>Can be called on any thread.
    *
@@ -244,12 +245,12 @@ public interface FrameProcessor {
   void signalEndOfInput();
 
   /**
-   * Flushes the {@code FrameProcessor}.
+   * Flushes the {@code VideoFrameProcessor}.
    *
    * <p>All the frames that are {@linkplain #registerInputFrame() registered} prior to calling this
    * method are no longer considered to be registered when this method returns.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>{@link Listener} methods invoked prior to calling this method should be ignored.
@@ -259,10 +260,9 @@ public interface FrameProcessor {
   /**
    * Releases all resources.
    *
-   * <p>If the frame processor is released before it has {@linkplain
-   * Listener#onFrameProcessingEnded() ended}, it will attempt to cancel processing any input frames
-   * that have already become available. Input frames that become available after release are
-   * ignored.
+   * <p>If the {@code VideoFrameProcessor} is released before it has {@linkplain Listener#onEnded()
+   * ended}, it will attempt to cancel processing any input frames that have already become
+   * available. Input frames that become available after release are ignored.
    *
    * <p>This method blocks until all resources are released or releasing times out.
    *

@@ -16,7 +16,7 @@
 package androidx.media3.effect;
 
 import android.content.Context;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 
@@ -40,7 +40,7 @@ public final class OverlayEffect implements GlEffect {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new OverlayShaderProgram(context, useHdr, overlays);
   }
 }

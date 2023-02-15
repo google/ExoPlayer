@@ -21,8 +21,8 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
-import androidx.media3.common.FrameProcessingException;
-import androidx.media3.common.FrameProcessor;
+import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
@@ -66,7 +66,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
         ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
-        ERROR_CODE_FRAME_PROCESSING_FAILED,
+        ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED,
         ERROR_CODE_AUDIO_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
       })
@@ -151,8 +151,8 @@ public final class TransformationException extends Exception {
 
   // Video editing errors (5xxx).
 
-  /** Caused by a frame processing failure. */
-  public static final int ERROR_CODE_FRAME_PROCESSING_FAILED = 5001;
+  /** Caused by a video frame processing failure. */
+  public static final int ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED = 5001;
 
   // Audio processing errors (6xxx).
 
@@ -182,7 +182,7 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
           .put("ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED", ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED)
-          .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
+          .put("ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED", ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
@@ -271,15 +271,15 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for a {@link FrameProcessor} related exception.
+   * Creates an instance for a {@link VideoFrameProcessor} related exception.
    *
    * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForFrameProcessingException(
-      FrameProcessingException cause, int errorCode) {
-    return new TransformationException("Frame processing error", cause, errorCode);
+  /* package */ static TransformationException createForVideoFrameProcessingException(
+      VideoFrameProcessingException cause, int errorCode) {
+    return new TransformationException("Video frame processing error", cause, errorCode);
   }
 
   /**

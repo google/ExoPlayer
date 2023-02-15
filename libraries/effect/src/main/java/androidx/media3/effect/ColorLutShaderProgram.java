@@ -20,7 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -41,10 +41,10 @@ import java.io.IOException;
    * @param colorLut The {@link ColorLut} to apply to each frame in order.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
-   * @throws FrameProcessingException If a problem occurs while reading shader files.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files.
    */
   public ColorLutShaderProgram(Context context, ColorLut colorLut, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     super(useHdr);
     // TODO(b/246315245): Add HDR support.
     checkArgument(!useHdr, "ColorLutShaderProgram does not support HDR colors.");
@@ -53,7 +53,7 @@ import java.io.IOException;
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     } catch (IOException | GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
 
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
@@ -73,7 +73,8 @@ import java.io.IOException;
   }
 
   @Override
-  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs)
+      throws VideoFrameProcessingException {
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
@@ -84,18 +85,18 @@ import java.io.IOException;
 
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
   }
 
   @Override
-  public void release() throws FrameProcessingException {
+  public void release() throws VideoFrameProcessingException {
     super.release();
     try {
       colorLut.release();
       glProgram.delete();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
   }
 }

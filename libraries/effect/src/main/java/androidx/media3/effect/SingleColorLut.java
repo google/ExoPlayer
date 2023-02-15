@@ -24,7 +24,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.media3.common.Format;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -150,13 +150,13 @@ public class SingleColorLut implements ColorLut {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     checkState(!useHdr, "HDR is currently not supported.");
 
     try {
       lutTextureId = storeLutAsTexture(lut);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException("Could not store the LUT as a texture.", e);
+      throw new VideoFrameProcessingException("Could not store the LUT as a texture.", e);
     }
 
     return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);

@@ -35,7 +35,7 @@ import java.util.Queue;
 
   private final GlShaderProgram producingGlShaderProgram;
   private final GlShaderProgram consumingGlShaderProgram;
-  private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
+  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
   @GuardedBy("this")
   private final Queue<Pair<TextureInfo, Long>> availableFrames;
@@ -50,18 +50,18 @@ import java.util.Queue;
    *     as {@link OutputListener}.
    * @param consumingGlShaderProgram The {@link GlShaderProgram} for which this listener will be set
    *     as {@link InputListener}.
-   * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor} that is used for
-   *     OpenGL calls. All calls to the producing/consuming {@link GlShaderProgram} will be executed
-   *     by the {@link FrameProcessingTaskExecutor}. The caller is responsible for releasing the
-   *     {@link FrameProcessingTaskExecutor}.
+   * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor} that is
+   *     used for OpenGL calls. All calls to the producing/consuming {@link GlShaderProgram} will be
+   *     executed by the {@link VideoFrameProcessingTaskExecutor}. The caller is responsible for
+   *     releasing the {@link VideoFrameProcessingTaskExecutor}.
    */
   public ChainingGlShaderProgramListener(
       GlShaderProgram producingGlShaderProgram,
       GlShaderProgram consumingGlShaderProgram,
-      FrameProcessingTaskExecutor frameProcessingTaskExecutor) {
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     this.producingGlShaderProgram = producingGlShaderProgram;
     this.consumingGlShaderProgram = consumingGlShaderProgram;
-    this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
+    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     availableFrames = new ArrayDeque<>();
   }
 
@@ -75,9 +75,10 @@ import java.util.Queue;
 
     long presentationTimeUs = pendingFrame.second;
     if (presentationTimeUs == C.TIME_END_OF_SOURCE) {
-      frameProcessingTaskExecutor.submit(consumingGlShaderProgram::signalEndOfCurrentInputStream);
+      videoFrameProcessingTaskExecutor.submit(
+          consumingGlShaderProgram::signalEndOfCurrentInputStream);
     } else {
-      frameProcessingTaskExecutor.submit(
+      videoFrameProcessingTaskExecutor.submit(
           () ->
               consumingGlShaderProgram.queueInputFrame(
                   /* inputTexture= */ pendingFrame.first, presentationTimeUs));
@@ -86,7 +87,7 @@ import java.util.Queue;
 
   @Override
   public void onInputFrameProcessed(TextureInfo inputTexture) {
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> producingGlShaderProgram.releaseOutputFrame(inputTexture));
   }
 
@@ -94,14 +95,14 @@ import java.util.Queue;
   public synchronized void onFlush() {
     consumingGlShaderProgramInputCapacity = 0;
     availableFrames.clear();
-    frameProcessingTaskExecutor.submit(producingGlShaderProgram::flush);
+    videoFrameProcessingTaskExecutor.submit(producingGlShaderProgram::flush);
   }
 
   @Override
   public synchronized void onOutputFrameAvailable(
       TextureInfo outputTexture, long presentationTimeUs) {
     if (consumingGlShaderProgramInputCapacity > 0) {
-      frameProcessingTaskExecutor.submit(
+      videoFrameProcessingTaskExecutor.submit(
           () ->
               consumingGlShaderProgram.queueInputFrame(
                   /* inputTexture= */ outputTexture, presentationTimeUs));
@@ -116,7 +117,8 @@ import java.util.Queue;
     if (!availableFrames.isEmpty()) {
       availableFrames.add(new Pair<>(TextureInfo.UNSET, C.TIME_END_OF_SOURCE));
     } else {
-      frameProcessingTaskExecutor.submit(consumingGlShaderProgram::signalEndOfCurrentInputStream);
+      videoFrameProcessingTaskExecutor.submit(
+          consumingGlShaderProgram::signalEndOfCurrentInputStream);
     }
   }
 }

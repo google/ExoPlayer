@@ -19,7 +19,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -92,7 +92,7 @@ public class RgbFilter implements RgbMatrix {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     checkForConsistentHdrSetting(useHdr);
     return RgbMatrix.super.toGlShaderProgram(context, useHdr);
   }

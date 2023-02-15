@@ -20,7 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -40,10 +40,10 @@ import java.io.IOException;
    * @param hslAdjustment The {@link HslAdjustment} to apply to each frame in order.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
-   * @throws FrameProcessingException If a problem occurs while reading shader files.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files.
    */
   public HslShaderProgram(Context context, HslAdjustment hslAdjustment, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     super(useHdr);
     // TODO(b/241241680): Check if HDR <-> HSL works the same or not.
     checkArgument(!useHdr, "HDR is not yet supported.");
@@ -51,7 +51,7 @@ import java.io.IOException;
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     } catch (IOException | GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
 
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
@@ -78,7 +78,8 @@ import java.io.IOException;
   }
 
   @Override
-  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs)
+      throws VideoFrameProcessingException {
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
@@ -87,7 +88,7 @@ import java.io.IOException;
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e, presentationTimeUs);
+      throw new VideoFrameProcessingException(e, presentationTimeUs);
     }
   }
 }

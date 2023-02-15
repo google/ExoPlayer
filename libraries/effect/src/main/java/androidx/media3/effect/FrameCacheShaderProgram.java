@@ -19,7 +19,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import com.google.common.collect.Iterables;
@@ -54,7 +54,7 @@ import java.util.concurrent.Executor;
 
   /** Creates a new instance. */
   public FrameCacheShaderProgram(Context context, int capacity, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     freeOutputTextures = new ArrayDeque<>();
     inUseOutputTextures = new ArrayDeque<>();
     try {
@@ -64,7 +64,7 @@ import java.util.concurrent.Executor;
               VERTEX_SHADER_TRANSFORMATION_ES2_PATH,
               FRAGMENT_SHADER_TRANSFORMATION_ES2_PATH);
     } catch (IOException | GlUtil.GlException e) {
-      throw FrameProcessingException.from(e);
+      throw VideoFrameProcessingException.from(e);
     }
     this.capacity = capacity;
     this.useHdr = useHdr;
@@ -80,7 +80,7 @@ import java.util.concurrent.Executor;
 
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
-    errorListener = frameProcessingException -> {};
+    errorListener = videoFrameProcessingException -> {};
     errorListenerExecutor = MoreExecutors.directExecutor();
   }
 
@@ -129,7 +129,7 @@ import java.util.concurrent.Executor;
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
     } catch (GlUtil.GlException | NoSuchElementException e) {
       errorListenerExecutor.execute(
-          () -> errorListener.onFrameProcessingError(FrameProcessingException.from(e)));
+          () -> errorListener.onError(VideoFrameProcessingException.from(e)));
     }
   }
 
@@ -167,11 +167,11 @@ import java.util.concurrent.Executor;
   }
 
   @Override
-  public void release() throws FrameProcessingException {
+  public void release() throws VideoFrameProcessingException {
     try {
       deleteAllOutputTextures();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
   }
 

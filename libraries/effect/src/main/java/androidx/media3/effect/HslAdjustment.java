@@ -19,7 +19,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -114,7 +114,7 @@ public class HslAdjustment implements GlEffect {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new HslShaderProgram(context, /* hslAdjustment= */ this, useHdr);
   }
 }

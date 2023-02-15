@@ -30,9 +30,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
-import androidx.media3.effect.GlEffectsFrameProcessor;
+import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.DecodeOneFrameUtil;
-import androidx.media3.test.utils.FrameProcessorTestRunner;
+import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -40,10 +40,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Instrumentation pixel-test for HDR to SDR tone-mapping via {@link GlEffectsFrameProcessor}.
+ * Instrumentation pixel-test for HDR to SDR tone-mapping via {@link DefaultVideoFrameProcessor}.
  *
- * <p>Uses a {@link GlEffectsFrameProcessor} to process one frame, and checks that the actual output
- * matches expected output, either from a golden file or from another edit.
+ * <p>Uses a {@link DefaultVideoFrameProcessor} to process one frame, and checks that the actual
+ * output matches expected output, either from a golden file or from another edit.
  */
 // TODO(b/263395272): Move this test to effects/mh tests.
 @RunWith(AndroidJUnit4.class)
@@ -75,12 +75,12 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
       "OpenGL-based HDR to SDR tone mapping is unsupported below API 29.";
   private static final String SKIP_REASON_NO_YUV = "Device lacks YUV extension support.";
 
-  private @MonotonicNonNull FrameProcessorTestRunner frameProcessorTestRunner;
+  private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   @After
   public void release() {
-    if (frameProcessorTestRunner != null) {
-      frameProcessorTestRunner.release();
+    if (videoFrameProcessorTestRunner != null) {
+      videoFrameProcessorTestRunner.release();
     }
   }
 
@@ -114,7 +114,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
             .setColorRange(C.COLOR_RANGE_LIMITED)
             .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
             .build();
-    frameProcessorTestRunner =
+    videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
             .setInputColorInfo(hlgColor)
@@ -124,7 +124,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
     Bitmap actualBitmap;
     try {
-      actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
+      actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
     } catch (UnsupportedOperationException e) {
       if (e.getMessage() != null
           && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
@@ -177,7 +177,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
             .setColorRange(C.COLOR_RANGE_LIMITED)
             .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
             .build();
-    frameProcessorTestRunner =
+    videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
             .setInputColorInfo(pqColor)
@@ -187,7 +187,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
     Bitmap actualBitmap;
     try {
-      actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
+      actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
     } catch (UnsupportedOperationException e) {
       if (e.getMessage() != null
           && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
@@ -209,10 +209,10 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
         .isAtMost(MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  private FrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
+  private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
       String testId) {
-    return new FrameProcessorTestRunner.Builder()
+    return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
-        .setFrameProcessorFactory(new GlEffectsFrameProcessor.Factory());
+        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory());
   }
 }

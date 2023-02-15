@@ -19,14 +19,14 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
 import androidx.annotation.IntRange;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
 /**
  * Caches the input frames.
  *
  * <p>Example usage: cache the processed frames when presenting them on screen, to accommodate for
- * the possible fluctuation in frame processing time between frames.
+ * the possible fluctuation in video frame processing time between frames.
  */
 @UnstableApi
 public final class FrameCache implements GlEffect {
@@ -51,7 +51,7 @@ public final class FrameCache implements GlEffect {
 
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new FrameCacheShaderProgram(context, capacity, useHdr);
   }
 }

@@ -17,7 +17,7 @@ package androidx.media3.effect;
 
 import android.content.Context;
 import androidx.media3.common.Effect;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
 /**
@@ -36,10 +36,11 @@ public interface GlEffect extends Effect {
    * @param context A {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
-   * @throws FrameProcessingException If an error occurs while creating the {@link GlShaderProgram}.
+   * @throws VideoFrameProcessingException If an error occurs while creating the {@link
+   *     GlShaderProgram}.
    */
   GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException;
+      throws VideoFrameProcessingException;
 
   /**
    * Returns whether a {@link GlEffect} applies no change at every timestamp.

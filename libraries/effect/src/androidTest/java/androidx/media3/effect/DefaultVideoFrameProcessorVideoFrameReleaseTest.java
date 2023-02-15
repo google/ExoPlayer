@@ -27,9 +27,9 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.FrameInfo;
-import androidx.media3.common.FrameProcessingException;
-import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
+import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -50,9 +50,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for frame release in {@link GlEffectsFrameProcessor}. */
+/** Tests for frame release in {@link DefaultVideoFrameProcessor}. */
 @RunWith(AndroidJUnit4.class)
-public final class GlEffectsFrameProcessorFrameReleaseTest {
+public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
 
   private static final int WIDTH = 200;
   private static final int HEIGHT = 100;
@@ -68,12 +68,12 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
 
   private final LinkedBlockingQueue<Long> outputReleaseTimesNs = new LinkedBlockingQueue<>();
 
-  private @MonotonicNonNull GlEffectsFrameProcessor glEffectsFrameProcessor;
+  private @MonotonicNonNull DefaultVideoFrameProcessor defaultVideoFrameProcessor;
 
   @After
   public void release() {
-    if (glEffectsFrameProcessor != null) {
-      glEffectsFrameProcessor.release();
+    if (defaultVideoFrameProcessor != null) {
+      defaultVideoFrameProcessor.release();
     }
   }
 
@@ -136,7 +136,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimeUs.set(presentationTimeUs);
-          checkNotNull(glEffectsFrameProcessor).releaseOutputFrame(releaseTimesNs);
+          checkNotNull(defaultVideoFrameProcessor).releaseOutputFrame(releaseTimesNs);
         },
         /* releaseFramesAutomatically= */ false);
 
@@ -149,18 +149,18 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   public void controlledFrameRelease_withOneFrameRequestImmediateRelease_releasesFrame()
       throws Exception {
     long originalPresentationTimeUs = 1234;
-    long releaseTimesNs = FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY;
+    long releaseTimesNs = VideoFrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     processFramesToEndOfStream(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimeUs.set(presentationTimeUs);
-          checkNotNull(glEffectsFrameProcessor).releaseOutputFrame(releaseTimesNs);
+          checkNotNull(defaultVideoFrameProcessor).releaseOutputFrame(releaseTimesNs);
         },
         /* releaseFramesAutomatically= */ false);
 
     assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
-    // The actual release time is determined by the FrameProcessor when releasing the frame.
+    // The actual release time is determined by the VideoFrameProcessor when releasing the frame.
     ImmutableList<Long> actualReleaseTimesNs =
         waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 1);
     assertThat(actualReleaseTimesNs).hasSize(1);
@@ -175,14 +175,15 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimeUs.set(presentationTimeUs);
-          checkNotNull(glEffectsFrameProcessor).releaseOutputFrame(releaseTimeBeforeCurrentTimeNs);
+          checkNotNull(defaultVideoFrameProcessor)
+              .releaseOutputFrame(releaseTimeBeforeCurrentTimeNs);
         },
         /* releaseFramesAutomatically= */ false);
 
     ImmutableList<Long> actualReleaseTimesNs =
         waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 1);
     assertThat(actualReleaseTimesNs).hasSize(1);
-    // The actual release time is determined by the FrameProcessor when releasing the frame.
+    // The actual release time is determined by the VideoFrameProcessor when releasing the frame.
     assertThat(actualReleaseTimesNs.get(0)).isAtLeast(releaseTimeBeforeCurrentTimeNs);
   }
 
@@ -194,8 +195,8 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeNs -> {
           actualPresentationTimeUs.set(presentationTimeNs);
-          checkNotNull(glEffectsFrameProcessor)
-              .releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
+          checkNotNull(defaultVideoFrameProcessor)
+              .releaseOutputFrame(VideoFrameProcessor.DROP_OUTPUT_FRAME);
         },
         /* releaseFramesAutomatically= */ false);
 
@@ -214,7 +215,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         /* inputPresentationTimesUs= */ originalPresentationTimesUs,
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimesUs.add(presentationTimeUs);
-          checkNotNull(glEffectsFrameProcessor)
+          checkNotNull(defaultVideoFrameProcessor)
               .releaseOutputFrame(releaseTimesNs[frameIndex.getAndIncrement()]);
           try {
             // TODO(b/264252759): Investigate output frames being dropped and remove sleep.
@@ -254,11 +255,11 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     // TODO(b/264252759): Investigate output frames being dropped and remove sleep.
     // Frames can be dropped silently between EGL and the ImageReader. Sleep after each call
     // to swap buffers, to avoid this behavior.
-    glEffectsFrameProcessor.releaseOutputFrame(releaseTimesNs[0]);
+    defaultVideoFrameProcessor.releaseOutputFrame(releaseTimesNs[0]);
     Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
-    glEffectsFrameProcessor.releaseOutputFrame(releaseTimesNs[1]);
+    defaultVideoFrameProcessor.releaseOutputFrame(releaseTimesNs[1]);
     Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
-    glEffectsFrameProcessor.releaseOutputFrame(releaseTimesNs[2]);
+    defaultVideoFrameProcessor.releaseOutputFrame(releaseTimesNs[2]);
     Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
 
     assertThat(actualPresentationTimesUs)
@@ -276,19 +277,19 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     void onFrameAvailable(long presentationTimeUs);
   }
 
-  @EnsuresNonNull("glEffectsFrameProcessor")
+  @EnsuresNonNull("defaultVideoFrameProcessor")
   private void processFramesToEndOfStream(
       long[] inputPresentationTimesUs,
       OnFrameAvailableListener onFrameAvailableListener,
       boolean releaseFramesAutomatically)
       throws Exception {
-    AtomicReference<@NullableType FrameProcessingException> frameProcessingExceptionReference =
-        new AtomicReference<>();
+    AtomicReference<@NullableType VideoFrameProcessingException>
+        videoFrameProcessingExceptionReference = new AtomicReference<>();
     BlankFrameProducer blankFrameProducer = new BlankFrameProducer();
-    CountDownLatch frameProcessingEndedCountDownLatch = new CountDownLatch(1);
-    glEffectsFrameProcessor =
+    CountDownLatch videoFrameProcessingEndedCountDownLatch = new CountDownLatch(1);
+    defaultVideoFrameProcessor =
         checkNotNull(
-            new GlEffectsFrameProcessor.Factory()
+            new DefaultVideoFrameProcessor.Factory()
                 .create(
                     getApplicationContext(),
                     ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer),
@@ -298,7 +299,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                     /* isInputTextureExternal= */ true,
                     releaseFramesAutomatically,
                     MoreExecutors.directExecutor(),
-                    new FrameProcessor.Listener() {
+                    new VideoFrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
                         ImageReader outputImageReader =
@@ -307,7 +308,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                                 height,
                                 PixelFormat.RGBA_8888,
                                 /* maxImages= */ inputPresentationTimesUs.length);
-                        checkNotNull(glEffectsFrameProcessor)
+                        checkNotNull(defaultVideoFrameProcessor)
                             .setOutputSurfaceInfo(
                                 new SurfaceInfo(outputImageReader.getSurface(), width, height));
                         outputImageReader.setOnImageAvailableListener(
@@ -325,34 +326,35 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                       }
 
                       @Override
-                      public void onFrameProcessingError(FrameProcessingException exception) {
-                        frameProcessingExceptionReference.set(exception);
-                        frameProcessingEndedCountDownLatch.countDown();
+                      public void onError(VideoFrameProcessingException exception) {
+                        videoFrameProcessingExceptionReference.set(exception);
+                        videoFrameProcessingEndedCountDownLatch.countDown();
                       }
 
                       @Override
-                      public void onFrameProcessingEnded() {
-                        frameProcessingEndedCountDownLatch.countDown();
+                      public void onEnded() {
+                        videoFrameProcessingEndedCountDownLatch.countDown();
                       }
                     }));
 
-    glEffectsFrameProcessor
+    defaultVideoFrameProcessor
         .getTaskExecutor()
         .submit(
             () -> {
               blankFrameProducer.configureGlObjects();
-              checkNotNull(glEffectsFrameProcessor)
+              checkNotNull(defaultVideoFrameProcessor)
                   .setInputFrameInfo(new FrameInfo.Builder(WIDTH, HEIGHT).build());
               // A frame needs to be registered despite not queuing any external input to ensure
               // that
-              // the frame processor knows about the stream offset.
-              glEffectsFrameProcessor.registerInputFrame();
+              // the video frame processor knows about the stream offset.
+              defaultVideoFrameProcessor.registerInputFrame();
               blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
             });
-    frameProcessingEndedCountDownLatch.await();
-    @Nullable Exception frameProcessingException = frameProcessingExceptionReference.get();
-    if (frameProcessingException != null) {
-      throw frameProcessingException;
+    videoFrameProcessingEndedCountDownLatch.await();
+    @Nullable
+    Exception videoFrameProcessingException = videoFrameProcessingExceptionReference.get();
+    if (videoFrameProcessingException != null) {
+      throw videoFrameProcessingException;
     }
   }
 
@@ -374,7 +376,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     private @MonotonicNonNull TextureInfo blankTexture;
     private @MonotonicNonNull OutputListener outputListener;
 
-    public void configureGlObjects() throws FrameProcessingException {
+    public void configureGlObjects() throws VideoFrameProcessingException {
       try {
         int texId =
             GlUtil.createTexture(WIDTH, HEIGHT, /* useHighPrecisionColorComponents= */ false);
@@ -383,7 +385,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         GlUtil.focusFramebufferUsingCurrentContext(fboId, WIDTH, HEIGHT);
         GlUtil.clearOutputFrame();
       } catch (GlUtil.GlException e) {
-        throw new FrameProcessingException(e);
+        throw new VideoFrameProcessingException(e);
       }
     }
 

@@ -230,10 +230,10 @@ public class PlaybackException extends Exception implements Bundleable {
 
   // Frame processing errors (7xxx).
 
-  /** Caused by a failure when initializing a {@link FrameProcessor}. */
-  @UnstableApi public static final int ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED = 7000;
-  /** Caused by a failure when processing a frame. */
-  @UnstableApi public static final int ERROR_CODE_FRAME_PROCESSING_FAILED = 7001;
+  /** Caused by a failure when initializing a {@link VideoFrameProcessor}. */
+  @UnstableApi public static final int ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED = 7000;
+  /** Caused by a failure when processing a video frame. */
+  @UnstableApi public static final int ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED = 7001;
 
   /**
    * Player implementations that want to surface custom errors can use error codes greater than this
@@ -312,10 +312,10 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_DRM_DEVICE_REVOKED";
       case ERROR_CODE_DRM_LICENSE_EXPIRED:
         return "ERROR_CODE_DRM_LICENSE_EXPIRED";
-      case ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED:
-        return "ERROR_CODE_FRAME_PROCESSOR_INIT_FAILED";
-      case ERROR_CODE_FRAME_PROCESSING_FAILED:
-        return "ERROR_CODE_FRAME_PROCESSING_FAILED";
+      case ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED:
+        return "ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED";
+      case ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED:
+        return "ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED";
       default:
         if (errorCode >= CUSTOM_ERROR_CODE_BASE) {
           return "custom error code";

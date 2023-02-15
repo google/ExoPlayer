@@ -18,7 +18,7 @@ package androidx.media3.effect;
 
 import android.content.Context;
 import androidx.annotation.WorkerThread;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 
@@ -45,7 +45,7 @@ public interface ColorLut extends GlEffect {
   @Override
   @WorkerThread
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);
   }
 }

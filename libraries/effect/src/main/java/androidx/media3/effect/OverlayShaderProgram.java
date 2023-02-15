@@ -21,7 +21,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Pair;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -49,11 +49,11 @@ import com.google.common.collect.ImmutableList;
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
-   * @throws FrameProcessingException If a problem occurs while reading shader files.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files.
    */
   public OverlayShaderProgram(
       Context context, boolean useHdr, ImmutableList<TextureOverlay> overlays)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     super(useHdr);
     checkArgument(!useHdr, "OverlayShaderProgram does not support HDR colors yet.");
     // The maximum number of samplers allowed in a single GL program is 16.
@@ -70,7 +70,7 @@ import com.google.common.collect.ImmutableList;
       glProgram =
           new GlProgram(createVertexShader(overlays.size()), createFragmentShader(overlays.size()));
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
 
     glProgram.setBufferAttribute(
@@ -91,7 +91,8 @@ import com.google.common.collect.ImmutableList;
   }
 
   @Override
-  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs)
+      throws VideoFrameProcessingException {
     try {
       glProgram.use();
       if (!overlays.isEmpty()) {
@@ -155,17 +156,17 @@ import com.google.common.collect.ImmutableList;
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e, presentationTimeUs);
+      throw new VideoFrameProcessingException(e, presentationTimeUs);
     }
   }
 
   @Override
-  public void release() throws FrameProcessingException {
+  public void release() throws VideoFrameProcessingException {
     super.release();
     try {
       glProgram.delete();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
   }
 

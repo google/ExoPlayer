@@ -24,7 +24,7 @@ import android.opengl.Matrix;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -143,15 +143,15 @@ import java.util.List;
    * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
    *     empty to apply no color transformations.
    * @param useHdr Whether input and output colors are HDR.
-   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
-   *     operation fails or is unsupported.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
+   *     OpenGL operation fails or is unsupported.
    */
   public static MatrixShaderProgram create(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
       boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     GlProgram glProgram =
         createGlProgram(
             context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
@@ -185,8 +185,8 @@ import java.util.List;
    * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
    *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
    *     ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
-   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
-   *     operation fails or is unsupported.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
+   *     OpenGL operation fails or is unsupported.
    */
   public static MatrixShaderProgram createWithInternalSampler(
       Context context,
@@ -194,7 +194,7 @@ import java.util.List;
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     checkState(
         !ColorInfo.isTransferHdr(inputColorInfo),
         "MatrixShaderProgram doesn't support HDR internal sampler input yet.");
@@ -229,8 +229,8 @@ import java.util.List;
    * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
    *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
    *     ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
-   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
-   *     operation fails or is unsupported.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
+   *     OpenGL operation fails or is unsupported.
    */
   public static MatrixShaderProgram createWithExternalSampler(
       Context context,
@@ -238,7 +238,7 @@ import java.util.List;
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
     String vertexShaderFilePath =
         isInputTransferHdr
@@ -272,15 +272,15 @@ import java.util.List;
    * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
    *     empty to apply no color transformations.
    * @param outputColorInfo The electrical (non-linear) {@link ColorInfo} describing output colors.
-   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
-   *     operation fails or is unsupported.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
+   *     OpenGL operation fails or is unsupported.
    */
   public static MatrixShaderProgram createApplyingOetf(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
       ColorInfo outputColorInfo)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     boolean outputIsHdr = ColorInfo.isTransferHdr(outputColorInfo);
     String vertexShaderFilePath =
         outputIsHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
@@ -317,7 +317,7 @@ import java.util.List;
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (isInputTransferHdr) {
@@ -325,7 +325,7 @@ import java.util.List;
 
       // In HDR editing mode the decoder output is sampled in YUV.
       if (!GlUtil.isYuvTargetExtensionSupported()) {
-        throw new FrameProcessingException(
+        throw new VideoFrameProcessingException(
             "The EXT_YUV_target extension is required for HDR editing input.");
       }
       glProgram.setFloatsUniform(
@@ -398,13 +398,13 @@ import java.util.List;
 
   private static GlProgram createGlProgram(
       Context context, String vertexShaderFilePath, String fragmentShaderFilePath)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
 
     GlProgram glProgram;
     try {
       glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
     } catch (IOException | GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
 
     float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
@@ -423,7 +423,8 @@ import java.util.List;
   }
 
   @Override
-  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs)
+      throws VideoFrameProcessingException {
     updateCompositeRgbaMatrixArray(presentationTimeUs);
     updateCompositeTransformationMatrixAndVisiblePolygon(presentationTimeUs);
     if (visiblePolygon.size() < 3) {
@@ -444,17 +445,17 @@ import java.util.List;
           GLES20.GL_TRIANGLE_FAN, /* first= */ 0, /* count= */ visiblePolygon.size());
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e, presentationTimeUs);
+      throw new VideoFrameProcessingException(e, presentationTimeUs);
     }
   }
 
   @Override
-  public void release() throws FrameProcessingException {
+  public void release() throws VideoFrameProcessingException {
     super.release();
     try {
       glProgram.delete();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
   }
 

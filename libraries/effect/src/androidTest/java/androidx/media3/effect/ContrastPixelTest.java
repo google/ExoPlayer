@@ -33,7 +33,7 @@ import android.graphics.Color;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
  * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
- * bitmaps as recommended in {@link GlEffectsFrameProcessorPixelTest}.
+ * bitmaps as recommended in {@link DefaultVideoFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
 public class ContrastPixelTest {
@@ -89,7 +89,7 @@ public class ContrastPixelTest {
   }
 
   @After
-  public void release() throws GlUtil.GlException, FrameProcessingException {
+  public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (contrastShaderProgram != null) {
       contrastShaderProgram.release();
     }
@@ -198,7 +198,7 @@ public class ContrastPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
+  private void setupOutputTexture(int outputWidth, int outputHeight) throws Exception {
     int outputTexId =
         GlUtil.createTexture(
             outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);

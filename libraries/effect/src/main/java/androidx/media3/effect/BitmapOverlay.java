@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -44,9 +44,9 @@ public abstract class BitmapOverlay extends TextureOverlay {
    * Returns the overlay bitmap displayed at the specified timestamp.
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
-   * @throws FrameProcessingException If an error occurs while processing or drawing the frame.
+   * @throws VideoFrameProcessingException If an error occurs while processing or drawing the frame.
    */
-  public abstract Bitmap getBitmap(long presentationTimeUs) throws FrameProcessingException;
+  public abstract Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException;
 
   /**
    * {@inheritDoc}
@@ -61,7 +61,7 @@ public abstract class BitmapOverlay extends TextureOverlay {
   }
 
   @Override
-  public int getTextureId(long presentationTimeUs) throws FrameProcessingException {
+  public int getTextureId(long presentationTimeUs) throws VideoFrameProcessingException {
     Bitmap bitmap = getBitmap(presentationTimeUs);
     if (bitmap != lastBitmap) {
       try {
@@ -79,7 +79,7 @@ public abstract class BitmapOverlay extends TextureOverlay {
             /* border= */ 0);
         GlUtil.checkGlError();
       } catch (GlUtil.GlException e) {
-        throw new FrameProcessingException(e);
+        throw new VideoFrameProcessingException(e);
       }
     }
     return lastTextureId;
@@ -134,14 +134,14 @@ public abstract class BitmapOverlay extends TextureOverlay {
       private @MonotonicNonNull Bitmap lastBitmap;
 
       @Override
-      public Bitmap getBitmap(long presentationTimeUs) throws FrameProcessingException {
+      public Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException {
         if (lastBitmap == null) {
           BitmapLoader bitmapLoader = new SimpleBitmapLoader();
           ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(overlayBitmapUri);
           try {
             lastBitmap = future.get();
           } catch (ExecutionException | InterruptedException e) {
-            throw new FrameProcessingException(e);
+            throw new VideoFrameProcessingException(e);
           }
         }
         return lastBitmap;

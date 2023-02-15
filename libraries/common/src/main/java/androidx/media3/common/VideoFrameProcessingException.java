@@ -22,25 +22,26 @@ import androidx.media3.common.util.UnstableApi;
  * to video frames.
  */
 @UnstableApi
-public final class FrameProcessingException extends Exception {
+public final class VideoFrameProcessingException extends Exception {
 
   /**
-   * Wraps the given exception in a {@code FrameProcessingException} if it is not already a {@code
-   * FrameProcessingException} and returns the exception otherwise.
+   * Wraps the given exception in a {@code VideoFrameProcessingException} if it is not already a
+   * {@code VideoFrameProcessingException} and returns the exception otherwise.
    */
-  public static FrameProcessingException from(Exception exception) {
+  public static VideoFrameProcessingException from(Exception exception) {
     return from(exception, /* presentationTimeUs= */ C.TIME_UNSET);
   }
 
   /**
-   * Wraps the given exception in a {@code FrameProcessingException} with the given timestamp if it
-   * is not already a {@code FrameProcessingException} and returns the exception otherwise.
+   * Wraps the given exception in a {@code VideoFrameProcessingException} with the given timestamp
+   * if it is not already a {@code VideoFrameProcessingException} and returns the exception
+   * otherwise.
    */
-  public static FrameProcessingException from(Exception exception, long presentationTimeUs) {
-    if (exception instanceof FrameProcessingException) {
-      return (FrameProcessingException) exception;
+  public static VideoFrameProcessingException from(Exception exception, long presentationTimeUs) {
+    if (exception instanceof VideoFrameProcessingException) {
+      return (VideoFrameProcessingException) exception;
     } else {
-      return new FrameProcessingException(exception, presentationTimeUs);
+      return new VideoFrameProcessingException(exception, presentationTimeUs);
     }
   }
 
@@ -55,7 +56,7 @@ public final class FrameProcessingException extends Exception {
    *
    * @param message The detail message for this exception.
    */
-  public FrameProcessingException(String message) {
+  public VideoFrameProcessingException(String message) {
     this(message, /* presentationTimeUs= */ C.TIME_UNSET);
   }
 
@@ -65,7 +66,7 @@ public final class FrameProcessingException extends Exception {
    * @param message The detail message for this exception.
    * @param presentationTimeUs The timestamp of the frame for which the exception occurred.
    */
-  public FrameProcessingException(String message, long presentationTimeUs) {
+  public VideoFrameProcessingException(String message, long presentationTimeUs) {
     super(message);
     this.presentationTimeUs = presentationTimeUs;
   }
@@ -76,7 +77,7 @@ public final class FrameProcessingException extends Exception {
    * @param message The detail message for this exception.
    * @param cause The cause of this exception.
    */
-  public FrameProcessingException(String message, Throwable cause) {
+  public VideoFrameProcessingException(String message, Throwable cause) {
     this(message, cause, /* presentationTimeUs= */ C.TIME_UNSET);
   }
 
@@ -87,7 +88,7 @@ public final class FrameProcessingException extends Exception {
    * @param cause The cause of this exception.
    * @param presentationTimeUs The timestamp of the frame for which the exception occurred.
    */
-  public FrameProcessingException(String message, Throwable cause, long presentationTimeUs) {
+  public VideoFrameProcessingException(String message, Throwable cause, long presentationTimeUs) {
     super(message, cause);
     this.presentationTimeUs = presentationTimeUs;
   }
@@ -97,7 +98,7 @@ public final class FrameProcessingException extends Exception {
    *
    * @param cause The cause of this exception.
    */
-  public FrameProcessingException(Throwable cause) {
+  public VideoFrameProcessingException(Throwable cause) {
     this(cause, /* presentationTimeUs= */ C.TIME_UNSET);
   }
 
@@ -107,7 +108,7 @@ public final class FrameProcessingException extends Exception {
    * @param cause The cause of this exception.
    * @param presentationTimeUs The timestamp of the frame for which the exception occurred.
    */
-  public FrameProcessingException(Throwable cause, long presentationTimeUs) {
+  public VideoFrameProcessingException(Throwable cause, long presentationTimeUs) {
     super(cause);
     this.presentationTimeUs = presentationTimeUs;
   }

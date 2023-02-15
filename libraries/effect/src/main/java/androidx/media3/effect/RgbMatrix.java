@@ -17,7 +17,7 @@
 package androidx.media3.effect;
 
 import android.content.Context;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 
@@ -41,7 +41,7 @@ public interface RgbMatrix extends GlEffect {
 
   @Override
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return MatrixShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(),

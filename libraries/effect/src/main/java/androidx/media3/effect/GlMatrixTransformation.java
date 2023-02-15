@@ -17,7 +17,7 @@ package androidx.media3.effect;
 
 import android.content.Context;
 import android.opengl.Matrix;
-import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
@@ -54,7 +54,7 @@ public interface GlMatrixTransformation extends GlEffect {
 
   @Override
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return MatrixShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(this),

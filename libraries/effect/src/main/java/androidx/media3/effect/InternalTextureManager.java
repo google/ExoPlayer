@@ -23,22 +23,23 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
-import androidx.media3.common.FrameProcessingException;
-import androidx.media3.common.FrameProcessor;
+import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Forwards a frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for consumption.
+ * Forwards a video frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for
+ * consumption.
  *
  * <p>Methods in this class can be called from any thread.
  */
 @UnstableApi
 /* package */ final class InternalTextureManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram shaderProgram;
-  private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
+  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
 
@@ -53,13 +54,14 @@ import java.util.concurrent.LinkedBlockingQueue;
    *
    * @param shaderProgram The {@link GlShaderProgram} for which this {@code InternalTextureManager}
    *     will be set as the {@link GlShaderProgram.InputListener}.
-   * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor} that the methods of
-   *     this class run on.
+   * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor} that the
+   *     methods of this class run on.
    */
   public InternalTextureManager(
-      GlShaderProgram shaderProgram, FrameProcessingTaskExecutor frameProcessingTaskExecutor) {
+      GlShaderProgram shaderProgram,
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     this.shaderProgram = shaderProgram;
-    this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
+    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     pendingBitmaps = new LinkedBlockingQueue<>();
   }
 
@@ -69,7 +71,7 @@ import java.util.concurrent.LinkedBlockingQueue;
     //    program and change to only allocate one texId at a time. A change to the
     //    onInputFrameProcessed() method signature to include presentationTimeUs will probably be
     //    needed to do this.
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> {
           downstreamShaderProgramCapacity++;
           maybeQueueToShaderProgram();
@@ -79,21 +81,21 @@ import java.util.concurrent.LinkedBlockingQueue;
   /**
    * Provides an input {@link Bitmap} to put into the video frames.
    *
-   * @see FrameProcessor#queueInputBitmap
+   * @see VideoFrameProcessor#queueInputBitmap
    */
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> setupBitmap(inputBitmap, durationUs, frameRate, useHdr));
   }
 
   /**
    * Signals the end of the input.
    *
-   * @see FrameProcessor#signalEndOfInput()
+   * @see VideoFrameProcessor#signalEndOfInput()
    */
   public void signalEndOfInput() {
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> {
           inputEnded = true;
           maybeSignalEndOfOutput();
@@ -102,7 +104,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
   @WorkerThread
   private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
 
     if (inputEnded) {
       return;
@@ -116,7 +118,7 @@ import java.util.concurrent.LinkedBlockingQueue;
       GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
-      throw FrameProcessingException.from(e);
+      throw VideoFrameProcessingException.from(e);
     }
     TextureInfo textureInfo =
         new TextureInfo(
