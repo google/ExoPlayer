@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
  *
  * <p>Implements {@link FrameCache}.
  */
-/* package */ class FrameCacheShaderProgram implements GlShaderProgram {
+/* package */ final class FrameCacheShaderProgram implements GlShaderProgram {
   private static final String VERTEX_SHADER_TRANSFORMATION_ES2_PATH =
       "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_ES2_PATH =

@@ -38,12 +38,13 @@ public final class OverlaySettings {
   /** A builder for {@link OverlaySettings} instances. */
   public static final class Builder {
     private boolean useHdr;
-    private float alpha = 1;
+    private float alpha;
     private float[] matrix;
     private Pair<Float, Float> anchor;
 
     /** Creates a new {@link Builder}. */
     public Builder() {
+      alpha = 1f;
       matrix = GlUtil.create4x4IdentityMatrix();
       anchor = Pair.create(0f, 0f);
     }
@@ -94,18 +95,14 @@ public final class OverlaySettings {
      * <p>The coordinates are specified in Normalised Device Coordinates (NDCs). Set to always
      * return {@code (0,0)} (the center) by default.
      *
-     * @param x the NDC x-coordinate.
-     * @param y the NDC y-coordinate.
+     * @param x The NDC x-coordinate in the range [-1, 1].
+     * @param y The NDC y-coordinate in the range [-1, 1].
      */
     @CanIgnoreReturnValue
     public Builder setAnchor(
         @FloatRange(from = -1, to = 1) float x, @FloatRange(from = -1, to = 1) float y) {
-      checkArgument(
-          -1 <= x && x <= 1,
-          "x needs to be specified in terms of NDCs which lie in the interval [-1, 1].");
-      checkArgument(
-          -1 <= y && y <= 1,
-          "y needs to be specified in terms of NDCs which lie in the interval [-1, 1].");
+      checkArgument(-1 <= x && x <= 1);
+      checkArgument(-1 <= y && y <= 1);
       this.anchor = Pair.create(x, y);
       return this;
     }

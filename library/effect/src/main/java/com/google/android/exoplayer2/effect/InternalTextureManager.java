@@ -30,11 +30,11 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Forwards a frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for consumption
+ * Forwards a frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for consumption.
  *
  * <p>Methods in this class can be called from any thread.
  */
-/* package */ class InternalTextureManager implements GlShaderProgram.InputListener {
+/* package */ final class InternalTextureManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram shaderProgram;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
@@ -94,7 +94,7 @@ import java.util.concurrent.LinkedBlockingQueue;
     frameProcessingTaskExecutor.submit(
         () -> {
           inputEnded = true;
-          signalEndOfOutput();
+          maybeSignalEndOfOutput();
         });
   }
 
@@ -145,12 +145,12 @@ import java.util.concurrent.LinkedBlockingQueue;
     currentPresentationTimeUs += currentBitmap.frameDurationUs;
     if (framesToQueueForCurrentBitmap == 0) {
       pendingBitmaps.remove();
-      signalEndOfOutput();
+      maybeSignalEndOfOutput();
     }
   }
 
   @WorkerThread
-  private void signalEndOfOutput() {
+  private void maybeSignalEndOfOutput() {
     if (framesToQueueForCurrentBitmap == 0
         && pendingBitmaps.isEmpty()
         && inputEnded
@@ -160,10 +160,7 @@ import java.util.concurrent.LinkedBlockingQueue;
     }
   }
 
-  /**
-   * Value class specifying information to generate all the frames associated with a specific {@link
-   * Bitmap}.
-   */
+  /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
     public final TextureInfo textureInfo;
     public final long frameDurationUs;

@@ -38,7 +38,7 @@ import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Utilities for decoding a frame for tests. */
-public class DecodeOneFrameUtil {
+public final class DecodeOneFrameUtil {
   public static final String NO_DECODER_SUPPORT_ERROR_STRING =
       "No MediaCodec decoders on this device support this value.";
 

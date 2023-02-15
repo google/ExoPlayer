@@ -299,18 +299,18 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
         trackCount++;
       }
-      if (trackCount == 0) {
+
+      if (trackCount > 0) {
+        assetLoaderListener.onTrackCount(trackCount);
+        // Start the renderers after having registered all the tracks to make sure the AssetLoader
+        // listener callbacks are called in the right order.
+        player.play();
+      } else {
         assetLoaderListener.onError(
             TransformationException.createForAssetLoader(
                 new IllegalStateException("The asset loader has no track to output."),
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
-        return;
-      } else {
-        assetLoaderListener.onTrackCount(trackCount);
       }
-      // Start the renderers after having registered all the tracks to make sure the AssetLoader
-      // listener callbacks are called in the right order.
-      player.play();
     }
 
     @Override

@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.FrameProcessingException;
  * <p>Example usage: cache the processed frames when presenting them on screen, to accommodate for
  * the possible fluctuation in frame processing time between frames.
  */
-public class FrameCache implements GlEffect {
+public final class FrameCache implements GlEffect {
   /** The capacity of the frame cache. */
   public final int capacity;
 

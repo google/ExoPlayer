@@ -55,6 +55,9 @@ import org.checkerframework.dataflow.qual.Pure;
 /** Pipeline to process, re-encode and mux raw video frames. */
 /* package */ final class VideoSamplePipeline extends SamplePipeline {
 
+  /** MIME type to use for output video if the input type is not a video. */
+  private static final String DEFAULT_OUTPUT_MIME_TYPE = MimeTypes.VIDEO_H265;
+
   private final FrameProcessor frameProcessor;
   private final ColorInfo frameProcessorInputColor;
   private final FrameInfo firstFrameInfo;
@@ -364,7 +367,7 @@ import org.checkerframework.dataflow.qual.Pure;
       if (transformationRequest.videoMimeType != null) {
         requestedOutputMimeType = transformationRequest.videoMimeType;
       } else if (MimeTypes.isImage(inputSampleMimeType)) {
-        requestedOutputMimeType = MimeTypes.VIDEO_H265;
+        requestedOutputMimeType = DEFAULT_OUTPUT_MIME_TYPE;
       } else {
         requestedOutputMimeType = inputSampleMimeType;
       }
