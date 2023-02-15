@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.MediaFormatUtil.createMediaFormatFromFormat;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
@@ -34,7 +35,6 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -175,10 +175,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   @Override
   public DefaultCodec createForAudioEncoding(Format format) throws TransformationException {
     checkNotNull(format.sampleMimeType);
-    MediaFormat mediaFormat =
-        MediaFormat.createAudioFormat(
-            format.sampleMimeType, format.sampleRate, format.channelCount);
-    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
+    MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ false);
@@ -233,10 +230,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         encoderAndClosestFormatSupport.supportedEncoderSettings;
 
     String mimeType = checkNotNull(encoderSupportedFormat.sampleMimeType);
-    MediaFormat mediaFormat =
-        MediaFormat.createVideoFormat(
-            mimeType, encoderSupportedFormat.width, encoderSupportedFormat.height);
-    mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(encoderSupportedFormat.frameRate));
 
     int finalBitrate;
     if (enableFallback) {
@@ -267,8 +260,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     encoderSupportedFormat =
         encoderSupportedFormat.buildUpon().setAverageBitrate(finalBitrate).build();
 
-    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, encoderSupportedFormat.averageBitrate);
+    MediaFormat mediaFormat = createMediaFormatFromFormat(encoderSupportedFormat);
     mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, supportedVideoEncoderSettings.bitrateMode);
+    // Some older devices (API 21) fail to initialize the encoder if frame rate is not an integer.
+    mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(encoderSupportedFormat.frameRate));
 
     if (supportedVideoEncoderSettings.profile != VideoEncoderSettings.NO_VALUE
         && supportedVideoEncoderSettings.level != VideoEncoderSettings.NO_VALUE
@@ -283,7 +278,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       adjustMediaFormatForH264EncoderSettings(format.colorInfo, encoderInfo, mediaFormat);
     }
 
-    MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
     if (Util.SDK_INT >= 31 && ColorInfo.isTransferHdr(format.colorInfo)) {
       // TODO(b/260389841): Validate the picked encoder supports HDR editing.
       if (EncoderUtil.getSupportedColorFormats(encoderInfo, mimeType)
@@ -300,12 +294,12 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
     }
 
+    // Float I-frame intervals are only supported from API 25.
     if (Util.SDK_INT >= 25) {
       mediaFormat.setFloat(
           MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
     } else {
       float iFrameIntervalSeconds = supportedVideoEncoderSettings.iFrameIntervalSeconds;
-      // Only integer I-frame intervals are supported before API 25.
       // Round up values in (0, 1] to avoid the special 'all keyframes' behavior when passing 0.
       mediaFormat.setInteger(
           MediaFormat.KEY_I_FRAME_INTERVAL,
