@@ -20,7 +20,6 @@ import android.graphics.Bitmap;
 import android.opengl.EGLExt;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -51,8 +50,10 @@ public interface FrameProcessor {
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param inputColorInfo The {@link ColorInfo} for input frames.
      * @param outputColorInfo The {@link ColorInfo} for output frames.
-     * @param inputTrackType The {@link C.TrackType} of the input. Supported track types are {@link
-     *     C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_IMAGE}.
+     * @param isInputTextureExternal Whether the input frames are produced externally (e.g. from a
+     *     video) or not (e.g. from a {@link Bitmap}). See <a
+     *     href="https://source.android.com/docs/core/graphics/arch-st#ext_texture">the
+     *     SurfaceTexture docs</a> for more information on external textures.
      * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will render
      *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
      *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
@@ -70,7 +71,7 @@ public interface FrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        @C.TrackType int inputTrackType,
+        boolean isInputTextureExternal,
         boolean releaseFramesAutomatically,
         Executor executor,
         Listener listener)
@@ -127,8 +128,8 @@ public interface FrameProcessor {
   /**
    * Provides an input {@link Bitmap} to the {@link FrameProcessor}.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
-   * C#TRACK_TYPE_IMAGE} as the {@code inputTrackType}.
+   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * isInputTextureExternal} parameter is set to {@code false}.
    *
    * <p>Can be called on any thread.
    *
@@ -143,8 +144,8 @@ public interface FrameProcessor {
   /**
    * Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
-   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>Can be called on any thread.
    */
@@ -172,8 +173,8 @@ public interface FrameProcessor {
    *
    * <p>Must be called before rendering a frame to the frame processor's input surface.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
-   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>Can be called on any thread.
    *
@@ -186,8 +187,8 @@ public interface FrameProcessor {
    * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
-   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>Can be called on any thread.
    */
@@ -246,8 +247,8 @@ public interface FrameProcessor {
    * <p>All the frames that are {@linkplain #registerInputFrame() registered} prior to calling this
    * method are no longer considered to be registered when this method returns.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
-   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * isInputTextureExternal} parameter is set to {@code true}.
    *
    * <p>{@link Listener} methods invoked prior to calling this method should be ignored.
    */

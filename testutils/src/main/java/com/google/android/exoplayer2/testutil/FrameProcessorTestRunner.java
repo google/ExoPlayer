@@ -60,12 +60,12 @@ public final class FrameProcessorTestRunner {
     private float pixelWidthHeightRatio;
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
-    private @C.TrackType int inputTrackType;
+    private boolean isInputTextureExternal;
 
     /** Creates a new instance with default values. */
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
-      inputTrackType = C.TRACK_TYPE_VIDEO;
+      isInputTextureExternal = true;
     }
 
     /**
@@ -171,11 +171,11 @@ public final class FrameProcessorTestRunner {
     /**
      * Sets the input track type. See {@link FrameProcessor.Factory#create}.
      *
-     * <p>The default value is {@link C#TRACK_TYPE_VIDEO}.
+     * <p>The default value is {@code true}.
      */
     @CanIgnoreReturnValue
-    public Builder setInputTrackType(@C.TrackType int inputTrackType) {
-      this.inputTrackType = inputTrackType;
+    public Builder setIsInputTextureExternal(boolean isInputTextureExternal) {
+      this.isInputTextureExternal = isInputTextureExternal;
       return this;
     }
 
@@ -193,7 +193,7 @@ public final class FrameProcessorTestRunner {
           pixelWidthHeightRatio,
           inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
           outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo,
-          inputTrackType);
+          isInputTextureExternal);
     }
   }
 
@@ -223,7 +223,7 @@ public final class FrameProcessorTestRunner {
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      @C.TrackType int inputTrackType)
+      boolean isInputTextureExternal)
       throws FrameProcessingException {
     this.testId = testId;
     this.videoAssetPath = videoAssetPath;
@@ -238,7 +238,7 @@ public final class FrameProcessorTestRunner {
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
-            inputTrackType,
+            isInputTextureExternal,
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new FrameProcessor.Listener() {
