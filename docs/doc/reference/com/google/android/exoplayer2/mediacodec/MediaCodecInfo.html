@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":42,"i10":10,"i11":9,"i12":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":9,"i13":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -302,19 +302,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFormatSupported(com.google.android.exoplayer2.Format)">isFormatSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFormatFunctionallySupported(com.google.android.exoplayer2.Format)">isFormatFunctionallySupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
-<div class="block">Returns whether the decoder may support decoding the given <code>format</code>.</div>
+<div class="block">Returns whether the decoder may functionally support decoding the given <code>format</code>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFormatSupported(com.google.android.exoplayer2.Format)">isFormatSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the decoder may support decoding the given <code>format</code> both functionally and
+ performantly.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isHdr10PlusOutOfBandMetadataSupported()">isHdr10PlusOutOfBandMetadataSupported</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Whether the codec handles HDR10+ out-of-band metadata.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format)">isSeamlessAdaptationSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
@@ -322,7 +330,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  format when the codec is configured to play media in the specified <code>format</code>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,boolean)">isSeamlessAdaptationSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
                              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
@@ -333,7 +341,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isVideoSizeAndRateSupportedV21(int,int,double)">isVideoSizeAndRateSupportedV21</a></span>&#8203;(int&nbsp;width,
                               int&nbsp;height,
@@ -342,7 +350,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Whether the decoder supports video with a given width, height and frame rate.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInstance(java.lang.String,java.lang.String,java.lang.String,android.media.MediaCodecInfo.CodecCapabilities,boolean,boolean,boolean,boolean,boolean)">newInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
@@ -357,7 +365,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -647,7 +655,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <h4>isFormatSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isFormatSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                           throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
-<div class="block">Returns whether the decoder may support decoding the given <code>format</code>.</div>
+<div class="block">Returns whether the decoder may support decoding the given <code>format</code> both functionally and
+ performantly.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The input media format.</dd>
@@ -655,6 +664,22 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <dd>Whether the decoder may support decoding the given <code>format</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - Thrown if an error occurs while querying decoders.</dd>
+</dl>
+</li>
+</ul>
+<a id="isFormatFunctionallySupported(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isFormatFunctionallySupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isFormatFunctionallySupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block">Returns whether the decoder may functionally support decoding the given <code>format</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The input media format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the decoder may functionally support decoding the given <code>format</code>.</dd>
 </dl>
 </li>
 </ul>

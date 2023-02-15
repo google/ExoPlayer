@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":6,"i9":6,"i10":6,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":6,"i10":6,"i11":6,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -150,7 +150,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public abstract class <span class="typeNameLabel">DownloadService</span>
 extends <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top">Service</a></pre>
-<div class="block">A <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Service</code></a> for downloading media.</div>
+<div class="block">A <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Service</code></a> for downloading media.
+
+ <p>Apps with target SDK 33 and greater need to add the <code>
+ android.permission.POST_NOTIFICATIONS</code> permission to the manifest and request the permission at
+ runtime before starting downloads. Without that permission granted by the user, notifications
+ posted by this service are not displayed. See <a href="https://developer.android.com/develop/ui/views/notifications/notification-permission">the
+ official UI guide</a> for more detailed information.</div>
 </li>
 </ul>
 </div>
@@ -453,13 +459,21 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearDownloadManagerHelpers()">clearDownloadManagerHelpers</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Clear all download manager helpers before restarting the
+ service.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloadManager()">getDownloadManager</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> to be used to downloaded content.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)">getForegroundNotification</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
                          @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</code></th>
@@ -467,7 +481,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Returns a notification to be displayed when this service running in the foreground.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="../scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getScheduler()">getScheduler</a></span>()</code></th>
 <td class="colLast">
@@ -475,43 +489,43 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
  are met.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateForegroundNotification()">invalidateForegroundNotification</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/IBinder.html" title="class or interface in android.os" class="externalLink" target="_top">IBinder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onBind(android.content.Intent)">onBind</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;intent)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a> because this service is not designed to be bound.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCreate()">onCreate</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDestroy()">onDestroy</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStartCommand(android.content.Intent,int,int)">onStartCommand</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;intent,
               int&nbsp;flags,
               int&nbsp;startId)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTaskRemoved(android.content.Intent)">onTaskRemoved</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;rootIntent)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendAddDownload(android.content.Context,java.lang.Class,com.google.android.exoplayer2.offline.DownloadRequest,boolean)">sendAddDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -521,7 +535,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and adds a new download.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendAddDownload(android.content.Context,java.lang.Class,com.google.android.exoplayer2.offline.DownloadRequest,int,boolean)">sendAddDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -532,7 +546,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and adds a new download.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendPauseDownloads(android.content.Context,java.lang.Class,boolean)">sendPauseDownloads</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                   <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -541,7 +555,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and pauses all downloads.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendRemoveAllDownloads(android.content.Context,java.lang.Class,boolean)">sendRemoveAllDownloads</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                       <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -550,7 +564,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and removes all downloads.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendRemoveDownload(android.content.Context,java.lang.Class,java.lang.String,boolean)">sendRemoveDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                   <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -560,7 +574,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and removes a download.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendResumeDownloads(android.content.Context,java.lang.Class,boolean)">sendResumeDownloads</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                    <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -569,7 +583,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and resumes all downloads.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendSetRequirements(android.content.Context,java.lang.Class,com.google.android.exoplayer2.scheduler.Requirements,boolean)">sendSetRequirements</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                    <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -580,7 +594,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
  downloads to progress.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendSetStopReason(android.content.Context,java.lang.Class,java.lang.String,int,boolean)">sendSetStopReason</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                  <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
@@ -591,7 +605,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts the service if not started already and sets the stop reason for one or all downloads.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(android.content.Context,java.lang.Class)">start</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
      <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz)</code></th>
@@ -599,7 +613,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <div class="block">Starts a download service to resume any ongoing downloads.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startForeground(android.content.Context,java.lang.Class)">startForeground</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz)</code></th>
@@ -1393,6 +1407,20 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="#start(android.content.Context,java.lang.Class)"><code>start(Context, Class)</code></a></dd>
 </dl>
+</li>
+</ul>
+<a id="clearDownloadManagerHelpers()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearDownloadManagerHelpers</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;clearDownloadManagerHelpers()</pre>
+<div class="block">Clear all download manager helpers before restarting the
+ service.
+
+ <p>Calling this method is normally only required if an app supports downloading content for
+ multiple users for which different download directories should be used.</div>
 </li>
 </ul>
 <a id="onCreate()">

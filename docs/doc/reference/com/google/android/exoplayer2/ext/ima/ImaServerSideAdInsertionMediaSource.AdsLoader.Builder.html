@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -217,6 +217,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFocusSkipButtonWhenAvailable(boolean)">setFocusSkipButtonWhenAvailable</a></span>&#8203;(boolean&nbsp;focusSkipButtonWhenAvailable)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to focus the skip button (when available) on Android TV devices.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setImaSdkSettings(com.google.ads.interactivemedia.v3.api.ImaSdkSettings)">setImaSdkSettings</a></span>&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code></th>
 <td class="colLast">
 <div class="block">Sets the IMA SDK settings.</div>
@@ -282,7 +289,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setImaSdkSettings&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
 <div class="block">Sets the IMA SDK settings.
 
- <p>If this method is not called the default settings will be used.</div>
+ <p>If this method is not called, the default settings will be used with the language set to <a href="../../util/Util.html#getSystemLanguageCodes()">the preferred system language</a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>imaSdkSettings</code> - The <code>ImaSdkSettings</code>.</dd>
@@ -360,6 +367,27 @@ public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html"
 <dd><code>state</code> - The state to resume with.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setFocusSkipButtonWhenAvailable(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFocusSkipButtonWhenAvailable</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.Builder</a>&nbsp;setFocusSkipButtonWhenAvailable&#8203;(boolean&nbsp;focusSkipButtonWhenAvailable)</pre>
+<div class="block">Sets whether to focus the skip button (when available) on Android TV devices. The default
+ setting is <code>true</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>focusSkipButtonWhenAvailable</code> - Whether to focus the skip button (when available) on
+     Android TV devices.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>AdsRenderingSettings.setFocusSkipButtonWhenAvailable(boolean)</code></dd>
 </dl>
 </li>
 </ul>

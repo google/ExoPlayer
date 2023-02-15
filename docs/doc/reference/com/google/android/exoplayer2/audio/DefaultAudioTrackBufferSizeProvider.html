@@ -282,22 +282,24 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get1xBufferSizeInBytes(int,int,int,int,int)">get1xBufferSizeInBytes</a></span>&#8203;(int&nbsp;minBufferSizeInBytes,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get1xBufferSizeInBytes(int,int,int,int,int,int)">get1xBufferSizeInBytes</a></span>&#8203;(int&nbsp;minBufferSizeInBytes,
                       int&nbsp;encoding,
                       int&nbsp;outputMode,
                       int&nbsp;pcmFrameSize,
-                      int&nbsp;sampleRate)</code></th>
+                      int&nbsp;sampleRate,
+                      int&nbsp;bitrate)</code></th>
 <td class="colLast">
 <div class="block">Returns the buffer size for playback at 1x speed.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,double)">getBufferSizeInBytes</a></span>&#8203;(int&nbsp;minBufferSizeInBytes,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,int,double)">getBufferSizeInBytes</a></span>&#8203;(int&nbsp;minBufferSizeInBytes,
                     @com.google.android.exoplayer2.C.Encoding int&nbsp;encoding,
                     @com.google.android.exoplayer2.audio.DefaultAudioSink.OutputMode int&nbsp;outputMode,
                     int&nbsp;pcmFrameSize,
                     int&nbsp;sampleRate,
+                    int&nbsp;bitrate,
                     double&nbsp;maxAudioTrackPlaybackSpeed)</code></th>
 <td class="colLast">
 <div class="block">Returns the buffer size to use when creating an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> for a specific format and
@@ -318,7 +320,8 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPassthroughBufferSizeInBytes(@com.google.android.exoplayer2.C.Encodingint)">getPassthroughBufferSizeInBytes</a></span>&#8203;(@com.google.android.exoplayer2.C.Encoding int&nbsp;encoding)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPassthroughBufferSizeInBytes(@com.google.android.exoplayer2.C.Encodingint,int)">getPassthroughBufferSizeInBytes</a></span>&#8203;(@com.google.android.exoplayer2.C.Encoding int&nbsp;encoding,
+                               int&nbsp;bitrate)</code></th>
 <td class="colLast">
 <div class="block">Returns the buffer size for passthrough playback.</div>
 </td>
@@ -446,7 +449,7 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,double)">
+<a id="getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,int,double)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -457,13 +460,14 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
                                 @com.google.android.exoplayer2.audio.DefaultAudioSink.OutputMode int&nbsp;outputMode,
                                 int&nbsp;pcmFrameSize,
                                 int&nbsp;sampleRate,
+                                int&nbsp;bitrate,
                                 double&nbsp;maxAudioTrackPlaybackSpeed)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,double)">DefaultAudioSink.AudioTrackBufferSizeProvider</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,int,double)">DefaultAudioSink.AudioTrackBufferSizeProvider</a></code></span></div>
 <div class="block">Returns the buffer size to use when creating an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> for a specific format and
  output mode.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,double)">getBufferSizeInBytes</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioTrackBufferSizeProvider</a></code></dd>
+<dd><code><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,int,double)">getBufferSizeInBytes</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioTrackBufferSizeProvider</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>minBufferSizeInBytes</code> - The minimum buffer size in bytes required to play this format.
      See <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getMinBufferSize(int,int,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.getMinBufferSize(int, int, int)</code></a>.</dd>
@@ -472,6 +476,7 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
 <dd><code>pcmFrameSize</code> - The size of the PCM frames if the <code>encoding</code> is PCM, 1 otherwise,
      in bytes.</dd>
 <dd><code>sampleRate</code> - The sample rate of the format, in Hz.</dd>
+<dd><code>bitrate</code> - The bitrate of the audio stream if the stream is compressed, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if <code>encoding</code> is PCM or the bitrate is not known.</dd>
 <dd><code>maxAudioTrackPlaybackSpeed</code> - The maximum speed the content will be played using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams(android.media.PlaybackParams)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(android.media.PlaybackParams)</code></a>. 0.5 is 2x slow motion, 1 is real time, 2 is 2x fast
      forward, etc. This will be <code>1</code> unless <a href="DefaultAudioSink.Builder.html#setEnableAudioTrackPlaybackParams(boolean)"><code>DefaultAudioSink.Builder.setEnableAudioTrackPlaybackParams(boolean)</code></a> is enabled.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -481,7 +486,7 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
 </dl>
 </li>
 </ul>
-<a id="get1xBufferSizeInBytes(int,int,int,int,int)">
+<a id="get1xBufferSizeInBytes(int,int,int,int,int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -491,7 +496,8 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
                                      int&nbsp;encoding,
                                      int&nbsp;outputMode,
                                      int&nbsp;pcmFrameSize,
-                                     int&nbsp;sampleRate)</pre>
+                                     int&nbsp;sampleRate,
+                                     int&nbsp;bitrate)</pre>
 <div class="block">Returns the buffer size for playback at 1x speed.</div>
 </li>
 </ul>
@@ -507,13 +513,14 @@ implements <a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="i
 <div class="block">Returns the buffer size for PCM playback.</div>
 </li>
 </ul>
-<a id="getPassthroughBufferSizeInBytes(@com.google.android.exoplayer2.C.Encodingint)">
+<a id="getPassthroughBufferSizeInBytes(@com.google.android.exoplayer2.C.Encodingint,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPassthroughBufferSizeInBytes</h4>
-<pre class="methodSignature">protected&nbsp;int&nbsp;getPassthroughBufferSizeInBytes&#8203;(@com.google.android.exoplayer2.C.Encoding int&nbsp;encoding)</pre>
+<pre class="methodSignature">protected&nbsp;int&nbsp;getPassthroughBufferSizeInBytes&#8203;(@com.google.android.exoplayer2.C.Encoding int&nbsp;encoding,
+                                              int&nbsp;bitrate)</pre>
 <div class="block">Returns the buffer size for passthrough playback.</div>
 </li>
 </ul>

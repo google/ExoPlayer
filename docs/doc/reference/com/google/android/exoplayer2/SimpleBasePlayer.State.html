@@ -182,24 +182,277 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adBufferedPositionMsSupplier">adBufferedPositionMsSupplier</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently playing ad
+ is buffered, in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adPositionMsSupplier">adPositionMsSupplier</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current ad playback position in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioAttributes">audioAttributes</a></span></code></th>
+<td class="colLast">
+<div class="block">The current <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#availableCommands">availableCommands</a></span></code></th>
 <td class="colLast">
 <div class="block">The available <a href="Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contentBufferedPositionMsSupplier">contentBufferedPositionMsSupplier</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently playing
+ content is buffered, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default start
+ position.</div>
+</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contentPositionMsSupplier">contentPositionMsSupplier</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current content playback position in milliseconds, or
+ <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default start position.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentAdGroupIndex">currentAdGroupIndex</a></span></code></th>
+<td class="colLast">
+<div class="block">The current ad group index, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is playing.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentAdIndexInAdGroup">currentAdIndexInAdGroup</a></span></code></th>
+<td class="colLast">
+<div class="block">The current ad index in the ad group, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is playing.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentCues">currentCues</a></span></code></th>
+<td class="colLast">
+<div class="block">The current <a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">cues</a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentMediaItemIndex">currentMediaItemIndex</a></span></code></th>
+<td class="colLast">
+<div class="block">The current media item index, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> to assume the default first item of
+ the playlist is played.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#deviceInfo">deviceInfo</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#deviceVolume">deviceVolume</a></span></code></th>
+<td class="colLast">
+<div class="block">The current device volume.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discontinuityPositionMs">discontinuityPositionMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The position, in milliseconds, in the current content or ad from which playback continued
+ after the discontinuity.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPositionDiscontinuity">hasPositionDiscontinuity</a></span></code></th>
+<td class="colLast">
+<div class="block">Signals that a position discontinuity happened since the last update to the player.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isDeviceMuted">isDeviceMuted</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the device is muted.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoading">isLoading</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the player is currently loading its source.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxSeekToPreviousPositionMs">maxSeekToPreviousPositionMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The maximum position for which <a href="BasePlayer.html#seekToPrevious()"><code>BasePlayer.seekToPrevious()</code></a> seeks to the previous item, in
+ milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newlyRenderedFirstFrame">newlyRenderedFirstFrame</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether a frame has been rendered for the first time since setting the surface, a rendering
+ reset, or since the stream being rendered was changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackParameters">playbackParameters</a></span></code></th>
+<td class="colLast">
+<div class="block">The currently active <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.Player.State int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackState">playbackState</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="Player.State.html" title="annotation in com.google.android.exoplayer2">state</a> of the player.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.Player.PlaybackSuppressionReason int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackSuppressionReason">playbackSuppressionReason</a></span></code></th>
+<td class="colLast">
+<div class="block">The reason why playback is suppressed even if <a href="SimpleBasePlayer.html#getPlayWhenReady()"><code>SimpleBasePlayer.getPlayWhenReady()</code></a> is true.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playerError">playerError</a></span></code></th>
+<td class="colLast">
+<div class="block">The last error that caused playback to fail, or null if there was no error.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playlist">playlist</a></span></code></th>
+<td class="colLast">
+<div class="block">The media items in the playlist.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playlistMetadata">playlistMetadata</a></span></code></th>
+<td class="colLast">
+<div class="block">The playlist <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playWhenReady">playWhenReady</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether playback should proceed when ready and not suppressed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playWhenReadyChangeReason">playWhenReadyChangeReason</a></span></code></th>
 <td class="colLast">
 <div class="block">The last reason for changing <a href="#playWhenReady"><code>playWhenReady</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.Player.DiscontinuityReason int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#positionDiscontinuityReason">positionDiscontinuityReason</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">reason</a> for the last position discontinuity.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.Player.RepeatMode int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#repeatMode">repeatMode</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekBackIncrementMs">seekBackIncrementMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekForwardIncrementMs">seekForwardIncrementMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shuffleModeEnabled">shuffleModeEnabled</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether shuffling of media items is enabled.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#surfaceSize">surfaceSize</a></span></code></th>
+<td class="colLast">
+<div class="block">The size of the surface onto which the video is being rendered.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timedMetadata">timedMetadata</a></span></code></th>
+<td class="colLast">
+<div class="block">The most recent timed metadata.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeline">timeline</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> derived from the <a href="#playlist"><code>playlist</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalBufferedDurationMsSupplier">totalBufferedDurationMsSupplier</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated total buffered duration in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionParameters">trackSelectionParameters</a></span></code></th>
+<td class="colLast">
+<div class="block">The currently active <a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoSize">videoSize</a></span></code></th>
+<td class="colLast">
+<div class="block">The current video size.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#volume">volume</a></span></code></th>
+<td class="colLast">
+<div class="block">The current audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
 </td>
 </tr>
 </table>
@@ -284,12 +537,381 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="playWhenReadyChangeReason">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>playWhenReadyChangeReason</h4>
 <pre><a href="Player.PlayWhenReadyChangeReason.html" title="annotation in com.google.android.exoplayer2">@PlayWhenReadyChangeReason</a>
 public final&nbsp;@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason</pre>
 <div class="block">The last reason for changing <a href="#playWhenReady"><code>playWhenReady</code></a>.</div>
+</li>
+</ul>
+<a id="playbackState">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playbackState</h4>
+<pre><a href="Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
+public final&nbsp;@com.google.android.exoplayer2.Player.State int playbackState</pre>
+<div class="block">The <a href="Player.State.html" title="annotation in com.google.android.exoplayer2">state</a> of the player.</div>
+</li>
+</ul>
+<a id="playbackSuppressionReason">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playbackSuppressionReason</h4>
+<pre><a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@PlaybackSuppressionReason</a>
+public final&nbsp;@com.google.android.exoplayer2.Player.PlaybackSuppressionReason int playbackSuppressionReason</pre>
+<div class="block">The reason why playback is suppressed even if <a href="SimpleBasePlayer.html#getPlayWhenReady()"><code>SimpleBasePlayer.getPlayWhenReady()</code></a> is true.</div>
+</li>
+</ul>
+<a id="playerError">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playerError</h4>
+<pre>@Nullable
+public final&nbsp;<a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a> playerError</pre>
+<div class="block">The last error that caused playback to fail, or null if there was no error.</div>
+</li>
+</ul>
+<a id="repeatMode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>repeatMode</h4>
+<pre><a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+public final&nbsp;@com.google.android.exoplayer2.Player.RepeatMode int repeatMode</pre>
+<div class="block">The <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</div>
+</li>
+</ul>
+<a id="shuffleModeEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>shuffleModeEnabled</h4>
+<pre>public final&nbsp;boolean shuffleModeEnabled</pre>
+<div class="block">Whether shuffling of media items is enabled.</div>
+</li>
+</ul>
+<a id="isLoading">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLoading</h4>
+<pre>public final&nbsp;boolean isLoading</pre>
+<div class="block">Whether the player is currently loading its source.</div>
+</li>
+</ul>
+<a id="seekBackIncrementMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekBackIncrementMs</h4>
+<pre>public final&nbsp;long seekBackIncrementMs</pre>
+<div class="block">The <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment in milliseconds.</div>
+</li>
+</ul>
+<a id="seekForwardIncrementMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekForwardIncrementMs</h4>
+<pre>public final&nbsp;long seekForwardIncrementMs</pre>
+<div class="block">The <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment in milliseconds.</div>
+</li>
+</ul>
+<a id="maxSeekToPreviousPositionMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxSeekToPreviousPositionMs</h4>
+<pre>public final&nbsp;long maxSeekToPreviousPositionMs</pre>
+<div class="block">The maximum position for which <a href="BasePlayer.html#seekToPrevious()"><code>BasePlayer.seekToPrevious()</code></a> seeks to the previous item, in
+ milliseconds.</div>
+</li>
+</ul>
+<a id="playbackParameters">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playbackParameters</h4>
+<pre>public final&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a> playbackParameters</pre>
+<div class="block">The currently active <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
+</li>
+</ul>
+<a id="trackSelectionParameters">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>trackSelectionParameters</h4>
+<pre>public final&nbsp;<a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a> trackSelectionParameters</pre>
+<div class="block">The currently active <a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
+</li>
+</ul>
+<a id="audioAttributes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>audioAttributes</h4>
+<pre>public final&nbsp;<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a> audioAttributes</pre>
+<div class="block">The current <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+</li>
+</ul>
+<a id="volume">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>volume</h4>
+<pre>@FloatRange(from=0.0,
+            to=1.0)
+public final&nbsp;float volume</pre>
+<div class="block">The current audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+</li>
+</ul>
+<a id="videoSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>videoSize</h4>
+<pre>public final&nbsp;<a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a> videoSize</pre>
+<div class="block">The current video size.</div>
+</li>
+</ul>
+<a id="currentCues">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentCues</h4>
+<pre>public final&nbsp;<a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a> currentCues</pre>
+<div class="block">The current <a href="text/CueGroup.html" title="class in com.google.android.exoplayer2.text">cues</a>.</div>
+</li>
+</ul>
+<a id="deviceInfo">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deviceInfo</h4>
+<pre>public final&nbsp;<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a> deviceInfo</pre>
+<div class="block">The <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</div>
+</li>
+</ul>
+<a id="deviceVolume">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deviceVolume</h4>
+<pre>@IntRange(from=0L)
+public final&nbsp;int deviceVolume</pre>
+<div class="block">The current device volume.</div>
+</li>
+</ul>
+<a id="isDeviceMuted">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isDeviceMuted</h4>
+<pre>public final&nbsp;boolean isDeviceMuted</pre>
+<div class="block">Whether the device is muted.</div>
+</li>
+</ul>
+<a id="surfaceSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>surfaceSize</h4>
+<pre>public final&nbsp;<a href="util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a> surfaceSize</pre>
+<div class="block">The size of the surface onto which the video is being rendered.</div>
+</li>
+</ul>
+<a id="newlyRenderedFirstFrame">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newlyRenderedFirstFrame</h4>
+<pre>public final&nbsp;boolean newlyRenderedFirstFrame</pre>
+<div class="block">Whether a frame has been rendered for the first time since setting the surface, a rendering
+ reset, or since the stream being rendered was changed.</div>
+</li>
+</ul>
+<a id="timedMetadata">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>timedMetadata</h4>
+<pre>public final&nbsp;<a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a> timedMetadata</pre>
+<div class="block">The most recent timed metadata.</div>
+</li>
+</ul>
+<a id="playlist">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playlist</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="SimpleBasePlayer.MediaItemData.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer.MediaItemData</a>&gt; playlist</pre>
+<div class="block">The media items in the playlist.</div>
+</li>
+</ul>
+<a id="timeline">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>timeline</h4>
+<pre>public final&nbsp;<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a> timeline</pre>
+<div class="block">The <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> derived from the <a href="#playlist"><code>playlist</code></a>.</div>
+</li>
+</ul>
+<a id="playlistMetadata">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playlistMetadata</h4>
+<pre>public final&nbsp;<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a> playlistMetadata</pre>
+<div class="block">The playlist <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
+</li>
+</ul>
+<a id="currentMediaItemIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentMediaItemIndex</h4>
+<pre>public final&nbsp;int currentMediaItemIndex</pre>
+<div class="block">The current media item index, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> to assume the default first item of
+ the playlist is played.</div>
+</li>
+</ul>
+<a id="currentAdGroupIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentAdGroupIndex</h4>
+<pre>public final&nbsp;int currentAdGroupIndex</pre>
+<div class="block">The current ad group index, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is playing.</div>
+</li>
+</ul>
+<a id="currentAdIndexInAdGroup">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentAdIndexInAdGroup</h4>
+<pre>public final&nbsp;int currentAdIndexInAdGroup</pre>
+<div class="block">The current ad index in the ad group, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no ad is playing.</div>
+</li>
+</ul>
+<a id="contentPositionMsSupplier">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>contentPositionMsSupplier</h4>
+<pre>public final&nbsp;<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a> contentPositionMsSupplier</pre>
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current content playback position in milliseconds, or
+ <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default start position.</div>
+</li>
+</ul>
+<a id="adPositionMsSupplier">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adPositionMsSupplier</h4>
+<pre>public final&nbsp;<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a> adPositionMsSupplier</pre>
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the current ad playback position in milliseconds. The value
+ is unused if no ad is playing.</div>
+</li>
+</ul>
+<a id="contentBufferedPositionMsSupplier">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>contentBufferedPositionMsSupplier</h4>
+<pre>public final&nbsp;<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a> contentBufferedPositionMsSupplier</pre>
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently playing
+ content is buffered, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to indicate the default start
+ position.</div>
+</li>
+</ul>
+<a id="adBufferedPositionMsSupplier">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adBufferedPositionMsSupplier</h4>
+<pre>public final&nbsp;<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a> adBufferedPositionMsSupplier</pre>
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated position up to which the currently playing ad
+ is buffered, in milliseconds. The value is unused if no ad is playing.</div>
+</li>
+</ul>
+<a id="totalBufferedDurationMsSupplier">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalBufferedDurationMsSupplier</h4>
+<pre>public final&nbsp;<a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2">SimpleBasePlayer.PositionSupplier</a> totalBufferedDurationMsSupplier</pre>
+<div class="block">The <a href="SimpleBasePlayer.PositionSupplier.html" title="interface in com.google.android.exoplayer2"><code>SimpleBasePlayer.PositionSupplier</code></a> for the estimated total buffered duration in milliseconds.</div>
+</li>
+</ul>
+<a id="hasPositionDiscontinuity">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasPositionDiscontinuity</h4>
+<pre>public final&nbsp;boolean hasPositionDiscontinuity</pre>
+<div class="block">Signals that a position discontinuity happened since the last update to the player.</div>
+</li>
+</ul>
+<a id="positionDiscontinuityReason">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>positionDiscontinuityReason</h4>
+<pre><a href="Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
+public final&nbsp;@com.google.android.exoplayer2.Player.DiscontinuityReason int positionDiscontinuityReason</pre>
+<div class="block">The <a href="Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">reason</a> for the last position discontinuity. The
+ value is unused if <a href="#hasPositionDiscontinuity"><code>hasPositionDiscontinuity</code></a> is <code>false</code>.</div>
+</li>
+</ul>
+<a id="discontinuityPositionMs">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>discontinuityPositionMs</h4>
+<pre>public final&nbsp;long discontinuityPositionMs</pre>
+<div class="block">The position, in milliseconds, in the current content or ad from which playback continued
+ after the discontinuity. The value is unused if <a href="#hasPositionDiscontinuity"><code>hasPositionDiscontinuity</code></a> is <code>
+ false</code>.</div>
 </li>
 </ul>
 </li>
