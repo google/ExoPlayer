@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.MediaFormatUtil.createMediaFormatFromFormat;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.annotation.SuppressLint;
@@ -51,12 +52,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
-    MediaFormat mediaFormat =
-        MediaFormat.createAudioFormat(
-            checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
-    MediaFormatUtil.maybeSetInteger(
-        mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
-    MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+    checkNotNull(format.sampleMimeType);
+    MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
@@ -79,6 +76,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format format, Surface outputSurface, boolean requestSdrToneMapping)
       throws TransformationException {
     checkNotNull(format.sampleMimeType);
+
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
       if (requestSdrToneMapping && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
         throw createTransformationException(
@@ -91,13 +89,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
 
-    MediaFormat mediaFormat =
-        MediaFormat.createVideoFormat(format.sampleMimeType, format.width, format.height);
-    MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
-    MediaFormatUtil.maybeSetInteger(
-        mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
-    MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
+    MediaFormat mediaFormat = createMediaFormatFromFormat(format);
+
     if (decoderSupportsKeyAllowFrameDrop) {
       // This key ensures no frame dropping when the decoder's output surface is full. This allows
       // transformer to decode as many frames as possible in one render cycle.
