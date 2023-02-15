@@ -242,15 +242,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DECODER_SUPPORT_FALLBACK">DECODER_SUPPORT_FALLBACK</a></span></code></th>
 <td class="colLast">
-<div class="block">The renderer will use a fallback decoder.</div>
+<div class="block">The format exceeds the primary decoder's capabilities but is supported by fallback decoder</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DECODER_SUPPORT_FALLBACK_MIMETYPE">DECODER_SUPPORT_FALLBACK_MIMETYPE</a></span></code></th>
 <td class="colLast">
-<div class="block">The renderer will use a decoder for fallback mimetype if possible as format's MIME type is
- unsupported</div>
+<div class="block">The format's MIME type is unsupported and the renderer may use a decoder for a fallback MIME
+ type.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -748,8 +748,8 @@ static final&nbsp;int FORMAT_UNSUPPORTED_TYPE</pre>
 <li class="blockList">
 <h4>DECODER_SUPPORT_FALLBACK_MIMETYPE</h4>
 <pre>static final&nbsp;int DECODER_SUPPORT_FALLBACK_MIMETYPE</pre>
-<div class="block">The renderer will use a decoder for fallback mimetype if possible as format's MIME type is
- unsupported</div>
+<div class="block">The format's MIME type is unsupported and the renderer may use a decoder for a fallback MIME
+ type.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.DECODER_SUPPORT_FALLBACK_MIMETYPE">Constant Field Values</a></dd>
@@ -777,7 +777,7 @@ static final&nbsp;int FORMAT_UNSUPPORTED_TYPE</pre>
 <li class="blockList">
 <h4>DECODER_SUPPORT_FALLBACK</h4>
 <pre>static final&nbsp;int DECODER_SUPPORT_FALLBACK</pre>
-<div class="block">The renderer will use a fallback decoder.</div>
+<div class="block">The format exceeds the primary decoder's capabilities but is supported by fallback decoder</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.RendererCapabilities.DECODER_SUPPORT_FALLBACK">Constant Field Values</a></dd>

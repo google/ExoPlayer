@@ -178,11 +178,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,double)">getBufferSizeInBytes</a></span>&#8203;(int&nbsp;minBufferSizeInBytes,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,int,double)">getBufferSizeInBytes</a></span>&#8203;(int&nbsp;minBufferSizeInBytes,
                     @com.google.android.exoplayer2.C.Encoding int&nbsp;encoding,
                     @com.google.android.exoplayer2.audio.DefaultAudioSink.OutputMode int&nbsp;outputMode,
                     int&nbsp;pcmFrameSize,
                     int&nbsp;sampleRate,
+                    int&nbsp;bitrate,
                     double&nbsp;maxAudioTrackPlaybackSpeed)</code></th>
 <td class="colLast">
 <div class="block">Returns the buffer size to use when creating an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> for a specific format and
@@ -226,7 +227,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,double)">
+<a id="getBufferSizeInBytes(int,@com.google.android.exoplayer2.C.Encodingint,@com.google.android.exoplayer2.audio.DefaultAudioSink.OutputModeint,int,int,int,double)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -237,6 +238,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          @com.google.android.exoplayer2.audio.DefaultAudioSink.OutputMode int&nbsp;outputMode,
                          int&nbsp;pcmFrameSize,
                          int&nbsp;sampleRate,
+                         int&nbsp;bitrate,
                          double&nbsp;maxAudioTrackPlaybackSpeed)</pre>
 <div class="block">Returns the buffer size to use when creating an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> for a specific format and
  output mode.</div>
@@ -249,6 +251,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>pcmFrameSize</code> - The size of the PCM frames if the <code>encoding</code> is PCM, 1 otherwise,
      in bytes.</dd>
 <dd><code>sampleRate</code> - The sample rate of the format, in Hz.</dd>
+<dd><code>bitrate</code> - The bitrate of the audio stream if the stream is compressed, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if <code>encoding</code> is PCM or the bitrate is not known.</dd>
 <dd><code>maxAudioTrackPlaybackSpeed</code> - The maximum speed the content will be played using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams(android.media.PlaybackParams)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(android.media.PlaybackParams)</code></a>. 0.5 is 2x slow motion, 1 is real time, 2 is 2x fast
      forward, etc. This will be <code>1</code> unless <a href="DefaultAudioSink.Builder.html#setEnableAudioTrackPlaybackParams(boolean)"><code>DefaultAudioSink.Builder.setEnableAudioTrackPlaybackParams(boolean)</code></a> is enabled.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

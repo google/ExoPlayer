@@ -318,7 +318,7 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">onTimelineChanged</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</code></th>
 <td class="colLast">
-<div class="block">Called when the timeline has been refreshed.</div>
+<div class="block">Called when the value of <a href="../Player.html#getCurrentTimeline()"><code>Player.getCurrentTimeline()</code></a> changes.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
@@ -568,7 +568,7 @@ public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.androi
                               <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
                               @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.Listener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">Player.Listener</a></code></span></div>
-<div class="block">Called when the timeline has been refreshed.
+<div class="block">Called when the value of <a href="../Player.html#getCurrentTimeline()"><code>Player.getCurrentTimeline()</code></a> changes.
 
  <p>Note that the current <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> or playback position may change as a result of a
  timeline change. If playback can't continue smoothly because of this timeline change, a
@@ -600,8 +600,8 @@ public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.androi
 <div class="block">Called when playback transitions to a media item or starts repeating a media item according
  to the current <a href="../Player.html#getRepeatMode()"><code>repeat mode</code></a>.
 
- <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
- consequence of a playlist change.
+ <p>Note that this callback is also called when the value of <a href="../Player.html#getCurrentTimeline()"><code>Player.getCurrentTimeline()</code></a>
+ becomes non-empty or empty.
 
  <p><a href="../Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.Listener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
@@ -631,7 +631,7 @@ public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.androi
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.Listener.html#onPlaybackStateChanged(@com.google.android.exoplayer2.Player.Stateint)">onPlaybackStateChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackState</code> - The new playback <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2"><code>state</code></a>.</dd>
+<dd><code>playbackState</code> - The new playback <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2"><code>Player.State</code></a>.</dd>
 </dl>
 </li>
 </ul>

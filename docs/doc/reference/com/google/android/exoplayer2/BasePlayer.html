@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":42,"i18":10,"i19":42,"i20":42,"i21":10,"i22":42,"i23":10,"i24":10,"i25":10,"i26":10,"i27":42,"i28":42,"i29":42,"i30":10,"i31":10,"i32":42,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":42,"i46":10,"i47":10,"i48":42,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":42,"i18":10,"i19":42,"i20":42,"i21":10,"i22":42,"i23":10,"i24":10,"i25":10,"i26":10,"i27":42,"i28":42,"i29":42,"i30":10,"i31":10,"i32":42,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10,"i39":10,"i40":6,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":42,"i47":10,"i48":10,"i49":42,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -225,7 +225,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -326,7 +326,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaItemCount()">getMediaItemCount</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the number of <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>media items</code></a> in the playlist.</div>
+<div class="block">Returns the number of <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> in the playlist.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
@@ -527,20 +527,13 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </td>
 </tr>
 <tr id="i37" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#repeatCurrentMediaItem()">repeatCurrentMediaItem</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Repeat the current media item.</div>
-</td>
-</tr>
-<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekBack()">seekBack</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks back in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> by <a href="Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> milliseconds.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekForward()">seekForward</a></span>()</code></th>
 <td class="colLast">
@@ -548,35 +541,53 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  milliseconds.</div>
 </td>
 </tr>
+<tr id="i39" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(int,long)">seekTo</a></span>&#8203;(int&nbsp;mediaItemIndex,
+      long&nbsp;positionMs)</code></th>
+<td class="colLast">
+<div class="block">Seeks to a position specified in milliseconds in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+</td>
+</tr>
 <tr id="i40" class="altColor">
+<td class="colFirst"><code>abstract void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(int,long,@com.google.android.exoplayer2.Player.Commandint,boolean)">seekTo</a></span>&#8203;(int&nbsp;mediaItemIndex,
+      long&nbsp;positionMs,
+      @com.google.android.exoplayer2.Player.Command int&nbsp;seekCommand,
+      boolean&nbsp;isRepeatingCurrentItem)</code></th>
+<td class="colLast">
+<div class="block">Seeks to a position in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+</td>
+</tr>
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(long)">seekTo</a></span>&#8203;(long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Seeks to a position specified in milliseconds in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToDefaultPosition()">seekToDefaultPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to the default position associated with the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToDefaultPosition(int)">seekToDefaultPosition</a></span>&#8203;(int&nbsp;mediaItemIndex)</code></th>
 <td class="colLast">
 <div class="block">Seeks to the default position associated with the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNext()">seekToNext</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to a later position in the current or next <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> (if available).</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNextMediaItem()">seekToNextMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -584,7 +595,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNextWindow()">seekToNextWindow</a></span>()</code></th>
 <td class="colLast">
@@ -593,14 +604,14 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPrevious()">seekToPrevious</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to an earlier position in the current or previous <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> (if available).</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPreviousMediaItem()">seekToPreviousMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -608,7 +619,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPreviousWindow()">seekToPreviousWindow</a></span>()</code></th>
 <td class="colLast">
@@ -617,7 +628,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 </div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
 <td class="colLast">
@@ -625,7 +636,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
  default position.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem,boolean)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             boolean&nbsp;resetPosition)</code></th>
@@ -633,7 +644,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem,long)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             long&nbsp;startPositionMs)</code></th>
@@ -641,15 +652,15 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItems(java.util.List)">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code></th>
 <td class="colLast">
-<div class="block">Clears the playlist, adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> and resets the position to
- the default position.</div>
+<div class="block">Clears the playlist, adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> and resets the
+ position to the default position.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackSpeed(float)">setPlaybackSpeed</a></span>&#8203;(float&nbsp;speed)</code></th>
 <td class="colLast">
@@ -669,7 +680,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></h3>
-<code><a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)">addListener</a>, <a href="Player.html#addMediaItems(int,java.util.List)">addMediaItems</a>, <a href="Player.html#clearVideoSurface()">clearVideoSurface</a>, <a href="Player.html#clearVideoSurface(android.view.Surface)">clearVideoSurface</a>, <a href="Player.html#clearVideoSurfaceHolder(android.view.SurfaceHolder)">clearVideoSurfaceHolder</a>, <a href="Player.html#clearVideoSurfaceView(android.view.SurfaceView)">clearVideoSurfaceView</a>, <a href="Player.html#clearVideoTextureView(android.view.TextureView)">clearVideoTextureView</a>, <a href="Player.html#decreaseDeviceVolume()">decreaseDeviceVolume</a>, <a href="Player.html#getApplicationLooper()">getApplicationLooper</a>, <a href="Player.html#getAudioAttributes()">getAudioAttributes</a>, <a href="Player.html#getAvailableCommands()">getAvailableCommands</a>, <a href="Player.html#getBufferedPosition()">getBufferedPosition</a>, <a href="Player.html#getContentBufferedPosition()">getContentBufferedPosition</a>, <a href="Player.html#getContentPosition()">getContentPosition</a>, <a href="Player.html#getCurrentAdGroupIndex()">getCurrentAdGroupIndex</a>, <a href="Player.html#getCurrentAdIndexInAdGroup()">getCurrentAdIndexInAdGroup</a>, <a href="Player.html#getCurrentCues()">getCurrentCues</a>, <a href="Player.html#getCurrentMediaItemIndex()">getCurrentMediaItemIndex</a>, <a href="Player.html#getCurrentPeriodIndex()">getCurrentPeriodIndex</a>, <a href="Player.html#getCurrentPosition()">getCurrentPosition</a>, <a href="Player.html#getCurrentTimeline()">getCurrentTimeline</a>, <a href="Player.html#getCurrentTracks()">getCurrentTracks</a>, <a href="Player.html#getDeviceInfo()">getDeviceInfo</a>, <a href="Player.html#getDeviceVolume()">getDeviceVolume</a>, <a href="Player.html#getDuration()">getDuration</a>, <a href="Player.html#getMaxSeekToPreviousPosition()">getMaxSeekToPreviousPosition</a>, <a href="Player.html#getMediaMetadata()">getMediaMetadata</a>, <a href="Player.html#getPlaybackParameters()">getPlaybackParameters</a>, <a href="Player.html#getPlaybackState()">getPlaybackState</a>, <a href="Player.html#getPlaybackSuppressionReason()">getPlaybackSuppressionReason</a>, <a href="Player.html#getPlayerError()">getPlayerError</a>, <a href="Player.html#getPlaylistMetadata()">getPlaylistMetadata</a>, <a href="Player.html#getPlayWhenReady()">getPlayWhenReady</a>, <a href="Player.html#getRepeatMode()">getRepeatMode</a>, <a href="Player.html#getSeekBackIncrement()">getSeekBackIncrement</a>, <a href="Player.html#getSeekForwardIncrement()">getSeekForwardIncrement</a>, <a href="Player.html#getShuffleModeEnabled()">getShuffleModeEnabled</a>, <a href="Player.html#getSurfaceSize()">getSurfaceSize</a>, <a href="Player.html#getTotalBufferedDuration()">getTotalBufferedDuration</a>, <a href="Player.html#getTrackSelectionParameters()">getTrackSelectionParameters</a>, <a href="Player.html#getVideoSize()">getVideoSize</a>, <a href="Player.html#getVolume()">getVolume</a>, <a href="Player.html#increaseDeviceVolume()">increaseDeviceVolume</a>, <a href="Player.html#isDeviceMuted()">isDeviceMuted</a>, <a href="Player.html#isLoading()">isLoading</a>, <a href="Player.html#isPlayingAd()">isPlayingAd</a>, <a href="Player.html#moveMediaItems(int,int,int)">moveMediaItems</a>, <a href="Player.html#prepare()">prepare</a>, <a href="Player.html#release()">release</a>, <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)">removeListener</a>, <a href="Player.html#removeMediaItems(int,int)">removeMediaItems</a>, <a href="Player.html#seekTo(int,long)">seekTo</a>, <a href="Player.html#setDeviceMuted(boolean)">setDeviceMuted</a>, <a href="Player.html#setDeviceVolume(int)">setDeviceVolume</a>, <a href="Player.html#setMediaItems(java.util.List,boolean)">setMediaItems</a>, <a href="Player.html#setMediaItems(java.util.List,int,long)">setMediaItems</a>, <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a>, <a href="Player.html#setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">setPlaylistMetadata</a>, <a href="Player.html#setPlayWhenReady(boolean)">setPlayWhenReady</a>, <a href="Player.html#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a>, <a href="Player.html#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a>, <a href="Player.html#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setTrackSelectionParameters</a>, <a href="Player.html#setVideoSurface(android.view.Surface)">setVideoSurface</a>, <a href="Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a>, <a href="Player.html#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a>, <a href="Player.html#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a>, <a href="Player.html#setVolume(float)">setVolume</a>, <a href="Player.html#stop()">stop</a>, <a href="Player.html#stop(boolean)">stop</a></code></li>
+<code><a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)">addListener</a>, <a href="Player.html#addMediaItems(int,java.util.List)">addMediaItems</a>, <a href="Player.html#clearVideoSurface()">clearVideoSurface</a>, <a href="Player.html#clearVideoSurface(android.view.Surface)">clearVideoSurface</a>, <a href="Player.html#clearVideoSurfaceHolder(android.view.SurfaceHolder)">clearVideoSurfaceHolder</a>, <a href="Player.html#clearVideoSurfaceView(android.view.SurfaceView)">clearVideoSurfaceView</a>, <a href="Player.html#clearVideoTextureView(android.view.TextureView)">clearVideoTextureView</a>, <a href="Player.html#decreaseDeviceVolume()">decreaseDeviceVolume</a>, <a href="Player.html#getApplicationLooper()">getApplicationLooper</a>, <a href="Player.html#getAudioAttributes()">getAudioAttributes</a>, <a href="Player.html#getAvailableCommands()">getAvailableCommands</a>, <a href="Player.html#getBufferedPosition()">getBufferedPosition</a>, <a href="Player.html#getContentBufferedPosition()">getContentBufferedPosition</a>, <a href="Player.html#getContentPosition()">getContentPosition</a>, <a href="Player.html#getCurrentAdGroupIndex()">getCurrentAdGroupIndex</a>, <a href="Player.html#getCurrentAdIndexInAdGroup()">getCurrentAdIndexInAdGroup</a>, <a href="Player.html#getCurrentCues()">getCurrentCues</a>, <a href="Player.html#getCurrentMediaItemIndex()">getCurrentMediaItemIndex</a>, <a href="Player.html#getCurrentPeriodIndex()">getCurrentPeriodIndex</a>, <a href="Player.html#getCurrentPosition()">getCurrentPosition</a>, <a href="Player.html#getCurrentTimeline()">getCurrentTimeline</a>, <a href="Player.html#getCurrentTracks()">getCurrentTracks</a>, <a href="Player.html#getDeviceInfo()">getDeviceInfo</a>, <a href="Player.html#getDeviceVolume()">getDeviceVolume</a>, <a href="Player.html#getDuration()">getDuration</a>, <a href="Player.html#getMaxSeekToPreviousPosition()">getMaxSeekToPreviousPosition</a>, <a href="Player.html#getMediaMetadata()">getMediaMetadata</a>, <a href="Player.html#getPlaybackParameters()">getPlaybackParameters</a>, <a href="Player.html#getPlaybackState()">getPlaybackState</a>, <a href="Player.html#getPlaybackSuppressionReason()">getPlaybackSuppressionReason</a>, <a href="Player.html#getPlayerError()">getPlayerError</a>, <a href="Player.html#getPlaylistMetadata()">getPlaylistMetadata</a>, <a href="Player.html#getPlayWhenReady()">getPlayWhenReady</a>, <a href="Player.html#getRepeatMode()">getRepeatMode</a>, <a href="Player.html#getSeekBackIncrement()">getSeekBackIncrement</a>, <a href="Player.html#getSeekForwardIncrement()">getSeekForwardIncrement</a>, <a href="Player.html#getShuffleModeEnabled()">getShuffleModeEnabled</a>, <a href="Player.html#getSurfaceSize()">getSurfaceSize</a>, <a href="Player.html#getTotalBufferedDuration()">getTotalBufferedDuration</a>, <a href="Player.html#getTrackSelectionParameters()">getTrackSelectionParameters</a>, <a href="Player.html#getVideoSize()">getVideoSize</a>, <a href="Player.html#getVolume()">getVolume</a>, <a href="Player.html#increaseDeviceVolume()">increaseDeviceVolume</a>, <a href="Player.html#isDeviceMuted()">isDeviceMuted</a>, <a href="Player.html#isLoading()">isLoading</a>, <a href="Player.html#isPlayingAd()">isPlayingAd</a>, <a href="Player.html#moveMediaItems(int,int,int)">moveMediaItems</a>, <a href="Player.html#prepare()">prepare</a>, <a href="Player.html#release()">release</a>, <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)">removeListener</a>, <a href="Player.html#removeMediaItems(int,int)">removeMediaItems</a>, <a href="Player.html#setDeviceMuted(boolean)">setDeviceMuted</a>, <a href="Player.html#setDeviceVolume(int)">setDeviceVolume</a>, <a href="Player.html#setMediaItems(java.util.List,boolean)">setMediaItems</a>, <a href="Player.html#setMediaItems(java.util.List,int,long)">setMediaItems</a>, <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a>, <a href="Player.html#setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">setPlaylistMetadata</a>, <a href="Player.html#setPlayWhenReady(boolean)">setPlayWhenReady</a>, <a href="Player.html#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a>, <a href="Player.html#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a>, <a href="Player.html#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setTrackSelectionParameters</a>, <a href="Player.html#setVideoSurface(android.view.Surface)">setVideoSurface</a>, <a href="Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a>, <a href="Player.html#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a>, <a href="Player.html#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a>, <a href="Player.html#setVolume(float)">setVolume</a>, <a href="Player.html#stop()">stop</a>, <a href="Player.html#stop(boolean)">stop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -734,7 +745,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;setMediaItem&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#setMediaItem(com.google.android.exoplayer2.MediaItem)">Player</a></code></span></div>
 <div class="block">Clears the playlist, adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> and resets the position to the
- default position.</div>
+ default position.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SET_MEDIA_ITEM"><code>Player.COMMAND_SET_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItem(com.google.android.exoplayer2.MediaItem)">setMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -752,7 +765,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;setMediaItem&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                                long&nbsp;startPositionMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#setMediaItem(com.google.android.exoplayer2.MediaItem,long)">Player</a></code></span></div>
-<div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SET_MEDIA_ITEM"><code>Player.COMMAND_SET_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItem(com.google.android.exoplayer2.MediaItem,long)">setMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -771,7 +786,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;setMediaItem&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                                boolean&nbsp;resetPosition)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#setMediaItem(com.google.android.exoplayer2.MediaItem,boolean)">Player</a></code></span></div>
-<div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SET_MEDIA_ITEM"><code>Player.COMMAND_SET_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItem(com.google.android.exoplayer2.MediaItem,boolean)">setMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -791,13 +808,15 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>setMediaItems</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;setMediaItems&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#setMediaItems(java.util.List)">Player</a></code></span></div>
-<div class="block">Clears the playlist, adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> and resets the position to
- the default position.</div>
+<div class="block">Clears the playlist, adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> and resets the
+ position to the default position.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItems(java.util.List)">setMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</dd>
+<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a>.</dd>
 </dl>
 </li>
 </ul>
@@ -810,7 +829,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;addMediaItem&#8203;(int&nbsp;index,
                                <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#addMediaItem(int,com.google.android.exoplayer2.MediaItem)">Player</a></code></span></div>
-<div class="block">Adds a media item at the given index of the playlist.</div>
+<div class="block">Adds a media item at the given index of the playlist.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#addMediaItem(int,com.google.android.exoplayer2.MediaItem)">addMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -829,7 +850,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>addMediaItem</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;addMediaItem&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#addMediaItem(com.google.android.exoplayer2.MediaItem)">Player</a></code></span></div>
-<div class="block">Adds a media item to the end of the playlist.</div>
+<div class="block">Adds a media item to the end of the playlist.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#addMediaItem(com.google.android.exoplayer2.MediaItem)">addMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -846,12 +869,14 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>addMediaItems</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;addMediaItems&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#addMediaItems(java.util.List)">Player</a></code></span></div>
-<div class="block">Adds a list of media items to the end of the playlist.</div>
+<div class="block">Adds a list of media items to the end of the playlist.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#addMediaItems(java.util.List)">addMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> to add.</dd>
+<dd><code>mediaItems</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> to add.</dd>
 </dl>
 </li>
 </ul>
@@ -864,12 +889,15 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;moveMediaItem&#8203;(int&nbsp;currentIndex,
                                 int&nbsp;newIndex)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#moveMediaItem(int,int)">Player</a></code></span></div>
-<div class="block">Moves the media item at the current index to the new index.</div>
+<div class="block">Moves the media item at the current index to the new index.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#moveMediaItem(int,int)">moveMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>currentIndex</code> - The current index of the media item to move.</dd>
+<dd><code>currentIndex</code> - The current index of the media item to move. If the index is larger than
+     the size of the playlist, the request is ignored.</dd>
 <dd><code>newIndex</code> - The new index of the media item. If the new index is larger than the size of
      the playlist the item is moved to the end of the playlist.</dd>
 </dl>
@@ -883,12 +911,15 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>removeMediaItem</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;removeMediaItem&#8203;(int&nbsp;index)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#removeMediaItem(int)">Player</a></code></span></div>
-<div class="block">Removes the media item at the given index of the playlist.</div>
+<div class="block">Removes the media item at the given index of the playlist.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#removeMediaItem(int)">removeMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - The index at which to remove the media item.</dd>
+<dd><code>index</code> - The index at which to remove the media item. If the index is larger than the size
+     of the playlist, the request is ignored.</dd>
 </dl>
 </li>
 </ul>
@@ -900,7 +931,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>clearMediaItems</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;clearMediaItems()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#clearMediaItems()">Player</a></code></span></div>
-<div class="block">Clears the playlist.</div>
+<div class="block">Clears the playlist.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_CHANGE_MEDIA_ITEMS"><code>Player.COMMAND_CHANGE_MEDIA_ITEMS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#clearMediaItems()">clearMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -918,13 +951,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#isCommandAvailable(@com.google.android.exoplayer2.Player.Commandint)">Player</a></code></span></div>
 <div class="block">Returns whether the provided <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> is available.
 
- <p>This method does not execute the command.
-
- <p>Executing a command that is not available (for example, calling <a href="Player.html#seekToNextMediaItem()"><code>Player.seekToNextMediaItem()</code></a> if <a href="Player.html#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM</code></a> is unavailable) will
- neither throw an exception nor generate a <a href="Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> player error}.
-
- <p><a href="Player.html#COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM</code></a> and <a href="Player.html#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM</code></a>
- are unavailable if there is no such <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+ <p>This method does not execute the command.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#isCommandAvailable(@com.google.android.exoplayer2.Player.Commandint)">isCommandAvailable</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -962,7 +989,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;play()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#play()">Player</a></code></span></div>
 <div class="block">Resumes playback as soon as <a href="Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> == <a href="Player.html#STATE_READY"><code>Player.STATE_READY</code></a>. Equivalent to
- <code>setPlayWhenReady(true)</code>.</div>
+ <a href="Player.html#setPlayWhenReady(boolean)"><code>setPlayWhenReady(true)</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_PLAY_PAUSE"><code>Player.COMMAND_PLAY_PAUSE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#play()">play</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -977,7 +1006,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>pause</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;pause()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#pause()">Player</a></code></span></div>
-<div class="block">Pauses playback. Equivalent to <code>setPlayWhenReady(false)</code>.</div>
+<div class="block">Pauses playback. Equivalent to <a href="Player.html#setPlayWhenReady(boolean)"><code>setPlayWhenReady(false)</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_PLAY_PAUSE"><code>Player.COMMAND_PLAY_PAUSE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#pause()">pause</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1021,7 +1052,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekToDefaultPosition()">Player</a></code></span></div>
 <div class="block">Seeks to the default position associated with the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. The position can
  depend on the type of media being played. For live streams it will typically be the live edge.
- For other streams it will typically be the start.</div>
+ For other streams it will typically be the start.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_DEFAULT_POSITION"><code>Player.COMMAND_SEEK_TO_DEFAULT_POSITION</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekToDefaultPosition()">seekToDefaultPosition</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1038,31 +1071,16 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekToDefaultPosition(int)">Player</a></code></span></div>
 <div class="block">Seeks to the default position associated with the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. The position can
  depend on the type of media being played. For live streams it will typically be the live edge.
- For other streams it will typically be the start.</div>
+ For other streams it will typically be the start.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekToDefaultPosition(int)">seekToDefaultPosition</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItemIndex</code> - The index of the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose associated default position
-     should be seeked to.</dd>
-</dl>
-</li>
-</ul>
-<a id="seekTo(long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>seekTo</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;seekTo&#8203;(long&nbsp;positionMs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekTo(long)">Player</a></code></span></div>
-<div class="block">Seeks to a position specified in milliseconds in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Player.html#seekTo(long)">seekTo</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionMs</code> - The seek position in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
-     to seek to the media item's default position.</dd>
+     should be seeked to. If the index is larger than the size of the playlist, the request is
+     ignored.</dd>
 </dl>
 </li>
 </ul>
@@ -1074,7 +1092,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <h4>seekBack</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;seekBack()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekBack()">Player</a></code></span></div>
-<div class="block">Seeks back in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> by <a href="Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> milliseconds.</div>
+<div class="block">Seeks back in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> by <a href="Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> milliseconds.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_BACK"><code>Player.COMMAND_SEEK_BACK</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekBack()">seekBack</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1090,7 +1110,9 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <pre class="methodSignature">public final&nbsp;void&nbsp;seekForward()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekForward()">Player</a></code></span></div>
 <div class="block">Seeks forward in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> by <a href="Player.html#getSeekForwardIncrement()"><code>Player.getSeekForwardIncrement()</code></a>
- milliseconds.</div>
+ milliseconds.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_FORWARD"><code>Player.COMMAND_SEEK_FORWARD</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekForward()">seekForward</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1144,7 +1166,9 @@ public final&nbsp;boolean&nbsp;hasPreviousWindow()</pre>
 
  <p>Note: When the repeat mode is <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
  the current repeat mode is <a href="Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
- details.</div>
+ details.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_TIMELINE"><code>Player.COMMAND_GET_TIMELINE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#hasPreviousMediaItem()">hasPreviousMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1198,7 +1222,10 @@ public final&nbsp;void&nbsp;seekToPreviousWindow()</pre>
 
  <p>Note: When the repeat mode is <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
  the current repeat mode is <a href="Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
- details.</div>
+ details.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM</code></a> is
+ <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekToPreviousMediaItem()">seekToPreviousMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1227,7 +1254,9 @@ public final&nbsp;void&nbsp;seekToPreviousWindow()</pre>
        </ul>
    <li>Otherwise, if <a href="Player.html#hasPreviousMediaItem()"><code>a previous media item exists</code></a> and the <a href="Player.html#getCurrentPosition()"><code>current position</code></a> is less than <a href="Player.html#getMaxSeekToPreviousPosition()"><code>Player.getMaxSeekToPreviousPosition()</code></a>, seeks to the default position of the previous <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
    <li>Otherwise, seeks to 0 in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
- </ul></div>
+ </ul>
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_PREVIOUS"><code>Player.COMMAND_SEEK_TO_PREVIOUS</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekToPrevious()">seekToPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1281,7 +1310,9 @@ public final&nbsp;boolean&nbsp;hasNextWindow()</pre>
 
  <p>Note: When the repeat mode is <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
  the current repeat mode is <a href="Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
- details.</div>
+ details.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_TIMELINE"><code>Player.COMMAND_GET_TIMELINE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#hasNextMediaItem()">hasNextMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1336,7 +1367,9 @@ public final&nbsp;void&nbsp;seekToNextWindow()</pre>
 
  <p>Note: When the repeat mode is <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
  the current repeat mode is <a href="Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
- details.</div>
+ details.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekToNextMediaItem()">seekToNextMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1361,10 +1394,78 @@ public final&nbsp;void&nbsp;seekToNextWindow()</pre>
    <li>Otherwise, if the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is <a href="Player.html#isCurrentMediaItemLive()"><code>live</code></a> and
        has not ended, seeks to the live edge of the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
    <li>Otherwise, does nothing.
- </ul></div>
+ </ul>
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_NEXT"><code>Player.COMMAND_SEEK_TO_NEXT</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekToNext()">seekToNext</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="seekTo(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekTo</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;seekTo&#8203;(long&nbsp;positionMs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekTo(long)">Player</a></code></span></div>
+<div class="block">Seeks to a position specified in milliseconds in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM</code></a> is
+ <a href="Player.html#getAvailableCommands()">available</a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Player.html#seekTo(long)">seekTo</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionMs</code> - The seek position in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+     to seek to the media item's default position.</dd>
+</dl>
+</li>
+</ul>
+<a id="seekTo(int,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekTo</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;seekTo&#8203;(int&nbsp;mediaItemIndex,
+                         long&nbsp;positionMs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#seekTo(int,long)">Player</a></code></span></div>
+<div class="block">Seeks to a position specified in milliseconds in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SEEK_TO_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Player.html#seekTo(int,long)">seekTo</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItemIndex</code> - The index of the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. If the index is larger than the size
+     of the playlist, the request is ignored.</dd>
+<dd><code>positionMs</code> - The seek position in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+     to seek to the media item's default position.</dd>
+</dl>
+</li>
+</ul>
+<a id="seekTo(int,long,@com.google.android.exoplayer2.Player.Commandint,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekTo</h4>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;seekTo&#8203;(int&nbsp;mediaItemIndex,
+                            long&nbsp;positionMs,
+                            <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+                            @com.google.android.exoplayer2.Player.Command int&nbsp;seekCommand,
+                            boolean&nbsp;isRepeatingCurrentItem)</pre>
+<div class="block">Seeks to a position in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItemIndex</code> - The index of the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dd><code>positionMs</code> - The seek position in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> in milliseconds, or
+     <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to seek to the media item's default position.</dd>
+<dd><code>seekCommand</code> - The <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> used to trigger the seek.</dd>
+<dd><code>isRepeatingCurrentItem</code> - Whether this seeks repeats the current item.</dd>
 </dl>
 </li>
 </ul>
@@ -1379,13 +1480,15 @@ public final&nbsp;void&nbsp;seekToNextWindow()</pre>
 <div class="block">Changes the rate at which playback occurs. The pitch is not changed.
 
  <p>This is equivalent to <code>
- setPlaybackParameters(getPlaybackParameters().withSpeed(speed))</code>.</div>
+ setPlaybackParameters(getPlaybackParameters().withSpeed(speed))</code>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_SET_SPEED_AND_PITCH"><code>Player.COMMAND_SET_SPEED_AND_PITCH</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setPlaybackSpeed(float)">setPlaybackSpeed</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>speed</code> - The linear factor by which playback will be sped up. Must be higher than 0. 1 is
-     normal speed, 2 is twice as fast, 0.5 is half normal speed...</dd>
+     normal speed, 2 is twice as fast, 0.5 is half normal speed.</dd>
 </dl>
 </li>
 </ul>
@@ -1437,7 +1540,9 @@ public final&nbsp;int&nbsp;getNextWindowIndex()</pre>
 
  <p>Note: When the repeat mode is <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
  the current repeat mode is <a href="Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
- details.</div>
+ details.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_TIMELINE"><code>Player.COMMAND_GET_TIMELINE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getNextMediaItemIndex()">getNextMediaItemIndex</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1475,7 +1580,9 @@ public final&nbsp;int&nbsp;getPreviousWindowIndex()</pre>
 
  <p>Note: When the repeat mode is <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
  the current repeat mode is <a href="Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
- details.</div>
+ details.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_TIMELINE"><code>Player.COMMAND_GET_TIMELINE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getPreviousMediaItemIndex()">getPreviousMediaItemIndex</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1491,7 +1598,9 @@ public final&nbsp;int&nbsp;getPreviousWindowIndex()</pre>
 <pre class="methodSignature">@Nullable
 public final&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;getCurrentMediaItem()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#getCurrentMediaItem()">Player</a></code></span></div>
-<div class="block">Returns the currently playing <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. May be null if the timeline is empty.</div>
+<div class="block">Returns the currently playing <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. May be null if the timeline is empty.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_GET_CURRENT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getCurrentMediaItem()">getCurrentMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1508,7 +1617,9 @@ public final&nbsp;<a href="MediaItem.html" title="class in com.google.android.ex
 <h4>getMediaItemCount</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getMediaItemCount()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#getMediaItemCount()">Player</a></code></span></div>
-<div class="block">Returns the number of <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>media items</code></a> in the playlist.</div>
+<div class="block">Returns the number of <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> in the playlist.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_TIMELINE"><code>Player.COMMAND_GET_TIMELINE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getMediaItemCount()">getMediaItemCount</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1523,7 +1634,9 @@ public final&nbsp;<a href="MediaItem.html" title="class in com.google.android.ex
 <h4>getMediaItemAt</h4>
 <pre class="methodSignature">public final&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;getMediaItemAt&#8203;(int&nbsp;index)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#getMediaItemAt(int)">Player</a></code></span></div>
-<div class="block">Returns the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> at the given index.</div>
+<div class="block">Returns the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> at the given index.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_TIMELINE"><code>Player.COMMAND_GET_TIMELINE</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getMediaItemAt(int)">getMediaItemAt</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1588,7 +1701,9 @@ public final&nbsp;boolean&nbsp;isCurrentWindowDynamic()</pre>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isCurrentMediaItemDynamic()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#isCurrentMediaItemDynamic()">Player</a></code></span></div>
 <div class="block">Returns whether the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is dynamic (may change when the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>
- is updated), or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.</div>
+ is updated), or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_GET_CURRENT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#isCurrentMediaItemDynamic()">isCurrentMediaItemDynamic</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1623,7 +1738,9 @@ public final&nbsp;boolean&nbsp;isCurrentWindowLive()</pre>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isCurrentMediaItemLive()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#isCurrentMediaItemLive()">Player</a></code></span></div>
 <div class="block">Returns whether the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is live, or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>
- is empty.</div>
+ is empty.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_GET_CURRENT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#isCurrentMediaItemLive()">isCurrentMediaItemLive</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1648,7 +1765,9 @@ public final&nbsp;boolean&nbsp;isCurrentWindowLive()</pre>
  positive.
 
  <p>Note that this offset may rely on an accurate local time, so this method may return an
- incorrect value if the difference between system clock and server clock is unknown.</div>
+ incorrect value if the difference between system clock and server clock is unknown.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_GET_CURRENT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getCurrentLiveOffset()">getCurrentLiveOffset</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1680,7 +1799,9 @@ public final&nbsp;boolean&nbsp;isCurrentWindowSeekable()</pre>
 <h4>isCurrentMediaItemSeekable</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isCurrentMediaItemSeekable()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#isCurrentMediaItemSeekable()">Player</a></code></span></div>
-<div class="block">Returns whether the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is seekable, or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.</div>
+<div class="block">Returns whether the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is seekable, or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_GET_CURRENT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#isCurrentMediaItemSeekable()">isCurrentMediaItemSeekable</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -1692,32 +1813,20 @@ public final&nbsp;boolean&nbsp;isCurrentWindowSeekable()</pre>
 <a id="getContentDuration()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getContentDuration</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getContentDuration()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Player.html#getContentDuration()">Player</a></code></span></div>
 <div class="block">If <a href="Player.html#isPlayingAd()"><code>Player.isPlayingAd()</code></a> returns <code>true</code>, returns the duration of the current content in
  milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the duration is not known. If there is no ad playing,
- the returned duration is the same as that returned by <a href="Player.html#getDuration()"><code>Player.getDuration()</code></a>.</div>
+ the returned duration is the same as that returned by <a href="Player.html#getDuration()"><code>Player.getDuration()</code></a>.
+
+ <p>This method must only be called if <a href="Player.html#COMMAND_GET_CURRENT_MEDIA_ITEM"><code>Player.COMMAND_GET_CURRENT_MEDIA_ITEM</code></a> is <a href="Player.html#getAvailableCommands()">available</a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getContentDuration()">getContentDuration</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 </dl>
-</li>
-</ul>
-<a id="repeatCurrentMediaItem()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>repeatCurrentMediaItem</h4>
-<pre class="methodSignature">@ForOverride
-protected&nbsp;void&nbsp;repeatCurrentMediaItem()</pre>
-<div class="block">Repeat the current media item.
-
- <p>The default implementation seeks to the default position in the current item, which can be
- overridden for additional handling.</div>
 </li>
 </ul>
 </li>

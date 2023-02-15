@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":9,"i31":10,"i32":10,"i33":10,"i34":9,"i35":9,"i36":10,"i37":9,"i38":10,"i39":9,"i40":9,"i41":10,"i42":9,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":9,"i61":9,"i62":10,"i63":10,"i64":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":9,"i31":10,"i32":10,"i33":10,"i34":9,"i35":9,"i36":10,"i37":9,"i38":10,"i39":9,"i40":9,"i41":10,"i42":9,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":9,"i61":9,"i62":10,"i63":10,"i64":10,"i65":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -714,18 +714,25 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i62" class="altColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTileCountFromProperties(java.util.List)">parseTileCountFromProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties)</code></th>
+<td class="colLast">
+<div class="block">Parses given descriptors for thumbnail tile information.</div>
+</td>
+</tr>
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTvaAudioPurposeCsValue(java.lang.String)">parseTvaAudioPurposeCsValue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>protected <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUrlTemplate(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate)">parseUrlTemplate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                 <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>protected <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUtcTiming(org.xmlpull.v1.XmlPullParser)">parseUtcTiming</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -1573,6 +1580,24 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudio
 <pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>[]&nbsp;parseProfiles&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;attributeName,
                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseTileCountFromProperties(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseTileCountFromProperties</h4>
+<pre class="methodSignature">@Nullable
+protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;parseTileCountFromProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties)</pre>
+<div class="block">Parses given descriptors for thumbnail tile information.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>essentialProperties</code> - List of descriptors that contain thumbnail tile information.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A pair of Integer values, where the first is the count of horizontal tiles and the
+     second is the count of vertical tiles, or null if no thumbnail tile information is found.</dd>
+</dl>
 </li>
 </ul>
 <a id="maybeSkipTag(org.xmlpull.v1.XmlPullParser)">
