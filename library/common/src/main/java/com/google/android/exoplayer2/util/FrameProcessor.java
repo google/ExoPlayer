@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.opengl.EGLExt;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.List;
 import java.util.concurrent.Executor;
