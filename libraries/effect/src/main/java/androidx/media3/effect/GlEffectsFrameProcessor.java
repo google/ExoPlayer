@@ -98,7 +98,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        @C.TrackType int inputTrackType,
+        boolean isInputTextureExternal,
         boolean releaseFramesAutomatically,
         Executor listenerExecutor,
         Listener listener)
@@ -109,7 +109,6 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       checkArgument(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
       checkArgument(outputColorInfo.isValid());
       checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
-      checkArgument(inputTrackType == C.TRACK_TYPE_VIDEO || inputTrackType == C.TRACK_TYPE_IMAGE);
 
       if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
           || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
@@ -136,7 +135,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                       debugViewProvider,
                       inputColorInfo,
                       outputColorInfo,
-                      /* isInputExternal= */ inputTrackType == C.TRACK_TYPE_VIDEO,
+                      isInputTextureExternal,
                       releaseFramesAutomatically,
                       singleThreadExecutorService,
                       listenerExecutor,
@@ -170,7 +169,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean isInputExternal,
+      boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       ExecutorService singleThreadExecutorService,
       Executor executor,
@@ -212,7 +211,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             debugViewProvider,
             inputColorInfo,
             outputColorInfo,
-            isInputExternal,
+            isInputTextureExternal,
             releaseFramesAutomatically,
             executor,
             listener);
@@ -224,7 +223,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     return new GlEffectsFrameProcessor(
         eglDisplay,
         eglContext,
-        isInputExternal,
+        isInputTextureExternal,
         frameProcessingTaskExecutor,
         shaderPrograms,
         releaseFramesAutomatically);
@@ -249,7 +248,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean isInputExternal,
+      boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       Executor executor,
       Listener listener)
@@ -288,7 +287,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
         MatrixShaderProgram matrixShaderProgram;
         if (sampleFromInputTexture) {
-          if (isInputExternal) {
+          if (isInputTextureExternal) {
             matrixShaderProgram =
                 MatrixShaderProgram.createWithExternalSampler(
                     context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
@@ -321,7 +320,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             /* inputColorInfo= */ sampleFromInputTexture ? inputColorInfo : linearColorInfo,
             outputColorInfo,
             sampleFromInputTexture,
-            isInputExternal,
+            isInputTextureExternal,
             releaseFramesAutomatically,
             executor,
             listener));
@@ -374,7 +373,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private GlEffectsFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      boolean isInputExternal,
+      boolean isInputTextureExternal,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
       ImmutableList<GlShaderProgram> shaderPrograms,
       boolean releaseFramesAutomatically)
@@ -390,7 +389,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
     GlShaderProgram inputShaderProgram = shaderPrograms.get(0);
 
-    if (isInputExternal) {
+    if (isInputTextureExternal) {
       checkState(inputShaderProgram instanceof ExternalShaderProgram);
       inputExternalTextureManager =
           new ExternalTextureManager(
@@ -422,8 +421,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * call this method after instantiation to ensure that buffers are handled at full resolution. See
    * {@link SurfaceTexture#setDefaultBufferSize(int, int)} for more information.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor} was created with {@link
-   * C#TRACK_TYPE_VIDEO} as the {@code inputTrackType}.
+   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * isInputTextureExternal} parameter is set to {@code true}.
    *
    * @param width The default width for input buffers, in pixels.
    * @param height The default height for input buffers, in pixels.

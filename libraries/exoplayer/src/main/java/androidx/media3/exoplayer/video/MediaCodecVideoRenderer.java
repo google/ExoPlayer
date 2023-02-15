@@ -1992,7 +1992,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     DebugViewProvider.NONE,
                     inputColorInfo,
                     outputColorInfo,
-                    C.TRACK_TYPE_VIDEO,
+                    /* isInputTextureExternal= */ true,
                     /* releaseFramesAutomatically= */ false,
                     /* executor= */ handler::post,
                     new FrameProcessor.Listener() {

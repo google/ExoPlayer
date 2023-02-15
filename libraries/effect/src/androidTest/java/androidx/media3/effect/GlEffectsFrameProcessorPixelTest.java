@@ -15,7 +15,6 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.C.TRACK_TYPE_IMAGE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.effect.OverlayShaderProgramPixelTest.OVERLAY_PNG_ASSET_PATH;
@@ -107,9 +106,7 @@ public final class GlEffectsFrameProcessorPixelTest {
   public void noEffects_withImageInput_matchesGoldenFile() throws Exception {
     String testId = "noEffects_withImageInput_matchesGoldenFile";
     frameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputTrackType(TRACK_TYPE_IMAGE)
-            .build();
+        getDefaultFrameProcessorTestRunnerBuilder(testId).setIsInputTextureExternal(false).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = frameProcessorTestRunner.processImageFrameAndEnd(expectedBitmap);
@@ -125,7 +122,7 @@ public final class GlEffectsFrameProcessorPixelTest {
     String testId = "wrappedCrop_withImageInput_matchesGoldenFile";
     frameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputTrackType(TRACK_TYPE_IMAGE)
+            .setIsInputTextureExternal(false)
             .setEffects(
                 new GlEffectWrapper(
                     new Crop(

@@ -72,7 +72,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
   private final boolean sampleFromInputTexture;
-  private final boolean isInputExternal;
+  private final boolean isInputTextureExternal;
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final boolean releaseFramesAutomatically;
@@ -110,7 +110,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean sampleFromInputTexture,
-      boolean isInputExternal,
+      boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       Executor frameProcessorListenerExecutor,
       FrameProcessor.Listener frameProcessorListener) {
@@ -121,7 +121,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
     this.sampleFromInputTexture = sampleFromInputTexture;
-    this.isInputExternal = isInputExternal;
+    this.isInputTextureExternal = isInputTextureExternal;
     this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
@@ -406,7 +406,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
         matrixTransformationListBuilder.build();
     if (sampleFromInputTexture) {
-      if (isInputExternal) {
+      if (isInputTextureExternal) {
         matrixShaderProgram =
             MatrixShaderProgram.createWithExternalSampler(
                 context,
