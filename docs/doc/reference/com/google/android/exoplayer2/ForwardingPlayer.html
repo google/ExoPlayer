@@ -1221,7 +1221,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItems(java.util.List)">setMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</dd>
+<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a>.</dd>
 </dl>
 </li>
 </ul>
@@ -1238,7 +1238,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItems(java.util.List,boolean)">setMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</dd>
+<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a>.</dd>
 <dd><code>resetPosition</code> - Whether the playback position should be reset to the default position in
      the first <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>. If false, playback will start from the position defined
      by <a href="Player.html#getCurrentMediaItemIndex()"><code>Player.getCurrentMediaItemIndex()</code></a> and <a href="Player.html#getCurrentPosition()"><code>Player.getCurrentPosition()</code></a>.</dd>
@@ -1259,7 +1259,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#setMediaItems(java.util.List,int,long)">setMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</dd>
+<dd><code>mediaItems</code> - The new <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a>.</dd>
 <dd><code>startIndex</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> index to start playback from. If <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>
      is passed, the current position is not reset.</dd>
 <dd><code>startPositionMs</code> - The position in milliseconds to start playback from. If <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is passed, the default position of the given <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is used. In
@@ -1369,7 +1369,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#addMediaItems(java.util.List)">addMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> to add.</dd>
+<dd><code>mediaItems</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> to add.</dd>
 </dl>
 </li>
 </ul>
@@ -1388,7 +1388,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>index</code> - The index at which to add the media items. If the index is larger than the size of
      the playlist, the media items are added to the end of the playlist.</dd>
-<dd><code>mediaItems</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> to add.</dd>
+<dd><code>mediaItems</code> - The <a href="MediaItem.html" title="class in com.google.android.exoplayer2">media items</a> to add.</dd>
 </dl>
 </li>
 </ul>
@@ -1405,7 +1405,8 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#moveMediaItem(int,int)">moveMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>currentIndex</code> - The current index of the media item to move.</dd>
+<dd><code>currentIndex</code> - The current index of the media item to move. If the index is larger than
+     the size of the playlist, the request is ignored.</dd>
 <dd><code>newIndex</code> - The new index of the media item. If the new index is larger than the size of
      the playlist the item is moved to the end of the playlist.</dd>
 </dl>
@@ -1425,8 +1426,10 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#moveMediaItems(int,int,int)">moveMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fromIndex</code> - The start of the range to move.</dd>
-<dd><code>toIndex</code> - The first item not to be included in the range (exclusive).</dd>
+<dd><code>fromIndex</code> - The start of the range to move. If the index is larger than the size of the
+     playlist, the request is ignored.</dd>
+<dd><code>toIndex</code> - The first item not to be included in the range (exclusive). If the index is
+     larger than the size of the playlist, items up to the end of the playlist are moved.</dd>
 <dd><code>newIndex</code> - The new index of the first media item of the range. If the new index is larger
      than the size of the remaining playlist after removing the range, the range is moved to the
      end of the playlist.</dd>
@@ -1445,7 +1448,8 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#removeMediaItem(int)">removeMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - The index at which to remove the media item.</dd>
+<dd><code>index</code> - The index at which to remove the media item. If the index is larger than the size
+     of the playlist, the request is ignored.</dd>
 </dl>
 </li>
 </ul>
@@ -1462,9 +1466,10 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#removeMediaItems(int,int)">removeMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fromIndex</code> - The index at which to start removing media items.</dd>
+<dd><code>fromIndex</code> - The index at which to start removing media items. If the index is larger than
+     the size of the playlist, the request is ignored.</dd>
 <dd><code>toIndex</code> - The index of the first item to be kept (exclusive). If the index is larger than
-     the size of the playlist, media items to the end of the playlist are removed.</dd>
+     the size of the playlist, media items up to the end of the playlist are removed.</dd>
 </dl>
 </li>
 </ul>
@@ -1561,7 +1566,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getPlaybackState()">getPlaybackState</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The current <a href="Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
+<dd>The current <a href="Player.State.html" title="annotation in com.google.android.exoplayer2">playback state</a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Player.Listener.html#onPlaybackStateChanged(@com.google.android.exoplayer2.Player.Stateint)"><code>Player.Listener.onPlaybackStateChanged(int)</code></a></dd>
 </dl>
@@ -1579,7 +1584,7 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#getPlaybackSuppressionReason()">getPlaybackSuppressionReason</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The current <a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>playback suppression reason</code></a>.</dd>
+<dd>The current <a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.PlaybackSuppressionReason</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Player.Listener.html#onPlaybackSuppressionReasonChanged(@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)"><code>Player.Listener.onPlaybackSuppressionReasonChanged(int)</code></a></dd>
 </dl>
@@ -1796,7 +1801,8 @@ public&nbsp;<a href="PlaybackException.html" title="class in com.google.android.
 <dd><code><a href="Player.html#seekToDefaultPosition(int)">seekToDefaultPosition</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItemIndex</code> - The index of the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose associated default position
-     should be seeked to.</dd>
+     should be seeked to. If the index is larger than the size of the playlist, the request is
+     ignored.</dd>
 </dl>
 </li>
 </ul>
@@ -1830,7 +1836,8 @@ public&nbsp;<a href="PlaybackException.html" title="class in com.google.android.
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#seekTo(int,long)">seekTo</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItemIndex</code> - The index of the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dd><code>mediaItemIndex</code> - The index of the <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. If the index is larger than the size
+     of the playlist, the request is ignored.</dd>
 <dd><code>positionMs</code> - The seek position in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
      to seek to the media item's default position.</dd>
 </dl>
@@ -2175,7 +2182,7 @@ public&nbsp;void&nbsp;seekToNextWindow()</pre>
 <dd><code><a href="Player.html#setPlaybackSpeed(float)">setPlaybackSpeed</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>speed</code> - The linear factor by which playback will be sped up. Must be higher than 0. 1 is
-     normal speed, 2 is twice as fast, 0.5 is half normal speed...</dd>
+     normal speed, 2 is twice as fast, 0.5 is half normal speed.</dd>
 </dl>
 </li>
 </ul>

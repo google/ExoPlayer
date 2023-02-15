@@ -191,7 +191,18 @@ extends <a href="Id3Frame.html" title="class in com.google.android.exoplayer2.me
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#value">value</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the first element of <a href="#values"><code>values</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#values">values</a></span></code></th>
+<td class="colLast">
+<div class="block">The text values of this frame.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -228,6 +239,17 @@ extends <a href="Id3Frame.html" title="class in com.google.android.exoplayer2.me
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String)">TextInformationFrame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;description,
                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <code>TextInformationFrame(String id, String description, String[] values</code>
+     instead</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String,java.util.List)">TextInformationFrame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;description,
+                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;values)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -262,7 +284,8 @@ extends <a href="Id3Frame.html" title="class in com.google.android.exoplayer2.me
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">populateMediaMetadata</a></span>&#8203;(<a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;builder)</code></th>
 <td class="colLast">
-<div class="block">Updates the <a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type specific values stored in this Entry.</div>
+<div class="block">Uses the first element in <a href="#values"><code>values</code></a> to set the relevant field in <a href="../../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>
+ (as determined by <a href="Id3Frame.html#id"><code>Id3Frame.id</code></a>).</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -330,7 +353,21 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <ul class="blockList">
 <li class="blockList">
 <h4>value</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> value</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> value</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the first element of <a href="#values"><code>values</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="values">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>values</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt; values</pre>
+<div class="block">The text values of this frame. Will always have at least one element.</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -352,16 +389,35 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(java.lang.String,java.lang.String,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TextInformationFrame</h4>
+<pre>public&nbsp;TextInformationFrame&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;description,
+                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;values)</pre>
+</li>
+</ul>
 <a id="&lt;init&gt;(java.lang.String,java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>TextInformationFrame</h4>
-<pre>public&nbsp;TextInformationFrame&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@InlineMe(replacement="this(id, description, ImmutableList.of(value))",
+          imports="com.google.common.collect.ImmutableList")
+public&nbsp;TextInformationFrame&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                             @Nullable
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;description,
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <code>TextInformationFrame(String id, String description, String[] values</code>
+     instead</div>
+</div>
 </li>
 </ul>
 </li>
@@ -381,11 +437,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>populateMediaMetadata</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;populateMediaMetadata&#8203;(<a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;builder)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Metadata.Entry.html#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">Metadata.Entry</a></code></span></div>
-<div class="block">Updates the <a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type specific values stored in this Entry.
-
- <p>The order of the <a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><code>Metadata.Entry</code></a> objects in the <a href="../Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> matters. If two <a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><code>Metadata.Entry</code></a> entries attempt to populate the same <a href="../../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> field, then the last one in
- the list is used.</div>
+<div class="block">Uses the first element in <a href="#values"><code>values</code></a> to set the relevant field in <a href="../../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>
+ (as determined by <a href="Id3Frame.html#id"><code>Id3Frame.id</code></a>).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>builder</code> - The builder to be updated.</dd>

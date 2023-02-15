@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":42,"i10":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -141,7 +141,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  triggered recursively from another listener.
 
  <p>Events are also guaranteed to be only sent to the listeners registered at the time the event
- was enqueued and haven't been removed since.</div>
+ was enqueued and haven't been removed since.
+
+ <p>All methods must be called on the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> passed to the constructor unless indicated
+ otherwise.</div>
 </li>
 </ul>
 </div>
@@ -214,7 +217,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -289,6 +292,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setThrowsWhenUsingWrongThread(boolean)">setThrowsWhenUsingWrongThread</a></span>&#8203;(boolean&nbsp;throwsWhenUsingWrongThread)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Do not use this method and ensure all calls are made from the correct thread.</div>
+</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">
@@ -332,7 +344,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>looper</code> - A <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> used to call listeners on. The same <a href="https://developer.android.com/reference/android/os/Looper.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> must be used
-     to call all other methods of this class.</dd>
+     to call all other methods of this class unless indicated otherwise.</dd>
 <dd><code>clock</code> - A <a href="Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>.</dd>
 <dd><code>iterationFinishedEvent</code> - An <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util"><code>ListenerSet.IterationFinishedEvent</code></a> sent when all other events sent
      during one <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration were handled by the listeners.</dd>
@@ -358,7 +370,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exoplayer2.util">ListenerSet</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
                            <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.IterationFinishedEvent</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;iterationFinishedEvent)</pre>
-<div class="block">Copies the listener set.</div>
+<div class="block">Copies the listener set.
+
+ <p>This method can be called from any thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>looper</code> - The new <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> for the copied listener set.</dd>
@@ -379,7 +393,9 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exoplayer2.util">ListenerSet</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
                            <a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
                            <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.IterationFinishedEvent</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;iterationFinishedEvent)</pre>
-<div class="block">Copies the listener set.</div>
+<div class="block">Copies the listener set.
+
+ <p>This method can be called from any thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>looper</code> - The new <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> for the copied listener set.</dd>
@@ -402,7 +418,9 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 <pre class="methodSignature">public&nbsp;void&nbsp;add&#8203;(<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&nbsp;listener)</pre>
 <div class="block">Adds a listener to the set.
 
- <p>If a listener is already present, it will not be added again.</div>
+ <p>If a listener is already present, it will not be added again.
+
+ <p>This method can be called from any thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to be added.</dd>
@@ -494,13 +512,33 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 <a id="release()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
 <div class="block">Releases the set of listeners immediately.
 
  <p>This will ensure no events are sent to any listener after this method has been called.</div>
+</li>
+</ul>
+<a id="setThrowsWhenUsingWrongThread(boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setThrowsWhenUsingWrongThread</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setThrowsWhenUsingWrongThread&#8203;(boolean&nbsp;throwsWhenUsingWrongThread)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Do not use this method and ensure all calls are made from the correct thread.</div>
+</div>
+<div class="block">Sets whether methods throw when using the wrong thread.
+
+ <p>Do not use this method unless to support legacy use cases.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>throwsWhenUsingWrongThread</code> - Whether to throw when using the wrong thread.</dd>
+</dl>
 </li>
 </ul>
 </li>

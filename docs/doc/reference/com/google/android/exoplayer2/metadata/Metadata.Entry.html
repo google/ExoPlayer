@@ -209,7 +209,8 @@ extends <a href="https://developer.android.com/reference/android/os/Parcelable.h
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">populateMediaMetadata</a></span>&#8203;(<a href="../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;builder)</code></th>
 <td class="colLast">
-<div class="block">Updates the <a href="../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type specific values stored in this Entry.</div>
+<div class="block">Updates the <a href="../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type-specific values stored in this <code>
+ Entry</code>.</div>
 </td>
 </tr>
 </table>
@@ -266,10 +267,8 @@ default&nbsp;byte[]&nbsp;getWrappedMetadataBytes()</pre>
 <li class="blockList">
 <h4>populateMediaMetadata</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;populateMediaMetadata&#8203;(<a href="../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;builder)</pre>
-<div class="block">Updates the <a href="../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type specific values stored in this Entry.
-
- <p>The order of the <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><code>Metadata.Entry</code></a> objects in the <a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> matters. If two <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><code>Metadata.Entry</code></a> entries attempt to populate the same <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> field, then the last one in
- the list is used.</div>
+<div class="block">Updates the <a href="../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type-specific values stored in this <code>
+ Entry</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>builder</code> - The builder to be updated.</dd>
