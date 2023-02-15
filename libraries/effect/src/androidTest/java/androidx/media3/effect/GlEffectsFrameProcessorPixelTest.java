@@ -96,7 +96,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -111,7 +111,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processImageFrameAndEnd(expectedBitmap);
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -136,14 +136,14 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processImageFrameAndEnd(originalBitmap);
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
   // TODO(b/262693274): Once texture deletion is added to InternalTextureManager.java, add a test
-  //  queuing multiple input bitmaps to ensure successfully completion without errors, ensuring the
-  //  correct number of frames haas been queued.
+  //  queuing multiple input bitmaps to ensure the operation successfully completes and that the
+  //  correct number of frames has been queued.
 
   @Test
   public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
@@ -156,7 +156,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -171,7 +171,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -190,7 +190,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -211,7 +211,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -230,7 +230,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -251,7 +251,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -268,7 +268,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -289,7 +289,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -306,7 +306,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -329,7 +329,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -361,7 +361,7 @@ public final class GlEffectsFrameProcessorPixelTest {
     Bitmap fullRotationAndCenterCropResultBitmap =
         frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(
             centerCropResultBitmap, fullRotationAndCenterCropResultBitmap, testId);
@@ -377,7 +377,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -418,7 +418,7 @@ public final class GlEffectsFrameProcessorPixelTest {
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap =
         frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(
             centerCropAndBrightnessIncreaseResultBitmap,
@@ -465,7 +465,7 @@ public final class GlEffectsFrameProcessorPixelTest {
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap =
         frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(
             centerCropAndBrightnessIncreaseResultBitmap,
@@ -487,7 +487,7 @@ public final class GlEffectsFrameProcessorPixelTest {
 
     Bitmap actualBitmap = frameProcessorTestRunner.processFirstFrameAndEnd();
 
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);

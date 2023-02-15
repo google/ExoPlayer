@@ -83,7 +83,8 @@ public class EncoderUtilTest {
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, VIDEO_H264, 1920, 1080);
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, VIDEO_H264, /* width= */ 1920, /* height= */ 1080);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
@@ -97,7 +98,8 @@ public class EncoderUtilTest {
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, VIDEO_H264, 1919, 1081);
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, VIDEO_H264, /* width= */ 1919, /* height= */ 1081);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
@@ -112,7 +114,8 @@ public class EncoderUtilTest {
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, VIDEO_H264, 1920, 1920);
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, VIDEO_H264, /* width= */ 1920, /* height= */ 1920);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1440);
@@ -126,7 +129,8 @@ public class EncoderUtilTest {
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, VIDEO_H264, 2880, 1620);
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, VIDEO_H264, /* width= */ 2880, /* height= */ 1620);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
@@ -140,7 +144,8 @@ public class EncoderUtilTest {
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, VIDEO_H264, 2160, 3840);
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, VIDEO_H264, /* width= */ 2160, /* height= */ 3840);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1080);
@@ -154,7 +159,8 @@ public class EncoderUtilTest {
 
     @Nullable
     Size closestSupportedResolution =
-        EncoderUtil.getSupportedResolution(encoderInfo, VIDEO_H264, 7680, 4320);
+        EncoderUtil.getSupportedResolution(
+            encoderInfo, VIDEO_H264, /* width= */ 7680, /* height= */ 4320);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
@@ -166,16 +172,15 @@ public class EncoderUtilTest {
     ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(VIDEO_H264);
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
-    double aspectRatio = 1.5;
     @Nullable
     Size closestSupportedResolution =
         EncoderUtil.getSupportedResolution(
-            encoderInfo, VIDEO_H264, (int) (aspectRatio * 5000), 5000);
+            encoderInfo, VIDEO_H264, /* width= */ 7500, /* height= */ 5000);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(
             (double) closestSupportedResolution.getWidth() / closestSupportedResolution.getHeight())
-        .isEqualTo(aspectRatio);
+        .isEqualTo(7500.0 / 5000);
   }
 
   /**

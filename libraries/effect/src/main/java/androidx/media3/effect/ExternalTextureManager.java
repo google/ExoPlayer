@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Forwards externally produced frames that become available via a {@link SurfaceTexture} to an
  * {@link ExternalShaderProgram} for consumption.
  */
-/* package */ class ExternalTextureManager implements InputListener {
+/* package */ final class ExternalTextureManager implements InputListener {
 
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;

@@ -29,7 +29,7 @@ import androidx.media3.common.util.UnstableApi;
  * the possible fluctuation in frame processing time between frames.
  */
 @UnstableApi
-public class FrameCache implements GlEffect {
+public final class FrameCache implements GlEffect {
   /** The capacity of the frame cache. */
   public final int capacity;
 

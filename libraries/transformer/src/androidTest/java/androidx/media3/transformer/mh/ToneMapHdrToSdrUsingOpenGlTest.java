@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
@@ -91,10 +90,9 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      Log.e(TAG, "Error during transformation.", exception);
       if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
@@ -142,10 +140,9 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      Log.e(TAG, "Error during transformation.", exception);
       if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }

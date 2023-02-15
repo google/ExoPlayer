@@ -401,7 +401,7 @@ public final class Transformer {
      *   <li>Duration will match duration of the input media.
      *   <li>Sample mime type will match {@link TransformationRequest#audioMimeType}, or {@link
      *       MimeTypes#AUDIO_AAC} if {@code null}.
-     *   <li>Sample rate will be {@code 44100} hz. This can be modified by creating a {@link
+     *   <li>Sample rate will be {@code 44100} Hz. This can be modified by creating a {@link
      *       SonicAudioProcessor}, setting its {@linkplain
      *       SonicAudioProcessor#setOutputSampleRateHz(int) sample rate}, and passing it to the
      *       {@link EditedMediaItem} used to start the export.
@@ -424,8 +424,8 @@ public final class Transformer {
      *
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
-     * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
-     * @throws IllegalStateException If the muxer doesn't support the requested video MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested audio/video MIME
+     *     type.
      */
     public Transformer build() {
       if (transformationRequest.audioMimeType != null) {

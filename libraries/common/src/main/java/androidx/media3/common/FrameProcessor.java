@@ -137,6 +137,7 @@ public interface FrameProcessor {
    * @param inputBitmap The {@link Bitmap} queued to the {@link FrameProcessor}.
    * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
    * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
+   *     second.
    */
   // TODO(b/262693274): Remove duration and frameRate parameters when EditedMediaItem can be
   //  signalled down to the processors.
