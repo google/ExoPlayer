@@ -19,7 +19,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Provides common color filters. */
@@ -90,7 +90,7 @@ public class RgbFilter implements RgbMatrix {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     checkForConsistentHdrSetting(useHdr);
     return RgbMatrix.super.toGlShaderProgram(context, useHdr);
   }

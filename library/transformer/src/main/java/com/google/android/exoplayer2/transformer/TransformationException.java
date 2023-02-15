@@ -23,9 +23,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.FrameProcessingException;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableBiMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -64,7 +64,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
         ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
-        ERROR_CODE_FRAME_PROCESSING_FAILED,
+        ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED,
         ERROR_CODE_AUDIO_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
       })
@@ -149,8 +149,8 @@ public final class TransformationException extends Exception {
 
   // Video editing errors (5xxx).
 
-  /** Caused by a frame processing failure. */
-  public static final int ERROR_CODE_FRAME_PROCESSING_FAILED = 5001;
+  /** Caused by a video frame processing failure. */
+  public static final int ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED = 5001;
 
   // Audio processing errors (6xxx).
 
@@ -180,7 +180,7 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
           .put("ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED", ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED)
-          .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
+          .put("ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED", ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
@@ -269,15 +269,15 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for a {@link FrameProcessor} related exception.
+   * Creates an instance for a {@link VideoFrameProcessor} related exception.
    *
    * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForFrameProcessingException(
-      FrameProcessingException cause, int errorCode) {
-    return new TransformationException("Frame processing error", cause, errorCode);
+  /* package */ static TransformationException createForVideoFrameProcessingException(
+      VideoFrameProcessingException cause, int errorCode) {
+    return new TransformationException("Video frame processing error", cause, errorCode);
   }
 
   /**

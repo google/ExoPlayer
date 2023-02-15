@@ -19,7 +19,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Adjusts the HSL (Hue, Saturation, and Lightness) of a frame. */
@@ -112,7 +112,7 @@ public class HslAdjustment implements GlEffect {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new HslShaderProgram(context, /* hslAdjustment= */ this, useHdr);
   }
 }

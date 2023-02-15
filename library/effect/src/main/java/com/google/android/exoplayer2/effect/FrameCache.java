@@ -19,13 +19,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import androidx.annotation.IntRange;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
  * Caches the input frames.
  *
  * <p>Example usage: cache the processed frames when presenting them on screen, to accommodate for
- * the possible fluctuation in frame processing time between frames.
+ * the possible fluctuation in video frame processing time between frames.
  */
 public final class FrameCache implements GlEffect {
   /** The capacity of the frame cache. */
@@ -49,7 +49,7 @@ public final class FrameCache implements GlEffect {
 
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new FrameCacheShaderProgram(context, capacity, useHdr);
   }
 }

@@ -19,7 +19,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /** A {@link GlEffect} to control the contrast of video frames. */
 public class Contrast implements GlEffect {
@@ -40,7 +40,7 @@ public class Contrast implements GlEffect {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new ContrastShaderProgram(context, this, useHdr);
   }
 }

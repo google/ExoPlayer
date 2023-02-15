@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /** Creates overlays from OpenGL textures. */
 public abstract class TextureOverlay {
@@ -24,9 +24,9 @@ public abstract class TextureOverlay {
    * Returns the overlay texture identifier displayed at the specified timestamp.
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
-   * @throws FrameProcessingException If an error occurs while processing or drawing the frame.
+   * @throws VideoFrameProcessingException If an error occurs while processing or drawing the frame.
    */
-  public abstract int getTextureId(long presentationTimeUs) throws FrameProcessingException;
+  public abstract int getTextureId(long presentationTimeUs) throws VideoFrameProcessingException;
 
   // This method is required to find the size of a texture given a texture identifier using OpenGL
   // ES 2.0. OpenGL ES 3.1 can do this with glGetTexLevelParameteriv().

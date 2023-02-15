@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.transformer;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
-import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
+import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.FrameProcessor;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -43,19 +43,19 @@ public final class Effects {
    */
   public final ImmutableList<Effect> videoEffects;
   /**
-   * The {@link FrameProcessor.Factory} for the {@link FrameProcessor} to use when applying the
-   * {@code videoEffects} to the video frames.
+   * The {@link VideoFrameProcessor.Factory} for the {@link VideoFrameProcessor} to use when
+   * applying the {@code videoEffects} to the video frames.
    */
-  public final FrameProcessor.Factory frameProcessorFactory;
+  public final VideoFrameProcessor.Factory videoFrameProcessorFactory;
 
   /**
-   * Creates an instance using a {@link GlEffectsFrameProcessor.Factory}.
+   * Creates an instance using a {@link DefaultVideoFrameProcessor.Factory}.
    *
-   * <p>This is equivalent to calling {@link Effects#Effects(List, List, FrameProcessor.Factory)}
-   * with a {@link GlEffectsFrameProcessor.Factory}.
+   * <p>This is equivalent to calling {@link Effects#Effects(List, List,
+   * VideoFrameProcessor.Factory)} with a {@link DefaultVideoFrameProcessor.Factory}.
    */
   public Effects(List<AudioProcessor> audioProcessors, List<Effect> videoEffects) {
-    this(audioProcessors, videoEffects, new GlEffectsFrameProcessor.Factory());
+    this(audioProcessors, videoEffects, new DefaultVideoFrameProcessor.Factory());
   }
 
   /**
@@ -63,14 +63,14 @@ public final class Effects {
    *
    * @param audioProcessors The {@link #audioProcessors}.
    * @param videoEffects The {@link #videoEffects}.
-   * @param frameProcessorFactory The {@link #frameProcessorFactory}.
+   * @param videoFrameProcessorFactory The {@link #videoFrameProcessorFactory}.
    */
   public Effects(
       List<AudioProcessor> audioProcessors,
       List<Effect> videoEffects,
-      FrameProcessor.Factory frameProcessorFactory) {
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
     this.audioProcessors = ImmutableList.copyOf(audioProcessors);
     this.videoEffects = ImmutableList.copyOf(videoEffects);
-    this.frameProcessorFactory = frameProcessorFactory;
+    this.videoFrameProcessorFactory = videoFrameProcessorFactory;
   }
 }

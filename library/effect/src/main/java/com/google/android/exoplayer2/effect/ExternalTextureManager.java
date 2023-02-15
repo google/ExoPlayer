@@ -24,9 +24,9 @@ import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.util.FrameInfo;
-import com.google.android.exoplayer2.util.FrameProcessingException;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 /* package */ final class ExternalTextureManager implements InputListener {
 
-  private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
+  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
   private final Surface surface;
@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Nullable private volatile FrameInfo currentFrame;
 
   // TODO(b/238302341) Remove the use of after flush task, block the calling thread instead.
-  @Nullable private volatile FrameProcessingTask onFlushCompleteTask;
+  @Nullable private volatile VideoFrameProcessingTask onFlushCompleteTask;
 
   private long previousStreamOffsetUs;
 
@@ -70,21 +70,21 @@ import java.util.concurrent.atomic.AtomicInteger;
    *
    * @param externalShaderProgram The {@link ExternalShaderProgram} for which this {@code
    *     ExternalTextureManager} will be set as the {@link InputListener}.
-   * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor}.
-   * @throws FrameProcessingException If a problem occurs while creating the external texture.
+   * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
+   * @throws VideoFrameProcessingException If a problem occurs while creating the external texture.
    */
   // The onFrameAvailableListener will not be invoked until the constructor returns.
   @SuppressWarnings("nullness:method.invocation.invalid")
   public ExternalTextureManager(
       ExternalShaderProgram externalShaderProgram,
-      FrameProcessingTaskExecutor frameProcessingTaskExecutor)
-      throws FrameProcessingException {
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor)
+      throws VideoFrameProcessingException {
     this.externalShaderProgram = externalShaderProgram;
-    this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
+    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     try {
       externalTexId = GlUtil.createExternalTexture();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
     surfaceTexture = new SurfaceTexture(externalTexId);
     textureTransformMatrix = new float[16];
@@ -93,7 +93,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     previousStreamOffsetUs = C.TIME_UNSET;
     surfaceTexture.setOnFrameAvailableListener(
         unused ->
-            frameProcessingTaskExecutor.submit(
+            videoFrameProcessingTaskExecutor.submit(
                 () -> {
                   if (numberOfFramesToDropOnBecomingAvailable > 0) {
                     numberOfFramesToDropOnBecomingAvailable--;
@@ -119,7 +119,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void onReadyToAcceptInputFrame() {
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> {
           externalShaderProgramInputCapacity.incrementAndGet();
           maybeQueueFrameToExternalShaderProgram();
@@ -128,7 +128,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void onInputFrameProcessed(TextureInfo inputTexture) {
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> {
           currentFrame = null;
           maybeQueueFrameToExternalShaderProgram();
@@ -136,13 +136,13 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /** Sets the task to run on completing flushing, or {@code null} to clear any task. */
-  public void setOnFlushCompleteListener(@Nullable FrameProcessingTask task) {
+  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTask task) {
     onFlushCompleteTask = task;
   }
 
   @Override
   public void onFlush() {
-    frameProcessingTaskExecutor.submit(this::flush);
+    videoFrameProcessingTaskExecutor.submit(this::flush);
   }
 
   /**
@@ -169,10 +169,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * Signals the end of the input.
    *
-   * @see FrameProcessor#signalEndOfInput()
+   * @see VideoFrameProcessor#signalEndOfInput()
    */
   public void signalEndOfInput() {
-    frameProcessingTaskExecutor.submit(
+    videoFrameProcessingTaskExecutor.submit(
         () -> {
           inputStreamEnded = true;
           if (pendingFrames.isEmpty() && currentFrame == null) {
@@ -204,7 +204,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
       return;
     }
-    frameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
+    videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
   }
 
   @WorkerThread

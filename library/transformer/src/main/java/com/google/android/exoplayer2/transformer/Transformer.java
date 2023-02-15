@@ -30,16 +30,16 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
-import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
+import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
@@ -87,7 +87,7 @@ public final class Transformer {
     private boolean generateSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
-    private FrameProcessor.Factory frameProcessorFactory;
+    private VideoFrameProcessor.Factory videoFrameProcessorFactory;
     private Codec.EncoderFactory encoderFactory;
     private Muxer.Factory muxerFactory;
     private Looper looper;
@@ -104,7 +104,7 @@ public final class Transformer {
       transformationRequest = new TransformationRequest.Builder().build();
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
-      frameProcessorFactory = new GlEffectsFrameProcessor.Factory();
+      videoFrameProcessorFactory = new DefaultVideoFrameProcessor.Factory();
       encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       muxerFactory = new DefaultMuxer.Factory();
       looper = Util.getCurrentOrMainLooper();
@@ -124,7 +124,7 @@ public final class Transformer {
       this.generateSilentAudio = transformer.generateSilentAudio;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
-      this.frameProcessorFactory = transformer.frameProcessorFactory;
+      this.videoFrameProcessorFactory = transformer.videoFrameProcessorFactory;
       this.encoderFactory = transformer.encoderFactory;
       this.muxerFactory = transformer.muxerFactory;
       this.looper = transformer.looper;
@@ -296,13 +296,14 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Set the {@link FrameProcessor.Factory} in an {@link EditedMediaItem}, and pass it
-     *     to {@link #start(EditedMediaItem, String)} instead.
+     * @deprecated Set the {@link VideoFrameProcessor.Factory} in an {@link EditedMediaItem}, and
+     *     pass it to {@link #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
-    public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
-      this.frameProcessorFactory = frameProcessorFactory;
+    public Builder setFrameProcessorFactory(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       return this;
     }
 
@@ -448,7 +449,7 @@ public final class Transformer {
           generateSilentAudio,
           listeners,
           assetLoaderFactory,
-          frameProcessorFactory,
+          videoFrameProcessorFactory,
           encoderFactory,
           muxerFactory,
           looper,
@@ -606,7 +607,7 @@ public final class Transformer {
   private final boolean generateSilentAudio;
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
-  private final FrameProcessor.Factory frameProcessorFactory;
+  private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
   private final Codec.EncoderFactory encoderFactory;
   private final Muxer.Factory muxerFactory;
   private final Looper looper;
@@ -627,7 +628,7 @@ public final class Transformer {
       boolean generateSilentAudio,
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
-      FrameProcessor.Factory frameProcessorFactory,
+      VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
       Looper looper,
@@ -645,7 +646,7 @@ public final class Transformer {
     this.generateSilentAudio = generateSilentAudio;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
-    this.frameProcessorFactory = frameProcessorFactory;
+    this.videoFrameProcessorFactory = videoFrameProcessorFactory;
     this.encoderFactory = encoderFactory;
     this.muxerFactory = muxerFactory;
     this.looper = looper;
@@ -842,7 +843,7 @@ public final class Transformer {
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
             .setFlattenForSlowMotion(flattenForSlowMotion)
-            .setEffects(new Effects(audioProcessors, videoEffects, frameProcessorFactory))
+            .setEffects(new Effects(audioProcessors, videoEffects, videoFrameProcessorFactory))
             .build();
     start(editedMediaItem, path);
   }

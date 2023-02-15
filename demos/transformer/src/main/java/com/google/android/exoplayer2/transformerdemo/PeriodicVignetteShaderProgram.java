@@ -20,10 +20,10 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import android.content.Context;
 import android.opengl.GLES20;
 import com.google.android.exoplayer2.effect.SingleFrameGlShaderProgram;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
 
 /**
@@ -59,7 +59,7 @@ import java.io.IOException;
    * @param minInnerRadius The lower bound of the radius that is unaffected by the effect.
    * @param maxInnerRadius The upper bound of the radius that is unaffected by the effect.
    * @param outerRadius The radius after which all pixels are black.
-   * @throws FrameProcessingException If a problem occurs while reading shader files.
+   * @throws VideoFrameProcessingException If a problem occurs while reading shader files.
    */
   public PeriodicVignetteShaderProgram(
       Context context,
@@ -69,7 +69,7 @@ import java.io.IOException;
       float minInnerRadius,
       float maxInnerRadius,
       float outerRadius)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     super(useHdr);
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
@@ -78,7 +78,7 @@ import java.io.IOException;
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     } catch (IOException | GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
     glProgram.setFloatsUniform("uCenter", new float[] {centerX, centerY});
     glProgram.setFloatsUniform("uOuterRadius", new float[] {outerRadius});
@@ -95,7 +95,8 @@ import java.io.IOException;
   }
 
   @Override
-  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs)
+      throws VideoFrameProcessingException {
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
@@ -107,17 +108,17 @@ import java.io.IOException;
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e, presentationTimeUs);
+      throw new VideoFrameProcessingException(e, presentationTimeUs);
     }
   }
 
   @Override
-  public void release() throws FrameProcessingException {
+  public void release() throws VideoFrameProcessingException {
     super.release();
     try {
       glProgram.delete();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new VideoFrameProcessingException(e);
     }
   }
 }

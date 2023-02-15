@@ -17,7 +17,7 @@
 package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -39,7 +39,7 @@ public interface RgbMatrix extends GlEffect {
 
   @Override
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return MatrixShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(),

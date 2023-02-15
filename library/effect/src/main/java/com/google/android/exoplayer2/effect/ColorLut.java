@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
 import androidx.annotation.WorkerThread;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
  * Specifies color transformations using color lookup tables to apply to each frame in the fragment
@@ -43,7 +43,7 @@ public interface ColorLut extends GlEffect {
   @Override
   @WorkerThread
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);
   }
 }

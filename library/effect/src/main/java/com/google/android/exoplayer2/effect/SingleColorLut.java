@@ -24,9 +24,9 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /** Transforms the colors of a frame by applying the same color lookup table to each frame. */
 public class SingleColorLut implements ColorLut {
@@ -148,13 +148,13 @@ public class SingleColorLut implements ColorLut {
 
   @Override
   public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     checkState(!useHdr, "HDR is currently not supported.");
 
     try {
       lutTextureId = storeLutAsTexture(lut);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException("Could not store the LUT as a texture.", e);
+      throw new VideoFrameProcessingException("Could not store the LUT as a texture.", e);
     }
 
     return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);

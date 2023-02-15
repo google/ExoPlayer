@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
 import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
  * Interface for a video frame effect with a {@link GlShaderProgram} implementation.
@@ -34,10 +34,11 @@ public interface GlEffect extends Effect {
    * @param context A {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
-   * @throws FrameProcessingException If an error occurs while creating the {@link GlShaderProgram}.
+   * @throws VideoFrameProcessingException If an error occurs while creating the {@link
+   *     GlShaderProgram}.
    */
   GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException;
+      throws VideoFrameProcessingException;
 
   /**
    * Returns whether a {@link GlEffect} applies no change at every timestamp.

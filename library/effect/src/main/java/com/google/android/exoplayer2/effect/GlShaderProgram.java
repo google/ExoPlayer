@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.util.concurrent.Executor;
 
 /**
@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
 public interface GlShaderProgram {
 
   /**
-   * Listener for input-related frame processing events.
+   * Listener for input-related video frame processing events.
    *
    * <p>This listener can be called from any thread.
    */
@@ -79,7 +79,7 @@ public interface GlShaderProgram {
   }
 
   /**
-   * Listener for output-related frame processing events.
+   * Listener for output-related video frame processing events.
    *
    * <p>This listener can be called from any thread.
    */
@@ -106,26 +106,26 @@ public interface GlShaderProgram {
   }
 
   /**
-   * Listener for frame processing errors.
+   * Listener for video frame processing errors.
    *
    * <p>This listener can be called from any thread.
    */
   interface ErrorListener {
     /**
-     * Called when an exception occurs during asynchronous frame processing.
+     * Called when an exception occurs during asynchronous video frame processing.
      *
      * <p>If an error occurred, consuming and producing further frames will not work as expected and
      * the {@link GlShaderProgram} should be released.
      */
-    void onFrameProcessingError(FrameProcessingException e);
+    void onError(VideoFrameProcessingException e);
   }
 
   /**
    * Sets the {@link InputListener}.
    *
    * <p>The {@link InputListener} should be invoked on the thread that owns the parent OpenGL
-   * context. For example, {@link GlEffectsFrameProcessor} invokes the {@link InputListener} methods
-   * on its internal thread.
+   * context. For example, {@link DefaultVideoFrameProcessor} invokes the {@link InputListener}
+   * methods on its internal thread.
    */
   void setInputListener(InputListener inputListener);
 
@@ -133,7 +133,7 @@ public interface GlShaderProgram {
    * Sets the {@link OutputListener}.
    *
    * <p>The {@link OutputListener} should be invoked on the thread that owns the parent OpenGL
-   * context. For example, {@link GlEffectsFrameProcessor} invokes the {@link OutputListener}
+   * context. For example, {@link DefaultVideoFrameProcessor} invokes the {@link OutputListener}
    * methods on its internal thread.
    */
   void setOutputListener(OutputListener outputListener);
@@ -188,7 +188,7 @@ public interface GlShaderProgram {
   /**
    * Releases all resources.
    *
-   * @throws FrameProcessingException If an error occurs while releasing resources.
+   * @throws VideoFrameProcessingException If an error occurs while releasing resources.
    */
-  void release() throws FrameProcessingException;
+  void release() throws VideoFrameProcessingException;
 }

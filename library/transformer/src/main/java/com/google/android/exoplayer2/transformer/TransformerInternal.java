@@ -498,7 +498,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             transformationRequest,
             firstEditedMediaItem.effects.videoEffects,
-            firstEditedMediaItem.effects.frameProcessorFactory,
+            firstEditedMediaItem.effects.videoFrameProcessorFactory,
             encoderFactory,
             muxerWrapper,
             /* errorConsumer= */ this::onError,

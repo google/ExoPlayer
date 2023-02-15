@@ -33,9 +33,9 @@ import android.opengl.EGLSurface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -49,7 +49,7 @@ import org.junit.runner.RunWith;
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
  * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
- * bitmaps as recommended in {@link GlEffectsFrameProcessorPixelTest}.
+ * bitmaps as recommended in {@link DefaultVideoFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class PresentationPixelTest {
@@ -91,7 +91,7 @@ public final class PresentationPixelTest {
   }
 
   @After
-  public void release() throws GlUtil.GlException, FrameProcessingException {
+  public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (presentationShaderProgram != null) {
       presentationShaderProgram.release();
     }

@@ -26,9 +26,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram;
 import com.google.android.exoplayer2.effect.TextureInfo;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.LibraryLoader;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.framework.AppTextureFrame;
@@ -112,7 +112,7 @@ import java.util.concurrent.Future;
     futures = new ArrayDeque<>();
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
-    errorListener = (frameProcessingException) -> {};
+    errorListener = (videoFrameProcessingException) -> {};
     errorListenerExecutor = MoreExecutors.directExecutor();
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
@@ -155,7 +155,7 @@ import java.util.concurrent.Future;
     frameProcessor.setAsynchronousErrorListener(
         error ->
             errorListenerExecutor.execute(
-                () -> errorListener.onFrameProcessingError(new FrameProcessingException(error))));
+                () -> errorListener.onError(new VideoFrameProcessingException(error))));
   }
 
   @Override
@@ -191,7 +191,7 @@ import java.util.concurrent.Future;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       errorListenerExecutor.execute(
-          () -> errorListener.onFrameProcessingError(new FrameProcessingException(e)));
+          () -> errorListener.onError(new VideoFrameProcessingException(e)));
     }
     if (acceptedFrame) {
       inputListener.onInputFrameProcessed(inputTexture);
@@ -213,9 +213,7 @@ import java.util.concurrent.Future;
                       Thread.currentThread().interrupt();
                       if (errorListener != null) {
                         errorListenerExecutor.execute(
-                            () ->
-                                errorListener.onFrameProcessingError(
-                                    new FrameProcessingException(e)));
+                            () -> errorListener.onError(new VideoFrameProcessingException(e)));
                       }
                     }
                   }
@@ -254,14 +252,12 @@ import java.util.concurrent.Future;
     try {
       if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
         errorListenerExecutor.execute(
-            () ->
-                errorListener.onFrameProcessingError(
-                    new FrameProcessingException("Release timed out")));
+            () -> errorListener.onError(new VideoFrameProcessingException("Release timed out")));
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       errorListenerExecutor.execute(
-          () -> errorListener.onFrameProcessingError(new FrameProcessingException(e)));
+          () -> errorListener.onError(new VideoFrameProcessingException(e)));
     }
 
     frameProcessor.close();
@@ -294,11 +290,11 @@ import java.util.concurrent.Future;
         futures.remove().get();
       } catch (ExecutionException e) {
         errorListenerExecutor.execute(
-            () -> errorListener.onFrameProcessingError(new FrameProcessingException(e)));
+            () -> errorListener.onError(new VideoFrameProcessingException(e)));
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         errorListenerExecutor.execute(
-            () -> errorListener.onFrameProcessingError(new FrameProcessingException(e)));
+            () -> errorListener.onError(new VideoFrameProcessingException(e)));
       }
     }
   }

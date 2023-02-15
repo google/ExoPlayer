@@ -32,9 +32,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
-import com.google.android.exoplayer2.util.FrameProcessingException;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.SurfaceInfo;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -43,17 +43,17 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A test runner for {@link FrameProcessor} tests. */
+/** A test runner for {@link VideoFrameProcessor} tests. */
 @RequiresApi(19)
-public final class FrameProcessorTestRunner {
+public final class VideoFrameProcessorTestRunner {
 
-  /** A builder for {@link FrameProcessorTestRunner} instances. */
+  /** A builder for {@link VideoFrameProcessorTestRunner} instances. */
   public static final class Builder {
     /** The ratio of width over height, for each pixel in a frame. */
     private static final float DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO = 1;
 
     private @MonotonicNonNull String testId;
-    private FrameProcessor.@MonotonicNonNull Factory frameProcessorFactory;
+    private VideoFrameProcessor.@MonotonicNonNull Factory videoFrameProcessorFactory;
     private @MonotonicNonNull String videoAssetPath;
     private @MonotonicNonNull String outputFileLabel;
     private @MonotonicNonNull ImmutableList<Effect> effects;
@@ -80,13 +80,14 @@ public final class FrameProcessorTestRunner {
     }
 
     /**
-     * Sets the {@link FrameProcessor.Factory}.
+     * Sets the {@link VideoFrameProcessor.Factory}.
      *
      * <p>This is a required value.
      */
     @CanIgnoreReturnValue
-    public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
-      this.frameProcessorFactory = frameProcessorFactory;
+    public Builder setVideoFrameProcessorFactory(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       return this;
     }
 
@@ -169,7 +170,7 @@ public final class FrameProcessorTestRunner {
       return this;
     }
     /**
-     * Sets the input track type. See {@link FrameProcessor.Factory#create}.
+     * Sets the input track type. See {@link VideoFrameProcessor.Factory#create}.
      *
      * <p>The default value is {@code true}.
      */
@@ -179,14 +180,14 @@ public final class FrameProcessorTestRunner {
       return this;
     }
 
-    public FrameProcessorTestRunner build() throws FrameProcessingException {
+    public VideoFrameProcessorTestRunner build() throws VideoFrameProcessingException {
       checkStateNotNull(testId, "testId must be set.");
-      checkStateNotNull(frameProcessorFactory, "frameProcessorFactory must be set.");
+      checkStateNotNull(videoFrameProcessorFactory, "videoFrameProcessorFactory must be set.");
       checkStateNotNull(videoAssetPath, "videoAssetPath must be set.");
 
-      return new FrameProcessorTestRunner(
+      return new VideoFrameProcessorTestRunner(
           testId,
-          frameProcessorFactory,
+          videoFrameProcessorFactory,
           videoAssetPath,
           outputFileLabel == null ? "" : outputFileLabel,
           effects == null ? ImmutableList.of() : effects,
@@ -198,25 +199,25 @@ public final class FrameProcessorTestRunner {
   }
 
   /**
-   * Time to wait for the decoded frame to populate the {@link FrameProcessor} instance's input
-   * surface and the {@link FrameProcessor} to finish processing the frame, in milliseconds.
+   * Time to wait for the decoded frame to populate the {@link VideoFrameProcessor} instance's input
+   * surface and the {@link VideoFrameProcessor} to finish processing the frame, in milliseconds.
    */
-  private static final int FRAME_PROCESSING_WAIT_MS = 5000;
+  private static final int VIDEO_FRAME_PROCESSING_WAIT_MS = 5000;
 
   private final String testId;
   private final String videoAssetPath;
   private final String outputFileLabel;
   private final float pixelWidthHeightRatio;
-  private final AtomicReference<FrameProcessingException> frameProcessingException;
+  private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
 
-  private final FrameProcessor frameProcessor;
+  private final VideoFrameProcessor videoFrameProcessor;
 
   private volatile @MonotonicNonNull ImageReader outputImageReader;
-  private volatile boolean frameProcessingEnded;
+  private volatile boolean videoFrameProcessingEnded;
 
-  private FrameProcessorTestRunner(
+  private VideoFrameProcessorTestRunner(
       String testId,
-      FrameProcessor.Factory frameProcessorFactory,
+      VideoFrameProcessor.Factory videoFrameProcessorFactory,
       String videoAssetPath,
       String outputFileLabel,
       ImmutableList<Effect> effects,
@@ -224,15 +225,15 @@ public final class FrameProcessorTestRunner {
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean isInputTextureExternal)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     this.testId = testId;
     this.videoAssetPath = videoAssetPath;
     this.outputFileLabel = outputFileLabel;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
-    frameProcessingException = new AtomicReference<>();
+    videoFrameProcessingException = new AtomicReference<>();
 
-    frameProcessor =
-        frameProcessorFactory.create(
+    videoFrameProcessor =
+        videoFrameProcessorFactory.create(
             getApplicationContext(),
             effects,
             DebugViewProvider.NONE,
@@ -241,13 +242,13 @@ public final class FrameProcessorTestRunner {
             isInputTextureExternal,
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
-            new FrameProcessor.Listener() {
+            new VideoFrameProcessor.Listener() {
               @Override
               public void onOutputSizeChanged(int width, int height) {
                 outputImageReader =
                     ImageReader.newInstance(
                         width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-                checkNotNull(frameProcessor)
+                checkNotNull(videoFrameProcessor)
                     .setOutputSurfaceInfo(
                         new SurfaceInfo(outputImageReader.getSurface(), width, height));
               }
@@ -258,13 +259,13 @@ public final class FrameProcessorTestRunner {
               }
 
               @Override
-              public void onFrameProcessingError(FrameProcessingException exception) {
-                frameProcessingException.set(exception);
+              public void onError(VideoFrameProcessingException exception) {
+                videoFrameProcessingException.set(exception);
               }
 
               @Override
-              public void onFrameProcessingEnded() {
-                frameProcessingEnded = true;
+              public void onEnded() {
+                videoFrameProcessingEnded = true;
               }
             });
   }
@@ -275,13 +276,13 @@ public final class FrameProcessorTestRunner {
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
-            frameProcessor.setInputFrameInfo(
+            videoFrameProcessor.setInputFrameInfo(
                 new FrameInfo.Builder(
                         mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            frameProcessor.registerInputFrame();
+            videoFrameProcessor.registerInputFrame();
           }
 
           @Override
@@ -289,36 +290,36 @@ public final class FrameProcessorTestRunner {
             // Do nothing.
           }
         },
-        frameProcessor.getInputSurface());
+        videoFrameProcessor.getInputSurface());
     return endFrameProcessingAndGetImage();
   }
 
   public Bitmap processImageFrameAndEnd(Bitmap inputBitmap) throws Exception {
-    frameProcessor.setInputFrameInfo(
+    videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    frameProcessor.queueInputBitmap(inputBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+    videoFrameProcessor.queueInputBitmap(inputBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
     return endFrameProcessingAndGetImage();
   }
 
   private Bitmap endFrameProcessingAndGetImage() throws Exception {
-    frameProcessor.signalEndOfInput();
-    Thread.sleep(FRAME_PROCESSING_WAIT_MS);
+    videoFrameProcessor.signalEndOfInput();
+    Thread.sleep(VIDEO_FRAME_PROCESSING_WAIT_MS);
 
-    assertThat(frameProcessingEnded).isTrue();
-    assertThat(frameProcessingException.get()).isNull();
+    assertThat(videoFrameProcessingEnded).isTrue();
+    assertThat(videoFrameProcessingException.get()).isNull();
 
-    Image frameProcessorOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = createArgb8888BitmapFromRgba8888Image(frameProcessorOutputImage);
-    frameProcessorOutputImage.close();
+    Image videoFrameProcessorOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
+    Bitmap actualBitmap = createArgb8888BitmapFromRgba8888Image(videoFrameProcessorOutputImage);
+    videoFrameProcessorOutputImage.close();
     maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ outputFileLabel, actualBitmap);
     return actualBitmap;
   }
 
   public void release() {
-    if (frameProcessor != null) {
-      frameProcessor.release();
+    if (videoFrameProcessor != null) {
+      videoFrameProcessor.release();
     }
   }
 }

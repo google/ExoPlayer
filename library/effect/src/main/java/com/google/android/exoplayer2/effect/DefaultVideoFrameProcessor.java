@@ -36,11 +36,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
-import com.google.android.exoplayer2.util.FrameProcessingException;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -53,13 +53,13 @@ import java.util.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link FrameProcessor} implementation that applies {@link GlEffect} instances using OpenGL on a
- * background thread.
+ * A {@link VideoFrameProcessor} implementation that applies {@link GlEffect} instances using OpenGL
+ * on a background thread.
  */
-public final class GlEffectsFrameProcessor implements FrameProcessor {
+public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
-  /** A factory for {@link GlEffectsFrameProcessor} instances. */
-  public static class Factory implements FrameProcessor.Factory {
+  /** A factory for {@link DefaultVideoFrameProcessor} instances. */
+  public static class Factory implements VideoFrameProcessor.Factory {
     /**
      * {@inheritDoc}
      *
@@ -86,11 +86,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
      * be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_1010102}. Otherwise, the context
      * will be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
      *
-     * <p>If invoking the {@code listener} on {@link GlEffectsFrameProcessor}'s internal thread is
-     * desired, pass a {@link MoreExecutors#directExecutor() direct listenerExecutor}.
+     * <p>If invoking the {@code listener} on {@link DefaultVideoFrameProcessor}'s internal thread
+     * is desired, pass a {@link MoreExecutors#directExecutor() direct listenerExecutor}.
      */
     @Override
-    public GlEffectsFrameProcessor create(
+    public DefaultVideoFrameProcessor create(
         Context context,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
@@ -100,7 +100,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         boolean releaseFramesAutomatically,
         Executor listenerExecutor,
         Listener listener)
-        throws FrameProcessingException {
+        throws VideoFrameProcessingException {
       // TODO(b/261188041) Add tests to verify the Listener is invoked on the given Executor.
 
       checkArgument(inputColorInfo.isValid());
@@ -124,7 +124,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
-      Future<GlEffectsFrameProcessor> glFrameProcessorFuture =
+      Future<DefaultVideoFrameProcessor> glFrameProcessorFuture =
           singleThreadExecutorService.submit(
               () ->
                   createOpenGlObjectsAndFrameProcessor(
@@ -142,10 +142,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       try {
         return glFrameProcessorFuture.get();
       } catch (ExecutionException e) {
-        throw new FrameProcessingException(e);
+        throw new VideoFrameProcessingException(e);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
-        throw new FrameProcessingException(e);
+        throw new VideoFrameProcessingException(e);
       }
     }
   }
@@ -153,7 +153,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   /**
    * Creates the OpenGL context, surfaces, textures, and frame buffers, initializes {@link
    * GlShaderProgram} instances corresponding to the {@link GlEffect} instances, and returns a new
-   * {@code GlEffectsFrameProcessor}.
+   * {@code DefaultVideoFrameProcessor}.
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
@@ -161,7 +161,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * commands will be called on that thread.
    */
   @WorkerThread
-  private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
+  private static DefaultVideoFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
       List<Effect> effects,
       DebugViewProvider debugViewProvider,
@@ -172,7 +172,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       ExecutorService singleThreadExecutorService,
       Executor executor,
       Listener listener)
-      throws GlUtil.GlException, FrameProcessingException {
+      throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
@@ -196,7 +196,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         GlUtil.destroyEglContext(eglDisplay, eglContext);
         // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
         // GL extension is supported.
-        throw new FrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
+        throw new VideoFrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
       }
     }
 
@@ -213,16 +213,16 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             releaseFramesAutomatically,
             executor,
             listener);
-    FrameProcessingTaskExecutor frameProcessingTaskExecutor =
-        new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
+    VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
+        new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainShaderProgramsWithListeners(
-        shaderPrograms, frameProcessingTaskExecutor, listener, executor);
+        shaderPrograms, videoFrameProcessingTaskExecutor, listener, executor);
 
-    return new GlEffectsFrameProcessor(
+    return new DefaultVideoFrameProcessor(
         eglDisplay,
         eglContext,
         isInputTextureExternal,
-        frameProcessingTaskExecutor,
+        videoFrameProcessingTaskExecutor,
         shaderPrograms,
         releaseFramesAutomatically);
   }
@@ -250,7 +250,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       boolean releaseFramesAutomatically,
       Executor executor,
       Listener listener)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
@@ -264,7 +264,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             .build();
     for (int i = 0; i < effects.size(); i++) {
       Effect effect = effects.get(i);
-      checkArgument(effect instanceof GlEffect, "GlEffectsFrameProcessor only supports GlEffects");
+      checkArgument(
+          effect instanceof GlEffect, "DefaultVideoFrameProcessor only supports GlEffects");
       GlEffect glEffect = (GlEffect) effect;
       // The following logic may change the order of the RgbMatrix and GlMatrixTransformation
       // effects. This does not influence the output since RgbMatrix only changes the individual
@@ -331,18 +332,18 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    */
   private static void chainShaderProgramsWithListeners(
       ImmutableList<GlShaderProgram> shaderPrograms,
-      FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      Listener frameProcessorListener,
-      Executor frameProcessorListenerExecutor) {
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
+      Listener videoFrameProcessorListener,
+      Executor videoFrameProcessorListenerExecutor) {
     for (int i = 0; i < shaderPrograms.size() - 1; i++) {
       GlShaderProgram producingGlShaderProgram = shaderPrograms.get(i);
       GlShaderProgram consumingGlShaderProgram = shaderPrograms.get(i + 1);
       ChainingGlShaderProgramListener chainingGlShaderProgramListener =
           new ChainingGlShaderProgramListener(
-              producingGlShaderProgram, consumingGlShaderProgram, frameProcessingTaskExecutor);
+              producingGlShaderProgram, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
       producingGlShaderProgram.setOutputListener(chainingGlShaderProgramListener);
       producingGlShaderProgram.setErrorListener(
-          frameProcessorListenerExecutor, frameProcessorListener::onFrameProcessingError);
+          videoFrameProcessorListenerExecutor, videoFrameProcessorListener::onError);
       consumingGlShaderProgram.setInputListener(chainingGlShaderProgramListener);
     }
   }
@@ -352,7 +353,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
-  private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
+  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private @MonotonicNonNull InternalTextureManager inputInternalTextureManager;
   private @MonotonicNonNull ExternalTextureManager inputExternalTextureManager;
   private final boolean releaseFramesAutomatically;
@@ -368,18 +369,18 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
 
-  private GlEffectsFrameProcessor(
+  private DefaultVideoFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       boolean isInputTextureExternal,
-      FrameProcessingTaskExecutor frameProcessingTaskExecutor,
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       ImmutableList<GlShaderProgram> shaderPrograms,
       boolean releaseFramesAutomatically)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
-    this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
+    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
 
     checkState(!shaderPrograms.isEmpty());
@@ -391,11 +392,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       checkState(inputShaderProgram instanceof ExternalShaderProgram);
       inputExternalTextureManager =
           new ExternalTextureManager(
-              (ExternalShaderProgram) inputShaderProgram, frameProcessingTaskExecutor);
+              (ExternalShaderProgram) inputShaderProgram, videoFrameProcessingTaskExecutor);
       inputShaderProgram.setInputListener(inputExternalTextureManager);
     } else {
       inputInternalTextureManager =
-          new InternalTextureManager(inputShaderProgram, frameProcessingTaskExecutor);
+          new InternalTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
       inputShaderProgram.setInputListener(inputInternalTextureManager);
     }
 
@@ -404,10 +405,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     previousStreamOffsetUs = C.TIME_UNSET;
   }
 
-  /** Returns the task executor that runs frame processing tasks. */
+  /** Returns the task executor that runs video frame processing tasks. */
   @VisibleForTesting
-  /* package */ FrameProcessingTaskExecutor getTaskExecutor() {
-    return frameProcessingTaskExecutor;
+  /* package */ VideoFrameProcessingTaskExecutor getTaskExecutor() {
+    return videoFrameProcessingTaskExecutor;
   }
 
   /**
@@ -419,7 +420,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * call this method after instantiation to ensure that buffers are handled at full resolution. See
    * {@link SurfaceTexture#setDefaultBufferSize(int, int)} for more information.
    *
-   * <p>This method should only be used for when the {@link FrameProcessor}'s {@code
+   * <p>This method should only be used for when the {@link VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code true}.
    *
    * @param width The default width for input buffers, in pixels.
@@ -474,7 +475,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     checkState(
         !releaseFramesAutomatically,
         "Calling this method is not allowed when releaseFramesAutomatically is enabled");
-    frameProcessingTaskExecutor.submitWithHighPriority(
+    videoFrameProcessingTaskExecutor.submitWithHighPriority(
         () -> finalShaderProgramWrapper.releaseOutputFrame(releaseTimeNs));
   }
 
@@ -483,20 +484,20 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     if (inputInternalTextureManager != null) {
-      frameProcessingTaskExecutor.submit(inputInternalTextureManager::signalEndOfInput);
+      videoFrameProcessingTaskExecutor.submit(inputInternalTextureManager::signalEndOfInput);
     }
     if (inputExternalTextureManager != null) {
-      frameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
+      videoFrameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
     }
   }
 
   @Override
   public void flush() {
     try {
-      frameProcessingTaskExecutor.flush();
+      videoFrameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
       checkNotNull(inputExternalTextureManager).setOnFlushCompleteListener(latch::countDown);
-      frameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
+      videoFrameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
       inputExternalTextureManager.setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
@@ -507,7 +508,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   @Override
   public void release() {
     try {
-      frameProcessingTaskExecutor.release(
+      videoFrameProcessingTaskExecutor.release(
           /* releaseTask= */ this::releaseShaderProgramsAndDestroyGlContext, RELEASE_WAIT_TIME_MS);
     } catch (InterruptedException unexpected) {
       Thread.currentThread().interrupt();
@@ -546,7 +547,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    */
   @WorkerThread
   private void releaseShaderProgramsAndDestroyGlContext()
-      throws GlUtil.GlException, FrameProcessingException {
+      throws GlUtil.GlException, VideoFrameProcessingException {
     for (int i = 0; i < allShaderPrograms.size(); i++) {
       allShaderPrograms.get(i).release();
     }

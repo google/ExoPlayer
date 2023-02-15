@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
 import android.opengl.Matrix;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -52,7 +52,7 @@ public interface GlMatrixTransformation extends GlEffect {
 
   @Override
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws FrameProcessingException {
+      throws VideoFrameProcessingException {
     return MatrixShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(this),

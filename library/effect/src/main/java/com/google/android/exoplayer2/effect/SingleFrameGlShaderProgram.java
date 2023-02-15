@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.CallSuper;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -59,7 +59,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
     this.useHdr = useHdr;
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
-    errorListener = (frameProcessingException) -> {};
+    errorListener = (videoFrameProcessingException) -> {};
     errorListenerExecutor = MoreExecutors.directExecutor();
   }
 
@@ -72,9 +72,10 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
    * @param inputWidth The input width, in pixels.
    * @param inputHeight The input height, in pixels.
    * @return The output width and height of frames processed through {@link #drawFrame(int, long)}.
-   * @throws FrameProcessingException If an error occurs while configuring.
+   * @throws VideoFrameProcessingException If an error occurs while configuring.
    */
-  public abstract Size configure(int inputWidth, int inputHeight) throws FrameProcessingException;
+  public abstract Size configure(int inputWidth, int inputHeight)
+      throws VideoFrameProcessingException;
 
   /**
    * Draws one frame.
@@ -88,10 +89,10 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
    *
    * @param inputTexId Identifier of a 2D OpenGL texture containing the input frame.
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
-   * @throws FrameProcessingException If an error occurs while processing or drawing the frame.
+   * @throws VideoFrameProcessingException If an error occurs while processing or drawing the frame.
    */
   public abstract void drawFrame(int inputTexId, long presentationTimeUs)
-      throws FrameProcessingException;
+      throws VideoFrameProcessingException;
 
   @Override
   public final void setInputListener(InputListener inputListener) {
@@ -132,19 +133,19 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
       drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
-    } catch (FrameProcessingException | GlUtil.GlException | RuntimeException e) {
+    } catch (VideoFrameProcessingException | GlUtil.GlException | RuntimeException e) {
       errorListenerExecutor.execute(
           () ->
-              errorListener.onFrameProcessingError(
-                  e instanceof FrameProcessingException
-                      ? (FrameProcessingException) e
-                      : new FrameProcessingException(e)));
+              errorListener.onError(
+                  e instanceof VideoFrameProcessingException
+                      ? (VideoFrameProcessingException) e
+                      : new VideoFrameProcessingException(e)));
     }
   }
 
   @EnsuresNonNull("outputTexture")
   private void configureOutputTexture(int inputWidth, int inputHeight)
-      throws GlUtil.GlException, FrameProcessingException {
+      throws GlUtil.GlException, VideoFrameProcessingException {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     Size outputSize = configure(inputWidth, inputHeight);
@@ -182,12 +183,12 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
 
   @Override
   @CallSuper
-  public void release() throws FrameProcessingException {
+  public void release() throws VideoFrameProcessingException {
     if (outputTexture != null) {
       try {
         GlUtil.deleteTexture(outputTexture.texId);
       } catch (GlUtil.GlException e) {
-        throw new FrameProcessingException(e);
+        throw new VideoFrameProcessingException(e);
       }
     }
   }

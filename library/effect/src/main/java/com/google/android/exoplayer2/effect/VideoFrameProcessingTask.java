@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
  * Interface for tasks that may throw a {@link GlUtil.GlException} or {@link
- * FrameProcessingException}.
+ * VideoFrameProcessingException}.
  */
-/* package */ interface FrameProcessingTask {
+/* package */ interface VideoFrameProcessingTask {
   /** Runs the task. */
-  void run() throws FrameProcessingException, GlUtil.GlException;
+  void run() throws VideoFrameProcessingException, GlUtil.GlException;
 }

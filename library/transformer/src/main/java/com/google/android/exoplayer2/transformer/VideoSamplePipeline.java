@@ -38,12 +38,12 @@ import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
-import com.google.android.exoplayer2.util.FrameProcessingException;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -58,8 +58,8 @@ import org.checkerframework.dataflow.qual.Pure;
   /** MIME type to use for output video if the input type is not a video. */
   private static final String DEFAULT_OUTPUT_MIME_TYPE = MimeTypes.VIDEO_H265;
 
-  private final FrameProcessor frameProcessor;
-  private final ColorInfo frameProcessorInputColor;
+  private final VideoFrameProcessor videoFrameProcessor;
+  private final ColorInfo videoFrameProcessorInputColor;
   private final FrameInfo firstFrameInfo;
 
   private final EncoderWrapper encoderWrapper;
@@ -67,7 +67,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   /**
    * The timestamp of the last buffer processed before {@linkplain
-   * FrameProcessor.Listener#onFrameProcessingEnded() frame processing has ended}.
+   * VideoFrameProcessor.Listener#onEnded() frame processing has ended}.
    */
   private volatile long finalFramePresentationTimeUs;
 
@@ -78,7 +78,7 @@ import org.checkerframework.dataflow.qual.Pure;
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
-      FrameProcessor.Factory frameProcessorFactory,
+      VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       Consumer<TransformationException> errorConsumer,
@@ -122,12 +122,12 @@ import org.checkerframework.dataflow.qual.Pure;
     ColorInfo encoderInputColor = encoderWrapper.getSupportedInputColor();
     // If not tone mapping using OpenGL, the decoder will output the encoderInputColor,
     // possibly by tone mapping.
-    frameProcessorInputColor =
+    videoFrameProcessorInputColor =
         isGlToneMapping ? checkNotNull(firstInputFormat.colorInfo) : encoderInputColor;
     // For consistency with the Android platform, OpenGL tone mapping outputs colors with
     // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
     // C.COLOR_TRANSFER_SDR to the encoder.
-    ColorInfo frameProcessorOutputColor =
+    ColorInfo videoFrameProcessorOutputColor =
         isGlToneMapping
             ? new ColorInfo.Builder()
                 .setColorSpace(C.COLOR_SPACE_BT709)
@@ -136,23 +136,23 @@ import org.checkerframework.dataflow.qual.Pure;
                 .build()
             : encoderInputColor;
     try {
-      frameProcessor =
-          frameProcessorFactory.create(
+      videoFrameProcessor =
+          videoFrameProcessorFactory.create(
               context,
               effects,
               debugViewProvider,
-              frameProcessorInputColor,
-              frameProcessorOutputColor,
+              videoFrameProcessorInputColor,
+              videoFrameProcessorOutputColor,
               MimeTypes.isVideo(firstInputFormat.sampleMimeType),
               /* releaseFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
-              new FrameProcessor.Listener() {
+              new VideoFrameProcessor.Listener() {
                 private long lastProcessedFramePresentationTimeUs;
 
                 @Override
                 public void onOutputSizeChanged(int width, int height) {
                   try {
-                    checkNotNull(frameProcessor)
+                    checkNotNull(videoFrameProcessor)
                         .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
                   } catch (TransformationException exception) {
                     errorConsumer.accept(exception);
@@ -166,14 +166,15 @@ import org.checkerframework.dataflow.qual.Pure;
                 }
 
                 @Override
-                public void onFrameProcessingError(FrameProcessingException exception) {
+                public void onError(VideoFrameProcessingException exception) {
                   errorConsumer.accept(
-                      TransformationException.createForFrameProcessingException(
-                          exception, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED));
+                      TransformationException.createForVideoFrameProcessingException(
+                          exception,
+                          TransformationException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
                 }
 
                 @Override
-                public void onFrameProcessingEnded() {
+                public void onEnded() {
                   VideoSamplePipeline.this.finalFramePresentationTimeUs =
                       lastProcessedFramePresentationTimeUs;
                   try {
@@ -183,9 +184,9 @@ import org.checkerframework.dataflow.qual.Pure;
                   }
                 }
               });
-    } catch (FrameProcessingException e) {
-      throw TransformationException.createForFrameProcessingException(
-          e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
+    } catch (VideoFrameProcessingException e) {
+      throw TransformationException.createForVideoFrameProcessingException(
+          e, TransformationException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);
     }
     // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
     int decodedWidth =
@@ -206,43 +207,43 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   public void onMediaItemChanged(
       EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
-    frameProcessor.setInputFrameInfo(
+    videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(mediaItemOffsetUs).build());
   }
 
   @Override
   public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
-    frameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
   @Override
   public Surface getInputSurface() {
-    return frameProcessor.getInputSurface();
+    return videoFrameProcessor.getInputSurface();
   }
 
   @Override
   public ColorInfo getExpectedInputColorInfo() {
-    return frameProcessorInputColor;
+    return videoFrameProcessorInputColor;
   }
 
   @Override
   public void registerVideoFrame() {
-    frameProcessor.registerInputFrame();
+    videoFrameProcessor.registerInputFrame();
   }
 
   @Override
   public int getPendingVideoFrameCount() {
-    return frameProcessor.getPendingInputFrameCount();
+    return videoFrameProcessor.getPendingInputFrameCount();
   }
 
   @Override
   public void signalEndOfVideoInput() {
-    frameProcessor.signalEndOfInput();
+    videoFrameProcessor.signalEndOfInput();
   }
 
   @Override
   public void release() {
-    frameProcessor.release();
+    videoFrameProcessor.release();
     encoderWrapper.release();
   }
 
