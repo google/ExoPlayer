@@ -358,8 +358,6 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
   private @MonotonicNonNull InternalTextureManager inputInternalTextureManager;
   private @MonotonicNonNull ExternalTextureManager inputExternalTextureManager;
-  // TODO(262693274): Move this variable to ExternalTextureManager.
-  private @MonotonicNonNull Surface inputExternalSurface;
   private final boolean releaseFramesAutomatically;
   private final FinalMatrixShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
@@ -398,7 +396,6 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
           new ExternalTextureManager(
               (ExternalShaderProgram) inputShaderProgram, frameProcessingTaskExecutor);
       inputShaderProgram.setInputListener(inputExternalTextureManager);
-      inputExternalSurface = new Surface(inputExternalTextureManager.getSurfaceTexture());
     } else {
       inputInternalTextureManager =
           new InternalTextureManager(inputShaderProgram, frameProcessingTaskExecutor);
@@ -432,9 +429,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    checkNotNull(inputExternalTextureManager)
-        .getSurfaceTexture()
-        .setDefaultBufferSize(width, height);
+    checkNotNull(inputExternalTextureManager).setDefaultBufferSize(width, height);
   }
 
   @Override
@@ -445,7 +440,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
   @Override
   public Surface getInputSurface() {
-    return checkNotNull(inputExternalSurface);
+    return checkNotNull(inputExternalTextureManager).getInputSurface();
   }
 
   @Override
@@ -523,7 +518,6 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     }
     if (inputExternalTextureManager != null) {
       inputExternalTextureManager.release();
-      checkNotNull(inputExternalSurface).release();
     }
   }
 

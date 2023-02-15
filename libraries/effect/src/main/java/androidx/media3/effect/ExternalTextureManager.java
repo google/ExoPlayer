@@ -18,6 +18,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.SurfaceTexture;
+import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
+  private final Surface surface;
   private final SurfaceTexture surfaceTexture;
   private final float[] textureTransformMatrix;
   private final Queue<FrameInfo> pendingFrames;
@@ -71,6 +73,8 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor}.
    * @throws FrameProcessingException If a problem occurs while creating the external texture.
    */
+  // The onFrameAvailableListener will not be invoked until the constructor returns.
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public ExternalTextureManager(
       ExternalShaderProgram externalShaderProgram,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor)
@@ -86,11 +90,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     textureTransformMatrix = new float[16];
     pendingFrames = new ConcurrentLinkedQueue<>();
     externalShaderProgramInputCapacity = new AtomicInteger();
-
     previousStreamOffsetUs = C.TIME_UNSET;
-  }
-
-  public SurfaceTexture getSurfaceTexture() {
     surfaceTexture.setOnFrameAvailableListener(
         unused ->
             frameProcessingTaskExecutor.submit(
@@ -104,7 +104,17 @@ import java.util.concurrent.atomic.AtomicInteger;
                     maybeQueueFrameToExternalShaderProgram();
                   }
                 }));
-    return surfaceTexture;
+    surface = new Surface(surfaceTexture);
+  }
+
+  /** See {@link GlEffectsFrameProcessor#setInputDefaultBufferSize}. */
+  public void setDefaultBufferSize(int width, int height) {
+    surfaceTexture.setDefaultBufferSize(width, height);
+  }
+
+  /** Returns the {@linkplain Surface input surface} that wraps the external texture. */
+  public Surface getInputSurface() {
+    return surface;
   }
 
   @Override
@@ -173,6 +183,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   public void release() {
     surfaceTexture.release();
+    surface.release();
   }
 
   @WorkerThread
