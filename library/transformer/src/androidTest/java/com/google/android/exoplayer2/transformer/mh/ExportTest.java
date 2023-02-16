@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
@@ -54,6 +55,16 @@ public class ExportTest {
   public void export() throws Exception {
     String testId = TAG + "_export";
     Context context = ApplicationProvider.getApplicationContext();
+    // Note: throughout this class we only check decoding capability as tests should still run if
+    // Transformer is able to succeed by falling back to a lower resolution.
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
@@ -81,6 +92,13 @@ public class ExportTest {
   public void exportToSpecificBitrate() throws Exception {
     String testId = TAG + "_exportToSpecificBitrate";
     Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -104,7 +122,6 @@ public class ExportTest {
   public void export4K60() throws Exception {
     String testId = TAG + "_export4K60";
     Context context = ApplicationProvider.getApplicationContext();
-
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -129,11 +146,11 @@ public class ExportTest {
   public void export8K24() throws Exception {
     String testId = TAG + "_export8K24";
     Context context = ApplicationProvider.getApplicationContext();
-
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ MP4_REMOTE_8K24_FORMAT, /* outputFormat= */ null)) {
       return;
     }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
@@ -150,6 +167,14 @@ public class ExportTest {
   public void exportNoAudio() throws Exception {
     String testId = TAG + "_exportNoAudio";
     Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
@@ -187,7 +212,8 @@ public class ExportTest {
     Context context = ApplicationProvider.getApplicationContext();
 
     if (Util.SDK_INT < 25) {
-      // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
+      // TODO(b/210593256): Remove test skipping after using an in-app muxer that supports B-frames
+      //  before API 25.
       recordTestSkipped(context, testId, /* reason= */ "API version lacks muxing support");
       return;
     }
@@ -206,6 +232,13 @@ public class ExportTest {
   public void exportFrameRotation() throws Exception {
     String testId = TAG + "_exportFrameRotation";
     Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
@@ -218,6 +251,6 @@ public class ExportTest {
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(/* testId= */ testId, editedMediaItem);
+        .run(testId, editedMediaItem);
   }
 }
