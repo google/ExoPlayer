@@ -171,9 +171,10 @@ public interface VideoFrameProcessor {
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
   /**
-   * Informs the {@code VideoFrameProcessor} that a frame will be queued to its input surface.
+   * Informs the {@code VideoFrameProcessor} that a frame will be queued to its {@linkplain
+   * #getInputSurface() input surface}.
    *
-   * <p>Must be called before rendering a frame to the {@code VideoFrameProcessor}'s input surface.
+   * <p>Must be called before rendering a frame to the input surface.
    *
    * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
    * isInputTextureExternal} parameter is set to {@code true}.
