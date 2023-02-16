@@ -126,7 +126,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
-      Future<DefaultVideoFrameProcessor> glFrameProcessorFuture =
+      Future<DefaultVideoFrameProcessor> defaultVideoFrameProcessorFuture =
           singleThreadExecutorService.submit(
               () ->
                   createOpenGlObjectsAndFrameProcessor(
@@ -142,7 +142,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       listener));
 
       try {
-        return glFrameProcessorFuture.get();
+        return defaultVideoFrameProcessorFuture.get();
       } catch (ExecutionException e) {
         throw new VideoFrameProcessingException(e);
       } catch (InterruptedException e) {

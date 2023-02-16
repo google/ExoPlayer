@@ -107,7 +107,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     surface = new Surface(surfaceTexture);
   }
 
-  /** See {@link GlEffectsFrameProcessor#setInputDefaultBufferSize}. */
+  /** See {@link DefaultVideoFrameProcessor#setInputDefaultBufferSize}. */
   public void setDefaultBufferSize(int width, int height) {
     surfaceTexture.setDefaultBufferSize(width, height);
   }
