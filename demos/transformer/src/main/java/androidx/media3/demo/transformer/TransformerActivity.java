@@ -79,9 +79,9 @@ import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.DefaultMuxer;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.ProgressHolder;
-import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.ui.AspectRatioFrameLayout;
@@ -311,15 +311,15 @@ public final class TransformerActivity extends AppCompatActivity {
               public void onCompleted(Composition composition, ExportResult exportResult) {
                 MediaItem mediaItem =
                     composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
-                TransformerActivity.this.onTransformationCompleted(filePath, mediaItem);
+                TransformerActivity.this.onCompleted(filePath, mediaItem);
               }
 
               @Override
               public void onError(
                   Composition composition,
                   ExportResult exportResult,
-                  TransformationException exception) {
-                TransformerActivity.this.onTransformationError(exception);
+                  ExportException exportException) {
+                TransformerActivity.this.onError(exportException);
               }
             })
         .build();
@@ -602,16 +602,16 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugFrame",
     "transformationStopwatch",
   })
-  private void onTransformationError(TransformationException exception) {
+  private void onError(ExportException exportException) {
     if (transformationStopwatch.isRunning()) {
       transformationStopwatch.stop();
     }
     informationTextView.setText(R.string.transformation_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
-    Toast.makeText(getApplicationContext(), "Transformation error: " + exception, Toast.LENGTH_LONG)
+    Toast.makeText(getApplicationContext(), "Export error: " + exportException, Toast.LENGTH_LONG)
         .show();
-    Log.e(TAG, "Transformation error", exception);
+    Log.e(TAG, "Export error", exportException);
   }
 
   @RequiresNonNull({
@@ -625,7 +625,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugFrame",
     "transformationStopwatch",
   })
-  private void onTransformationCompleted(String filePath, MediaItem inputMediaItem) {
+  private void onCompleted(String filePath, MediaItem inputMediaItem) {
     transformationStopwatch.stop();
     informationTextView.setText(
         getString(

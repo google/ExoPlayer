@@ -36,8 +36,8 @@ import androidx.media3.effect.ScaleToFitTransformation;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.EncoderUtil;
+import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
-import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -83,13 +83,13 @@ public class HdrEditingTest {
               .run(testId, mediaItem);
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
           .isAnyOf(
-              TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+              ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
+              ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -108,13 +108,13 @@ public class HdrEditingTest {
               .run(testId, mediaItem);
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
           .isAnyOf(
-              TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+              ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
+              ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -213,11 +213,11 @@ public class HdrEditingTest {
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
     }
   }
@@ -267,11 +267,11 @@ public class HdrEditingTest {
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
     }
   }

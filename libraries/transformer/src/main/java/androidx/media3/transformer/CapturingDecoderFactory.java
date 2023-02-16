@@ -31,7 +31,7 @@ import androidx.media3.common.Format;
   }
 
   @Override
-  public Codec createForAudioDecoding(Format format) throws TransformationException {
+  public Codec createForAudioDecoding(Format format) throws ExportException {
     Codec audioDecoder = decoderFactory.createForAudioDecoding(format);
     audioDecoderName = audioDecoder.getName();
     return audioDecoder;
@@ -39,8 +39,7 @@ import androidx.media3.common.Format;
 
   @Override
   public Codec createForVideoDecoding(
-      Format format, Surface outputSurface, boolean requestSdrToneMapping)
-      throws TransformationException {
+      Format format, Surface outputSurface, boolean requestSdrToneMapping) throws ExportException {
     Codec videoDecoder =
         decoderFactory.createForVideoDecoding(format, outputSurface, requestSdrToneMapping);
     videoDecoderName = videoDecoder.getName();

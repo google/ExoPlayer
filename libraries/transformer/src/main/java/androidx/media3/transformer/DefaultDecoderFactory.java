@@ -51,14 +51,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public Codec createForAudioDecoding(Format format) throws TransformationException {
+  public Codec createForAudioDecoding(Format format) throws ExportException {
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
     if (mediaCodecName == null) {
-      throw createTransformationException(
+      throw createExportException(
           format, /* reason= */ "The requested decoding format is not supported.");
     }
     return new DefaultCodec(
@@ -73,18 +73,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @SuppressLint("InlinedApi")
   @Override
   public Codec createForVideoDecoding(
-      Format format, Surface outputSurface, boolean requestSdrToneMapping)
-      throws TransformationException {
+      Format format, Surface outputSurface, boolean requestSdrToneMapping) throws ExportException {
     checkNotNull(format.sampleMimeType);
 
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
       if (requestSdrToneMapping && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
-        throw createTransformationException(
+        throw createExportException(
             format, /* reason= */ "Tone-mapping HDR is not supported on this device.");
       }
       if (SDK_INT < 29) {
         // TODO(b/266837571, b/267171669): Remove API version restriction after fixing linked bugs.
-        throw createTransformationException(
+        throw createExportException(
             format, /* reason= */ "Decoding HDR is not supported on this device.");
       }
     }
@@ -111,7 +110,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
     if (mediaCodecName == null) {
-      throw createTransformationException(
+      throw createExportException(
           format, /* reason= */ "The requested video decoding format is not supported.");
     }
     return new DefaultCodec(
@@ -127,11 +126,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @RequiresNonNull("#1.sampleMimeType")
-  private static TransformationException createTransformationException(
-      Format format, String reason) {
-    return TransformationException.createForCodec(
+  private static ExportException createExportException(Format format, String reason) {
+    return ExportException.createForCodec(
         new IllegalArgumentException(reason),
-        TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+        ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ true,
         format);

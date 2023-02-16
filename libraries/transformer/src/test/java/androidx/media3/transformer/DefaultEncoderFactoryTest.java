@@ -16,7 +16,7 @@
 
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
+import static androidx.media3.transformer.ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -109,11 +109,11 @@ public class DefaultEncoderFactoryTest {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H265, 1920, 1080, 30);
     DefaultEncoderFactory encoderFactory = new DefaultEncoderFactory.Builder(context).build();
 
-    TransformationException transformationException =
+    ExportException exportException =
         assertThrows(
-            TransformationException.class,
+            ExportException.class,
             () -> encoderFactory.createForVideoEncoding(requestedVideoFormat));
-    assertThat(transformationException.errorCode).isEqualTo(ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+    assertThat(exportException.errorCode).isEqualTo(ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -239,7 +239,7 @@ public class DefaultEncoderFactoryTest {
   public void createForVideoEncoding_withNoAvailableEncoderFromEncoderSelector_throws() {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
     assertThrows(
-        TransformationException.class,
+        ExportException.class,
         () ->
             new DefaultEncoderFactory.Builder(context)
                 .setVideoEncoderSelector((mimeType) -> ImmutableList.of())

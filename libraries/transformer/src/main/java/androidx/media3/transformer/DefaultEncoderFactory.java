@@ -173,14 +173,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   @Override
-  public DefaultCodec createForAudioEncoding(Format format) throws TransformationException {
+  public DefaultCodec createForAudioEncoding(Format format) throws ExportException {
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
     @Nullable
     String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ false);
     if (mediaCodecName == null) {
-      throw createTransformationException(
+      throw createExportException(
           format, /* errorString= */ "The requested audio encoding format is not supported.");
     }
     return new DefaultCodec(
@@ -201,7 +201,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * VideoEncoderSettings#enableHighQualityTargeting} is set.
    */
   @Override
-  public DefaultCodec createForVideoEncoding(Format format) throws TransformationException {
+  public DefaultCodec createForVideoEncoding(Format format) throws ExportException {
     if (format.frameRate == Format.NO_VALUE) {
       format = format.buildUpon().setFrameRate(DEFAULT_FRAME_RATE).build();
     }
@@ -220,7 +220,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             format, requestedVideoEncoderSettings, videoEncoderSelector, enableFallback);
 
     if (encoderAndClosestFormatSupport == null) {
-      throw createTransformationException(
+      throw createExportException(
           format, /* errorString= */ "The requested video encoding format is not supported.");
     }
 
@@ -286,7 +286,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010);
       } else {
-        throw createTransformationException(
+        throw createExportException(
             format, /* errorString= */ "Encoding HDR is not supported on this device.");
       }
     } else {
@@ -664,11 +664,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   @RequiresNonNull("#1.sampleMimeType")
-  private static TransformationException createTransformationException(
-      Format format, String errorString) {
-    return TransformationException.createForCodec(
+  private static ExportException createExportException(Format format, String errorString) {
+    return ExportException.createForCodec(
         new IllegalArgumentException(errorString),
-        TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
+        ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
         format);

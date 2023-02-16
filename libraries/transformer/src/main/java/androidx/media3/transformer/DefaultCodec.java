@@ -98,7 +98,7 @@ public final class DefaultCodec implements Codec {
       String mediaCodecName,
       boolean isDecoder,
       @Nullable Surface outputSurface)
-      throws TransformationException {
+      throws ExportException {
     this.configurationFormat = configurationFormat;
     this.configurationMediaFormat = configurationMediaFormat;
     this.isDecoder = isDecoder;
@@ -135,21 +135,21 @@ public final class DefaultCodec implements Codec {
         mediaCodec.release();
       }
 
-      @TransformationException.ErrorCode int errorCode;
+      @ExportException.ErrorCode int errorCode;
       if (e instanceof IOException || e instanceof MediaCodec.CodecException) {
         errorCode =
             isDecoder
-                ? TransformationException.ERROR_CODE_DECODER_INIT_FAILED
-                : TransformationException.ERROR_CODE_ENCODER_INIT_FAILED;
+                ? ExportException.ERROR_CODE_DECODER_INIT_FAILED
+                : ExportException.ERROR_CODE_ENCODER_INIT_FAILED;
       } else if (e instanceof IllegalArgumentException) {
         errorCode =
             isDecoder
-                ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
-                : TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
+                ? ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
+                : ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
       } else {
-        errorCode = TransformationException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+        errorCode = ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
       }
-      throw createTransformationException(e, errorCode, mediaCodecName);
+      throw createExportException(e, errorCode, mediaCodecName);
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
@@ -175,8 +175,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   @EnsuresNonNullIf(expression = "#1.data", result = true)
-  public boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer)
-      throws TransformationException {
+  public boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer) throws ExportException {
     if (inputStreamEnded) {
       return false;
     }
@@ -184,7 +183,7 @@ public final class DefaultCodec implements Codec {
       try {
         inputBufferIndex = mediaCodec.dequeueInputBuffer(/* timeoutUs= */ 0);
       } catch (RuntimeException e) {
-        throw createTransformationException(e);
+        throw createExportException(e);
       }
       if (inputBufferIndex < 0) {
         return false;
@@ -192,7 +191,7 @@ public final class DefaultCodec implements Codec {
       try {
         inputBuffer.data = mediaCodec.getInputBuffer(inputBufferIndex);
       } catch (RuntimeException e) {
-        throw createTransformationException(e);
+        throw createExportException(e);
       }
       inputBuffer.clear();
     }
@@ -201,7 +200,7 @@ public final class DefaultCodec implements Codec {
   }
 
   @Override
-  public void queueInputBuffer(DecoderInputBuffer inputBuffer) throws TransformationException {
+  public void queueInputBuffer(DecoderInputBuffer inputBuffer) throws ExportException {
     checkState(
         !inputStreamEnded, "Input buffer can not be queued after the input stream has ended.");
 
@@ -219,24 +218,24 @@ public final class DefaultCodec implements Codec {
     try {
       mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
     } catch (RuntimeException e) {
-      throw createTransformationException(e);
+      throw createExportException(e);
     }
     inputBufferIndex = C.INDEX_UNSET;
     inputBuffer.data = null;
   }
 
   @Override
-  public void signalEndOfInputStream() throws TransformationException {
+  public void signalEndOfInputStream() throws ExportException {
     try {
       mediaCodec.signalEndOfInputStream();
     } catch (RuntimeException e) {
-      throw createTransformationException(e);
+      throw createExportException(e);
     }
   }
 
   @Override
   @Nullable
-  public Format getOutputFormat() throws TransformationException {
+  public Format getOutputFormat() throws ExportException {
     // The format is updated when dequeueing a 'special' buffer index, so attempt to dequeue now.
     maybeDequeueOutputBuffer(/* setOutputBuffer= */ false);
     return outputFormat;
@@ -244,18 +243,18 @@ public final class DefaultCodec implements Codec {
 
   @Override
   @Nullable
-  public ByteBuffer getOutputBuffer() throws TransformationException {
+  public ByteBuffer getOutputBuffer() throws ExportException {
     return maybeDequeueOutputBuffer(/* setOutputBuffer= */ true) ? outputBuffer : null;
   }
 
   @Override
   @Nullable
-  public BufferInfo getOutputBufferInfo() throws TransformationException {
+  public BufferInfo getOutputBufferInfo() throws ExportException {
     return maybeDequeueOutputBuffer(/* setOutputBuffer= */ false) ? outputBufferInfo : null;
   }
 
   @Override
-  public void releaseOutputBuffer(boolean render) throws TransformationException {
+  public void releaseOutputBuffer(boolean render) throws ExportException {
     outputBuffer = null;
     try {
       if (render) {
@@ -266,7 +265,7 @@ public final class DefaultCodec implements Codec {
         mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
       }
     } catch (RuntimeException e) {
-      throw createTransformationException(e);
+      throw createExportException(e);
     }
     outputBufferIndex = C.INDEX_UNSET;
   }
@@ -310,9 +309,9 @@ public final class DefaultCodec implements Codec {
    * @param setOutputBuffer Whether to read the bytes of the dequeued output buffer and copy them
    *     into {@link #outputBuffer}.
    * @return Whether there is an output buffer available.
-   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
+   * @throws ExportException If the underlying {@link MediaCodec} encounters a problem.
    */
-  private boolean maybeDequeueOutputBuffer(boolean setOutputBuffer) throws TransformationException {
+  private boolean maybeDequeueOutputBuffer(boolean setOutputBuffer) throws ExportException {
     if (outputBufferIndex >= 0) {
       return true;
     }
@@ -323,7 +322,7 @@ public final class DefaultCodec implements Codec {
     try {
       outputBufferIndex = mediaCodec.dequeueOutputBuffer(outputBufferInfo, /* timeoutUs= */ 0);
     } catch (RuntimeException e) {
-      throw createTransformationException(e);
+      throw createExportException(e);
     }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
@@ -363,7 +362,7 @@ public final class DefaultCodec implements Codec {
       try {
         outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
       } catch (RuntimeException e) {
-        throw createTransformationException(e);
+        throw createExportException(e);
       }
       outputBuffer.position(outputBufferInfo.offset);
       outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
@@ -371,25 +370,24 @@ public final class DefaultCodec implements Codec {
     return true;
   }
 
-  private TransformationException createTransformationException(Exception cause) {
-    return createTransformationException(
+  private ExportException createExportException(Exception cause) {
+    return createExportException(
         cause,
         isDecoder
-            ? TransformationException.ERROR_CODE_DECODING_FAILED
-            : TransformationException.ERROR_CODE_ENCODING_FAILED,
+            ? ExportException.ERROR_CODE_DECODING_FAILED
+            : ExportException.ERROR_CODE_ENCODING_FAILED,
         getName());
   }
 
-  /** Creates a {@link TransformationException} with specific {@link MediaCodec} details. */
-  private TransformationException createTransformationException(
+  /** Creates an {@link ExportException} with specific {@link MediaCodec} details. */
+  private ExportException createExportException(
       @UnknownInitialization DefaultCodec this,
       Exception cause,
-      @TransformationException.ErrorCode int errorCode,
+      @ExportException.ErrorCode int errorCode,
       String mediaCodecName) {
     String codecDetails =
         "mediaFormat=" + configurationMediaFormat + ", mediaCodecName=" + mediaCodecName;
-    return TransformationException.createForCodec(
-        cause, errorCode, isVideo, isDecoder, codecDetails);
+    return ExportException.createForCodec(cause, errorCode, isVideo, isDecoder, codecDetails);
   }
 
   private static boolean areColorTransfersEqual(

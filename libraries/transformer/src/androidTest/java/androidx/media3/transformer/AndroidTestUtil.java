@@ -471,12 +471,12 @@ public final class AndroidTestUtil {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format) throws TransformationException {
+    public Codec createForAudioEncoding(Format format) throws ExportException {
       return encoderFactory.createForAudioEncoding(format);
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format) throws TransformationException {
+    public Codec createForVideoEncoding(Format format) throws ExportException {
       return encoderFactory.createForVideoEncoding(format);
     }
 
@@ -531,7 +531,7 @@ public final class AndroidTestUtil {
   /**
    * Creates a {@link JSONObject} from the {@link Exception}.
    *
-   * <p>If the exception is a {@link TransformationException}, {@code errorCode} is included.
+   * <p>If the exception is an {@link ExportException}, {@code errorCode} is included.
    *
    * @param exception The {@link Exception}.
    * @return The {@link JSONObject} containing the exception details, or {@code null} if the
@@ -546,8 +546,8 @@ public final class AndroidTestUtil {
     JSONObject exceptionJson = new JSONObject();
     exceptionJson.put("message", exception.getMessage());
     exceptionJson.put("type", exception.getClass());
-    if (exception instanceof TransformationException) {
-      exceptionJson.put("errorCode", ((TransformationException) exception).errorCode);
+    if (exception instanceof ExportException) {
+      exceptionJson.put("errorCode", ((ExportException) exception).errorCode);
     }
     exceptionJson.put("stackTrace", Log.getThrowableString(exception));
     return exceptionJson;

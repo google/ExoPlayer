@@ -189,8 +189,8 @@ public class TransformerAndroidTestRunner {
     try {
       ExportTestResult exportTestResult = runInternal(testId, editedMediaItem);
       resultJson.put("exportResult", exportTestResult.asJsonObject());
-      if (exportTestResult.exportResult.transformationException != null) {
-        throw exportTestResult.exportResult.transformationException;
+      if (exportTestResult.exportResult.exportException != null) {
+        throw exportTestResult.exportResult.exportException;
       }
       if (!suppressAnalysisExceptions && exportTestResult.analysisException != null) {
         throw exportTestResult.analysisException;
@@ -274,7 +274,7 @@ public class TransformerAndroidTestRunner {
                   public void onError(
                       Composition composition,
                       ExportResult exportResult,
-                      TransformationException exception) {
+                      ExportException exportException) {
                     exportResultReference.set(exportResult);
                     countDownLatch.countDown();
                   }
@@ -330,7 +330,7 @@ public class TransformerAndroidTestRunner {
     @Nullable FallbackDetails fallbackDetails = fallbackDetailsReference.get();
     ExportResult exportResult = checkNotNull(exportResultReference.get());
 
-    if (exportResult.transformationException != null) {
+    if (exportResult.exportException != null) {
       return new ExportTestResult.Builder(exportResult)
           .setElapsedTimeMs(elapsedTimeMs)
           .setFallbackDetails(fallbackDetails)

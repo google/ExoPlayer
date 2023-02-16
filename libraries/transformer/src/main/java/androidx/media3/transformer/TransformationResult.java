@@ -94,7 +94,9 @@ public final class TransformationResult {
       width = exportResult.width;
       videoFrameCount = exportResult.videoFrameCount;
       videoEncoderName = exportResult.videoEncoderName;
-      transformationException = exportResult.transformationException;
+      if (exportResult.exportException != null) {
+        transformationException = new TransformationException(exportResult.exportException);
+      }
     }
 
     /** Sets the {@linkplain ProcessedInput processed inputs}. */

@@ -53,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     void onEnded(long durationMs, long fileSizeBytes);
 
-    void onError(TransformationException transformationException);
+    void onError(ExportException exportException);
   }
 
   /**
@@ -277,12 +277,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               }
               isAborted = true;
               listener.onError(
-                  TransformationException.createForMuxer(
+                  ExportException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "
                               + maxDelayBetweenSamplesMs
                               + " milliseconds. Aborting transformation."),
-                      TransformationException.ERROR_CODE_MUXING_FAILED));
+                      ExportException.ERROR_CODE_MUXING_FAILED));
             },
             maxDelayBetweenSamplesMs,
             MILLISECONDS);

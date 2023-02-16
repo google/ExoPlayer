@@ -33,12 +33,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @deprecated Use {@link ExportException} instead.
- */
-@Deprecated
+/** Thrown when a non-locally recoverable export failure occurs. */
 @UnstableApi
-public final class TransformationException extends Exception {
+public final class ExportException extends Exception {
 
   /**
    * Error codes that identify causes of {@link Transformer} errors.
@@ -196,8 +193,8 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Equivalent to {@link TransformationException#getErrorCodeName(int)
-   * TransformationException.getErrorCodeName(this.errorCode)}.
+   * Equivalent to {@link ExportException#getErrorCodeName(int)
+   * ExportException.getErrorCodeName(this.errorCode)}.
    */
   public String getErrorCodeName() {
     return getErrorCodeName(errorCode);
@@ -210,8 +207,8 @@ public final class TransformationException extends Exception {
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  public static TransformationException createForAssetLoader(Throwable cause, int errorCode) {
-    return new TransformationException("Asset loader error", cause, errorCode);
+  public static ExportException createForAssetLoader(Throwable cause, int errorCode) {
+    return new ExportException("Asset loader error", cause, errorCode);
   }
 
   /**
@@ -227,7 +224,7 @@ public final class TransformationException extends Exception {
    * @param format The {@link Format} used for configuring the {@link Codec}.
    * @return The created instance.
    */
-  public static TransformationException createForCodec(
+  public static ExportException createForCodec(
       Throwable cause,
       @ErrorCode int errorCode,
       boolean isVideo,
@@ -247,7 +244,7 @@ public final class TransformationException extends Exception {
    * @param details The details associated with this exception.
    * @return The created instance.
    */
-  public static TransformationException createForCodec(
+  public static ExportException createForCodec(
       Throwable cause,
       @ErrorCode int errorCode,
       boolean isVideo,
@@ -255,7 +252,7 @@ public final class TransformationException extends Exception {
       String details) {
     String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
     String errorMessage = componentName + " error: " + details;
-    return new TransformationException(errorMessage, cause, errorCode);
+    return new ExportException(errorMessage, cause, errorCode);
   }
 
   /**
@@ -265,9 +262,8 @@ public final class TransformationException extends Exception {
    * @param audioFormat The {@link AudioFormat} used.
    * @return The created instance.
    */
-  public static TransformationException createForAudioProcessing(
-      Throwable cause, AudioFormat audioFormat) {
-    return new TransformationException(
+  public static ExportException createForAudioProcessing(Throwable cause, AudioFormat audioFormat) {
+    return new ExportException(
         "Audio processing error, audio_format = " + audioFormat,
         cause,
         ERROR_CODE_AUDIO_PROCESSING_FAILED);
@@ -280,9 +276,9 @@ public final class TransformationException extends Exception {
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForVideoFrameProcessingException(
+  /* package */ static ExportException createForVideoFrameProcessingException(
       VideoFrameProcessingException cause, int errorCode) {
-    return new TransformationException("Video frame processing error", cause, errorCode);
+    return new ExportException("Video frame processing error", cause, errorCode);
   }
 
   /**
@@ -292,8 +288,8 @@ public final class TransformationException extends Exception {
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForMuxer(Throwable cause, int errorCode) {
-    return new TransformationException("Muxer error", cause, errorCode);
+  /* package */ static ExportException createForMuxer(Throwable cause, int errorCode) {
+    return new ExportException("Muxer error", cause, errorCode);
   }
 
   /**
@@ -305,15 +301,15 @@ public final class TransformationException extends Exception {
    * @param cause The cause of the failure.
    * @return The created instance.
    */
-  public static TransformationException createForUnexpected(Exception cause) {
+  public static ExportException createForUnexpected(Exception cause) {
     if (cause instanceof RuntimeException) {
-      return new TransformationException(
+      return new ExportException(
           "Unexpected runtime error", cause, ERROR_CODE_FAILED_RUNTIME_CHECK);
     }
-    return new TransformationException("Unexpected error", cause, ERROR_CODE_UNSPECIFIED);
+    return new ExportException("Unexpected error", cause, ERROR_CODE_UNSPECIFIED);
   }
 
-  /** An error code which identifies the cause of the transformation failure. */
+  /** An error code which identifies the cause of the export failure. */
   public final @ErrorCode int errorCode;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
@@ -327,17 +323,11 @@ public final class TransformationException extends Exception {
    * @param errorCode A number which identifies the cause of the error. May be one of the {@link
    *     ErrorCode ErrorCodes}.
    */
-  private TransformationException(
+  private ExportException(
       @Nullable String message, @Nullable Throwable cause, @ErrorCode int errorCode) {
     super(message, cause);
     this.errorCode = errorCode;
     this.timestampMs = Clock.DEFAULT.elapsedRealtime();
-  }
-
-  /* package */ TransformationException(ExportException exportException) {
-    super(exportException.getMessage(), exportException.getCause());
-    errorCode = exportException.errorCode;
-    timestampMs = exportException.timestampMs;
   }
 
   /**
@@ -346,7 +336,7 @@ public final class TransformationException extends Exception {
    *
    * <p>Note that this method does not compare the exceptions' stack traces.
    */
-  public boolean errorInfoEquals(@Nullable TransformationException other) {
+  public boolean errorInfoEquals(@Nullable ExportException other) {
     if (this == other) {
       return true;
     }

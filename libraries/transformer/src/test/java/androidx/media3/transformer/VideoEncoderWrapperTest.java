@@ -118,8 +118,7 @@ public final class VideoEncoderWrapperTest {
   }
 
   @Test
-  public void getSurfaceInfo_withEncoderFallback_usesFallbackResolution()
-      throws TransformationException {
+  public void getSurfaceInfo_withEncoderFallback_usesFallbackResolution() throws Exception {
     int inputWidth = 200;
     int inputHeight = 150;
     int fallbackWidth = 100;

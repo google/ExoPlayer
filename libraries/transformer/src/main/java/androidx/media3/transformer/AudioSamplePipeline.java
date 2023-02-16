@@ -70,7 +70,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
-      throws TransformationException {
+      throws ExportException {
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
     if (generateSilentAudioDurationUs != C.TIME_UNSET) {
@@ -112,7 +112,7 @@ import org.checkerframework.dataflow.qual.Pure;
     try {
       encoderInputAudioFormat = audioProcessingPipeline.configure(pipelineInputAudioFormat);
     } catch (AudioProcessor.UnhandledAudioFormatException unhandledAudioFormatException) {
-      throw TransformationException.createForAudioProcessing(
+      throw ExportException.createForAudioProcessing(
           unhandledAudioFormatException, pipelineInputAudioFormat);
     }
 
@@ -175,7 +175,7 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  protected boolean processDataUpToMuxer() throws TransformationException {
+  protected boolean processDataUpToMuxer() throws ExportException {
     if (!audioProcessingPipeline.isOperational()) {
       return feedEncoderFromInput();
     }
@@ -185,13 +185,13 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   @Nullable
-  protected Format getMuxerInputFormat() throws TransformationException {
+  protected Format getMuxerInputFormat() throws ExportException {
     return encoder.getOutputFormat();
   }
 
   @Override
   @Nullable
-  protected DecoderInputBuffer getMuxerInputBuffer() throws TransformationException {
+  protected DecoderInputBuffer getMuxerInputBuffer() throws ExportException {
     encoderOutputBuffer.data = encoder.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
@@ -202,7 +202,7 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  protected void releaseMuxerInputBuffer() throws TransformationException {
+  protected void releaseMuxerInputBuffer() throws ExportException {
     encoder.releaseOutputBuffer(/* render= */ false);
   }
 
@@ -216,7 +216,7 @@ import org.checkerframework.dataflow.qual.Pure;
    *
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
-  private boolean feedEncoderFromInput() throws TransformationException {
+  private boolean feedEncoderFromInput() throws ExportException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
@@ -254,7 +254,7 @@ import org.checkerframework.dataflow.qual.Pure;
    *
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
-  private boolean feedEncoderFromProcessingPipeline() throws TransformationException {
+  private boolean feedEncoderFromProcessingPipeline() throws ExportException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
@@ -320,7 +320,7 @@ import org.checkerframework.dataflow.qual.Pure;
    * Feeds as much data as possible between the current position and limit of the specified {@link
    * ByteBuffer} to the encoder, and advances its position by the number of bytes fed.
    */
-  private void feedEncoder(ByteBuffer inputBuffer) throws TransformationException {
+  private void feedEncoder(ByteBuffer inputBuffer) throws ExportException {
     ByteBuffer encoderInputBufferData = checkNotNull(encoderInputBuffer.data);
     int bufferLimit = inputBuffer.limit();
     inputBuffer.limit(min(bufferLimit, inputBuffer.position() + encoderInputBufferData.capacity()));
@@ -336,7 +336,7 @@ import org.checkerframework.dataflow.qual.Pure;
     encoder.queueInputBuffer(encoderInputBuffer);
   }
 
-  private void queueEndOfStreamToEncoder() throws TransformationException {
+  private void queueEndOfStreamToEncoder() throws ExportException {
     checkState(checkNotNull(encoderInputBuffer.data).position() == 0);
     encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     encoderInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);

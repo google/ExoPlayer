@@ -498,13 +498,13 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Use {@link #onError(Composition, ExportResult, TransformationException)} instead.
+     * @deprecated Use {@link #onError(Composition, ExportResult, ExportException)} instead.
      */
     @Deprecated
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
 
     /**
-     * @deprecated Use {@link #onError(Composition, ExportResult, TransformationException)} instead.
+     * @deprecated Use {@link #onError(Composition, ExportResult, ExportException)} instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -513,7 +513,7 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Use {@link #onError(Composition, ExportResult, TransformationException)} instead.
+     * @deprecated Use {@link #onError(Composition, ExportResult, ExportException)} instead.
      */
     @Deprecated
     default void onTransformationError(
@@ -526,16 +526,17 @@ public final class Transformer {
      *
      * @param composition The {@link Composition} for which the exception occurs.
      * @param exportResult The {@link ExportResult} of the export.
-     * @param exception The {@link TransformationException} describing the exception. This is the
-     *     same instance as the {@linkplain ExportResult#transformationException exception} in
-     *     {@code result}.
+     * @param exportException The {@link ExportException} describing the exception. This is the same
+     *     instance as the {@linkplain ExportResult#exportException exception} in {@code result}.
      */
     @SuppressWarnings("deprecation") // Calling deprecated listener method.
     default void onError(
-        Composition composition, ExportResult exportResult, TransformationException exception) {
+        Composition composition, ExportResult exportResult, ExportException exportException) {
       MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
       onTransformationError(
-          mediaItem, new TransformationResult.Builder(exportResult).build(), exception);
+          mediaItem,
+          new TransformationResult.Builder(exportResult).build(),
+          new TransformationException(exportException));
     }
 
     /**
@@ -751,7 +752,7 @@ public final class Transformer {
     checkArgument(composition.sequences.size() == 1);
     checkArgument(composition.effects == Effects.EMPTY);
     verifyApplicationThread();
-    checkState(transformerInternal == null, "There is already a export in progress.");
+    checkState(transformerInternal == null, "There is already an export in progress.");
 
     TransformerInternalListener transformerInternalListener =
         new TransformerInternalListener(composition);
@@ -928,11 +929,11 @@ public final class Transformer {
     }
 
     @Override
-    public void onError(ExportResult exportResult, TransformationException exception) {
+    public void onError(ExportResult exportResult, ExportException exportException) {
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onError(composition, exportResult, exception));
+          listener -> listener.onError(composition, exportResult, exportException));
       listeners.flushEvents();
     }
   }

@@ -97,20 +97,20 @@ public interface AssetLoader {
      *     non-negative, in microseconds.
      * @return The {@link SampleConsumer} describing the type of sample data expected, and to which
      *     to pass this data.
-     * @throws TransformationException If an error occurs configuring the {@link SampleConsumer}.
+     * @throws ExportException If an error occurs configuring the {@link SampleConsumer}.
      */
     SampleConsumer onTrackAdded(
         Format format,
         @SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
         long streamOffsetUs)
-        throws TransformationException;
+        throws ExportException;
 
     /**
      * Called if an error occurs in the asset loader. In this case, the asset loader will be
      * {@linkplain #release() released} automatically.
      */
-    void onError(TransformationException exception);
+    void onError(ExportException exportException);
   }
 
   /**

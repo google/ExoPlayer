@@ -85,7 +85,7 @@ public class ExoPlayerAssetLoaderTest {
           }
 
           @Override
-          public void onError(TransformationException e) {
+          public void onError(ExportException e) {
             exceptionRef.set(e);
           }
 

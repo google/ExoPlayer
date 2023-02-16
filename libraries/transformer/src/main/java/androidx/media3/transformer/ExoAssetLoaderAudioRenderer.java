@@ -45,7 +45,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  protected void initDecoder(Format inputFormat) throws TransformationException {
+  protected void initDecoder(Format inputFormat) throws ExportException {
     decoder = decoderFactory.createForAudioDecoding(inputFormat);
   }
 
@@ -53,11 +53,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to get decoded audio data and pass it to the sample consumer.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If an error occurs in the decoder.
+   * @throws ExportException If an error occurs in the decoder.
    */
   @Override
   @RequiresNonNull("sampleConsumer")
-  protected boolean feedConsumerFromDecoder() throws TransformationException {
+  protected boolean feedConsumerFromDecoder() throws ExportException {
     @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.getInputBuffer();
     if (sampleConsumerInputBuffer == null) {
       return false;

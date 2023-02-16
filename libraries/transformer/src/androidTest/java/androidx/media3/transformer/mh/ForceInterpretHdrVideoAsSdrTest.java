@@ -27,8 +27,8 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.transformer.AndroidTestUtil;
+import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
-import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -75,8 +75,8 @@ public class ForceInterpretHdrVideoAsSdrTest {
               .run(testId, mediaItem);
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
-    } catch (TransformationException exception) {
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+    } catch (ExportException exception) {
+      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }
@@ -111,8 +111,8 @@ public class ForceInterpretHdrVideoAsSdrTest {
               .run(testId, mediaItem);
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
-    } catch (TransformationException exception) {
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+    } catch (ExportException exception) {
+      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }
