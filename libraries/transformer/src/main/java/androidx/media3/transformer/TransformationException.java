@@ -268,7 +268,7 @@ public final class TransformationException extends Exception {
   public static TransformationException createForAudioProcessing(
       Throwable cause, AudioFormat audioFormat) {
     return new TransformationException(
-        "Audio processing error, audio_format = " + audioFormat,
+        "Audio processing error, audio_format=" + audioFormat,
         cause,
         ERROR_CODE_AUDIO_PROCESSING_FAILED);
   }
