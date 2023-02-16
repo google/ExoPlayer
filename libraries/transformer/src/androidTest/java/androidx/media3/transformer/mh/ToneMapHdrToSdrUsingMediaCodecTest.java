@@ -51,8 +51,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public static final String TAG = "ToneMapHdrToSdrUsingMediaCodecTest";
 
   @Test
-  public void transform_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {
-    String testId = "transform_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows";
+  public void export_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {
+    String testId = "export_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer =
@@ -93,8 +93,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   }
 
   @Test
-  public void transform_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows() throws Exception {
-    String testId = "transform_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows";
+  public void export_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows() throws Exception {
+    String testId = "export_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer =
@@ -135,8 +135,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   }
 
   @Test
-  public void transform_toneMapAndTranscode_hdr10File_toneMapsOrThrows() throws Exception {
-    String testId = "transform_toneMapAndTranscode_hdr10File_toneMapsOrThrows";
+  public void export_toneMapAndTranscode_hdr10File_toneMapsOrThrows() throws Exception {
+    String testId = "export_toneMapAndTranscode_hdr10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer =
@@ -182,8 +182,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   }
 
   @Test
-  public void transform_toneMapAndTranscode_hlg10File_toneMapsOrThrows() throws Exception {
-    String testId = "transform_toneMapAndTranscode_hlg10File_toneMapsOrThrows";
+  public void export_toneMapAndTranscode_hlg10File_toneMapsOrThrows() throws Exception {
+    String testId = "export_toneMapAndTranscode_hlg10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer =

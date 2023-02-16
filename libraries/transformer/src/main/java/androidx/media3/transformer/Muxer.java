@@ -93,7 +93,7 @@ public interface Muxer {
    *
    * <p>The muxer cannot be used anymore once this method has been called.
    *
-   * @param forCancellation Whether the reason for releasing the resources is the transformation
+   * @param forCancellation Whether the reason for releasing the resources is the export
    *     cancellation.
    * @throws MuxerException If the muxer fails to finish writing the output and {@code
    *     forCancellation} is false.
@@ -107,8 +107,8 @@ public interface Muxer {
    * <p>This is the maximum delay between samples of any track. They can be of the same or of
    * different track types.
    *
-   * <p>This value is used to abort the transformation when the maximum delay is reached. Note that
-   * there is no guarantee that the transformation will be aborted exactly at that time.
+   * <p>This value is used to abort the export when the maximum delay is reached. Note that there is
+   * no guarantee that the export will be aborted exactly at that time.
    */
   long getMaxDelayBetweenSamplesMs();
 }

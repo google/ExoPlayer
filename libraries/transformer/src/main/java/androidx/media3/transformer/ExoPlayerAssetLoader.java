@@ -144,7 +144,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
             .setForceHighestSupportedBitrate(true)
             .build());
     // Arbitrarily decrease buffers for playback so that samples start being sent earlier to the
-    // pipelines (rebuffers are less problematic for the transformation use case).
+    // pipelines (rebuffers are less problematic for the export use case).
     DefaultLoadControl loadControl =
         new DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -282,7 +282,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       if (!window.isPlaceholder) {
         long durationUs = window.durationUs;
         // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
-        // to a high value at the end of the transformation if the duration is set once the media is
+        // to a high value at the end of the export if the duration is set once the media is
         // entirely loaded.
         progressState =
             durationUs <= 0 || durationUs == C.TIME_UNSET

@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
   @Test
-  public void transformHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
+  public void exportHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     String testId = "transformHighQualityTargetingAvcToAvc1920x1080_ssim";

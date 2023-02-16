@@ -69,8 +69,8 @@ public class HdrEditingTest {
           .build();
 
   @Test
-  public void transform_noRequestedTranscode_hdr10File_transformsOrThrows() throws Exception {
-    String testId = "transform_noRequestedTranscode_hdr10File_transformsOrThrows";
+  public void export_noRequestedTranscode_hdr10File_exportsOrThrows() throws Exception {
+    String testId = "export_noRequestedTranscode_hdr10File_exportsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer = new Transformer.Builder(context).build();
@@ -81,7 +81,7 @@ public class HdrEditingTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      Log.i(TAG, "Transformed.");
+      Log.i(TAG, "Exported.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
     } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
@@ -94,8 +94,8 @@ public class HdrEditingTest {
   }
 
   @Test
-  public void transform_noRequestedTranscode_hlg10File_transformsOrThrows() throws Exception {
-    String testId = "transform_noRequestedTranscode_hlg10File_transformsOrThrows";
+  public void export_noRequestedTranscode_hlg10File_exportsOrThrows() throws Exception {
+    String testId = "export_noRequestedTranscode_hlg10File_exportsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer = new Transformer.Builder(context).build();
@@ -106,7 +106,7 @@ public class HdrEditingTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      Log.i(TAG, "Transformed.");
+      Log.i(TAG, "Exported.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
     } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
@@ -119,9 +119,8 @@ public class HdrEditingTest {
   }
 
   @Test
-  public void transformAndTranscode_hdr10File_whenHdrEditingIsSupported_transforms()
-      throws Exception {
-    String testId = "transformAndTranscode_hdr10File_whenHdrEditingIsSupported_transforms";
+  public void exportAndTranscode_hdr10File_whenHdrEditingIsSupported_exports() throws Exception {
+    String testId = "exportAndTranscode_hdr10File_whenHdrEditingIsSupported_exports";
     Context context = ApplicationProvider.getApplicationContext();
     if (!deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
       recordTestSkipped(context, testId, /* reason= */ "Device lacks HDR10 editing support.");
@@ -144,9 +143,8 @@ public class HdrEditingTest {
   }
 
   @Test
-  public void transformAndTranscode_hlg10File_whenHdrEditingIsSupported_transforms()
-      throws Exception {
-    String testId = "transformAndTranscode_hlg10File_whenHdrEditingIsSupported_transforms";
+  public void exportAndTranscode_hlg10File_whenHdrEditingIsSupported_exports() throws Exception {
+    String testId = "exportAndTranscode_hlg10File_whenHdrEditingIsSupported_exports";
     Context context = ApplicationProvider.getApplicationContext();
     if (!deviceSupportsHdrEditing(VIDEO_H265, HLG10_DEFAULT_COLOR_INFO)) {
       recordTestSkipped(context, testId, /* reason= */ "Device lacks HLG10 editing support.");
@@ -169,9 +167,9 @@ public class HdrEditingTest {
   }
 
   @Test
-  public void transformAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows()
+  public void exportAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows()
       throws Exception {
-    String testId = "transformAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows";
+    String testId = "exportAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
     if (deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
       recordTestSkipped(context, testId, /* reason= */ "Device supports HDR10 editing.");
@@ -223,9 +221,9 @@ public class HdrEditingTest {
   }
 
   @Test
-  public void transformAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows()
+  public void exportAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows()
       throws Exception {
-    String testId = "transformAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows";
+    String testId = "exportAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
     if (deviceSupportsHdrEditing(VIDEO_H265, HLG10_DEFAULT_COLOR_INFO)) {
       recordTestSkipped(context, testId, /* reason= */ "Device supports HLG10 editing.");
@@ -277,8 +275,8 @@ public class HdrEditingTest {
   }
 
   @Test
-  public void transformUnexpectedColorInfo() throws Exception {
-    String testId = "transformUnexpectedColorInfo";
+  public void exportUnexpectedColorInfo() throws Exception {
+    String testId = "exportUnexpectedColorInfo";
     Context context = ApplicationProvider.getApplicationContext();
     if (Util.SDK_INT < 29) {
       recordTestSkipped(

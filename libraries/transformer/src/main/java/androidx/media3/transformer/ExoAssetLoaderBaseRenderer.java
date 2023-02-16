@@ -47,7 +47,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final AssetLoader.Listener assetLoaderListener;
   private final DecoderInputBuffer decoderInputBuffer;
 
-  private boolean isTransformationRunning;
+  private boolean isRunning;
   private long streamStartPositionUs;
 
   public ExoAssetLoaderBaseRenderer(
@@ -92,7 +92,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
     try {
-      if (!isTransformationRunning || isEnded() || !ensureConfigured()) {
+      if (!isRunning || isEnded() || !ensureConfigured()) {
         return;
       }
 
@@ -102,7 +102,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         while (feedConsumerFromInput()) {}
       }
     } catch (ExportException e) {
-      isTransformationRunning = false;
+      isRunning = false;
       assetLoaderListener.onError(e);
     }
   }
@@ -120,12 +120,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onStarted() {
-    isTransformationRunning = true;
+    isRunning = true;
   }
 
   @Override
   protected void onStopped() {
-    isTransformationRunning = false;
+    isRunning = false;
   }
 
   @Override

@@ -45,7 +45,7 @@ import org.json.JSONObject;
 public class TransformerAndroidTestRunner {
   private static final String TAG = "TransformerAndroidTest";
 
-  /** The default transformation timeout value. */
+  /** The default export timeout value. */
   public static final int DEFAULT_TIMEOUT_SECONDS = 120;
 
   /** A {@link Builder} for {@link TransformerAndroidTestRunner} instances. */
@@ -61,7 +61,7 @@ public class TransformerAndroidTestRunner {
      * Creates a {@link Builder}.
      *
      * @param context The {@link Context}.
-     * @param transformer The {@link Transformer} that performs the transformation.
+     * @param transformer The {@link Transformer} that performs the export.
      */
     public Builder(Context context, Transformer transformer) {
       this.context = context;
@@ -70,7 +70,7 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets the timeout in seconds for a single transformation. An exception is thrown when this is
+     * Sets the timeout in seconds for a single export. An exception is thrown when this is
      * exceeded.
      *
      * <p>The default value is {@link #DEFAULT_TIMEOUT_SECONDS}.
@@ -85,7 +85,7 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets whether to calculate the SSIM of the transformation output compared to the input, if
+     * Sets whether to calculate the SSIM of the exported output compared to the input, if
      * supported. Calculating SSIM is not supported if the input and output video dimensions don't
      * match, or if the input video is trimmed.
      *
@@ -104,8 +104,8 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets whether to suppress failures that occurs as a result of post-transformation analysis,
-     * such as SSIM calculation.
+     * Sets whether to suppress failures that occurs as a result of post-export analysis, such as
+     * SSIM calculation.
      *
      * <p>Regardless of this value, analysis exceptions are attached to the analysis file.
      *
@@ -124,13 +124,13 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets a {@link Map} of transformer input values, which are propagated to the transformation
-     * summary JSON file.
+     * Sets a {@link Map} of transformer input values, which are propagated to the export summary
+     * JSON file.
      *
      * <p>Values in the map should be convertible according to {@link JSONObject#wrap(Object)} to be
      * recorded properly in the summary file.
      *
-     * @param inputValues A {@link Map} of values to be written to the transformation summary.
+     * @param inputValues A {@link Map} of values to be written to the export summary.
      * @return This {@link Builder}.
      */
     @CanIgnoreReturnValue
@@ -337,7 +337,7 @@ public class TransformerAndroidTestRunner {
           .build();
     }
 
-    // No exceptions raised, transformation has succeeded.
+    // No exceptions raised, export has succeeded.
     ExportTestResult.Builder testResultBuilder =
         new ExportTestResult.Builder(
                 checkNotNull(exportResultReference.get())

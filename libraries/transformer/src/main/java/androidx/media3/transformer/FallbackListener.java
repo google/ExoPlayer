@@ -41,7 +41,7 @@ import androidx.media3.common.util.Util;
   /**
    * Creates a new instance.
    *
-   * @param composition The {@link Composition} to transform.
+   * @param composition The {@link Composition} to export.
    * @param transformerListeners The {@linkplain Transformer.Listener listeners} to call {@link
    *     Transformer.Listener#onFallbackApplied} on.
    * @param transformerListenerHandler The {@link HandlerWrapper} to call {@link
