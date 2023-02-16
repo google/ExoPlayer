@@ -262,7 +262,7 @@ public final class ExportException extends Exception {
    */
   public static ExportException createForAudioProcessing(Throwable cause, AudioFormat audioFormat) {
     return new ExportException(
-        "Audio processing error, audio_format = " + audioFormat,
+        "Audio processing error, audio_format=" + audioFormat,
         cause,
         ERROR_CODE_AUDIO_PROCESSING_FAILED);
   }
