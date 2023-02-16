@@ -119,7 +119,8 @@ public class ExoPlayerAssetLoaderTest {
     Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/mp4/sample.mp4")).build();
-    return new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock)
+    return new ExoPlayerAssetLoader.Factory(
+            context, decoderFactory, /* forceInterpretHdrAsSdr= */ false, clock)
         .createAssetLoader(editedMediaItem, looper, listener);
   }
 

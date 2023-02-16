@@ -437,7 +437,12 @@ public final class Transformer {
       }
       if (assetLoaderFactory == null) {
         assetLoaderFactory =
-            new DefaultAssetLoaderFactory(context, new DefaultDecoderFactory(context), clock);
+            new DefaultAssetLoaderFactory(
+                context,
+                new DefaultDecoderFactory(context),
+                /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
+                    == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
+                clock);
       }
       return new Transformer(
           context,

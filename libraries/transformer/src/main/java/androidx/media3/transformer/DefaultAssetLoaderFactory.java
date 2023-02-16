@@ -34,6 +34,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
 
   private final Context context;
   private final Codec.DecoderFactory decoderFactory;
+  private final boolean forceInterpretHdrAsSdr;
   private final Clock clock;
   private final MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
 
@@ -45,13 +46,19 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * @param context The {@link Context}.
    * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
    *     necessary).
+   * @param forceInterpretHdrAsSdr Whether to apply {@link
+   *     TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
    * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
    *     testing.
    */
   public DefaultAssetLoaderFactory(
-      Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
+      Context context,
+      Codec.DecoderFactory decoderFactory,
+      boolean forceInterpretHdrAsSdr,
+      Clock clock) {
     this.context = context;
     this.decoderFactory = decoderFactory;
+    this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     this.clock = clock;
     this.mediaSourceFactory = null;
   }
@@ -62,6 +69,8 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * @param context The {@link Context}.
    * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
    *     necessary).
+   * @param forceInterpretHdrAsSdr Whether to apply {@link
+   *     TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
    * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
    *     testing.
    * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
@@ -70,10 +79,12 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   public DefaultAssetLoaderFactory(
       Context context,
       Codec.DecoderFactory decoderFactory,
+      boolean forceInterpretHdrAsSdr,
       Clock clock,
       MediaSource.Factory mediaSourceFactory) {
     this.context = context;
     this.decoderFactory = decoderFactory;
+    this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     this.clock = clock;
     this.mediaSourceFactory = mediaSourceFactory;
   }
@@ -91,8 +102,10 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     if (exoPlayerAssetLoaderFactory == null) {
       exoPlayerAssetLoaderFactory =
           mediaSourceFactory != null
-              ? new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory)
-              : new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock);
+              ? new ExoPlayerAssetLoader.Factory(
+                  context, decoderFactory, forceInterpretHdrAsSdr, clock, mediaSourceFactory)
+              : new ExoPlayerAssetLoader.Factory(
+                  context, decoderFactory, forceInterpretHdrAsSdr, clock);
     }
     return exoPlayerAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
   }

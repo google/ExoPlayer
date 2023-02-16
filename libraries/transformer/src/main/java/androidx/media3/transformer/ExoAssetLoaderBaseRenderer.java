@@ -135,6 +135,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
+  /** Overrides the {@code inputFormat}. */
+  protected Format overrideFormat(Format inputFormat) throws ExportException {
+    return inputFormat;
+  }
+
   /** Called when the {@link Format} of the samples fed to the renderer is known. */
   protected void onInputFormatRead(Format inputFormat) {}
 
@@ -176,7 +181,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    Format inputFormat = checkNotNull(formatHolder.format);
+    Format inputFormat = overrideFormat(checkNotNull(formatHolder.format));
     @AssetLoader.SupportedOutputTypes
     int supportedOutputTypes = SUPPORTED_OUTPUT_TYPE_ENCODED | SUPPORTED_OUTPUT_TYPE_DECODED;
     sampleConsumer =
