@@ -141,6 +141,14 @@ public final class Transformer {
      * Listener#onFallbackApplied(Composition, TransformationRequest, TransformationRequest)} will
      * be invoked with the actual applied values.
      *
+     * <p>If {@link TransformationRequest#hdrMode} is set to {@link
+     * TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR} and an {@link
+     * #setAssetLoaderFactory AssetLoader.Factory} is set, {@link TransformationRequest#hdrMode}
+     * will be ignored. In this case, if the {@link AssetLoader.Factory} passed produces HDR data,
+     * it will be automatically {@linkplain
+     * TransformationRequest#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC tone mapped to SDR using
+     * MediaCodec}.
+     *
      * @param transformationRequest The {@link TransformationRequest}.
      * @return This builder.
      */
