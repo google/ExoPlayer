@@ -118,11 +118,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private static boolean deviceNeedsNoToneMappingWorkaround() {
-    // Pixel build ID prefix does not support tone mapping. See http://b/249297370#comment8.
-    return Util.MANUFACTURER.equals("Google")
-        && (
-        /* Pixel 6 */ Build.ID.startsWith("TP1A")
-            || Build.ID.startsWith(/* Pixel Watch */ "rwd9.220429.053"));
+    // Some Pixel 6 builds report support for tone mapping but the feature doesn't work
+    // (see http://b/249297370#comment8).
+    return Util.MANUFACTURER.equals("Google") && Build.ID.startsWith("TP1A");
   }
 
   @RequiresNonNull("#1.sampleMimeType")
