@@ -26,18 +26,29 @@ import com.google.android.exoplayer2.testutil.DecodeOneFrameUtil;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import java.io.IOException;
 
-/** Utilities for reading color info from a file. */
-public class FileUtil {
-  public static void assertFileHasColorTransfer(
-      @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) throws Exception {
+/** Utilities for accessing details of media files. */
+/* package */ class FileUtil {
+
+  /**
+   * Assert that the file has a certain color transfer, if supported on this device.
+   *
+   * <p>This will silently pass if under API 29, or if decoding this file is not supported on this
+   * device.
+   *
+   * @param filePath The path of the input file.
+   * @param expectedColorTransfer The expected {@link C.ColorTransfer} for the input file.
+   * @throws IOException If extractor or codec creation fails.
+   */
+  public static void maybeAssertFileHasColorTransfer(
+      @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) throws IOException {
     if (Util.SDK_INT < 29) {
       // Skipping on this API version due to lack of support for MediaFormat#getInteger, which is
       // required for MediaFormatUtil#getColorInfo.
       return;
     }
-    DecodeOneFrameUtil.decodeOneCacheFileFrame(
-        checkNotNull(filePath),
+    DecodeOneFrameUtil.Listener listener =
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
@@ -50,8 +61,19 @@ public class FileUtil {
             @Nullable ColorInfo decodedColorInfo = MediaFormatUtil.getColorInfo(mediaFormat);
             assertColorInfoHasTransfer(decodedColorInfo, expectedColorTransfer);
           }
-        },
-        /* surface= */ null);
+        };
+
+    try {
+      DecodeOneFrameUtil.decodeOneCacheFileFrame(
+          checkNotNull(filePath), listener, /* surface= */ null);
+    } catch (UnsupportedOperationException e) {
+      if (e.getMessage() != null
+          && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
+        return;
+      } else {
+        throw e;
+      }
+    }
   }
 
   private static void assertColorInfoHasTransfer(

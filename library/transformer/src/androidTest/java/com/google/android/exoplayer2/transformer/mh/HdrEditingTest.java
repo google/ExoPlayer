@@ -19,7 +19,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.mh.FileUtil.assertFileHasColorTransfer;
+import static com.google.android.exoplayer2.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
@@ -82,7 +82,7 @@ public class HdrEditingTest {
               .build()
               .run(testId, mediaItem);
       Log.i(TAG, "Exported.");
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
     } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -107,7 +107,7 @@ public class HdrEditingTest {
               .build()
               .run(testId, mediaItem);
       Log.i(TAG, "Exported.");
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
     } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -139,7 +139,7 @@ public class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, editedMediaItem);
-    assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
+    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
   }
 
   @Test
@@ -163,7 +163,7 @@ public class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, editedMediaItem);
-    assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
+    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
   }
 
   @Test
@@ -210,7 +210,7 @@ public class HdrEditingTest {
               .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -264,7 +264,7 @@ public class HdrEditingTest {
               .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);

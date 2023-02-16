@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -65,9 +66,10 @@ public final class DecodeOneFrameUtil {
    * @param listener A {@link Listener} implementation.
    * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
    *     frame is not needed.
+   * @throws IOException If extractor or codec creation fails.
    */
   public static void decodeOneCacheFileFrame(
-      String cacheFilePath, Listener listener, @Nullable Surface surface) throws Exception {
+      String cacheFilePath, Listener listener, @Nullable Surface surface) throws IOException {
     MediaExtractor mediaExtractor = new MediaExtractor();
     try {
       mediaExtractor.setDataSource(cacheFilePath);
@@ -107,10 +109,12 @@ public final class DecodeOneFrameUtil {
    * @param listener A {@link Listener} implementation.
    * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
    *     frame is not needed.
+   * @throws IOException If codec creation fails.
+   * @throws UnsupportedOperationException If no decoder supports this file's MediaFormat.
    */
   private static void decodeOneFrame(
       MediaExtractor mediaExtractor, Listener listener, @Nullable Surface surface)
-      throws Exception {
+      throws IOException {
     // Set up the extractor to read the first video frame and get its format.
     if (surface == null) {
       // Creates a placeholder surface.
