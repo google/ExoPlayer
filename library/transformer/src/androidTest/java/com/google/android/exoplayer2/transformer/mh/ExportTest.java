@@ -46,13 +46,13 @@ import org.junit.runner.RunWith;
 
 /** {@link Transformer} instrumentation tests. */
 @RunWith(AndroidJUnit4.class)
-public class TransformationTest {
+public class ExportTest {
 
-  private static final String TAG = "TransformationTest";
+  private static final String TAG = "ExportTest";
 
   @Test
-  public void transform() throws Exception {
-    String testId = TAG + "_transform";
+  public void export() throws Exception {
+    String testId = TAG + "_export";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -67,8 +67,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformWithoutDecodeEncode() throws Exception {
-    String testId = TAG + "_transformWithoutDecodeEncode";
+  public void exportWithoutDecodeEncode() throws Exception {
+    String testId = TAG + "_exportWithoutDecodeEncode";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
@@ -78,8 +78,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformToSpecificBitrate() throws Exception {
-    String testId = TAG + "_transformToSpecificBitrate";
+  public void exportToSpecificBitrate() throws Exception {
+    String testId = TAG + "_exportToSpecificBitrate";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -101,8 +101,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transform4K60() throws Exception {
-    String testId = TAG + "_transform4K60";
+  public void export4K60() throws Exception {
+    String testId = TAG + "_export4K60";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
@@ -126,8 +126,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transform8K24() throws Exception {
-    String testId = TAG + "_transform8K24";
+  public void export8K24() throws Exception {
+    String testId = TAG + "_export8K24";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
@@ -147,8 +147,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformNoAudio() throws Exception {
-    String testId = TAG + "_transformNoAudio";
+  public void exportNoAudio() throws Exception {
+    String testId = TAG + "_exportNoAudio";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -165,8 +165,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformNoVideo() throws Exception {
-    String testId = TAG + "_transformNoVideo";
+  public void exportNoVideo() throws Exception {
+    String testId = TAG + "_exportNoVideo";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -182,8 +182,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformSef() throws Exception {
-    String testId = TAG + "_transformSef";
+  public void exportSef() throws Exception {
+    String testId = TAG + "_exportSef";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (Util.SDK_INT < 25) {
@@ -203,8 +203,8 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformFrameRotation() throws Exception {
-    String testId = TAG + "_transformFrameRotation";
+  public void exportFrameRotation() throws Exception {
+    String testId = TAG + "_exportFrameRotation";
     Context context = ApplicationProvider.getApplicationContext();
 
     Transformer transformer = new Transformer.Builder(context).build();
