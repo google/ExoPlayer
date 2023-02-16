@@ -30,8 +30,8 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Effects;
+import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
-import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
@@ -84,11 +84,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
               .run(testId, mediaItem);
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -126,11 +126,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
               .run(testId, mediaItem);
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -173,11 +173,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
               .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
@@ -220,11 +220,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
               .run(testId, editedMediaItem);
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
+    } catch (ExportException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 }

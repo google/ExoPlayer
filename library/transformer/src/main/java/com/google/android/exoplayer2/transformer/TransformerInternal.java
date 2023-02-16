@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
-import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_FAILED_RUNTIME_CHECK;
-import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_MUXING_FAILED;
+import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -57,7 +57,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     void onCompleted(ExportResult exportResult);
 
-    void onError(ExportResult exportResult, TransformationException exception);
+    void onError(ExportResult exportResult, ExportException exportException);
   }
 
   /**
@@ -170,8 +170,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     internalHandler
-        .obtainMessage(
-            MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* transformationException */ null)
+        .obtainMessage(MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* exportException */ null)
         .sendToTarget();
     clock.onThreadBlocked();
     transformerConditionVariable.blockUninterruptible();
@@ -201,9 +200,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           drainPipelinesInternal();
           break;
         case MSG_END:
-          endInternal(
-              /* endReason= */ msg.arg1,
-              /* transformationException= */ (TransformationException) msg.obj);
+          endInternal(/* endReason= */ msg.arg1, /* exportException= */ (ExportException) msg.obj);
           break;
         case MSG_UPDATE_PROGRESS:
           updateProgressInternal(/* progressHolder= */ (ProgressHolder) msg.obj);
@@ -211,10 +208,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         default:
           return false;
       }
-    } catch (TransformationException e) {
+    } catch (ExportException e) {
       endInternal(END_REASON_ERROR, e);
     } catch (RuntimeException e) {
-      endInternal(END_REASON_ERROR, TransformationException.createForUnexpected(e));
+      endInternal(END_REASON_ERROR, ExportException.createForUnexpected(e));
     }
     return true;
   }
@@ -231,7 +228,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void drainPipelinesInternal() throws TransformationException {
+  private void drainPipelinesInternal() throws ExportException {
     for (int i = 0; i < samplePipelines.size(); i++) {
       while (samplePipelines.get(i).processData()) {}
     }
@@ -241,8 +238,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void endInternal(
-      @EndReason int endReason, @Nullable TransformationException transformationException) {
+  private void endInternal(@EndReason int endReason, @Nullable ExportException exportException) {
     ImmutableList<ExportResult.ProcessedInput> processedInputs =
         compositeAssetLoader.getProcessedInputs();
     exportResultBuilder
@@ -251,7 +247,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         .setVideoEncoderName(encoderFactory.getVideoEncoderName());
 
     boolean forCancellation = endReason == END_REASON_CANCELLED;
-    @Nullable TransformationException releaseTransformationException = null;
+    @Nullable ExportException releaseExportException = null;
     if (!released) {
       released = true;
 
@@ -268,10 +264,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           }
         }
       } catch (Muxer.MuxerException e) {
-        releaseTransformationException =
-            TransformationException.createForMuxer(e, ERROR_CODE_MUXING_FAILED);
+        releaseExportException = ExportException.createForMuxer(e, ERROR_CODE_MUXING_FAILED);
       } catch (RuntimeException e) {
-        releaseTransformationException = TransformationException.createForUnexpected(e);
+        releaseExportException = ExportException.createForUnexpected(e);
         // cancelException is not reported through a listener. It is thrown in cancel(), as this
         // method is blocking.
         cancelException = e;
@@ -286,22 +281,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
 
-    TransformationException exception = transformationException;
+    ExportException exception = exportException;
     if (exception == null) {
       // We only report the exception caused by releasing the resources if there is no other
       // exception. It is more intuitive to call the error callback only once and reporting the
       // exception caused by releasing the resources can be confusing if it is a consequence of the
       // first exception.
-      exception = releaseTransformationException;
+      exception = releaseExportException;
     }
 
     if (exception != null) {
-      TransformationException finalException = exception;
+      ExportException finalException = exception;
       applicationHandler.post(
           () ->
               listener.onError(
-                  exportResultBuilder.setTransformationException(finalException).build(),
-                  finalException));
+                  exportResultBuilder.setExportException(finalException).build(), finalException));
     } else {
       applicationHandler.post(() -> listener.onCompleted(exportResultBuilder.build()));
     }
@@ -338,9 +332,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // AssetLoader.Listener and MuxerWrapper.Listener implementation.
 
     @Override
-    public void onError(TransformationException transformationException) {
+    public void onError(ExportException exportException) {
       internalHandler
-          .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, transformationException)
+          .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, exportException)
           .sendToTarget();
     }
 
@@ -355,7 +349,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onTrackCount(int trackCount) {
       if (trackCount <= 0) {
         onError(
-            TransformationException.createForAssetLoader(
+            ExportException.createForAssetLoader(
                 new IllegalStateException("AssetLoader instances must provide at least 1 track."),
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
         return;
@@ -369,7 +363,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
         long streamOffsetUs)
-        throws TransformationException {
+        throws ExportException {
       int trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
       if (!trackAdded) {
         if (generateSilentAudio) {
@@ -449,8 +443,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       exportResultBuilder.setDurationMs(durationMs).setFileSizeBytes(fileSizeBytes);
 
       internalHandler
-          .obtainMessage(
-              MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* transformationException */ null)
+          .obtainMessage(MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* exportException */ null)
           .sendToTarget();
     }
 
@@ -461,7 +454,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
         long streamOffsetUs)
-        throws TransformationException {
+        throws ExportException {
       checkState(supportedOutputTypes != 0);
       boolean isAudio = MimeTypes.isAudio(firstInputFormat.sampleMimeType);
       boolean shouldTranscode;

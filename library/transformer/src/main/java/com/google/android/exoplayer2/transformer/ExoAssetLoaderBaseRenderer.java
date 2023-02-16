@@ -101,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       } else {
         while (feedConsumerFromInput()) {}
       }
-    } catch (TransformationException e) {
+    } catch (ExportException e) {
       isTransformationRunning = false;
       assetLoaderListener.onError(e);
     }
@@ -140,7 +140,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** Initializes {@link #decoder} with an appropriate {@linkplain Codec decoder}. */
   @RequiresNonNull("sampleConsumer")
-  protected abstract void initDecoder(Format inputFormat) throws TransformationException;
+  protected abstract void initDecoder(Format inputFormat) throws ExportException;
 
   /**
    * Preprocesses an encoded {@linkplain DecoderInputBuffer input buffer} and returns whether it
@@ -159,13 +159,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to get decoded data and pass it to the sample consumer.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If an error occurs in the decoder.
+   * @throws ExportException If an error occurs in the decoder.
    */
   @RequiresNonNull("sampleConsumer")
-  protected abstract boolean feedConsumerFromDecoder() throws TransformationException;
+  protected abstract boolean feedConsumerFromDecoder() throws ExportException;
 
   @EnsuresNonNullIf(expression = "sampleConsumer", result = true)
-  private boolean ensureConfigured() throws TransformationException {
+  private boolean ensureConfigured() throws ExportException {
     if (sampleConsumer != null) {
       return true;
     }
@@ -193,9 +193,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to read input data and pass it to the decoder.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
-   * @throws TransformationException If an error occurs in the decoder.
+   * @throws ExportException If an error occurs in the decoder.
    */
-  private boolean feedDecoderFromInput() throws TransformationException {
+  private boolean feedDecoderFromInput() throws ExportException {
     Codec decoder = checkNotNull(this.decoder);
     if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
       return false;

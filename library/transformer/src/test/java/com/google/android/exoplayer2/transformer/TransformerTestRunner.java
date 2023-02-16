@@ -36,13 +36,13 @@ public final class TransformerTestRunner {
    *
    * @param transformer The {@link Transformer}.
    * @return The {@link ExportResult}.
-   * @throws TransformationException If the transformation threw an exception.
+   * @throws ExportException If the transformation threw an exception.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    * @throws IllegalStateException If the method is not called from the main thread.
    */
   public static ExportResult runLooper(Transformer transformer)
-      throws TransformationException, TimeoutException {
+      throws ExportException, TimeoutException {
     AtomicReference<@NullableType ExportResult> exportResultRef = new AtomicReference<>();
 
     transformer.addListener(
@@ -54,11 +54,9 @@ public final class TransformerTestRunner {
 
           @Override
           public void onError(
-              Composition composition,
-              ExportResult exportResult,
-              TransformationException exception) {
-            if (!Objects.equals(exportResult.transformationException, exception)) {
-              exportResult = exportResult.buildUpon().setTransformationException(exception).build();
+              Composition composition, ExportResult exportResult, ExportException exportException) {
+            if (!Objects.equals(exportResult.exportException, exportException)) {
+              exportResult = exportResult.buildUpon().setExportException(exportException).build();
             }
             exportResultRef.set(exportResult);
           }
@@ -66,8 +64,8 @@ public final class TransformerTestRunner {
     runLooperUntil(transformer.getApplicationLooper(), () -> exportResultRef.get() != null);
 
     ExportResult exportResult = checkNotNull(exportResultRef.get());
-    if (exportResult.transformationException != null) {
-      throw exportResult.transformationException;
+    if (exportResult.exportException != null) {
+      throw exportResult.exportException;
     }
 
     return exportResult;

@@ -68,7 +68,7 @@ public final class TransformationRequest {
    * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
    * guaranteed to be supported from Android T onwards.
    *
-   * <p>If not supported, {@link Transformer} throws a {@link TransformationException}.
+   * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
    */
   public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC = 1;
   /**
@@ -82,7 +82,7 @@ public final class TransformationRequest {
    * implementation, but should have much wider support and have more consistent results across
    * devices.
    *
-   * <p>If not supported, {@link Transformer} throws a {@link TransformationException}.
+   * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
    */
   public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL = 2;
   /**

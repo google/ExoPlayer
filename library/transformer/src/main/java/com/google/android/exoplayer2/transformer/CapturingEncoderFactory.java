@@ -30,14 +30,14 @@ import com.google.android.exoplayer2.Format;
   }
 
   @Override
-  public Codec createForAudioEncoding(Format format) throws TransformationException {
+  public Codec createForAudioEncoding(Format format) throws ExportException {
     Codec audioEncoder = encoderFactory.createForAudioEncoding(format);
     audioEncoderName = audioEncoder.getName();
     return audioEncoder;
   }
 
   @Override
-  public Codec createForVideoEncoding(Format format) throws TransformationException {
+  public Codec createForVideoEncoding(Format format) throws ExportException {
     Codec videoEncoder = encoderFactory.createForVideoEncoding(format);
     videoEncoderName = videoEncoder.getName();
     return videoEncoder;

@@ -65,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   @RequiresNonNull("sampleConsumer")
-  protected void initDecoder(Format inputFormat) throws TransformationException {
+  protected void initDecoder(Format inputFormat) throws ExportException {
     boolean isDecoderToneMappingRequired =
         ColorInfo.isTransferHdr(inputFormat.colorInfo)
             && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedInputColorInfo());
@@ -106,7 +106,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   @RequiresNonNull("sampleConsumer")
-  protected boolean feedConsumerFromDecoder() throws TransformationException {
+  protected boolean feedConsumerFromDecoder() throws ExportException {
     Codec decoder = checkNotNull(this.decoder);
     if (decoder.isEnded()) {
       sampleConsumer.signalEndOfVideoInput();

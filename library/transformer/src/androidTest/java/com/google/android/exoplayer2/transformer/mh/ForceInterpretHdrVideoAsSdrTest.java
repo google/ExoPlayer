@@ -28,8 +28,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
-import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
@@ -75,8 +75,8 @@ public class ForceInterpretHdrVideoAsSdrTest {
               .run(testId, mediaItem);
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
-    } catch (TransformationException exception) {
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+    } catch (ExportException exception) {
+      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }
@@ -111,8 +111,8 @@ public class ForceInterpretHdrVideoAsSdrTest {
               .run(testId, mediaItem);
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
-    } catch (TransformationException exception) {
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+    } catch (ExportException exception) {
+      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }

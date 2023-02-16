@@ -121,9 +121,9 @@ public class TransformerEndToEndTest {
             .setRemoveAudio(true)
             .build();
 
-    TransformationException exception =
+    ExportException exception =
         assertThrows(
-            TransformationException.class,
+            ExportException.class,
             () ->
                 new TransformerAndroidTestRunner.Builder(context, transformer)
                     .build()
@@ -132,8 +132,7 @@ public class TransformerEndToEndTest {
                         editedMediaItem));
 
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-    assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_ENCODER_INIT_FAILED);
+    assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_ENCODER_INIT_FAILED);
     assertThat(exception).hasMessageThat().contains("video");
   }
 
@@ -146,15 +145,15 @@ public class TransformerEndToEndTest {
     }
 
     @Override
-    public Codec createForAudioEncoding(Format format) throws TransformationException {
+    public Codec createForAudioEncoding(Format format) throws ExportException {
       return encoderFactory.createForAudioEncoding(format);
     }
 
     @Override
-    public Codec createForVideoEncoding(Format format) throws TransformationException {
-      throw TransformationException.createForCodec(
+    public Codec createForVideoEncoding(Format format) throws ExportException {
+      throw ExportException.createForCodec(
           new IllegalArgumentException(),
-          TransformationException.ERROR_CODE_ENCODER_INIT_FAILED,
+          ExportException.ERROR_CODE_ENCODER_INIT_FAILED,
           /* isVideo= */ true,
           /* isDecoder= */ false,
           format);

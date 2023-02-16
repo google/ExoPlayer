@@ -16,8 +16,8 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_IO_UNSPECIFIED;
-import static com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_UNSPECIFIED;
+import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_IO_UNSPECIFIED;
+import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_UNSPECIFIED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -99,19 +99,17 @@ public final class ImageAssetLoader implements AssetLoader {
               sampleConsumer.queueInputBitmap(
                   bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate);
               sampleConsumer.signalEndOfVideoInput();
-            } catch (TransformationException e) {
+            } catch (ExportException e) {
               listener.onError(e);
             } catch (RuntimeException e) {
-              listener.onError(
-                  TransformationException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
+              listener.onError(ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
             }
             progress = 100;
           }
 
           @Override
           public void onFailure(Throwable t) {
-            listener.onError(
-                TransformationException.createForAssetLoader(t, ERROR_CODE_IO_UNSPECIFIED));
+            listener.onError(ExportException.createForAssetLoader(t, ERROR_CODE_IO_UNSPECIFIED));
           }
         },
         MoreExecutors.directExecutor());

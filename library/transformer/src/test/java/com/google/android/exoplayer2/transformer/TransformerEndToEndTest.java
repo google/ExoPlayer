@@ -507,9 +507,8 @@ public final class TransformerEndToEndTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
 
     transformer.start(mediaItem, outputPath);
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
+    ExportException exception =
+        assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
 
     verify(mockListener1).onError(compositionArgumentCaptor.capture(), any(), eq(exception));
     Composition composition = compositionArgumentCaptor.getValue();
@@ -620,7 +619,7 @@ public final class TransformerEndToEndTest {
     transformer.start(mediaItem, outputPath);
     try {
       TransformerTestRunner.runLooper(transformer);
-    } catch (TransformationException transformationException) {
+    } catch (ExportException exportException) {
       // Ignore exception thrown.
     }
 
@@ -715,12 +714,11 @@ public final class TransformerEndToEndTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
 
     transformer.start(mediaItem, outputPath);
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
+    ExportException exception =
+        assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+        .isEqualTo(ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -735,12 +733,11 @@ public final class TransformerEndToEndTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
 
     transformer.start(mediaItem, outputPath);
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
+    ExportException exception =
+        assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+        .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -749,11 +746,10 @@ public final class TransformerEndToEndTest {
     MediaItem mediaItem = MediaItem.fromUri("asset:///non-existing-path.mp4");
 
     transformer.start(mediaItem, outputPath);
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
+    ExportException exception =
+        assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
     assertThat(exception).hasCauseThat().hasCauseThat().isInstanceOf(IOException.class);
-    assertThat(exception.errorCode).isEqualTo(TransformationException.ERROR_CODE_IO_FILE_NOT_FOUND);
+    assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_IO_FILE_NOT_FOUND);
   }
 
   @Test
@@ -822,11 +818,10 @@ public final class TransformerEndToEndTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.start(mediaItem, outputPath);
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
+    ExportException exception =
+        assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
-    assertThat(exception.errorCode).isEqualTo(TransformationException.ERROR_CODE_MUXING_FAILED);
+    assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_MUXING_FAILED);
   }
 
   @Test
@@ -857,7 +852,7 @@ public final class TransformerEndToEndTest {
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     // TODO(b/264974805): Make transformation output deterministic and check it against dump file.
-    assertThat(exportResult.transformationException).isNull();
+    assertThat(exportResult.exportException).isNull();
   }
 
   @Test
@@ -946,11 +941,10 @@ public final class TransformerEndToEndTest {
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     transformer.start(editedMediaItem, outputPath);
-    TransformationException transformationException =
-        assertThrows(
-            TransformationException.class, () -> TransformerTestRunner.runLooper(transformer));
+    ExportException exportException =
+        assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
 
-    assertThat(transformationException).hasCauseThat().isInstanceOf(IllegalStateException.class);
+    assertThat(exportException).hasCauseThat().isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -1427,7 +1421,7 @@ public final class TransformerEndToEndTest {
         if (sampleConsumerRef != null) {
           sampleConsumerRef.set(sampleConsumer);
         }
-      } catch (TransformationException e) {
+      } catch (ExportException e) {
         throw new IllegalStateException(e);
       }
     }

@@ -30,8 +30,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
-import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
@@ -91,9 +91,9 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
               .build()
               .run(testId, mediaItem);
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
-      Log.e(TAG, "Error during transformation.", exception);
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+    } catch (ExportException exception) {
+      Log.e(TAG, "Error during export.", exception);
+      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }
@@ -141,9 +141,9 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
               .build()
               .run(testId, mediaItem);
       assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (TransformationException exception) {
-      Log.e(TAG, "Error during transformation.", exception);
-      if (exception.errorCode != TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+    } catch (ExportException exception) {
+      Log.e(TAG, "Error during export.", exception);
+      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
         throw exception;
       }
     }

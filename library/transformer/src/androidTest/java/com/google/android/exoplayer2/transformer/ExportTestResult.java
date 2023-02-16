@@ -163,7 +163,7 @@ public class ExportTestResult {
             .putOpt("filePath", filePath)
             .putOpt("colorInfo", exportResult.colorInfo)
             .putOpt("videoEncoderName", exportResult.videoEncoderName)
-            .putOpt("testException", exceptionAsJsonObject(exportResult.transformationException))
+            .putOpt("testException", exceptionAsJsonObject(exportResult.exportException))
             .putOpt("analysisException", exceptionAsJsonObject(analysisException));
 
     if (!exportResult.processedInputs.isEmpty()) {

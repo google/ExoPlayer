@@ -173,7 +173,7 @@ import java.util.concurrent.atomic.AtomicLong;
       @SupportedOutputTypes int supportedOutputTypes,
       long streamStartPositionUs,
       long streamOffsetUs)
-      throws TransformationException {
+      throws ExportException {
     int trackType = MimeTypes.getTrackType(format.sampleMimeType);
     SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
@@ -201,8 +201,8 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public void onError(TransformationException exception) {
-    compositeAssetLoaderListener.onError(exception);
+  public void onError(ExportException exportException) {
+    compositeAssetLoaderListener.onError(exportException);
   }
 
   private void addCurrentProcessedInput() {

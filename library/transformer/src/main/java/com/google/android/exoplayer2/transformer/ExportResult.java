@@ -45,7 +45,7 @@ public final class ExportResult {
     private int width;
     private int videoFrameCount;
     @Nullable private String videoEncoderName;
-    @Nullable private TransformationException transformationException;
+    @Nullable private ExportException exportException;
 
     /** Creates a builder. */
     public Builder() {
@@ -204,11 +204,10 @@ public final class ExportResult {
       return this;
     }
 
-    /** Sets the {@link TransformationException} that caused the export to fail. */
+    /** Sets the {@link ExportException} that caused the export to fail. */
     @CanIgnoreReturnValue
-    public Builder setTransformationException(
-        @Nullable TransformationException transformationException) {
-      this.transformationException = transformationException;
+    public Builder setExportException(@Nullable ExportException exportException) {
+      this.exportException = exportException;
       return this;
     }
 
@@ -229,7 +228,7 @@ public final class ExportResult {
           width,
           videoFrameCount,
           videoEncoderName,
-          transformationException);
+          exportException);
     }
   }
 
@@ -294,10 +293,10 @@ public final class ExportResult {
   @Nullable public final String videoEncoderName;
 
   /**
-   * The {@link TransformationException} that caused the export to fail, or {@code null} if the
-   * export was a success.
+   * The {@link ExportException} that caused the export to fail, or {@code null} if the export was a
+   * success.
    */
-  @Nullable public final TransformationException transformationException;
+  @Nullable public final ExportException exportException;
 
   private ExportResult(
       ImmutableList<ProcessedInput> processedInputs,
@@ -314,7 +313,7 @@ public final class ExportResult {
       int width,
       int videoFrameCount,
       @Nullable String videoEncoderName,
-      @Nullable TransformationException transformationException) {
+      @Nullable ExportException exportException) {
     this.processedInputs = processedInputs;
     this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
@@ -329,7 +328,7 @@ public final class ExportResult {
     this.width = width;
     this.videoFrameCount = videoFrameCount;
     this.videoEncoderName = videoEncoderName;
-    this.transformationException = transformationException;
+    this.exportException = exportException;
   }
 
   public Builder buildUpon() {
@@ -348,7 +347,7 @@ public final class ExportResult {
         .setWidth(width)
         .setVideoFrameCount(videoFrameCount)
         .setVideoEncoderName(videoEncoderName)
-        .setTransformationException(transformationException);
+        .setExportException(exportException);
   }
 
   @Override
@@ -374,7 +373,7 @@ public final class ExportResult {
         && width == result.width
         && videoFrameCount == result.videoFrameCount
         && Objects.equals(videoEncoderName, result.videoEncoderName)
-        && Objects.equals(transformationException, result.transformationException);
+        && Objects.equals(exportException, result.exportException);
   }
 
   @Override
@@ -393,7 +392,7 @@ public final class ExportResult {
     result = 31 * result + width;
     result = 31 * result + videoFrameCount;
     result = 31 * result + Objects.hashCode(videoEncoderName);
-    result = 31 * result + Objects.hashCode(transformationException);
+    result = 31 * result + Objects.hashCode(exportException);
     return result;
   }
 }

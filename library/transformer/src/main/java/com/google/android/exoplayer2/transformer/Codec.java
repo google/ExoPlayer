@@ -40,9 +40,9 @@ public interface Codec {
      * @param format The {@link Format} (of the input data) used to determine the underlying decoder
      *     and its configuration values.
      * @return A {@link Codec} for audio decoding.
-     * @throws TransformationException If no suitable {@link Codec} can be created.
+     * @throws ExportException If no suitable {@link Codec} can be created.
      */
-    Codec createForAudioDecoding(Format format) throws TransformationException;
+    Codec createForAudioDecoding(Format format) throws ExportException;
 
     /**
      * Returns a {@link Codec} for video decoding.
@@ -52,11 +52,10 @@ public interface Codec {
      * @param outputSurface The {@link Surface} to which the decoder output is rendered.
      * @param requestSdrToneMapping Whether to request tone-mapping to SDR.
      * @return A {@link Codec} for video decoding.
-     * @throws TransformationException If no suitable {@link Codec} can be created.
+     * @throws ExportException If no suitable {@link Codec} can be created.
      */
     Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean requestSdrToneMapping)
-        throws TransformationException;
+        Format format, Surface outputSurface, boolean requestSdrToneMapping) throws ExportException;
   }
 
   /** A factory for {@linkplain Codec encoder} instances. */
@@ -74,9 +73,9 @@ public interface Codec {
      *     those of the desired output video format.
      * @return A {@link Codec} for encoding audio to the requested {@link Format#sampleMimeType MIME
      *     type}.
-     * @throws TransformationException If no suitable {@link Codec} can be created.
+     * @throws ExportException If no suitable {@link Codec} can be created.
      */
-    Codec createForAudioEncoding(Format format) throws TransformationException;
+    Codec createForAudioEncoding(Format format) throws ExportException;
 
     /**
      * Returns a {@link Codec} for video encoding.
@@ -94,9 +93,9 @@ public interface Codec {
      *     Format#height}, therefore the video is always in landscape orientation.
      * @return A {@link Codec} for encoding video to the requested {@linkplain Format#sampleMimeType
      *     MIME type}.
-     * @throws TransformationException If no suitable {@link Codec} can be created.
+     * @throws ExportException If no suitable {@link Codec} can be created.
      */
-    Codec createForVideoEncoding(Format format) throws TransformationException;
+    Codec createForVideoEncoding(Format format) throws ExportException;
 
     /** Returns whether the audio needs to be encoded because of encoder specific configuration. */
     default boolean audioNeedsEncoding() {
@@ -146,9 +145,9 @@ public interface Codec {
    * @param inputBuffer The buffer where the dequeued buffer data is stored, at {@link
    *     DecoderInputBuffer#data inputBuffer.data}.
    * @return Whether an input buffer is ready to be used.
-   * @throws TransformationException If the underlying decoder or encoder encounters a problem.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
-  boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer) throws TransformationException;
+  boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer) throws ExportException;
 
   /**
    * Queues an input buffer to the {@code Codec}. No buffers may be queued after {@linkplain
@@ -158,9 +157,9 @@ public interface Codec {
    * to receive input.
    *
    * @param inputBuffer The {@linkplain DecoderInputBuffer input buffer}.
-   * @throws TransformationException If the underlying decoder or encoder encounters a problem.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
-  void queueInputBuffer(DecoderInputBuffer inputBuffer) throws TransformationException;
+  void queueInputBuffer(DecoderInputBuffer inputBuffer) throws ExportException;
 
   /**
    * Signals end-of-stream on input to a video encoder.
@@ -170,17 +169,17 @@ public interface Codec {
    * should be set on the last input buffer {@linkplain #queueInputBuffer(DecoderInputBuffer)
    * queued}.
    *
-   * @throws TransformationException If the underlying video encoder encounters a problem.
+   * @throws ExportException If the underlying video encoder encounters a problem.
    */
-  void signalEndOfInputStream() throws TransformationException;
+  void signalEndOfInputStream() throws ExportException;
 
   /**
    * Returns the current output format, or {@code null} if unavailable.
    *
-   * @throws TransformationException If the underlying decoder or encoder encounters a problem.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
   @Nullable
-  Format getOutputFormat() throws TransformationException;
+  Format getOutputFormat() throws ExportException;
 
   /**
    * Returns the current output {@link ByteBuffer}, or {@code null} if unavailable.
@@ -188,10 +187,10 @@ public interface Codec {
    * <p>This method must not be called on video decoders because they must output to a {@link
    * Surface}.
    *
-   * @throws TransformationException If the underlying decoder or encoder encounters a problem.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
   @Nullable
-  ByteBuffer getOutputBuffer() throws TransformationException;
+  ByteBuffer getOutputBuffer() throws ExportException;
 
   /**
    * Returns the {@link BufferInfo} associated with the current output buffer, or {@code null} if
@@ -199,10 +198,10 @@ public interface Codec {
    *
    * <p>This method returns {@code null} if and only if {@link #getOutputBuffer()} returns null.
    *
-   * @throws TransformationException If the underlying decoder or encoder encounters a problem.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
   @Nullable
-  BufferInfo getOutputBufferInfo() throws TransformationException;
+  BufferInfo getOutputBufferInfo() throws ExportException;
 
   /**
    * Releases the current output buffer.
@@ -216,9 +215,9 @@ public interface Codec {
    * be available until the current output buffer has been released.
    *
    * @param render Whether the buffer needs to be rendered to the output {@link Surface}.
-   * @throws TransformationException If the underlying decoder or encoder encounters a problem.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
-  void releaseOutputBuffer(boolean render) throws TransformationException;
+  void releaseOutputBuffer(boolean render) throws ExportException;
 
   /**
    * Returns whether the {@code Codec}'s output stream has ended, and no more data can be dequeued.

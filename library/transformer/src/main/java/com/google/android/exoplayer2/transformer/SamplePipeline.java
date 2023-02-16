@@ -64,24 +64,24 @@ import java.util.List;
    * Processes the input data and returns whether it may be possible to process more data by calling
    * this method again.
    */
-  public final boolean processData() throws TransformationException {
+  public final boolean processData() throws ExportException {
     return feedMuxer() || processDataUpToMuxer();
   }
 
   /** Releases all resources held by the pipeline. */
   public abstract void release();
 
-  protected boolean processDataUpToMuxer() throws TransformationException {
+  protected boolean processDataUpToMuxer() throws ExportException {
     return false;
   }
 
   @Nullable
-  protected abstract Format getMuxerInputFormat() throws TransformationException;
+  protected abstract Format getMuxerInputFormat() throws ExportException;
 
   @Nullable
-  protected abstract DecoderInputBuffer getMuxerInputBuffer() throws TransformationException;
+  protected abstract DecoderInputBuffer getMuxerInputBuffer() throws ExportException;
 
-  protected abstract void releaseMuxerInputBuffer() throws TransformationException;
+  protected abstract void releaseMuxerInputBuffer() throws ExportException;
 
   protected abstract boolean isMuxerInputEnded();
 
@@ -89,7 +89,7 @@ import java.util.List;
    * Attempts to pass encoded data to the muxer, and returns whether it may be possible to pass more
    * data immediately by calling this method again.
    */
-  private boolean feedMuxer() throws TransformationException {
+  private boolean feedMuxer() throws ExportException {
     if (!muxerWrapperTrackAdded) {
       @Nullable Format inputFormat = getMuxerInputFormat();
       if (inputFormat == null) {
@@ -98,8 +98,7 @@ import java.util.List;
       try {
         muxerWrapper.addTrackFormat(inputFormat);
       } catch (Muxer.MuxerException e) {
-        throw TransformationException.createForMuxer(
-            e, TransformationException.ERROR_CODE_MUXING_FAILED);
+        throw ExportException.createForMuxer(e, ExportException.ERROR_CODE_MUXING_FAILED);
       }
       muxerWrapperTrackAdded = true;
     }
@@ -126,8 +125,7 @@ import java.util.List;
         return false;
       }
     } catch (Muxer.MuxerException e) {
-      throw TransformationException.createForMuxer(
-          e, TransformationException.ERROR_CODE_MUXING_FAILED);
+      throw ExportException.createForMuxer(e, ExportException.ERROR_CODE_MUXING_FAILED);
     }
 
     releaseMuxerInputBuffer();
@@ -152,10 +150,10 @@ import java.util.List;
    * @param muxerSupportedMimeTypes The list of sample {@linkplain MimeTypes MIME types} that the
    *     muxer supports.
    * @return A supported {@linkplain MimeTypes MIME type}.
-   * @throws TransformationException If there are no supported {@linkplain MimeTypes MIME types}.
+   * @throws ExportException If there are no supported {@linkplain MimeTypes MIME types}.
    */
   protected static String findSupportedMimeTypeForEncoderAndMuxer(
-      Format requestedFormat, List<String> muxerSupportedMimeTypes) throws TransformationException {
+      Format requestedFormat, List<String> muxerSupportedMimeTypes) throws ExportException {
     boolean isVideo = MimeTypes.isVideo(checkNotNull(requestedFormat.sampleMimeType));
 
     ImmutableSet.Builder<String> mimeTypesToCheckSetBuilder =
@@ -185,16 +183,16 @@ import java.util.List;
     throw createNoSupportedMimeTypeException(requestedFormat);
   }
 
-  private static TransformationException createNoSupportedMimeTypeException(Format format) {
+  private static ExportException createNoSupportedMimeTypeException(Format format) {
     String errorMessage = "No MIME type is supported by both encoder and muxer.";
-    int errorCode = TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
+    int errorCode = ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED;
     boolean isVideo = MimeTypes.isVideo(format.sampleMimeType);
 
     if (isVideo && isTransferHdr(format.colorInfo)) {
       errorMessage += " Requested HDR colorInfo: " + format.colorInfo;
     }
 
-    return TransformationException.createForCodec(
+    return ExportException.createForCodec(
         new IllegalArgumentException(errorMessage),
         errorCode,
         isVideo,

@@ -81,20 +81,20 @@ import org.checkerframework.dataflow.qual.Pure;
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
-      Consumer<TransformationException> errorConsumer,
+      Consumer<ExportException> errorConsumer,
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider)
-      throws TransformationException {
+      throws ExportException {
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
     boolean isGlToneMapping = false;
     if (isTransferHdr(firstInputFormat.colorInfo)) {
       if (transformationRequest.hdrMode == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
         if (SDK_INT < 29) {
-          throw TransformationException.createForCodec(
+          throw ExportException.createForCodec(
               new IllegalArgumentException(
                   "Interpreting HDR video as SDR is not supported on this device."),
-              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+              ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
               /* isVideo= */ true,
               /* isDecoder= */ true,
               firstInputFormat);
@@ -154,7 +154,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   try {
                     checkNotNull(videoFrameProcessor)
                         .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
-                  } catch (TransformationException exception) {
+                  } catch (ExportException exception) {
                     errorConsumer.accept(exception);
                   }
                 }
@@ -168,9 +168,8 @@ import org.checkerframework.dataflow.qual.Pure;
                 @Override
                 public void onError(VideoFrameProcessingException exception) {
                   errorConsumer.accept(
-                      TransformationException.createForVideoFrameProcessingException(
-                          exception,
-                          TransformationException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
+                      ExportException.createForVideoFrameProcessingException(
+                          exception, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
                 }
 
                 @Override
@@ -179,14 +178,14 @@ import org.checkerframework.dataflow.qual.Pure;
                       lastProcessedFramePresentationTimeUs;
                   try {
                     encoderWrapper.signalEndOfInputStream();
-                  } catch (TransformationException exception) {
+                  } catch (ExportException exception) {
                     errorConsumer.accept(exception);
                   }
                 }
               });
     } catch (VideoFrameProcessingException e) {
-      throw TransformationException.createForVideoFrameProcessingException(
-          e, TransformationException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);
+      throw ExportException.createForVideoFrameProcessingException(
+          e, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);
     }
     // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
     int decodedWidth =
@@ -249,13 +248,13 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   @Nullable
-  protected Format getMuxerInputFormat() throws TransformationException {
+  protected Format getMuxerInputFormat() throws ExportException {
     return encoderWrapper.getOutputFormat();
   }
 
   @Override
   @Nullable
-  protected DecoderInputBuffer getMuxerInputBuffer() throws TransformationException {
+  protected DecoderInputBuffer getMuxerInputBuffer() throws ExportException {
     encoderOutputBuffer.data = encoderWrapper.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
@@ -277,7 +276,7 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  protected void releaseMuxerInputBuffer() throws TransformationException {
+  protected void releaseMuxerInputBuffer() throws ExportException {
     encoderWrapper.releaseOutputBuffer(/* render= */ false);
   }
 
@@ -398,7 +397,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
     @Nullable
     public SurfaceInfo getSurfaceInfo(int requestedWidth, int requestedHeight)
-        throws TransformationException {
+        throws ExportException {
       if (releaseEncoder) {
         return null;
       }
@@ -470,14 +469,14 @@ import org.checkerframework.dataflow.qual.Pure;
       return encoderSurfaceInfo;
     }
 
-    public void signalEndOfInputStream() throws TransformationException {
+    public void signalEndOfInputStream() throws ExportException {
       if (encoder != null) {
         encoder.signalEndOfInputStream();
       }
     }
 
     @Nullable
-    public Format getOutputFormat() throws TransformationException {
+    public Format getOutputFormat() throws ExportException {
       if (encoder == null) {
         return null;
       }
@@ -489,16 +488,16 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     @Nullable
-    public ByteBuffer getOutputBuffer() throws TransformationException {
+    public ByteBuffer getOutputBuffer() throws ExportException {
       return encoder != null ? encoder.getOutputBuffer() : null;
     }
 
     @Nullable
-    public MediaCodec.BufferInfo getOutputBufferInfo() throws TransformationException {
+    public MediaCodec.BufferInfo getOutputBufferInfo() throws ExportException {
       return encoder != null ? encoder.getOutputBufferInfo() : null;
     }
 
-    public void releaseOutputBuffer(boolean render) throws TransformationException {
+    public void releaseOutputBuffer(boolean render) throws ExportException {
       if (encoder != null) {
         encoder.releaseOutputBuffer(render);
       }
