@@ -166,6 +166,7 @@ import java.util.Set;
     @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
     @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
     public final ImmutableList<CompanionAdSlot> companionAdSlots;
+    public final boolean focusSkipButtonWhenAvailable;
     public final boolean debugModeEnabled;
 
     public ServerSideAdInsertionConfiguration(
@@ -174,12 +175,14 @@ import java.util.Set;
         @Nullable AdEvent.AdEventListener applicationAdEventListener,
         @Nullable AdErrorEvent.AdErrorListener applicationAdErrorListener,
         List<CompanionAdSlot> companionAdSlots,
+        boolean focusSkipButtonWhenAvailable,
         boolean debugModeEnabled) {
       this.imaSdkSettings = imaSdkSettings;
       this.adViewProvider = adViewProvider;
       this.applicationAdEventListener = applicationAdEventListener;
       this.applicationAdErrorListener = applicationAdErrorListener;
       this.companionAdSlots = ImmutableList.copyOf(companionAdSlots);
+      this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
       this.debugModeEnabled = debugModeEnabled;
     }
   }
@@ -267,6 +270,7 @@ import java.util.Set;
   }
 
   /** Returns a human-readable representation of a video progress update. */
+  @SuppressWarnings("RestrictedApi") // VideoProgressUpdate.equals() is annotated as hidden.
   public static String getStringForVideoProgressUpdate(VideoProgressUpdate videoProgressUpdate) {
     if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
       return "not ready";

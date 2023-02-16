@@ -23,7 +23,9 @@ import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -83,17 +85,22 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.session.MediaSession.MediaItemsWithStartPosition;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 // Getting the commands from MediaControllerCompat'
 /* package */ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
@@ -114,11 +121,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final ConnectionTimeoutHandler connectionTimeoutHandler;
   private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
+  private final String appPackageName;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
-  private final Handler mainHandler;
 
   private volatile long connectionTimeoutMs;
   @Nullable private FutureCallback<Bitmap> pendingBitmapLoadCallback;
+  private int sessionFlags;
 
   public MediaSessionLegacyStub(
       MediaSessionImpl session,
@@ -127,6 +135,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       Handler handler) {
     sessionImpl = session;
     Context context = sessionImpl.getContext();
+    appPackageName = context.getPackageName();
     sessionManager = MediaSessionManager.getSessionManager(context);
     controllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
     connectionTimeoutHandler =
@@ -153,13 +162,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       sessionCompat.setSessionActivity(sessionActivity);
     }
 
-    sessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
-
     @SuppressWarnings("nullness:assignment")
     @Initialized
     MediaSessionLegacyStub thisRef = this;
     sessionCompat.setCallback(thisRef, handler);
-    mainHandler = new Handler(Looper.getMainLooper());
   }
 
   /** Starts to receive commands. */
@@ -220,7 +226,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     switch (keyCode) {
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
       case KeyEvent.KEYCODE_HEADSETHOOK:
-        if (keyEvent.getRepeatCount() == 0) {
+        // Double tap detection only for media button events from external sources (for instance
+        // Bluetooth). Media button events from the app package are coming from the notification
+        // below targetApiLevel 33.
+        if (!appPackageName.equals(remoteUserInfo.getPackageName())
+            && keyEvent.getRepeatCount() == 0) {
           if (mediaPlayPauseKeyHandler.hasPendingMediaPlayPauseKey()) {
             mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
             onSkipToNext();
@@ -243,6 +253,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return false;
   }
 
+  private void maybeUpdateFlags(PlayerWrapper playerWrapper) {
+    int newFlags =
+        playerWrapper.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)
+            ? MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
+            : 0;
+    if (sessionFlags != newFlags) {
+      sessionFlags = newFlags;
+      sessionCompat.setFlags(sessionFlags);
+    }
+  }
+
   private void handleMediaPlayPauseOnHandler(RemoteUserInfo remoteUserInfo) {
     mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
     dispatchSessionTaskWithPlayerCommand(
@@ -254,10 +275,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
               || playbackState == STATE_ENDED
               || playbackState == STATE_IDLE) {
             if (playbackState == STATE_IDLE) {
-              playerWrapper.prepare();
+              playerWrapper.prepareIfCommandAvailable();
             } else if (playbackState == STATE_ENDED) {
-              playerWrapper.seekTo(
-                  playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+              playerWrapper.seekToDefaultPositionIfCommandAvailable();
             }
             playerWrapper.play();
           } else {
@@ -306,12 +326,13 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
           @Player.State int playbackState = playerWrapper.getPlaybackState();
           if (playbackState == Player.STATE_IDLE) {
-            playerWrapper.prepare();
+            playerWrapper.prepareIfCommandAvailable();
           } else if (playbackState == Player.STATE_ENDED) {
-            playerWrapper.seekTo(
-                playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+            playerWrapper.seekToDefaultPositionIfCommandAvailable();
           }
-          playerWrapper.play();
+          if (sessionImpl.onPlayRequested()) {
+            playerWrapper.play();
+          }
         },
         sessionCompat.getCurrentControllerInfo());
   }
@@ -365,18 +386,32 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Override
   public void onSkipToNext() {
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_NEXT,
-        controller -> sessionImpl.getPlayerWrapper().seekToNext(),
-        sessionCompat.getCurrentControllerInfo());
+    if (sessionImpl.getPlayerWrapper().isCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_NEXT,
+          controller -> sessionImpl.getPlayerWrapper().seekToNext(),
+          sessionCompat.getCurrentControllerInfo());
+    } else {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+          controller -> sessionImpl.getPlayerWrapper().seekToNextMediaItem(),
+          sessionCompat.getCurrentControllerInfo());
+    }
   }
 
   @Override
   public void onSkipToPrevious() {
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_PREVIOUS,
-        controller -> sessionImpl.getPlayerWrapper().seekToPrevious(),
-        sessionCompat.getCurrentControllerInfo());
+    if (sessionImpl.getPlayerWrapper().isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_PREVIOUS,
+          controller -> sessionImpl.getPlayerWrapper().seekToPrevious(),
+          sessionCompat.getCurrentControllerInfo());
+    } else {
+      dispatchSessionTaskWithPlayerCommand(
+          COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+          controller -> sessionImpl.getPlayerWrapper().seekToPreviousMediaItem(),
+          sessionCompat.getCurrentControllerInfo());
+    }
   }
 
   @Override
@@ -394,7 +429,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         controller -> {
           PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
           // Use queueId as an index as we've published {@link QueueItem} as so.
-          // see: {@link MediaUtils#convertToQueueItemList}.
+          // see: {@link MediaUtils#convertToQueueItem}.
           playerWrapper.seekToDefaultPosition((int) queueId);
         },
         sessionCompat.getCurrentControllerInfo());
@@ -431,7 +466,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     dispatchSessionTaskWithSessionCommand(
         SessionCommand.COMMAND_CODE_SESSION_SET_RATING,
         controller -> {
-          @Nullable MediaItem currentItem = sessionImpl.getPlayerWrapper().getCurrentMediaItem();
+          @Nullable
+          MediaItem currentItem =
+              sessionImpl.getPlayerWrapper().getCurrentMediaItemWithCommandCheck();
           if (currentItem == null) {
             return;
           }
@@ -490,12 +527,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             Log.w(TAG, "onRemoveQueueItem(): Media ID shouldn't be null");
             return;
           }
-          Timeline timeline = sessionImpl.getPlayerWrapper().getCurrentTimeline();
+          PlayerWrapper player = sessionImpl.getPlayerWrapper();
+          if (!player.isCommandAvailable(Player.COMMAND_GET_TIMELINE)) {
+            Log.w(TAG, "Can't remove item by id without availabe COMMAND_GET_TIMELINE");
+            return;
+          }
+          Timeline timeline = player.getCurrentTimeline();
           Timeline.Window window = new Timeline.Window();
           for (int i = 0; i < timeline.getWindowCount(); i++) {
             MediaItem mediaItem = timeline.getWindow(i, window).mediaItem;
             if (TextUtils.equals(mediaItem.mediaId, mediaId)) {
-              sessionImpl.getPlayerWrapper().removeMediaItem(i);
+              player.removeMediaItem(i);
               return;
             }
           }
@@ -686,26 +728,28 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_SET_MEDIA_ITEM,
         controller -> {
-          ListenableFuture<List<MediaItem>> mediaItemsFuture =
-              sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem));
+          ListenableFuture<MediaItemsWithStartPosition> mediaItemsFuture =
+              sessionImpl.onSetMediaItemsOnHandler(
+                  controller, ImmutableList.of(mediaItem), C.INDEX_UNSET, C.TIME_UNSET);
           Futures.addCallback(
               mediaItemsFuture,
-              new FutureCallback<List<MediaItem>>() {
+              new FutureCallback<MediaItemsWithStartPosition>() {
                 @Override
-                public void onSuccess(List<MediaItem> mediaItems) {
+                public void onSuccess(MediaItemsWithStartPosition mediaItemsWithStartPosition) {
                   postOrRun(
                       sessionImpl.getApplicationHandler(),
                       () -> {
-                        Player player = sessionImpl.getPlayerWrapper();
-                        player.setMediaItems(mediaItems);
+                        PlayerWrapper player = sessionImpl.getPlayerWrapper();
+                        MediaUtils.setMediaItemsWithStartIndexAndPosition(
+                            player, mediaItemsWithStartPosition);
                         @Player.State int playbackState = player.getPlaybackState();
                         if (playbackState == Player.STATE_IDLE) {
-                          player.prepare();
+                          player.prepareIfCommandAvailable();
                         } else if (playbackState == Player.STATE_ENDED) {
-                          player.seekTo(/* positionMs= */ C.TIME_UNSET);
+                          player.seekToDefaultPositionIfCommandAvailable();
                         }
                         if (play) {
-                          player.play();
+                          player.playIfCommandAvailable();
                         }
                       });
                 }
@@ -849,12 +893,22 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private final class ControllerLegacyCbForBroadcast implements ControllerCb {
 
-    @Nullable private MediaItem currentMediaItemForMetadataUpdate;
-
-    private long durationMsForMetadataUpdate;
+    private MediaMetadata lastMediaMetadata;
+    private String lastMediaId;
+    @Nullable private Uri lastMediaUri;
+    private long lastDurationMs;
 
     public ControllerLegacyCbForBroadcast() {
-      durationMsForMetadataUpdate = C.TIME_UNSET;
+      lastMediaMetadata = MediaMetadata.EMPTY;
+      lastMediaId = MediaItem.DEFAULT_MEDIA_ID;
+      lastDurationMs = C.TIME_UNSET;
+    }
+
+    @Override
+    public void onAvailableCommandsChangedFromPlayer(int seq, Player.Commands availableCommands) {
+      PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+      maybeUpdateFlags(playerWrapper);
+      sessionImpl.getSessionCompat().setPlaybackState(playerWrapper.createPlaybackStateCompat());
     }
 
     @Override
@@ -868,19 +922,21 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         throws RemoteException {
       // Tells the playlist change first, so current media item index change notification
       // can point to the valid current media item in the playlist.
-      Timeline newTimeline = newPlayerWrapper.getCurrentTimeline();
+      Timeline newTimeline = newPlayerWrapper.getCurrentTimelineWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getCurrentTimeline(), newTimeline)) {
+          || !Util.areEqual(oldPlayerWrapper.getCurrentTimelineWithCommandCheck(), newTimeline)) {
         onTimelineChanged(seq, newTimeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
       }
-      MediaMetadata newPlaylistMetadata = newPlayerWrapper.getPlaylistMetadata();
+      MediaMetadata newPlaylistMetadata = newPlayerWrapper.getPlaylistMetadataWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getPlaylistMetadata(), newPlaylistMetadata)) {
+          || !Util.areEqual(
+              oldPlayerWrapper.getPlaylistMetadataWithCommandCheck(), newPlaylistMetadata)) {
         onPlaylistMetadataChanged(seq, newPlaylistMetadata);
       }
-      MediaMetadata newMediaMetadata = newPlayerWrapper.getMediaMetadata();
+      MediaMetadata newMediaMetadata = newPlayerWrapper.getMediaMetadataWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getMediaMetadata(), newMediaMetadata)) {
+          || !Util.areEqual(
+              oldPlayerWrapper.getMediaMetadataWithCommandCheck(), newMediaMetadata)) {
         onMediaMetadataChanged(seq, newMediaMetadata);
       }
       if (oldPlayerWrapper == null
@@ -897,9 +953,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       onDeviceInfoChanged(seq, newPlayerWrapper.getDeviceInfo());
 
       // Rest of changes are all notified via PlaybackStateCompat.
-      @Nullable MediaItem newMediaItem = newPlayerWrapper.getCurrentMediaItem();
+      maybeUpdateFlags(newPlayerWrapper);
+      @Nullable MediaItem newMediaItem = newPlayerWrapper.getCurrentMediaItemWithCommandCheck();
       if (oldPlayerWrapper == null
-          || !Util.areEqual(oldPlayerWrapper.getCurrentMediaItem(), newMediaItem)) {
+          || !Util.areEqual(oldPlayerWrapper.getCurrentMediaItemWithCommandCheck(), newMediaItem)) {
         // Note: This will update both PlaybackStateCompat and metadata.
         onMediaItemTransition(
             seq, newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
@@ -991,6 +1048,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     public void onMediaItemTransition(
         int seq, @Nullable MediaItem mediaItem, @Player.MediaItemTransitionReason int reason)
         throws RemoteException {
+      // MediaMetadataCompat needs to be updated when the media ID or URI of the media item changes.
       updateMetadataIfChanged();
       if (mediaItem == null) {
         sessionCompat.setRatingType(RatingCompat.RATING_NONE);
@@ -1004,6 +1062,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     @Override
+    public void onMediaMetadataChanged(int seq, MediaMetadata mediaMetadata) {
+      updateMetadataIfChanged();
+    }
+
+    @Override
     public void onTimelineChanged(
         int seq, Timeline timeline, @Player.TimelineChangeReason int reason)
         throws RemoteException {
@@ -1011,8 +1074,58 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         setQueue(sessionCompat, null);
         return;
       }
+
+      updateQueue(timeline);
+      // Duration might be unknown at onMediaItemTransition and become available afterward.
+      updateMetadataIfChanged();
+    }
+
+    private void updateQueue(Timeline timeline) {
       List<MediaItem> mediaItemList = MediaUtils.convertToMediaItemList(timeline);
-      List<QueueItem> queueItemList = MediaUtils.convertToQueueItemList(mediaItemList);
+      List<@NullableType ListenableFuture<Bitmap>> bitmapFutures = new ArrayList<>();
+      final AtomicInteger resultCount = new AtomicInteger(0);
+      Runnable handleBitmapFuturesTask =
+          () -> {
+            int completedBitmapFutureCount = resultCount.incrementAndGet();
+            if (completedBitmapFutureCount == mediaItemList.size()) {
+              handleBitmapFuturesAllCompletedAndSetQueue(bitmapFutures, timeline, mediaItemList);
+            }
+          };
+
+      for (int i = 0; i < mediaItemList.size(); i++) {
+        MediaItem mediaItem = mediaItemList.get(i);
+        MediaMetadata metadata = mediaItem.mediaMetadata;
+        if (metadata.artworkData == null) {
+          bitmapFutures.add(null);
+          handleBitmapFuturesTask.run();
+        } else {
+          ListenableFuture<Bitmap> bitmapFuture =
+              sessionImpl.getBitmapLoader().decodeBitmap(metadata.artworkData);
+          bitmapFutures.add(bitmapFuture);
+          bitmapFuture.addListener(
+              handleBitmapFuturesTask, sessionImpl.getApplicationHandler()::post);
+        }
+      }
+    }
+
+    private void handleBitmapFuturesAllCompletedAndSetQueue(
+        List<@NullableType ListenableFuture<Bitmap>> bitmapFutures,
+        Timeline timeline,
+        List<MediaItem> mediaItems) {
+      List<QueueItem> queueItemList = new ArrayList<>();
+      for (int i = 0; i < bitmapFutures.size(); i++) {
+        @Nullable ListenableFuture<Bitmap> future = bitmapFutures.get(i);
+        @Nullable Bitmap bitmap = null;
+        if (future != null) {
+          try {
+            bitmap = Futures.getDone(future);
+          } catch (CancellationException | ExecutionException e) {
+            Log.d(TAG, "Failed to get bitmap");
+          }
+        }
+        queueItemList.add(MediaUtils.convertToQueueItem(mediaItems.get(i), i, bitmap));
+      }
+
       if (Util.SDK_INT < 21) {
         // In order to avoid TransactionTooLargeException for below API 21, we need to
         // cut the list so that it doesn't exceed the binder transaction limit.
@@ -1029,9 +1142,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         // which means we can safely send long lists.
         sessionCompat.setQueue(queueItemList);
       }
-
-      // Duration might be unknown at onMediaItemTransition and become available afterward.
-      updateMetadataIfChanged();
     }
 
     @Override
@@ -1075,7 +1185,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       PlayerWrapper player = sessionImpl.getPlayerWrapper();
       volumeProviderCompat = player.createVolumeProviderCompat();
       if (volumeProviderCompat == null) {
-        int streamType = MediaUtils.getLegacyStreamType(player.getAudioAttributes());
+        int streamType =
+            MediaUtils.getLegacyStreamType(player.getAudioAttributesWithCommandCheck());
         sessionCompat.setPlaybackToLocal(streamType);
       } else {
         sessionCompat.setPlaybackToRemote(volumeProviderCompat);
@@ -1091,28 +1202,40 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPeriodicSessionPositionInfoChanged(
-        int unusedSeq, SessionPositionInfo unusedSessionPositionInfo) throws RemoteException {
+        int unusedSeq,
+        SessionPositionInfo unusedSessionPositionInfo,
+        boolean unusedCanAccessCurrentMediaItem,
+        boolean unusedCanAccessTimeline)
+        throws RemoteException {
       sessionImpl
           .getSessionCompat()
           .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
     }
 
-    @Override
-    public void onMediaMetadataChanged(int seq, MediaMetadata mediaMetadata) {
-      // Metadata change will be notified by onMediaItemTransition.
-    }
-
     private void updateMetadataIfChanged() {
-      @Nullable MediaItem currentMediaItem = sessionImpl.getPlayerWrapper().getCurrentMediaItem();
-      long durationMs = sessionImpl.getPlayerWrapper().getDuration();
+      PlayerWrapper player = sessionImpl.getPlayerWrapper();
+      @Nullable MediaItem currentMediaItem = player.getCurrentMediaItemWithCommandCheck();
+      MediaMetadata newMediaMetadata = player.getMediaMetadataWithCommandCheck();
+      long newDurationMs = player.getDurationWithCommandCheck();
+      String newMediaId =
+          currentMediaItem != null ? currentMediaItem.mediaId : MediaItem.DEFAULT_MEDIA_ID;
+      @Nullable
+      Uri newMediaUri =
+          currentMediaItem != null && currentMediaItem.localConfiguration != null
+              ? currentMediaItem.localConfiguration.uri
+              : null;
 
-      if (ObjectsCompat.equals(currentMediaItemForMetadataUpdate, currentMediaItem)
-          && durationMsForMetadataUpdate == durationMs) {
+      if (Objects.equals(lastMediaMetadata, newMediaMetadata)
+          && Objects.equals(lastMediaId, newMediaId)
+          && Objects.equals(lastMediaUri, newMediaUri)
+          && lastDurationMs == newDurationMs) {
         return;
       }
 
-      currentMediaItemForMetadataUpdate = currentMediaItem;
-      durationMsForMetadataUpdate = durationMs;
+      lastMediaId = newMediaId;
+      lastMediaUri = newMediaUri;
+      lastMediaMetadata = newMediaMetadata;
+      lastDurationMs = newDurationMs;
 
       if (currentMediaItem == null) {
         setMetadata(sessionCompat, /* metadataCompat= */ null);
@@ -1121,14 +1244,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
       @Nullable Bitmap artworkBitmap = null;
       ListenableFuture<Bitmap> bitmapFuture =
-          sessionImpl.getBitmapLoader().loadBitmapFromMetadata(currentMediaItem.mediaMetadata);
+          sessionImpl.getBitmapLoader().loadBitmapFromMetadata(newMediaMetadata);
       if (bitmapFuture != null) {
         pendingBitmapLoadCallback = null;
         if (bitmapFuture.isDone()) {
           try {
             artworkBitmap = Futures.getDone(bitmapFuture);
           } catch (ExecutionException e) {
-            Log.w(TAG, "Failed to load bitmap", e);
+            Log.w(TAG, getBitmapLoadErrorMessage(e));
           }
         } else {
           pendingBitmapLoadCallback =
@@ -1141,7 +1264,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                   setMetadata(
                       sessionCompat,
                       MediaUtils.convertToMediaMetadataCompat(
-                          currentMediaItem, durationMs, result));
+                          newMediaMetadata,
+                          newMediaId,
+                          newMediaUri,
+                          newDurationMs,
+                          /* artworkBitmap= */ result));
                   sessionImpl.onNotificationRefreshRequired();
                 }
 
@@ -1150,16 +1277,19 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                   if (this != pendingBitmapLoadCallback) {
                     return;
                   }
-                  Log.d(TAG, "Failed to load bitmap", t);
+                  Log.w(TAG, getBitmapLoadErrorMessage(t));
                 }
               };
           Futures.addCallback(
-              bitmapFuture, pendingBitmapLoadCallback, /* executor= */ mainHandler::post);
+              bitmapFuture,
+              pendingBitmapLoadCallback,
+              /* executor= */ sessionImpl.getApplicationHandler()::post);
         }
       }
       setMetadata(
           sessionCompat,
-          MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs, artworkBitmap));
+          MediaUtils.convertToMediaMetadataCompat(
+              newMediaMetadata, newMediaId, newMediaUri, newDurationMs, artworkBitmap));
     }
   }
 
@@ -1218,5 +1348,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     public boolean hasPendingMediaPlayPauseKey() {
       return hasMessages(MSG_DOUBLE_TAP_TIMED_OUT);
     }
+  }
+
+  private static String getBitmapLoadErrorMessage(Throwable throwable) {
+    return "Failed to load bitmap: " + throwable.getMessage();
   }
 }

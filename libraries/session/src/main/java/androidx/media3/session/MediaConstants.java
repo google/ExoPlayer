@@ -19,6 +19,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -212,7 +213,7 @@ public final class MediaConstants {
    * {@link MediaBrowser#getLibraryRoot}, the preference applies to all playable items within the
    * browse tree.
    *
-   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#folderType
+   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#isBrowsable
    * browsable media item}, the preference applies to only the immediate playable children. It takes
    * precedence over preferences received with {@link MediaBrowser#getLibraryRoot}.
    *
@@ -237,7 +238,7 @@ public final class MediaConstants {
    * {@link MediaBrowser#getLibraryRoot}, the preference applies to all browsable items within the
    * browse tree.
    *
-   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#folderType
+   * <p>If exposed through {@link MediaMetadata#extras} of a {@linkplain MediaMetadata#isBrowsable
    * browsable media item}, the preference applies to only the immediate browsable children. It
    * takes precedence over preferences received with {@link
    * MediaBrowser#getLibraryRoot(LibraryParams)}.
@@ -389,11 +390,30 @@ public final class MediaConstants {
    *
    * @see MediaLibrarySession.Callback#onGetLibraryRoot(MediaLibrarySession,
    *     MediaSession.ControllerInfo, LibraryParams)
+   * @see MediaBrowser#getLibraryRoot(LibraryParams)
    * @see LibraryParams#extras
    */
   @UnstableApi
   public static final String EXTRAS_KEY_ROOT_CHILDREN_LIMIT =
       androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_LIMIT;
+
+  /**
+   * {@link Bundle} key used in {@link LibraryParams#extras} passed to {@link
+   * MediaLibrarySession.Callback#onGetLibraryRoot(MediaLibrarySession, MediaSession.ControllerInfo,
+   * LibraryParams)} to indicate whether only browsable media items are supported as children of the
+   * root node by the {@link MediaBrowser}. If true, root children that are not browsable may be
+   * omitted or made less discoverable.
+   *
+   * <p>TYPE: boolean.
+   *
+   * @see MediaLibrarySession.Callback#onGetLibraryRoot(MediaLibrarySession,
+   *     MediaSession.ControllerInfo, LibraryParams)
+   * @see MediaBrowser#getLibraryRoot(LibraryParams)
+   * @see LibraryParams#extras
+   */
+  @UnstableApi
+  public static final String EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY =
+      "androidx.media3.session.LibraryParams.Extras.KEY_ROOT_CHILDREN_BROWSABLE_ONLY";
 
   /**
    * {@link Bundle} key used in {@link LibraryParams#extras} passed by the {@link MediaBrowser} as
@@ -435,6 +455,15 @@ public final class MediaConstants {
   public static final String EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT =
       androidx.media.utils.MediaConstants
           .BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT;
+
+  /**
+   * {@link Bundle} key used to indicate the {@link MediaMetadata.MediaType} in the legacy {@link
+   * MediaDescriptionCompat} as a long {@link MediaDescriptionCompat#getExtras() extra} and as a
+   * long value in {@link android.support.v4.media.MediaMetadataCompat}.
+   */
+  @UnstableApi
+  public static final String EXTRAS_KEY_MEDIA_TYPE_COMPAT =
+      "androidx.media3.session.EXTRAS_KEY_MEDIA_TYPE_COMPAT";
 
   /* package */ static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
       "androidx.media3.session.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED";

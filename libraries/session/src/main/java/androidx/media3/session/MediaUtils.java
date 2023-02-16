@@ -16,15 +16,20 @@
 package androidx.media3.session;
 
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
+import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static androidx.media3.common.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_GET_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_PREPARE;
+import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
+import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
@@ -38,13 +43,13 @@ import static androidx.media3.common.Player.COMMAND_STOP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.constrainValue;
+import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -60,9 +65,11 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
 import android.text.TextUtils;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
+import androidx.media.VolumeProviderCompat;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -85,6 +92,7 @@ import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -136,27 +144,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         errorMessage, /* cause= */ null, PlaybackException.ERROR_CODE_REMOTE_ERROR);
   }
 
-  /** Converts a {@link MediaItem} to a {@link MediaBrowserCompat.MediaItem}. */
-  public static MediaBrowserCompat.MediaItem convertToBrowserItem(MediaItem item) {
-    MediaDescriptionCompat description = convertToMediaDescriptionCompat(item);
+  public static MediaBrowserCompat.MediaItem convertToBrowserItem(
+      MediaItem item, @Nullable Bitmap artworkBitmap) {
+    MediaDescriptionCompat description = convertToMediaDescriptionCompat(item, artworkBitmap);
     MediaMetadata metadata = item.mediaMetadata;
     int flags = 0;
-    if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
+    if (metadata.isBrowsable != null && metadata.isBrowsable) {
       flags |= MediaBrowserCompat.MediaItem.FLAG_BROWSABLE;
     }
     if (metadata.isPlayable != null && metadata.isPlayable) {
       flags |= MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
     }
     return new MediaBrowserCompat.MediaItem(description, flags);
-  }
-
-  /** Converts a list of {@link MediaItem} to a list of {@link MediaBrowserCompat.MediaItem}. */
-  public static List<MediaBrowserCompat.MediaItem> convertToBrowserItemList(List<MediaItem> items) {
-    List<MediaBrowserCompat.MediaItem> result = new ArrayList<>();
-    for (int i = 0; i < items.size(); i++) {
-      result.add(convertToBrowserItem(items.get(i)));
-    }
-    return result;
   }
 
   /** Converts a {@link MediaBrowserCompat.MediaItem} to a {@link MediaItem}. */
@@ -239,18 +238,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Converts a list of {@link MediaItem} to a list of {@link QueueItem}. The index of the item
+   * Converts a {@link MediaItem} to a {@link QueueItem}. The index of the item in the playlist
    * would be used as the queue ID to match the behavior of {@link MediaController}.
    */
-  public static List<QueueItem> convertToQueueItemList(List<MediaItem> items) {
-    List<QueueItem> result = new ArrayList<>();
-    for (int i = 0; i < items.size(); i++) {
-      MediaItem item = items.get(i);
-      MediaDescriptionCompat description = convertToMediaDescriptionCompat(item);
-      long id = convertToQueueItemId(i);
-      result.add(new QueueItem(description, id));
-    }
-    return result;
+  public static QueueItem convertToQueueItem(
+      MediaItem item, int mediaItemIndex, @Nullable Bitmap artworkBitmap) {
+    MediaDescriptionCompat description = convertToMediaDescriptionCompat(item, artworkBitmap);
+    long id = convertToQueueItemId(mediaItemIndex);
+    return new QueueItem(description, id);
   }
 
   /** Converts the index of a {@link MediaItem} in a playlist into id of {@link QueueItem}. */
@@ -320,31 +315,41 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return result;
   }
 
-  /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}. */
-  public static MediaDescriptionCompat convertToMediaDescriptionCompat(MediaItem item) {
+  /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat} */
+  public static MediaDescriptionCompat convertToMediaDescriptionCompat(
+      MediaItem item, @Nullable Bitmap artworkBitmap) {
     MediaDescriptionCompat.Builder builder =
         new MediaDescriptionCompat.Builder()
             .setMediaId(item.mediaId.equals(MediaItem.DEFAULT_MEDIA_ID) ? null : item.mediaId);
     MediaMetadata metadata = item.mediaMetadata;
-    if (metadata.artworkData != null) {
-      Bitmap artwork =
-          BitmapFactory.decodeByteArray(metadata.artworkData, 0, metadata.artworkData.length);
-      builder.setIconBitmap(artwork);
+    if (artworkBitmap != null) {
+      builder.setIconBitmap(artworkBitmap);
     }
     @Nullable Bundle extras = metadata.extras;
-    if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
+    boolean hasFolderType =
+        metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE;
+    boolean hasMediaType = metadata.mediaType != null;
+    if (hasFolderType || hasMediaType) {
       if (extras == null) {
         extras = new Bundle();
       } else {
         extras = new Bundle(extras);
       }
-      extras.putLong(
-          MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE,
-          convertToExtraBtFolderType(metadata.folderType));
+      if (hasFolderType) {
+        extras.putLong(
+            MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE,
+            convertToExtraBtFolderType(checkNotNull(metadata.folderType)));
+      }
+      if (hasMediaType) {
+        extras.putLong(
+            MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, checkNotNull(metadata.mediaType));
+      }
     }
     return builder
         .setTitle(metadata.title)
-        .setSubtitle(metadata.subtitle)
+        // The BT AVRPC service expects the subtitle of the media description to be the artist
+        // (see https://github.com/androidx/media/issues/148).
+        .setSubtitle(metadata.artist != null ? metadata.artist : metadata.subtitle)
         .setDescription(metadata.description)
         .setIconUri(metadata.artworkUri)
         .setMediaUri(item.requestMetadata.mediaUri)
@@ -357,11 +362,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (queueTitle == null) {
       return MediaMetadata.EMPTY;
     }
-    return new MediaMetadata.Builder()
-        .setTitle(queueTitle)
-        .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
-        .setIsPlayable(true)
-        .build();
+    return new MediaMetadata.Builder().setTitle(queueTitle).build();
   }
 
   public static MediaMetadata convertToMediaMetadata(
@@ -399,16 +400,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER);
     }
 
-    @Nullable Bundle extras = descriptionCompat.getExtras();
-    builder.setExtras(extras);
+    @Nullable Bundle compatExtras = descriptionCompat.getExtras();
+    @Nullable Bundle extras = compatExtras == null ? null : new Bundle(compatExtras);
 
     if (extras != null && extras.containsKey(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE)) {
       builder.setFolderType(
           convertToFolderType(extras.getLong(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE)));
-    } else if (browsable) {
-      builder.setFolderType(MediaMetadata.FOLDER_TYPE_MIXED);
-    } else {
-      builder.setFolderType(MediaMetadata.FOLDER_TYPE_NONE);
+      extras.remove(MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE);
+    }
+    builder.setIsBrowsable(browsable);
+
+    if (extras != null && extras.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT)) {
+      builder.setMediaType((int) extras.getLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT));
+      extras.remove(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT);
+    }
+    if (extras != null && !extras.isEmpty()) {
+      builder.setExtras(extras);
     }
 
     builder.setIsPlayable(playable);
@@ -479,12 +486,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
 
-    if (metadataCompat.containsKey(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE)) {
+    boolean isBrowsable =
+        metadataCompat.containsKey(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE);
+    builder.setIsBrowsable(isBrowsable);
+    if (isBrowsable) {
       builder.setFolderType(
           convertToFolderType(
               metadataCompat.getLong(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE)));
-    } else {
-      builder.setFolderType(MediaMetadata.FOLDER_TYPE_NONE);
+    }
+
+    if (metadataCompat.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT)) {
+      builder.setMediaType(
+          (int) metadataCompat.getLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT));
     }
 
     builder.setIsPlayable(true);
@@ -523,14 +536,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return null;
   }
 
-  /** Converts a {@link MediaItem} to a {@link MediaMetadataCompat}. */
+  /**
+   * Converts a {@link MediaMetadata} to a {@link MediaMetadataCompat}.
+   *
+   * @param metadata The {@link MediaMetadata} instance to convert.
+   * @param mediaId The corresponding media ID.
+   * @param mediaUri The corresponding media URI, or null if unknown.
+   * @param durationMs The duration of the media, in milliseconds or {@link C#TIME_UNSET}, if no
+   *     duration should be included.
+   * @return An instance of the legacy {@link MediaMetadataCompat}.
+   */
   public static MediaMetadataCompat convertToMediaMetadataCompat(
-      MediaItem mediaItem, long durationMs, @Nullable Bitmap artworkBitmap) {
+      MediaMetadata metadata,
+      String mediaId,
+      @Nullable Uri mediaUri,
+      long durationMs,
+      @Nullable Bitmap artworkBitmap) {
     MediaMetadataCompat.Builder builder =
         new MediaMetadataCompat.Builder()
-            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaItem.mediaId);
-
-    MediaMetadata metadata = mediaItem.mediaMetadata;
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId);
 
     if (metadata.title != null) {
       builder.putText(MediaMetadataCompat.METADATA_KEY_TITLE, metadata.title);
@@ -561,10 +585,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.putLong(MediaMetadataCompat.METADATA_KEY_YEAR, metadata.recordingYear);
     }
 
-    if (mediaItem.requestMetadata.mediaUri != null) {
-      builder.putString(
-          MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
-          mediaItem.requestMetadata.mediaUri.toString());
+    if (mediaUri != null) {
+      builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString());
     }
 
     if (metadata.artworkUri != null) {
@@ -589,16 +611,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs);
     }
 
-    @Nullable
-    RatingCompat userRatingCompat = convertToRatingCompat(mediaItem.mediaMetadata.userRating);
+    @Nullable RatingCompat userRatingCompat = convertToRatingCompat(metadata.userRating);
     if (userRatingCompat != null) {
       builder.putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, userRatingCompat);
     }
 
-    @Nullable
-    RatingCompat overallRatingCompat = convertToRatingCompat(mediaItem.mediaMetadata.overallRating);
+    @Nullable RatingCompat overallRatingCompat = convertToRatingCompat(metadata.overallRating);
     if (overallRatingCompat != null) {
       builder.putRating(MediaMetadataCompat.METADATA_KEY_RATING, overallRatingCompat);
+    }
+
+    if (metadata.mediaType != null) {
+      builder.putLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, metadata.mediaType);
     }
 
     return builder.build();
@@ -621,7 +645,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (extraBtFolderType == MediaDescriptionCompat.BT_FOLDER_TYPE_YEARS) {
       return MediaMetadata.FOLDER_TYPE_YEARS;
     } else {
-      return MediaMetadata.FOLDER_TYPE_NONE;
+      return MediaMetadata.FOLDER_TYPE_MIXED;
     }
   }
 
@@ -993,6 +1017,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     try {
       legacyBundle.setClassLoader(context.getClassLoader());
+      int supportedChildrenFlags =
+          legacyBundle.getInt(
+              BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, /* defaultValue= */ -1);
+      if (supportedChildrenFlags >= 0) {
+        legacyBundle.remove(BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS);
+        legacyBundle.putBoolean(
+            EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY,
+            supportedChildrenFlags == MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
+      }
       return new LibraryParams.Builder()
           .setExtras(legacyBundle)
           .setRecent(legacyBundle.getBoolean(BrowserRoot.EXTRA_RECENT))
@@ -1012,6 +1045,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return null;
     }
     Bundle rootHints = new Bundle(params.extras);
+    if (params.extras.containsKey(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)) {
+      boolean browsableChildrenSupported =
+          params.extras.getBoolean(
+              EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, /* defaultValue= */ false);
+      rootHints.remove(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY);
+      rootHints.putInt(
+          BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+          browsableChildrenSupported
+              ? MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+              : MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+                  | MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+    }
     rootHints.putBoolean(BrowserRoot.EXTRA_RECENT, params.isRecent);
     rootHints.putBoolean(BrowserRoot.EXTRA_OFFLINE, params.isOffline);
     rootHints.putBoolean(BrowserRoot.EXTRA_SUGGESTED, params.isSuggested);
@@ -1030,40 +1075,101 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Converts {@link MediaControllerCompat#getFlags() session flags} and {@link
-   * MediaControllerCompat#isSessionReady whether session is ready} to {@link Player.Commands}.
+   * Converts {@link PlaybackStateCompat}, {@link
+   * MediaControllerCompat.PlaybackInfo#getVolumeControl() volume control type}, {@link
+   * MediaControllerCompat#getFlags() session flags} and {@link MediaControllerCompat#isSessionReady
+   * whether the session is ready} to {@link Player.Commands}.
    *
-   * @param sessionFlags The session flag.
+   * @param playbackStateCompat The {@link PlaybackStateCompat}.
+   * @param volumeControlType The {@link MediaControllerCompat.PlaybackInfo#getVolumeControl()
+   *     volume control type}.
+   * @param sessionFlags The session flags.
    * @param isSessionReady Whether the session compat is ready.
    * @return The converted player commands.
    */
-  public static Player.Commands convertToPlayerCommands(long sessionFlags, boolean isSessionReady) {
+  public static Player.Commands convertToPlayerCommands(
+      @Nullable PlaybackStateCompat playbackStateCompat,
+      int volumeControlType,
+      long sessionFlags,
+      boolean isSessionReady) {
     Commands.Builder playerCommandsBuilder = new Commands.Builder();
+    long actions = playbackStateCompat == null ? 0 : playbackStateCompat.getActions();
+    if ((hasAction(actions, PlaybackStateCompat.ACTION_PLAY)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PAUSE))
+        || hasAction(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE)) {
+      playerCommandsBuilder.add(COMMAND_PLAY_PAUSE);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_PREPARE)) {
+      playerCommandsBuilder.add(COMMAND_PREPARE);
+    }
+    if ((hasAction(actions, PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID))
+        || (hasAction(actions, PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH))
+        || (hasAction(actions, PlaybackStateCompat.ACTION_PREPARE_FROM_URI)
+            && hasAction(actions, PlaybackStateCompat.ACTION_PLAY_FROM_URI))) {
+      // Require both PREPARE and PLAY actions as we have no logic to handle having just one action.
+      playerCommandsBuilder.addAll(COMMAND_SET_MEDIA_ITEM, COMMAND_PREPARE);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_REWIND)) {
+      playerCommandsBuilder.add(COMMAND_SEEK_BACK);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_FAST_FORWARD)) {
+      playerCommandsBuilder.add(COMMAND_SEEK_FORWARD);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SEEK_TO)) {
+      playerCommandsBuilder.addAll(
+          COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_DEFAULT_POSITION);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)) {
+      playerCommandsBuilder.addAll(COMMAND_SEEK_TO_NEXT, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)) {
+      playerCommandsBuilder.addAll(COMMAND_SEEK_TO_PREVIOUS, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED)) {
+      playerCommandsBuilder.add(COMMAND_SET_SPEED_AND_PITCH);
+    }
+    if (hasAction(actions, PlaybackStateCompat.ACTION_STOP)) {
+      playerCommandsBuilder.add(COMMAND_STOP);
+    }
+    if (volumeControlType == VolumeProviderCompat.VOLUME_CONTROL_RELATIVE) {
+      playerCommandsBuilder.add(COMMAND_ADJUST_DEVICE_VOLUME);
+    } else if (volumeControlType == VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE) {
+      playerCommandsBuilder.addAll(COMMAND_ADJUST_DEVICE_VOLUME, COMMAND_SET_DEVICE_VOLUME);
+    }
     playerCommandsBuilder.addAll(
-        COMMAND_PLAY_PAUSE,
-        COMMAND_PREPARE,
-        COMMAND_STOP,
-        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-        COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_GET_DEVICE_VOLUME,
-        COMMAND_SET_DEVICE_VOLUME,
-        COMMAND_ADJUST_DEVICE_VOLUME,
         COMMAND_GET_TIMELINE,
-        COMMAND_SEEK_TO_PREVIOUS,
-        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
-        COMMAND_SEEK_TO_NEXT,
-        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_SET_MEDIA_ITEM);
-    boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
-    if (includePlaylistCommands) {
+        COMMAND_GET_AUDIO_ATTRIBUTES);
+    if ((sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0) {
       playerCommandsBuilder.add(COMMAND_CHANGE_MEDIA_ITEMS);
+      if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
+        playerCommandsBuilder.add(Player.COMMAND_SEEK_TO_MEDIA_ITEM);
+      }
     }
     if (isSessionReady) {
-      playerCommandsBuilder.addAll(COMMAND_SET_SHUFFLE_MODE, COMMAND_SET_REPEAT_MODE);
+      if (hasAction(actions, PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
+        playerCommandsBuilder.add(COMMAND_SET_REPEAT_MODE);
+      }
+      if (hasAction(actions, PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
+        playerCommandsBuilder.add(COMMAND_SET_SHUFFLE_MODE);
+      }
     }
     return playerCommandsBuilder.build();
+  }
+
+  /**
+   * Checks if the set of actions contains the specified action.
+   *
+   * @param actions A bit set of actions.
+   * @param action The action to check.
+   * @return Whether the action is contained in the set.
+   */
+  private static boolean hasAction(long actions, @PlaybackStateCompat.Actions long action) {
+    return (actions & action) != 0;
   }
 
   /**
@@ -1252,7 +1358,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Returns the intersection of {@link Player.Command commands} from the given two {@link
    * Commands}.
    */
-  public static Commands intersect(Commands commands1, Commands commands2) {
+  public static Commands intersect(@Nullable Commands commands1, @Nullable Commands commands2) {
+    if (commands1 == null || commands2 == null) {
+      return Commands.EMPTY;
+    }
     Commands.Builder intersectCommandsBuilder = new Commands.Builder();
     for (int i = 0; i < commands1.size(); i++) {
       if (commands2.contains(commands1.get(i))) {
@@ -1260,6 +1369,46 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
     return intersectCommandsBuilder.build();
+  }
+
+  /**
+   * Merges the excluded fields into the {@code newPlayerInfo} by taking the values of the {@code
+   * previousPlayerInfo} and taking into account the passed available commands.
+   *
+   * @param oldPlayerInfo The old {@link PlayerInfo}.
+   * @param oldBundlingExclusions The bundling exlusions in the old {@link PlayerInfo}.
+   * @param newPlayerInfo The new {@link PlayerInfo}.
+   * @param newBundlingExclusions The bundling exlusions in the new {@link PlayerInfo}.
+   * @param availablePlayerCommands The available commands to take into account when merging.
+   * @return A pair with the resulting {@link PlayerInfo} and {@link BundlingExclusions}.
+   */
+  public static Pair<PlayerInfo, BundlingExclusions> mergePlayerInfo(
+      PlayerInfo oldPlayerInfo,
+      BundlingExclusions oldBundlingExclusions,
+      PlayerInfo newPlayerInfo,
+      BundlingExclusions newBundlingExclusions,
+      Commands availablePlayerCommands) {
+    PlayerInfo mergedPlayerInfo = newPlayerInfo;
+    BundlingExclusions mergedBundlingExclusions = newBundlingExclusions;
+    if (newBundlingExclusions.isTimelineExcluded
+        && availablePlayerCommands.contains(Player.COMMAND_GET_TIMELINE)
+        && !oldBundlingExclusions.isTimelineExcluded) {
+      // Use the previous timeline if it is excluded in the most recent update.
+      mergedPlayerInfo = mergedPlayerInfo.copyWithTimeline(oldPlayerInfo.timeline);
+      mergedBundlingExclusions =
+          new BundlingExclusions(
+              /* isTimelineExcluded= */ false, mergedBundlingExclusions.areCurrentTracksExcluded);
+    }
+    if (newBundlingExclusions.areCurrentTracksExcluded
+        && availablePlayerCommands.contains(Player.COMMAND_GET_TRACKS)
+        && !oldBundlingExclusions.areCurrentTracksExcluded) {
+      // Use the previous tracks if it is excluded in the most recent update.
+      mergedPlayerInfo = mergedPlayerInfo.copyWithCurrentTracks(oldPlayerInfo.currentTracks);
+      mergedBundlingExclusions =
+          new BundlingExclusions(
+              mergedBundlingExclusions.isTimelineExcluded, /* areCurrentTracksExcluded= */ false);
+    }
+    return new Pair<>(mergedPlayerInfo, mergedBundlingExclusions);
   }
 
   private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {
@@ -1283,6 +1432,29 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         : durationMs == 0
             ? 100
             : Util.constrainValue((int) ((bufferedPositionMs * 100) / durationMs), 0, 100);
+  }
+
+  public static void setMediaItemsWithStartIndexAndPosition(
+      PlayerWrapper player, MediaSession.MediaItemsWithStartPosition mediaItemsWithStartPosition) {
+    if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET) {
+      if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+        player.setMediaItems(mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
+      } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
+        player.setMediaItem(
+            mediaItemsWithStartPosition.mediaItems.get(0), /* resetPosition= */ true);
+      }
+    } else {
+      if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+        player.setMediaItems(
+            mediaItemsWithStartPosition.mediaItems,
+            mediaItemsWithStartPosition.startIndex,
+            mediaItemsWithStartPosition.startPositionMs);
+      } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
+        player.setMediaItem(
+            mediaItemsWithStartPosition.mediaItems.get(0),
+            mediaItemsWithStartPosition.startPositionMs);
+      }
+    }
   }
 
   private MediaUtils() {}

@@ -23,6 +23,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.MediaUtils.intersect;
+import static androidx.media3.session.MediaUtils.mergePlayerInfo;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -42,6 +43,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
+import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -79,6 +81,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaController.MediaControllerImpl;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -88,7 +91,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -127,9 +129,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Nullable private TextureView videoTextureView;
   private Size surfaceSize;
   @Nullable private IMediaSession iSession;
-  private long lastReturnedCurrentPositionMs;
+  private long currentPositionMs;
   private long lastSetPlayWhenReadyCalledTimeMs;
-  @Nullable private Timeline pendingPlayerInfoUpdateTimeline;
+  @Nullable private PlayerInfo pendingPlayerInfo;
+  @Nullable private BundlingExclusions pendingBundlingExclusions;
 
   public MediaControllerImplBase(
       Context context,
@@ -172,7 +175,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             ? null
             : new SessionServiceConnection(connectionHints);
     flushCommandQueueHandler = new FlushCommandQueueHandler(applicationLooper);
-    lastReturnedCurrentPositionMs = C.TIME_UNSET;
+    currentPositionMs = C.TIME_UNSET;
     lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
@@ -213,13 +216,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_STOP,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.stop(controllerStub, seq);
-          }
-        });
+        (iSession, seq) -> iSession.stop(controllerStub, seq));
 
     playerInfo =
         playerInfo.copyWithSessionPositionInfo(
@@ -302,12 +299,31 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     void run(IMediaSession iSession, int seq) throws RemoteException;
   }
 
-  private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithPlayerCommand(
-      @Player.Command int command, RemoteSessionTask task) {
-    if (command != Player.COMMAND_SET_VIDEO_SURFACE) {
-      flushCommandQueueHandler.sendFlushCommandQueueMessage();
+  private void dispatchRemoteSessionTaskWithPlayerCommand(RemoteSessionTask task) {
+    flushCommandQueueHandler.sendFlushCommandQueueMessage();
+    dispatchRemoteSessionTask(iSession, task, /* addToPendingMaskingOperations= */ true);
+  }
+
+  private void dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(RemoteSessionTask task) {
+    // Do not send a flush command queue message as we are actively waiting for task.
+    ListenableFuture<SessionResult> future =
+        dispatchRemoteSessionTask(iSession, task, /* addToPendingMaskingOperations= */ true);
+    try {
+      MediaUtils.getFutureResult(future, /* timeoutMs= */ 3_000);
+    } catch (ExecutionException e) {
+      // Never happens because future.setException will not be called.
+      throw new IllegalStateException(e);
+    } catch (TimeoutException e) {
+      if (future instanceof SequencedFutureManager.SequencedFuture) {
+        int sequenceNumber =
+            ((SequencedFutureManager.SequencedFuture<SessionResult>) future).getSequenceNumber();
+        pendingMaskingSequencedFutureNumbers.remove(sequenceNumber);
+        sequencedFutureManager.setFutureResult(
+            sequenceNumber, new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN));
+      }
+      Log.w(TAG, "Synchronous command takes too long on the session side.", e);
+      // TODO(b/188888693): Let developers know the failure in their code.
     }
-    return dispatchRemoteSessionTask(iSession, task, /* addToPendingMaskingOperations= */ true);
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithSessionCommand(
@@ -324,7 +340,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithSessionCommandInternal(
       @SessionCommand.CommandCode int commandCode,
-      SessionCommand sessionCommand,
+      @Nullable SessionCommand sessionCommand,
       RemoteSessionTask task) {
     return dispatchRemoteSessionTask(
         sessionCommand != null
@@ -335,7 +351,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTask(
-      IMediaSession iSession, RemoteSessionTask task, boolean addToPendingMaskingOperations) {
+      @Nullable IMediaSession iSession,
+      RemoteSessionTask task,
+      boolean addToPendingMaskingOperations) {
     if (iSession != null) {
       SequencedFutureManager.SequencedFuture<SessionResult> result =
           sequencedFutureManager.createSequencedFuture(
@@ -369,13 +387,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_PLAY_PAUSE,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.play(controllerStub, seq);
-          }
-        });
+        (iSession, seq) -> iSession.play(controllerStub, seq));
 
     setPlayWhenReady(
         /* playWhenReady= */ true,
@@ -390,13 +402,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_PLAY_PAUSE,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.pause(controllerStub, seq);
-          }
-        });
+        (iSession, seq) -> iSession.pause(controllerStub, seq));
 
     setPlayWhenReady(
         /* playWhenReady= */ false,
@@ -411,13 +417,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_PREPARE,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.prepare(controllerStub, seq);
-          }
-        });
+        (iSession, seq) -> iSession.prepare(controllerStub, seq));
 
     if (playerInfo.playbackState == Player.STATE_IDLE) {
       PlayerInfo playerInfo =
@@ -443,13 +443,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_DEFAULT_POSITION,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.seekToDefaultPosition(controllerStub, seq);
-          }
-        });
+        (iSession, seq) -> iSession.seekToDefaultPosition(controllerStub, seq));
 
     seekToInternal(getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
   }
@@ -459,15 +453,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return;
     }
+    checkArgument(mediaItemIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_MEDIA_ITEM,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.seekToDefaultPositionWithMediaItemIndex(controllerStub, seq, mediaItemIndex);
-          }
-        });
+        (iSession, seq) ->
+            iSession.seekToDefaultPositionWithMediaItemIndex(controllerStub, seq, mediaItemIndex));
 
     seekToInternal(mediaItemIndex, /* positionMs= */ C.TIME_UNSET);
   }
@@ -479,13 +469,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.seekTo(controllerStub, seq, positionMs);
-          }
-        });
+        (iSession, seq) -> iSession.seekTo(controllerStub, seq, positionMs));
 
     seekToInternal(getCurrentMediaItemIndex(), positionMs);
   }
@@ -495,15 +479,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return;
     }
+    checkArgument(mediaItemIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_MEDIA_ITEM,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.seekToWithMediaItemIndex(controllerStub, seq, mediaItemIndex, positionMs);
-          }
-        });
+        (iSession, seq) ->
+            iSession.seekToWithMediaItemIndex(controllerStub, seq, mediaItemIndex, positionMs));
 
     seekToInternal(mediaItemIndex, positionMs);
   }
@@ -520,7 +500,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_BACK, (iSession, seq) -> iSession.seekBack(controllerStub, seq));
+        (iSession, seq) -> iSession.seekBack(controllerStub, seq));
 
     seekToInternalByOffset(-getSeekBackIncrement());
   }
@@ -537,7 +517,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_FORWARD, (iSession, seq) -> iSession.seekForward(controllerStub, seq));
+        (iSession, seq) -> iSession.seekForward(controllerStub, seq));
 
     seekToInternalByOffset(getSeekForwardIncrement());
   }
@@ -554,7 +534,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_PLAY_PAUSE,
         (iSession, seq) -> iSession.setPlayWhenReady(controllerStub, seq, playWhenReady));
 
     setPlayWhenReady(
@@ -603,32 +582,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getCurrentPosition() {
-    boolean receivedUpdatedPositionInfo =
-        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
-    if (!playerInfo.isPlaying) {
-      if (receivedUpdatedPositionInfo || lastReturnedCurrentPositionMs == C.TIME_UNSET) {
-        lastReturnedCurrentPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
-      }
-      return lastReturnedCurrentPositionMs;
-    }
-
-    if (!receivedUpdatedPositionInfo && lastReturnedCurrentPositionMs != C.TIME_UNSET) {
-      // Need an updated current position in order to make a new position estimation
-      return lastReturnedCurrentPositionMs;
-    }
-
-    long elapsedTimeMs =
-        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
-            ? getInstance().getTimeDiffMs()
-            : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
-    long estimatedPositionMs =
-        playerInfo.sessionPositionInfo.positionInfo.positionMs
-            + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    if (playerInfo.sessionPositionInfo.durationMs != C.TIME_UNSET) {
-      estimatedPositionMs = min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
-    }
-    lastReturnedCurrentPositionMs = estimatedPositionMs;
-    return lastReturnedCurrentPositionMs;
+    maybeUpdateCurrentPositionMs();
+    return currentPositionMs;
   }
 
   @Override
@@ -691,7 +646,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_SPEED_AND_PITCH,
         (iSession, seq) ->
             iSession.setPlaybackParameters(controllerStub, seq, playbackParameters.toBundle()));
 
@@ -717,7 +671,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_SPEED_AND_PITCH,
         (iSession, seq) -> iSession.setPlaybackSpeed(controllerStub, seq, speed));
 
     if (playerInfo.playbackParameters.speed != speed) {
@@ -740,24 +693,15 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   public ListenableFuture<SessionResult> setRating(String mediaId, Rating rating) {
     return dispatchRemoteSessionTaskWithSessionCommand(
         SessionCommand.COMMAND_CODE_SESSION_SET_RATING,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.setRatingWithMediaId(controllerStub, seq, mediaId, rating.toBundle());
-          }
-        });
+        (iSession, seq) ->
+            iSession.setRatingWithMediaId(controllerStub, seq, mediaId, rating.toBundle()));
   }
 
   @Override
   public ListenableFuture<SessionResult> setRating(Rating rating) {
     return dispatchRemoteSessionTaskWithSessionCommand(
         SessionCommand.COMMAND_CODE_SESSION_SET_RATING,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.setRating(controllerStub, seq, rating.toBundle());
-          }
-        });
+        (iSession, seq) -> iSession.setRating(controllerStub, seq, rating.toBundle()));
   }
 
   @Override
@@ -779,7 +723,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) -> iSession.setMediaItem(controllerStub, seq, mediaItem.toBundle()));
 
     setMediaItemsInternal(
@@ -796,7 +739,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithStartPosition(
                 controllerStub, seq, mediaItem.toBundle(), startPositionMs));
@@ -815,7 +757,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithResetPosition(
                 controllerStub, seq, mediaItem.toBundle(), resetPosition));
@@ -834,7 +775,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.setMediaItems(
                 controllerStub,
@@ -855,7 +795,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.setMediaItemsWithResetPosition(
                 controllerStub,
@@ -877,7 +816,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.setMediaItemsWithStartIndex(
                 controllerStub,
@@ -897,7 +835,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_MEDIA_ITEMS_METADATA,
         (iSession, seq) ->
             iSession.setPlaylistMetadata(controllerStub, seq, playlistMetadata.toBundle()));
 
@@ -922,7 +859,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.addMediaItem(controllerStub, seq, mediaItem.toBundle()));
 
     addMediaItemsInternal(
@@ -934,9 +870,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(index >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.addMediaItemWithIndex(controllerStub, seq, index, mediaItem.toBundle()));
 
@@ -950,7 +886,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.addMediaItems(
                 controllerStub,
@@ -965,9 +900,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(index >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.addMediaItemsWithIndex(
                 controllerStub,
@@ -1034,9 +969,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(index >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.removeMediaItem(controllerStub, seq, index));
 
     removeMediaItemsInternal(/* fromIndex= */ index, /* toIndex= */ index + 1);
@@ -1047,9 +982,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.removeMediaItems(controllerStub, seq, fromIndex, toIndex));
 
     removeMediaItemsInternal(fromIndex, toIndex);
@@ -1062,26 +997,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.clearMediaItems(controllerStub, seq));
 
     removeMediaItemsInternal(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
   }
 
   private void removeMediaItemsInternal(int fromIndex, int toIndex) {
-    int clippedToIndex = min(toIndex, playerInfo.timeline.getWindowCount());
-
-    checkArgument(
-        fromIndex >= 0
-            && clippedToIndex >= fromIndex
-            && clippedToIndex <= playerInfo.timeline.getWindowCount());
-
     Timeline oldTimeline = playerInfo.timeline;
+    int playlistSize = playerInfo.timeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    if (fromIndex >= playlistSize || fromIndex == toIndex) {
+      return;
+    }
 
     List<Window> newWindows = new ArrayList<>();
     List<Period> newPeriods = new ArrayList<>();
     for (int i = 0; i < oldTimeline.getWindowCount(); i++) {
-      if (i < fromIndex || i >= clippedToIndex) {
+      if (i < fromIndex || i >= toIndex) {
         newWindows.add(oldTimeline.getWindow(i, new Window()));
       }
     }
@@ -1093,7 +1025,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     int oldPeriodIndex = playerInfo.sessionPositionInfo.positionInfo.periodIndex;
     int newPeriodIndex = oldPeriodIndex;
     boolean currentItemRemoved =
-        getCurrentMediaItemIndex() >= fromIndex && getCurrentMediaItemIndex() < clippedToIndex;
+        getCurrentMediaItemIndex() >= fromIndex && getCurrentMediaItemIndex() < toIndex;
     Window window = new Window();
     if (oldTimeline.isEmpty()) {
       // No masking required. Just forwarding command to session.
@@ -1113,17 +1045,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                   toIndex);
           if (oldNextMediaItemIndex == C.INDEX_UNSET) {
             newMediaItemIndex = newTimeline.getFirstWindowIndex(getShuffleModeEnabled());
-          } else if (oldNextMediaItemIndex >= clippedToIndex) {
-            newMediaItemIndex = oldNextMediaItemIndex - (clippedToIndex - fromIndex);
+          } else if (oldNextMediaItemIndex >= toIndex) {
+            newMediaItemIndex = oldNextMediaItemIndex - (toIndex - fromIndex);
           } else {
             newMediaItemIndex = oldNextMediaItemIndex;
           }
           newPeriodIndex = newTimeline.getWindow(newMediaItemIndex, window).firstPeriodIndex;
-        } else if (oldMediaItemIndex >= clippedToIndex) {
-          newMediaItemIndex -= (clippedToIndex - fromIndex);
+        } else if (oldMediaItemIndex >= toIndex) {
+          newMediaItemIndex -= (toIndex - fromIndex);
           newPeriodIndex =
               getNewPeriodIndexWithoutRemovedPeriods(
-                  oldTimeline, oldPeriodIndex, fromIndex, clippedToIndex);
+                  oldTimeline, oldPeriodIndex, fromIndex, toIndex);
         }
       }
 
@@ -1187,8 +1119,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       final boolean transitionsToEnded =
           newPlayerInfo.playbackState != Player.STATE_IDLE
               && newPlayerInfo.playbackState != Player.STATE_ENDED
-              && fromIndex < clippedToIndex
-              && clippedToIndex == oldTimeline.getWindowCount()
+              && fromIndex < toIndex
+              && toIndex == oldTimeline.getWindowCount()
               && getCurrentMediaItemIndex() >= fromIndex;
       if (transitionsToEnded) {
         newPlayerInfo =
@@ -1203,7 +1135,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           Player.DISCONTINUITY_REASON_REMOVE,
           /* mediaItemTransition= */ playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex
                   >= fromIndex
-              && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < clippedToIndex,
+              && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < toIndex,
           Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
     }
   }
@@ -1213,18 +1145,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
-
-    checkArgument(
-        currentIndex >= 0 && currentIndex < playerInfo.timeline.getWindowCount() && newIndex >= 0);
+    checkArgument(currentIndex >= 0 && newIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.moveMediaItem(controllerStub, seq, currentIndex, newIndex));
 
-    int clippedNewIndex = min(newIndex, playerInfo.timeline.getWindowCount() - 1);
-
     moveMediaItemsInternal(
-        /* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, clippedNewIndex);
+        /* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
   }
 
   @Override
@@ -1232,22 +1159,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
-
-    checkArgument(
-        fromIndex >= 0
-            && fromIndex <= toIndex
-            && toIndex <= playerInfo.timeline.getWindowCount()
-            && newIndex >= 0);
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.moveMediaItems(controllerStub, seq, fromIndex, toIndex, newIndex));
 
-    int clippedNewIndex =
-        min(newIndex, playerInfo.timeline.getWindowCount() - (toIndex - fromIndex));
-
-    moveMediaItemsInternal(fromIndex, toIndex, clippedNewIndex);
+    moveMediaItemsInternal(fromIndex, toIndex, newIndex);
   }
 
   @Override
@@ -1301,7 +1219,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
         (iSession, seq) -> iSession.seekToPreviousMediaItem(controllerStub, seq));
 
     if (getPreviousMediaItemIndex() != C.INDEX_UNSET) {
@@ -1316,7 +1233,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         (iSession, seq) -> iSession.seekToNextMediaItem(controllerStub, seq));
 
     if (getNextMediaItemIndex() != C.INDEX_UNSET) {
@@ -1331,7 +1247,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_PREVIOUS,
         (iSession, seq) -> iSession.seekToPrevious(controllerStub, seq));
 
     Timeline timeline = getCurrentTimeline();
@@ -1363,7 +1278,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SEEK_TO_NEXT, (iSession, seq) -> iSession.seekToNext(controllerStub, seq));
+        (iSession, seq) -> iSession.seekToNext(controllerStub, seq));
 
     Timeline timeline = getCurrentTimeline();
     if (timeline.isEmpty() || isPlayingAd()) {
@@ -1391,13 +1306,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_REPEAT_MODE,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.setRepeatMode(controllerStub, seq, repeatMode);
-          }
-        });
+        (iSession, seq) -> iSession.setRepeatMode(controllerStub, seq, repeatMode));
 
     if (playerInfo.repeatMode != repeatMode) {
       playerInfo = playerInfo.copyWithRepeatMode(repeatMode);
@@ -1421,13 +1330,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_SHUFFLE_MODE,
-        new RemoteSessionTask() {
-          @Override
-          public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.setShuffleModeEnabled(controllerStub, seq, shuffleModeEnabled);
-          }
-        });
+        (iSession, seq) -> iSession.setShuffleModeEnabled(controllerStub, seq, shuffleModeEnabled));
 
     if (playerInfo.shuffleModeEnabled != shuffleModeEnabled) {
       playerInfo = playerInfo.copyWithShuffleModeEnabled(shuffleModeEnabled);
@@ -1456,7 +1359,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_VOLUME,
         (iSession, seq) -> iSession.setVolume(controllerStub, seq, volume));
 
     if (playerInfo.volume != volume) {
@@ -1490,7 +1392,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_DEVICE_VOLUME,
         (iSession, seq) -> iSession.setDeviceVolume(controllerStub, seq, volume));
 
     if (playerInfo.deviceVolume != volume) {
@@ -1510,7 +1411,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         (iSession, seq) -> iSession.increaseDeviceVolume(controllerStub, seq));
 
     int newDeviceVolume = playerInfo.deviceVolume + 1;
@@ -1530,7 +1430,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         (iSession, seq) -> iSession.decreaseDeviceVolume(controllerStub, seq));
 
     int newDeviceVolume = playerInfo.deviceVolume - 1;
@@ -1545,12 +1444,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setDeviceMuted(boolean muted) {
-    if (!isPlayerCommandAvailable(Player.COMMAND_SET_DEVICE_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_DEVICE_VOLUME,
         (iSession, seq) -> iSession.setDeviceMuted(controllerStub, seq, muted));
 
     if (playerInfo.deviceMuted != muted) {
@@ -1579,7 +1477,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     clearSurfacesAndCallbacks();
-    dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(/* surface= */ null);
+    /* surface= */ dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+        (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, null));
     maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
   }
 
@@ -1603,7 +1502,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     clearSurfacesAndCallbacks();
     videoSurface = surface;
-    dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(surface);
+    dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+        (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, surface));
     int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
     maybeNotifySurfaceSizeChanged(/* width= */ newSurfaceSize, /* height= */ newSurfaceSize);
   }
@@ -1629,12 +1529,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     @Nullable Surface surface = surfaceHolder.getSurface();
     if (surface != null && surface.isValid()) {
       videoSurface = surface;
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(surface);
+      dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, surface));
       Rect surfaceSize = surfaceHolder.getSurfaceFrame();
       maybeNotifySurfaceSizeChanged(surfaceSize.width(), surfaceSize.height());
     } else {
       videoSurface = null;
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(/* surface= */ null);
+      /* surface= */ dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, null));
       maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
     }
   }
@@ -1692,11 +1594,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     @Nullable SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
     if (surfaceTexture == null) {
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(/* surface= */ null);
+      /* surface= */ dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, null));
       maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
     } else {
       videoSurface = new Surface(surfaceTexture);
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(videoSurface);
+      dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, videoSurface));
       maybeNotifySurfaceSizeChanged(textureView.getWidth(), textureView.getHeight());
     }
   }
@@ -1740,7 +1644,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         (iSession, seq) ->
             iSession.setTrackSelectionParameters(controllerStub, seq, parameters.toBundle()));
 
@@ -1895,16 +1798,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void moveMediaItemsInternal(int fromIndex, int toIndex, int newIndex) {
-    if (fromIndex == 0 && toIndex == playerInfo.timeline.getWindowCount()) {
+    Timeline oldTimeline = playerInfo.timeline;
+    int playlistSize = playerInfo.timeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    newIndex = min(newIndex, playlistSize - (toIndex - fromIndex));
+    if (fromIndex >= playlistSize || fromIndex == toIndex || fromIndex == newIndex) {
       return;
     }
-
-    Timeline oldTimeline = playerInfo.timeline;
 
     List<Window> newWindows = new ArrayList<>();
     List<Period> newPeriods = new ArrayList<>();
 
-    for (int i = 0; i < oldTimeline.getWindowCount(); i++) {
+    for (int i = 0; i < playlistSize; i++) {
       newWindows.add(oldTimeline.getWindow(i, new Window()));
     }
     Util.moveItems(newWindows, fromIndex, toIndex, newIndex);
@@ -1964,11 +1869,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private void seekToInternal(int windowIndex, long positionMs) {
     Timeline timeline = playerInfo.timeline;
-    if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
-    }
-
-    if (isPlayingAd()) {
+    if ((!timeline.isEmpty() && windowIndex >= timeline.getWindowCount()) || isPlayingAd()) {
       return;
     }
 
@@ -2041,7 +1942,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
 
-    // Stop estimating content position until a new positionInfo arrives from the player
+    // Update position and then stop estimating until a new positionInfo arrives from the player.
+    maybeUpdateCurrentPositionMs();
     lastSetPlayWhenReadyCalledTimeMs = SystemClock.elapsedRealtime();
     PlayerInfo playerInfo =
         this.playerInfo.copyWithPlayWhenReady(
@@ -2161,30 +2063,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return false;
     }
     return true;
-  }
-
-  private void dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(@Nullable Surface surface) {
-    Future<SessionResult> future =
-        dispatchRemoteSessionTaskWithPlayerCommand(
-            Player.COMMAND_SET_VIDEO_SURFACE,
-            (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, surface));
-
-    try {
-      MediaUtils.getFutureResult(future, /* timeoutMs= */ 3_000);
-    } catch (ExecutionException e) {
-      // Never happens because future.setException will not be called.
-      throw new IllegalStateException(e);
-    } catch (TimeoutException e) {
-      if (future instanceof SequencedFutureManager.SequencedFuture) {
-        int sequenceNumber =
-            ((SequencedFutureManager.SequencedFuture<SessionResult>) future).getSequenceNumber();
-        pendingMaskingSequencedFutureNumbers.remove(sequenceNumber);
-        sequencedFutureManager.setFutureResult(
-            sequenceNumber, new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN));
-      }
-      Log.w(TAG, "set/clearVideoSurface takes too long on the session side.", e);
-      // TODO(b/188888693): Let developers know the failure in their code.
-    }
   }
 
   private void clearSurfacesAndCallbacks() {
@@ -2329,30 +2207,41 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
-  void onPlayerInfoChanged(PlayerInfo newPlayerInfo, boolean isTimelineExcluded) {
+  void onPlayerInfoChanged(PlayerInfo newPlayerInfo, BundlingExclusions bundlingExclusions) {
     if (!isConnected()) {
       return;
     }
+    if (pendingPlayerInfo != null && pendingBundlingExclusions != null) {
+      Pair<PlayerInfo, BundlingExclusions> mergedPlayerInfoUpdate =
+          mergePlayerInfo(
+              pendingPlayerInfo,
+              pendingBundlingExclusions,
+              newPlayerInfo,
+              bundlingExclusions,
+              intersectedPlayerCommands);
+      newPlayerInfo = mergedPlayerInfoUpdate.first;
+      bundlingExclusions = mergedPlayerInfoUpdate.second;
+    }
+    pendingPlayerInfo = null;
+    pendingBundlingExclusions = null;
     if (!pendingMaskingSequencedFutureNumbers.isEmpty()) {
       // We are still waiting for all pending masking operations to be handled.
-      if (!isTimelineExcluded) {
-        pendingPlayerInfoUpdateTimeline = newPlayerInfo.timeline;
-      }
+      pendingPlayerInfo = newPlayerInfo;
+      pendingBundlingExclusions = bundlingExclusions;
       return;
     }
     PlayerInfo oldPlayerInfo = playerInfo;
-    if (isTimelineExcluded) {
-      newPlayerInfo =
-          newPlayerInfo.copyWithTimeline(
-              pendingPlayerInfoUpdateTimeline != null
-                  ? pendingPlayerInfoUpdateTimeline
-                  : oldPlayerInfo.timeline);
-    }
     // Assigning class variable now so that all getters called from listeners see the updated value.
     // But we need to use a local final variable to ensure listeners get consistent parameters.
-    playerInfo = newPlayerInfo;
-    PlayerInfo finalPlayerInfo = newPlayerInfo;
-    pendingPlayerInfoUpdateTimeline = null;
+    playerInfo =
+        mergePlayerInfo(
+                oldPlayerInfo,
+                /* oldBundlingExclusions= */ BundlingExclusions.NONE,
+                newPlayerInfo,
+                /* newBundlingExclusions= */ bundlingExclusions,
+                intersectedPlayerCommands)
+            .first;
+    PlayerInfo finalPlayerInfo = playerInfo;
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
     PlaybackException playerError = finalPlayerInfo.playerError;
     boolean errorsMatch =
@@ -2397,7 +2286,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(finalPlayerInfo.shuffleModeEnabled));
     }
-    if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
+    if (!Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener ->
@@ -2814,6 +2703,34 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     return playerInfo;
   }
 
+  private void maybeUpdateCurrentPositionMs() {
+    boolean receivedUpdatedPositionInfo =
+        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
+    if (!playerInfo.isPlaying) {
+      if (receivedUpdatedPositionInfo || currentPositionMs == C.TIME_UNSET) {
+        currentPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      }
+      return;
+    }
+
+    if (!receivedUpdatedPositionInfo && currentPositionMs != C.TIME_UNSET) {
+      // Need an updated current position in order to make a new position estimation
+      return;
+    }
+
+    long elapsedTimeMs =
+        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
+            ? getInstance().getTimeDiffMs()
+            : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
+    long estimatedPositionMs =
+        playerInfo.sessionPositionInfo.positionInfo.positionMs
+            + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
+    if (playerInfo.sessionPositionInfo.durationMs != C.TIME_UNSET) {
+      estimatedPositionMs = min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
+    }
+    currentPositionMs = estimatedPositionMs;
+  }
+
   private Period getPeriodWithNewWindowIndex(Timeline timeline, int periodIndex, int windowIndex) {
     Period period = new Period();
     timeline.getPeriod(periodIndex, period);
@@ -2983,7 +2900,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         return;
       }
       videoSurface = holder.getSurface();
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(videoSurface);
+      dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, videoSurface));
       Rect surfaceSize = holder.getSurfaceFrame();
       maybeNotifySurfaceSizeChanged(surfaceSize.width(), surfaceSize.height());
     }
@@ -3002,7 +2920,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         return;
       }
       videoSurface = null;
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(/* surface= */ null);
+      /* surface= */ dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, null));
       maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
     }
 
@@ -3014,7 +2933,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         return;
       }
       videoSurface = new Surface(surfaceTexture);
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(videoSurface);
+      dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, videoSurface));
       maybeNotifySurfaceSizeChanged(width, height);
     }
 
@@ -3032,7 +2952,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         return true;
       }
       videoSurface = null;
-      dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(/* surface= */ null);
+      /* surface= */ dispatchRemoteSessionTaskWithPlayerCommandAndWaitForFuture(
+          (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, null));
       maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
       return true;
     }

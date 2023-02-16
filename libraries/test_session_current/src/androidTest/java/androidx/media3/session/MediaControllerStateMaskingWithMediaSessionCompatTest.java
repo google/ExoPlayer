@@ -58,6 +58,7 @@ import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -418,7 +419,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void seekTo_withNewMediaItemIndex() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long initialPosition = 8_000;
     long initialBufferedPosition = 9_200;
     int initialIndex = 0;
@@ -701,7 +702,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void addMediaItems() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int testCurrentMediaItemIndex = 1;
     MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
@@ -767,7 +768,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   public void addMediaItems_beforeCurrentMediaItemIndex_shiftsCurrentMediaItemIndex()
       throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialMediaItemIndex = 2;
     MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
@@ -833,7 +834,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void removeMediaItems() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int testCurrentMediaItemIndex = 0;
     MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
@@ -898,7 +899,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   public void removeMediaItems_beforeCurrentMediaItemIndex_shiftsCurrentMediaItemIndex()
       throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialMediaItemIndex = 4;
     MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
@@ -963,7 +964,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void removeMediaItems_includeCurrentMediaItem_movesCurrentItem() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialMediaItemIndex = 2;
     MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
@@ -1025,7 +1026,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void moveMediaItems() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int testCurrentMediaItemIndex = 0;
     MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
@@ -1090,7 +1091,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void moveMediaItems_withMovingCurrentMediaItem_changesCurrentItem() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialCurrentMediaItemIndex = 1;
     session.setPlaybackState(
@@ -1149,5 +1150,161 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
+  }
+
+  @Test
+  public void seekTo_indexLargerThanPlaylist_isIgnored() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    AtomicInteger mediaItemIndexAfterSeek = new AtomicInteger();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItem(MediaItem.fromUri("http://test"));
+
+              controller.seekTo(/* windowIndex= */ 1, /* positionMs= */ 1000);
+
+              mediaItemIndexAfterSeek.set(controller.getCurrentMediaItemIndex());
+            });
+
+    assertThat(mediaItemIndexAfterSeek.get()).isEqualTo(0);
+  }
+
+  @Test
+  public void addMediaItems_indexLargerThanPlaylist_addsToEndOfPlaylist() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    List<MediaItem> addedItems =
+        ImmutableList.of(MediaItem.fromUri("http://new1"), MediaItem.fromUri("http://new2"));
+    ArrayList<MediaItem> mediaItemsAfterAdd = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItem(MediaItem.fromUri("http://test"));
+
+              controller.addMediaItems(/* index= */ 5000, addedItems);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                mediaItemsAfterAdd.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(mediaItemsAfterAdd).hasSize(3);
+    assertThat(mediaItemsAfterAdd.get(1)).isEqualTo(addedItems.get(0));
+    assertThat(mediaItemsAfterAdd.get(2)).isEqualTo(addedItems.get(1));
+  }
+
+  @Test
+  public void removeMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    AtomicInteger mediaItemCountAfterRemove = new AtomicInteger();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(
+                  ImmutableList.of(
+                      MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+              controller.removeMediaItems(/* fromIndex= */ 5000, /* toIndex= */ 6000);
+
+              mediaItemCountAfterRemove.set(controller.getMediaItemCount());
+            });
+
+    assertThat(mediaItemCountAfterRemove.get()).isEqualTo(2);
+  }
+
+  @Test
+  public void removeMediaItems_toIndexLargerThanPlaylist_removesUpToEndOfPlaylist()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    AtomicInteger mediaItemCountAfterRemove = new AtomicInteger();
+    AtomicReference<MediaItem> remainingItemAfterRemove = new AtomicReference<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(
+                  ImmutableList.of(
+                      MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+              controller.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000);
+
+              mediaItemCountAfterRemove.set(controller.getMediaItemCount());
+              remainingItemAfterRemove.set(controller.getMediaItemAt(0));
+            });
+
+    assertThat(mediaItemCountAfterRemove.get()).isEqualTo(1);
+    assertThat(remainingItemAfterRemove.get().localConfiguration.uri.toString())
+        .isEqualTo("http://item1");
+  }
+
+  @Test
+  public void moveMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    List<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    ArrayList<MediaItem> itemsAfterMove = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(items);
+
+              controller.moveMediaItems(
+                  /* fromIndex= */ 5000, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                itemsAfterMove.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(itemsAfterMove).isEqualTo(items);
+  }
+
+  @Test
+  public void moveMediaItems_toIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    List<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    ArrayList<MediaItem> itemsAfterMove = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(items);
+
+              controller.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                itemsAfterMove.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(itemsAfterMove).containsExactly(items.get(1), items.get(0)).inOrder();
+  }
+
+  @Test
+  public void moveMediaItems_newIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    List<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    ArrayList<MediaItem> itemsAfterMove = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(items);
+
+              controller.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1, /* newIndex= */ 5000);
+
+              for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                itemsAfterMove.add(controller.getMediaItemAt(i));
+              }
+            });
+
+    assertThat(itemsAfterMove).containsExactly(items.get(1), items.get(0)).inOrder();
   }
 }

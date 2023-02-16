@@ -95,7 +95,6 @@ import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
@@ -112,6 +111,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
@@ -930,31 +930,100 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void illegalSeekPositionDoesThrow() throws Exception {
-    final IllegalSeekPositionException[] exception = new IllegalSeekPositionException[1];
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForPlaybackState(Player.STATE_BUFFERING)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(ExoPlayer player) {
-                    try {
-                      player.seekTo(/* mediaItemIndex= */ 100, /* positionMs= */ 0);
-                    } catch (IllegalSeekPositionException e) {
-                      exception[0] = e;
-                    }
-                  }
-                })
-            .waitForPlaybackState(Player.STATE_ENDED)
-            .build();
-    new ExoPlayerTestRunner.Builder(context)
-        .setActionSchedule(actionSchedule)
-        .build()
-        .start()
-        .blockUntilActionScheduleFinished(TIMEOUT_MS)
-        .blockUntilEnded(TIMEOUT_MS);
-    assertThat(exception[0]).isNotNull();
+  public void seekTo_indexLargerThanPlaylist_isIgnored() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItem(MediaItem.fromUri("http://test"));
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 1000);
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    player.release();
+  }
+
+  @Test
+  public void addMediaItems_indexLargerThanPlaylist_addsToEndOfPlaylist() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItem(MediaItem.fromUri("http://test"));
+    ImmutableList<MediaItem> addedItems =
+        ImmutableList.of(MediaItem.fromUri("http://new1"), MediaItem.fromUri("http://new2"));
+
+    player.addMediaItems(/* index= */ 5000, addedItems);
+
+    assertThat(player.getMediaItemCount()).isEqualTo(3);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(addedItems.get(0));
+    assertThat(player.getMediaItemAt(2)).isEqualTo(addedItems.get(1));
+    player.release();
+  }
+
+  @Test
+  public void removeMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItems(
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+    player.removeMediaItems(/* fromIndex= */ 5000, /* toIndex= */ 6000);
+
+    assertThat(player.getMediaItemCount()).isEqualTo(2);
+    player.release();
+  }
+
+  @Test
+  public void removeMediaItems_toIndexLargerThanPlaylist_removesUpToEndOfPlaylist()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItems(
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2")));
+
+    player.removeMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000);
+
+    assertThat(player.getMediaItemCount()).isEqualTo(1);
+    assertThat(player.getMediaItemAt(0).localConfiguration.uri.toString())
+        .isEqualTo("http://item1");
+    player.release();
+  }
+
+  @Test
+  public void moveMediaItems_fromIndexLargerThanPlaylist_isIgnored() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ImmutableList<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    player.setMediaItems(items);
+
+    player.moveMediaItems(/* fromIndex= */ 5000, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(items.get(0));
+    assertThat(player.getMediaItemAt(1)).isEqualTo(items.get(1));
+    player.release();
+  }
+
+  @Test
+  public void moveMediaItems_toIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ImmutableList<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    player.setMediaItems(items);
+
+    player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 6000, /* newIndex= */ 0);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(items.get(1));
+    assertThat(player.getMediaItemAt(1)).isEqualTo(items.get(0));
+    player.release();
+  }
+
+  @Test
+  public void moveMediaItems_newIndexLargerThanPlaylist_movesItemsUpToEndOfPlaylist()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ImmutableList<MediaItem> items =
+        ImmutableList.of(MediaItem.fromUri("http://item1"), MediaItem.fromUri("http://item2"));
+    player.setMediaItems(items);
+
+    player.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1, /* newIndex= */ 5000);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(items.get(1));
+    assertThat(player.getMediaItemAt(1)).isEqualTo(items.get(0));
+    player.release();
   }
 
   @Test
@@ -2523,7 +2592,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs).isEqualTo(C.POSITION_UNSET);
+    assertThat(target.positionMs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -2545,7 +2614,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs).isEqualTo(C.POSITION_UNSET);
+    assertThat(target.positionMs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -10407,7 +10476,9 @@ public final class ExoPlayerTest {
                 new Metadata(
                     new BinaryFrame(/* id= */ "", /* data= */ new byte[0]),
                     new TextInformationFrame(
-                        /* id= */ "TT2", /* description= */ null, /* value= */ "title")))
+                        /* id= */ "TT2",
+                        /* description= */ null,
+                        /* values= */ ImmutableList.of("title"))))
             .build();
 
     // Set multiple values together.
@@ -11897,7 +11968,11 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(context)
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) -> {
-                  videoRenderer.set(new FakeVideoRenderer(handler, videoListener));
+                  videoRenderer.set(
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener));
                   return new Renderer[] {videoRenderer.get()};
                 })
             .build();
@@ -11999,10 +12074,20 @@ public final class ExoPlayerTest {
 
   @Test
   @Config(sdk = Config.ALL_SDKS)
-  public void builder_inBackgroundThread_doesNotThrow() throws Exception {
+  public void builder_inBackgroundThreadWithAllowedAnyThreadMethods_doesNotThrow()
+      throws Exception {
     Thread builderThread =
         new Thread(
-            () -> new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
+            () -> {
+              ExoPlayer player =
+                  new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+              player.addListener(new Listener() {});
+              player.addAnalyticsListener(new AnalyticsListener() {});
+              player.addAudioOffloadListener(new ExoPlayer.AudioOffloadListener() {});
+              player.getClock();
+              player.getApplicationLooper();
+              player.getPlaybackLooper();
+            });
     AtomicReference<Throwable> builderThrow = new AtomicReference<>();
     builderThread.setUncaughtExceptionHandler((thread, throwable) -> builderThrow.set(throwable));
 
@@ -12034,7 +12119,12 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
-                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+                    new Renderer[] {
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener)
+                    })
             .build();
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
@@ -12059,7 +12149,12 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
-                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+                    new Renderer[] {
+                      new FakeVideoRenderer(
+                          SystemClock.DEFAULT.createHandler(
+                              handler.getLooper(), /* callback= */ null),
+                          videoListener)
+                    })
             .build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
@@ -12275,7 +12370,7 @@ public final class ExoPlayerTest {
 
     public PositionGrabbingMessageTarget() {
       mediaItemIndex = C.INDEX_UNSET;
-      positionMs = C.POSITION_UNSET;
+      positionMs = C.TIME_UNSET;
     }
 
     @Override

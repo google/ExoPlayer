@@ -16,20 +16,15 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.CheckResult;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -165,15 +160,8 @@ public final class TrackGroup implements Bundleable {
   }
 
   // Bundleable implementation.
-
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_FORMATS, FIELD_ID})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_FORMATS = 0;
-  private static final int FIELD_ID = 1;
+  private static final String FIELD_FORMATS = Util.intToStringMaxRadix(0);
+  private static final String FIELD_ID = Util.intToStringMaxRadix(1);
 
   @UnstableApi
   @Override
@@ -183,8 +171,8 @@ public final class TrackGroup implements Bundleable {
     for (Format format : formats) {
       arrayList.add(format.toBundle(/* excludeMetadata= */ true));
     }
-    bundle.putParcelableArrayList(keyForField(FIELD_FORMATS), arrayList);
-    bundle.putString(keyForField(FIELD_ID), id);
+    bundle.putParcelableArrayList(FIELD_FORMATS, arrayList);
+    bundle.putString(FIELD_ID, id);
     return bundle;
   }
 
@@ -192,19 +180,14 @@ public final class TrackGroup implements Bundleable {
   @UnstableApi
   public static final Creator<TrackGroup> CREATOR =
       bundle -> {
-        @Nullable
-        List<Bundle> formatBundles = bundle.getParcelableArrayList(keyForField(FIELD_FORMATS));
+        @Nullable List<Bundle> formatBundles = bundle.getParcelableArrayList(FIELD_FORMATS);
         List<Format> formats =
             formatBundles == null
                 ? ImmutableList.of()
                 : BundleableUtil.fromBundleList(Format.CREATOR, formatBundles);
-        String id = bundle.getString(keyForField(FIELD_ID), /* defaultValue= */ "");
+        String id = bundle.getString(FIELD_ID, /* defaultValue= */ "");
         return new TrackGroup(id, formats.toArray(new Format[0]));
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 
   private void verifyCorrectness() {
     // TrackGroups should only contain tracks with exactly the same content (but in different

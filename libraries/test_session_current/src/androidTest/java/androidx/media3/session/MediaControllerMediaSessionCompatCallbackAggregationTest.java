@@ -26,8 +26,11 @@ import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -42,6 +45,7 @@ import androidx.media3.common.Player.Events;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
+import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -73,11 +77,13 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
 
   private Context context;
   private RemoteMediaSessionCompat session;
+  private BitmapLoader bitmapLoader;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     session = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, context);
+    bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
   }
 
   @After
@@ -88,8 +94,8 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
   @Test
   public void getters_withValidQueueAndQueueIdAndMetadata() throws Exception {
     int testSize = 3;
-    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(testSize);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testMediaItems);
+    List<MediaItem> testMediaItems = MediaTestUtils.createMediaItemsWithArtworkData(testSize);
+    List<QueueItem> testQueue = convertToQueueItems(testMediaItems);
     int testMediaItemIndex = 1;
     MediaMetadataCompat testMediaMetadataCompat = createMediaMetadataCompat();
     @RatingCompat.Style int testRatingType = RatingCompat.RATING_HEART;
@@ -173,8 +179,28 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(mediaItemRef.get()).isEqualTo(testCurrentMediaItem);
     for (int i = 0; i < timelineRef.get().getWindowCount(); i++) {
-      assertThat(timelineRef.get().getWindow(i, new Window()).mediaItem)
-          .isEqualTo(i == testMediaItemIndex ? testCurrentMediaItem : testMediaItems.get(i));
+      MediaItem mediaItem = timelineRef.get().getWindow(i, new Window()).mediaItem;
+      MediaItem expectedMediaItem =
+          (i == testMediaItemIndex) ? testCurrentMediaItem : testMediaItems.get(i);
+      if (Util.SDK_INT < 21) {
+        // Bitmap conversion and back gives not exactly the same byte array below API 21
+        MediaMetadata mediaMetadata =
+            mediaItem
+                .mediaMetadata
+                .buildUpon()
+                .setArtworkData(/* artworkData= */ null, /* artworkDataType= */ null)
+                .build();
+        MediaMetadata expectedMediaMetadata =
+            expectedMediaItem
+                .mediaMetadata
+                .buildUpon()
+                .setArtworkData(/* artworkData= */ null, /* artworkDataType= */ null)
+                .build();
+        mediaItem = mediaItem.buildUpon().setMediaMetadata(mediaMetadata).build();
+        expectedMediaItem =
+            expectedMediaItem.buildUpon().setMediaMetadata(expectedMediaMetadata).build();
+      }
+      assertThat(mediaItem).isEqualTo(expectedMediaItem);
     }
     assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(mediaItemTransitionReasonRef.get())
@@ -202,7 +228,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
   public void getters_withValidQueueAndMetadataButWithInvalidQueueId() throws Exception {
     int testSize = 3;
     List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(testSize);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testMediaItems);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testMediaItems);
     MediaMetadataCompat testMediaMetadataCompat = createMediaMetadataCompat();
     @RatingCompat.Style int testRatingType = RatingCompat.RATING_HEART;
     MediaMetadata testMediaMetadata =
@@ -306,7 +332,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
   public void getters_withValidQueueAndQueueIdWithoutMetadata() throws Exception {
     int testSize = 3;
     List<MediaItem> testMediaItems = MediaTestUtils.createMediaItems(testSize);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testMediaItems);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testMediaItems);
     @RatingCompat.Style int testRatingType = RatingCompat.RATING_HEART;
     Events testEvents =
         new Events(
@@ -510,5 +536,19 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
           .that(mediaItem)
           .isEqualTo(mediaItems.get(i));
     }
+  }
+
+  private List<MediaSessionCompat.QueueItem> convertToQueueItems(List<MediaItem> mediaItems)
+      throws Exception {
+    List<MediaSessionCompat.QueueItem> list = new ArrayList<>();
+    for (int i = 0; i < mediaItems.size(); i++) {
+      MediaItem item = mediaItems.get(i);
+      @Nullable
+      Bitmap bitmap = bitmapLoader.decodeBitmap(item.mediaMetadata.artworkData).get(10, SECONDS);
+      MediaDescriptionCompat description = MediaUtils.convertToMediaDescriptionCompat(item, bitmap);
+      long id = MediaUtils.convertToQueueItemId(i);
+      list.add(new MediaSessionCompat.QueueItem(description, id));
+    }
+    return list;
   }
 }

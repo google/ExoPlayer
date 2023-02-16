@@ -28,16 +28,20 @@ import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media3.common.Bundleable;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -130,6 +134,7 @@ public final class SessionToken implements Bundleable {
     }
   }
 
+  /** Creates a session token connected to a Media3 session. */
   /* package */ SessionToken(
       int uid,
       int type,
@@ -143,27 +148,15 @@ public final class SessionToken implements Bundleable {
             uid, type, libraryVersion, interfaceVersion, packageName, iSession, tokenExtras);
   }
 
-  /* package */ SessionToken(Context context, MediaSessionCompat.Token compatToken) {
-    checkNotNull(context, "context must not be null");
-    checkNotNull(compatToken, "compatToken must not be null");
-
-    MediaControllerCompat controller = createMediaControllerCompat(context, compatToken);
-
-    String packageName = controller.getPackageName();
-    int uid = getUid(context.getPackageManager(), packageName);
-    Bundle extras = controller.getSessionInfo();
-
-    impl = new SessionTokenImplLegacy(compatToken, packageName, uid, extras);
-  }
-
-  /* package */ SessionToken(SessionTokenImpl impl) {
-    this.impl = impl;
+  /** Creates a session token connected to a legacy media session. */
+  private SessionToken(MediaSessionCompat.Token token, String packageName, int uid, Bundle extras) {
+    this.impl = new SessionTokenImplLegacy(token, packageName, uid, extras);
   }
 
   private SessionToken(Bundle bundle) {
-    checkArgument(bundle.containsKey(keyForField(FIELD_IMPL_TYPE)), "Impl type needs to be set.");
-    @SessionTokenImplType int implType = bundle.getInt(keyForField(FIELD_IMPL_TYPE));
-    Bundle implBundle = checkNotNull(bundle.getBundle(keyForField(FIELD_IMPL)));
+    checkArgument(bundle.containsKey(FIELD_IMPL_TYPE), "Impl type needs to be set.");
+    @SessionTokenImplType int implType = bundle.getInt(FIELD_IMPL_TYPE);
+    Bundle implBundle = checkNotNull(bundle.getBundle(FIELD_IMPL));
     if (implType == IMPL_TYPE_BASE) {
       impl = SessionTokenImplBase.CREATOR.fromBundle(implBundle);
     } else {
@@ -190,7 +183,11 @@ public final class SessionToken implements Bundleable {
     return impl.toString();
   }
 
-  /** Returns the uid of the session */
+  /**
+   * Returns the UID of the session process, or {@link C#INDEX_UNSET} if the UID can't be determined
+   * due to missing <a href="https://developer.android.com/training/package-visibility">package
+   * visibility</a>.
+   */
   public int getUid() {
     return impl.getUid();
   }
@@ -264,60 +261,110 @@ public final class SessionToken implements Bundleable {
   }
 
   /**
-   * Creates a token from {@link MediaSessionCompat.Token}.
+   * Creates a token from a {@link android.media.session.MediaSession.Token}.
    *
-   * @return a {@link ListenableFuture} of {@link SessionToken}
+   * @param context A {@link Context}.
+   * @param token The {@link android.media.session.MediaSession.Token}.
+   * @return A {@link ListenableFuture} for the {@link SessionToken}.
+   */
+  @SuppressWarnings("UnnecessarilyFullyQualified") // Avoiding clash with Media3 MediaSession.
+  @UnstableApi
+  @RequiresApi(21)
+  public static ListenableFuture<SessionToken> createSessionToken(
+      Context context, android.media.session.MediaSession.Token token) {
+    return createSessionToken(context, MediaSessionCompat.Token.fromToken(token));
+  }
+
+  /**
+   * Creates a token from a {@link android.media.session.MediaSession.Token}.
+   *
+   * @param context A {@link Context}.
+   * @param token The {@link android.media.session.MediaSession.Token}.
+   * @param completionLooper The {@link Looper} on which the returned {@link ListenableFuture}
+   *     completes. This {@link Looper} can't be used to call {@code future.get()} on the returned
+   *     {@link ListenableFuture}.
+   * @return A {@link ListenableFuture} for the {@link SessionToken}.
+   */
+  @SuppressWarnings("UnnecessarilyFullyQualified") // Avoiding clash with Media3 MediaSession.
+  @UnstableApi
+  @RequiresApi(21)
+  public static ListenableFuture<SessionToken> createSessionToken(
+      Context context, android.media.session.MediaSession.Token token, Looper completionLooper) {
+    return createSessionToken(context, MediaSessionCompat.Token.fromToken(token), completionLooper);
+  }
+
+  /**
+   * Creates a token from a {@link MediaSessionCompat.Token}.
+   *
+   * @param context A {@link Context}.
+   * @param compatToken The {@link MediaSessionCompat.Token}.
+   * @return A {@link ListenableFuture} for the {@link SessionToken}.
    */
   @UnstableApi
   public static ListenableFuture<SessionToken> createSessionToken(
-      Context context, Object compatToken) {
-    checkNotNull(context, "context must not be null");
-    checkNotNull(compatToken, "compatToken must not be null");
-    checkArgument(compatToken instanceof MediaSessionCompat.Token);
-
+      Context context, MediaSessionCompat.Token compatToken) {
     HandlerThread thread = new HandlerThread("SessionTokenThread");
     thread.start();
+    ListenableFuture<SessionToken> tokenFuture =
+        createSessionToken(context, compatToken, thread.getLooper());
+    tokenFuture.addListener(thread::quit, MoreExecutors.directExecutor());
+    return tokenFuture;
+  }
+
+  /**
+   * Creates a token from a {@link MediaSessionCompat.Token}.
+   *
+   * @param context A {@link Context}.
+   * @param compatToken The {@link MediaSessionCompat.Token}.
+   * @param completionLooper The {@link Looper} on which the returned {@link ListenableFuture}
+   *     completes. This {@link Looper} can't be used to call {@code future.get()} on the returned
+   *     {@link ListenableFuture}.
+   * @return A {@link ListenableFuture} for the {@link SessionToken}.
+   */
+  @UnstableApi
+  public static ListenableFuture<SessionToken> createSessionToken(
+      Context context, MediaSessionCompat.Token compatToken, Looper completionLooper) {
+    checkNotNull(context, "context must not be null");
+    checkNotNull(compatToken, "compatToken must not be null");
 
     SettableFuture<SessionToken> future = SettableFuture.create();
     // Try retrieving media3 token by connecting to the session.
-    MediaControllerCompat controller =
-        createMediaControllerCompat(context, (MediaSessionCompat.Token) compatToken);
+    MediaControllerCompat controller = new MediaControllerCompat(context, compatToken);
     String packageName = controller.getPackageName();
-    int uid = getUid(context.getPackageManager(), packageName);
-    Handler handler = new Handler(thread.getLooper());
+    Handler handler = new Handler(completionLooper);
+    Runnable createFallbackLegacyToken =
+        () -> {
+          int uid = getUid(context.getPackageManager(), packageName);
+          SessionToken resultToken =
+              new SessionToken(compatToken, packageName, uid, controller.getSessionInfo());
+          future.set(resultToken);
+        };
+    // Post creating a fallback token if the command receives no result after a timeout.
+    handler.postDelayed(createFallbackLegacyToken, WAIT_TIME_MS_FOR_SESSION3_TOKEN);
     controller.sendCommand(
         MediaConstants.SESSION_COMMAND_REQUEST_SESSION3_TOKEN,
         /* params= */ null,
         new ResultReceiver(handler) {
           @Override
           protected void onReceiveResult(int resultCode, Bundle resultData) {
+            // Remove timeout callback.
             handler.removeCallbacksAndMessages(null);
-            future.set(SessionToken.CREATOR.fromBundle(resultData));
+            try {
+              future.set(SessionToken.CREATOR.fromBundle(resultData));
+            } catch (RuntimeException e) {
+              // Fallback to a legacy token if we receive an unexpected result, e.g. a legacy
+              // session acknowledging commands by a success callback.
+              createFallbackLegacyToken.run();
+            }
           }
         });
-
-    handler.postDelayed(
-        () -> {
-          // Timed out getting session3 token. Handle this as a legacy token.
-          SessionToken resultToken =
-              new SessionToken(
-                  new SessionTokenImplLegacy(
-                      (MediaSessionCompat.Token) compatToken,
-                      packageName,
-                      uid,
-                      controller.getSessionInfo()));
-          future.set(resultToken);
-        },
-        WAIT_TIME_MS_FOR_SESSION3_TOKEN);
-    future.addListener(() -> thread.quit(), MoreExecutors.directExecutor());
     return future;
   }
 
   /**
-   * Returns a {@link ImmutableSet} of {@link SessionToken} for media session services; {@link
-   * MediaSessionService}, {@link MediaLibraryService}, and {@link MediaBrowserServiceCompat}
-   * regardless of their activeness. This set represents media apps that publish {@link
-   * MediaSession}.
+   * Returns an {@link ImmutableSet} of {@linkplain SessionToken session tokens} for media session
+   * services; {@link MediaSessionService}, {@link MediaLibraryService}, and {@link
+   * MediaBrowserServiceCompat} regardless of their activeness.
    *
    * <p>The app targeting API level 30 or higher must include a {@code <queries>} element in their
    * manifest to get service tokens of other apps. See the following example and <a
@@ -335,6 +382,8 @@ public final class SessionToken implements Bundleable {
    * </intent>
    * }</pre>
    */
+  // We ask the app to declare the <queries> tags, so it's expected that they are missing.
+  @SuppressWarnings("QueryPermissionsNeeded")
   public static ImmutableSet<SessionToken> getAllServiceTokens(Context context) {
     PackageManager pm = context.getPackageManager();
     List<ResolveInfo> services = new ArrayList<>();
@@ -371,6 +420,8 @@ public final class SessionToken implements Bundleable {
     return sessionServiceTokens.build();
   }
 
+  // We ask the app to declare the <queries> tags, so it's expected that they are missing.
+  @SuppressWarnings("QueryPermissionsNeeded")
   private static boolean isInterfaceDeclared(
       PackageManager manager, String serviceInterface, ComponentName serviceComponent) {
     Intent serviceIntent = new Intent(serviceInterface);
@@ -399,13 +450,8 @@ public final class SessionToken implements Bundleable {
     try {
       return manager.getApplicationInfo(packageName, 0).uid;
     } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalArgumentException("Cannot find package " + packageName, e);
+      return C.INDEX_UNSET;
     }
-  }
-
-  private static MediaControllerCompat createMediaControllerCompat(
-      Context context, MediaSessionCompat.Token sessionToken) {
-    return new MediaControllerCompat(context, sessionToken);
   }
 
   /* package */ interface SessionTokenImpl extends Bundleable {
@@ -436,14 +482,8 @@ public final class SessionToken implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_IMPL_TYPE, FIELD_IMPL})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_IMPL_TYPE = 0;
-  private static final int FIELD_IMPL = 1;
+  private static final String FIELD_IMPL_TYPE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_IMPL = Util.intToStringMaxRadix(1);
 
   /** Types of {@link SessionTokenImpl} */
   @Documented
@@ -460,11 +500,11 @@ public final class SessionToken implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     if (impl instanceof SessionTokenImplBase) {
-      bundle.putInt(keyForField(FIELD_IMPL_TYPE), IMPL_TYPE_BASE);
+      bundle.putInt(FIELD_IMPL_TYPE, IMPL_TYPE_BASE);
     } else {
-      bundle.putInt(keyForField(FIELD_IMPL_TYPE), IMPL_TYPE_LEGACY);
+      bundle.putInt(FIELD_IMPL_TYPE, IMPL_TYPE_LEGACY);
     }
-    bundle.putBundle(keyForField(FIELD_IMPL), impl.toBundle());
+    bundle.putBundle(FIELD_IMPL, impl.toBundle());
     return bundle;
   }
 
@@ -473,9 +513,5 @@ public final class SessionToken implements Bundleable {
 
   private static SessionToken fromBundle(Bundle bundle) {
     return new SessionToken(bundle);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

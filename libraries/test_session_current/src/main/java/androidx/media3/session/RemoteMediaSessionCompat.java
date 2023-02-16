@@ -111,6 +111,10 @@ public class RemoteMediaSessionCompat {
     binder.setPlaybackToLocal(sessionTag, stream);
   }
 
+  public int getCallbackMethodCount(String callbackMethodName) throws RemoteException {
+    return binder.getCallbackMethodCount(sessionTag, callbackMethodName);
+  }
+
   /**
    * Since we cannot pass VolumeProviderCompat directly, we pass volumeControl, maxVolume,
    * currentVolume instead.

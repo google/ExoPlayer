@@ -18,7 +18,9 @@ package androidx.media3.session;
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_PREPARE;
+import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.Player.STATE_IDLE;
+import static androidx.media3.common.Player.STATE_READY;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
@@ -204,7 +206,8 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void play() throws Exception {
+  public void play_whileReady_callsPlay() throws Exception {
+    player.playbackState = STATE_READY;
     session =
         new MediaSession.Builder(context, player)
             .setId("play")
@@ -217,6 +220,92 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     controller.getTransportControls().play();
 
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION)).isFalse();
+  }
+
+  @Test
+  public void play_whileIdle_callsPrepareAndPlay() throws Exception {
+    player.playbackState = STATE_IDLE;
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("play")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().play();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION)).isFalse();
+  }
+
+  @Test
+  public void play_whileIdleWithoutPrepareCommandAvailable_callsJustPlay() throws Exception {
+    player.playbackState = STATE_IDLE;
+    player.commands =
+        new Player.Commands.Builder().addAllCommands().remove(Player.COMMAND_PREPARE).build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("play")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().play();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION)).isFalse();
+  }
+
+  @Test
+  public void play_whileEnded_callsSeekToDefaultPositionAndPlay() throws Exception {
+    player.playbackState = STATE_ENDED;
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("play")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().play();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
+  }
+
+  @Test
+  public void play_whileEndedWithoutSeekToDefaultPositionCommandAvailable_callsJustPlay()
+      throws Exception {
+    player.playbackState = STATE_ENDED;
+    player.commands =
+        new Player.Commands.Builder()
+            .addAllCommands()
+            .remove(Player.COMMAND_SEEK_TO_DEFAULT_POSITION)
+            .build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("play")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().play();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION)).isFalse();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
   }
 
   @Test
@@ -428,7 +517,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void skipToPrevious() throws Exception {
+  public void skipToPrevious_withAllCommandsAvailable_callsSeekToPrevious() throws Exception {
     session =
         new MediaSession.Builder(context, player)
             .setId("skipToPrevious")
@@ -444,7 +533,29 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void skipToNext() throws Exception {
+  public void skipToPrevious_withoutSeekToPreviousCommandAvailable_callsSeekToPreviousMediaItem()
+      throws Exception {
+    player.commands =
+        new Player.Commands.Builder()
+            .addAllCommands()
+            .remove(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("skipToPrevious")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().skipToPrevious();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM, TIMEOUT_MS);
+  }
+
+  @Test
+  public void skipToNext_withAllCommandsAvailable_callsSeekToNext() throws Exception {
     session =
         new MediaSession.Builder(context, player)
             .setId("skipToNext")
@@ -457,6 +568,25 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     controller.getTransportControls().skipToNext();
 
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
+  }
+
+  @Test
+  public void skipToNext_withoutSeekToNextCommandAvailable_callsSeekToNextMediaItem()
+      throws Exception {
+    player.commands =
+        new Player.Commands.Builder().addAllCommands().remove(Player.COMMAND_SEEK_TO_NEXT).build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("skipToNext")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().skipToNext();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT_MEDIA_ITEM, TIMEOUT_MS);
   }
 
   @Test
@@ -831,7 +961,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void prepareFromMediaUri() throws Exception {
+  public void prepareFromMediaUri_withOnAddMediaItems() throws Exception {
     Uri mediaUri = Uri.parse("foo://bar");
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
@@ -858,7 +988,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().prepareFromUri(mediaUri, bundle);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     assertThat(requestedMediaItems.get()).hasSize(1);
     assertThat(requestedMediaItems.get().get(0).requestMetadata.mediaUri).isEqualTo(mediaUri);
@@ -867,7 +997,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void playFromMediaUri() throws Exception {
+  public void playFromMediaUri_withOnAddMediaItems() throws Exception {
     Uri request = Uri.parse("foo://bar");
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
@@ -894,7 +1024,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().playFromUri(request, bundle);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
     assertThat(requestedMediaItems.get()).hasSize(1);
@@ -904,7 +1034,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void prepareFromMediaId() throws Exception {
+  public void prepareFromMediaId_withOnAddMediaItems() throws Exception {
     String request = "media_id";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
@@ -931,7 +1061,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().prepareFromMediaId(request, bundle);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     assertThat(requestedMediaItems.get()).hasSize(1);
     assertThat(requestedMediaItems.get().get(0).mediaId).isEqualTo(request);
@@ -940,7 +1070,53 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void playFromMediaId() throws Exception {
+  public void prepareFromMediaId_withOnSetMediaItems_callsPlayerWithStartIndex() throws Exception {
+    String request = "media_id";
+    Bundle bundle = new Bundle();
+    bundle.putString("key", "value");
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onSetMediaItems(
+              MediaSession mediaSession,
+              ControllerInfo controller,
+              List<MediaItem> mediaItems,
+              int startIndex,
+              long startPositionMs) {
+            requestedMediaItems.set(mediaItems);
+            return executorService.submit(
+                () ->
+                    new MediaSession.MediaItemsWithStartPosition(
+                        ImmutableList.of(resolvedMediaItem),
+                        /* startIndex= */ 2,
+                        /* startPositionMs= */ 100));
+          }
+        };
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("prepareFromMediaId")
+            .setCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().prepareFromMediaId(request, bundle);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).mediaId).isEqualTo(request);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
+    assertThat(player.startMediaItemIndex).isEqualTo(2);
+    assertThat(player.startPositionMs).isEqualTo(100);
+  }
+
+  @Test
+  public void playFromMediaId_withOnAddMediaItems() throws Exception {
     String mediaId = "media_id";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
@@ -967,7 +1143,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().playFromMediaId(mediaId, bundle);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
     assertThat(requestedMediaItems.get()).hasSize(1);
@@ -977,7 +1153,49 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void prepareFromSearch() throws Exception {
+  public void playFromMediaId_withOnSetMediaItems_callsPlayerWithStartIndex() throws Exception {
+    String mediaId = "media_id";
+    Bundle bundle = new Bundle();
+    bundle.putString("key", "value");
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onSetMediaItems(
+              MediaSession mediaSession,
+              ControllerInfo controller,
+              List<MediaItem> mediaItems,
+              int startIndex,
+              long startPositionMs) {
+            return executorService.submit(
+                () ->
+                    new MediaSession.MediaItemsWithStartPosition(
+                        ImmutableList.of(resolvedMediaItem),
+                        /* startIndex= */ 2,
+                        /* startPositionMs= */ 100));
+          }
+        };
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("playFromMediaId")
+            .setCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().playFromMediaId(mediaId, bundle);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
+    assertThat(player.startMediaItemIndex).isEqualTo(2);
+    assertThat(player.startPositionMs).isEqualTo(100);
+  }
+
+  @Test
+  public void prepareFromSearch_withOnAddMediaItems() throws Exception {
     String query = "test_query";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
@@ -1004,7 +1222,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().prepareFromSearch(query, bundle);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     assertThat(requestedMediaItems.get()).hasSize(1);
     assertThat(requestedMediaItems.get().get(0).requestMetadata.searchQuery).isEqualTo(query);
@@ -1013,7 +1231,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
-  public void playFromSearch() throws Exception {
+  public void playFromSearch_withOnAddMediaItems() throws Exception {
     String query = "test_query";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
@@ -1040,12 +1258,107 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().playFromSearch(query, bundle);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
     assertThat(requestedMediaItems.get()).hasSize(1);
     assertThat(requestedMediaItems.get().get(0).requestMetadata.searchQuery).isEqualTo(query);
     TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
+  }
+
+  @Test
+  public void prepareFromMediaUri_withoutAvailablePrepareCommand_justCallsSetMediaItems()
+      throws Exception {
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            return Futures.immediateFuture(ImmutableList.of(resolvedMediaItem));
+          }
+        };
+    player.commands =
+        new Player.Commands.Builder().addAllCommands().remove(COMMAND_PREPARE).build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("prepareFromMediaUri")
+            .setCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().prepareFromUri(Uri.parse("foo://bar"), Bundle.EMPTY);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
+  }
+
+  @Test
+  public void playFromMediaUri_withoutAvailablePrepareCommand_justCallsSetMediaItemsAndPlay()
+      throws Exception {
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            return Futures.immediateFuture(ImmutableList.of(resolvedMediaItem));
+          }
+        };
+    player.commands =
+        new Player.Commands.Builder().addAllCommands().remove(COMMAND_PREPARE).build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("prepareFromMediaUri")
+            .setCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().playFromUri(Uri.parse("foo://bar"), Bundle.EMPTY);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
+  }
+
+  @Test
+  public void playFromMediaUri_withoutAvailablePrepareAndPlayCommand_justCallsSetMediaItems()
+      throws Exception {
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            return Futures.immediateFuture(ImmutableList.of(resolvedMediaItem));
+          }
+        };
+    player.commands =
+        new Player.Commands.Builder()
+            .addAllCommands()
+            .removeAll(COMMAND_PREPARE, COMMAND_PLAY_PAUSE)
+            .build();
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("prepareFromMediaUri")
+            .setCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().playFromUri(Uri.parse("foo://bar"), Bundle.EMPTY);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isFalse();
     assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 

@@ -18,20 +18,15 @@ package androidx.media3.common;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.BundleableUtil.toBundleArrayList;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Booleans;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
@@ -221,29 +216,19 @@ public final class Tracks implements Bundleable {
     }
 
     // Bundleable implementation.
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      FIELD_TRACK_GROUP,
-      FIELD_TRACK_SUPPORT,
-      FIELD_TRACK_SELECTED,
-      FIELD_ADAPTIVE_SUPPORTED,
-    })
-    private @interface FieldNumber {}
 
-    private static final int FIELD_TRACK_GROUP = 0;
-    private static final int FIELD_TRACK_SUPPORT = 1;
-    private static final int FIELD_TRACK_SELECTED = 3;
-    private static final int FIELD_ADAPTIVE_SUPPORTED = 4;
+    private static final String FIELD_TRACK_GROUP = Util.intToStringMaxRadix(0);
+    private static final String FIELD_TRACK_SUPPORT = Util.intToStringMaxRadix(1);
+    private static final String FIELD_TRACK_SELECTED = Util.intToStringMaxRadix(3);
+    private static final String FIELD_ADAPTIVE_SUPPORTED = Util.intToStringMaxRadix(4);
 
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putBundle(keyForField(FIELD_TRACK_GROUP), mediaTrackGroup.toBundle());
-      bundle.putIntArray(keyForField(FIELD_TRACK_SUPPORT), trackSupport);
-      bundle.putBooleanArray(keyForField(FIELD_TRACK_SELECTED), trackSelected);
-      bundle.putBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), adaptiveSupported);
+      bundle.putBundle(FIELD_TRACK_GROUP, mediaTrackGroup.toBundle());
+      bundle.putIntArray(FIELD_TRACK_SUPPORT, trackSupport);
+      bundle.putBooleanArray(FIELD_TRACK_SELECTED, trackSelected);
+      bundle.putBoolean(FIELD_ADAPTIVE_SUPPORTED, adaptiveSupported);
       return bundle;
     }
 
@@ -253,23 +238,16 @@ public final class Tracks implements Bundleable {
         bundle -> {
           // Can't create a Tracks.Group without a TrackGroup
           TrackGroup trackGroup =
-              TrackGroup.CREATOR.fromBundle(
-                  checkNotNull(bundle.getBundle(keyForField(FIELD_TRACK_GROUP))));
+              TrackGroup.CREATOR.fromBundle(checkNotNull(bundle.getBundle(FIELD_TRACK_GROUP)));
           final @C.FormatSupport int[] trackSupport =
               MoreObjects.firstNonNull(
-                  bundle.getIntArray(keyForField(FIELD_TRACK_SUPPORT)), new int[trackGroup.length]);
+                  bundle.getIntArray(FIELD_TRACK_SUPPORT), new int[trackGroup.length]);
           boolean[] selected =
               MoreObjects.firstNonNull(
-                  bundle.getBooleanArray(keyForField(FIELD_TRACK_SELECTED)),
-                  new boolean[trackGroup.length]);
-          boolean adaptiveSupported =
-              bundle.getBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), false);
+                  bundle.getBooleanArray(FIELD_TRACK_SELECTED), new boolean[trackGroup.length]);
+          boolean adaptiveSupported = bundle.getBoolean(FIELD_ADAPTIVE_SUPPORTED, false);
           return new Group(trackGroup, adaptiveSupported, trackSupport, selected);
         };
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
   }
 
   /** Empty tracks. */
@@ -385,21 +363,13 @@ public final class Tracks implements Bundleable {
   }
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_TRACK_GROUPS,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_TRACK_GROUPS = 0;
+  private static final String FIELD_TRACK_GROUPS = Util.intToStringMaxRadix(0);
 
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putParcelableArrayList(keyForField(FIELD_TRACK_GROUPS), toBundleArrayList(groups));
+    bundle.putParcelableArrayList(FIELD_TRACK_GROUPS, toBundleArrayList(groups));
     return bundle;
   }
 
@@ -407,16 +377,11 @@ public final class Tracks implements Bundleable {
   @UnstableApi
   public static final Creator<Tracks> CREATOR =
       bundle -> {
-        @Nullable
-        List<Bundle> groupBundles = bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS));
+        @Nullable List<Bundle> groupBundles = bundle.getParcelableArrayList(FIELD_TRACK_GROUPS);
         List<Group> groups =
             groupBundles == null
                 ? ImmutableList.of()
                 : BundleableUtil.fromBundleList(Group.CREATOR, groupBundles);
         return new Tracks(groups);
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

@@ -35,14 +35,19 @@ oneway interface IMediaController {
   void onSetCustomLayout(int seq, in List<Bundle> commandButtonList) = 3003;
   void onCustomCommand(int seq, in Bundle command, in Bundle args) = 3004;
   void onDisconnected(int seq) = 3005;
-  void onPlayerInfoChanged(int seq, in Bundle playerInfoBundle, boolean isTimelineExcluded) = 3006;
+  /** Deprecated: Use onPlayerInfoChangedWithExclusions from MediaControllerStub#VERSION_INT=2. */
+  void onPlayerInfoChanged(
+      int seq, in Bundle playerInfoBundle, boolean isTimelineExcluded) = 3006;
+  /** Introduced to deprecate onPlayerInfoChanged (from MediaControllerStub#VERSION_INT=2). */
+  void onPlayerInfoChangedWithExclusions(
+      int seq, in Bundle playerInfoBundle, in Bundle playerInfoExclusions) = 3012;
   void onPeriodicSessionPositionInfoChanged(int seq, in Bundle sessionPositionInfo) = 3007;
   void onAvailableCommandsChangedFromPlayer(int seq, in Bundle commandsBundle) = 3008;
   void onAvailableCommandsChangedFromSession(
       int seq, in Bundle sessionCommandsBundle, in Bundle playerCommandsBundle) = 3009;
   void onRenderedFirstFrame(int seq) = 3010;
   void onExtrasChanged(int seq, in Bundle extras) = 3011;
-  // Next Id for MediaController: 3012
+  // Next Id for MediaController: 3013
 
   void onChildrenChanged(
       int seq, String parentId, int itemCount, in @nullable Bundle libraryParams) = 4000;

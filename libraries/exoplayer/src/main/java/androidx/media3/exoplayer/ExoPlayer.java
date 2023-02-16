@@ -24,6 +24,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.os.Looper;
+import android.os.Process;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -131,15 +132,15 @@ import java.util.List;
  * threading model">
  *
  * <ul>
- *   <li>ExoPlayer instances must be accessed from a single application thread. For the vast
- *       majority of cases this should be the application's main thread. Using the application's
- *       main thread is also a requirement when using ExoPlayer's UI components or the IMA
- *       extension. The thread on which an ExoPlayer instance must be accessed can be explicitly
- *       specified by passing a `Looper` when creating the player. If no `Looper` is specified, then
- *       the `Looper` of the thread that the player is created on is used, or if that thread does
- *       not have a `Looper`, the `Looper` of the application's main thread is used. In all cases
- *       the `Looper` of the thread from which the player must be accessed can be queried using
- *       {@link #getApplicationLooper()}.
+ *   <li>ExoPlayer instances must be accessed from a single application thread unless indicated
+ *       otherwise. For the vast majority of cases this should be the application's main thread.
+ *       Using the application's main thread is also a requirement when using ExoPlayer's UI
+ *       components or the IMA extension. The thread on which an ExoPlayer instance must be accessed
+ *       can be explicitly specified by passing a `Looper` when creating the player. If no `Looper`
+ *       is specified, then the `Looper` of the thread that the player is created on is used, or if
+ *       that thread does not have a `Looper`, the `Looper` of the application's main thread is
+ *       used. In all cases the `Looper` of the thread from which the player must be accessed can be
+ *       queried using {@link #getApplicationLooper()}.
  *   <li>Registered listeners are called on the thread associated with {@link
  *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
  *       thread which must be used to access the player.
@@ -485,6 +486,7 @@ public interface ExoPlayer extends Player {
     /* package */ long detachSurfaceTimeoutMs;
     /* package */ boolean pauseAtEndOfMediaItems;
     /* package */ boolean usePlatformDiagnostics;
+    @Nullable /* package */ Looper playbackLooper;
     /* package */ boolean buildCalled;
 
     /**
@@ -527,6 +529,7 @@ public interface ExoPlayer extends Player {
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@code usePlatformDiagnostics}: {@code true}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
+     *   <li>{@code playbackLooper}: {@code null} (create new thread)
      * </ul>
      *
      * @param context A {@link Context}.
@@ -1135,6 +1138,24 @@ public interface ExoPlayer extends Player {
     }
 
     /**
+     * Sets the {@link Looper} that will be used for playback.
+     *
+     * <p>The backing thread should run with priority {@link Process#THREAD_PRIORITY_AUDIO} and
+     * should handle messages within 10ms.
+     *
+     * @param playbackLooper A {@link looper}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @CanIgnoreReturnValue
+    @UnstableApi
+    public Builder setPlaybackLooper(Looper playbackLooper) {
+      checkState(!buildCalled);
+      this.playbackLooper = playbackLooper;
+      return this;
+    }
+
+    /**
      * Builds an {@link ExoPlayer} instance.
      *
      * @throws IllegalStateException If this method has already been called.
@@ -1208,6 +1229,8 @@ public interface ExoPlayer extends Player {
   /**
    * Adds a listener to receive audio offload events.
    *
+   * <p>This method can be called from any thread.
+   *
    * @param listener The listener to register.
    */
   @UnstableApi
@@ -1227,6 +1250,8 @@ public interface ExoPlayer extends Player {
 
   /**
    * Adds an {@link AnalyticsListener} to receive analytics events.
+   *
+   * <p>This method can be called from any thread.
    *
    * @param listener The listener to be added.
    */
@@ -1293,11 +1318,19 @@ public interface ExoPlayer extends Player {
   @Deprecated
   TrackSelectionArray getCurrentTrackSelections();
 
-  /** Returns the {@link Looper} associated with the playback thread. */
+  /**
+   * Returns the {@link Looper} associated with the playback thread.
+   *
+   * <p>This method may be called from any thread.
+   */
   @UnstableApi
   Looper getPlaybackLooper();
 
-  /** Returns the {@link Clock} used for playback. */
+  /**
+   * Returns the {@link Clock} used for playback.
+   *
+   * <p>This method can be called from any thread.
+   */
   @UnstableApi
   Clock getClock();
 

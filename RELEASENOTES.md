@@ -1,4 +1,101 @@
-Release notes
+# Release notes
+
+### 1.0.0-rc01 (2023-02-16)
+
+This release corresponds to the
+[ExoPlayer 2.18.3 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.3).
+
+*   Core library:
+    *   Tweak the renderer's decoder ordering logic to uphold the
+        `MediaCodecSelector`'s preferences, even if a decoder reports it may not
+        be able to play the media performantly. For example with default
+        selector, hardware decoder with only functional support will be
+        preferred over software decoder that fully supports the format
+        ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
+    *   Add `ExoPlayer.Builder.setPlaybackLooper` that sets a pre-existing
+        playback thread for a new ExoPlayer instance.
+    *   Allow download manager helpers to be cleared
+        ([#10776](https://github.com/google/ExoPlayer/issues/10776)).
+    *   Add parameter to `BasePlayer.seekTo` to also indicate the command used
+        for seeking.
+    *   Use theme when loading drawables on API 21+
+        ([#220](https://github.com/androidx/media/issues/220)).
+    *   Add `ConcatenatingMediaSource2` that allows combining multiple media
+        items into a single window
+        ([#247](https://github.com/androidx/media/issues/247)).
+*   Extractors:
+    *   Throw a `ParserException` instead of a `NullPointerException` if the
+        sample table (stbl) is missing a required sample description (stsd) when
+        parsing trak atoms.
+    *   Correctly skip samples when seeking directly to a sync frame in fMP4
+        ([#10941](https://github.com/google/ExoPlayer/issues/10941)).
+*   Audio:
+    *   Use the compressed audio format bitrate to calculate the min buffer size
+        for `AudioTrack` in direct playbacks (passthrough).
+*   Text:
+    *   Fix `TextRenderer` passing an invalid (negative) index to
+        `Subtitle.getEventTime` if a subtitle file contains no cues.
+    *   SubRip: Add support for UTF-16 files if they start with a byte order
+        mark.
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
+    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
+        of folder described by the metadata.
+    *   Add `MediaMetadata.isBrowsable` as a replacement for
+        `MediaMetadata.folderType`. The folder type will be deprecated in the
+        next release.
+*   DASH:
+    *   Add full parsing for image adaptation sets, including tile counts
+        ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
+*   UI:
+    *   Fix the deprecated
+        `PlayerView.setControllerVisibilityListener(PlayerControlView.VisibilityListener)`
+        to ensure visibility changes are passed to the registered listener
+        ([#229](https://github.com/androidx/media/issues/229)).
+    *   Fix the ordering of the center player controls in `PlayerView` when
+        using a right-to-left (RTL) layout
+        ([#227](https://github.com/androidx/media/issues/227)).
+*   Session:
+    *   Add abstract `SimpleBasePlayer` to help implement the `Player` interface
+        for custom players.
+    *   Add helper method to convert platform session token to Media3
+        `SessionToken` ([#171](https://github.com/androidx/media/issues/171)).
+    *   Use `onMediaMetadataChanged` to trigger updates of the platform media
+        session ([#219](https://github.com/androidx/media/issues/219)).
+    *   Add the media session as an argument of `getMediaButtons()` of the
+        `DefaultMediaNotificationProvider` and use immutable lists for clarity
+        ([#216](https://github.com/androidx/media/issues/216)).
+    *   Add `onSetMediaItems` callback listener to provide means to modify/set
+        `MediaItem` list, starting index and position by session before setting
+        onto Player ([#156](https://github.com/androidx/media/issues/156)).
+    *   Avoid double tap detection for non-Bluetooth media button events
+        ([#233](https://github.com/androidx/media/issues/233)).
+    *   Make `QueueTimeline` more robust in case of a shady legacy session state
+        ([#241](https://github.com/androidx/media/issues/241)).
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
+    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
+        of folder described by the metadata.
+    *   Add `MediaMetadata.isBrowsable` as a replacement for
+        `MediaMetadata.folderType`. The folder type will be deprecated in the
+        next release.
+*   Cast extension:
+    *   Bump Cast SDK version to 21.2.0.
+*   IMA extension:
+    *   Remove player listener of the `ImaServerSideAdInsertionMediaSource` on
+        the application thread to avoid threading issues.
+    *   Add a property `focusSkipButtonWhenAvailable` to the
+        `ImaServerSideAdInsertionMediaSource.AdsLoader.Builder` to request
+        focusing the skip button on TV devices and set it to true by default.
+    *   Add a method `focusSkipButton()` to the
+        `ImaServerSideAdInsertionMediaSource.AdsLoader` to programmatically
+        request to focus the skip button.
+    *   Bump IMA SDK version to 3.29.0.
+*   Demo app:
+    *   Request notification permission for download notifications at runtime
+        ([#10884](https://github.com/google/ExoPlayer/issues/10884)).
 
 ### 1.0.0-beta03 (2022-11-22)
 
@@ -259,15 +356,15 @@ This release corresponds to the
     *   Query the platform (API 29+) or assume the audio encoding channel count
         for audio passthrough when the format audio channel count is unset,
         which occurs with HLS chunkless preparation
-        ([10204](https://github.com/google/ExoPlayer/issues/10204)).
+        ([#10204](https://github.com/google/ExoPlayer/issues/10204)).
     *   Configure `AudioTrack` with channel mask
         `AudioFormat.CHANNEL_OUT_7POINT1POINT4` if the decoder outputs 12
         channel PCM audio
-        ([#10322](#https://github.com/google/ExoPlayer/pull/10322).
+        ([#10322](#https://github.com/google/ExoPlayer/pull/10322)).
 *   DRM
     *   Ensure the DRM session is always correctly updated when seeking
         immediately after a format change
-        ([10274](https://github.com/google/ExoPlayer/issues/10274)).
+        ([#10274](https://github.com/google/ExoPlayer/issues/10274)).
 *   Text:
     *   Change `Player.getCurrentCues()` to return `CueGroup` instead of
         `List<Cue>`.

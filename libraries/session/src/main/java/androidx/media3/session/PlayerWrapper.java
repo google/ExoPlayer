@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_ID_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT;
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -34,6 +36,7 @@ import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.media.VolumeProviderCompat;
 import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
@@ -43,9 +46,11 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -133,6 +138,12 @@ import java.util.List;
     super.play();
   }
 
+  public void playIfCommandAvailable() {
+    if (isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+      play();
+    }
+  }
+
   @Override
   public void pause() {
     verifyApplicationThread();
@@ -143,6 +154,12 @@ import java.util.List;
   public void prepare() {
     verifyApplicationThread();
     super.prepare();
+  }
+
+  public void prepareIfCommandAvailable() {
+    if (isCommandAvailable(COMMAND_PREPARE)) {
+      prepare();
+    }
   }
 
   @Override
@@ -161,6 +178,18 @@ import java.util.List;
   public void seekToDefaultPosition(int mediaItemIndex) {
     verifyApplicationThread();
     super.seekToDefaultPosition(mediaItemIndex);
+  }
+
+  @Override
+  public void seekToDefaultPosition() {
+    verifyApplicationThread();
+    super.seekToDefaultPosition();
+  }
+
+  public void seekToDefaultPositionIfCommandAvailable() {
+    if (isCommandAvailable(Player.COMMAND_SEEK_TO_DEFAULT_POSITION)) {
+      seekToDefaultPosition();
+    }
   }
 
   @Override
@@ -221,6 +250,10 @@ import java.util.List;
   public long getDuration() {
     verifyApplicationThread();
     return super.getDuration();
+  }
+
+  public long getDurationWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM) ? getDuration() : C.TIME_UNSET;
   }
 
   @Override
@@ -353,6 +386,12 @@ import java.util.List;
   public AudioAttributes getAudioAttributes() {
     verifyApplicationThread();
     return super.getAudioAttributes();
+  }
+
+  public AudioAttributes getAudioAttributesWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_AUDIO_ATTRIBUTES)
+        ? getAudioAttributes()
+        : AudioAttributes.DEFAULT;
   }
 
   @Override
@@ -549,10 +588,25 @@ import java.util.List;
     return super.getCurrentTimeline();
   }
 
+  public Timeline getCurrentTimelineWithCommandCheck() {
+    if (isCommandAvailable(COMMAND_GET_TIMELINE)) {
+      return getCurrentTimeline();
+    } else if (isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)) {
+      return new CurrentMediaItemOnlyTimeline(this);
+    }
+    return Timeline.EMPTY;
+  }
+
   @Override
   public MediaMetadata getPlaylistMetadata() {
     verifyApplicationThread();
     return super.getPlaylistMetadata();
+  }
+
+  public MediaMetadata getPlaylistMetadataWithCommandCheck() {
+    return isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)
+        ? getPlaylistMetadata()
+        : MediaMetadata.EMPTY;
   }
 
   @Override
@@ -572,6 +626,11 @@ import java.util.List;
   public MediaItem getCurrentMediaItem() {
     verifyApplicationThread();
     return super.getCurrentMediaItem();
+  }
+
+  @Nullable
+  public MediaItem getCurrentMediaItemWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM) ? getCurrentMediaItem() : null;
   }
 
   @Override
@@ -631,6 +690,10 @@ import java.util.List;
     return super.getVolume();
   }
 
+  public float getVolumeWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_VOLUME) ? getVolume() : 0;
+  }
+
   @Override
   public void setVolume(float volume) {
     verifyApplicationThread();
@@ -641,6 +704,10 @@ import java.util.List;
   public CueGroup getCurrentCues() {
     verifyApplicationThread();
     return super.getCurrentCues();
+  }
+
+  public CueGroup getCurrentCuesWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_TEXT) ? getCurrentCues() : CueGroup.EMPTY_TIME_ZERO;
   }
 
   @Override
@@ -655,16 +722,30 @@ import java.util.List;
     return super.getDeviceVolume();
   }
 
+  public int getDeviceVolumeWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_DEVICE_VOLUME) ? getDeviceVolume() : 0;
+  }
+
   @Override
   public boolean isDeviceMuted() {
     verifyApplicationThread();
     return super.isDeviceMuted();
   }
 
+  public boolean isDeviceMutedWithCommandCheck() {
+    return isCommandAvailable(Player.COMMAND_GET_DEVICE_VOLUME) && isDeviceMuted();
+  }
+
   @Override
   public void setDeviceVolume(int volume) {
     verifyApplicationThread();
     super.setDeviceVolume(volume);
+  }
+
+  public void setDeviceVolumeIfCommandAvailable(int volume) {
+    if (isCommandAvailable(COMMAND_SET_DEVICE_VOLUME)) {
+      setDeviceVolume(volume);
+    }
   }
 
   @Override
@@ -729,6 +810,12 @@ import java.util.List;
     return super.getMediaMetadata();
   }
 
+  public MediaMetadata getMediaMetadataWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)
+        ? getMediaMetadata()
+        : MediaMetadata.EMPTY;
+  }
+
   @Override
   public boolean isCommandAvailable(@Command int command) {
     verifyApplicationThread();
@@ -753,6 +840,71 @@ import java.util.List;
     super.setTrackSelectionParameters(parameters);
   }
 
+  @Override
+  public void seekToPrevious() {
+    verifyApplicationThread();
+    super.seekToPrevious();
+  }
+
+  @Override
+  public long getMaxSeekToPreviousPosition() {
+    verifyApplicationThread();
+    return super.getMaxSeekToPreviousPosition();
+  }
+
+  @Override
+  public void seekToNext() {
+    verifyApplicationThread();
+    super.seekToNext();
+  }
+
+  @Override
+  public Tracks getCurrentTracks() {
+    verifyApplicationThread();
+    return super.getCurrentTracks();
+  }
+
+  public Tracks getCurrentTracksWithCommandCheck() {
+    return isCommandAvailable(COMMAND_GET_TRACKS) ? getCurrentTracks() : Tracks.EMPTY;
+  }
+
+  @Nullable
+  @Override
+  public Object getCurrentManifest() {
+    verifyApplicationThread();
+    return super.getCurrentManifest();
+  }
+
+  @Override
+  public int getCurrentPeriodIndex() {
+    verifyApplicationThread();
+    return super.getCurrentPeriodIndex();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemDynamic() {
+    verifyApplicationThread();
+    return super.isCurrentMediaItemDynamic();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemLive() {
+    verifyApplicationThread();
+    return super.isCurrentMediaItemLive();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemSeekable() {
+    verifyApplicationThread();
+    return super.isCurrentMediaItemSeekable();
+  }
+
+  @Override
+  public Size getSurfaceSize() {
+    verifyApplicationThread();
+    return super.getSurfaceSize();
+  }
+
   public PlaybackStateCompat createPlaybackStateCompat() {
     if (legacyStatusCode != STATUS_CODE_SUCCESS_COMPAT) {
       return new PlaybackStateCompat.Builder()
@@ -771,50 +923,34 @@ import java.util.List;
     int state =
         MediaUtils.convertToPlaybackStateCompatState(
             playerError, getPlaybackState(), getPlayWhenReady());
-    long allActions =
-        PlaybackStateCompat.ACTION_STOP
-            | PlaybackStateCompat.ACTION_PAUSE
-            | PlaybackStateCompat.ACTION_PLAY
-            | PlaybackStateCompat.ACTION_REWIND
-            | PlaybackStateCompat.ACTION_FAST_FORWARD
-            | PlaybackStateCompat.ACTION_SET_RATING
-            | PlaybackStateCompat.ACTION_SEEK_TO
-            | PlaybackStateCompat.ACTION_PLAY_PAUSE
-            | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-            | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-            | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-            | PlaybackStateCompat.ACTION_PLAY_FROM_URI
-            | PlaybackStateCompat.ACTION_PREPARE
-            | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
-            | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
-            | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
-            | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-            | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
-            | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
-    if (getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS)
-        || getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
-      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+    // Always advertise ACTION_SET_RATING.
+    long actions = PlaybackStateCompat.ACTION_SET_RATING;
+    Commands availableCommands = getAvailableCommands();
+    for (int i = 0; i < availableCommands.size(); i++) {
+      actions |= convertCommandToPlaybackStateActions(availableCommands.get(i));
     }
-    if (getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT)
-        || getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
-      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
-    }
-    long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
+    long queueItemId =
+        isCommandAvailable(COMMAND_GET_TIMELINE)
+            ? MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex())
+            : MediaSessionCompat.QueueItem.UNKNOWN_ID;
     float playbackSpeed = getPlaybackParameters().speed;
     float sessionPlaybackSpeed = isPlaying() ? playbackSpeed : 0f;
     Bundle extras = new Bundle();
     extras.putFloat(EXTRAS_KEY_PLAYBACK_SPEED_COMPAT, playbackSpeed);
-    @Nullable MediaItem currentMediaItem = getCurrentMediaItem();
+    @Nullable MediaItem currentMediaItem = getCurrentMediaItemWithCommandCheck();
     if (currentMediaItem != null && !MediaItem.DEFAULT_MEDIA_ID.equals(currentMediaItem.mediaId)) {
       extras.putString(EXTRAS_KEY_MEDIA_ID_COMPAT, currentMediaItem.mediaId);
     }
+    boolean canReadPositions = isCommandAvailable(Player.COMMAND_GET_CURRENT_MEDIA_ITEM);
+    long compatPosition =
+        canReadPositions ? getCurrentPosition() : PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN;
+    long compatBufferedPosition = canReadPositions ? getBufferedPosition() : 0;
     PlaybackStateCompat.Builder builder =
         new PlaybackStateCompat.Builder()
-            .setState(
-                state, getCurrentPosition(), sessionPlaybackSpeed, SystemClock.elapsedRealtime())
-            .setActions(allActions)
+            .setState(state, compatPosition, sessionPlaybackSpeed, SystemClock.elapsedRealtime())
+            .setActions(actions)
             .setActiveQueueItemId(queueItemId)
-            .setBufferedPosition(getBufferedPosition())
+            .setBufferedPosition(compatBufferedPosition)
             .setExtras(extras);
 
     for (int i = 0; i < customLayout.size(); i++) {
@@ -853,11 +989,11 @@ import java.util.List;
       }
     }
     Handler handler = new Handler(getApplicationLooper());
-    return new VolumeProviderCompat(
-        volumeControlType, getDeviceInfo().maxVolume, getDeviceVolume()) {
+    int currentVolume = getDeviceVolumeWithCommandCheck();
+    return new VolumeProviderCompat(volumeControlType, getDeviceInfo().maxVolume, currentVolume) {
       @Override
       public void onSetVolumeTo(int volume) {
-        postOrRun(handler, () -> setDeviceVolume(volume));
+        postOrRun(handler, () -> setDeviceVolumeIfCommandAvailable(volume));
       }
 
       @Override
@@ -865,6 +1001,9 @@ import java.util.List;
         postOrRun(
             handler,
             () -> {
+              if (!isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)) {
+                return;
+              }
               switch (direction) {
                 case AudioManager.ADJUST_RAISE:
                   increaseDeviceVolume();
@@ -879,7 +1018,7 @@ import java.util.List;
                   setDeviceMuted(false);
                   break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
-                  setDeviceMuted(!isDeviceMuted());
+                  setDeviceMuted(!isDeviceMutedWithCommandCheck());
                   break;
                 default:
                   Log.w(
@@ -898,16 +1037,18 @@ import java.util.List;
    * <p>This excludes window uid and period uid that wouldn't be preserved when bundling.
    */
   public PositionInfo createPositionInfoForBundling() {
+    boolean canAccessCurrentMediaItem = isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM);
+    boolean canAccessTimeline = isCommandAvailable(COMMAND_GET_TIMELINE);
     return new PositionInfo(
         /* windowUid= */ null,
-        getCurrentMediaItemIndex(),
-        getCurrentMediaItem(),
+        canAccessTimeline ? getCurrentMediaItemIndex() : 0,
+        canAccessCurrentMediaItem ? getCurrentMediaItem() : null,
         /* periodUid= */ null,
-        getCurrentPeriodIndex(),
-        getCurrentPosition(),
-        getContentPosition(),
-        getCurrentAdGroupIndex(),
-        getCurrentAdIndexInAdGroup());
+        canAccessTimeline ? getCurrentPeriodIndex() : 0,
+        canAccessCurrentMediaItem ? getCurrentPosition() : 0,
+        canAccessCurrentMediaItem ? getContentPosition() : 0,
+        canAccessCurrentMediaItem ? getCurrentAdGroupIndex() : C.INDEX_UNSET,
+        canAccessCurrentMediaItem ? getCurrentAdIndexInAdGroup() : C.INDEX_UNSET);
   }
 
   /**
@@ -916,17 +1057,18 @@ import java.util.List;
    * <p>This excludes window uid and period uid that wouldn't be preserved when bundling.
    */
   public SessionPositionInfo createSessionPositionInfoForBundling() {
+    boolean canAccessCurrentMediaItem = isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM);
     return new SessionPositionInfo(
         createPositionInfoForBundling(),
-        isPlayingAd(),
+        canAccessCurrentMediaItem && isPlayingAd(),
         /* eventTimeMs= */ SystemClock.elapsedRealtime(),
-        getDuration(),
-        getBufferedPosition(),
-        getBufferedPercentage(),
-        getTotalBufferedDuration(),
-        getCurrentLiveOffset(),
-        getContentDuration(),
-        getContentBufferedPosition());
+        canAccessCurrentMediaItem ? getDuration() : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? getBufferedPosition() : 0,
+        canAccessCurrentMediaItem ? getBufferedPercentage() : 0,
+        canAccessCurrentMediaItem ? getTotalBufferedDuration() : 0,
+        canAccessCurrentMediaItem ? getCurrentLiveOffset() : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? getContentDuration() : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? getContentBufferedPosition() : 0);
   }
 
   public PlayerInfo createPlayerInfoForBundling() {
@@ -941,29 +1083,163 @@ import java.util.List;
         getRepeatMode(),
         getShuffleModeEnabled(),
         getVideoSize(),
-        getCurrentTimeline(),
-        getPlaylistMetadata(),
-        getVolume(),
-        getAudioAttributes(),
-        getCurrentCues(),
+        getCurrentTimelineWithCommandCheck(),
+        getPlaylistMetadataWithCommandCheck(),
+        getVolumeWithCommandCheck(),
+        getAudioAttributesWithCommandCheck(),
+        getCurrentCuesWithCommandCheck(),
         getDeviceInfo(),
-        getDeviceVolume(),
-        isDeviceMuted(),
+        getDeviceVolumeWithCommandCheck(),
+        isDeviceMutedWithCommandCheck(),
         getPlayWhenReady(),
         PlayerInfo.PLAY_WHEN_READY_CHANGE_REASON_DEFAULT,
         getPlaybackSuppressionReason(),
         getPlaybackState(),
         isPlaying(),
         isLoading(),
-        getMediaMetadata(),
+        getMediaMetadataWithCommandCheck(),
         getSeekBackIncrement(),
         getSeekForwardIncrement(),
         getMaxSeekToPreviousPosition(),
-        getCurrentTracks(),
+        getCurrentTracksWithCommandCheck(),
         getTrackSelectionParameters());
   }
 
   private void verifyApplicationThread() {
     checkState(Looper.myLooper() == getApplicationLooper());
+  }
+
+  @SuppressWarnings("deprecation") // Uses deprecated PlaybackStateCompat actions.
+  private static long convertCommandToPlaybackStateActions(@Command int command) {
+    switch (command) {
+      case Player.COMMAND_PLAY_PAUSE:
+        return PlaybackStateCompat.ACTION_PAUSE
+            | PlaybackStateCompat.ACTION_PLAY
+            | PlaybackStateCompat.ACTION_PLAY_PAUSE;
+      case Player.COMMAND_PREPARE:
+        return PlaybackStateCompat.ACTION_PREPARE;
+      case Player.COMMAND_SEEK_BACK:
+        return PlaybackStateCompat.ACTION_REWIND;
+      case Player.COMMAND_SEEK_FORWARD:
+        return PlaybackStateCompat.ACTION_FAST_FORWARD;
+      case Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SEEK_TO;
+      case Player.COMMAND_SEEK_TO_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
+      case Player.COMMAND_SEEK_TO_NEXT:
+      case Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+      case Player.COMMAND_SEEK_TO_PREVIOUS:
+      case Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+      case Player.COMMAND_SET_MEDIA_ITEM:
+        return PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+            | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+            | PlaybackStateCompat.ACTION_PLAY_FROM_URI
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_URI;
+      case Player.COMMAND_SET_REPEAT_MODE:
+        return PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
+      case Player.COMMAND_SET_SPEED_AND_PITCH:
+        return PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED;
+      case Player.COMMAND_SET_SHUFFLE_MODE:
+        return PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+            | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+      case Player.COMMAND_STOP:
+        return PlaybackStateCompat.ACTION_STOP;
+      case Player.COMMAND_ADJUST_DEVICE_VOLUME:
+      case Player.COMMAND_CHANGE_MEDIA_ITEMS:
+        // TODO(b/227346735): Handle this through
+        // MediaSessionCompat.setFlags(FLAG_HANDLES_QUEUE_COMMANDS)
+      case Player.COMMAND_GET_AUDIO_ATTRIBUTES:
+      case Player.COMMAND_GET_CURRENT_MEDIA_ITEM:
+      case Player.COMMAND_GET_DEVICE_VOLUME:
+      case Player.COMMAND_GET_MEDIA_ITEMS_METADATA:
+      case Player.COMMAND_GET_TEXT:
+      case Player.COMMAND_GET_TIMELINE:
+      case Player.COMMAND_GET_TRACKS:
+      case Player.COMMAND_GET_VOLUME:
+      case Player.COMMAND_INVALID:
+      case Player.COMMAND_SEEK_TO_DEFAULT_POSITION:
+      case Player.COMMAND_SET_DEVICE_VOLUME:
+      case Player.COMMAND_SET_MEDIA_ITEMS_METADATA:
+      case Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS:
+      case Player.COMMAND_SET_VIDEO_SURFACE:
+      case Player.COMMAND_SET_VOLUME:
+      default:
+        return 0;
+    }
+  }
+
+  private static final class CurrentMediaItemOnlyTimeline extends Timeline {
+
+    private static final Object UID = new Object();
+
+    @Nullable private final MediaItem mediaItem;
+    private final boolean isSeekable;
+    private final boolean isDynamic;
+    @Nullable private final MediaItem.LiveConfiguration liveConfiguration;
+    private final long durationUs;
+
+    public CurrentMediaItemOnlyTimeline(PlayerWrapper player) {
+      mediaItem = player.getCurrentMediaItem();
+      isSeekable = player.isCurrentMediaItemSeekable();
+      isDynamic = player.isCurrentMediaItemDynamic();
+      liveConfiguration =
+          player.isCurrentMediaItemLive() ? MediaItem.LiveConfiguration.UNSET : null;
+      durationUs = msToUs(player.getContentDuration());
+    }
+
+    @Override
+    public int getWindowCount() {
+      return 1;
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+      window.set(
+          UID,
+          mediaItem,
+          /* manifest= */ null,
+          /* presentationStartTimeMs= */ C.TIME_UNSET,
+          /* windowStartTimeMs= */ C.TIME_UNSET,
+          /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+          isSeekable,
+          isDynamic,
+          liveConfiguration,
+          /* defaultPositionUs= */ 0,
+          durationUs,
+          /* firstPeriodIndex= */ 0,
+          /* lastPeriodIndex= */ 0,
+          /* positionInFirstPeriodUs= */ 0);
+      return window;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return 1;
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      period.set(
+          /* id= */ UID,
+          /* uid= */ UID,
+          /* windowIndex= */ 0,
+          durationUs,
+          /* positionInWindowUs= */ 0);
+      return period;
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      return UID.equals(uid) ? 0 : C.INDEX_UNSET;
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      return UID;
+    }
   }
 }

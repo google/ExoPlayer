@@ -57,8 +57,9 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       Context context,
       @UnderInitialization MediaBrowser instance,
       SessionToken token,
-      Looper applicationLooper) {
-    super(context, instance, token, applicationLooper);
+      Looper applicationLooper,
+      BitmapLoader bitmapLoader) {
+    super(context, instance, token, applicationLooper, bitmapLoader);
     this.instance = instance;
   }
 
@@ -311,7 +312,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     String mediaId = browserCompat.getRoot();
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
-            .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
+            .setIsBrowsable(true)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
             .setIsPlayable(false)
             .setExtras(browserCompat.getExtras())
             .build();

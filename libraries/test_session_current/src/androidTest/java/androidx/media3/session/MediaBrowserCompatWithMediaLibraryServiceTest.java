@@ -45,6 +45,7 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXT
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_EMPTY_RESULT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_ERROR;
@@ -129,6 +130,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(itemRef.get().getMediaId()).isEqualTo(mediaId);
     assertThat(itemRef.get().isBrowsable()).isTrue();
+    assertThat(itemRef.get().getDescription().getIconBitmap()).isNotNull();
   }
 
   @Test
@@ -151,6 +153,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(itemRef.get().getMediaId()).isEqualTo(mediaId);
     assertThat(itemRef.get().isPlayable()).isTrue();
+    assertThat(itemRef.get().getDescription().getIconBitmap()).isNotNull();
   }
 
   @Test
@@ -181,6 +184,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     BundleSubject.assertThat(description.getExtras())
         .string(METADATA_EXTRA_KEY)
         .isEqualTo(METADATA_EXTRA_VALUE);
+    assertThat(description.getIconBitmap()).isNotNull();
   }
 
   @Test
@@ -245,6 +249,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
                       EXTRAS_KEY_COMPLETION_STATUS,
                       /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1))
           .isEqualTo(EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
+      assertThat(mediaItem.getDescription().getIconBitmap()).isNotNull();
     }
   }
 
@@ -311,6 +316,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
               int relativeIndex = originalIndex - fromIndex;
               assertThat(children.get(relativeIndex).getMediaId())
                   .isEqualTo(GET_CHILDREN_RESULT.get(originalIndex));
+              assertThat(children.get(relativeIndex).getDescription().getIconBitmap()).isNotNull();
             }
             latch.countDown();
           }
@@ -609,5 +615,32 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
         browserCompat.getExtras().getBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED);
 
     assertThat(isSearchSupported).isFalse();
+  }
+
+  @Test
+  public void rootBrowserHints_legacyBrowsableFlagSet_receivesRootWithBrowsableChildrenOnly()
+      throws Exception {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(
+        androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+        MediaItem.FLAG_BROWSABLE);
+    connectAndWait(rootHints);
+
+    String root = browserCompat.getRoot();
+
+    assertThat(root).isEqualTo(ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY);
+  }
+
+  @Test
+  public void rootBrowserHints_legacyPlayableFlagSet_receivesDefaultRoot() throws Exception {
+    Bundle connectionHints = new Bundle();
+    connectionHints.putInt(
+        androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+        MediaItem.FLAG_BROWSABLE | MediaItem.FLAG_PLAYABLE);
+    connectAndWait(connectionHints);
+
+    String root = browserCompat.getRoot();
+
+    assertThat(root).isEqualTo(ROOT_ID);
   }
 }

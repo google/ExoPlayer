@@ -142,7 +142,7 @@ public class MediaBrowserServiceCompatCallbackWithMediaBrowserTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(result.resultCode).isEqualTo(LibraryResult.RESULT_SUCCESS);
     assertItemEquals(testItem, result.value);
-    assertThat(result.value.mediaMetadata.folderType).isEqualTo(MediaMetadata.FOLDER_TYPE_MIXED);
+    assertThat(result.value.mediaMetadata.isBrowsable).isTrue();
   }
 
   @Test

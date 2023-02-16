@@ -67,6 +67,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A controller that interacts with a {@link MediaSession}, a {@link MediaSessionService} hosting a
@@ -183,6 +184,7 @@ public class MediaController implements Player {
     private Bundle connectionHints;
     private Listener listener;
     private Looper applicationLooper;
+    private @MonotonicNonNull BitmapLoader bitmapLoader;
 
     /**
      * Creates a builder for {@link MediaController}.
@@ -262,6 +264,21 @@ public class MediaController implements Player {
     }
 
     /**
+     * Sets a {@link BitmapLoader} for the {@link MediaController} to decode bitmaps from compressed
+     * binary data. If not set, a {@link CacheBitmapLoader} that wraps a {@link SimpleBitmapLoader}
+     * will be used.
+     *
+     * @param bitmapLoader The bitmap loader.
+     * @return The builder to allow chaining.
+     */
+    @UnstableApi
+    @CanIgnoreReturnValue
+    public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
+      this.bitmapLoader = checkNotNull(bitmapLoader);
+      return this;
+    }
+
+    /**
      * Builds a {@link MediaController} asynchronously.
      *
      * <p>The controller instance can be obtained like the following example:
@@ -290,8 +307,12 @@ public class MediaController implements Player {
     public ListenableFuture<MediaController> buildAsync() {
       MediaControllerHolder<MediaController> holder =
           new MediaControllerHolder<>(applicationLooper);
+      if (token.isLegacySession() && bitmapLoader == null) {
+        bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+      }
       MediaController controller =
-          new MediaController(context, token, connectionHints, listener, applicationLooper, holder);
+          new MediaController(
+              context, token, connectionHints, listener, applicationLooper, holder, bitmapLoader);
       postOrRun(new Handler(applicationLooper), () -> holder.setController(controller));
       return holder;
     }
@@ -404,7 +425,8 @@ public class MediaController implements Player {
       Bundle connectionHints,
       Listener listener,
       Looper applicationLooper,
-      ConnectionCallback connectionCallback) {
+      ConnectionCallback connectionCallback,
+      @Nullable BitmapLoader bitmapLoader) {
     checkNotNull(context, "context must not be null");
     checkNotNull(token, "token must not be null");
 
@@ -417,7 +439,7 @@ public class MediaController implements Player {
     applicationHandler = new Handler(applicationLooper);
     this.connectionCallback = connectionCallback;
 
-    impl = createImpl(context, token, connectionHints, applicationLooper);
+    impl = createImpl(context, token, connectionHints, applicationLooper, bitmapLoader);
     impl.connect();
   }
 
@@ -427,9 +449,11 @@ public class MediaController implements Player {
       Context context,
       SessionToken token,
       Bundle connectionHints,
-      Looper applicationLooper) {
+      Looper applicationLooper,
+      @Nullable BitmapLoader bitmapLoader) {
     if (token.isLegacySession()) {
-      return new MediaControllerImplLegacy(context, this, token, applicationLooper);
+      return new MediaControllerImplLegacy(
+          context, this, token, applicationLooper, checkNotNull(bitmapLoader));
     } else {
       return new MediaControllerImplBase(context, this, token, connectionHints, applicationLooper);
     }
@@ -454,7 +478,10 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void stop(boolean reset) {
-    throw new UnsupportedOperationException();
+    stop();
+    if (reset) {
+      clearMediaItems();
+    }
   }
 
   /**
@@ -1150,7 +1177,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
-    throw new UnsupportedOperationException();
+    return isCurrentMediaItemDynamic();
   }
 
   @Override
@@ -1167,7 +1194,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowLive() {
-    throw new UnsupportedOperationException();
+    return isCurrentMediaItemLive();
   }
 
   @Override
@@ -1184,7 +1211,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
-    throw new UnsupportedOperationException();
+    return isCurrentMediaItemSeekable();
   }
 
   @Override
@@ -1236,7 +1263,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getCurrentWindowIndex() {
-    throw new UnsupportedOperationException();
+    return getCurrentMediaItemIndex();
   }
 
   @Override
@@ -1252,7 +1279,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getPreviousWindowIndex() {
-    throw new UnsupportedOperationException();
+    return getPreviousMediaItemIndex();
   }
 
   /**
@@ -1275,7 +1302,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getNextWindowIndex() {
-    throw new UnsupportedOperationException();
+    return getNextMediaItemIndex();
   }
 
   /**
@@ -1298,7 +1325,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasPrevious() {
-    throw new UnsupportedOperationException();
+    return hasPreviousMediaItem();
   }
 
   /**
@@ -1308,7 +1335,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasNext() {
-    throw new UnsupportedOperationException();
+    return hasNextMediaItem();
   }
 
   /**
@@ -1318,7 +1345,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasPreviousWindow() {
-    throw new UnsupportedOperationException();
+    return hasPreviousMediaItem();
   }
 
   /**
@@ -1328,7 +1355,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasNextWindow() {
-    throw new UnsupportedOperationException();
+    return hasNextMediaItem();
   }
 
   @Override
@@ -1350,7 +1377,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void previous() {
-    throw new UnsupportedOperationException();
+    seekToPreviousMediaItem();
   }
 
   /**
@@ -1360,7 +1387,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void next() {
-    throw new UnsupportedOperationException();
+    seekToNextMediaItem();
   }
 
   /**
@@ -1370,7 +1397,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
-    throw new UnsupportedOperationException();
+    seekToPreviousMediaItem();
   }
 
   /**
@@ -1396,7 +1423,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void seekToNextWindow() {
-    throw new UnsupportedOperationException();
+    seekToNextMediaItem();
   }
 
   /**
@@ -1720,6 +1747,7 @@ public class MediaController implements Player {
 
   @Override
   public Looper getApplicationLooper() {
+    // Don't verify application thread. We allow calls to this method from any thread.
     return applicationHandler.getLooper();
   }
 
@@ -1744,12 +1772,14 @@ public class MediaController implements Player {
 
   @Override
   public void addListener(Player.Listener listener) {
+    // Don't verify application thread. We allow calls to this method from any thread.
     checkNotNull(listener, "listener must not be null");
     impl.addListener(listener);
   }
 
   @Override
   public void removeListener(Player.Listener listener) {
+    verifyApplicationThread();
     checkNotNull(listener, "listener must not be null");
     impl.removeListener(listener);
   }

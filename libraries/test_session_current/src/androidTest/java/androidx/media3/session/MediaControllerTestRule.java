@@ -29,7 +29,6 @@ import androidx.media3.common.util.Log;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.rules.ExternalResource;
@@ -206,7 +205,7 @@ public final class MediaControllerTestRule extends ExternalResource {
               controllerCreationListener.onCreated(mediaController);
             }
           },
-          MoreExecutors.directExecutor());
+          handlerThreadTestRule.getHandler()::post);
     }
     return future.get(timeoutMs, MILLISECONDS);
   }

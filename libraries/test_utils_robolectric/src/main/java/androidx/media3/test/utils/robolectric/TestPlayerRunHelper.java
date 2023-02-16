@@ -17,6 +17,7 @@
 package androidx.media3.test.utils.robolectric;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
 
 import android.os.Looper;
@@ -55,6 +56,9 @@ public class TestPlayerRunHelper {
   public static void runUntilPlaybackState(Player player, @Player.State int expectedState)
       throws TimeoutException {
     verifyMainTestThread(player);
+    if (player instanceof ExoPlayer) {
+      verifyPlaybackThreadIsAlive((ExoPlayer) player);
+    }
     runMainLooperUntil(
         () -> player.getPlaybackState() == expectedState || player.getPlayerError() != null);
     if (player.getPlayerError() != null) {
@@ -76,9 +80,36 @@ public class TestPlayerRunHelper {
   public static void runUntilPlayWhenReady(Player player, boolean expectedPlayWhenReady)
       throws TimeoutException {
     verifyMainTestThread(player);
+    if (player instanceof ExoPlayer) {
+      verifyPlaybackThreadIsAlive((ExoPlayer) player);
+    }
     runMainLooperUntil(
         () ->
             player.getPlayWhenReady() == expectedPlayWhenReady || player.getPlayerError() != null);
+    if (player.getPlayerError() != null) {
+      throw new IllegalStateException(player.getPlayerError());
+    }
+  }
+
+  /**
+   * Runs tasks of the main {@link Looper} until {@link Player#isLoading()} matches the expected
+   * value or a playback error occurs.
+   *
+   * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
+   *
+   * @param player The {@link Player}.
+   * @param expectedIsLoading The expected value for {@link Player#isLoading()}.
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
+   */
+  public static void runUntilIsLoading(Player player, boolean expectedIsLoading)
+      throws TimeoutException {
+    verifyMainTestThread(player);
+    if (player instanceof ExoPlayer) {
+      verifyPlaybackThreadIsAlive((ExoPlayer) player);
+    }
+    runMainLooperUntil(
+        () -> player.isLoading() == expectedIsLoading || player.getPlayerError() != null);
     if (player.getPlayerError() != null) {
       throw new IllegalStateException(player.getPlayerError());
     }
@@ -98,6 +129,9 @@ public class TestPlayerRunHelper {
   public static void runUntilTimelineChanged(Player player, Timeline expectedTimeline)
       throws TimeoutException {
     verifyMainTestThread(player);
+    if (player instanceof ExoPlayer) {
+      verifyPlaybackThreadIsAlive((ExoPlayer) player);
+    }
     runMainLooperUntil(
         () ->
             expectedTimeline.equals(player.getCurrentTimeline())
@@ -151,6 +185,9 @@ public class TestPlayerRunHelper {
   public static void runUntilPositionDiscontinuity(
       Player player, @Player.DiscontinuityReason int expectedReason) throws TimeoutException {
     verifyMainTestThread(player);
+    if (player instanceof ExoPlayer) {
+      verifyPlaybackThreadIsAlive((ExoPlayer) player);
+    }
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
     Player.Listener listener =
         new Player.Listener() {
@@ -180,6 +217,8 @@ public class TestPlayerRunHelper {
    */
   public static ExoPlaybackException runUntilError(ExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
+    verifyPlaybackThreadIsAlive(player);
+
     runMainLooperUntil(() -> player.getPlayerError() != null);
     return checkNotNull(player.getPlayerError());
   }
@@ -199,6 +238,8 @@ public class TestPlayerRunHelper {
   public static void runUntilSleepingForOffload(ExoPlayer player, boolean expectedSleepForOffload)
       throws TimeoutException {
     verifyMainTestThread(player);
+    verifyPlaybackThreadIsAlive(player);
+
     AtomicBoolean receiverCallback = new AtomicBoolean(false);
     ExoPlayer.AudioOffloadListener listener =
         new ExoPlayer.AudioOffloadListener() {
@@ -228,6 +269,8 @@ public class TestPlayerRunHelper {
    */
   public static void runUntilRenderedFirstFrame(ExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
+    verifyPlaybackThreadIsAlive(player);
+
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
     Player.Listener listener =
         new Player.Listener() {
@@ -259,6 +302,7 @@ public class TestPlayerRunHelper {
   public static void playUntilPosition(ExoPlayer player, int mediaItemIndex, long positionMs)
       throws TimeoutException {
     verifyMainTestThread(player);
+    verifyPlaybackThreadIsAlive(player);
     Looper applicationLooper = Util.getCurrentOrMainLooper();
     AtomicBoolean messageHandled = new AtomicBoolean(false);
     player
@@ -319,6 +363,8 @@ public class TestPlayerRunHelper {
   public static void runUntilPendingCommandsAreFullyHandled(ExoPlayer player)
       throws TimeoutException {
     verifyMainTestThread(player);
+    verifyPlaybackThreadIsAlive(player);
+
     // Send message to player that will arrive after all other pending commands. Thus, the message
     // execution on the app thread will also happen after all other pending command
     // acknowledgements have arrived back on the app thread.
@@ -335,5 +381,11 @@ public class TestPlayerRunHelper {
         || player.getApplicationLooper() != Looper.getMainLooper()) {
       throw new IllegalStateException();
     }
+  }
+
+  private static void verifyPlaybackThreadIsAlive(ExoPlayer player) {
+    checkState(
+        player.getPlaybackLooper().getThread().isAlive(),
+        "Playback thread is not alive, has the player been released?");
   }
 }

@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer;
 
+import static androidx.annotation.VisibleForTesting.PROTECTED;
+
 import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.os.Looper;
@@ -1004,10 +1006,16 @@ public class SimpleExoPlayer extends BasePlayer
     return player.isLoading();
   }
 
+  @SuppressWarnings("ForOverride") // Forwarding to ForOverride method in ExoPlayerImpl.
   @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
+  @VisibleForTesting(otherwise = PROTECTED)
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     blockUntilConstructorFinished();
-    player.seekTo(mediaItemIndex, positionMs);
+    player.seekTo(mediaItemIndex, positionMs, seekCommand, isRepeatingCurrentItem);
   }
 
   @Override

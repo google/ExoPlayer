@@ -20,6 +20,7 @@ import static androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_C
 import static androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_NOTIFICATION_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -66,13 +67,20 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
             .build();
     Commands commands = new Commands.Builder().addAllCommands().build();
+    MediaSession mockMediaSession = mock(MediaSession.class);
 
     List<CommandButton> mediaButtonsWhenPlaying =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, /* customLayout= */ ImmutableList.of(), /* showPauseButton= */ true);
+            mockMediaSession,
+            commands,
+            /* customLayout= */ ImmutableList.of(),
+            /* showPauseButton= */ true);
     List<CommandButton> mediaButtonWhenPaused =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, /* customLayout= */ ImmutableList.of(), /* showPauseButton= */ false);
+            mockMediaSession,
+            commands,
+            /* customLayout= */ ImmutableList.of(),
+            /* showPauseButton= */ false);
 
     assertThat(mediaButtonsWhenPlaying).hasSize(3);
     assertThat(mediaButtonsWhenPlaying.get(1).playerCommand).isEqualTo(Player.COMMAND_PLAY_PAUSE);
@@ -91,6 +99,7 @@ public class DefaultMediaNotificationProviderTest {
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
             .build();
+    MediaSession mockMediaSession = mock(MediaSession.class);
     Commands commands = new Commands.Builder().addAllCommands().build();
     SessionCommand customSessionCommand = new SessionCommand("", Bundle.EMPTY);
     CommandButton customCommandButton =
@@ -102,7 +111,10 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtons =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, ImmutableList.of(customCommandButton), /* showPauseButton= */ true);
+            mockMediaSession,
+            commands,
+            ImmutableList.of(customCommandButton),
+            /* showPauseButton= */ true);
 
     assertThat(mediaButtons).hasSize(4);
     assertThat(mediaButtons.get(0).playerCommand)
@@ -117,6 +129,7 @@ public class DefaultMediaNotificationProviderTest {
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
             .build();
+    MediaSession mockMediaSession = mock(MediaSession.class);
     Commands commands = new Commands.Builder().build();
     SessionCommand customSessionCommand = new SessionCommand("action1", Bundle.EMPTY);
     CommandButton customCommandButton =
@@ -128,7 +141,10 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtons =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, ImmutableList.of(customCommandButton), /* showPauseButton= */ true);
+            mockMediaSession,
+            commands,
+            ImmutableList.of(customCommandButton),
+            /* showPauseButton= */ true);
 
     assertThat(mediaButtons).containsExactly(customCommandButton);
   }
@@ -628,6 +644,109 @@ public class DefaultMediaNotificationProviderTest {
     assertThat(isMediaMetadataArtistEqualToNotificationContentText).isTrue();
   }
 
+  @Test
+  public void
+      setMediaMetadata_withoutAvailableCommandToGetMetadata_doesNotUseMetadataForNotification() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(context).build();
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    MediaSession mockMediaSession =
+        createMockMediaSessionForNotification(
+            new MediaMetadata.Builder().setArtist("artist").setTitle("title").build(),
+            /* getMetadataCommandAvailable= */ false);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            ImmutableList.of(),
+            defaultActionFactory,
+            mock(MediaNotification.Provider.Callback.class));
+
+    assertThat(NotificationCompat.getContentText(notification.notification)).isNull();
+    assertThat(NotificationCompat.getContentTitle(notification.notification)).isNull();
+  }
+
+  /**
+   * {@link DefaultMediaNotificationProvider} is designed to be extendable. Public constructor
+   * should not be removed.
+   */
+  @Test
+  public void createsProviderUsingConstructor_idsNotSpecified_usesDefaultIds() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider(context);
+    MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            /* customLayout= */ ImmutableList.of(),
+            defaultActionFactory,
+            /* onNotificationChangedCallback= */ mock(MediaNotification.Provider.Callback.class));
+
+    assertThat(notification.notificationId).isEqualTo(DEFAULT_NOTIFICATION_ID);
+    assertThat(notification.notification.getChannelId()).isEqualTo(DEFAULT_CHANNEL_ID);
+    ShadowNotificationManager shadowNotificationManager =
+        Shadows.shadowOf(
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
+    assertHasNotificationChannel(
+        shadowNotificationManager.getNotificationChannels(),
+        /* channelId= */ DEFAULT_CHANNEL_ID,
+        /* channelName= */ context.getString(R.string.default_notification_channel_name));
+  }
+
+  /**
+   * Extends {@link DefaultMediaNotificationProvider} and overrides all known protected methods. If
+   * by accident we change the signature of the class in a way that affects inheritance, this test
+   * would no longer compile.
+   */
+  @Test
+  public void overridesProviderDefinition_compilesSuccessfully() {
+    Context context = ApplicationProvider.getApplicationContext();
+
+    DefaultMediaNotificationProvider unused =
+        new DefaultMediaNotificationProvider(context) {
+          @Override
+          public ImmutableList<CommandButton> getMediaButtons(
+              MediaSession mediaSession,
+              Player.Commands playerCommands,
+              ImmutableList<CommandButton> customLayout,
+              boolean showPauseButton) {
+            return super.getMediaButtons(
+                mediaSession, playerCommands, customLayout, showPauseButton);
+          }
+
+          @Override
+          public int[] addNotificationActions(
+              MediaSession mediaSession,
+              ImmutableList<CommandButton> mediaButtons,
+              NotificationCompat.Builder builder,
+              MediaNotification.ActionFactory actionFactory) {
+            return super.addNotificationActions(mediaSession, mediaButtons, builder, actionFactory);
+          }
+
+          @Override
+          public CharSequence getNotificationContentTitle(MediaMetadata metadata) {
+            return super.getNotificationContentTitle(metadata);
+          }
+
+          @Override
+          public CharSequence getNotificationContentText(MediaMetadata metadata) {
+            return super.getNotificationContentText(metadata);
+          }
+        };
+  }
+
   private static void assertHasNotificationChannel(
       List<Object> notificationChannels, String channelId, String channelName) {
     boolean found = false;
@@ -646,9 +765,22 @@ public class DefaultMediaNotificationProviderTest {
   }
 
   private static MediaSession createMockMediaSessionForNotification(MediaMetadata mediaMetadata) {
+    return createMockMediaSessionForNotification(
+        mediaMetadata, /* getMetadataCommandAvailable= */ true);
+  }
+
+  private static MediaSession createMockMediaSessionForNotification(
+      MediaMetadata mediaMetadata, boolean getMetadataCommandAvailable) {
     Player mockPlayer = mock(Player.class);
-    when(mockPlayer.getAvailableCommands()).thenReturn(Commands.EMPTY);
-    when(mockPlayer.getMediaMetadata()).thenReturn(mediaMetadata);
+    when(mockPlayer.isCommandAvailable(anyInt())).thenReturn(false);
+    if (getMetadataCommandAvailable) {
+      when(mockPlayer.getAvailableCommands())
+          .thenReturn(new Commands.Builder().add(Player.COMMAND_GET_MEDIA_ITEMS_METADATA).build());
+      when(mockPlayer.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)).thenReturn(true);
+      when(mockPlayer.getMediaMetadata()).thenReturn(mediaMetadata);
+    } else {
+      when(mockPlayer.getAvailableCommands()).thenReturn(Commands.EMPTY);
+    }
     MediaSession mockMediaSession = mock(MediaSession.class);
     when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
     MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);

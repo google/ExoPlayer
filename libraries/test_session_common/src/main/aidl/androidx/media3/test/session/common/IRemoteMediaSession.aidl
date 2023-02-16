@@ -67,6 +67,7 @@ interface IRemoteMediaSession {
 
   void setTimeline(String sessionId, in Bundle timeline);
   void createAndSetFakeTimeline(String sessionId, int windowCount);
+  void setMediaMetadata(String sessionId, in Bundle metadata);
   void setPlaylistMetadata(String sessionId, in Bundle metadata);
   void setShuffleModeEnabled(String sessionId, boolean shuffleMode);
   void setRepeatMode(String sessionId, int repeatMode);

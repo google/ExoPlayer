@@ -18,21 +18,15 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.ComponentName;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /* package */ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
 
@@ -211,45 +205,29 @@ import java.lang.annotation.Target;
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_UID,
-    FIELD_TYPE,
-    FIELD_LIBRARY_VERSION,
-    FIELD_PACKAGE_NAME,
-    FIELD_SERVICE_NAME,
-    FIELD_ISESSION,
-    FIELD_COMPONENT_NAME,
-    FIELD_EXTRAS,
-    FIELD_INTERFACE_VERSION
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_UID = 0;
-  private static final int FIELD_TYPE = 1;
-  private static final int FIELD_LIBRARY_VERSION = 2;
-  private static final int FIELD_PACKAGE_NAME = 3;
-  private static final int FIELD_SERVICE_NAME = 4;
-  private static final int FIELD_COMPONENT_NAME = 5;
-  private static final int FIELD_ISESSION = 6;
-  private static final int FIELD_EXTRAS = 7;
-  private static final int FIELD_INTERFACE_VERSION = 8;
+  private static final String FIELD_UID = Util.intToStringMaxRadix(0);
+  private static final String FIELD_TYPE = Util.intToStringMaxRadix(1);
+  private static final String FIELD_LIBRARY_VERSION = Util.intToStringMaxRadix(2);
+  private static final String FIELD_PACKAGE_NAME = Util.intToStringMaxRadix(3);
+  private static final String FIELD_SERVICE_NAME = Util.intToStringMaxRadix(4);
+  private static final String FIELD_COMPONENT_NAME = Util.intToStringMaxRadix(5);
+  private static final String FIELD_ISESSION = Util.intToStringMaxRadix(6);
+  private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(7);
+  private static final String FIELD_INTERFACE_VERSION = Util.intToStringMaxRadix(8);
   // Next field key = 9
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_UID), uid);
-    bundle.putInt(keyForField(FIELD_TYPE), type);
-    bundle.putInt(keyForField(FIELD_LIBRARY_VERSION), libraryVersion);
-    bundle.putString(keyForField(FIELD_PACKAGE_NAME), packageName);
-    bundle.putString(keyForField(FIELD_SERVICE_NAME), serviceName);
-    BundleCompat.putBinder(bundle, keyForField(FIELD_ISESSION), iSession);
-    bundle.putParcelable(keyForField(FIELD_COMPONENT_NAME), componentName);
-    bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
-    bundle.putInt(keyForField(FIELD_INTERFACE_VERSION), interfaceVersion);
+    bundle.putInt(FIELD_UID, uid);
+    bundle.putInt(FIELD_TYPE, type);
+    bundle.putInt(FIELD_LIBRARY_VERSION, libraryVersion);
+    bundle.putString(FIELD_PACKAGE_NAME, packageName);
+    bundle.putString(FIELD_SERVICE_NAME, serviceName);
+    BundleCompat.putBinder(bundle, FIELD_ISESSION, iSession);
+    bundle.putParcelable(FIELD_COMPONENT_NAME, componentName);
+    bundle.putBundle(FIELD_EXTRAS, extras);
+    bundle.putInt(FIELD_INTERFACE_VERSION, interfaceVersion);
     return bundle;
   }
 
@@ -257,20 +235,18 @@ import java.lang.annotation.Target;
   public static final Creator<SessionTokenImplBase> CREATOR = SessionTokenImplBase::fromBundle;
 
   private static SessionTokenImplBase fromBundle(Bundle bundle) {
-    checkArgument(bundle.containsKey(keyForField(FIELD_UID)), "uid should be set.");
-    int uid = bundle.getInt(keyForField(FIELD_UID));
-    checkArgument(bundle.containsKey(keyForField(FIELD_TYPE)), "type should be set.");
-    int type = bundle.getInt(keyForField(FIELD_TYPE));
-    int libraryVersion = bundle.getInt(keyForField(FIELD_LIBRARY_VERSION), /* defaultValue= */ 0);
-    int interfaceVersion =
-        bundle.getInt(keyForField(FIELD_INTERFACE_VERSION), /* defaultValue= */ 0);
+    checkArgument(bundle.containsKey(FIELD_UID), "uid should be set.");
+    int uid = bundle.getInt(FIELD_UID);
+    checkArgument(bundle.containsKey(FIELD_TYPE), "type should be set.");
+    int type = bundle.getInt(FIELD_TYPE);
+    int libraryVersion = bundle.getInt(FIELD_LIBRARY_VERSION, /* defaultValue= */ 0);
+    int interfaceVersion = bundle.getInt(FIELD_INTERFACE_VERSION, /* defaultValue= */ 0);
     String packageName =
-        checkNotEmpty(
-            bundle.getString(keyForField(FIELD_PACKAGE_NAME)), "package name should be set.");
-    String serviceName = bundle.getString(keyForField(FIELD_SERVICE_NAME), /* defaultValue= */ "");
-    @Nullable IBinder iSession = BundleCompat.getBinder(bundle, keyForField(FIELD_ISESSION));
-    @Nullable ComponentName componentName = bundle.getParcelable(keyForField(FIELD_COMPONENT_NAME));
-    @Nullable Bundle extras = bundle.getBundle(keyForField(FIELD_EXTRAS));
+        checkNotEmpty(bundle.getString(FIELD_PACKAGE_NAME), "package name should be set.");
+    String serviceName = bundle.getString(FIELD_SERVICE_NAME, /* defaultValue= */ "");
+    @Nullable IBinder iSession = BundleCompat.getBinder(bundle, FIELD_ISESSION);
+    @Nullable ComponentName componentName = bundle.getParcelable(FIELD_COMPONENT_NAME);
+    @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
     return new SessionTokenImplBase(
         uid,
         type,
@@ -281,9 +257,5 @@ import java.lang.annotation.Target;
         componentName,
         iSession,
         extras == null ? Bundle.EMPTY : extras);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

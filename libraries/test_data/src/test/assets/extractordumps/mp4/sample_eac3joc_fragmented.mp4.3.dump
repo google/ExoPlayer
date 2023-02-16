@@ -10,6 +10,7 @@ track 0:
   total output bytes = 2560
   sample count = 1
   format 0:
+    peakBitrate = 640000
     id = 1
     sampleMimeType = audio/eac3-joc
     channelCount = 6

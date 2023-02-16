@@ -25,6 +25,8 @@ import java.util.List;
 public class MediaBrowserConstants {
 
   public static final String ROOT_ID = "rootId";
+  public static final String ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY =
+      "root_id_supports_browsable_children_only";
   public static final Bundle ROOT_EXTRAS = new Bundle();
   public static final String ROOT_EXTRAS_KEY = "root_extras_key";
   public static final int ROOT_EXTRAS_VALUE = 4321;

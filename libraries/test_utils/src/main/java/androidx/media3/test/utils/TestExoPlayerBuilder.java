@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -299,13 +300,16 @@ public class TestExoPlayerBuilder {
               videoRendererEventListener,
               audioRendererEventListener,
               textRendererOutput,
-              metadataRendererOutput) ->
-              renderers != null
-                  ? renderers
-                  : new Renderer[] {
-                    new FakeVideoRenderer(eventHandler, videoRendererEventListener),
-                    new FakeAudioRenderer(eventHandler, audioRendererEventListener)
-                  };
+              metadataRendererOutput) -> {
+            HandlerWrapper clockAwareHandler =
+                clock.createHandler(eventHandler.getLooper(), /* callback= */ null);
+            return renderers != null
+                ? renderers
+                : new Renderer[] {
+                  new FakeVideoRenderer(clockAwareHandler, videoRendererEventListener),
+                  new FakeAudioRenderer(clockAwareHandler, audioRendererEventListener)
+                };
+          };
     }
 
     ExoPlayer.Builder builder =

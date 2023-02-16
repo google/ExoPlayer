@@ -20,11 +20,6 @@ import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.MediaMetadata.FOLDER_TYPE_ALBUMS
-import androidx.media3.common.MediaMetadata.FOLDER_TYPE_ARTISTS
-import androidx.media3.common.MediaMetadata.FOLDER_TYPE_GENRES
-import androidx.media3.common.MediaMetadata.FOLDER_TYPE_MIXED
-import androidx.media3.common.MediaMetadata.FOLDER_TYPE_NONE
 import androidx.media3.common.util.Util
 import com.google.common.collect.ImmutableList
 import org.json.JSONObject
@@ -67,7 +62,8 @@ object MediaItemTree {
     title: String,
     mediaId: String,
     isPlayable: Boolean,
-    @MediaMetadata.FolderType folderType: Int,
+    isBrowsable: Boolean,
+    mediaType: @MediaMetadata.MediaType Int,
     subtitleConfigurations: List<SubtitleConfiguration> = mutableListOf(),
     album: String? = null,
     artist: String? = null,
@@ -81,9 +77,10 @@ object MediaItemTree {
         .setTitle(title)
         .setArtist(artist)
         .setGenre(genre)
-        .setFolderType(folderType)
+        .setIsBrowsable(isBrowsable)
         .setIsPlayable(isPlayable)
         .setArtworkUri(imageUri)
+        .setMediaType(mediaType)
         .build()
 
     return MediaItem.Builder()
@@ -109,7 +106,8 @@ object MediaItemTree {
           title = "Root Folder",
           mediaId = ROOT_ID,
           isPlayable = false,
-          folderType = FOLDER_TYPE_MIXED
+          isBrowsable = true,
+          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED
         )
       )
     treeNodes[ALBUM_ID] =
@@ -118,7 +116,8 @@ object MediaItemTree {
           title = "Album Folder",
           mediaId = ALBUM_ID,
           isPlayable = false,
-          folderType = FOLDER_TYPE_MIXED
+          isBrowsable = true,
+          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS
         )
       )
     treeNodes[ARTIST_ID] =
@@ -127,7 +126,8 @@ object MediaItemTree {
           title = "Artist Folder",
           mediaId = ARTIST_ID,
           isPlayable = false,
-          folderType = FOLDER_TYPE_MIXED
+          isBrowsable = true,
+          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_ARTISTS
         )
       )
     treeNodes[GENRE_ID] =
@@ -136,7 +136,8 @@ object MediaItemTree {
           title = "Genre Folder",
           mediaId = GENRE_ID,
           isPlayable = false,
-          folderType = FOLDER_TYPE_MIXED
+          isBrowsable = true,
+          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_GENRES
         )
       )
     treeNodes[ROOT_ID]!!.addChild(ALBUM_ID)
@@ -188,7 +189,8 @@ object MediaItemTree {
           title = title,
           mediaId = idInTree,
           isPlayable = true,
-          folderType = FOLDER_TYPE_NONE,
+          isBrowsable = false,
+          mediaType = MediaMetadata.MEDIA_TYPE_MUSIC,
           subtitleConfigurations,
           album = album,
           artist = artist,
@@ -207,7 +209,8 @@ object MediaItemTree {
             title = album,
             mediaId = albumFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_ALBUMS,
+            isBrowsable = true,
+            mediaType = MediaMetadata.MEDIA_TYPE_ALBUM,
             subtitleConfigurations
           )
         )
@@ -223,7 +226,8 @@ object MediaItemTree {
             title = artist,
             mediaId = artistFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_ARTISTS,
+            isBrowsable = true,
+            mediaType = MediaMetadata.MEDIA_TYPE_ARTIST,
             subtitleConfigurations
           )
         )
@@ -239,7 +243,8 @@ object MediaItemTree {
             title = genre,
             mediaId = genreFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_GENRES,
+            isBrowsable = true,
+            mediaType = MediaMetadata.MEDIA_TYPE_GENRE,
             subtitleConfigurations
           )
         )
@@ -262,7 +267,7 @@ object MediaItemTree {
 
   fun getRandomItem(): MediaItem {
     var curRoot = getRootItem()
-    while (curRoot.mediaMetadata.folderType != FOLDER_TYPE_NONE) {
+    while (curRoot.mediaMetadata.isBrowsable == true) {
       val children = getChildren(curRoot.mediaId)!!
       curRoot = children.random()
     }

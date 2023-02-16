@@ -16,13 +16,13 @@
 
 package androidx.media3.test.utils;
 
-import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.ExoPlaybackException;
@@ -34,7 +34,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public class FakeVideoRenderer extends FakeRenderer {
 
-  private final VideoRendererEventListener.EventDispatcher eventDispatcher;
+  private final HandlerWrapper handler;
+  private final VideoRendererEventListener eventListener;
   private final DecoderCounters decoderCounters;
   private @MonotonicNonNull Format format;
   @Nullable private Object output;
@@ -43,9 +44,10 @@ public class FakeVideoRenderer extends FakeRenderer {
   private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
   private boolean renderedFirstFrameAfterEnable;
 
-  public FakeVideoRenderer(Handler handler, VideoRendererEventListener eventListener) {
+  public FakeVideoRenderer(HandlerWrapper handler, VideoRendererEventListener eventListener) {
     super(C.TRACK_TYPE_VIDEO);
-    eventDispatcher = new VideoRendererEventListener.EventDispatcher(handler, eventListener);
+    this.handler = handler;
+    this.eventListener = eventListener;
     decoderCounters = new DecoderCounters();
   }
 
@@ -53,7 +55,7 @@ public class FakeVideoRenderer extends FakeRenderer {
   protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
-    eventDispatcher.enabled(decoderCounters);
+    handler.post(() -> eventListener.onVideoEnabled(decoderCounters));
     mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
     renderedFirstFrameAfterEnable = false;
   }
@@ -69,15 +71,17 @@ public class FakeVideoRenderer extends FakeRenderer {
   @Override
   protected void onStopped() {
     super.onStopped();
-    eventDispatcher.droppedFrames(/* droppedFrameCount= */ 0, /* elapsedMs= */ 0);
-    eventDispatcher.reportVideoFrameProcessingOffset(
-        /* totalProcessingOffsetUs= */ 400000, /* frameCount= */ 10);
+    handler.post(() -> eventListener.onDroppedFrames(/* count= */ 0, /* elapsedMs= */ 0));
+    handler.post(
+        () ->
+            eventListener.onVideoFrameProcessingOffset(
+                /* totalProcessingOffsetUs= */ 400000, /* frameCount= */ 10));
   }
 
   @Override
   protected void onDisabled() {
     super.onDisabled();
-    eventDispatcher.disabled(decoderCounters);
+    handler.post(() -> eventListener.onVideoDisabled(decoderCounters));
   }
 
   @Override
@@ -88,11 +92,14 @@ public class FakeVideoRenderer extends FakeRenderer {
 
   @Override
   protected void onFormatChanged(Format format) {
-    eventDispatcher.inputFormatChanged(format, /* decoderReuseEvaluation= */ null);
-    eventDispatcher.decoderInitialized(
-        /* decoderName= */ "fake.video.decoder",
-        /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
-        /* initializationDurationMs= */ 0);
+    handler.post(
+        () -> eventListener.onVideoInputFormatChanged(format, /* decoderReuseEvaluation= */ null));
+    handler.post(
+        () ->
+            eventListener.onVideoDecoderInitialized(
+                /* decoderName= */ "fake.video.decoder",
+                /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
+                /* initializationDurationMs= */ 0));
     this.format = format;
   }
 
@@ -133,10 +140,18 @@ public class FakeVideoRenderer extends FakeRenderer {
     @Nullable Object output = this.output;
     if (shouldProcess && !renderedFirstFrameAfterReset && output != null) {
       @MonotonicNonNull Format format = Assertions.checkNotNull(this.format);
-      eventDispatcher.videoSizeChanged(
-          new VideoSize(
-              format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio));
-      eventDispatcher.renderedFirstFrame(output);
+      handler.post(
+          () ->
+              eventListener.onVideoSizeChanged(
+                  new VideoSize(
+                      format.width,
+                      format.height,
+                      format.rotationDegrees,
+                      format.pixelWidthHeightRatio)));
+      handler.post(
+          () ->
+              eventListener.onRenderedFirstFrame(
+                  output, /* renderTimeMs= */ SystemClock.elapsedRealtime()));
       renderedFirstFrameAfterReset = true;
       renderedFirstFrameAfterEnable = true;
     }

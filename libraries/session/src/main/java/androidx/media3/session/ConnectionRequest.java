@@ -17,17 +17,12 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.MediaLibraryInfo;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import androidx.media3.common.util.Util;
 
 /**
  * Created by {@link MediaController} to send its state to the {@link MediaSession} to request to
@@ -69,47 +64,34 @@ import java.lang.annotation.Target;
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_LIBRARY_VERSION,
-    FIELD_PACKAGE_NAME,
-    FIELD_PID,
-    FIELD_CONNECTION_HINTS,
-    FIELD_CONTROLLER_INTERFACE_VERSION
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_LIBRARY_VERSION = 0;
-  private static final int FIELD_PACKAGE_NAME = 1;
-  private static final int FIELD_PID = 2;
-  private static final int FIELD_CONNECTION_HINTS = 3;
-  private static final int FIELD_CONTROLLER_INTERFACE_VERSION = 4;
+  private static final String FIELD_LIBRARY_VERSION = Util.intToStringMaxRadix(0);
+  private static final String FIELD_PACKAGE_NAME = Util.intToStringMaxRadix(1);
+  private static final String FIELD_PID = Util.intToStringMaxRadix(2);
+  private static final String FIELD_CONNECTION_HINTS = Util.intToStringMaxRadix(3);
+  private static final String FIELD_CONTROLLER_INTERFACE_VERSION = Util.intToStringMaxRadix(4);
   // Next id: 5
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_LIBRARY_VERSION), libraryVersion);
-    bundle.putString(keyForField(FIELD_PACKAGE_NAME), packageName);
-    bundle.putInt(keyForField(FIELD_PID), pid);
-    bundle.putBundle(keyForField(FIELD_CONNECTION_HINTS), connectionHints);
-    bundle.putInt(keyForField(FIELD_CONTROLLER_INTERFACE_VERSION), controllerInterfaceVersion);
+    bundle.putInt(FIELD_LIBRARY_VERSION, libraryVersion);
+    bundle.putString(FIELD_PACKAGE_NAME, packageName);
+    bundle.putInt(FIELD_PID, pid);
+    bundle.putBundle(FIELD_CONNECTION_HINTS, connectionHints);
+    bundle.putInt(FIELD_CONTROLLER_INTERFACE_VERSION, controllerInterfaceVersion);
     return bundle;
   }
 
   /** Object that can restore {@link ConnectionRequest} from a {@link Bundle}. */
   public static final Creator<ConnectionRequest> CREATOR =
       bundle -> {
-        int libraryVersion =
-            bundle.getInt(keyForField(FIELD_LIBRARY_VERSION), /* defaultValue= */ 0);
+        int libraryVersion = bundle.getInt(FIELD_LIBRARY_VERSION, /* defaultValue= */ 0);
         int controllerInterfaceVersion =
-            bundle.getInt(keyForField(FIELD_CONTROLLER_INTERFACE_VERSION), /* defaultValue= */ 0);
-        String packageName = checkNotNull(bundle.getString(keyForField(FIELD_PACKAGE_NAME)));
-        int pid = bundle.getInt(keyForField(FIELD_PID), /* defaultValue= */ 0);
+            bundle.getInt(FIELD_CONTROLLER_INTERFACE_VERSION, /* defaultValue= */ 0);
+        String packageName = checkNotNull(bundle.getString(FIELD_PACKAGE_NAME));
+        int pid = bundle.getInt(FIELD_PID, /* defaultValue= */ 0);
         checkArgument(pid != 0);
-        @Nullable Bundle connectionHints = bundle.getBundle(keyForField(FIELD_CONNECTION_HINTS));
+        @Nullable Bundle connectionHints = bundle.getBundle(FIELD_CONNECTION_HINTS);
         return new ConnectionRequest(
             libraryVersion,
             controllerInterfaceVersion,
@@ -117,8 +99,4 @@ import java.lang.annotation.Target;
             pid,
             connectionHints == null ? Bundle.EMPTY : connectionHints);
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

@@ -34,6 +34,8 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import org.junit.After;
@@ -165,6 +167,47 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
+  public void seekToDefaultPosition_withMediaItemIndexWithoutGetTimelineCommand() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setMediaItems(/* itemCount= */ 5)
+            .build();
+    player.currentMediaItemIndex = 3;
+    MediaSession session =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    SessionCommands sessionCommands =
+                        new SessionCommands.Builder().addAllSessionCommands().build();
+                    Player.Commands playerCommands =
+                        new Player.Commands.Builder()
+                            .addAllCommands()
+                            .remove(Player.COMMAND_GET_TIMELINE)
+                            .build();
+                    return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+                  }
+                })
+            .setId("seekToDefaultPosition_withMediaItemIndexWithoutGetTimelineCommand")
+            .build();
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    // The controller should only be able to see the current item without Timeline access.
+    controller.seekToDefaultPosition(/* mediaItemIndex= */ 0);
+    player.awaitMethodCalled(
+        MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
+    controller.release();
+    session.release();
+    player.release();
+
+    assertThat(player.seekMediaItemIndex).isEqualTo(3);
+  }
+
+  @Test
   public void seekTo() throws Exception {
     long seekPositionMs = 12125L;
     controller.seekTo(seekPositionMs);
@@ -183,6 +226,47 @@ public class MediaSessionPlayerTest {
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
     assertThat(player.seekMediaItemIndex).isEqualTo(mediaItemIndex);
     assertThat(player.seekPositionMs).isEqualTo(seekPositionMs);
+  }
+
+  @Test
+  public void seekTo_withMediaItemIndexWithoutGetTimelineCommand() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setMediaItems(/* itemCount= */ 5)
+            .build();
+    player.currentMediaItemIndex = 3;
+    MediaSession session =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    SessionCommands sessionCommands =
+                        new SessionCommands.Builder().addAllSessionCommands().build();
+                    Player.Commands playerCommands =
+                        new Player.Commands.Builder()
+                            .addAllCommands()
+                            .remove(Player.COMMAND_GET_TIMELINE)
+                            .build();
+                    return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+                  }
+                })
+            .setId("seekTo_withMediaItemIndexWithoutGetTimelineCommand")
+            .build();
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    // The controller should only be able to see the current item without Timeline access.
+    controller.seekTo(/* mediaItemIndex= */ 0, /* seekPositionMs= */ 2000);
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
+    controller.release();
+    session.release();
+    player.release();
+
+    assertThat(player.seekMediaItemIndex).isEqualTo(3);
+    assertThat(player.seekPositionMs).isEqualTo(2000);
   }
 
   @Test
@@ -216,7 +300,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItem(item);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
@@ -232,7 +316,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItem(item);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
@@ -248,7 +332,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItem(item);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
@@ -260,9 +344,9 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItems(items);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).isEqualTo(items);
-    assertThat(player.resetPosition).isFalse();
+    assertThat(player.resetPosition).isTrue();
   }
 
   @Test
@@ -298,7 +382,7 @@ public class MediaSessionPlayerTest {
 
     controller.setMediaItems(list);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems.size()).isEqualTo(listSize);
     for (int i = 0; i < listSize; i++) {
       assertThat(player.mediaItems.get(i).mediaId).isEqualTo(list.get(i).mediaId);
@@ -311,7 +395,7 @@ public class MediaSessionPlayerTest {
     // Make client app to generate a long list, and call setMediaItems() with it.
     controller.createAndSetFakeMediaItems(listSize);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
     assertThat(player.mediaItems).isNotNull();
     assertThat(player.mediaItems.size()).isEqualTo(listSize);
     for (int i = 0; i < listSize; i++) {
@@ -353,6 +437,55 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
+  public void addMediaItem_withIndexWithoutGetTimelineCommand() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setMediaItems(/* itemCount= */ 5)
+            .build();
+    player.currentMediaItemIndex = 3;
+    MediaSession session =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    SessionCommands sessionCommands =
+                        new SessionCommands.Builder().addAllSessionCommands().build();
+                    Player.Commands playerCommands =
+                        new Player.Commands.Builder()
+                            .addAllCommands()
+                            .remove(Player.COMMAND_GET_TIMELINE)
+                            .build();
+                    return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+                  }
+
+                  @Override
+                  public ListenableFuture<List<MediaItem>> onAddMediaItems(
+                      MediaSession mediaSession,
+                      MediaSession.ControllerInfo controller,
+                      List<MediaItem> mediaItems) {
+                    return Futures.immediateFuture(mediaItems);
+                  }
+                })
+            .setId("addMediaItem_withIndexWithoutGetTimelineCommand")
+            .build();
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+    MediaItem mediaItem = MediaTestUtils.createMediaItem("addMediaItem_withIndex");
+
+    // The controller should only be able to see the current item without Timeline access.
+    controller.addMediaItem(/* index= */ 1, mediaItem);
+    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, TIMEOUT_MS);
+    controller.release();
+    session.release();
+    player.release();
+
+    assertThat(player.index).isEqualTo(4);
+  }
+
+  @Test
   public void addMediaItems() throws Exception {
     int size = 2;
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
@@ -377,6 +510,55 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
+  public void addMediaItems_withIndexWithoutGetTimelineCommand() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setMediaItems(/* itemCount= */ 5)
+            .build();
+    player.currentMediaItemIndex = 3;
+    MediaSession session =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    SessionCommands sessionCommands =
+                        new SessionCommands.Builder().addAllSessionCommands().build();
+                    Player.Commands playerCommands =
+                        new Player.Commands.Builder()
+                            .addAllCommands()
+                            .remove(Player.COMMAND_GET_TIMELINE)
+                            .build();
+                    return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+                  }
+
+                  @Override
+                  public ListenableFuture<List<MediaItem>> onAddMediaItems(
+                      MediaSession mediaSession,
+                      MediaSession.ControllerInfo controller,
+                      List<MediaItem> mediaItems) {
+                    return Futures.immediateFuture(mediaItems);
+                  }
+                })
+            .setId("addMediaItems_withIndexWithoutGetTimelineCommand")
+            .build();
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+    MediaItem mediaItem = MediaTestUtils.createMediaItem("addMediaItem_withIndex");
+
+    // The controller should only be able to see the current item without Timeline access.
+    controller.addMediaItems(/* index= */ 1, ImmutableList.of(mediaItem, mediaItem));
+    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, TIMEOUT_MS);
+    controller.release();
+    session.release();
+    player.release();
+
+    assertThat(player.index).isEqualTo(4);
+  }
+
+  @Test
   public void removeMediaItem() throws Exception {
     int index = 3;
 
@@ -384,6 +566,46 @@ public class MediaSessionPlayerTest {
 
     player.awaitMethodCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEM, TIMEOUT_MS);
     assertThat(player.index).isEqualTo(index);
+  }
+
+  @Test
+  public void removeMediaItem_withoutGetTimelineCommand() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setMediaItems(/* itemCount= */ 5)
+            .build();
+    player.currentMediaItemIndex = 3;
+    MediaSession session =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    SessionCommands sessionCommands =
+                        new SessionCommands.Builder().addAllSessionCommands().build();
+                    Player.Commands playerCommands =
+                        new Player.Commands.Builder()
+                            .addAllCommands()
+                            .remove(Player.COMMAND_GET_TIMELINE)
+                            .build();
+                    return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+                  }
+                })
+            .setId("removeMediaItem_withoutGetTimelineCommand")
+            .build();
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    // The controller should only be able to see the current item without Timeline access.
+    controller.removeMediaItem(/* index= */ 0);
+    player.awaitMethodCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEM, TIMEOUT_MS);
+    controller.release();
+    session.release();
+    player.release();
+
+    assertThat(player.index).isEqualTo(3);
   }
 
   @Test
@@ -396,6 +618,47 @@ public class MediaSessionPlayerTest {
     player.awaitMethodCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEMS, TIMEOUT_MS);
     assertThat(player.fromIndex).isEqualTo(fromIndex);
     assertThat(player.toIndex).isEqualTo(toIndex);
+  }
+
+  @Test
+  public void removeMediaItems_withoutGetTimelineCommand() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setMediaItems(/* itemCount= */ 5)
+            .build();
+    player.currentMediaItemIndex = 3;
+    MediaSession session =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    SessionCommands sessionCommands =
+                        new SessionCommands.Builder().addAllSessionCommands().build();
+                    Player.Commands playerCommands =
+                        new Player.Commands.Builder()
+                            .addAllCommands()
+                            .remove(Player.COMMAND_GET_TIMELINE)
+                            .build();
+                    return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+                  }
+                })
+            .setId("removeMediaItems_withoutGetTimelineCommand")
+            .build();
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    // The controller should only be able to see the current item without Timeline access.
+    controller.removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ 0);
+    player.awaitMethodCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEMS, TIMEOUT_MS);
+    controller.release();
+    session.release();
+    player.release();
+
+    assertThat(player.fromIndex).isEqualTo(3);
+    assertThat(player.toIndex).isEqualTo(3);
   }
 
   @Test
@@ -561,7 +824,7 @@ public class MediaSessionPlayerTest {
     controller.setMediaItemsPreparePlayAddItemsSeek(initialItems, addedItems, /* seekIndex= */ 3);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     boolean setMediaItemsCalledBeforePrepare =
-        player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS);
+        player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION);
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
     boolean addMediaItemsCalledBeforeSeek =
         player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS);

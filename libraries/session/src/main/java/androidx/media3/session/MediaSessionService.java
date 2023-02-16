@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
 
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -32,13 +33,17 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.view.KeyEvent;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -134,6 +139,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public abstract class MediaSessionService extends Service {
 
+  /**
+   * Listener for {@link MediaSessionService}.
+   *
+   * <p>The methods will be called on the main thread.
+   */
+  @UnstableApi
+  public interface Listener {
+    /**
+     * Called when the service fails to start in the foreground and a {@link
+     * ForegroundServiceStartNotAllowedException} is thrown on Android 12 or later.
+     */
+    @RequiresApi(31)
+    default void onForegroundServiceStartNotAllowedException() {}
+  }
+
   /** The action for {@link Intent} filter that must be declared by the service. */
   public static final String SERVICE_INTERFACE = "androidx.media3.session.MediaSessionService";
 
@@ -158,11 +178,19 @@ public abstract class MediaSessionService extends Service {
   @GuardedBy("lock")
   private @MonotonicNonNull DefaultActionFactory actionFactory;
 
+  @GuardedBy("lock")
+  @Nullable
+  private Listener listener;
+
+  @GuardedBy("lock")
+  private boolean defaultMethodCalled;
+
   /** Creates a service. */
   public MediaSessionService() {
     lock = new Object();
     mainHandler = new Handler(Looper.getMainLooper());
     sessions = new ArrayMap<>();
+    defaultMethodCalled = false;
   }
 
   /**
@@ -239,7 +267,7 @@ public abstract class MediaSessionService extends Service {
       // TODO(b/191644474): Check whether the session is registered to multiple services.
       MediaNotificationManager notificationManager = getMediaNotificationManager();
       postOrRun(mainHandler, () -> notificationManager.addSession(session));
-      session.setListener(this::onUpdateNotification);
+      session.setListener(new MediaSessionListener());
     }
   }
 
@@ -259,7 +287,7 @@ public abstract class MediaSessionService extends Service {
     }
     MediaNotificationManager notificationManager = getMediaNotificationManager();
     postOrRun(mainHandler, () -> notificationManager.removeSession(session));
-    session.setListener(null);
+    session.clearListener();
   }
 
   /**
@@ -279,6 +307,22 @@ public abstract class MediaSessionService extends Service {
   public final boolean isSessionAdded(MediaSession session) {
     synchronized (lock) {
       return sessions.containsKey(session.getId());
+    }
+  }
+
+  /** Sets the {@linkplain Listener listener}. */
+  @UnstableApi
+  public final void setListener(Listener listener) {
+    synchronized (lock) {
+      this.listener = listener;
+    }
+  }
+
+  /** Clears the {@linkplain Listener listener}. */
+  @UnstableApi
+  public final void clearListener() {
+    synchronized (lock) {
+      this.listener = null;
     }
   }
 
@@ -395,8 +439,10 @@ public abstract class MediaSessionService extends Service {
    * <p>Override this method to create your own notification and customize the foreground handling
    * of your service.
    *
-   * <p>The default implementation will present a default notification or the notification provided
-   * by the {@link MediaNotification.Provider} that is {@link
+   * <p>At most one of {@link #onUpdateNotification(MediaSession, boolean)} and this method should
+   * be overridden. If neither of the two methods is overridden, the default implementation will
+   * present a default notification or the notification provided by the {@link
+   * MediaNotification.Provider} that is {@link
    * #setMediaNotificationProvider(MediaNotification.Provider) set} by the app. Further, the service
    * is started in the <a
    * href="https://developer.android.com/guide/components/foreground-services">foreground</a> when
@@ -408,7 +454,42 @@ public abstract class MediaSessionService extends Service {
    * @param session A session that needs notification update.
    */
   public void onUpdateNotification(MediaSession session) {
-    getMediaNotificationManager().updateNotification(session);
+    setDefaultMethodCalled(true);
+  }
+
+  /**
+   * Called when a notification needs to be updated. Override this method to show or cancel your own
+   * notifications.
+   *
+   * <p>This method is called whenever the service has detected a change that requires to show,
+   * update or cancel a notification with a flag {@code startInForegroundRequired} suggested by the
+   * service whether starting in the foreground is required. The method will be called on the
+   * application thread of the app that the service belongs to.
+   *
+   * <p>Override this method to create your own notification and customize the foreground handling
+   * of your service.
+   *
+   * <p>At most one of {@link #onUpdateNotification(MediaSession)} and this method should be
+   * overridden. If neither of the two methods is overridden, the default implementation will
+   * present a default notification or the notification provided by the {@link
+   * MediaNotification.Provider} that is {@link
+   * #setMediaNotificationProvider(MediaNotification.Provider) set} by the app. Further, the service
+   * is started in the <a
+   * href="https://developer.android.com/guide/components/foreground-services">foreground</a> when
+   * playback is ongoing and put back into background otherwise.
+   *
+   * <p>Apps targeting {@code SDK_INT >= 28} must request the permission, {@link
+   * android.Manifest.permission#FOREGROUND_SERVICE}.
+   *
+   * @param session A session that needs notification update.
+   * @param startInForegroundRequired Whether the service is required to start in the foreground.
+   */
+  @UnstableApi
+  public void onUpdateNotification(MediaSession session, boolean startInForegroundRequired) {
+    onUpdateNotification(session);
+    if (isDefaultMethodCalled()) {
+      getMediaNotificationManager().updateNotification(session, startInForegroundRequired);
+    }
   }
 
   /**
@@ -429,6 +510,31 @@ public abstract class MediaSessionService extends Service {
     synchronized (lock) {
       return checkStateNotNull(stub).asBinder();
     }
+  }
+
+  /* package */ boolean onUpdateNotificationInternal(
+      MediaSession session, boolean startInForegroundWhenPaused) {
+    try {
+      boolean startInForegroundRequired =
+          shouldRunInForeground(session, startInForegroundWhenPaused);
+      onUpdateNotification(session, startInForegroundRequired);
+    } catch (/* ForegroundServiceStartNotAllowedException */ IllegalStateException e) {
+      if ((Util.SDK_INT >= 31) && Api31.instanceOfForegroundServiceStartNotAllowedException(e)) {
+        Log.e(TAG, "Failed to start foreground", e);
+        onForegroundServiceStartNotAllowedException();
+        return false;
+      }
+      throw e;
+    }
+    return true;
+  }
+
+  /* package */ static boolean shouldRunInForeground(
+      MediaSession session, boolean startInForegroundWhenPaused) {
+    Player player = session.getPlayer();
+    return (player.getPlayWhenReady() || startInForegroundWhenPaused)
+        && (player.getPlaybackState() == Player.STATE_READY
+            || player.getPlaybackState() == Player.STATE_BUFFERING);
   }
 
   private MediaNotificationManager getMediaNotificationManager() {
@@ -452,6 +558,57 @@ public abstract class MediaSessionService extends Service {
         actionFactory = new DefaultActionFactory(/* service= */ this);
       }
       return actionFactory;
+    }
+  }
+
+  @Nullable
+  private Listener getListener() {
+    synchronized (lock) {
+      return this.listener;
+    }
+  }
+
+  private boolean isDefaultMethodCalled() {
+    synchronized (lock) {
+      return this.defaultMethodCalled;
+    }
+  }
+
+  private void setDefaultMethodCalled(boolean defaultMethodCalled) {
+    synchronized (lock) {
+      this.defaultMethodCalled = defaultMethodCalled;
+    }
+  }
+
+  @RequiresApi(31)
+  private void onForegroundServiceStartNotAllowedException() {
+    mainHandler.post(
+        () -> {
+          @Nullable MediaSessionService.Listener serviceListener = getListener();
+          if (serviceListener != null) {
+            serviceListener.onForegroundServiceStartNotAllowedException();
+          }
+        });
+  }
+
+  private final class MediaSessionListener implements MediaSession.Listener {
+
+    @Override
+    public void onNotificationRefreshRequired(MediaSession session) {
+      MediaSessionService.this.onUpdateNotificationInternal(
+          session, /* startInForegroundWhenPaused= */ false);
+    }
+
+    @Override
+    public boolean onPlayRequested(MediaSession session) {
+      if (Util.SDK_INT < 31 || Util.SDK_INT >= 33) {
+        return true;
+      }
+      // Check if service can start foreground successfully on Android 12 and 12L.
+      if (!getMediaNotificationManager().isStartedInForeground()) {
+        return onUpdateNotificationInternal(session, /* startInForegroundWhenPaused= */ true);
+      }
+      return true;
     }
   }
 
@@ -573,6 +730,15 @@ public abstract class MediaSessionService extends Service {
           // Ignore. We're releasing.
         }
       }
+    }
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    @DoNotInline
+    public static boolean instanceOfForegroundServiceStartNotAllowedException(
+        IllegalStateException e) {
+      return e instanceof ForegroundServiceStartNotAllowedException;
     }
   }
 }

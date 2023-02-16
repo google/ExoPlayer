@@ -4,7 +4,10 @@
   <AdaptationSet id="3" mimeType="image/jpeg" contentType="image">
     <SegmentTemplate media="$RepresentationID$/tile_$Number$.jpg" duration="100" startNumber="1"/>
     <Representation bandwidth="1234" id="images_320x180" width="320" height="180">
-      <EssentialProperty schemeIdUri="http://dashif.org/thumbnail_tile" value="title"/>
+      <EssentialProperty schemeIdUri="http://dashif.org/thumbnail_tile" value="12x16"/>
+    </Representation>
+    <Representation bandwidth="2345" id="images_640x360" width="640" height="360">
+      <EssentialProperty schemeIdUri="http://dashif.org/guidelines/thumbnail_tile" value="2x4"/>
     </Representation>
   </AdaptationSet>
  </Period>

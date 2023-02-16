@@ -15,13 +15,21 @@
  */
 package androidx.media3.session;
 
+import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE;
+import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
-import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
+import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
+import static androidx.media3.common.MimeTypes.AUDIO_AAC;
+import static androidx.media3.common.MimeTypes.VIDEO_H264;
+import static androidx.media3.common.MimeTypes.VIDEO_H265;
+import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
+import static androidx.media3.test.session.common.TestUtils.getCommandsAsList;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
@@ -32,11 +40,14 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.text.TextUtils;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.VolumeProviderCompat;
+import androidx.media.utils.MediaConstants;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.HeartRating;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -45,10 +56,15 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
 import androidx.media3.common.ThumbRating;
+import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.common.Tracks;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,23 +85,6 @@ public final class MediaUtilsTest {
   public void setUp() {
     context = ApplicationProvider.getApplicationContext();
     bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
-  }
-
-  @Test
-  public void convertToBrowserItem() {
-    String mediaId = "testId";
-    CharSequence trackTitle = "testTitle";
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setMediaId(mediaId)
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle(trackTitle).build())
-            .build();
-
-    MediaBrowserCompat.MediaItem browserItem = MediaUtils.convertToBrowserItem(mediaItem);
-
-    assertThat(browserItem.getDescription()).isNotNull();
-    assertThat(browserItem.getDescription().getMediaId()).isEqualTo(mediaId);
-    assertThat(TextUtils.equals(browserItem.getDescription().getTitle(), trackTitle)).isTrue();
   }
 
   @Test
@@ -116,18 +115,6 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToBrowserItemList() {
-    int size = 3;
-    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
-    List<MediaBrowserCompat.MediaItem> browserItems =
-        MediaUtils.convertToBrowserItemList(mediaItems);
-    assertThat(browserItems).hasSize(size);
-    for (int i = 0; i < size; ++i) {
-      assertThat(browserItems.get(i).getMediaId()).isEqualTo(mediaItems.get(i).mediaId);
-    }
-  }
-
-  @Test
   public void convertBrowserItemListToMediaItemList() {
     int size = 3;
     List<MediaBrowserCompat.MediaItem> browserItems = MediaTestUtils.createBrowserItems(size);
@@ -139,32 +126,47 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToQueueItemList() {
-    int size = 3;
-    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
-    List<MediaSessionCompat.QueueItem> queueItems = MediaUtils.convertToQueueItemList(mediaItems);
-    assertThat(queueItems).hasSize(mediaItems.size());
-    for (int i = 0; i < size; ++i) {
-      assertThat(queueItems.get(i).getDescription().getMediaId())
-          .isEqualTo(mediaItems.get(i).mediaId);
-    }
+  public void convertToQueueItem_withArtworkData() throws Exception {
+    MediaItem mediaItem = MediaTestUtils.createMediaItemWithArtworkData("testId");
+    MediaMetadata mediaMetadata = mediaItem.mediaMetadata;
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.decodeBitmap(mediaMetadata.artworkData);
+    @Nullable Bitmap bitmap = bitmapFuture.get(10, SECONDS);
+
+    MediaSessionCompat.QueueItem queueItem =
+        MediaUtils.convertToQueueItem(
+            mediaItem,
+            /** mediaItemIndex= */
+            100,
+            bitmap);
+
+    assertThat(queueItem.getQueueId()).isEqualTo(100);
+    assertThat(queueItem.getDescription().getIconBitmap()).isNotNull();
   }
 
   @Test
-  public void convertToMediaDescriptionCompat() {
+  public void convertToMediaDescriptionCompat_setsExpectedValues() {
     String mediaId = "testId";
     String title = "testTitle";
     String description = "testDesc";
     MediaMetadata metadata =
-        new MediaMetadata.Builder().setTitle(title).setDescription(description).build();
+        new MediaMetadata.Builder()
+            .setTitle(title)
+            .setDescription(description)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+            .build();
     MediaItem mediaItem =
         new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(metadata).build();
     MediaDescriptionCompat descriptionCompat =
-        MediaUtils.convertToMediaDescriptionCompat(mediaItem);
+        MediaUtils.convertToMediaDescriptionCompat(mediaItem, /* artworkBitmap= */ null);
 
     assertThat(descriptionCompat.getMediaId()).isEqualTo(mediaId);
     assertThat(descriptionCompat.getTitle()).isEqualTo(title);
     assertThat(descriptionCompat.getDescription()).isEqualTo(description);
+    assertThat(
+            descriptionCompat
+                .getExtras()
+                .getLong(androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT))
+        .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
   }
 
   @Test
@@ -205,7 +207,8 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToMediaMetadata_roundTrip_returnsEqualMediaItem() throws Exception {
+  public void convertToMediaMetadata_roundTripViaMediaMetadataCompat_returnsEqualMediaItemMetadata()
+      throws Exception {
     MediaItem testMediaItem = MediaTestUtils.createMediaItemWithArtworkData("testZZZ");
     MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
     @Nullable Bitmap testArtworkBitmap = null;
@@ -216,13 +219,61 @@ public final class MediaUtilsTest {
     }
     MediaMetadataCompat testMediaMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
-            testMediaItem, /* durationMs= */ 100L, testArtworkBitmap);
+            testMediaMetadata,
+            "mediaId",
+            Uri.parse("http://example.com"),
+            /* durationMs= */ 100L,
+            testArtworkBitmap);
 
     MediaMetadata mediaMetadata =
         MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, RatingCompat.RATING_NONE);
 
     assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
     assertThat(mediaMetadata.artworkData).isNotNull();
+  }
+
+  @Test
+  public void
+      convertToMediaMetadata_roundTripViaMediaDescriptionCompat_returnsEqualMediaItemMetadata()
+          throws Exception {
+    MediaItem testMediaItem = MediaTestUtils.createMediaItemWithArtworkData("testZZZ");
+    MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
+    @Nullable Bitmap testArtworkBitmap = null;
+    @Nullable
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.loadBitmapFromMetadata(testMediaMetadata);
+    if (bitmapFuture != null) {
+      testArtworkBitmap = bitmapFuture.get(10, SECONDS);
+    }
+    MediaDescriptionCompat mediaDescriptionCompat =
+        MediaUtils.convertToMediaDescriptionCompat(testMediaItem, testArtworkBitmap);
+
+    MediaMetadata mediaMetadata =
+        MediaUtils.convertToMediaMetadata(mediaDescriptionCompat, RatingCompat.RATING_NONE);
+
+    assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
+    assertThat(mediaMetadata.artworkData).isNotNull();
+  }
+
+  @Test
+  public void convertToMediaMetadataCompat_withMediaType_setsMediaType() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC).build())
+            .build();
+
+    MediaMetadataCompat mediaMetadataCompat =
+        MediaUtils.convertToMediaMetadataCompat(
+            mediaItem.mediaMetadata,
+            "mediaId",
+            Uri.parse("http://www.example.com"),
+            /* durotionsMs= */ C.TIME_UNSET,
+            /* artworkBitmap= */ null);
+
+    assertThat(
+            mediaMetadataCompat.getLong(
+                androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT))
+        .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
   }
 
   @Test
@@ -295,16 +346,54 @@ public final class MediaUtilsTest {
     assertThat(MediaUtils.convertToLibraryParams(context, null)).isNull();
     Bundle rootHints = new Bundle();
     rootHints.putString("key", "value");
+    rootHints.putInt(
+        MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, FLAG_BROWSABLE);
     rootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_OFFLINE, true);
     rootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_RECENT, true);
     rootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_SUGGESTED, true);
 
     MediaLibraryService.LibraryParams params =
         MediaUtils.convertToLibraryParams(context, rootHints);
+
+    assertThat(params.extras.getString("key")).isEqualTo("value");
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isTrue();
+    assertThat(params.extras.containsKey(BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS))
+        .isFalse();
     assertThat(params.isOffline).isTrue();
     assertThat(params.isRecent).isTrue();
     assertThat(params.isSuggested).isTrue();
-    assertThat(params.extras.getString("key")).isEqualTo("value");
+  }
+
+  @Test
+  public void convertToLibraryParams_rootHintsBrowsableNoFlagSet_browsableOnlyFalse() {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, 0);
+
+    MediaLibraryService.LibraryParams params =
+        MediaUtils.convertToLibraryParams(context, rootHints);
+
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isFalse();
+  }
+
+  @Test
+  public void convertToLibraryParams_rootHintsPlayableFlagSet_browsableOnlyFalse() {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(
+        MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+        FLAG_PLAYABLE | FLAG_BROWSABLE);
+
+    MediaLibraryService.LibraryParams params =
+        MediaUtils.convertToLibraryParams(context, rootHints);
+
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isFalse();
+  }
+
+  @Test
+  public void convertToLibraryParams_rootHintsBrowsableAbsentKey_browsableOnlyFalse() {
+    MediaLibraryService.LibraryParams params =
+        MediaUtils.convertToLibraryParams(context, /* legacyBundle= */ Bundle.EMPTY);
+
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isFalse();
   }
 
   @Test
@@ -312,6 +401,7 @@ public final class MediaUtilsTest {
     assertThat(MediaUtils.convertToRootHints(null)).isNull();
     Bundle extras = new Bundle();
     extras.putString("key", "value");
+    extras.putBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, true);
     MediaLibraryService.LibraryParams param =
         new MediaLibraryService.LibraryParams.Builder()
             .setOffline(true)
@@ -319,11 +409,44 @@ public final class MediaUtilsTest {
             .setSuggested(true)
             .setExtras(extras)
             .build();
+
     Bundle rootHints = MediaUtils.convertToRootHints(param);
+
+    assertThat(
+            rootHints.getInt(
+                BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, /* defaultValue= */ 0))
+        .isEqualTo(FLAG_BROWSABLE);
+    assertThat(rootHints.getString("key")).isEqualTo("value");
+    assertThat(rootHints.get(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isNull();
     assertThat(rootHints.getBoolean(MediaBrowserService.BrowserRoot.EXTRA_OFFLINE)).isTrue();
     assertThat(rootHints.getBoolean(MediaBrowserService.BrowserRoot.EXTRA_RECENT)).isTrue();
     assertThat(rootHints.getBoolean(MediaBrowserService.BrowserRoot.EXTRA_SUGGESTED)).isTrue();
-    assertThat(rootHints.getString("key")).isEqualTo("value");
+  }
+
+  @Test
+  public void convertToRootHints_browsableOnlyFalse_correctLegacyBrowsableFlags() {
+    Bundle extras = new Bundle();
+    extras.putBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, false);
+    MediaLibraryService.LibraryParams param =
+        new MediaLibraryService.LibraryParams.Builder().setExtras(extras).build();
+
+    Bundle rootHints = MediaUtils.convertToRootHints(param);
+
+    assertThat(
+            rootHints.getInt(
+                BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, /* defaultValue= */ -1))
+        .isEqualTo(FLAG_BROWSABLE | FLAG_PLAYABLE);
+    assertThat(rootHints.get(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isNull();
+  }
+
+  @Test
+  public void convertToRootHints_browsableAbsentKey_noLegacyKeyAdded() {
+    MediaLibraryService.LibraryParams param =
+        new MediaLibraryService.LibraryParams.Builder().build();
+
+    Bundle rootHints = MediaUtils.convertToRootHints(param);
+
+    assertThat(rootHints.get(BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS)).isNull();
   }
 
   @Test
@@ -357,19 +480,399 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToPlayerCommands() {
-    long sessionFlags = FLAG_HANDLES_QUEUE_COMMANDS;
+  public void convertToPlayerCommands_withNoActions_onlyDefaultCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(/* capabilities= */ 0).build();
+
     Player.Commands playerCommands =
-        MediaUtils.convertToPlayerCommands(sessionFlags, /* isSessionReady= */ true);
-    assertThat(playerCommands.contains(Player.COMMAND_GET_TIMELINE)).isTrue();
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsExactly(
+            Player.COMMAND_GET_TIMELINE,
+            Player.COMMAND_GET_CURRENT_MEDIA_ITEM,
+            Player.COMMAND_GET_DEVICE_VOLUME,
+            Player.COMMAND_GET_MEDIA_ITEMS_METADATA,
+            Player.COMMAND_GET_AUDIO_ATTRIBUTES);
   }
 
   @Test
-  public void convertToPlayerCommands_whenSessionIsNotReady_disallowsShuffle() {
-    long sessionFlags = FLAG_HANDLES_QUEUE_COMMANDS;
+  public void convertToPlayerCommands_withJustPlayAction_playPauseCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PLAY).build();
+
     Player.Commands playerCommands =
-        MediaUtils.convertToPlayerCommands(sessionFlags, /* isSessionReady= */ false);
-    assertThat(playerCommands.contains(Player.COMMAND_SET_SHUFFLE_MODE)).isFalse();
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).doesNotContain(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withJustPauseAction_playPauseCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PAUSE).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).doesNotContain(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withPlayAndPauseAction_playPauseCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withPlayPauseAction_playPauseCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_PLAY_PAUSE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withPrepareAction_prepareCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PREPARE).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withRewindAction_seekBackCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_REWIND).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_SEEK_BACK);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withFastForwardAction_seekForwardCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_FAST_FORWARD)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_SEEK_FORWARD);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSeekToAction_seekInCurrentMediaItemCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_SEEK_TO).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .contains(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSkipToNextAction_seekToNextCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SEEK_TO_NEXT, Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSkipToPreviousAction_seekToPreviousCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(
+            Player.COMMAND_SEEK_TO_PREVIOUS, Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromActionsWithoutPrepareFromAction_setMediaItemCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_URI)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsNoneOf(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPrepareFromActionsWithoutPlayFromAction_setMediaItemCommandNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_URI)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsNoneOf(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromAndPrepareFromMediaId_setMediaItemPrepareAndPlayAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromAndPrepareFromSearch_setMediaItemPrepareAndPlayAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withPlayFromAndPrepareFromUri_setMediaItemPrepareAndPlayAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_FROM_URI
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_URI)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_PREPARE);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withSetPlaybackSpeedAction_setSpeedCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_SET_SPEED_AND_PITCH);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withStopAction_stopCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_STOP).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_STOP);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withRelativeVolumeControl_adjustVolumeCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(/* capabilities= */ 0).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_RELATIVE,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands)).contains(Player.COMMAND_ADJUST_DEVICE_VOLUME);
+    assertThat(getCommandsAsList(playerCommands)).doesNotContain(Player.COMMAND_SET_DEVICE_VOLUME);
+  }
+
+  @Test
+  public void convertToPlayerCommands_withAbsoluteVolumeControl_adjustVolumeCommandAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder().setActions(/* capabilities= */ 0).build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_ADJUST_DEVICE_VOLUME, Player.COMMAND_SET_DEVICE_VOLUME);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withShuffleRepeatActionsAndSessionReady_shuffleAndRepeatCommandsAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                    | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ true);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsAtLeast(Player.COMMAND_SET_REPEAT_MODE, Player.COMMAND_SET_SHUFFLE_MODE);
+  }
+
+  @Test
+  public void
+      convertToPlayerCommands_withShuffleRepeatActionsAndSessionNotReady_shuffleAndRepeatCommandsNotAvailable() {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                    | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)
+            .build();
+
+    Player.Commands playerCommands =
+        MediaUtils.convertToPlayerCommands(
+            playbackStateCompat,
+            /* volumeControlType= */ VolumeProviderCompat.VOLUME_CONTROL_FIXED,
+            /* sessionFlags= */ 0,
+            /* isSessionReady= */ false);
+
+    assertThat(getCommandsAsList(playerCommands))
+        .containsNoneOf(Player.COMMAND_SET_REPEAT_MODE, Player.COMMAND_SET_SHUFFLE_MODE);
   }
 
   @Test
@@ -569,5 +1072,135 @@ public final class MediaUtilsTest {
         MediaUtils.convertToTotalBufferedDurationMs(
             state, /* metadataCompat= */ null, /* timeDiffMs= */ C.INDEX_UNSET);
     assertThat(totalBufferedDurationMs).isEqualTo(testTotalBufferedDurationMs);
+  }
+
+  @Test
+  public void mergePlayerInfo_timelineAndTracksExcluded_correctMerge() {
+    Timeline timeline =
+        new Timeline.RemotableTimeline(
+            ImmutableList.of(new Timeline.Window()),
+            ImmutableList.of(new Timeline.Period()),
+            /* shuffledWindowIndices= */ new int[] {0});
+    Tracks tracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
+                    new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H265).build()),
+                    /* adaptiveSupported= */ true,
+                    new int[] {C.FORMAT_HANDLED, C.FORMAT_UNSUPPORTED_TYPE},
+                    /* trackSelected= */ new boolean[] {false, true})));
+    PlayerInfo oldPlayerInfo =
+        PlayerInfo.DEFAULT.copyWithCurrentTracks(tracks).copyWithTimeline(timeline);
+    PlayerInfo newPlayerInfo = PlayerInfo.DEFAULT;
+    Player.Commands availableCommands =
+        Player.Commands.EMPTY
+            .buildUpon()
+            .add(Player.COMMAND_GET_TIMELINE)
+            .add(Player.COMMAND_GET_TRACKS)
+            .build();
+
+    Pair<PlayerInfo, BundlingExclusions> mergeResult =
+        MediaUtils.mergePlayerInfo(
+            oldPlayerInfo,
+            BundlingExclusions.NONE,
+            newPlayerInfo,
+            new BundlingExclusions(/* isTimelineExcluded= */ true, /* areTracksExcluded= */ true),
+            availableCommands);
+
+    assertThat(mergeResult.first.timeline).isSameInstanceAs(oldPlayerInfo.timeline);
+    assertThat(mergeResult.first.currentTracks).isSameInstanceAs(oldPlayerInfo.currentTracks);
+    assertThat(mergeResult.second.isTimelineExcluded).isFalse();
+    assertThat(mergeResult.second.areCurrentTracksExcluded).isFalse();
+  }
+
+  @Test
+  public void mergePlayerInfo_getTimelineCommandNotAvailable_emptyTimeline() {
+    Timeline timeline =
+        new Timeline.RemotableTimeline(
+            ImmutableList.of(new Timeline.Window()),
+            ImmutableList.of(new Timeline.Period()),
+            /* shuffledWindowIndices= */ new int[] {0});
+    Tracks tracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
+                    new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H265).build()),
+                    /* adaptiveSupported= */ true,
+                    new int[] {C.FORMAT_HANDLED, C.FORMAT_UNSUPPORTED_TYPE},
+                    /* trackSelected= */ new boolean[] {false, true})));
+    PlayerInfo oldPlayerInfo =
+        PlayerInfo.DEFAULT.copyWithCurrentTracks(tracks).copyWithTimeline(timeline);
+    PlayerInfo newPlayerInfo = PlayerInfo.DEFAULT;
+    Player.Commands availableCommands =
+        Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_GET_TRACKS).build();
+
+    Pair<PlayerInfo, BundlingExclusions> mergeResult =
+        MediaUtils.mergePlayerInfo(
+            oldPlayerInfo,
+            BundlingExclusions.NONE,
+            newPlayerInfo,
+            new BundlingExclusions(/* isTimelineExcluded= */ true, /* areTracksExcluded= */ true),
+            availableCommands);
+
+    assertThat(mergeResult.first.timeline).isSameInstanceAs(Timeline.EMPTY);
+    assertThat(mergeResult.first.currentTracks).isSameInstanceAs(oldPlayerInfo.currentTracks);
+    assertThat(mergeResult.second.isTimelineExcluded).isTrue();
+    assertThat(mergeResult.second.areCurrentTracksExcluded).isFalse();
+  }
+
+  @Test
+  public void mergePlayerInfo_getTracksCommandNotAvailable_emptyTracks() {
+    Timeline timeline =
+        new Timeline.RemotableTimeline(
+            ImmutableList.of(new Timeline.Window()),
+            ImmutableList.of(new Timeline.Period()),
+            /* shuffledWindowIndices= */ new int[] {0});
+    Tracks tracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
+                    new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H265).build()),
+                    /* adaptiveSupported= */ true,
+                    new int[] {C.FORMAT_HANDLED, C.FORMAT_UNSUPPORTED_TYPE},
+                    /* trackSelected= */ new boolean[] {false, true})));
+    PlayerInfo oldPlayerInfo =
+        PlayerInfo.DEFAULT.copyWithCurrentTracks(tracks).copyWithTimeline(timeline);
+    PlayerInfo newPlayerInfo = PlayerInfo.DEFAULT;
+    Player.Commands availableCommands =
+        Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_GET_TIMELINE).build();
+
+    Pair<PlayerInfo, BundlingExclusions> mergeResult =
+        MediaUtils.mergePlayerInfo(
+            oldPlayerInfo,
+            BundlingExclusions.NONE,
+            newPlayerInfo,
+            new BundlingExclusions(/* isTimelineExcluded= */ true, /* areTracksExcluded= */ true),
+            availableCommands);
+
+    assertThat(mergeResult.first.timeline).isSameInstanceAs(oldPlayerInfo.timeline);
+    assertThat(mergeResult.first.currentTracks).isSameInstanceAs(Tracks.EMPTY);
+    assertThat(mergeResult.second.isTimelineExcluded).isFalse();
+    assertThat(mergeResult.second.areCurrentTracksExcluded).isTrue();
   }
 }

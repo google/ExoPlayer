@@ -26,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
@@ -71,7 +72,7 @@ import com.google.common.collect.ImmutableList;
   private final Timeline.Period period;
   private final Timeline.Window window;
   private final AnalyticsCollector analyticsCollector;
-  private final Handler analyticsCollectorHandler;
+  private final HandlerWrapper analyticsCollectorHandler;
 
   private long nextWindowSequenceNumber;
   private @RepeatMode int repeatMode;
@@ -91,7 +92,7 @@ import com.google.common.collect.ImmutableList;
    *     on.
    */
   public MediaPeriodQueue(
-      AnalyticsCollector analyticsCollector, Handler analyticsCollectorHandler) {
+      AnalyticsCollector analyticsCollector, HandlerWrapper analyticsCollectorHandler) {
     this.analyticsCollector = analyticsCollector;
     this.analyticsCollectorHandler = analyticsCollectorHandler;
     period = new Timeline.Period();

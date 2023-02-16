@@ -31,7 +31,7 @@ android {
         versionName project.ext.releaseVersion
         versionCode project.ext.releaseVersionCode
         minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
+        targetSdkVersion project.ext.appTargetSdkVersion
         multiDexEnabled true
     }
 

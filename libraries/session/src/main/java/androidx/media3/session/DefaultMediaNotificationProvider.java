@@ -54,7 +54,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -84,8 +83,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2>Drawables</h2>
  *
- * The drawables used can be overridden by drawables with the same names defined the application.
- * The drawables are:
+ * The drawables used can be overridden by drawables with the same file names in {@code
+ * res/drawables} of the application module. Alternatively, you can override the drawable resource
+ * ID with a {@code drawable} element in a resource file in {@code res/values}. The drawable
+ * resource IDs are:
  *
  * <ul>
  *   <li><b>{@code media3_notification_play}</b> - The play icon.
@@ -99,8 +100,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2>String resources</h2>
  *
- * String resources used can be overridden by resources with the same names defined the application.
- * These are:
+ * String resources used can be overridden by resources with the same resource IDs defined by the
+ * application. The string resource IDs are:
  *
  * <ul>
  *   <li><b>{@code media3_controls_play_description}</b> - The description of the play icon.
@@ -244,23 +245,49 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private final String channelId;
   @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
-  // Cache the last bitmap load request to avoid reloading the bitmap again, particularly useful
-  // when showing a notification for the same item (e.g. when switching from playing to paused).
   private final Handler mainHandler;
 
   private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
   @DrawableRes private int smallIconResourceId;
 
-  private DefaultMediaNotificationProvider(Builder builder) {
-    this.context = builder.context;
-    this.notificationIdProvider = builder.notificationIdProvider;
-    this.channelId = builder.channelId;
-    this.channelNameResourceId = builder.channelNameResourceId;
+  /**
+   * Creates an instance. Use this constructor only when you want to override methods of this class.
+   * Otherwise use {@link Builder}.
+   */
+  public DefaultMediaNotificationProvider(Context context) {
+    this(
+        context,
+        session -> DEFAULT_NOTIFICATION_ID,
+        DEFAULT_CHANNEL_ID,
+        DEFAULT_CHANNEL_NAME_RESOURCE_ID);
+  }
+
+  /**
+   * Creates an instance. Use this constructor only when you want to override methods of this class.
+   * Otherwise use {@link Builder}.
+   */
+  public DefaultMediaNotificationProvider(
+      Context context,
+      NotificationIdProvider notificationIdProvider,
+      String channelId,
+      int channelNameResourceId) {
+    this.context = context;
+    this.notificationIdProvider = notificationIdProvider;
+    this.channelId = channelId;
+    this.channelNameResourceId = channelNameResourceId;
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
     mainHandler = new Handler(Looper.getMainLooper());
     smallIconResourceId = R.drawable.media3_notification_small_icon;
+  }
+
+  private DefaultMediaNotificationProvider(Builder builder) {
+    this(
+        builder.context,
+        builder.notificationIdProvider,
+        builder.channelId,
+        builder.channelNameResourceId);
   }
 
   // MediaNotification.Provider implementation
@@ -282,6 +309,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         addNotificationActions(
             mediaSession,
             getMediaButtons(
+                mediaSession,
                 player.getAvailableCommands(),
                 customLayout,
                 /* showPauseButton= */ player.getPlayWhenReady()
@@ -291,33 +319,35 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     mediaStyle.setShowActionsInCompactView(compactViewIndices);
 
     // Set metadata info in the notification.
-    MediaMetadata metadata = player.getMediaMetadata();
-    builder
-        .setContentTitle(getNotificationContentTitle(metadata))
-        .setContentText(getNotificationContentText(metadata));
-    @Nullable
-    ListenableFuture<Bitmap> bitmapFuture =
-        mediaSession.getBitmapLoader().loadBitmapFromMetadata(metadata);
-    if (bitmapFuture != null) {
-      if (pendingOnBitmapLoadedFutureCallback != null) {
-        pendingOnBitmapLoadedFutureCallback.discardIfPending();
-      }
-      if (bitmapFuture.isDone()) {
-        try {
-          builder.setLargeIcon(Futures.getDone(bitmapFuture));
-        } catch (ExecutionException e) {
-          Log.w(TAG, "Failed to load bitmap", e);
+    if (player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+      MediaMetadata metadata = player.getMediaMetadata();
+      builder
+          .setContentTitle(getNotificationContentTitle(metadata))
+          .setContentText(getNotificationContentText(metadata));
+      @Nullable
+      ListenableFuture<Bitmap> bitmapFuture =
+          mediaSession.getBitmapLoader().loadBitmapFromMetadata(metadata);
+      if (bitmapFuture != null) {
+        if (pendingOnBitmapLoadedFutureCallback != null) {
+          pendingOnBitmapLoadedFutureCallback.discardIfPending();
         }
-      } else {
-        pendingOnBitmapLoadedFutureCallback =
-            new OnBitmapLoadedFutureCallback(
-                notificationId, builder, onNotificationChangedCallback);
-        Futures.addCallback(
-            bitmapFuture,
-            pendingOnBitmapLoadedFutureCallback,
-            // This callback must be executed on the next looper iteration, after this method has
-            // returned a media notification.
-            mainHandler::post);
+        if (bitmapFuture.isDone()) {
+          try {
+            builder.setLargeIcon(Futures.getDone(bitmapFuture));
+          } catch (ExecutionException e) {
+            Log.w(TAG, getBitmapLoadErrorMessage(e));
+          }
+        } else {
+          pendingOnBitmapLoadedFutureCallback =
+              new OnBitmapLoadedFutureCallback(
+                  notificationId, builder, onNotificationChangedCallback);
+          Futures.addCallback(
+              bitmapFuture,
+              pendingOnBitmapLoadedFutureCallback,
+              // This callback must be executed on the next looper iteration, after this method has
+              // returned a media notification.
+              mainHandler::post);
+        }
       }
     }
 
@@ -388,6 +418,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * need the custom command set in {@link MediaSession.Callback#onPostConnect(MediaSession,
    * MediaSession.ControllerInfo)} also.
    *
+   * @param session The media session.
    * @param playerCommands The available player commands.
    * @param customLayout The {@linkplain MediaSession#setCustomLayout(List) custom layout of
    *     commands}.
@@ -395,10 +426,13 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    *     player is currently playing content), otherwise show a play button to start playback.
    * @return The ordered list of command buttons to be placed on the notification.
    */
-  protected List<CommandButton> getMediaButtons(
-      Player.Commands playerCommands, List<CommandButton> customLayout, boolean showPauseButton) {
+  protected ImmutableList<CommandButton> getMediaButtons(
+      MediaSession session,
+      Player.Commands playerCommands,
+      ImmutableList<CommandButton> customLayout,
+      boolean showPauseButton) {
     // Skip to previous action.
-    List<CommandButton> commandButtons = new ArrayList<>();
+    ImmutableList.Builder<CommandButton> commandButtons = new ImmutableList.Builder<>();
     if (playerCommands.containsAny(COMMAND_SEEK_TO_PREVIOUS, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
       Bundle commandButtonExtras = new Bundle();
       commandButtonExtras.putInt(COMMAND_KEY_COMPACT_VIEW_INDEX, INDEX_UNSET);
@@ -447,14 +481,14 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         commandButtons.add(button);
       }
     }
-    return commandButtons;
+    return commandButtons.build();
   }
 
   /**
    * Adds the media buttons to the notification builder for the given action factory.
    *
    * <p>The list of {@code mediaButtons} is the list resulting from {@link #getMediaButtons(
-   * Player.Commands, List, boolean)}.
+   * MediaSession, Player.Commands, ImmutableList, boolean)}.
    *
    * <p>Override this method to customize how the media buttons {@linkplain
    * NotificationCompat.Builder#addAction(NotificationCompat.Action) are added} to the notification
@@ -475,7 +509,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    */
   protected int[] addNotificationActions(
       MediaSession mediaSession,
-      List<CommandButton> mediaButtons,
+      ImmutableList<CommandButton> mediaButtons,
       NotificationCompat.Builder builder,
       MediaNotification.ActionFactory actionFactory) {
     int[] compactViewIndices = new int[3];
@@ -608,7 +642,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     @Override
     public void onFailure(Throwable t) {
       if (!discarded) {
-        Log.d(TAG, "Failed to load bitmap", t);
+        Log.w(TAG, getBitmapLoadErrorMessage(t));
       }
     }
   }
@@ -628,5 +662,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       }
       notificationManager.createNotificationChannel(channel);
     }
+  }
+
+  private static String getBitmapLoadErrorMessage(Throwable throwable) {
+    return "Failed to load bitmap: " + throwable.getMessage();
   }
 }

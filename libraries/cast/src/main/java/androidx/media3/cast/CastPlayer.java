@@ -15,6 +15,7 @@
  */
 package androidx.media3.cast;
 
+import static androidx.annotation.VisibleForTesting.PROTECTED;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.min;
@@ -43,7 +44,6 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
@@ -295,7 +295,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
-    Assertions.checkArgument(index >= 0);
+    checkArgument(index >= 0);
     int uid = MediaQueueItem.INVALID_ITEM_ID;
     if (index < currentTimeline.getWindowCount()) {
       uid = (int) currentTimeline.getWindow(/* windowIndex= */ index, window).uid;
@@ -305,14 +305,11 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    Assertions.checkArgument(
-        fromIndex >= 0
-            && fromIndex <= toIndex
-            && toIndex <= currentTimeline.getWindowCount()
-            && newIndex >= 0
-            && newIndex < currentTimeline.getWindowCount());
-    newIndex = min(newIndex, currentTimeline.getWindowCount() - (toIndex - fromIndex));
-    if (fromIndex == toIndex || fromIndex == newIndex) {
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newIndex >= 0);
+    int playlistSize = currentTimeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    newIndex = min(newIndex, playlistSize - (toIndex - fromIndex));
+    if (fromIndex >= playlistSize || fromIndex == toIndex || fromIndex == newIndex) {
       // Do nothing.
       return;
     }
@@ -325,9 +322,10 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
-    Assertions.checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
-    toIndex = min(toIndex, currentTimeline.getWindowCount());
-    if (fromIndex == toIndex) {
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
+    int playlistSize = currentTimeline.getWindowCount();
+    toIndex = min(toIndex, playlistSize);
+    if (fromIndex >= playlistSize || fromIndex == toIndex) {
       // Do nothing.
       return;
     }
@@ -399,7 +397,16 @@ public final class CastPlayer extends BasePlayer {
   // don't implement onPositionDiscontinuity().
   @SuppressWarnings("deprecation")
   @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
+  @VisibleForTesting(otherwise = PROTECTED)
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
+    checkArgument(mediaItemIndex >= 0);
+    if (!currentTimeline.isEmpty() && mediaItemIndex >= currentTimeline.getWindowCount()) {
+      return;
+    }
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.

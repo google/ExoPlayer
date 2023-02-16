@@ -220,7 +220,7 @@ public class MediaSessionKeyEventTest {
 
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
   }
 
@@ -235,15 +235,6 @@ public class MediaSessionKeyEventTest {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
-  }
-
-  @Test
-  public void playPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
-    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
-
-    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
-    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isFalse();
-    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PAUSE)).isFalse();
   }
 
   private void dispatchMediaKeyEvent(int keyCode, boolean doubleTap) {

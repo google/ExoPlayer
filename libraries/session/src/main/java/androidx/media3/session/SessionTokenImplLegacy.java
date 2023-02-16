@@ -22,20 +22,14 @@ import static androidx.media3.session.SessionToken.TYPE_BROWSER_SERVICE_LEGACY;
 import static androidx.media3.session.SessionToken.TYPE_LIBRARY_SERVICE;
 import static androidx.media3.session.SessionToken.TYPE_SESSION;
 import static androidx.media3.session.SessionToken.TYPE_SESSION_LEGACY;
-import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.SessionToken.SessionTokenImpl;
 import com.google.common.base.Objects;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /* package */ final class SessionTokenImplLegacy implements SessionTokenImpl {
 
@@ -176,36 +170,22 @@ import java.lang.annotation.Target;
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_LEGACY_TOKEN,
-    FIELD_UID,
-    FIELD_TYPE,
-    FIELD_COMPONENT_NAME,
-    FIELD_PACKAGE_NAME,
-    FIELD_EXTRAS
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_LEGACY_TOKEN = 0;
-  private static final int FIELD_UID = 1;
-  private static final int FIELD_TYPE = 2;
-  private static final int FIELD_COMPONENT_NAME = 3;
-  private static final int FIELD_PACKAGE_NAME = 4;
-  private static final int FIELD_EXTRAS = 5;
+  private static final String FIELD_LEGACY_TOKEN = Util.intToStringMaxRadix(0);
+  private static final String FIELD_UID = Util.intToStringMaxRadix(1);
+  private static final String FIELD_TYPE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_COMPONENT_NAME = Util.intToStringMaxRadix(3);
+  private static final String FIELD_PACKAGE_NAME = Util.intToStringMaxRadix(4);
+  private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(5);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putBundle(
-        keyForField(FIELD_LEGACY_TOKEN), legacyToken == null ? null : legacyToken.toBundle());
-    bundle.putInt(keyForField(FIELD_UID), uid);
-    bundle.putInt(keyForField(FIELD_TYPE), type);
-    bundle.putParcelable(keyForField(FIELD_COMPONENT_NAME), componentName);
-    bundle.putString(keyForField(FIELD_PACKAGE_NAME), packageName);
-    bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+    bundle.putBundle(FIELD_LEGACY_TOKEN, legacyToken == null ? null : legacyToken.toBundle());
+    bundle.putInt(FIELD_UID, uid);
+    bundle.putInt(FIELD_TYPE, type);
+    bundle.putParcelable(FIELD_COMPONENT_NAME, componentName);
+    bundle.putString(FIELD_PACKAGE_NAME, packageName);
+    bundle.putBundle(FIELD_EXTRAS, extras);
     return bundle;
   }
 
@@ -213,24 +193,19 @@ import java.lang.annotation.Target;
   public static final Creator<SessionTokenImplLegacy> CREATOR = SessionTokenImplLegacy::fromBundle;
 
   private static SessionTokenImplLegacy fromBundle(Bundle bundle) {
-    @Nullable Bundle legacyTokenBundle = bundle.getBundle(keyForField(FIELD_LEGACY_TOKEN));
+    @Nullable Bundle legacyTokenBundle = bundle.getBundle(FIELD_LEGACY_TOKEN);
     @Nullable
     MediaSessionCompat.Token legacyToken =
         legacyTokenBundle == null ? null : MediaSessionCompat.Token.fromBundle(legacyTokenBundle);
-    checkArgument(bundle.containsKey(keyForField(FIELD_UID)), "uid should be set.");
-    int uid = bundle.getInt(keyForField(FIELD_UID));
-    checkArgument(bundle.containsKey(keyForField(FIELD_TYPE)), "type should be set.");
-    int type = bundle.getInt(keyForField(FIELD_TYPE));
-    @Nullable ComponentName componentName = bundle.getParcelable(keyForField(FIELD_COMPONENT_NAME));
+    checkArgument(bundle.containsKey(FIELD_UID), "uid should be set.");
+    int uid = bundle.getInt(FIELD_UID);
+    checkArgument(bundle.containsKey(FIELD_TYPE), "type should be set.");
+    int type = bundle.getInt(FIELD_TYPE);
+    @Nullable ComponentName componentName = bundle.getParcelable(FIELD_COMPONENT_NAME);
     String packageName =
-        checkNotEmpty(
-            bundle.getString(keyForField(FIELD_PACKAGE_NAME)), "package name should be set.");
-    @Nullable Bundle extras = bundle.getBundle(keyForField(FIELD_EXTRAS));
+        checkNotEmpty(bundle.getString(FIELD_PACKAGE_NAME), "package name should be set.");
+    @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
     return new SessionTokenImplLegacy(
         legacyToken, uid, type, componentName, packageName, extras == null ? Bundle.EMPTY : extras);
-  }
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

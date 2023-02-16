@@ -18,6 +18,7 @@ package androidx.media3.exoplayer;
 import static androidx.media3.common.C.TRACK_TYPE_AUDIO;
 import static androidx.media3.common.C.TRACK_TYPE_CAMERA_MOTION;
 import static androidx.media3.common.C.TRACK_TYPE_VIDEO;
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.castNonNull;
@@ -76,7 +77,6 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.CueGroup;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
@@ -88,6 +88,7 @@ import androidx.media3.exoplayer.PlayerMessage.Target;
 import androidx.media3.exoplayer.Renderer.MessageType;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector;
 import androidx.media3.exoplayer.analytics.MediaMetricsListener;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
@@ -345,7 +346,8 @@ import java.util.concurrent.TimeoutException;
               applicationLooper,
               clock,
               playbackInfoUpdateListener,
-              playerId);
+              playerId,
+              builder.playbackLooper);
 
       volume = 1;
       repeatMode = Player.REPEAT_MODE_OFF;
@@ -478,7 +480,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void removeAudioOffloadListener(AudioOffloadListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
+    verifyApplicationThread();
     audioOffloadListeners.remove(listener);
   }
 
@@ -621,7 +623,6 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     verifyApplicationThread();
-    index = min(index, mediaSourceHolderSnapshots.size());
     addMediaSources(index, createMediaSources(mediaItems));
   }
 
@@ -646,7 +647,8 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaSources(int index, List<MediaSource> mediaSources) {
     verifyApplicationThread();
-    Assertions.checkArgument(index >= 0);
+    checkArgument(index >= 0);
+    index = min(index, mediaSourceHolderSnapshots.size());
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
     List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
@@ -672,7 +674,13 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     verifyApplicationThread();
-    toIndex = min(toIndex, mediaSourceHolderSnapshots.size());
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
+    int playlistSize = mediaSourceHolderSnapshots.size();
+    toIndex = min(toIndex, playlistSize);
+    if (fromIndex >= playlistSize || fromIndex == toIndex) {
+      // Do nothing.
+      return;
+    }
     PlaybackInfo newPlaybackInfo = removeMediaItemsInternal(fromIndex, toIndex);
     boolean positionDiscontinuity =
         !newPlaybackInfo.periodId.periodUid.equals(playbackInfo.periodId.periodUid);
@@ -691,14 +699,16 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newFromIndex) {
     verifyApplicationThread();
-    Assertions.checkArgument(
-        fromIndex >= 0
-            && fromIndex <= toIndex
-            && toIndex <= mediaSourceHolderSnapshots.size()
-            && newFromIndex >= 0);
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newFromIndex >= 0);
+    int playlistSize = mediaSourceHolderSnapshots.size();
+    toIndex = min(toIndex, playlistSize);
+    newFromIndex = min(newFromIndex, playlistSize - (toIndex - fromIndex));
+    if (fromIndex >= playlistSize || fromIndex == toIndex || fromIndex == newFromIndex) {
+      // Do nothing.
+      return;
+    }
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
-    newFromIndex = min(newFromIndex, mediaSourceHolderSnapshots.size() - (toIndex - fromIndex));
     Util.moveItems(mediaSourceHolderSnapshots, fromIndex, toIndex, newFromIndex);
     Timeline newTimeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
@@ -821,16 +831,51 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  protected void repeatCurrentMediaItem() {
+  public void seekTo(
+      int mediaItemIndex,
+      long positionMs,
+      @Player.Command int seekCommand,
+      boolean isRepeatingCurrentItem) {
     verifyApplicationThread();
-    seekToInternal(
-        getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET, /* repeatMediaItem= */ true);
-  }
-
-  @Override
-  public void seekTo(int mediaItemIndex, long positionMs) {
-    verifyApplicationThread();
-    seekToInternal(mediaItemIndex, positionMs, /* repeatMediaItem= */ false);
+    checkArgument(mediaItemIndex >= 0);
+    analyticsCollector.notifySeekStarted();
+    Timeline timeline = playbackInfo.timeline;
+    if (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount()) {
+      return;
+    }
+    pendingOperationAcks++;
+    if (isPlayingAd()) {
+      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
+      // general because the midroll ad preceding the seek destination must be played before the
+      // content position can be played, if a different ad is playing at the moment.
+      Log.w(TAG, "seekTo ignored because an ad is playing");
+      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
+          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
+      playbackInfoUpdate.incrementPendingOperationAcks(1);
+      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
+      return;
+    }
+    @Player.State
+    int newPlaybackState =
+        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
+    int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
+    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
+    newPlaybackInfo =
+        maskTimelineAndPosition(
+            newPlaybackInfo,
+            timeline,
+            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
+    internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
+    updatePlaybackInfo(
+        newPlaybackInfo,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ true,
+        /* positionDiscontinuity= */ true,
+        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
+        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
+        oldMaskingMediaItemIndex,
+        isRepeatingCurrentItem);
   }
 
   @Override
@@ -1486,7 +1531,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void removeAnalyticsListener(AnalyticsListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
+    verifyApplicationThread();
     analyticsCollector.removeListener(checkNotNull(listener));
   }
 
@@ -1603,9 +1648,8 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void removeListener(Listener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
-    listeners.remove(listener);
+    verifyApplicationThread();
+    listeners.remove(checkNotNull(listener));
   }
 
   @Override
@@ -1688,8 +1732,14 @@ import java.util.concurrent.TimeoutException;
     return false;
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated methods.
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
+    listeners.setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);
+    if (analyticsCollector instanceof DefaultAnalyticsCollector) {
+      ((DefaultAnalyticsCollector) analyticsCollector)
+          .setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);
+    }
   }
 
   /**
@@ -2219,8 +2269,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   private PlaybackInfo removeMediaItemsInternal(int fromIndex, int toIndex) {
-    Assertions.checkArgument(
-        fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolderSnapshots.size());
     int currentIndex = getCurrentMediaItemIndex();
     Timeline oldTimeline = getCurrentTimeline();
     int currentMediaSourceCount = mediaSourceHolderSnapshots.size();
@@ -2259,7 +2307,7 @@ import java.util.concurrent.TimeoutException;
 
   private PlaybackInfo maskTimelineAndPosition(
       PlaybackInfo playbackInfo, Timeline timeline, @Nullable Pair<Object, Long> periodPositionUs) {
-    Assertions.checkArgument(timeline.isEmpty() || periodPositionUs != null);
+    checkArgument(timeline.isEmpty() || periodPositionUs != null);
     Timeline oldTimeline = playbackInfo.timeline;
     // Mask the timeline.
     playbackInfo = playbackInfo.copyWithTimeline(timeline);
@@ -2687,48 +2735,6 @@ import java.util.concurrent.TimeoutException;
         isPriorityTaskManagerRegistered = false;
       }
     }
-  }
-
-  private void seekToInternal(int mediaItemIndex, long positionMs, boolean repeatMediaItem) {
-    analyticsCollector.notifySeekStarted();
-    Timeline timeline = playbackInfo.timeline;
-    if (mediaItemIndex < 0
-        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
-    }
-    pendingOperationAcks++;
-    if (isPlayingAd()) {
-      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
-      // general because the midroll ad preceding the seek destination must be played before the
-      // content position can be played, if a different ad is playing at the moment.
-      Log.w(TAG, "seekTo ignored because an ad is playing");
-      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
-          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
-      playbackInfoUpdate.incrementPendingOperationAcks(1);
-      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
-      return;
-    }
-    @Player.State
-    int newPlaybackState =
-        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
-    int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
-    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
-    newPlaybackInfo =
-        maskTimelineAndPosition(
-            newPlaybackInfo,
-            timeline,
-            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
-    internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
-    updatePlaybackInfo(
-        newPlaybackInfo,
-        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ true,
-        /* positionDiscontinuity= */ true,
-        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
-        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
-        oldMaskingMediaItemIndex,
-        repeatMediaItem);
   }
 
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {

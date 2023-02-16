@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -24,6 +25,7 @@ import static java.lang.Math.min;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,10 +46,10 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import androidx.media.VolumeProviderCompat;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
-import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -76,7 +78,10 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -93,6 +98,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final SessionToken token;
   private final ListenerSet<Listener> listeners;
   private final ControllerCompatCallback controllerCompatCallback;
+  private final BitmapLoader bitmapLoader;
 
   @Nullable private MediaControllerCompat controllerCompat;
   @Nullable private MediaBrowserCompat browserCompat;
@@ -106,7 +112,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Context context,
       @UnderInitialization MediaController instance,
       SessionToken token,
-      Looper applicationLooper) {
+      Looper applicationLooper,
+      BitmapLoader bitmapLoader) {
     // Initialize default values.
     legacyPlayerInfo = new LegacyPlayerInfo();
     pendingLegacyPlayerInfo = new LegacyPlayerInfo();
@@ -122,6 +129,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.instance = instance;
     controllerCompatCallback = new ControllerCompatCallback(applicationLooper);
     this.token = token;
+    this.bitmapLoader = bitmapLoader;
   }
 
   /* package */ MediaController getInstance() {
@@ -311,13 +319,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void seekToInternal(int mediaItemIndex, long positionMs) {
+    checkArgument(mediaItemIndex >= 0);
     int currentMediaItemIndex = getCurrentMediaItemIndex();
     Timeline currentTimeline = controllerInfo.playerInfo.timeline;
-    if (currentMediaItemIndex != mediaItemIndex
-        && (mediaItemIndex < 0 || mediaItemIndex >= currentTimeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(currentTimeline, mediaItemIndex, positionMs);
-    }
-    if (isPlayingAd()) {
+    if ((!currentTimeline.isEmpty() && mediaItemIndex >= currentTimeline.getWindowCount())
+        || isPlayingAd()) {
       return;
     }
     int newMediaItemIndex = currentMediaItemIndex;
@@ -687,6 +693,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
+    checkArgument(index >= 0);
     if (mediaItems.isEmpty()) {
       return;
     }
@@ -717,11 +724,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         /* mediaItemTransitionReason= */ null);
 
     if (isPrepared()) {
-      for (int i = 0; i < mediaItems.size(); i++) {
-        MediaItem mediaItem = mediaItems.get(i);
-        controllerCompat.addQueueItem(
-            MediaUtils.convertToMediaDescriptionCompat(mediaItem), index + i);
-      }
+      addQueueItems(mediaItems, index);
     }
   }
 
@@ -732,9 +735,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
     int windowCount = getCurrentTimeline().getWindowCount();
     toIndex = min(toIndex, windowCount);
-    if (fromIndex >= toIndex) {
+    if (fromIndex >= windowCount || fromIndex == toIndex) {
       return;
     }
 
@@ -787,15 +791,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex && newIndex >= 0);
     QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
     int size = queueTimeline.getWindowCount();
     toIndex = min(toIndex, size);
-    if (fromIndex >= toIndex) {
-      return;
-    }
     int moveItemsSize = toIndex - fromIndex;
     int lastItemIndexAfterRemove = size - moveItemsSize - 1;
-    newIndex = min(newIndex, lastItemIndexAfterRemove);
+    newIndex = min(newIndex, lastItemIndexAfterRemove + 1);
+    if (fromIndex >= size || fromIndex == toIndex || fromIndex == newIndex) {
+      return;
+    }
 
     int currentMediaItemIndex = getCurrentMediaItemIndex();
     int currentMediaItemIndexAfterRemove =
@@ -1339,15 +1344,61 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     // Add all other items to the playlist if supported.
     if (getAvailableCommands().contains(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
+      List<MediaItem> adjustedMediaItems = new ArrayList<>();
       for (int i = 0; i < queueTimeline.getWindowCount(); i++) {
         if (i == currentIndex || queueTimeline.getQueueId(i) != QueueItem.UNKNOWN_ID) {
           // Skip the current item (added above) and all items already known to the session.
           continue;
         }
-        MediaItem mediaItem = queueTimeline.getWindow(/* windowIndex= */ i, window).mediaItem;
-        controllerCompat.addQueueItem(
-            MediaUtils.convertToMediaDescriptionCompat(mediaItem), /* index= */ i);
+        adjustedMediaItems.add(queueTimeline.getWindow(/* windowIndex= */ i, window).mediaItem);
       }
+      addQueueItems(adjustedMediaItems, /* startIndex= */ 0);
+    }
+  }
+
+  private void addQueueItems(List<MediaItem> mediaItems, int startIndex) {
+    List<@NullableType ListenableFuture<Bitmap>> bitmapFutures = new ArrayList<>();
+    final AtomicInteger resultCount = new AtomicInteger(0);
+    Runnable handleBitmapFuturesTask =
+        () -> {
+          int completedBitmapFutureCount = resultCount.incrementAndGet();
+          if (completedBitmapFutureCount == mediaItems.size()) {
+            handleBitmapFuturesAllCompletedAndAddQueueItems(
+                bitmapFutures, mediaItems, /* startIndex= */ startIndex);
+          }
+        };
+
+    for (int i = 0; i < mediaItems.size(); i++) {
+      MediaItem mediaItem = mediaItems.get(i);
+      MediaMetadata metadata = mediaItem.mediaMetadata;
+      if (metadata.artworkData == null) {
+        bitmapFutures.add(null);
+        handleBitmapFuturesTask.run();
+      } else {
+        ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.decodeBitmap(metadata.artworkData);
+        bitmapFutures.add(bitmapFuture);
+        bitmapFuture.addListener(handleBitmapFuturesTask, getInstance().applicationHandler::post);
+      }
+    }
+  }
+
+  private void handleBitmapFuturesAllCompletedAndAddQueueItems(
+      List<@NullableType ListenableFuture<Bitmap>> bitmapFutures,
+      List<MediaItem> mediaItems,
+      int startIndex) {
+    for (int i = 0; i < bitmapFutures.size(); i++) {
+      @Nullable ListenableFuture<Bitmap> future = bitmapFutures.get(i);
+      @Nullable Bitmap bitmap = null;
+      if (future != null) {
+        try {
+          bitmap = Futures.getDone(future);
+        } catch (CancellationException | ExecutionException e) {
+          Log.d(TAG, "Failed to get bitmap");
+        }
+      }
+      controllerCompat.addQueueItem(
+          MediaUtils.convertToMediaDescriptionCompat(mediaItems.get(i), bitmap),
+          /* index= */ startIndex + i);
     }
   }
 
@@ -1777,6 +1828,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   + " MediaItem.");
           MediaItem fakeMediaItem =
               MediaUtils.convertToMediaItem(newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
+          // Ad a tag to make sure the fake media item can't have an equal instance by accident.
+          fakeMediaItem = fakeMediaItem.buildUpon().setTag(new Object()).build();
           currentTimeline = currentTimeline.copyWithFakeMediaItem(fakeMediaItem);
           currentMediaItemIndex = currentTimeline.getWindowCount() - 1;
         } else {
@@ -1791,7 +1844,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (hasMediaMetadataCompat) {
           MediaItem mediaItem =
               MediaUtils.convertToMediaItem(
-                  currentTimeline.getMediaItemAt(currentMediaItemIndex).mediaId,
+                  checkNotNull(currentTimeline.getMediaItemAt(currentMediaItemIndex)).mediaId,
                   newLegacyPlayerInfo.mediaMetadataCompat,
                   ratingType);
           currentTimeline =
@@ -1827,9 +1880,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Note: Sets the available player command here although it can be obtained before session is
     // ready. It's to follow the decision on MediaController to disallow any commands before
     // connection is made.
+    int volumeControlType =
+        newLegacyPlayerInfo.playbackInfoCompat != null
+            ? newLegacyPlayerInfo.playbackInfoCompat.getVolumeControl()
+            : VolumeProviderCompat.VOLUME_CONTROL_FIXED;
     availablePlayerCommands =
         (oldControllerInfo.availablePlayerCommands == Commands.EMPTY)
-            ? MediaUtils.convertToPlayerCommands(sessionFlags, isSessionReady)
+            ? MediaUtils.convertToPlayerCommands(
+                newLegacyPlayerInfo.playbackStateCompat,
+                volumeControlType,
+                sessionFlags,
+                isSessionReady)
             : oldControllerInfo.availablePlayerCommands;
 
     PlaybackException playerError =
@@ -1940,7 +2001,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       MediaItem oldCurrentMediaItem =
           checkStateNotNull(oldControllerInfo.playerInfo.getCurrentMediaItem());
       int oldCurrentMediaItemIndexInNewTimeline =
-          ((QueueTimeline) newControllerInfo.playerInfo.timeline).findIndexOf(oldCurrentMediaItem);
+          ((QueueTimeline) newControllerInfo.playerInfo.timeline).indexOf(oldCurrentMediaItem);
       if (oldCurrentMediaItemIndexInNewTimeline == C.INDEX_UNSET) {
         // Old current item is removed.
         discontinuityReason = Player.DISCONTINUITY_REASON_REMOVE;
