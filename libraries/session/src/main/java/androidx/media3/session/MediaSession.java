@@ -372,7 +372,7 @@ public class MediaSession {
      * @param remoteUserInfo The remote user info.
      * @param trusted {@code true} if trusted, {@code false} otherwise.
      * @param cb ControllerCb. Can be {@code null} only when a MediaBrowserCompat connects to
-     *     MediaSessionService and ControllerInfo is needed for SessionCallback#onConnected().
+     *     MediaSessionService and ControllerInfo is needed for {@code SessionCallback#onConnect()}.
      * @param connectionHints A session-specific argument sent from the controller for the
      *     connection. The contents of this bundle may affect the connection result.
      */
