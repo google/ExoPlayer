@@ -23,8 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * A test only class for holding the details of what fallbacks were applied during a test
- * transformation.
+ * A test only class for holding the details of what fallbacks were applied during a test export.
  */
 /* package */ final class FallbackDetails {
 

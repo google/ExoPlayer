@@ -36,7 +36,7 @@ public final class TransformerTestRunner {
    *
    * @param transformer The {@link Transformer}.
    * @return The {@link ExportResult}.
-   * @throws ExportException If the transformation threw an exception.
+   * @throws ExportException If the export threw an exception.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    * @throws IllegalStateException If the method is not called from the main thread.

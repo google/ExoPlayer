@@ -158,7 +158,7 @@ public class SsimMapperTest {
     private static final String TAG = "SsimBinarySearcher";
     private static final double SSIM_ACCEPTABLE_TOLERANCE = 0.005;
     private static final double SSIM_TARGET = 0.95;
-    private static final int MAX_TRANSFORMATIONS = 12;
+    private static final int MAX_EXPORTS = 12;
 
     private final Context context;
     private final String testIdPrefix;
@@ -166,7 +166,7 @@ public class SsimMapperTest {
     private final Format format;
     private final String outputMimeType;
 
-    private int transformationsLeft;
+    private int exportsLeft;
     private double ssimLowerBound;
     private double ssimUpperBound;
     private int bitrateLowerBound;
@@ -187,7 +187,7 @@ public class SsimMapperTest {
       this.testIdPrefix = testIdPrefix;
       this.videoUri = videoUri;
       this.outputMimeType = outputMimeType;
-      transformationsLeft = MAX_TRANSFORMATIONS;
+      exportsLeft = MAX_EXPORTS;
       format = AndroidTestUtil.getFormatForTestFile(videoUri);
     }
 
@@ -208,7 +208,7 @@ public class SsimMapperTest {
       int maxBitrateToCheck = currentBitrate * 32;
 
       do {
-        double currentSsim = transformAndGetSsim(currentBitrate);
+        double currentSsim = exportAndGetSsim(currentBitrate);
         if (isSsimAcceptable(currentSsim)) {
           return false;
         }
@@ -228,10 +228,9 @@ public class SsimMapperTest {
             return false;
           }
         }
-      } while ((ssimLowerBound == SSIM_UNSET || ssimUpperBound == SSIM_UNSET)
-          && transformationsLeft > 0);
+      } while ((ssimLowerBound == SSIM_UNSET || ssimUpperBound == SSIM_UNSET) && exportsLeft > 0);
 
-      return transformationsLeft > 0;
+      return exportsLeft > 0;
     }
 
     /**
@@ -240,19 +239,19 @@ public class SsimMapperTest {
      * <p>Performs a binary search of the bitrate between the {@link #bitrateLowerBound} and {@link
      * #bitrateUpperBound}.
      *
-     * <p>Runs until the target SSIM is found or the maximum number of transformations is reached.
+     * <p>Runs until the target SSIM is found or the maximum number of exports is reached.
      */
     public void search() throws Exception {
       if (!setupBinarySearchBounds()) {
         return;
       }
 
-      while (transformationsLeft > 0) {
+      while (exportsLeft > 0) {
         // At this point, we have under and over bitrate bounds, with associated SSIMs.
         // Go between the two, and replace either the under or the over.
 
         int currentBitrate = (bitrateUpperBound + bitrateLowerBound) / 2;
-        double currentSsim = transformAndGetSsim(currentBitrate);
+        double currentSsim = exportAndGetSsim(currentBitrate);
         if (isSsimAcceptable(currentSsim)) {
           return;
         }
@@ -272,7 +271,7 @@ public class SsimMapperTest {
       }
     }
 
-    private double transformAndGetSsim(int bitrate) throws Exception {
+    private double exportAndGetSsim(int bitrate) throws Exception {
       // TODO(b/238094555): Force specific encoders to be used.
 
       String fileName = checkNotNull(getLast(FORWARD_SLASH_SPLITTER.split(videoUri)));
@@ -305,7 +304,7 @@ public class SsimMapperTest {
               .setRemoveAudio(true)
               .build();
 
-      transformationsLeft--;
+      exportsLeft--;
 
       double ssim =
           new TransformerAndroidTestRunner.Builder(context, transformer)

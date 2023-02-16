@@ -50,8 +50,8 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
   public static final String TAG = "ToneMapHdrToSdrUsingOpenGlTest";
 
   @Test
-  public void transform_toneMap_hlg10File_toneMapsOrThrows() throws Exception {
-    String testId = "transform_glToneMap_hlg10File_toneMapsOrThrows";
+  public void export_toneMap_hlg10File_toneMapsOrThrows() throws Exception {
+    String testId = "export_glToneMap_hlg10File_toneMapsOrThrows";
 
     if (Util.SDK_INT < 29) {
       recordTestSkipped(
@@ -100,8 +100,8 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
   }
 
   @Test
-  public void transform_toneMap_hdr10File_toneMapsOrThrows() throws Exception {
-    String testId = "transform_glToneMap_hdr10File_toneMapsOrThrows";
+  public void export_toneMap_hdr10File_toneMapsOrThrows() throws Exception {
+    String testId = "export_glToneMap_hdr10File_toneMapsOrThrows";
 
     if (Util.SDK_INT < 29) {
       recordTestSkipped(

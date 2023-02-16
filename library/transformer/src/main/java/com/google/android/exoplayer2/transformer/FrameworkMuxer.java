@@ -204,7 +204,7 @@ import java.nio.ByteBuffer;
     try {
       stopMuxer(mediaMuxer);
     } catch (RuntimeException e) {
-      // It doesn't matter that stopping the muxer throws if the transformation is being cancelled.
+      // It doesn't matter that stopping the muxer throws if the export is being cancelled.
       if (!forCancellation) {
         throw new MuxerException("Failed to stop the muxer", e);
       }

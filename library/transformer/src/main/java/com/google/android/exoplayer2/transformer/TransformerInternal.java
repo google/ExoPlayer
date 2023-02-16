@@ -61,19 +61,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Represents a reason for ending a transformation. May be one of {@link #END_REASON_COMPLETED},
-   * {@link #END_REASON_CANCELLED} or {@link #END_REASON_ERROR}.
+   * Represents a reason for ending an export. May be one of {@link #END_REASON_COMPLETED}, {@link
+   * #END_REASON_CANCELLED} or {@link #END_REASON_ERROR}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({END_REASON_COMPLETED, END_REASON_CANCELLED, END_REASON_ERROR})
   private @interface EndReason {}
-  /** The transformation completed successfully. */
+  /** The export completed successfully. */
   private static final int END_REASON_COMPLETED = 0;
-  /** The transformation was cancelled. */
+  /** The export was cancelled. */
   private static final int END_REASON_CANCELLED = 1;
-  /** An error occurred during the transformation. */
+  /** An error occurred during the export. */
   private static final int END_REASON_ERROR = 2;
 
   // Internal messages.
