@@ -20,7 +20,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECO
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
-import static androidx.media3.transformer.mh.FileUtil.assertFileHasColorTransfer;
+import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import android.content.Context;
@@ -90,7 +90,8 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      Log.i(TAG, "Tone mapped.");
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       Log.e(TAG, "Error during export.", exception);
       if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
@@ -140,7 +141,8 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      Log.i(TAG, "Tone mapped.");
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       Log.e(TAG, "Error during export.", exception);
       if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {

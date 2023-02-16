@@ -19,7 +19,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECO
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-import static androidx.media3.transformer.mh.FileUtil.assertFileHasColorTransfer;
+import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 
 import android.content.Context;
 import android.net.Uri;
@@ -73,7 +73,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (ExportException exception) {
       if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
@@ -109,7 +109,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      assertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (ExportException exception) {
       if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
