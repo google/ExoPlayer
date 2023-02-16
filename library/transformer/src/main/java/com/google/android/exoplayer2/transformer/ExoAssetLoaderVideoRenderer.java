@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -35,6 +36,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final boolean flattenForSlowMotion;
   private final Codec.DecoderFactory decoderFactory;
+  private final boolean forceInterpretHdrAsSdr;
   private final List<Long> decodeOnlyPresentationTimestamps;
 
   private @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
@@ -43,17 +45,36 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public ExoAssetLoaderVideoRenderer(
       boolean flattenForSlowMotion,
       Codec.DecoderFactory decoderFactory,
+      boolean forceInterpretHdrAsSdr,
       TransformerMediaClock mediaClock,
       AssetLoader.Listener assetLoaderListener) {
     super(C.TRACK_TYPE_VIDEO, mediaClock, assetLoaderListener);
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.decoderFactory = decoderFactory;
+    this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     decodeOnlyPresentationTimestamps = new ArrayList<>();
   }
 
   @Override
   public String getName() {
     return TAG;
+  }
+
+  @Override
+  protected Format overrideFormat(Format inputFormat) throws ExportException {
+    if (forceInterpretHdrAsSdr && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
+      if (SDK_INT < 29) {
+        throw ExportException.createForCodec(
+            new IllegalArgumentException(
+                "Interpreting HDR video as SDR is not supported on this device."),
+            ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+            /* isVideo= */ true,
+            /* isDecoder= */ true,
+            inputFormat);
+      }
+      return inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+    }
+    return inputFormat;
   }
 
   @Override

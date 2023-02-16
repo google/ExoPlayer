@@ -17,12 +17,10 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
-import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_KEEP_HDR;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.android.exoplayer2.video.ColorInfo.isTransferHdr;
 
 import android.content.Context;
@@ -87,25 +85,6 @@ import org.checkerframework.dataflow.qual.Pure;
       throws ExportException {
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
-    boolean isGlToneMapping = false;
-    if (isTransferHdr(firstInputFormat.colorInfo)) {
-      if (transformationRequest.hdrMode == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR) {
-        if (SDK_INT < 29) {
-          throw ExportException.createForCodec(
-              new IllegalArgumentException(
-                  "Interpreting HDR video as SDR is not supported on this device."),
-              ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
-              /* isVideo= */ true,
-              /* isDecoder= */ true,
-              firstInputFormat);
-        }
-        firstInputFormat =
-            firstInputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
-      } else if (transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL) {
-        isGlToneMapping = true;
-      }
-    }
-
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
     encoderOutputBuffer =
@@ -122,6 +101,9 @@ import org.checkerframework.dataflow.qual.Pure;
     ColorInfo encoderInputColor = encoderWrapper.getSupportedInputColor();
     // If not tone mapping using OpenGL, the decoder will output the encoderInputColor,
     // possibly by tone mapping.
+    boolean isGlToneMapping =
+        ColorInfo.isTransferHdr(firstInputFormat.colorInfo)
+            && transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
     videoFrameProcessorInputColor =
         isGlToneMapping ? checkNotNull(firstInputFormat.colorInfo) : encoderInputColor;
     // For consistency with the Android platform, OpenGL tone mapping outputs colors with

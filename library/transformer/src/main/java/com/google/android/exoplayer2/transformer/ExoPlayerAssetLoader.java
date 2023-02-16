@@ -62,6 +62,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     private final Context context;
     private final Codec.DecoderFactory decoderFactory;
+    private final boolean forceInterpretHdrAsSdr;
     private final Clock clock;
     @Nullable private final MediaSource.Factory mediaSourceFactory;
 
@@ -71,12 +72,19 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
      * @param context The {@link Context}.
      * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
      *     necessary).
+     * @param forceInterpretHdrAsSdr Whether to apply {@link
+     *     TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
      * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
      *     testing.
      */
-    public Factory(Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
+    public Factory(
+        Context context,
+        Codec.DecoderFactory decoderFactory,
+        boolean forceInterpretHdrAsSdr,
+        Clock clock) {
       this.context = context;
       this.decoderFactory = decoderFactory;
+      this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
       this.clock = clock;
       this.mediaSourceFactory = null;
     }
@@ -87,6 +95,8 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
      * @param context The {@link Context}.
      * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
      *     necessary).
+     * @param forceInterpretHdrAsSdr Whether to apply {@link
+     *     TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
      * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
      *     testing.
      * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
@@ -95,10 +105,12 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     public Factory(
         Context context,
         Codec.DecoderFactory decoderFactory,
+        boolean forceInterpretHdrAsSdr,
         Clock clock,
         MediaSource.Factory mediaSourceFactory) {
       this.context = context;
       this.decoderFactory = decoderFactory;
+      this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
       this.clock = clock;
       this.mediaSourceFactory = mediaSourceFactory;
     }
@@ -115,7 +127,14 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
       return new ExoPlayerAssetLoader(
-          context, editedMediaItem, mediaSourceFactory, decoderFactory, looper, listener, clock);
+          context,
+          editedMediaItem,
+          mediaSourceFactory,
+          decoderFactory,
+          forceInterpretHdrAsSdr,
+          looper,
+          listener,
+          clock);
     }
   }
 
@@ -130,6 +149,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       EditedMediaItem editedMediaItem,
       MediaSource.Factory mediaSourceFactory,
       Codec.DecoderFactory decoderFactory,
+      boolean forceInterpretHdrAsSdr,
       Looper looper,
       Listener listener,
       Clock clock) {
@@ -159,6 +179,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
                     editedMediaItem.removeVideo,
                     editedMediaItem.flattenForSlowMotion,
                     this.decoderFactory,
+                    forceInterpretHdrAsSdr,
                     listener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -221,6 +242,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     private final boolean removeVideo;
     private final boolean flattenForSlowMotion;
     private final Codec.DecoderFactory decoderFactory;
+    private final boolean forceInterpretHdrAsSdr;
     private final Listener assetLoaderListener;
 
     public RenderersFactoryImpl(
@@ -228,11 +250,13 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
         boolean removeVideo,
         boolean flattenForSlowMotion,
         Codec.DecoderFactory decoderFactory,
+        boolean forceInterpretHdrAsSdr,
         Listener assetLoaderListener) {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
       this.flattenForSlowMotion = flattenForSlowMotion;
       this.decoderFactory = decoderFactory;
+      this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
       this.assetLoaderListener = assetLoaderListener;
       mediaClock = new TransformerMediaClock();
     }
@@ -255,7 +279,11 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
       if (!removeVideo) {
         renderers[index] =
             new ExoAssetLoaderVideoRenderer(
-                flattenForSlowMotion, decoderFactory, mediaClock, assetLoaderListener);
+                flattenForSlowMotion,
+                decoderFactory,
+                forceInterpretHdrAsSdr,
+                mediaClock,
+                assetLoaderListener);
         index++;
       }
       return renderers;

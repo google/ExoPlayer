@@ -802,7 +802,12 @@ public final class TransformerEndToEndTest {
             context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
     Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     AssetLoader.Factory assetLoaderFactory =
-        new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory);
+        new ExoPlayerAssetLoader.Factory(
+            context,
+            decoderFactory,
+            /* forceInterpretHdrAsSdr= */ false,
+            clock,
+            mediaSourceFactory);
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(/* enableFallback= */ false)
