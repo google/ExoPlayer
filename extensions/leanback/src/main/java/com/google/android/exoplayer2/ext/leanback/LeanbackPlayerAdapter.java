@@ -110,9 +110,9 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   }
 
   @Override
-  public void setProgressUpdatingEnabled(boolean enabled) {
+  public void setProgressUpdatingEnabled(boolean enable) {
     handler.removeCallbacks(this);
-    if (enabled) {
+    if (enable) {
       handler.post(this);
     }
   }
@@ -162,8 +162,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   }
 
   @Override
-  public void seekTo(long positionMs) {
-    player.seekTo(player.getCurrentMediaItemIndex(), positionMs);
+  public void seekTo(long positionInMs) {
+    player.seekTo(player.getCurrentMediaItemIndex(), positionInMs);
   }
 
   @Override

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -189,13 +189,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#focusSkipButton()">focusSkipButton</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Puts the focus on the skip button, if a skip button is present and an ad is playing.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="ImaServerSideAdInsertionMediaSource.AdsLoader.State.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionMediaSource.AdsLoader.State</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases resources.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
@@ -237,6 +244,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p>This method needs to be called before adding server side ad insertion media items to the
  player.</div>
+</li>
+</ul>
+<a id="focusSkipButton()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>focusSkipButton</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;focusSkipButton()</pre>
+<div class="block">Puts the focus on the skip button, if a skip button is present and an ad is playing.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>BaseManager.focus()</code></dd>
+</dl>
 </li>
 </ul>
 <a id="release()">

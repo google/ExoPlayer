@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.CheckResult;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.util.ArrayDeque;
@@ -32,6 +35,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *
  * <p>Events are also guaranteed to be only sent to the listeners registered at the time the event
  * was enqueued and haven't been removed since.
+ *
+ * <p>All methods must be called on the {@link Looper} passed to the constructor unless indicated
+ * otherwise.
  *
  * @param <T> The listener type.
  */
@@ -74,14 +80,18 @@ public final class ListenerSet<T extends @NonNull Object> {
   private final CopyOnWriteArraySet<ListenerHolder<T>> listeners;
   private final ArrayDeque<Runnable> flushingEvents;
   private final ArrayDeque<Runnable> queuedEvents;
+  private final Object releasedLock;
 
+  @GuardedBy("releasedLock")
   private boolean released;
+
+  private boolean throwsWhenUsingWrongThread;
 
   /**
    * Creates a new listener set.
    *
    * @param looper A {@link Looper} used to call listeners on. The same {@link Looper} must be used
-   *     to call all other methods of this class.
+   *     to call all other methods of this class unless indicated otherwise.
    * @param clock A {@link Clock}.
    * @param iterationFinishedEvent An {@link IterationFinishedEvent} sent when all other events sent
    *     during one {@link Looper} message queue iteration were handled by the listeners.
@@ -98,16 +108,20 @@ public final class ListenerSet<T extends @NonNull Object> {
     this.clock = clock;
     this.listeners = listeners;
     this.iterationFinishedEvent = iterationFinishedEvent;
+    releasedLock = new Object();
     flushingEvents = new ArrayDeque<>();
     queuedEvents = new ArrayDeque<>();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper handler = clock.createHandler(looper, this::handleMessage);
     this.handler = handler;
+    throwsWhenUsingWrongThread = true;
   }
 
   /**
    * Copies the listener set.
+   *
+   * <p>This method can be called from any thread.
    *
    * @param looper The new {@link Looper} for the copied listener set.
    * @param iterationFinishedEvent The new {@link IterationFinishedEvent} sent when all other events
@@ -121,6 +135,8 @@ public final class ListenerSet<T extends @NonNull Object> {
 
   /**
    * Copies the listener set.
+   *
+   * <p>This method can be called from any thread.
    *
    * @param looper The new {@link Looper} for the copied listener set.
    * @param clock The new {@link Clock} for the copied listener set.
@@ -139,14 +155,18 @@ public final class ListenerSet<T extends @NonNull Object> {
    *
    * <p>If a listener is already present, it will not be added again.
    *
+   * <p>This method can be called from any thread.
+   *
    * @param listener The listener to be added.
    */
   public void add(T listener) {
-    if (released) {
-      return;
-    }
     Assertions.checkNotNull(listener);
-    listeners.add(new ListenerHolder<>(listener));
+    synchronized (releasedLock) {
+      if (released) {
+        return;
+      }
+      listeners.add(new ListenerHolder<>(listener));
+    }
   }
 
   /**
@@ -157,6 +177,7 @@ public final class ListenerSet<T extends @NonNull Object> {
    * @param listener The listener to be removed.
    */
   public void remove(T listener) {
+    verifyCurrentThread();
     for (ListenerHolder<T> listenerHolder : listeners) {
       if (listenerHolder.listener.equals(listener)) {
         listenerHolder.release(iterationFinishedEvent);
@@ -167,11 +188,13 @@ public final class ListenerSet<T extends @NonNull Object> {
 
   /** Removes all listeners from the set. */
   public void clear() {
+    verifyCurrentThread();
     listeners.clear();
   }
 
   /** Returns the number of added listeners. */
   public int size() {
+    verifyCurrentThread();
     return listeners.size();
   }
 
@@ -183,6 +206,7 @@ public final class ListenerSet<T extends @NonNull Object> {
    * @param event The event.
    */
   public void queueEvent(int eventFlag, Event<T> event) {
+    verifyCurrentThread();
     CopyOnWriteArraySet<ListenerHolder<T>> listenerSnapshot = new CopyOnWriteArraySet<>(listeners);
     queuedEvents.add(
         () -> {
@@ -194,6 +218,7 @@ public final class ListenerSet<T extends @NonNull Object> {
 
   /** Notifies listeners of events previously enqueued with {@link #queueEvent(int, Event)}. */
   public void flushEvents() {
+    verifyCurrentThread();
     if (queuedEvents.isEmpty()) {
       return;
     }
@@ -232,11 +257,27 @@ public final class ListenerSet<T extends @NonNull Object> {
    * <p>This will ensure no events are sent to any listener after this method has been called.
    */
   public void release() {
+    verifyCurrentThread();
+    synchronized (releasedLock) {
+      released = true;
+    }
     for (ListenerHolder<T> listenerHolder : listeners) {
       listenerHolder.release(iterationFinishedEvent);
     }
     listeners.clear();
-    released = true;
+  }
+
+  /**
+   * Sets whether methods throw when using the wrong thread.
+   *
+   * <p>Do not use this method unless to support legacy use cases.
+   *
+   * @param throwsWhenUsingWrongThread Whether to throw when using the wrong thread.
+   * @deprecated Do not use this method and ensure all calls are made from the correct thread.
+   */
+  @Deprecated
+  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
+    this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
 
   private boolean handleMessage(Message message) {
@@ -250,6 +291,13 @@ public final class ListenerSet<T extends @NonNull Object> {
       }
     }
     return true;
+  }
+
+  private void verifyCurrentThread() {
+    if (!throwsWhenUsingWrongThread) {
+      return;
+    }
+    checkState(Thread.currentThread() == handler.getLooper().getThread());
   }
 
   private static final class ListenerHolder<T extends @NonNull Object> {

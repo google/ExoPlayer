@@ -61,6 +61,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
     @Nullable private @FolderType Integer folderType;
+    @Nullable private Boolean isBrowsable;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer recordingYear;
     @Nullable private Integer recordingMonth;
@@ -76,6 +77,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private CharSequence genre;
     @Nullable private CharSequence compilation;
     @Nullable private CharSequence station;
+    @Nullable private @MediaType Integer mediaType;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -96,6 +98,7 @@ public final class MediaMetadata implements Bundleable {
       this.trackNumber = mediaMetadata.trackNumber;
       this.totalTrackCount = mediaMetadata.totalTrackCount;
       this.folderType = mediaMetadata.folderType;
+      this.isBrowsable = mediaMetadata.isBrowsable;
       this.isPlayable = mediaMetadata.isPlayable;
       this.recordingYear = mediaMetadata.recordingYear;
       this.recordingMonth = mediaMetadata.recordingMonth;
@@ -111,6 +114,7 @@ public final class MediaMetadata implements Bundleable {
       this.genre = mediaMetadata.genre;
       this.compilation = mediaMetadata.compilation;
       this.station = mediaMetadata.station;
+      this.mediaType = mediaMetadata.mediaType;
       this.extras = mediaMetadata.extras;
     }
 
@@ -243,10 +247,22 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** Sets the {@link FolderType}. */
+    /**
+     * Sets the {@link FolderType}.
+     *
+     * <p>This method will be deprecated. Use {@link #setIsBrowsable} to indicate if an item is a
+     * browsable folder and use {@link #setMediaType} to indicate the type of the folder.
+     */
     @CanIgnoreReturnValue
     public Builder setFolderType(@Nullable @FolderType Integer folderType) {
       this.folderType = folderType;
+      return this;
+    }
+
+    /** Sets whether the media is a browsable folder. */
+    @CanIgnoreReturnValue
+    public Builder setIsBrowsable(@Nullable Boolean isBrowsable) {
+      this.isBrowsable = isBrowsable;
       return this;
     }
 
@@ -381,6 +397,13 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Sets the {@link MediaType}. */
+    @CanIgnoreReturnValue
+    public Builder setMediaType(@Nullable @MediaType Integer mediaType) {
+      this.mediaType = mediaType;
+      return this;
+    }
+
     /** Sets the extras {@link Bundle}. */
     @CanIgnoreReturnValue
     public Builder setExtras(@Nullable Bundle extras) {
@@ -476,6 +499,9 @@ public final class MediaMetadata implements Bundleable {
       if (mediaMetadata.folderType != null) {
         setFolderType(mediaMetadata.folderType);
       }
+      if (mediaMetadata.isBrowsable != null) {
+        setIsBrowsable(mediaMetadata.isBrowsable);
+      }
       if (mediaMetadata.isPlayable != null) {
         setIsPlayable(mediaMetadata.isPlayable);
       }
@@ -524,6 +550,9 @@ public final class MediaMetadata implements Bundleable {
       if (mediaMetadata.station != null) {
         setStation(mediaMetadata.station);
       }
+      if (mediaMetadata.mediaType != null) {
+        setMediaType(mediaMetadata.mediaType);
+      }
       if (mediaMetadata.extras != null) {
         setExtras(mediaMetadata.extras);
       }
@@ -538,11 +567,184 @@ public final class MediaMetadata implements Bundleable {
   }
 
   /**
+   * The type of content described by the media item.
+   *
+   * <p>One of {@link #MEDIA_TYPE_MIXED}, {@link #MEDIA_TYPE_MUSIC}, {@link
+   * #MEDIA_TYPE_AUDIO_BOOK_CHAPTER}, {@link #MEDIA_TYPE_PODCAST_EPISODE}, {@link
+   * #MEDIA_TYPE_RADIO_STATION}, {@link #MEDIA_TYPE_NEWS}, {@link #MEDIA_TYPE_VIDEO}, {@link
+   * #MEDIA_TYPE_TRAILER}, {@link #MEDIA_TYPE_MOVIE}, {@link #MEDIA_TYPE_TV_SHOW}, {@link
+   * #MEDIA_TYPE_ALBUM}, {@link #MEDIA_TYPE_ARTIST}, {@link #MEDIA_TYPE_GENRE}, {@link
+   * #MEDIA_TYPE_PLAYLIST}, {@link #MEDIA_TYPE_YEAR}, {@link #MEDIA_TYPE_AUDIO_BOOK}, {@link
+   * #MEDIA_TYPE_PODCAST}, {@link #MEDIA_TYPE_TV_CHANNEL}, {@link #MEDIA_TYPE_TV_SERIES}, {@link
+   * #MEDIA_TYPE_TV_SEASON}, {@link #MEDIA_TYPE_FOLDER_MIXED}, {@link #MEDIA_TYPE_FOLDER_ALBUMS},
+   * {@link #MEDIA_TYPE_FOLDER_ARTISTS}, {@link #MEDIA_TYPE_FOLDER_GENRES}, {@link
+   * #MEDIA_TYPE_FOLDER_PLAYLISTS}, {@link #MEDIA_TYPE_FOLDER_YEARS}, {@link
+   * #MEDIA_TYPE_FOLDER_AUDIO_BOOKS}, {@link #MEDIA_TYPE_FOLDER_PODCASTS}, {@link
+   * #MEDIA_TYPE_FOLDER_TV_CHANNELS}, {@link #MEDIA_TYPE_FOLDER_TV_SERIES}, {@link
+   * #MEDIA_TYPE_FOLDER_TV_SHOWS}, {@link #MEDIA_TYPE_FOLDER_RADIO_STATIONS}, {@link
+   * #MEDIA_TYPE_FOLDER_NEWS}, {@link #MEDIA_TYPE_FOLDER_VIDEOS}, {@link
+   * #MEDIA_TYPE_FOLDER_TRAILERS} or {@link #MEDIA_TYPE_FOLDER_MOVIES}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    MEDIA_TYPE_MIXED,
+    MEDIA_TYPE_MUSIC,
+    MEDIA_TYPE_AUDIO_BOOK_CHAPTER,
+    MEDIA_TYPE_PODCAST_EPISODE,
+    MEDIA_TYPE_RADIO_STATION,
+    MEDIA_TYPE_NEWS,
+    MEDIA_TYPE_VIDEO,
+    MEDIA_TYPE_TRAILER,
+    MEDIA_TYPE_MOVIE,
+    MEDIA_TYPE_TV_SHOW,
+    MEDIA_TYPE_ALBUM,
+    MEDIA_TYPE_ARTIST,
+    MEDIA_TYPE_GENRE,
+    MEDIA_TYPE_PLAYLIST,
+    MEDIA_TYPE_YEAR,
+    MEDIA_TYPE_AUDIO_BOOK,
+    MEDIA_TYPE_PODCAST,
+    MEDIA_TYPE_TV_CHANNEL,
+    MEDIA_TYPE_TV_SERIES,
+    MEDIA_TYPE_TV_SEASON,
+    MEDIA_TYPE_FOLDER_MIXED,
+    MEDIA_TYPE_FOLDER_ALBUMS,
+    MEDIA_TYPE_FOLDER_ARTISTS,
+    MEDIA_TYPE_FOLDER_GENRES,
+    MEDIA_TYPE_FOLDER_PLAYLISTS,
+    MEDIA_TYPE_FOLDER_YEARS,
+    MEDIA_TYPE_FOLDER_AUDIO_BOOKS,
+    MEDIA_TYPE_FOLDER_PODCASTS,
+    MEDIA_TYPE_FOLDER_TV_CHANNELS,
+    MEDIA_TYPE_FOLDER_TV_SERIES,
+    MEDIA_TYPE_FOLDER_TV_SHOWS,
+    MEDIA_TYPE_FOLDER_RADIO_STATIONS,
+    MEDIA_TYPE_FOLDER_NEWS,
+    MEDIA_TYPE_FOLDER_VIDEOS,
+    MEDIA_TYPE_FOLDER_TRAILERS,
+    MEDIA_TYPE_FOLDER_MOVIES,
+  })
+  public @interface MediaType {}
+
+  /** Media of undetermined type or a mix of multiple {@linkplain MediaType media types}. */
+  public static final int MEDIA_TYPE_MIXED = 0;
+  /** {@link MediaType} for music. */
+  public static final int MEDIA_TYPE_MUSIC = 1;
+  /** {@link MediaType} for an audio book chapter. */
+  public static final int MEDIA_TYPE_AUDIO_BOOK_CHAPTER = 2;
+  /** {@link MediaType} for a podcast episode. */
+  public static final int MEDIA_TYPE_PODCAST_EPISODE = 3;
+  /** {@link MediaType} for a radio station. */
+  public static final int MEDIA_TYPE_RADIO_STATION = 4;
+  /** {@link MediaType} for news. */
+  public static final int MEDIA_TYPE_NEWS = 5;
+  /** {@link MediaType} for a video. */
+  public static final int MEDIA_TYPE_VIDEO = 6;
+  /** {@link MediaType} for a movie trailer. */
+  public static final int MEDIA_TYPE_TRAILER = 7;
+  /** {@link MediaType} for a movie. */
+  public static final int MEDIA_TYPE_MOVIE = 8;
+  /** {@link MediaType} for a TV show. */
+  public static final int MEDIA_TYPE_TV_SHOW = 9;
+  /**
+   * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) belonging to an
+   * album.
+   */
+  public static final int MEDIA_TYPE_ALBUM = 10;
+  /**
+   * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) from the same
+   * artist.
+   */
+  public static final int MEDIA_TYPE_ARTIST = 11;
+  /**
+   * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) of the same
+   * genre.
+   */
+  public static final int MEDIA_TYPE_GENRE = 12;
+  /**
+   * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) forming a
+   * playlist.
+   */
+  public static final int MEDIA_TYPE_PLAYLIST = 13;
+  /**
+   * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) from the same
+   * year.
+   */
+  public static final int MEDIA_TYPE_YEAR = 14;
+  /**
+   * {@link MediaType} for a group of items forming an audio book. Items in this group are typically
+   * of type {@link #MEDIA_TYPE_AUDIO_BOOK_CHAPTER}.
+   */
+  public static final int MEDIA_TYPE_AUDIO_BOOK = 15;
+  /**
+   * {@link MediaType} for a group of items belonging to a podcast. Items in this group are
+   * typically of type {@link #MEDIA_TYPE_PODCAST_EPISODE}.
+   */
+  public static final int MEDIA_TYPE_PODCAST = 16;
+  /**
+   * {@link MediaType} for a group of items that are part of a TV channel. Items in this group are
+   * typically of type {@link #MEDIA_TYPE_TV_SHOW}, {@link #MEDIA_TYPE_TV_SERIES} or {@link
+   * #MEDIA_TYPE_MOVIE}.
+   */
+  public static final int MEDIA_TYPE_TV_CHANNEL = 17;
+  /**
+   * {@link MediaType} for a group of items that are part of a TV series. Items in this group are
+   * typically of type {@link #MEDIA_TYPE_TV_SHOW} or {@link #MEDIA_TYPE_TV_SEASON}.
+   */
+  public static final int MEDIA_TYPE_TV_SERIES = 18;
+  /**
+   * {@link MediaType} for a group of items that are part of a TV series. Items in this group are
+   * typically of type {@link #MEDIA_TYPE_TV_SHOW}.
+   */
+  public static final int MEDIA_TYPE_TV_SEASON = 19;
+  /** {@link MediaType} for a folder with mixed or undetermined content. */
+  public static final int MEDIA_TYPE_FOLDER_MIXED = 20;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_ALBUM albums}. */
+  public static final int MEDIA_TYPE_FOLDER_ALBUMS = 21;
+  /** {@link MediaType} for a folder containing {@linkplain #FIELD_ARTIST artists}. */
+  public static final int MEDIA_TYPE_FOLDER_ARTISTS = 22;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_GENRE genres}. */
+  public static final int MEDIA_TYPE_FOLDER_GENRES = 23;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_PLAYLIST playlists}. */
+  public static final int MEDIA_TYPE_FOLDER_PLAYLISTS = 24;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_YEAR years}. */
+  public static final int MEDIA_TYPE_FOLDER_YEARS = 25;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_AUDIO_BOOK audio books}. */
+  public static final int MEDIA_TYPE_FOLDER_AUDIO_BOOKS = 26;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_PODCAST podcasts}. */
+  public static final int MEDIA_TYPE_FOLDER_PODCASTS = 27;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_CHANNEL TV channels}. */
+  public static final int MEDIA_TYPE_FOLDER_TV_CHANNELS = 28;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_SERIES TV series}. */
+  public static final int MEDIA_TYPE_FOLDER_TV_SERIES = 29;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_SHOW TV shows}. */
+  public static final int MEDIA_TYPE_FOLDER_TV_SHOWS = 30;
+  /**
+   * {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_RADIO_STATION radio
+   * stations}.
+   */
+  public static final int MEDIA_TYPE_FOLDER_RADIO_STATIONS = 31;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_NEWS news}. */
+  public static final int MEDIA_TYPE_FOLDER_NEWS = 32;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_VIDEO videos}. */
+  public static final int MEDIA_TYPE_FOLDER_VIDEOS = 33;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TRAILER movie trailers}. */
+  public static final int MEDIA_TYPE_FOLDER_TRAILERS = 34;
+  /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_MOVIE movies}. */
+  public static final int MEDIA_TYPE_FOLDER_MOVIES = 35;
+
+  /**
    * The folder type of the media item.
    *
    * <p>This can be used as the type of a browsable bluetooth folder (see section 6.10.2.2 of the <a
    * href="https://www.bluetooth.com/specifications/specs/a-v-remote-control-profile-1-6-2/">Bluetooth
    * AVRCP 1.6.2</a>).
+   *
+   * <p>One of {@link #FOLDER_TYPE_NONE}, {@link #FOLDER_TYPE_MIXED}, {@link #FOLDER_TYPE_TITLES},
+   * {@link #FOLDER_TYPE_ALBUMS}, {@link #FOLDER_TYPE_ARTISTS}, {@link #FOLDER_TYPE_GENRES}, {@link
+   * #FOLDER_TYPE_PLAYLISTS} or {@link #FOLDER_TYPE_YEARS}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -583,6 +785,17 @@ public final class MediaMetadata implements Bundleable {
    *
    * <p>Values sourced from the ID3 v2.4 specification (See section 4.14 of
    * https://id3.org/id3v2.4.0-frames).
+   *
+   * <p>One of {@link #PICTURE_TYPE_OTHER}, {@link #PICTURE_TYPE_FILE_ICON}, {@link
+   * #PICTURE_TYPE_FILE_ICON_OTHER}, {@link #PICTURE_TYPE_FRONT_COVER}, {@link
+   * #PICTURE_TYPE_BACK_COVER}, {@link #PICTURE_TYPE_LEAFLET_PAGE}, {@link #PICTURE_TYPE_MEDIA},
+   * {@link #PICTURE_TYPE_LEAD_ARTIST_PERFORMER}, {@link #PICTURE_TYPE_ARTIST_PERFORMER}, {@link
+   * #PICTURE_TYPE_CONDUCTOR}, {@link #PICTURE_TYPE_BAND_ORCHESTRA}, {@link #PICTURE_TYPE_COMPOSER},
+   * {@link #PICTURE_TYPE_LYRICIST}, {@link #PICTURE_TYPE_RECORDING_LOCATION}, {@link
+   * #PICTURE_TYPE_DURING_RECORDING}, {@link #PICTURE_TYPE_DURING_PERFORMANCE}, {@link
+   * #PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE}, {@link #PICTURE_TYPE_A_BRIGHT_COLORED_FISH}, {@link
+   * #PICTURE_TYPE_ILLUSTRATION}, {@link #PICTURE_TYPE_BAND_ARTIST_LOGO} or {@link
+   * #PICTURE_TYPE_PUBLISHER_STUDIO_LOGO}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -671,9 +884,16 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Integer trackNumber;
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
-  /** Optional {@link FolderType}. */
+  /**
+   * Optional {@link FolderType}.
+   *
+   * <p>This field will be deprecated. Use {@link #isBrowsable} to indicate if an item is a
+   * browsable folder and use {@link #mediaType} to indicate the type of the folder.
+   */
   @Nullable public final @FolderType Integer folderType;
-  /** Optional boolean for media playability. */
+  /** Optional boolean to indicate that the media is a browsable folder. */
+  @Nullable public final Boolean isBrowsable;
+  /** Optional boolean to indicate that the media is playable. */
   @Nullable public final Boolean isPlayable;
   /**
    * @deprecated Use {@link #recordingYear} instead.
@@ -724,6 +944,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final CharSequence compilation;
   /** Optional name of the station streaming the media. */
   @Nullable public final CharSequence station;
+  /** Optional {@link MediaType}. */
+  @Nullable public final @MediaType Integer mediaType;
 
   /**
    * Optional extras {@link Bundle}.
@@ -734,6 +956,22 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Bundle extras;
 
   private MediaMetadata(Builder builder) {
+    // Handle compatibility for deprecated fields.
+    @Nullable Boolean isBrowsable = builder.isBrowsable;
+    @Nullable Integer folderType = builder.folderType;
+    @Nullable Integer mediaType = builder.mediaType;
+    if (isBrowsable != null) {
+      if (!isBrowsable) {
+        folderType = FOLDER_TYPE_NONE;
+      } else if (folderType == null || folderType == FOLDER_TYPE_NONE) {
+        folderType = mediaType != null ? getFolderTypeFromMediaType(mediaType) : FOLDER_TYPE_MIXED;
+      }
+    } else if (folderType != null) {
+      isBrowsable = folderType != FOLDER_TYPE_NONE;
+      if (isBrowsable && mediaType == null) {
+        mediaType = getMediaTypeFromFolderType(folderType);
+      }
+    }
     this.title = builder.title;
     this.artist = builder.artist;
     this.albumTitle = builder.albumTitle;
@@ -748,7 +986,8 @@ public final class MediaMetadata implements Bundleable {
     this.artworkUri = builder.artworkUri;
     this.trackNumber = builder.trackNumber;
     this.totalTrackCount = builder.totalTrackCount;
-    this.folderType = builder.folderType;
+    this.folderType = folderType;
+    this.isBrowsable = isBrowsable;
     this.isPlayable = builder.isPlayable;
     this.year = builder.recordingYear;
     this.recordingYear = builder.recordingYear;
@@ -765,6 +1004,7 @@ public final class MediaMetadata implements Bundleable {
     this.genre = builder.genre;
     this.compilation = builder.compilation;
     this.station = builder.station;
+    this.mediaType = mediaType;
     this.extras = builder.extras;
   }
 
@@ -797,6 +1037,7 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(trackNumber, that.trackNumber)
         && Util.areEqual(totalTrackCount, that.totalTrackCount)
         && Util.areEqual(folderType, that.folderType)
+        && Util.areEqual(isBrowsable, that.isBrowsable)
         && Util.areEqual(isPlayable, that.isPlayable)
         && Util.areEqual(recordingYear, that.recordingYear)
         && Util.areEqual(recordingMonth, that.recordingMonth)
@@ -811,7 +1052,8 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(totalDiscCount, that.totalDiscCount)
         && Util.areEqual(genre, that.genre)
         && Util.areEqual(compilation, that.compilation)
-        && Util.areEqual(station, that.station);
+        && Util.areEqual(station, that.station)
+        && Util.areEqual(mediaType, that.mediaType);
   }
 
   @Override
@@ -832,6 +1074,7 @@ public final class MediaMetadata implements Bundleable {
         trackNumber,
         totalTrackCount,
         folderType,
+        isBrowsable,
         isPlayable,
         recordingYear,
         recordingMonth,
@@ -846,149 +1089,148 @@ public final class MediaMetadata implements Bundleable {
         totalDiscCount,
         genre,
         compilation,
-        station);
+        station,
+        mediaType);
   }
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_TITLE,
-    FIELD_ARTIST,
-    FIELD_ALBUM_TITLE,
-    FIELD_ALBUM_ARTIST,
-    FIELD_DISPLAY_TITLE,
-    FIELD_SUBTITLE,
-    FIELD_DESCRIPTION,
-    FIELD_MEDIA_URI,
-    FIELD_USER_RATING,
-    FIELD_OVERALL_RATING,
-    FIELD_ARTWORK_DATA,
-    FIELD_ARTWORK_DATA_TYPE,
-    FIELD_ARTWORK_URI,
-    FIELD_TRACK_NUMBER,
-    FIELD_TOTAL_TRACK_COUNT,
-    FIELD_FOLDER_TYPE,
-    FIELD_IS_PLAYABLE,
-    FIELD_RECORDING_YEAR,
-    FIELD_RECORDING_MONTH,
-    FIELD_RECORDING_DAY,
-    FIELD_RELEASE_YEAR,
-    FIELD_RELEASE_MONTH,
-    FIELD_RELEASE_DAY,
-    FIELD_WRITER,
-    FIELD_COMPOSER,
-    FIELD_CONDUCTOR,
-    FIELD_DISC_NUMBER,
-    FIELD_TOTAL_DISC_COUNT,
-    FIELD_GENRE,
-    FIELD_COMPILATION,
-    FIELD_STATION,
-    FIELD_EXTRAS
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_TITLE = 0;
-  private static final int FIELD_ARTIST = 1;
-  private static final int FIELD_ALBUM_TITLE = 2;
-  private static final int FIELD_ALBUM_ARTIST = 3;
-  private static final int FIELD_DISPLAY_TITLE = 4;
-  private static final int FIELD_SUBTITLE = 5;
-  private static final int FIELD_DESCRIPTION = 6;
-  private static final int FIELD_MEDIA_URI = 7;
-  private static final int FIELD_USER_RATING = 8;
-  private static final int FIELD_OVERALL_RATING = 9;
-  private static final int FIELD_ARTWORK_DATA = 10;
-  private static final int FIELD_ARTWORK_URI = 11;
-  private static final int FIELD_TRACK_NUMBER = 12;
-  private static final int FIELD_TOTAL_TRACK_COUNT = 13;
-  private static final int FIELD_FOLDER_TYPE = 14;
-  private static final int FIELD_IS_PLAYABLE = 15;
-  private static final int FIELD_RECORDING_YEAR = 16;
-  private static final int FIELD_RECORDING_MONTH = 17;
-  private static final int FIELD_RECORDING_DAY = 18;
-  private static final int FIELD_RELEASE_YEAR = 19;
-  private static final int FIELD_RELEASE_MONTH = 20;
-  private static final int FIELD_RELEASE_DAY = 21;
-  private static final int FIELD_WRITER = 22;
-  private static final int FIELD_COMPOSER = 23;
-  private static final int FIELD_CONDUCTOR = 24;
-  private static final int FIELD_DISC_NUMBER = 25;
-  private static final int FIELD_TOTAL_DISC_COUNT = 26;
-  private static final int FIELD_GENRE = 27;
-  private static final int FIELD_COMPILATION = 28;
-  private static final int FIELD_ARTWORK_DATA_TYPE = 29;
-  private static final int FIELD_STATION = 30;
-  private static final int FIELD_EXTRAS = 1000;
+  private static final String FIELD_TITLE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_ARTIST = Util.intToStringMaxRadix(1);
+  private static final String FIELD_ALBUM_TITLE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_ALBUM_ARTIST = Util.intToStringMaxRadix(3);
+  private static final String FIELD_DISPLAY_TITLE = Util.intToStringMaxRadix(4);
+  private static final String FIELD_SUBTITLE = Util.intToStringMaxRadix(5);
+  private static final String FIELD_DESCRIPTION = Util.intToStringMaxRadix(6);
+  // 7 is reserved to maintain backward compatibility for a previously defined field.
+  private static final String FIELD_USER_RATING = Util.intToStringMaxRadix(8);
+  private static final String FIELD_OVERALL_RATING = Util.intToStringMaxRadix(9);
+  private static final String FIELD_ARTWORK_DATA = Util.intToStringMaxRadix(10);
+  private static final String FIELD_ARTWORK_URI = Util.intToStringMaxRadix(11);
+  private static final String FIELD_TRACK_NUMBER = Util.intToStringMaxRadix(12);
+  private static final String FIELD_TOTAL_TRACK_COUNT = Util.intToStringMaxRadix(13);
+  private static final String FIELD_FOLDER_TYPE = Util.intToStringMaxRadix(14);
+  private static final String FIELD_IS_PLAYABLE = Util.intToStringMaxRadix(15);
+  private static final String FIELD_RECORDING_YEAR = Util.intToStringMaxRadix(16);
+  private static final String FIELD_RECORDING_MONTH = Util.intToStringMaxRadix(17);
+  private static final String FIELD_RECORDING_DAY = Util.intToStringMaxRadix(18);
+  private static final String FIELD_RELEASE_YEAR = Util.intToStringMaxRadix(19);
+  private static final String FIELD_RELEASE_MONTH = Util.intToStringMaxRadix(20);
+  private static final String FIELD_RELEASE_DAY = Util.intToStringMaxRadix(21);
+  private static final String FIELD_WRITER = Util.intToStringMaxRadix(22);
+  private static final String FIELD_COMPOSER = Util.intToStringMaxRadix(23);
+  private static final String FIELD_CONDUCTOR = Util.intToStringMaxRadix(24);
+  private static final String FIELD_DISC_NUMBER = Util.intToStringMaxRadix(25);
+  private static final String FIELD_TOTAL_DISC_COUNT = Util.intToStringMaxRadix(26);
+  private static final String FIELD_GENRE = Util.intToStringMaxRadix(27);
+  private static final String FIELD_COMPILATION = Util.intToStringMaxRadix(28);
+  private static final String FIELD_ARTWORK_DATA_TYPE = Util.intToStringMaxRadix(29);
+  private static final String FIELD_STATION = Util.intToStringMaxRadix(30);
+  private static final String FIELD_MEDIA_TYPE = Util.intToStringMaxRadix(31);
+  private static final String FIELD_IS_BROWSABLE = Util.intToStringMaxRadix(32);
+  private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(1000);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putCharSequence(keyForField(FIELD_TITLE), title);
-    bundle.putCharSequence(keyForField(FIELD_ARTIST), artist);
-    bundle.putCharSequence(keyForField(FIELD_ALBUM_TITLE), albumTitle);
-    bundle.putCharSequence(keyForField(FIELD_ALBUM_ARTIST), albumArtist);
-    bundle.putCharSequence(keyForField(FIELD_DISPLAY_TITLE), displayTitle);
-    bundle.putCharSequence(keyForField(FIELD_SUBTITLE), subtitle);
-    bundle.putCharSequence(keyForField(FIELD_DESCRIPTION), description);
-    bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
-    bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
-    bundle.putCharSequence(keyForField(FIELD_WRITER), writer);
-    bundle.putCharSequence(keyForField(FIELD_COMPOSER), composer);
-    bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
-    bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
-    bundle.putCharSequence(keyForField(FIELD_COMPILATION), compilation);
-    bundle.putCharSequence(keyForField(FIELD_STATION), station);
-
+    if (title != null) {
+      bundle.putCharSequence(FIELD_TITLE, title);
+    }
+    if (artist != null) {
+      bundle.putCharSequence(FIELD_ARTIST, artist);
+    }
+    if (albumTitle != null) {
+      bundle.putCharSequence(FIELD_ALBUM_TITLE, albumTitle);
+    }
+    if (albumArtist != null) {
+      bundle.putCharSequence(FIELD_ALBUM_ARTIST, albumArtist);
+    }
+    if (displayTitle != null) {
+      bundle.putCharSequence(FIELD_DISPLAY_TITLE, displayTitle);
+    }
+    if (subtitle != null) {
+      bundle.putCharSequence(FIELD_SUBTITLE, subtitle);
+    }
+    if (description != null) {
+      bundle.putCharSequence(FIELD_DESCRIPTION, description);
+    }
+    if (artworkData != null) {
+      bundle.putByteArray(FIELD_ARTWORK_DATA, artworkData);
+    }
+    if (artworkUri != null) {
+      bundle.putParcelable(FIELD_ARTWORK_URI, artworkUri);
+    }
+    if (writer != null) {
+      bundle.putCharSequence(FIELD_WRITER, writer);
+    }
+    if (composer != null) {
+      bundle.putCharSequence(FIELD_COMPOSER, composer);
+    }
+    if (conductor != null) {
+      bundle.putCharSequence(FIELD_CONDUCTOR, conductor);
+    }
+    if (genre != null) {
+      bundle.putCharSequence(FIELD_GENRE, genre);
+    }
+    if (compilation != null) {
+      bundle.putCharSequence(FIELD_COMPILATION, compilation);
+    }
+    if (station != null) {
+      bundle.putCharSequence(FIELD_STATION, station);
+    }
     if (userRating != null) {
-      bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
+      bundle.putBundle(FIELD_USER_RATING, userRating.toBundle());
     }
     if (overallRating != null) {
-      bundle.putBundle(keyForField(FIELD_OVERALL_RATING), overallRating.toBundle());
+      bundle.putBundle(FIELD_OVERALL_RATING, overallRating.toBundle());
     }
     if (trackNumber != null) {
-      bundle.putInt(keyForField(FIELD_TRACK_NUMBER), trackNumber);
+      bundle.putInt(FIELD_TRACK_NUMBER, trackNumber);
     }
     if (totalTrackCount != null) {
-      bundle.putInt(keyForField(FIELD_TOTAL_TRACK_COUNT), totalTrackCount);
+      bundle.putInt(FIELD_TOTAL_TRACK_COUNT, totalTrackCount);
     }
     if (folderType != null) {
-      bundle.putInt(keyForField(FIELD_FOLDER_TYPE), folderType);
+      bundle.putInt(FIELD_FOLDER_TYPE, folderType);
+    }
+    if (isBrowsable != null) {
+      bundle.putBoolean(FIELD_IS_BROWSABLE, isBrowsable);
     }
     if (isPlayable != null) {
-      bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
+      bundle.putBoolean(FIELD_IS_PLAYABLE, isPlayable);
     }
     if (recordingYear != null) {
-      bundle.putInt(keyForField(FIELD_RECORDING_YEAR), recordingYear);
+      bundle.putInt(FIELD_RECORDING_YEAR, recordingYear);
     }
     if (recordingMonth != null) {
-      bundle.putInt(keyForField(FIELD_RECORDING_MONTH), recordingMonth);
+      bundle.putInt(FIELD_RECORDING_MONTH, recordingMonth);
     }
     if (recordingDay != null) {
-      bundle.putInt(keyForField(FIELD_RECORDING_DAY), recordingDay);
+      bundle.putInt(FIELD_RECORDING_DAY, recordingDay);
     }
     if (releaseYear != null) {
-      bundle.putInt(keyForField(FIELD_RELEASE_YEAR), releaseYear);
+      bundle.putInt(FIELD_RELEASE_YEAR, releaseYear);
     }
     if (releaseMonth != null) {
-      bundle.putInt(keyForField(FIELD_RELEASE_MONTH), releaseMonth);
+      bundle.putInt(FIELD_RELEASE_MONTH, releaseMonth);
     }
     if (releaseDay != null) {
-      bundle.putInt(keyForField(FIELD_RELEASE_DAY), releaseDay);
+      bundle.putInt(FIELD_RELEASE_DAY, releaseDay);
     }
     if (discNumber != null) {
-      bundle.putInt(keyForField(FIELD_DISC_NUMBER), discNumber);
+      bundle.putInt(FIELD_DISC_NUMBER, discNumber);
     }
     if (totalDiscCount != null) {
-      bundle.putInt(keyForField(FIELD_TOTAL_DISC_COUNT), totalDiscCount);
+      bundle.putInt(FIELD_TOTAL_DISC_COUNT, totalDiscCount);
     }
     if (artworkDataType != null) {
-      bundle.putInt(keyForField(FIELD_ARTWORK_DATA_TYPE), artworkDataType);
+      bundle.putInt(FIELD_ARTWORK_DATA_TYPE, artworkDataType);
+    }
+    if (mediaType != null) {
+      bundle.putInt(FIELD_MEDIA_TYPE, mediaType);
     }
     if (extras != null) {
-      bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+      bundle.putBundle(FIELD_EXTRAS, extras);
     }
     return bundle;
   }
@@ -999,80 +1241,152 @@ public final class MediaMetadata implements Bundleable {
   private static MediaMetadata fromBundle(Bundle bundle) {
     Builder builder = new Builder();
     builder
-        .setTitle(bundle.getCharSequence(keyForField(FIELD_TITLE)))
-        .setArtist(bundle.getCharSequence(keyForField(FIELD_ARTIST)))
-        .setAlbumTitle(bundle.getCharSequence(keyForField(FIELD_ALBUM_TITLE)))
-        .setAlbumArtist(bundle.getCharSequence(keyForField(FIELD_ALBUM_ARTIST)))
-        .setDisplayTitle(bundle.getCharSequence(keyForField(FIELD_DISPLAY_TITLE)))
-        .setSubtitle(bundle.getCharSequence(keyForField(FIELD_SUBTITLE)))
-        .setDescription(bundle.getCharSequence(keyForField(FIELD_DESCRIPTION)))
+        .setTitle(bundle.getCharSequence(FIELD_TITLE))
+        .setArtist(bundle.getCharSequence(FIELD_ARTIST))
+        .setAlbumTitle(bundle.getCharSequence(FIELD_ALBUM_TITLE))
+        .setAlbumArtist(bundle.getCharSequence(FIELD_ALBUM_ARTIST))
+        .setDisplayTitle(bundle.getCharSequence(FIELD_DISPLAY_TITLE))
+        .setSubtitle(bundle.getCharSequence(FIELD_SUBTITLE))
+        .setDescription(bundle.getCharSequence(FIELD_DESCRIPTION))
         .setArtworkData(
-            bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)),
-            bundle.containsKey(keyForField(FIELD_ARTWORK_DATA_TYPE))
-                ? bundle.getInt(keyForField(FIELD_ARTWORK_DATA_TYPE))
+            bundle.getByteArray(FIELD_ARTWORK_DATA),
+            bundle.containsKey(FIELD_ARTWORK_DATA_TYPE)
+                ? bundle.getInt(FIELD_ARTWORK_DATA_TYPE)
                 : null)
-        .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)))
-        .setWriter(bundle.getCharSequence(keyForField(FIELD_WRITER)))
-        .setComposer(bundle.getCharSequence(keyForField(FIELD_COMPOSER)))
-        .setConductor(bundle.getCharSequence(keyForField(FIELD_CONDUCTOR)))
-        .setGenre(bundle.getCharSequence(keyForField(FIELD_GENRE)))
-        .setCompilation(bundle.getCharSequence(keyForField(FIELD_COMPILATION)))
-        .setStation(bundle.getCharSequence(keyForField(FIELD_STATION)))
-        .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
+        .setArtworkUri(bundle.getParcelable(FIELD_ARTWORK_URI))
+        .setWriter(bundle.getCharSequence(FIELD_WRITER))
+        .setComposer(bundle.getCharSequence(FIELD_COMPOSER))
+        .setConductor(bundle.getCharSequence(FIELD_CONDUCTOR))
+        .setGenre(bundle.getCharSequence(FIELD_GENRE))
+        .setCompilation(bundle.getCharSequence(FIELD_COMPILATION))
+        .setStation(bundle.getCharSequence(FIELD_STATION))
+        .setExtras(bundle.getBundle(FIELD_EXTRAS));
 
-    if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {
-      @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_USER_RATING));
+    if (bundle.containsKey(FIELD_USER_RATING)) {
+      @Nullable Bundle fieldBundle = bundle.getBundle(FIELD_USER_RATING);
       if (fieldBundle != null) {
         builder.setUserRating(Rating.CREATOR.fromBundle(fieldBundle));
       }
     }
-    if (bundle.containsKey(keyForField(FIELD_OVERALL_RATING))) {
-      @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_OVERALL_RATING));
+    if (bundle.containsKey(FIELD_OVERALL_RATING)) {
+      @Nullable Bundle fieldBundle = bundle.getBundle(FIELD_OVERALL_RATING);
       if (fieldBundle != null) {
         builder.setOverallRating(Rating.CREATOR.fromBundle(fieldBundle));
       }
     }
-    if (bundle.containsKey(keyForField(FIELD_TRACK_NUMBER))) {
-      builder.setTrackNumber(bundle.getInt(keyForField(FIELD_TRACK_NUMBER)));
+    if (bundle.containsKey(FIELD_TRACK_NUMBER)) {
+      builder.setTrackNumber(bundle.getInt(FIELD_TRACK_NUMBER));
     }
-    if (bundle.containsKey(keyForField(FIELD_TOTAL_TRACK_COUNT))) {
-      builder.setTotalTrackCount(bundle.getInt(keyForField(FIELD_TOTAL_TRACK_COUNT)));
+    if (bundle.containsKey(FIELD_TOTAL_TRACK_COUNT)) {
+      builder.setTotalTrackCount(bundle.getInt(FIELD_TOTAL_TRACK_COUNT));
     }
-    if (bundle.containsKey(keyForField(FIELD_FOLDER_TYPE))) {
-      builder.setFolderType(bundle.getInt(keyForField(FIELD_FOLDER_TYPE)));
+    if (bundle.containsKey(FIELD_FOLDER_TYPE)) {
+      builder.setFolderType(bundle.getInt(FIELD_FOLDER_TYPE));
     }
-    if (bundle.containsKey(keyForField(FIELD_IS_PLAYABLE))) {
-      builder.setIsPlayable(bundle.getBoolean(keyForField(FIELD_IS_PLAYABLE)));
+    if (bundle.containsKey(FIELD_IS_BROWSABLE)) {
+      builder.setIsBrowsable(bundle.getBoolean(FIELD_IS_BROWSABLE));
     }
-    if (bundle.containsKey(keyForField(FIELD_RECORDING_YEAR))) {
-      builder.setRecordingYear(bundle.getInt(keyForField(FIELD_RECORDING_YEAR)));
+    if (bundle.containsKey(FIELD_IS_PLAYABLE)) {
+      builder.setIsPlayable(bundle.getBoolean(FIELD_IS_PLAYABLE));
     }
-    if (bundle.containsKey(keyForField(FIELD_RECORDING_MONTH))) {
-      builder.setRecordingMonth(bundle.getInt(keyForField(FIELD_RECORDING_MONTH)));
+    if (bundle.containsKey(FIELD_RECORDING_YEAR)) {
+      builder.setRecordingYear(bundle.getInt(FIELD_RECORDING_YEAR));
     }
-    if (bundle.containsKey(keyForField(FIELD_RECORDING_DAY))) {
-      builder.setRecordingDay(bundle.getInt(keyForField(FIELD_RECORDING_DAY)));
+    if (bundle.containsKey(FIELD_RECORDING_MONTH)) {
+      builder.setRecordingMonth(bundle.getInt(FIELD_RECORDING_MONTH));
     }
-    if (bundle.containsKey(keyForField(FIELD_RELEASE_YEAR))) {
-      builder.setReleaseYear(bundle.getInt(keyForField(FIELD_RELEASE_YEAR)));
+    if (bundle.containsKey(FIELD_RECORDING_DAY)) {
+      builder.setRecordingDay(bundle.getInt(FIELD_RECORDING_DAY));
     }
-    if (bundle.containsKey(keyForField(FIELD_RELEASE_MONTH))) {
-      builder.setReleaseMonth(bundle.getInt(keyForField(FIELD_RELEASE_MONTH)));
+    if (bundle.containsKey(FIELD_RELEASE_YEAR)) {
+      builder.setReleaseYear(bundle.getInt(FIELD_RELEASE_YEAR));
     }
-    if (bundle.containsKey(keyForField(FIELD_RELEASE_DAY))) {
-      builder.setReleaseDay(bundle.getInt(keyForField(FIELD_RELEASE_DAY)));
+    if (bundle.containsKey(FIELD_RELEASE_MONTH)) {
+      builder.setReleaseMonth(bundle.getInt(FIELD_RELEASE_MONTH));
     }
-    if (bundle.containsKey(keyForField(FIELD_DISC_NUMBER))) {
-      builder.setDiscNumber(bundle.getInt(keyForField(FIELD_DISC_NUMBER)));
+    if (bundle.containsKey(FIELD_RELEASE_DAY)) {
+      builder.setReleaseDay(bundle.getInt(FIELD_RELEASE_DAY));
     }
-    if (bundle.containsKey(keyForField(FIELD_TOTAL_DISC_COUNT))) {
-      builder.setTotalDiscCount(bundle.getInt(keyForField(FIELD_TOTAL_DISC_COUNT)));
+    if (bundle.containsKey(FIELD_DISC_NUMBER)) {
+      builder.setDiscNumber(bundle.getInt(FIELD_DISC_NUMBER));
+    }
+    if (bundle.containsKey(FIELD_TOTAL_DISC_COUNT)) {
+      builder.setTotalDiscCount(bundle.getInt(FIELD_TOTAL_DISC_COUNT));
+    }
+    if (bundle.containsKey(FIELD_MEDIA_TYPE)) {
+      builder.setMediaType(bundle.getInt(FIELD_MEDIA_TYPE));
     }
 
     return builder.build();
   }
 
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
+  private static @FolderType int getFolderTypeFromMediaType(@MediaType int mediaType) {
+    switch (mediaType) {
+      case MEDIA_TYPE_ALBUM:
+      case MEDIA_TYPE_ARTIST:
+      case MEDIA_TYPE_AUDIO_BOOK:
+      case MEDIA_TYPE_AUDIO_BOOK_CHAPTER:
+      case MEDIA_TYPE_FOLDER_MOVIES:
+      case MEDIA_TYPE_FOLDER_NEWS:
+      case MEDIA_TYPE_FOLDER_RADIO_STATIONS:
+      case MEDIA_TYPE_FOLDER_TRAILERS:
+      case MEDIA_TYPE_FOLDER_VIDEOS:
+      case MEDIA_TYPE_GENRE:
+      case MEDIA_TYPE_MOVIE:
+      case MEDIA_TYPE_MUSIC:
+      case MEDIA_TYPE_NEWS:
+      case MEDIA_TYPE_PLAYLIST:
+      case MEDIA_TYPE_PODCAST:
+      case MEDIA_TYPE_PODCAST_EPISODE:
+      case MEDIA_TYPE_RADIO_STATION:
+      case MEDIA_TYPE_TRAILER:
+      case MEDIA_TYPE_TV_CHANNEL:
+      case MEDIA_TYPE_TV_SEASON:
+      case MEDIA_TYPE_TV_SERIES:
+      case MEDIA_TYPE_TV_SHOW:
+      case MEDIA_TYPE_VIDEO:
+      case MEDIA_TYPE_YEAR:
+        return FOLDER_TYPE_TITLES;
+      case MEDIA_TYPE_FOLDER_ALBUMS:
+        return FOLDER_TYPE_ALBUMS;
+      case MEDIA_TYPE_FOLDER_ARTISTS:
+        return FOLDER_TYPE_ARTISTS;
+      case MEDIA_TYPE_FOLDER_GENRES:
+        return FOLDER_TYPE_GENRES;
+      case MEDIA_TYPE_FOLDER_PLAYLISTS:
+        return FOLDER_TYPE_PLAYLISTS;
+      case MEDIA_TYPE_FOLDER_YEARS:
+        return FOLDER_TYPE_YEARS;
+      case MEDIA_TYPE_FOLDER_AUDIO_BOOKS:
+      case MEDIA_TYPE_FOLDER_MIXED:
+      case MEDIA_TYPE_FOLDER_TV_CHANNELS:
+      case MEDIA_TYPE_FOLDER_TV_SERIES:
+      case MEDIA_TYPE_FOLDER_TV_SHOWS:
+      case MEDIA_TYPE_FOLDER_PODCASTS:
+      case MEDIA_TYPE_MIXED:
+      default:
+        return FOLDER_TYPE_MIXED;
+    }
+  }
+
+  private static @MediaType int getMediaTypeFromFolderType(@FolderType int folderType) {
+    switch (folderType) {
+      case FOLDER_TYPE_ALBUMS:
+        return MEDIA_TYPE_FOLDER_ALBUMS;
+      case FOLDER_TYPE_ARTISTS:
+        return MEDIA_TYPE_FOLDER_ARTISTS;
+      case FOLDER_TYPE_GENRES:
+        return MEDIA_TYPE_FOLDER_GENRES;
+      case FOLDER_TYPE_PLAYLISTS:
+        return MEDIA_TYPE_FOLDER_PLAYLISTS;
+      case FOLDER_TYPE_TITLES:
+        return MEDIA_TYPE_MIXED;
+      case FOLDER_TYPE_YEARS:
+        return MEDIA_TYPE_FOLDER_YEARS;
+      case FOLDER_TYPE_MIXED:
+      case FOLDER_TYPE_NONE:
+      default:
+        return MEDIA_TYPE_FOLDER_MIXED;
+    }
   }
 }

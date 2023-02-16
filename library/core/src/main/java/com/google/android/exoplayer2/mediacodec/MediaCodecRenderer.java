@@ -1111,6 +1111,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
+    if (!codecInfo.isFormatSupported(inputFormat)) {
+      Log.w(
+          TAG,
+          Util.formatInvariant(
+              "Format exceeds selected codec's capabilities [%s, %s]",
+              Format.toLogString(inputFormat), codecName));
+    }
+
     this.codecInfo = codecInfo;
     this.codecOperatingRate = codecOperatingRate;
     codecInputFormat = inputFormat;
@@ -2423,7 +2431,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         || (Util.SDK_INT <= 17 && "OMX.allwinner.video.decoder.avc".equals(name))
         || (Util.SDK_INT <= 29
             && ("OMX.broadcom.video_decoder.tunnel".equals(name)
-                || "OMX.broadcom.video_decoder.tunnel.secure".equals(name)))
+                || "OMX.broadcom.video_decoder.tunnel.secure".equals(name)
+                || "OMX.bcm.vdec.avc.tunnel".equals(name)
+                || "OMX.bcm.vdec.avc.tunnel.secure".equals(name)
+                || "OMX.bcm.vdec.hevc.tunnel".equals(name)
+                || "OMX.bcm.vdec.hevc.tunnel.secure".equals(name)))
         || ("Amazon".equals(Util.MANUFACTURER) && "AFTS".equals(Util.MODEL) && codecInfo.secure);
   }
 

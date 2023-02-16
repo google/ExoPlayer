@@ -727,7 +727,11 @@ public final class Transformer {
             /* asyncErrorListener= */ componentListener);
     this.muxerWrapper = muxerWrapper;
     FallbackListener fallbackListener =
-        new FallbackListener(mediaItem, listeners, transformationRequest);
+        new FallbackListener(
+            mediaItem,
+            listeners,
+            clock.createHandler(looper, /* callback= */ null),
+            transformationRequest);
     exoPlayerAssetLoader.start(
         mediaItem,
         muxerWrapper,

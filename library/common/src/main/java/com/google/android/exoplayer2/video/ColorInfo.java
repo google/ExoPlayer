@@ -15,18 +15,12 @@
  */
 package com.google.android.exoplayer2.video;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-
 import android.os.Bundle;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -184,41 +178,26 @@ public final class ColorInfo implements Bundleable {
 
   // Bundleable implementation
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    FIELD_COLOR_SPACE,
-    FIELD_COLOR_RANGE,
-    FIELD_COLOR_TRANSFER,
-    FIELD_HDR_STATIC_INFO,
-  })
-  private @interface FieldNumber {}
-
-  private static final int FIELD_COLOR_SPACE = 0;
-  private static final int FIELD_COLOR_RANGE = 1;
-  private static final int FIELD_COLOR_TRANSFER = 2;
-  private static final int FIELD_HDR_STATIC_INFO = 3;
+  private static final String FIELD_COLOR_SPACE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_COLOR_RANGE = Util.intToStringMaxRadix(1);
+  private static final String FIELD_COLOR_TRANSFER = Util.intToStringMaxRadix(2);
+  private static final String FIELD_HDR_STATIC_INFO = Util.intToStringMaxRadix(3);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_COLOR_SPACE), colorSpace);
-    bundle.putInt(keyForField(FIELD_COLOR_RANGE), colorRange);
-    bundle.putInt(keyForField(FIELD_COLOR_TRANSFER), colorTransfer);
-    bundle.putByteArray(keyForField(FIELD_HDR_STATIC_INFO), hdrStaticInfo);
+    bundle.putInt(FIELD_COLOR_SPACE, colorSpace);
+    bundle.putInt(FIELD_COLOR_RANGE, colorRange);
+    bundle.putInt(FIELD_COLOR_TRANSFER, colorTransfer);
+    bundle.putByteArray(FIELD_HDR_STATIC_INFO, hdrStaticInfo);
     return bundle;
   }
 
   public static final Creator<ColorInfo> CREATOR =
       bundle ->
           new ColorInfo(
-              bundle.getInt(keyForField(FIELD_COLOR_SPACE), Format.NO_VALUE),
-              bundle.getInt(keyForField(FIELD_COLOR_RANGE), Format.NO_VALUE),
-              bundle.getInt(keyForField(FIELD_COLOR_TRANSFER), Format.NO_VALUE),
-              bundle.getByteArray(keyForField(FIELD_HDR_STATIC_INFO)));
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
+              bundle.getInt(FIELD_COLOR_SPACE, Format.NO_VALUE),
+              bundle.getInt(FIELD_COLOR_RANGE, Format.NO_VALUE),
+              bundle.getInt(FIELD_COLOR_TRANSFER, Format.NO_VALUE),
+              bundle.getByteArray(FIELD_HDR_STATIC_INFO));
 }

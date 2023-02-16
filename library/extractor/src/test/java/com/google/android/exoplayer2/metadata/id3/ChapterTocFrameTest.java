@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,7 +32,7 @@ public final class ChapterTocFrameTest {
     String[] children = new String[] {"child0", "child1"};
     Id3Frame[] subFrames =
         new Id3Frame[] {
-          new TextInformationFrame("TIT2", null, "title"),
+          new TextInformationFrame("TIT2", null, ImmutableList.of("title")),
           new UrlLinkFrame("WXXX", "description", "url")
         };
     ChapterTocFrame chapterTocFrameToParcel =

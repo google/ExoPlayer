@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import org.junit.Assert;
@@ -403,7 +404,43 @@ public class AdPlaybackStateTest {
   }
 
   @Test
-  public void roundTripViaBundle_yieldsEqualFieldsExceptAdsId() {
+  public void adPlaybackStateWithNoAds_checkValues() {
+    AdPlaybackState adPlaybackStateWithNoAds = AdPlaybackState.NONE;
+
+    // Please refrain from altering these values since doing so would cause issues with backwards
+    // compatibility.
+    assertThat(adPlaybackStateWithNoAds.adsId).isNull();
+    assertThat(adPlaybackStateWithNoAds.adGroupCount).isEqualTo(0);
+    assertThat(adPlaybackStateWithNoAds.adResumePositionUs).isEqualTo(0);
+    assertThat(adPlaybackStateWithNoAds.contentDurationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(adPlaybackStateWithNoAds.removedAdGroupCount).isEqualTo(0);
+  }
+
+  @Test
+  public void adPlaybackStateWithNoAds_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    AdPlaybackState adPlaybackStateWithNoAds = AdPlaybackState.NONE;
+
+    Bundle adPlaybackStateWithNoAdsBundle = adPlaybackStateWithNoAds.toBundle();
+
+    // Check that default values are skipped when bundling.
+    assertThat(adPlaybackStateWithNoAdsBundle.keySet()).isEmpty();
+
+    AdPlaybackState adPlaybackStateWithNoAdsFromBundle =
+        AdPlaybackState.CREATOR.fromBundle(adPlaybackStateWithNoAdsBundle);
+
+    assertThat(adPlaybackStateWithNoAdsFromBundle.adsId).isEqualTo(adPlaybackStateWithNoAds.adsId);
+    assertThat(adPlaybackStateWithNoAdsFromBundle.adGroupCount)
+        .isEqualTo(adPlaybackStateWithNoAds.adGroupCount);
+    assertThat(adPlaybackStateWithNoAdsFromBundle.adResumePositionUs)
+        .isEqualTo(adPlaybackStateWithNoAds.adResumePositionUs);
+    assertThat(adPlaybackStateWithNoAdsFromBundle.contentDurationUs)
+        .isEqualTo(adPlaybackStateWithNoAds.contentDurationUs);
+    assertThat(adPlaybackStateWithNoAdsFromBundle.removedAdGroupCount)
+        .isEqualTo(adPlaybackStateWithNoAds.removedAdGroupCount);
+  }
+
+  @Test
+  public void createAdPlaybackState_roundTripViaBundle_yieldsEqualFieldsExceptAdsId() {
     AdPlaybackState originalState =
         new AdPlaybackState(TEST_ADS_ID, TEST_AD_GROUP_TIMES_US)
             .withRemovedAdGroupCount(1)

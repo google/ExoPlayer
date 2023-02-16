@@ -47,6 +47,7 @@ import android.content.res.Resources;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -66,6 +67,8 @@ import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import androidx.annotation.DoNotInline;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -2744,6 +2747,31 @@ public final class Util {
     return sum;
   }
 
+  /**
+   * Returns a {@link Drawable} for the given resource or throws a {@link
+   * Resources.NotFoundException} if not found.
+   *
+   * @param context The context to get the theme from starting with API 21.
+   * @param resources The resources to load the drawable from.
+   * @param drawableRes The drawable resource int.
+   * @return The loaded {@link Drawable}.
+   */
+  public static Drawable getDrawable(
+      Context context, Resources resources, @DrawableRes int drawableRes) {
+    return SDK_INT >= 21
+        ? Api21.getDrawable(context, resources, drawableRes)
+        : resources.getDrawable(drawableRes);
+  }
+
+  /**
+   * Returns a string representation of the integer using radix value {@link Character#MAX_RADIX}.
+   *
+   * @param i An integer to be converted to String.
+   */
+  public static String intToStringMaxRadix(int i) {
+    return Integer.toString(i, Character.MAX_RADIX);
+  }
+
   @Nullable
   private static String getSystemProperty(String name) {
     try {
@@ -2980,4 +3008,12 @@ public final class Util {
     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4,
     0xF3
   };
+
+  @RequiresApi(21)
+  private static final class Api21 {
+    @DoNotInline
+    public static Drawable getDrawable(Context context, Resources resources, @DrawableRes int res) {
+      return resources.getDrawable(res, context.getTheme());
+    }
+  }
 }

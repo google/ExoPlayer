@@ -17,6 +17,9 @@ package com.google.android.exoplayer2.util;
 
 import androidx.annotation.Nullable;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Chars;
+import com.google.common.primitives.UnsignedBytes;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -26,6 +29,12 @@ import java.util.Arrays;
  * parsed with the assumption that their constituent bytes are in big endian order.
  */
 public final class ParsableByteArray {
+
+  private static final char[] CR_AND_LF = {'\r', '\n'};
+  private static final char[] LF = {'\n'};
+  private static final ImmutableSet<Charset> SUPPORTED_CHARSETS_FOR_READLINE =
+      ImmutableSet.of(
+          Charsets.US_ASCII, Charsets.UTF_8, Charsets.UTF_16, Charsets.UTF_16BE, Charsets.UTF_16LE);
 
   private byte[] data;
   private int position;
@@ -489,45 +498,47 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Reads a line of text.
+   * Reads a line of text in UTF-8.
    *
-   * <p>A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
-   * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The UTF-8 charset is
-   * used. This method discards leading UTF-8 byte order marks, if present.
-   *
-   * @return The line not including any line-termination characters, or null if the end of the data
-   *     has already been reached.
+   * <p>Equivalent to passing {@link Charsets#UTF_8} to {@link #readLine(Charset)}.
    */
   @Nullable
   public String readLine() {
+    return readLine(Charsets.UTF_8);
+  }
+
+  /**
+   * Reads a line of text in {@code charset}.
+   *
+   * <p>A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
+   * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). This method discards
+   * leading UTF byte order marks (BOM), if present.
+   *
+   * <p>The {@linkplain #getPosition() position} is advanced to start of the next line (i.e. any
+   * line terminators are skipped).
+   *
+   * @param charset The charset used to interpret the bytes as a {@link String}.
+   * @return The line not including any line-termination characters, or null if the end of the data
+   *     has already been reached.
+   * @throws IllegalArgumentException if charset is not supported. Only US_ASCII, UTF-8, UTF-16,
+   *     UTF-16BE, and UTF-16LE are supported.
+   */
+  @Nullable
+  public String readLine(Charset charset) {
+    Assertions.checkArgument(
+        SUPPORTED_CHARSETS_FOR_READLINE.contains(charset), "Unsupported charset: " + charset);
     if (bytesLeft() == 0) {
       return null;
     }
-    int lineLimit = position;
-    while (lineLimit < limit && !Util.isLinebreak(data[lineLimit])) {
-      lineLimit++;
+    if (!charset.equals(Charsets.US_ASCII)) {
+      readUtfCharsetFromBom(); // Skip BOM if present
     }
-    if (lineLimit - position >= 3
-        && data[position] == (byte) 0xEF
-        && data[position + 1] == (byte) 0xBB
-        && data[position + 2] == (byte) 0xBF) {
-      // There's a UTF-8 byte order mark at the start of the line. Discard it.
-      position += 3;
-    }
-    String line = Util.fromUtf8Bytes(data, position, lineLimit - position);
-    position = lineLimit;
+    int lineLimit = findNextLineTerminator(charset);
+    String line = readString(lineLimit - position, charset);
     if (position == limit) {
       return line;
     }
-    if (data[position] == '\r') {
-      position++;
-      if (position == limit) {
-        return line;
-      }
-    }
-    if (data[position] == '\n') {
-      position++;
-    }
+    skipLineTerminator(charset);
     return line;
   }
 
@@ -564,5 +575,100 @@ public final class ParsableByteArray {
     }
     position += length;
     return value;
+  }
+
+  /**
+   * Reads a UTF byte order mark (BOM) and returns the UTF {@link Charset} it represents. Returns
+   * {@code null} without advancing {@link #getPosition() position} if no BOM is found.
+   */
+  @Nullable
+  public Charset readUtfCharsetFromBom() {
+    if (bytesLeft() >= 3
+        && data[position] == (byte) 0xEF
+        && data[position + 1] == (byte) 0xBB
+        && data[position + 2] == (byte) 0xBF) {
+      position += 3;
+      return Charsets.UTF_8;
+    } else if (bytesLeft() >= 2) {
+      if (data[position] == (byte) 0xFE && data[position + 1] == (byte) 0xFF) {
+        position += 2;
+        return Charsets.UTF_16BE;
+      } else if (data[position] == (byte) 0xFF && data[position + 1] == (byte) 0xFE) {
+        position += 2;
+        return Charsets.UTF_16LE;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns the index of the next occurrence of '\n' or '\r', or {@link #limit} if none is found.
+   */
+  private int findNextLineTerminator(Charset charset) {
+    int stride;
+    if (charset.equals(Charsets.UTF_8) || charset.equals(Charsets.US_ASCII)) {
+      stride = 1;
+    } else if (charset.equals(Charsets.UTF_16)
+        || charset.equals(Charsets.UTF_16LE)
+        || charset.equals(Charsets.UTF_16BE)) {
+      stride = 2;
+    } else {
+      throw new IllegalArgumentException("Unsupported charset: " + charset);
+    }
+    for (int i = position; i < limit - (stride - 1); i += stride) {
+      if ((charset.equals(Charsets.UTF_8) || charset.equals(Charsets.US_ASCII))
+          && Util.isLinebreak(data[i])) {
+        return i;
+      } else if ((charset.equals(Charsets.UTF_16) || charset.equals(Charsets.UTF_16BE))
+          && data[i] == 0x00
+          && Util.isLinebreak(data[i + 1])) {
+        return i;
+      } else if (charset.equals(Charsets.UTF_16LE)
+          && data[i + 1] == 0x00
+          && Util.isLinebreak(data[i])) {
+        return i;
+      }
+    }
+    return limit;
+  }
+
+  private void skipLineTerminator(Charset charset) {
+    if (readCharacterIfInList(charset, CR_AND_LF) == '\r') {
+      readCharacterIfInList(charset, LF);
+    }
+  }
+
+  /**
+   * Peeks at the character at {@link #position} (as decoded by {@code charset}), returns it and
+   * advances {@link #position} past it if it's in {@code chars}, otherwise returns {@code 0}
+   * without advancing {@link #position}. Returns {@code 0} if {@link #bytesLeft()} doesn't allow
+   * reading a whole character in {@code charset}.
+   *
+   * <p>Only supports characters in {@code chars} that occupy a single code unit (i.e. one byte for
+   * UTF-8 and two bytes for UTF-16).
+   */
+  private char readCharacterIfInList(Charset charset, char[] chars) {
+    char character;
+    int characterSize;
+    if ((charset.equals(Charsets.UTF_8) || charset.equals(Charsets.US_ASCII)) && bytesLeft() >= 1) {
+      character = Chars.checkedCast(UnsignedBytes.toInt(data[position]));
+      characterSize = 1;
+    } else if ((charset.equals(Charsets.UTF_16) || charset.equals(Charsets.UTF_16BE))
+        && bytesLeft() >= 2) {
+      character = Chars.fromBytes(data[position], data[position + 1]);
+      characterSize = 2;
+    } else if (charset.equals(Charsets.UTF_16LE) && bytesLeft() >= 2) {
+      character = Chars.fromBytes(data[position + 1], data[position]);
+      characterSize = 2;
+    } else {
+      return 0;
+    }
+
+    if (Chars.contains(chars, character)) {
+      position += characterSize;
+      return Chars.checkedCast(character);
+    } else {
+      return 0;
+    }
   }
 }

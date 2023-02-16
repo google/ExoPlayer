@@ -28,6 +28,9 @@ public final class Size {
   public static final Size UNKNOWN =
       new Size(/* width= */ C.LENGTH_UNSET, /* height= */ C.LENGTH_UNSET);
 
+  /* A static instance to represent a size of zero height and width. */
+  public static final Size ZERO = new Size(/* width= */ 0, /* height= */ 0);
+
   private final int width;
   private final int height;
 

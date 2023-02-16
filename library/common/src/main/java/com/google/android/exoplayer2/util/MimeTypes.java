@@ -567,6 +567,8 @@ public final class MimeTypes {
         return C.ENCODING_DTS_HD;
       case MimeTypes.AUDIO_TRUEHD:
         return C.ENCODING_DOLBY_TRUEHD;
+      case MimeTypes.AUDIO_OPUS:
+        return C.ENCODING_OPUS;
       default:
         return C.ENCODING_INVALID;
     }

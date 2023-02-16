@@ -25,8 +25,10 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
-import java.io.UnsupportedEncodingException;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -433,100 +435,110 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
                 + frameSize);
       }
       return frame;
-    } catch (UnsupportedEncodingException e) {
-      Log.w(TAG, "Unsupported character encoding");
-      return null;
     } finally {
       id3Data.setPosition(nextFramePosition);
     }
   }
 
   @Nullable
-  private static TextInformationFrame decodeTxxxFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static TextInformationFrame decodeTxxxFrame(ParsableByteArray id3Data, int frameSize) {
     if (frameSize < 1) {
       // Frame is malformed.
       return null;
     }
 
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
-    String description = new String(data, 0, descriptionEndIndex, charset);
+    int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
+    String description = new String(data, 0, descriptionEndIndex, getCharset(encoding));
 
-    int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
-    String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
-
-    return new TextInformationFrame("TXXX", description, value);
+    ImmutableList<String> values =
+        decodeTextInformationFrameValues(
+            data, encoding, descriptionEndIndex + delimiterLength(encoding));
+    return new TextInformationFrame("TXXX", description, values);
   }
 
   @Nullable
   private static TextInformationFrame decodeTextInformationFrame(
-      ParsableByteArray id3Data, int frameSize, String id) throws UnsupportedEncodingException {
+      ParsableByteArray id3Data, int frameSize, String id) {
     if (frameSize < 1) {
       // Frame is malformed.
       return null;
     }
 
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int valueEndIndex = indexOfEos(data, 0, encoding);
-    String value = new String(data, 0, valueEndIndex, charset);
+    ImmutableList<String> values = decodeTextInformationFrameValues(data, encoding, 0);
+    return new TextInformationFrame(id, null, values);
+  }
 
-    return new TextInformationFrame(id, null, value);
+  private static ImmutableList<String> decodeTextInformationFrameValues(
+      byte[] data, final int encoding, final int index) {
+    if (index >= data.length) {
+      return ImmutableList.of("");
+    }
+
+    ImmutableList.Builder<String> values = ImmutableList.builder();
+    int valueStartIndex = index;
+    int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
+    while (valueStartIndex < valueEndIndex) {
+      String value =
+          new String(data, valueStartIndex, valueEndIndex - valueStartIndex, getCharset(encoding));
+      values.add(value);
+
+      valueStartIndex = valueEndIndex + delimiterLength(encoding);
+      valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
+    }
+
+    ImmutableList<String> result = values.build();
+    return result.isEmpty() ? ImmutableList.of("") : result;
   }
 
   @Nullable
-  private static UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize) {
     if (frameSize < 1) {
       // Frame is malformed.
       return null;
     }
 
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
-    String description = new String(data, 0, descriptionEndIndex, charset);
+    int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
+    String description = new String(data, 0, descriptionEndIndex, getCharset(encoding));
 
     int urlStartIndex = descriptionEndIndex + delimiterLength(encoding);
     int urlEndIndex = indexOfZeroByte(data, urlStartIndex);
-    String url = decodeStringIfValid(data, urlStartIndex, urlEndIndex, "ISO-8859-1");
+    String url = decodeStringIfValid(data, urlStartIndex, urlEndIndex, Charsets.ISO_8859_1);
 
     return new UrlLinkFrame("WXXX", description, url);
   }
 
   private static UrlLinkFrame decodeUrlLinkFrame(
-      ParsableByteArray id3Data, int frameSize, String id) throws UnsupportedEncodingException {
+      ParsableByteArray id3Data, int frameSize, String id) {
     byte[] data = new byte[frameSize];
     id3Data.readBytes(data, 0, frameSize);
 
     int urlEndIndex = indexOfZeroByte(data, 0);
-    String url = new String(data, 0, urlEndIndex, "ISO-8859-1");
+    String url = new String(data, 0, urlEndIndex, Charsets.ISO_8859_1);
 
     return new UrlLinkFrame(id, null, url);
   }
 
-  private static PrivFrame decodePrivFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static PrivFrame decodePrivFrame(ParsableByteArray id3Data, int frameSize) {
     byte[] data = new byte[frameSize];
     id3Data.readBytes(data, 0, frameSize);
 
     int ownerEndIndex = indexOfZeroByte(data, 0);
-    String owner = new String(data, 0, ownerEndIndex, "ISO-8859-1");
+    String owner = new String(data, 0, ownerEndIndex, Charsets.ISO_8859_1);
 
     int privateDataStartIndex = ownerEndIndex + 1;
     byte[] privateData = copyOfRangeIfValid(data, privateDataStartIndex, data.length);
@@ -534,23 +546,22 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     return new PrivFrame(owner, privateData);
   }
 
-  private static GeobFrame decodeGeobFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static GeobFrame decodeGeobFrame(ParsableByteArray id3Data, int frameSize) {
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
+    Charset charset = getCharset(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
     int mimeTypeEndIndex = indexOfZeroByte(data, 0);
-    String mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1");
+    String mimeType = new String(data, 0, mimeTypeEndIndex, Charsets.ISO_8859_1);
 
     int filenameStartIndex = mimeTypeEndIndex + 1;
-    int filenameEndIndex = indexOfEos(data, filenameStartIndex, encoding);
+    int filenameEndIndex = indexOfTerminator(data, filenameStartIndex, encoding);
     String filename = decodeStringIfValid(data, filenameStartIndex, filenameEndIndex, charset);
 
     int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
-    int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, descriptionStartIndex, encoding);
     String description =
         decodeStringIfValid(data, descriptionStartIndex, descriptionEndIndex, charset);
 
@@ -561,10 +572,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
   }
 
   private static ApicFrame decodeApicFrame(
-      ParsableByteArray id3Data, int frameSize, int majorVersion)
-      throws UnsupportedEncodingException {
+      ParsableByteArray id3Data, int frameSize, int majorVersion) {
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
+    Charset charset = getCharset(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
@@ -573,13 +583,13 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int mimeTypeEndIndex;
     if (majorVersion == 2) {
       mimeTypeEndIndex = 2;
-      mimeType = "image/" + Ascii.toLowerCase(new String(data, 0, 3, "ISO-8859-1"));
+      mimeType = "image/" + Ascii.toLowerCase(new String(data, 0, 3, Charsets.ISO_8859_1));
       if ("image/jpg".equals(mimeType)) {
         mimeType = "image/jpeg";
       }
     } else {
       mimeTypeEndIndex = indexOfZeroByte(data, 0);
-      mimeType = Ascii.toLowerCase(new String(data, 0, mimeTypeEndIndex, "ISO-8859-1"));
+      mimeType = Ascii.toLowerCase(new String(data, 0, mimeTypeEndIndex, Charsets.ISO_8859_1));
       if (mimeType.indexOf('/') == -1) {
         mimeType = "image/" + mimeType;
       }
@@ -588,7 +598,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int pictureType = data[mimeTypeEndIndex + 1] & 0xFF;
 
     int descriptionStartIndex = mimeTypeEndIndex + 2;
-    int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, descriptionStartIndex, encoding);
     String description =
         new String(
             data, descriptionStartIndex, descriptionEndIndex - descriptionStartIndex, charset);
@@ -600,15 +610,14 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
   }
 
   @Nullable
-  private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize) {
     if (frameSize < 4) {
       // Frame is malformed.
       return null;
     }
 
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
+    Charset charset = getCharset(encoding);
 
     byte[] data = new byte[3];
     id3Data.readBytes(data, 0, 3);
@@ -617,11 +626,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     data = new byte[frameSize - 4];
     id3Data.readBytes(data, 0, frameSize - 4);
 
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
     int textStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int textEndIndex = indexOfEos(data, textStartIndex, encoding);
+    int textEndIndex = indexOfTerminator(data, textStartIndex, encoding);
     String text = decodeStringIfValid(data, textStartIndex, textEndIndex, charset);
 
     return new CommentFrame(language, description, text);
@@ -633,13 +642,15 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       int majorVersion,
       boolean unsignedIntFrameSizeHack,
       int frameHeaderSize,
-      @Nullable FramePredicate framePredicate)
-      throws UnsupportedEncodingException {
+      @Nullable FramePredicate framePredicate) {
     int framePosition = id3Data.getPosition();
     int chapterIdEndIndex = indexOfZeroByte(id3Data.getData(), framePosition);
     String chapterId =
         new String(
-            id3Data.getData(), framePosition, chapterIdEndIndex - framePosition, "ISO-8859-1");
+            id3Data.getData(),
+            framePosition,
+            chapterIdEndIndex - framePosition,
+            Charsets.ISO_8859_1);
     id3Data.setPosition(chapterIdEndIndex + 1);
 
     int startTime = id3Data.readInt();
@@ -674,13 +685,15 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       int majorVersion,
       boolean unsignedIntFrameSizeHack,
       int frameHeaderSize,
-      @Nullable FramePredicate framePredicate)
-      throws UnsupportedEncodingException {
+      @Nullable FramePredicate framePredicate) {
     int framePosition = id3Data.getPosition();
     int elementIdEndIndex = indexOfZeroByte(id3Data.getData(), framePosition);
     String elementId =
         new String(
-            id3Data.getData(), framePosition, elementIdEndIndex - framePosition, "ISO-8859-1");
+            id3Data.getData(),
+            framePosition,
+            elementIdEndIndex - framePosition,
+            Charsets.ISO_8859_1);
     id3Data.setPosition(elementIdEndIndex + 1);
 
     int ctocFlags = id3Data.readUnsignedByte();
@@ -692,7 +705,8 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     for (int i = 0; i < childCount; i++) {
       int startIndex = id3Data.getPosition();
       int endIndex = indexOfZeroByte(id3Data.getData(), startIndex);
-      children[i] = new String(id3Data.getData(), startIndex, endIndex - startIndex, "ISO-8859-1");
+      children[i] =
+          new String(id3Data.getData(), startIndex, endIndex - startIndex, Charsets.ISO_8859_1);
       id3Data.setPosition(endIndex + 1);
     }
 
@@ -771,23 +785,18 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     return length;
   }
 
-  /**
-   * Maps encoding byte from ID3v2 frame to a Charset.
-   *
-   * @param encodingByte The value of encoding byte from ID3v2 frame.
-   * @return Charset name.
-   */
-  private static String getCharsetName(int encodingByte) {
+  /** Maps encoding byte from ID3v2 frame to a {@link Charset}. */
+  private static Charset getCharset(int encodingByte) {
     switch (encodingByte) {
       case ID3_TEXT_ENCODING_UTF_16:
-        return "UTF-16";
+        return Charsets.UTF_16;
       case ID3_TEXT_ENCODING_UTF_16BE:
-        return "UTF-16BE";
+        return Charsets.UTF_16BE;
       case ID3_TEXT_ENCODING_UTF_8:
-        return "UTF-8";
+        return Charsets.UTF_8;
       case ID3_TEXT_ENCODING_ISO_8859_1:
       default:
-        return "ISO-8859-1";
+        return Charsets.ISO_8859_1;
     }
   }
 
@@ -798,7 +807,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
         : String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
   }
 
-  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
+  private static int indexOfTerminator(byte[] data, int fromIndex, int encoding) {
     int terminationPos = indexOfZeroByte(data, fromIndex);
 
     // For single byte encoding charsets, we're done.
@@ -850,21 +859,19 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
   /**
    * Returns a string obtained by decoding the specified range of {@code data} using the specified
-   * {@code charsetName}. An empty string is returned if the range is invalid.
+   * {@code charset}. An empty string is returned if the range is invalid.
    *
    * @param data The array from which to decode the string.
    * @param from The start of the range.
    * @param to The end of the range (exclusive).
-   * @param charsetName The name of the Charset to use.
+   * @param charset The {@link Charset} to use.
    * @return The decoded string, or an empty string if the range is invalid.
-   * @throws UnsupportedEncodingException If the Charset is not supported.
    */
-  private static String decodeStringIfValid(byte[] data, int from, int to, String charsetName)
-      throws UnsupportedEncodingException {
+  private static String decodeStringIfValid(byte[] data, int from, int to, Charset charset) {
     if (to <= from || to > data.length) {
       return "";
     }
-    return new String(data, from, to - from, charsetName);
+    return new String(data, from, to - from, charset);
   }
 
   private static final class Id3Header {

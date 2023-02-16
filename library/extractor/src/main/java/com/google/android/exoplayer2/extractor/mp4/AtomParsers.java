@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ExtractorUtil;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.extractor.mp4.Atom.LeafAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
@@ -308,9 +309,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     Pair<Long, String> mdhdData =
         parseMdhd(checkNotNull(mdia.getLeafAtomOfType(Atom.TYPE_mdhd)).data);
+    LeafAtom stsd = stbl.getLeafAtomOfType(Atom.TYPE_stsd);
+    if (stsd == null) {
+      throw ParserException.createForMalformedContainer(
+          "Malformed sample table (stbl) missing sample description (stsd)", /* cause= */ null);
+    }
     StsdData stsdData =
         parseStsd(
-            checkNotNull(stbl.getLeafAtomOfType(Atom.TYPE_stsd)).data,
+            stsd.data,
             tkhdData.id,
             tkhdData.rotationDegrees,
             mdhdData.second,

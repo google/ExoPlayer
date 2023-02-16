@@ -181,7 +181,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final LoadControl loadControl;
   private final BandwidthMeter bandwidthMeter;
   private final HandlerWrapper handler;
-  private final HandlerThread internalPlaybackThread;
+  @Nullable private final HandlerThread internalPlaybackThread;
   private final Looper playbackLooper;
   private final Timeline.Window window;
   private final Timeline.Period period;
@@ -236,7 +236,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Looper applicationLooper,
       Clock clock,
       PlaybackInfoUpdateListener playbackInfoUpdateListener,
-      PlayerId playerId) {
+      PlayerId playerId,
+      Looper playbackLooper) {
     this.playbackInfoUpdateListener = playbackInfoUpdateListener;
     this.renderers = renderers;
     this.trackSelector = trackSelector;
@@ -272,17 +273,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     deliverPendingMessageAtStartPositionRequired = true;
 
-    Handler eventHandler = new Handler(applicationLooper);
+    HandlerWrapper eventHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     queue = new MediaPeriodQueue(analyticsCollector, eventHandler);
     mediaSourceList =
         new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler, playerId);
 
-    // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
-    // not normally change to this priority" is incorrect.
-    internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
-    internalPlaybackThread.start();
-    playbackLooper = internalPlaybackThread.getLooper();
-    handler = clock.createHandler(playbackLooper, this);
+    if (playbackLooper != null) {
+      internalPlaybackThread = null;
+      this.playbackLooper = playbackLooper;
+    } else {
+      // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
+      // not normally change to this priority" is incorrect.
+      internalPlaybackThread =
+          new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
+      internalPlaybackThread.start();
+      this.playbackLooper = internalPlaybackThread.getLooper();
+    }
+    handler = clock.createHandler(this.playbackLooper, this);
   }
 
   public void experimentalSetForegroundModeTimeoutMs(long setForegroundModeTimeoutMs) {
@@ -385,7 +392,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   @Override
   public synchronized void sendMessage(PlayerMessage message) {
-    if (released || !internalPlaybackThread.isAlive()) {
+    if (released || !playbackLooper.getThread().isAlive()) {
       Log.w(TAG, "Ignoring messages sent after release.");
       message.markAsProcessed(/* isDelivered= */ false);
       return;
@@ -400,7 +407,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return Whether the operations succeeded. If false, the operation timed out.
    */
   public synchronized boolean setForegroundMode(boolean foregroundMode) {
-    if (released || !internalPlaybackThread.isAlive()) {
+    if (released || !playbackLooper.getThread().isAlive()) {
       return true;
     }
     if (foregroundMode) {
@@ -422,7 +429,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return Whether the release succeeded. If false, the release timed out.
    */
   public synchronized boolean release() {
-    if (released || !internalPlaybackThread.isAlive()) {
+    if (released || !playbackLooper.getThread().isAlive()) {
       return true;
     }
     handler.sendEmptyMessage(MSG_RELEASE);
@@ -1374,7 +1381,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         /* resetError= */ false);
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
-    internalPlaybackThread.quit();
+    if (internalPlaybackThread != null) {
+      internalPlaybackThread.quit();
+    }
     synchronized (this) {
       released = true;
       notifyAll();

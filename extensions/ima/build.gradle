@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.28.1'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion

@@ -15,10 +15,17 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
+import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
+import static com.google.android.exoplayer2.Player.COMMAND_PREPARE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.COMMAND_STOP;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_MEDIA_METADATA_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
@@ -1162,8 +1169,7 @@ public class PlayerNotificationManager {
     Notification notification = builder.build();
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
-      // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
-      context.registerReceiver(notificationBroadcastReceiver, intentFilter);
+      Util.registerReceiverNotExported(context, notificationBroadcastReceiver, intentFilter);
     }
     if (notificationListener != null) {
       // Always pass true for ongoing with the first notification to tell a service to go into
@@ -1204,7 +1210,9 @@ public class PlayerNotificationManager {
       @Nullable NotificationCompat.Builder builder,
       boolean ongoing,
       @Nullable Bitmap largeIcon) {
-    if (player.getPlaybackState() == Player.STATE_IDLE && player.getCurrentTimeline().isEmpty()) {
+    if (player.getPlaybackState() == Player.STATE_IDLE
+        && player.isCommandAvailable(COMMAND_GET_TIMELINE)
+        && player.getCurrentTimeline().isEmpty()) {
       builderActions = null;
       return null;
     }
@@ -1258,6 +1266,7 @@ public class PlayerNotificationManager {
     // Changing "showWhen" causes notification flicker if SDK_INT < 21.
     if (Util.SDK_INT >= 21
         && useChronometer
+        && player.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)
         && player.isPlaying()
         && !player.isPlayingAd()
         && !player.isCurrentMediaItemDynamic()
@@ -1536,24 +1545,43 @@ public class PlayerNotificationManager {
       }
       String action = intent.getAction();
       if (ACTION_PLAY.equals(action)) {
-        if (player.getPlaybackState() == Player.STATE_IDLE) {
+        if (player.getPlaybackState() == Player.STATE_IDLE
+            && player.isCommandAvailable(COMMAND_PREPARE)) {
           player.prepare();
-        } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
+        } else if (player.getPlaybackState() == Player.STATE_ENDED
+            && player.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)) {
+          player.seekToDefaultPosition();
         }
-        player.play();
+        if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+          player.play();
+        }
       } else if (ACTION_PAUSE.equals(action)) {
-        player.pause();
+        if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+          player.pause();
+        }
       } else if (ACTION_PREVIOUS.equals(action)) {
-        player.seekToPrevious();
+        if (player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+          player.seekToPrevious();
+        }
       } else if (ACTION_REWIND.equals(action)) {
-        player.seekBack();
+        if (player.isCommandAvailable(COMMAND_SEEK_BACK)) {
+          player.seekBack();
+        }
       } else if (ACTION_FAST_FORWARD.equals(action)) {
-        player.seekForward();
+        if (player.isCommandAvailable(COMMAND_SEEK_FORWARD)) {
+          player.seekForward();
+        }
       } else if (ACTION_NEXT.equals(action)) {
-        player.seekToNext();
+        if (player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+          player.seekToNext();
+        }
       } else if (ACTION_STOP.equals(action)) {
-        player.stop(/* reset= */ true);
+        if (player.isCommandAvailable(COMMAND_STOP)) {
+          player.stop();
+        }
+        if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+          player.clearMediaItems();
+        }
       } else if (ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
       } else if (action != null

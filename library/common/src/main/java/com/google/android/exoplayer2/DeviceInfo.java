@@ -20,6 +20,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -85,22 +86,16 @@ public final class DeviceInfo implements Bundleable {
 
   // Bundleable implementation.
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({FIELD_PLAYBACK_TYPE, FIELD_MIN_VOLUME, FIELD_MAX_VOLUME})
-  private @interface FieldNumber {}
-
-  private static final int FIELD_PLAYBACK_TYPE = 0;
-  private static final int FIELD_MIN_VOLUME = 1;
-  private static final int FIELD_MAX_VOLUME = 2;
+  private static final String FIELD_PLAYBACK_TYPE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_MIN_VOLUME = Util.intToStringMaxRadix(1);
+  private static final String FIELD_MAX_VOLUME = Util.intToStringMaxRadix(2);
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_PLAYBACK_TYPE), playbackType);
-    bundle.putInt(keyForField(FIELD_MIN_VOLUME), minVolume);
-    bundle.putInt(keyForField(FIELD_MAX_VOLUME), maxVolume);
+    bundle.putInt(FIELD_PLAYBACK_TYPE, playbackType);
+    bundle.putInt(FIELD_MIN_VOLUME, minVolume);
+    bundle.putInt(FIELD_MAX_VOLUME, maxVolume);
     return bundle;
   }
 
@@ -108,14 +103,9 @@ public final class DeviceInfo implements Bundleable {
   public static final Creator<DeviceInfo> CREATOR =
       bundle -> {
         int playbackType =
-            bundle.getInt(
-                keyForField(FIELD_PLAYBACK_TYPE), /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
-        int minVolume = bundle.getInt(keyForField(FIELD_MIN_VOLUME), /* defaultValue= */ 0);
-        int maxVolume = bundle.getInt(keyForField(FIELD_MAX_VOLUME), /* defaultValue= */ 0);
+            bundle.getInt(FIELD_PLAYBACK_TYPE, /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
+        int minVolume = bundle.getInt(FIELD_MIN_VOLUME, /* defaultValue= */ 0);
+        int maxVolume = bundle.getInt(FIELD_MAX_VOLUME, /* defaultValue= */ 0);
         return new DeviceInfo(playbackType, minVolume, maxVolume);
       };
-
-  private static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
 }

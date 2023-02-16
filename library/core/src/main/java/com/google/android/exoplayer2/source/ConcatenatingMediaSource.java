@@ -59,7 +59,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   private static final int MSG_UPDATE_TIMELINE = 4;
   private static final int MSG_ON_COMPLETION = 5;
 
-  private static final MediaItem EMPTY_MEDIA_ITEM =
+  private static final MediaItem PLACEHOLDER_MEDIA_ITEM =
       new MediaItem.Builder().setUri(Uri.EMPTY).build();
 
   // Accessed on any thread.
@@ -449,7 +449,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   public MediaItem getMediaItem() {
     // This method is actually never called because getInitialTimeline is implemented and hence the
     // MaskingMediaSource does not need to create a placeholder timeline for this media source.
-    return EMPTY_MEDIA_ITEM;
+    return PLACEHOLDER_MEDIA_ITEM;
   }
 
   @Override
@@ -1004,7 +1004,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
 
     @Override
     public MediaItem getMediaItem() {
-      return EMPTY_MEDIA_ITEM;
+      return PLACEHOLDER_MEDIA_ITEM;
     }
 
     @Override

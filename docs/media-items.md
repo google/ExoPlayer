@@ -102,7 +102,8 @@ MediaItem mediaItem =
 
 Internally, `DefaultMediaSourceFactory` will use a `MergingMediaSource` to
 combine the content media source with a `SingleSampleMediaSource` for each
-subtitle track.
+subtitle track. `DefaultMediaSourceFactory` does not support sideloading
+subtitles for multi-period DASH.
 
 ## Clipping a media stream ##
 
@@ -151,6 +152,8 @@ Internally, `DefaultMediaSourceFactory` will wrap the content media source in an
 `AdsMediaSource` to insert ads as defined by the ad tag. For this to work, the
 the player also needs to have its `DefaultMediaSourceFactory`
 [configured accordingly]({{ site.baseurl }}/ad-insertion.html#declarative-ad-support).
+
+{% include media3-known-issue-box.html issue-id="185" description="Subtitles, clipping and ad insertion are only supported if you use `DefaultMediaSourceFactory`." %}
 
 [playlist API]: {{ site.baseurl }}/playlists.html
 [`MediaItem.Builder` Javadoc]: {{ site.exo_sdk }}/MediaItem.Builder.html

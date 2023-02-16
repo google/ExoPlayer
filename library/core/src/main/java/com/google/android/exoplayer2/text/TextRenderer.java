@@ -418,7 +418,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   @SideEffectFree
   private long getCurrentEventTimeUs(long positionUs) {
     int nextEventTimeIndex = subtitle.getNextEventTimeIndex(positionUs);
-    if (nextEventTimeIndex == 0) {
+    if (nextEventTimeIndex == 0 || subtitle.getEventTimeCount() == 0) {
       return subtitle.timeUs;
     }
 

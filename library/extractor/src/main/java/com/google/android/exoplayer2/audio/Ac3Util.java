@@ -78,6 +78,8 @@ public final class Ac3Util {
     public final int frameSize;
     /** Number of audio samples in the frame. */
     public final int sampleCount;
+    /** The bitrate of audio samples. */
+    public final int bitrate;
 
     private SyncFrameInfo(
         @Nullable String mimeType,
@@ -85,13 +87,15 @@ public final class Ac3Util {
         int channelCount,
         int sampleRate,
         int frameSize,
-        int sampleCount) {
+        int sampleCount,
+        int bitrate) {
       this.mimeType = mimeType;
       this.streamType = streamType;
       this.channelCount = channelCount;
       this.sampleRate = sampleRate;
       this.frameSize = frameSize;
       this.sampleCount = sampleCount;
+      this.bitrate = bitrate;
     }
   }
 
@@ -149,13 +153,21 @@ public final class Ac3Util {
    */
   public static Format parseAc3AnnexFFormat(
       ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
-    int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
+    ParsableBitArray dataBitArray = new ParsableBitArray();
+    dataBitArray.reset(data);
+
+    int fscod = dataBitArray.readBits(2);
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
-    int nextByte = data.readUnsignedByte();
-    int channelCount = CHANNEL_COUNT_BY_ACMOD[(nextByte & 0x38) >> 3];
-    if ((nextByte & 0x04) != 0) { // lfeon
+    dataBitArray.skipBits(8); // bsid, bsmod
+    int channelCount = CHANNEL_COUNT_BY_ACMOD[dataBitArray.readBits(3)]; // acmod
+    if (dataBitArray.readBits(1) != 0) { // lfeon
       channelCount++;
     }
+    int halfFrmsizecod = dataBitArray.readBits(5); // bit_rate_code
+    int constantBitrate = BITRATE_BY_HALF_FRMSIZECOD[halfFrmsizecod] * 1000;
+    // Update data position
+    dataBitArray.byteAlign();
+    data.setPosition(dataBitArray.getBytePosition());
     return new Format.Builder()
         .setId(trackId)
         .setSampleMimeType(MimeTypes.AUDIO_AC3)
@@ -163,6 +175,8 @@ public final class Ac3Util {
         .setSampleRate(sampleRate)
         .setDrmInitData(drmInitData)
         .setLanguage(language)
+        .setAverageBitrate(constantBitrate)
+        .setPeakBitrate(constantBitrate)
         .build();
   }
 
@@ -178,35 +192,45 @@ public final class Ac3Util {
    */
   public static Format parseEAc3AnnexFFormat(
       ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
-    data.skipBytes(2); // data_rate, num_ind_sub
+    ParsableBitArray dataBitArray = new ParsableBitArray();
+    dataBitArray.reset(data);
+
+    int peakBitrate = dataBitArray.readBits(13) * 1000; // data_rate
+    dataBitArray.skipBits(3); // num_ind_sub
 
     // Read the first independent substream.
-    int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
+    int fscod = dataBitArray.readBits(2);
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
-    int nextByte = data.readUnsignedByte();
-    int channelCount = CHANNEL_COUNT_BY_ACMOD[(nextByte & 0x0E) >> 1];
-    if ((nextByte & 0x01) != 0) { // lfeon
+    dataBitArray.skipBits(10); // bsid, reserved, asvc, bsmod
+    int channelCount = CHANNEL_COUNT_BY_ACMOD[dataBitArray.readBits(3)]; // acmod
+    if (dataBitArray.readBits(1) != 0) { // lfeon
       channelCount++;
     }
 
     // Read the first dependent substream.
-    nextByte = data.readUnsignedByte();
-    int numDepSub = ((nextByte & 0x1E) >> 1);
+    dataBitArray.skipBits(3); // reserved
+    int numDepSub = dataBitArray.readBits(4); // num_dep_sub
+    dataBitArray.skipBits(1); // numDepSub > 0 ? LFE2 : reserved
     if (numDepSub > 0) {
-      int lowByteChanLoc = data.readUnsignedByte();
+      dataBitArray.skipBytes(6); // other channel configurations
       // Read Lrs/Rrs pair
       // TODO: Read other channel configuration
-      if ((lowByteChanLoc & 0x02) != 0) {
+      if (dataBitArray.readBits(1) != 0) {
         channelCount += 2;
       }
+      dataBitArray.skipBits(1); // Lc/Rc pair
     }
+
     String mimeType = MimeTypes.AUDIO_E_AC3;
-    if (data.bytesLeft() > 0) {
-      nextByte = data.readUnsignedByte();
-      if ((nextByte & 0x01) != 0) { // flag_ec3_extension_type_a
+    if (dataBitArray.bitsLeft() > 7) {
+      dataBitArray.skipBits(7); // reserved
+      if (dataBitArray.readBits(1) != 0) { // flag_ec3_extension_type_a
         mimeType = MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
+    // Update data position
+    dataBitArray.byteAlign();
+    data.setPosition(dataBitArray.getBytePosition());
     return new Format.Builder()
         .setId(trackId)
         .setSampleMimeType(mimeType)
@@ -214,6 +238,7 @@ public final class Ac3Util {
         .setSampleRate(sampleRate)
         .setDrmInitData(drmInitData)
         .setLanguage(language)
+        .setPeakBitrate(peakBitrate)
         .build();
   }
 
@@ -238,6 +263,7 @@ public final class Ac3Util {
     int sampleCount;
     boolean lfeon;
     int channelCount;
+    int bitrate;
     if (isEac3) {
       // Subsection E.1.2.
       data.skipBits(16); // syncword
@@ -270,6 +296,7 @@ public final class Ac3Util {
         sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
       }
       sampleCount = AUDIO_SAMPLES_PER_AUDIO_BLOCK * audioBlocks;
+      bitrate = calculateEac3Bitrate(frameSize, sampleRate, audioBlocks);
       acmod = data.readBits(3);
       lfeon = data.readBit();
       channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
@@ -425,6 +452,7 @@ public final class Ac3Util {
         mimeType = null;
       }
       int frmsizecod = data.readBits(6);
+      bitrate = BITRATE_BY_HALF_FRMSIZECOD[frmsizecod / 2] * 1000;
       frameSize = getAc3SyncframeSize(fscod, frmsizecod);
       data.skipBits(5 + 3); // bsid, bsmod
       acmod = data.readBits(3);
@@ -444,7 +472,7 @@ public final class Ac3Util {
       channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
     }
     return new SyncFrameInfo(
-        mimeType, streamType, channelCount, sampleRate, frameSize, sampleCount);
+        mimeType, streamType, channelCount, sampleRate, frameSize, sampleCount, bitrate);
   }
 
   /**
@@ -564,6 +592,16 @@ public final class Ac3Util {
     } else { // sampleRate == 48000
       return 4 * bitrate;
     }
+  }
+
+  /**
+   * Derived from the formula defined in F.6.2.2 to calculate data_rate for the (E-)AC3 bitstream.
+   * Note: The formula is based on frmsiz read from the spec. We already do some modifications to it
+   * when deriving frameSize from the read value. The formula used here is adapted to accommodate
+   * that modification.
+   */
+  private static int calculateEac3Bitrate(int frameSize, int sampleRate, int audioBlocks) {
+    return (frameSize * sampleRate) / (audioBlocks * 32);
   }
 
   private Ac3Util() {}

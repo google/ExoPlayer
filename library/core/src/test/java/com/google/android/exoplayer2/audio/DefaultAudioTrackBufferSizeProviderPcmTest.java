@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.ceil;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -89,6 +90,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize).isEqualTo(roundUpToFrame(1234567890));
@@ -103,6 +105,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize)
@@ -121,6 +124,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize)
@@ -139,6 +143,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize)
@@ -157,6 +162,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize)
@@ -175,6 +181,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     assertThat(bufferSize)
@@ -190,6 +197,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 1 / 5F);
 
     assertThat(bufferSize)
@@ -205,6 +213,7 @@ public class DefaultAudioTrackBufferSizeProviderPcmTest {
             /* outputMode= */ OUTPUT_MODE_PCM,
             /* pcmFrameSize= */ getPcmFrameSize(),
             /* sampleRate= */ sampleRate,
+            /* bitrate= */ Format.NO_VALUE,
             /* maxAudioTrackPlaybackSpeed= */ 8F);
 
     int expected = roundUpToFrame(durationUsToBytes(DEFAULT.minPcmBufferDurationUs) * 8);

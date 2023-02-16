@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -32,7 +33,8 @@ public class TextInformationFrameTest {
 
   @Test
   public void parcelable() {
-    TextInformationFrame textInformationFrameToParcel = new TextInformationFrame("", "", "");
+    TextInformationFrame textInformationFrameToParcel =
+        new TextInformationFrame("", "", ImmutableList.of(""));
 
     Parcel parcel = Parcel.obtain();
     textInformationFrameToParcel.writeToParcel(parcel, 0);
@@ -62,28 +64,42 @@ public class TextInformationFrameTest {
 
     List<Metadata.Entry> entries =
         ImmutableList.of(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title),
-            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ artist),
             new TextInformationFrame(
-                /* id= */ "TAL", /* description= */ null, /* value= */ albumTitle),
+                /* id= */ "TT2", /* description= */ null, /* values= */ ImmutableList.of(title)),
             new TextInformationFrame(
-                /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
+                /* id= */ "TP1", /* description= */ null, /* values= */ ImmutableList.of(artist)),
             new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
+                /* id= */ "TAL",
+                /* description= */ null,
+                /* values= */ ImmutableList.of(albumTitle)),
             new TextInformationFrame(
-                /* id= */ "TYE", /* description= */ null, /* value= */ recordingYear),
+                /* id= */ "TP2",
+                /* description= */ null,
+                /* values= */ ImmutableList.of(albumArtist)),
+            new TextInformationFrame(
+                /* id= */ "TRK",
+                /* description= */ null,
+                /* values= */ ImmutableList.of(trackNumberInfo)),
+            new TextInformationFrame(
+                /* id= */ "TYE",
+                /* description= */ null,
+                /* values= */ ImmutableList.of(recordingYear)),
             new TextInformationFrame(
                 /* id= */ "TDA",
                 /* description= */ null,
-                /* value= */ recordingDay + recordingMonth),
+                /* values= */ ImmutableList.of(recordingDay + recordingMonth)),
             new TextInformationFrame(
-                /* id= */ "TDRL", /* description= */ null, /* value= */ releaseDate),
+                /* id= */ "TDRL",
+                /* description= */ null,
+                /* values= */ ImmutableList.of(releaseDate)),
             new TextInformationFrame(
-                /* id= */ "TCM", /* description= */ null, /* value= */ composer),
+                /* id= */ "TCM", /* description= */ null, /* values= */ ImmutableList.of(composer)),
             new TextInformationFrame(
-                /* id= */ "TP3", /* description= */ null, /* value= */ conductor),
+                /* id= */ "TP3",
+                /* description= */ null,
+                /* values= */ ImmutableList.of(conductor)),
             new TextInformationFrame(
-                /* id= */ "TXT", /* description= */ null, /* value= */ writer));
+                /* id= */ "TXT", /* description= */ null, /* values= */ ImmutableList.of(writer)));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     for (Metadata.Entry entry : entries) {
@@ -107,5 +123,42 @@ public class TextInformationFrameTest {
     assertThat(mediaMetadata.composer.toString()).isEqualTo(composer);
     assertThat(mediaMetadata.conductor.toString()).isEqualTo(conductor);
     assertThat(mediaMetadata.writer.toString()).isEqualTo(writer);
+  }
+
+  @Test
+  public void emptyValuesListThrowsException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new TextInformationFrame("TXXX", "description", ImmutableList.of()));
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated field
+  public void deprecatedValueStillPopulated() {
+    TextInformationFrame frame =
+        new TextInformationFrame("TXXX", "description", ImmutableList.of("value"));
+
+    assertThat(frame.value).isEqualTo("value");
+    assertThat(frame.values).containsExactly("value");
+  }
+
+  @Test
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // Testing deprecated constructor
+  public void deprecatedConstructorPopulatesValuesList() {
+    TextInformationFrame frame = new TextInformationFrame("TXXX", "description", "value");
+
+    assertThat(frame.value).isEqualTo("value");
+    assertThat(frame.values).containsExactly("value");
+  }
+
+  @Test
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // Testing deprecated constructor
+  public void deprecatedConstructorCreatesEqualInstance() {
+    TextInformationFrame frame1 = new TextInformationFrame("TXXX", "description", "value");
+    TextInformationFrame frame2 =
+        new TextInformationFrame("TXXX", "description", ImmutableList.of("value"));
+
+    assertThat(frame1).isEqualTo(frame2);
+    assertThat(frame1.hashCode()).isEqualTo(frame2.hashCode());
   }
 }

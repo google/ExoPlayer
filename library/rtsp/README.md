@@ -33,5 +33,5 @@ instances and pass them directly to the player.
 *   [Developer Guide][]
 *   [Javadoc][]
 
-[Developer Guide]: https://exoplayer.dev/dash.html
+[Developer Guide]: https://exoplayer.dev/rtsp.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

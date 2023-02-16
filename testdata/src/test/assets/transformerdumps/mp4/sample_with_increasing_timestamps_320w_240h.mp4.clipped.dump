@@ -8,7 +8,7 @@ format 0:
   channelCount = 2
   sampleRate = 48000
   language = en
-  metadata = entries=[TSSE: description=null: value=Lavf58.76.100]
+  metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
   initializationData:
     data = length 2, hash 560
 format 1:
