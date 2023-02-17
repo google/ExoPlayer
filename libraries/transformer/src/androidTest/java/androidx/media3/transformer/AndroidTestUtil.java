@@ -23,6 +23,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import android.content.Context;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
@@ -30,8 +31,8 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Util;
-import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -596,13 +597,7 @@ public final class AndroidTestUtil {
   public static boolean skipAndLogIfFormatsUnsupported(
       Context context, String testId, Format inputFormat, @Nullable Format outputFormat)
       throws IOException, JSONException {
-    boolean canDecode = false;
-    @Nullable MediaCodecUtil.DecoderQueryException queryException = null;
-    try {
-      canDecode = canDecode(inputFormat);
-    } catch (MediaCodecUtil.DecoderQueryException e) {
-      queryException = e;
-    }
+    boolean canDecode = canDecode(inputFormat);
 
     boolean canEncode = outputFormat == null || canEncode(outputFormat);
     boolean canMux = outputFormat == null || canMux(outputFormat);
@@ -613,12 +608,9 @@ public final class AndroidTestUtil {
     StringBuilder skipReasonBuilder = new StringBuilder();
     if (!canDecode) {
       skipReasonBuilder.append("Cannot decode ").append(inputFormat).append('\n');
-      if (queryException != null) {
-        skipReasonBuilder.append(queryException).append('\n');
-      }
     }
     if (!canEncode) {
-      skipReasonBuilder.append("Cannot encode ").append(outputFormat);
+      skipReasonBuilder.append("Cannot encode ").append(outputFormat).append('\n');
     }
     if (!canMux) {
       skipReasonBuilder.append("Cannot mux ").append(outputFormat);
@@ -705,25 +697,18 @@ public final class AndroidTestUtil {
     }
   }
 
-  private static boolean canDecode(Format format) throws MediaCodecUtil.DecoderQueryException {
+  private static boolean canDecode(Format format) {
+    // Check decoding capability in the same way as the default decoder factory.
+    MediaFormat mediaFormat = MediaFormatUtil.createMediaFormatFromFormat(format);
     @Nullable
-    MediaCodecInfo decoderInfo =
-        MediaCodecUtil.getDecoderInfo(
-            checkNotNull(format.sampleMimeType), /* secure= */ false, /* tunneling= */ false);
-    if (decoderInfo == null) {
-      return false;
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+    if (codecProfileAndLevel != null) {
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
-    // Use Format.NO_VALUE for frame rate to only check whether size is supported.
-    return decoderInfo.isVideoSizeAndRateSupportedV21(
-        format.width, format.height, /* frameRate= */ Format.NO_VALUE);
+    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null;
   }
 
-  /**
-   * Returns whether the top ranked encoder from {@link EncoderUtil#getSupportedEncoders} supports
-   * the given resolution and {@linkplain Format#averageBitrate bitrate}.
-   *
-   * <p>Assumes support encoding if the {@link Format#averageBitrate bitrate} is not set.
-   */
   private static boolean canEncode(Format format) {
     String mimeType = checkNotNull(format.sampleMimeType);
     ImmutableList<android.media.MediaCodecInfo> supportedEncoders =
@@ -742,7 +727,6 @@ public final class AndroidTestUtil {
     return sizeSupported && bitrateSupported;
   }
 
-  /** Returns whether the specified format can be muxed via the default muxer. */
   private static boolean canMux(Format format) {
     String mimeType = checkNotNull(format.sampleMimeType);
     return new DefaultMuxer.Factory()
