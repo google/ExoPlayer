@@ -22,7 +22,7 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
-import androidx.media3.effect.ScaleToFitTransformation;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
@@ -57,7 +57,7 @@ public final class RepeatedTranscodeTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
     ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
@@ -90,7 +90,7 @@ public final class RepeatedTranscodeTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
     ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();

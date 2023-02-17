@@ -50,7 +50,7 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.Presentation;
-import androidx.media3.effect.ScaleToFitTransformation;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.exoplayer.audio.SilenceSkippingAudioProcessor;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -965,7 +965,7 @@ public final class TransformerEndToEndTest {
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(
             Presentation.createForHeight(mediaItemHeightPixels),
-            new ScaleToFitTransformation.Builder().build());
+            new ScaleAndRotateTransformation.Builder().build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();

@@ -30,7 +30,7 @@ import android.net.Uri;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
-import androidx.media3.effect.ScaleToFitTransformation;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -244,7 +244,7 @@ public class ExportTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
     ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();

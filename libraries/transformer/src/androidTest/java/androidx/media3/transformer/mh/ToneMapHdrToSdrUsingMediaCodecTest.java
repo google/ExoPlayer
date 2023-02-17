@@ -27,7 +27,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
-import androidx.media3.effect.ScaleToFitTransformation;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
@@ -161,7 +161,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
     ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
@@ -208,7 +209,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
     ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(180).build());
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();

@@ -36,9 +36,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>The background color of the output frame will be black, with alpha = 0 if applicable.
  */
 @UnstableApi
-public final class ScaleToFitTransformation implements MatrixTransformation {
+public final class ScaleAndRotateTransformation implements MatrixTransformation {
 
-  /** A builder for {@link ScaleToFitTransformation} instances. */
+  /** A builder for {@link ScaleAndRotateTransformation} instances. */
   public static final class Builder {
 
     // Optional fields.
@@ -87,8 +87,8 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
       return this;
     }
 
-    public ScaleToFitTransformation build() {
-      return new ScaleToFitTransformation(scaleX, scaleY, rotationDegrees);
+    public ScaleAndRotateTransformation build() {
+      return new ScaleAndRotateTransformation(scaleX, scaleY, rotationDegrees);
     }
   }
 
@@ -102,7 +102,7 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
    * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
    * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
    */
-  private ScaleToFitTransformation(float scaleX, float scaleY, float rotationDegrees) {
+  private ScaleAndRotateTransformation(float scaleX, float scaleY, float rotationDegrees) {
     transformationMatrix = new Matrix();
     transformationMatrix.postScale(scaleX, scaleY);
     transformationMatrix.postRotate(rotationDegrees);

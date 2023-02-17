@@ -70,7 +70,7 @@ import androidx.media3.effect.Presentation;
 import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
-import androidx.media3.effect.ScaleToFitTransformation;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.SimpleBitmapLoader;
 import androidx.media3.effect.SingleColorLut;
 import androidx.media3.effect.TextOverlay;
@@ -547,7 +547,7 @@ public final class TransformerActivity extends AppCompatActivity {
         bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
     if (scaleX != 1f || scaleY != 1f || rotateDegrees != 0f) {
       effects.add(
-          new ScaleToFitTransformation.Builder()
+          new ScaleAndRotateTransformation.Builder()
               .setScale(scaleX, scaleY)
               .setRotationDegrees(rotateDegrees)
               .build());

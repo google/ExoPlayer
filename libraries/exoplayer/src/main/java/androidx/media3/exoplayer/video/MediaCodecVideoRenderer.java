@@ -2288,16 +2288,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     private static final class VideoFrameProcessorAccessor {
 
-      private static @MonotonicNonNull Constructor<?> scaleToFitTransformationBuilderConstructor;
+      private static @MonotonicNonNull Constructor<?>
+          scaleAndRotateTransformationBuilderConstructor;
       private static @MonotonicNonNull Method setRotationMethod;
-      private static @MonotonicNonNull Method buildScaleToFitTransformationMethod;
+      private static @MonotonicNonNull Method buildScaleAndRotateTransformationMethod;
       private static @MonotonicNonNull Constructor<?> videoFrameProcessorFactoryConstructor;
 
       public static Effect createRotationEffect(float rotationDegrees) throws Exception {
         prepare();
-        Object builder = scaleToFitTransformationBuilderConstructor.newInstance();
+        Object builder = scaleAndRotateTransformationBuilderConstructor.newInstance();
         setRotationMethod.invoke(builder, rotationDegrees);
-        return (Effect) checkNotNull(buildScaleToFitTransformationMethod.invoke(builder));
+        return (Effect) checkNotNull(buildScaleAndRotateTransformationMethod.invoke(builder));
       }
 
       public static VideoFrameProcessor.Factory getFrameProcessorFactory() throws Exception {
@@ -2306,23 +2307,23 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
 
       @EnsuresNonNull({
-        "ScaleToFitEffectBuilder",
+        "ScaleAndRotateEffectBuilder",
         "SetRotationMethod",
         "SetRotationMethod",
         "VideoFrameProcessorFactoryClass"
       })
       private static void prepare() throws Exception {
-        if (scaleToFitTransformationBuilderConstructor == null
+        if (scaleAndRotateTransformationBuilderConstructor == null
             || setRotationMethod == null
-            || buildScaleToFitTransformationMethod == null) {
-          Class<?> scaleToFitTransformationBuilderClass =
-              Class.forName("androidx.media3.effect.ScaleToFitTransformation$Builder");
-          scaleToFitTransformationBuilderConstructor =
-              scaleToFitTransformationBuilderClass.getConstructor();
+            || buildScaleAndRotateTransformationMethod == null) {
+          Class<?> scaleAndRotateTransformationBuilderClass =
+              Class.forName("androidx.media3.effect.ScaleAndRotateTransformation$Builder");
+          scaleAndRotateTransformationBuilderConstructor =
+              scaleAndRotateTransformationBuilderClass.getConstructor();
           setRotationMethod =
-              scaleToFitTransformationBuilderClass.getMethod("setRotationDegrees", float.class);
-          buildScaleToFitTransformationMethod =
-              scaleToFitTransformationBuilderClass.getMethod("build");
+              scaleAndRotateTransformationBuilderClass.getMethod("setRotationDegrees", float.class);
+          buildScaleAndRotateTransformationMethod =
+              scaleAndRotateTransformationBuilderClass.getMethod("build");
         }
         if (videoFrameProcessorFactoryConstructor == null) {
           videoFrameProcessorFactoryConstructor =
