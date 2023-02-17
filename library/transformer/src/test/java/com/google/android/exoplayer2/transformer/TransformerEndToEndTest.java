@@ -279,14 +279,17 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void start_silentAudioOnAudioOnly_isIgnored() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .experimentalSetGenerateSilentAudio(true)
-            .build();
+  public void start_forceAudioTrackOnAudioOnly_isIgnored() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition(
+            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
 
-    transformer.start(mediaItem, outputPath);
+    transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -294,31 +297,36 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void start_silentAudioOnAudioVideo_isIgnored() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .experimentalSetGenerateSilentAudio(true)
-            .build();
+  public void start_forceAudioTrackOnAudioVideo_isIgnored() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition(
+            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
 
-    transformer.start(mediaItem, outputPath);
+    transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
   }
 
   @Test
-  public void start_silentAudioRemoveAudio_completesSuccessfully() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .experimentalSetGenerateSilentAudio(true)
-            .build();
+  public void start_forceAudioTrackAndRemoveAudio_generatesSilentAudio() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
             .setRemoveAudio(true)
             .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition(
+            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
 
-    transformer.start(editedMediaItem, outputPath);
+    transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -326,31 +334,36 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void start_silentAudioRemoveVideo_isIgnored() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .experimentalSetGenerateSilentAudio(true)
-            .build();
+  public void start_forceAudioTrackAndRemoveVideo_isIgnored() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
             .setRemoveVideo(true)
             .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition(
+            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
 
-    transformer.start(editedMediaItem, outputPath);
+    transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
   }
 
   @Test
-  public void start_silentAudioOnVideoOnly_completesSuccessfully() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .experimentalSetGenerateSilentAudio(true)
-            .build();
+  public void start_forceAudioTrackOnVideoOnly_generatesSilentAudio() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition(
+            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
 
-    transformer.start(mediaItem, outputPath);
+    transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(

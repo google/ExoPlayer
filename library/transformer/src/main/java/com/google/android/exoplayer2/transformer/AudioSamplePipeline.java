@@ -66,16 +66,15 @@ import org.checkerframework.dataflow.qual.Pure;
       TransformationRequest transformationRequest,
       boolean flattenForSlowMotion,
       ImmutableList<AudioProcessor> audioProcessors,
-      long generateSilentAudioDurationUs,
+      long forceAudioTrackDurationUs,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
-    if (generateSilentAudioDurationUs != C.TIME_UNSET) {
-      silentAudioGenerator =
-          new SilentAudioGenerator(firstInputFormat, generateSilentAudioDurationUs);
+    if (forceAudioTrackDurationUs != C.TIME_UNSET) {
+      silentAudioGenerator = new SilentAudioGenerator(firstInputFormat, forceAudioTrackDurationUs);
     } else {
       silentAudioGenerator = null;
     }
