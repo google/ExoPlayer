@@ -67,7 +67,7 @@ public final class VideoFrameProcessorTestRunner {
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
       isInputTextureExternal = true;
-      onOutputFrameAvailableListener = (unused) -> {};
+      onOutputFrameAvailableListener = unused -> {};
     }
 
     /**
@@ -189,7 +189,7 @@ public final class VideoFrameProcessorTestRunner {
      * <p>The default value is a no-op.
      */
     @CanIgnoreReturnValue
-    public Builder setOnFrameAvailableListener(
+    public Builder setOnOutputFrameAvailableListener(
         OnOutputFrameAvailableListener onOutputFrameAvailableListener) {
       this.onOutputFrameAvailableListener = onOutputFrameAvailableListener;
       return this;
