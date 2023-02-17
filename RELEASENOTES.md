@@ -122,6 +122,9 @@ This release corresponds to the
 *   Cast extension:
     *   Bump Cast SDK version to 21.2.0.
 *   IMA extension:
+    *   Map `PLAYER_STATE_LOADING` to `STATE_BUFFERING`
+        ([#245](\(https://github.com/androidx/media/issues/245\)).
+*   IMA extension
     *   Remove player listener of the `ImaServerSideAdInsertionMediaSource` on
         the application thread to avoid threading issues.
     *   Add a property `focusSkipButtonWhenAvailable` to the
