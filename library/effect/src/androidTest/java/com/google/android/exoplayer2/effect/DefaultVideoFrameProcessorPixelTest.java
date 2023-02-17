@@ -199,15 +199,15 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  public void matrixAndScaleToFitTransformation_matchesGoldenFile() throws Exception {
-    String testId = "matrixAndScaleToFitTransformation_matchesGoldenFile";
+  public void matrixAndScaleAndRotateTransformation_matchesGoldenFile() throws Exception {
+    String testId = "matrixAndScaleAndRotateTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix,
-                new ScaleToFitTransformation.Builder().setRotationDegrees(45).build())
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build())
             .build();
     Bitmap expectedBitmap = readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
@@ -239,14 +239,14 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  public void scaleToFitAndMatrixTransformation_matchesGoldenFile() throws Exception {
-    String testId = "scaleToFitAndMatrixTransformation_matchesGoldenFile";
+  public void scaleAndRotateAndMatrixTransformation_matchesGoldenFile() throws Exception {
+    String testId = "scaleAndRotateAndMatrixTransformation_matchesGoldenFile";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
-                new ScaleToFitTransformation.Builder().setRotationDegrees(45).build(),
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build(),
                 (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix)
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
@@ -298,11 +298,11 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  public void scaleToFitTransformation_rotate45_matchesGoldenFile() throws Exception {
-    String testId = "scaleToFitTransformation_rotate45_matchesGoldenFile";
+  public void scaleAndRotateTransformation_rotate45_matchesGoldenFile() throws Exception {
+    String testId = "scaleAndRotateTransformation_rotate45_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setEffects(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build())
+            .setEffects(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build())
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
@@ -315,15 +315,15 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  public void twoWrappedScaleToFitTransformations_matchesGoldenFile() throws Exception {
-    String testId = "twoWrappedScaleToFitTransformations_matchesGoldenFile";
+  public void twoWrappedScaleAndRotateTransformations_matchesGoldenFile() throws Exception {
+    String testId = "twoWrappedScaleAndRotateTransformations_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setEffects(
                 new GlEffectWrapper(
-                    new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()),
+                    new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build()),
                 new GlEffectWrapper(
-                    new ScaleToFitTransformation.Builder()
+                    new ScaleAndRotateTransformation.Builder()
                         .setScale(/* scaleX= */ 2, /* scaleY= */ 1)
                         .build()))
             .build();
@@ -510,8 +510,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
    * Specifies a counter-clockwise rotation while accounting for the aspect ratio difference between
    * the input frame in pixel coordinates and NDC.
    *
-   * <p>Unlike {@link ScaleToFitTransformation}, this does not adjust the output size or scale to
-   * preserve input pixels. Pixels rotated out of the frame are clipped.
+   * <p>Unlike {@link ScaleAndRotateTransformation}, this does not adjust the output size or scale
+   * to preserve input pixels. Pixels rotated out of the frame are clipped.
    */
   private static final class Rotation implements MatrixTransformation {
 

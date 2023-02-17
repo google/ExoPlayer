@@ -30,7 +30,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
+import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
@@ -244,7 +244,7 @@ public class ExportTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
     ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
+        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();

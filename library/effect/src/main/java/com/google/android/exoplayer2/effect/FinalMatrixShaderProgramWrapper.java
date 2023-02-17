@@ -393,7 +393,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         new ImmutableList.Builder<GlMatrixTransformation>().addAll(matrixTransformations);
     if (outputSurfaceInfo.orientationDegrees != 0) {
       matrixTransformationListBuilder.add(
-          new ScaleToFitTransformation.Builder()
+          new ScaleAndRotateTransformation.Builder()
               .setRotationDegrees(outputSurfaceInfo.orientationDegrees)
               .build());
     }

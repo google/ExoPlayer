@@ -23,23 +23,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Unit tests for {@link ScaleToFitTransformation}.
+ * Unit tests for {@link ScaleAndRotateTransformation}.
  *
  * <p>See {@code MatrixShaderProgramPixelTest} for pixel tests testing {@link MatrixShaderProgram}
  * given a transformation matrix.
  */
 @RunWith(AndroidJUnit4.class)
-public final class ScaleToFitTransformationTest {
+public final class ScaleAndRotateTransformationTest {
 
   @Test
   public void configure_noEdits_leavesFramesUnchanged() {
     int inputWidth = 200;
     int inputHeight = 150;
-    ScaleToFitTransformation scaleToFitTransformation =
-        new ScaleToFitTransformation.Builder().build();
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().build();
 
-    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
-    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
+    Size outputSize = scaleAndRotateTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleAndRotateTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
@@ -50,13 +50,13 @@ public final class ScaleToFitTransformationTest {
   public void configure_scaleNarrow_decreasesWidth() {
     int inputWidth = 200;
     int inputHeight = 150;
-    ScaleToFitTransformation scaleToFitTransformation =
-        new ScaleToFitTransformation.Builder()
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder()
             .setScale(/* scaleX= */ 0.5f, /* scaleY= */ 1f)
             .build();
 
-    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
-    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
+    Size outputSize = scaleAndRotateTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleAndRotateTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * 0.5f));
@@ -67,11 +67,13 @@ public final class ScaleToFitTransformationTest {
   public void configure_scaleWide_increasesWidth() {
     int inputWidth = 200;
     int inputHeight = 150;
-    ScaleToFitTransformation scaleToFitTransformation =
-        new ScaleToFitTransformation.Builder().setScale(/* scaleX= */ 2f, /* scaleY= */ 1f).build();
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder()
+            .setScale(/* scaleX= */ 2f, /* scaleY= */ 1f)
+            .build();
 
-    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
-    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
+    Size outputSize = scaleAndRotateTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleAndRotateTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth * 2);
@@ -82,11 +84,13 @@ public final class ScaleToFitTransformationTest {
   public void configure_scaleTall_increasesHeight() {
     int inputWidth = 200;
     int inputHeight = 150;
-    ScaleToFitTransformation scaleToFitTransformation =
-        new ScaleToFitTransformation.Builder().setScale(/* scaleX= */ 1f, /* scaleY= */ 2f).build();
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder()
+            .setScale(/* scaleX= */ 1f, /* scaleY= */ 2f)
+            .build();
 
-    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
-    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
+    Size outputSize = scaleAndRotateTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleAndRotateTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
@@ -97,11 +101,11 @@ public final class ScaleToFitTransformationTest {
   public void configure_rotate90_swapsDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
-    ScaleToFitTransformation scaleToFitTransformation =
-        new ScaleToFitTransformation.Builder().setRotationDegrees(90).build();
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build();
 
-    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
-    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
+    Size outputSize = scaleAndRotateTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleAndRotateTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
@@ -112,12 +116,12 @@ public final class ScaleToFitTransformationTest {
   public void configure_rotate45_changesDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
-    ScaleToFitTransformation scaleToFitTransformation =
-        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build();
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build();
     long expectedOutputWidthHeight = 247;
 
-    Size outputSize = scaleToFitTransformation.configure(inputWidth, inputHeight);
-    boolean isNoOp = scaleToFitTransformation.isNoOp(inputWidth, inputHeight);
+    Size outputSize = scaleAndRotateTransformation.configure(inputWidth, inputHeight);
+    boolean isNoOp = scaleAndRotateTransformation.isNoOp(inputWidth, inputHeight);
 
     assertThat(isNoOp).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);

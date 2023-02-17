@@ -67,7 +67,7 @@ import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbAdjustment;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
-import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
+import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.effect.SimpleBitmapLoader;
 import com.google.android.exoplayer2.effect.SingleColorLut;
 import com.google.android.exoplayer2.effect.TextOverlay;
@@ -548,7 +548,7 @@ public final class TransformerActivity extends AppCompatActivity {
         bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
     if (scaleX != 1f || scaleY != 1f || rotateDegrees != 0f) {
       effects.add(
-          new ScaleToFitTransformation.Builder()
+          new ScaleAndRotateTransformation.Builder()
               .setScale(scaleX, scaleY)
               .setRotationDegrees(rotateDegrees)
               .build());
