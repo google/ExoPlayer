@@ -105,7 +105,7 @@ import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** An {@link Activity} that transforms and plays media using {@link Transformer}. */
+/** An {@link Activity} that exports and plays media using {@link Transformer}. */
 public final class TransformerActivity extends AppCompatActivity {
   private static final String TAG = "TransformerActivity";
 
@@ -119,7 +119,7 @@ public final class TransformerActivity extends AppCompatActivity {
   private @MonotonicNonNull TextView informationTextView;
   private @MonotonicNonNull ViewGroup progressViewGroup;
   private @MonotonicNonNull LinearProgressIndicator progressIndicator;
-  private @MonotonicNonNull Stopwatch transformationStopwatch;
+  private @MonotonicNonNull Stopwatch exportStopwatch;
   private @MonotonicNonNull AspectRatioFrameLayout debugFrame;
 
   @Nullable private DebugTextViewHelper debugTextViewHelper;
@@ -146,7 +146,7 @@ public final class TransformerActivity extends AppCompatActivity {
     displayInputButton = findViewById(R.id.display_input_button);
     displayInputButton.setOnClickListener(this::toggleInputVideoDisplay);
 
-    transformationStopwatch =
+    exportStopwatch =
         Stopwatch.createUnstarted(
             new Ticker() {
               @Override
@@ -162,7 +162,7 @@ public final class TransformerActivity extends AppCompatActivity {
 
     checkNotNull(progressIndicator);
     checkNotNull(informationTextView);
-    checkNotNull(transformationStopwatch);
+    checkNotNull(exportStopwatch);
     checkNotNull(inputCardView);
     checkNotNull(inputTextView);
     checkNotNull(inputImageView);
@@ -172,7 +172,7 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(progressViewGroup);
     checkNotNull(debugFrame);
     checkNotNull(displayInputButton);
-    startTransformation();
+    startExport();
 
     inputPlayerView.onResume();
     outputPlayerView.onResume();
@@ -185,9 +185,9 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(transformer).cancel();
     transformer = null;
 
-    // The stop watch is reset after cancelling the transformation, in case cancelling causes the
-    // stop watch to be stopped in a transformer callback.
-    checkNotNull(transformationStopwatch).reset();
+    // The stop watch is reset after cancelling the export, in case cancelling causes the stop watch
+    // to be stopped in a transformer callback.
+    checkNotNull(exportStopwatch).reset();
 
     checkNotNull(inputPlayerView).onPause();
     checkNotNull(outputPlayerView).onPause();
@@ -207,11 +207,11 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugTextView",
     "informationTextView",
     "progressIndicator",
-    "transformationStopwatch",
+    "exportStopwatch",
     "progressViewGroup",
     "debugFrame",
   })
-  private void startTransformation() {
+  private void startExport() {
     requestReadVideoPermission(/* activity= */ this);
 
     Intent intent = getIntent();
@@ -227,7 +227,7 @@ public final class TransformerActivity extends AppCompatActivity {
     try {
       Transformer transformer = createTransformer(bundle, filePath);
       EditedMediaItem editedMediaItem = createEditedMediaItem(mediaItem, bundle);
-      transformationStopwatch.start();
+      exportStopwatch.start();
       transformer.start(editedMediaItem, filePath);
       this.transformer = transformer;
     } catch (PackageManager.NameNotFoundException e) {
@@ -235,7 +235,7 @@ public final class TransformerActivity extends AppCompatActivity {
     }
     inputCardView.setVisibility(View.GONE);
     outputPlayerView.setVisibility(View.GONE);
-    informationTextView.setText(R.string.transformation_started);
+    informationTextView.setText(R.string.export_started);
     progressViewGroup.setVisibility(View.VISIBLE);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
@@ -247,9 +247,7 @@ public final class TransformerActivity extends AppCompatActivity {
                 && transformer.getProgress(progressHolder) != PROGRESS_STATE_NOT_STARTED) {
               progressIndicator.setProgress(progressHolder.progress);
               informationTextView.setText(
-                  getString(
-                      R.string.transformation_timer,
-                      transformationStopwatch.elapsed(TimeUnit.SECONDS)));
+                  getString(R.string.export_timer, exportStopwatch.elapsed(TimeUnit.SECONDS)));
               mainHandler.postDelayed(/* r= */ this, /* delayMillis= */ 500);
             }
           }
@@ -283,7 +281,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "displayInputButton",
     "debugTextView",
     "informationTextView",
-    "transformationStopwatch",
+    "exportStopwatch",
     "progressViewGroup",
     "debugFrame",
   })
@@ -310,7 +308,7 @@ public final class TransformerActivity extends AppCompatActivity {
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
                   .build());
 
-      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_TRANSFORMATION)) {
+      if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_EXPORT)) {
         transformerBuilder.setMuxerFactory(
             new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
       }
@@ -345,10 +343,10 @@ public final class TransformerActivity extends AppCompatActivity {
   private File createExternalCacheFile(String fileName) throws IOException {
     File file = new File(getExternalCacheDir(), fileName);
     if (file.exists() && !file.delete()) {
-      throw new IllegalStateException("Could not delete the previous transformer output file");
+      throw new IllegalStateException("Could not delete the previous export output file");
     }
     if (!file.createNewFile()) {
-      throw new IllegalStateException("Could not create the transformer output file");
+      throw new IllegalStateException("Could not create the export output file");
     }
     return file;
   }
@@ -356,7 +354,7 @@ public final class TransformerActivity extends AppCompatActivity {
   @RequiresNonNull({
     "inputCardView",
     "outputPlayerView",
-    "transformationStopwatch",
+    "exportStopwatch",
     "progressViewGroup",
   })
   private EditedMediaItem createEditedMediaItem(MediaItem mediaItem, @Nullable Bundle bundle)
@@ -619,13 +617,13 @@ public final class TransformerActivity extends AppCompatActivity {
     "informationTextView",
     "progressViewGroup",
     "debugFrame",
-    "transformationStopwatch",
+    "exportStopwatch",
   })
   private void onError(ExportException exportException) {
-    if (transformationStopwatch.isRunning()) {
-      transformationStopwatch.stop();
+    if (exportStopwatch.isRunning()) {
+      exportStopwatch.stop();
     }
-    informationTextView.setText(R.string.transformation_error);
+    informationTextView.setText(R.string.export_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
     Toast.makeText(getApplicationContext(), "Export error: " + exportException, Toast.LENGTH_LONG)
@@ -644,13 +642,12 @@ public final class TransformerActivity extends AppCompatActivity {
     "informationTextView",
     "progressViewGroup",
     "debugFrame",
-    "transformationStopwatch",
+    "exportStopwatch",
   })
   private void onCompleted(String filePath, MediaItem inputMediaItem) {
-    transformationStopwatch.stop();
+    exportStopwatch.stop();
     informationTextView.setText(
-        getString(
-            R.string.transformation_completed, transformationStopwatch.elapsed(TimeUnit.SECONDS)));
+        getString(R.string.export_completed, exportStopwatch.elapsed(TimeUnit.SECONDS)));
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
     inputCardView.setVisibility(View.VISIBLE);
@@ -775,7 +772,7 @@ public final class TransformerActivity extends AppCompatActivity {
     public SurfaceView getDebugPreviewSurfaceView(int width, int height) {
       checkState(
           surfaceView == null || (this.width == width && this.height == height),
-          "Transformer should not change the output size mid-transformation.");
+          "Transformer should not change the output size mid-export.");
       if (surfaceView != null) {
         return surfaceView;
       }
