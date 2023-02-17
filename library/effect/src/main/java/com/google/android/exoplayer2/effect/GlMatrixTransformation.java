@@ -53,7 +53,7 @@ public interface GlMatrixTransformation extends GlEffect {
   @Override
   default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
-    return MatrixShaderProgram.create(
+    return DefaultShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(this),
         /* rgbMatrices= */ ImmutableList.of(),

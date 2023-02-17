@@ -229,14 +229,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /**
    * Combines consecutive {@link GlMatrixTransformation} and {@link RgbMatrix} instances into a
-   * single {@link MatrixShaderProgram} and converts all other {@link GlEffect} instances to
+   * single {@link DefaultShaderProgram} and converts all other {@link GlEffect} instances to
    * separate {@link GlShaderProgram} instances.
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
    * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order. The
    *     first is an {@link ExternalShaderProgram} and the last is a {@link
-   *     FinalMatrixShaderProgramWrapper}.
+   *     FinalShaderProgramWrapper}.
    */
   private static ImmutableList<GlShaderProgram> getGlShaderProgramsForGlEffects(
       Context context,
@@ -284,23 +284,23 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
       boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
       if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
-        MatrixShaderProgram matrixShaderProgram;
+        DefaultShaderProgram defaultShaderProgram;
         if (sampleFromInputTexture) {
           if (isInputTextureExternal) {
-            matrixShaderProgram =
-                MatrixShaderProgram.createWithExternalSampler(
+            defaultShaderProgram =
+                DefaultShaderProgram.createWithExternalSampler(
                     context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
           } else {
-            matrixShaderProgram =
-                MatrixShaderProgram.createWithInternalSampler(
+            defaultShaderProgram =
+                DefaultShaderProgram.createWithInternalSampler(
                     context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
           }
         } else {
-          matrixShaderProgram =
-              MatrixShaderProgram.create(
+          defaultShaderProgram =
+              DefaultShaderProgram.create(
                   context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
         }
-        shaderProgramListBuilder.add(matrixShaderProgram);
+        shaderProgramListBuilder.add(defaultShaderProgram);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         rgbMatrixListBuilder = new ImmutableList.Builder<>();
         sampleFromInputTexture = false;
@@ -309,7 +309,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
 
     shaderProgramListBuilder.add(
-        new FinalMatrixShaderProgramWrapper(
+        new FinalShaderProgramWrapper(
             context,
             eglDisplay,
             eglContext,
@@ -357,7 +357,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private @MonotonicNonNull InternalTextureManager inputInternalTextureManager;
   private @MonotonicNonNull ExternalTextureManager inputExternalTextureManager;
   private final boolean releaseFramesAutomatically;
-  private final FinalMatrixShaderProgramWrapper finalShaderProgramWrapper;
+  private final FinalShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
 
   /**
@@ -384,7 +384,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.releaseFramesAutomatically = releaseFramesAutomatically;
 
     checkState(!shaderPrograms.isEmpty());
-    checkState(getLast(shaderPrograms) instanceof FinalMatrixShaderProgramWrapper);
+    checkState(getLast(shaderPrograms) instanceof FinalShaderProgramWrapper);
 
     GlShaderProgram inputShaderProgram = shaderPrograms.get(0);
 
@@ -400,7 +400,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       inputShaderProgram.setInputListener(inputInternalTextureManager);
     }
 
-    finalShaderProgramWrapper = (FinalMatrixShaderProgramWrapper) getLast(shaderPrograms);
+    finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
     allShaderPrograms = shaderPrograms;
     previousStreamOffsetUs = C.TIME_UNSET;
   }

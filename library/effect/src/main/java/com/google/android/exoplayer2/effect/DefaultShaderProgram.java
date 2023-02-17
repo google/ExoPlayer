@@ -50,7 +50,7 @@ import java.util.List;
  * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
  */
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
-/* package */ final class MatrixShaderProgram extends SingleFrameGlShaderProgram
+/* package */ final class DefaultShaderProgram extends SingleFrameGlShaderProgram
     implements ExternalShaderProgram {
 
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
@@ -144,7 +144,7 @@ import java.util.List;
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
    *     OpenGL operation fails or is unsupported.
    */
-  public static MatrixShaderProgram create(
+  public static DefaultShaderProgram create(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -155,7 +155,7 @@ import java.util.List;
             context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
 
     // No transfer functions needed, because input and output are both optical colors.
-    return new MatrixShaderProgram(
+    return new DefaultShaderProgram(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -186,7 +186,7 @@ import java.util.List;
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
    *     OpenGL operation fails or is unsupported.
    */
-  public static MatrixShaderProgram createWithInternalSampler(
+  public static DefaultShaderProgram createWithInternalSampler(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -195,7 +195,7 @@ import java.util.List;
       throws VideoFrameProcessingException {
     checkState(
         !ColorInfo.isTransferHdr(inputColorInfo),
-        "MatrixShaderProgram doesn't support HDR internal sampler input yet.");
+        "DefaultShaderProgram doesn't support HDR internal sampler input yet.");
     GlProgram glProgram =
         createGlProgram(
             context,
@@ -230,7 +230,7 @@ import java.util.List;
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
    *     OpenGL operation fails or is unsupported.
    */
-  public static MatrixShaderProgram createWithExternalSampler(
+  public static DefaultShaderProgram createWithExternalSampler(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -273,7 +273,7 @@ import java.util.List;
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
    *     OpenGL operation fails or is unsupported.
    */
-  public static MatrixShaderProgram createApplyingOetf(
+  public static DefaultShaderProgram createApplyingOetf(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -301,7 +301,7 @@ import java.util.List;
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     }
 
-    return new MatrixShaderProgram(
+    return new DefaultShaderProgram(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -309,7 +309,7 @@ import java.util.List;
         outputIsHdr);
   }
 
-  private static MatrixShaderProgram createWithSampler(
+  private static DefaultShaderProgram createWithSampler(
       GlProgram glProgram,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -353,7 +353,7 @@ import java.util.List;
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     }
 
-    return new MatrixShaderProgram(
+    return new DefaultShaderProgram(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -373,7 +373,7 @@ import java.util.List;
    * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
    *     EXT_YUV_target} OpenGL extension.
    */
-  private MatrixShaderProgram(
+  private DefaultShaderProgram(
       GlProgram glProgram,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
@@ -460,7 +460,7 @@ import java.util.List;
   /**
    * Sets the output {@link C.ColorTransfer}.
    *
-   * <p>This method must not be called on {@code MatrixShaderProgram} instances that output
+   * <p>This method must not be called on {@code DefaultShaderProgram} instances that output
    * {@linkplain C#COLOR_TRANSFER_LINEAR linear colors}.
    */
   public void setOutputColorTransfer(@C.ColorTransfer int colorTransfer) {

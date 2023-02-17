@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link ScaleAndRotateTransformation}.
  *
- * <p>See {@code MatrixShaderProgramPixelTest} for pixel tests testing {@link MatrixShaderProgram}
+ * <p>See {@code DefaultShaderProgramPixelTest} for pixel tests testing {@link DefaultShaderProgram}
  * given a transformation matrix.
  */
 @RunWith(AndroidJUnit4.class)

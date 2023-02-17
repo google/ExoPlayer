@@ -51,17 +51,17 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Wrapper around a {@link GlShaderProgram} that writes to the provided output surface and optional
- * debug surface view.
+ * Wrapper around a {@link DefaultShaderProgram} that writes to the provided output surface and
+ * optional debug surface view.
  *
- * <p>The wrapped {@link GlShaderProgram} applies the {@link GlMatrixTransformation} and {@link
+ * <p>The wrapped {@link DefaultShaderProgram} applies the {@link GlMatrixTransformation} and {@link
  * RgbMatrix} instances passed to the constructor, followed by any transformations needed to convert
  * the frames to the dimensions specified by the provided {@link SurfaceInfo}.
  *
- * <p>This wrapper is used for the final {@link GlShaderProgram} instance in the chain of {@link
- * GlShaderProgram} instances used by {@link VideoFrameProcessor}.
+ * <p>This wrapper is used for the final {@link DefaultShaderProgram} instance in the chain of
+ * {@link DefaultShaderProgram} instances used by {@link VideoFrameProcessor}.
  */
-/* package */ final class FinalMatrixShaderProgramWrapper implements ExternalShaderProgram {
+/* package */ final class FinalShaderProgramWrapper implements ExternalShaderProgram {
 
   private static final String TAG = "FinalShaderWrapper";
 
@@ -84,7 +84,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private int inputWidth;
   private int inputHeight;
-  @Nullable private MatrixShaderProgram matrixShaderProgram;
+  @Nullable private DefaultShaderProgram defaultShaderProgram;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private InputListener inputListener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
@@ -100,7 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private EGLSurface outputEglSurface;
 
-  public FinalMatrixShaderProgramWrapper(
+  public FinalShaderProgramWrapper(
       Context context,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
@@ -197,8 +197,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void flush() {
     // Drops all frames that aren't released yet.
     availableFrames.clear();
-    if (matrixShaderProgram != null) {
-      matrixShaderProgram.flush();
+    if (defaultShaderProgram != null) {
+      defaultShaderProgram.flush();
     }
     inputListener.onFlush();
     inputListener.onReadyToAcceptInputFrame();
@@ -207,8 +207,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   @WorkerThread
   public synchronized void release() throws VideoFrameProcessingException {
-    if (matrixShaderProgram != null) {
-      matrixShaderProgram.release();
+    if (defaultShaderProgram != null) {
+      defaultShaderProgram.release();
     }
     try {
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
@@ -226,8 +226,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* destPost= */ 0,
         /* length= */ textureTransformMatrix.length);
 
-    if (matrixShaderProgram != null) {
-      matrixShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
+    if (defaultShaderProgram != null) {
+      defaultShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     }
   }
 
@@ -296,7 +296,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     EGLSurface outputEglSurface = this.outputEglSurface;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-    MatrixShaderProgram matrixShaderProgram = this.matrixShaderProgram;
+    DefaultShaderProgram defaultShaderProgram = this.defaultShaderProgram;
 
     GlUtil.focusEglSurface(
         eglDisplay,
@@ -305,7 +305,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
     GlUtil.clearOutputFrame();
-    matrixShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+    defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(
         eglDisplay,
@@ -317,7 +317,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @EnsuresNonNullIf(
-      expression = {"outputSurfaceInfo", "outputEglSurface", "matrixShaderProgram"},
+      expression = {"outputSurfaceInfo", "outputEglSurface", "defaultShaderProgram"},
       result = true)
   private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws VideoFrameProcessingException, GlUtil.GlException {
@@ -341,9 +341,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (outputSurfaceInfo == null) {
-      if (matrixShaderProgram != null) {
-        matrixShaderProgram.release();
-        matrixShaderProgram = null;
+      if (defaultShaderProgram != null) {
+        defaultShaderProgram.release();
+        defaultShaderProgram = null;
       }
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
       outputEglSurface = null;
@@ -373,13 +373,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.debugSurfaceView = debugSurfaceView;
     }
 
-    if (matrixShaderProgram != null && outputSizeOrRotationChanged) {
-      matrixShaderProgram.release();
-      matrixShaderProgram = null;
+    if (defaultShaderProgram != null && outputSizeOrRotationChanged) {
+      defaultShaderProgram.release();
+      defaultShaderProgram = null;
       outputSizeOrRotationChanged = false;
     }
-    if (matrixShaderProgram == null) {
-      matrixShaderProgram = createMatrixShaderProgramForOutputSurface(outputSurfaceInfo);
+    if (defaultShaderProgram == null) {
+      defaultShaderProgram = createDefaultShaderProgramForOutputSurface(outputSurfaceInfo);
     }
 
     this.outputSurfaceInfo = outputSurfaceInfo;
@@ -387,7 +387,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return true;
   }
 
-  private MatrixShaderProgram createMatrixShaderProgramForOutputSurface(
+  private DefaultShaderProgram createDefaultShaderProgramForOutputSurface(
       SurfaceInfo outputSurfaceInfo) throws VideoFrameProcessingException {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<GlMatrixTransformation>().addAll(matrixTransformations);
@@ -401,21 +401,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Presentation.createForWidthAndHeight(
             outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
 
-    MatrixShaderProgram matrixShaderProgram;
+    DefaultShaderProgram defaultShaderProgram;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
         matrixTransformationListBuilder.build();
     if (sampleFromInputTexture) {
       if (isInputTextureExternal) {
-        matrixShaderProgram =
-            MatrixShaderProgram.createWithExternalSampler(
+        defaultShaderProgram =
+            DefaultShaderProgram.createWithExternalSampler(
                 context,
                 expandedMatrixTransformations,
                 rgbMatrices,
                 inputColorInfo,
                 outputColorInfo);
       } else {
-        matrixShaderProgram =
-            MatrixShaderProgram.createWithInternalSampler(
+        defaultShaderProgram =
+            DefaultShaderProgram.createWithInternalSampler(
                 context,
                 expandedMatrixTransformations,
                 rgbMatrices,
@@ -423,34 +423,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 outputColorInfo);
       }
     } else {
-      matrixShaderProgram =
-          MatrixShaderProgram.createApplyingOetf(
+      defaultShaderProgram =
+          DefaultShaderProgram.createApplyingOetf(
               context, expandedMatrixTransformations, rgbMatrices, outputColorInfo);
     }
 
-    matrixShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
-    Size outputSize = matrixShaderProgram.configure(inputWidth, inputHeight);
+    defaultShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
     checkState(outputSize.getWidth() == outputSurfaceInfo.width);
     checkState(outputSize.getHeight() == outputSurfaceInfo.height);
-    return matrixShaderProgram;
+    return defaultShaderProgram;
   }
 
   private void maybeRenderFrameToDebugSurface(TextureInfo inputTexture, long presentationTimeUs) {
-    if (debugSurfaceViewWrapper == null || this.matrixShaderProgram == null) {
+    if (debugSurfaceViewWrapper == null || this.defaultShaderProgram == null) {
       return;
     }
 
-    MatrixShaderProgram matrixShaderProgram = this.matrixShaderProgram;
+    DefaultShaderProgram defaultShaderProgram = this.defaultShaderProgram;
     try {
       debugSurfaceViewWrapper.maybeRenderToSurfaceView(
           () -> {
             GlUtil.clearOutputFrame();
             @C.ColorTransfer
-            int configuredColorTransfer = matrixShaderProgram.getOutputColorTransfer();
-            matrixShaderProgram.setOutputColorTransfer(
+            int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
+            defaultShaderProgram.setOutputColorTransfer(
                 checkNotNull(debugSurfaceViewWrapper).outputColorTransfer);
-            matrixShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
-            matrixShaderProgram.setOutputColorTransfer(configuredColorTransfer);
+            defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+            defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
           });
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       Log.d(TAG, "Error rendering to debug preview", e);
