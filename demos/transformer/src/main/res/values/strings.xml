@@ -29,20 +29,20 @@
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
-  <string name="abort_slow_transformation" translatable="false">Abort slow transformation</string>
+  <string name="abort_slow_export" translatable="false">Abort slow export</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="hdr_mode" translatable="false">HDR mode</string>
   <string name="select_audio_effects" translatable="false">Add audio effects</string>
   <string name="select_video_effects" translatable="false">Add video effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
   <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipeShaderProgram. Check the README for instructions.</string>
-  <string name="transform" translatable="false">Transform</string>
+  <string name="export" translatable="false">Export</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
-  <string name="transformation_started" translatable="false">Transformation started</string>
-  <string name="transformation_timer" translatable="false">Transformation started %d seconds ago.</string>
-  <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
-  <string name="transformation_error" translatable="false">Transformation error</string>
+  <string name="export_started" translatable="false">Export started</string>
+  <string name="export_timer" translatable="false">Export started %d seconds ago.</string>
+  <string name="export_completed" translatable="false">Export completed in %d seconds.</string>
+  <string name="export_error" translatable="false">Export error</string>
   <string name="trim_range">Bounds in seconds</string>
   <string-array name="color_filter_options">
     <item>Grayscale</item>

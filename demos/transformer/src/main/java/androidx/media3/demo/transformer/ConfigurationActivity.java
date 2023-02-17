@@ -55,7 +55,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * An {@link Activity} that sets the configuration to use for transforming and playing media, using
+ * An {@link Activity} that sets the configuration to use for exporting and playing media, using
  * {@link TransformerActivity}.
  */
 public final class ConfigurationActivity extends AppCompatActivity {
@@ -73,7 +73,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
-  public static final String ABORT_SLOW_TRANSFORMATION = "abort_slow_transformation";
+  public static final String ABORT_SLOW_EXPORT = "abort_slow_export";
   public static final String HDR_MODE = "hdr_mode";
   public static final String AUDIO_EFFECTS_SELECTIONS = "audio_effects_selections";
   public static final String VIDEO_EFFECTS_SELECTIONS = "video_effects_selections";
@@ -222,7 +222,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
-  private @MonotonicNonNull CheckBox abortSlowTransformationCheckBox;
+  private @MonotonicNonNull CheckBox abortSlowExportCheckBox;
   private @MonotonicNonNull Spinner hdrModeSpinner;
   private @MonotonicNonNull Button selectAudioEffectsButton;
   private @MonotonicNonNull Button selectVideoEffectsButton;
@@ -255,7 +255,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.configuration_activity);
 
-    findViewById(R.id.transform_button).setOnClickListener(this::startTransformation);
+    findViewById(R.id.export_button).setOnClickListener(this::startExport);
 
     selectPresetFileButton = findViewById(R.id.select_preset_file_button);
     selectPresetFileButton.setOnClickListener(this::selectPresetFile);
@@ -325,7 +325,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableDebugPreviewCheckBox = findViewById(R.id.enable_debug_preview_checkbox);
 
-    abortSlowTransformationCheckBox = findViewById(R.id.abort_slow_transformation_checkbox);
+    abortSlowExportCheckBox = findViewById(R.id.abort_slow_export_checkbox);
 
     ArrayAdapter<String> hdrModeAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
@@ -394,12 +394,12 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "trimCheckBox",
     "enableFallbackCheckBox",
     "enableDebugPreviewCheckBox",
-    "abortSlowTransformationCheckBox",
+    "abortSlowExportCheckBox",
     "hdrModeSpinner",
     "audioEffectsSelections",
     "videoEffectsSelections"
   })
-  private void startTransformation(View view) {
+  private void startExport(View view) {
     Intent transformerIntent = new Intent(/* packageContext= */ this, TransformerActivity.class);
     Bundle bundle = new Bundle();
     bundle.putBoolean(SHOULD_REMOVE_AUDIO, removeAudioCheckbox.isChecked());
@@ -435,7 +435,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
     bundle.putBoolean(ENABLE_DEBUG_PREVIEW, enableDebugPreviewCheckBox.isChecked());
-    bundle.putBoolean(ABORT_SLOW_TRANSFORMATION, abortSlowTransformationCheckBox.isChecked());
+    bundle.putBoolean(ABORT_SLOW_EXPORT, abortSlowExportCheckBox.isChecked());
     String selectedhdrMode = String.valueOf(hdrModeSpinner.getSelectedItem());
     bundle.putInt(HDR_MODE, checkNotNull(HDR_MODE_DESCRIPTIONS.get(selectedhdrMode)));
     bundle.putBooleanArray(AUDIO_EFFECTS_SELECTIONS, audioEffectsSelections);
