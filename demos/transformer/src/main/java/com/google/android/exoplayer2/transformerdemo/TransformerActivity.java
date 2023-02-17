@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -41,6 +42,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -66,6 +68,7 @@ import com.google.android.exoplayer2.effect.RgbAdjustment;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
+import com.google.android.exoplayer2.effect.SimpleBitmapLoader;
 import com.google.android.exoplayer2.effect.SingleColorLut;
 import com.google.android.exoplayer2.effect.TextOverlay;
 import com.google.android.exoplayer2.effect.TextureOverlay;
@@ -81,6 +84,7 @@ import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -91,10 +95,12 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -105,6 +111,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private @MonotonicNonNull Button displayInputButton;
   private @MonotonicNonNull MaterialCardView inputCardView;
+  private @MonotonicNonNull TextView inputTextView;
+  private @MonotonicNonNull ImageView inputImageView;
   private @MonotonicNonNull StyledPlayerView inputPlayerView;
   private @MonotonicNonNull StyledPlayerView outputPlayerView;
   private @MonotonicNonNull TextView debugTextView;
@@ -126,6 +134,8 @@ public final class TransformerActivity extends AppCompatActivity {
     setContentView(R.layout.transformer_activity);
 
     inputCardView = findViewById(R.id.input_card_view);
+    inputTextView = findViewById(R.id.input_text_view);
+    inputImageView = findViewById(R.id.input_image_view);
     inputPlayerView = findViewById(R.id.input_player_view);
     outputPlayerView = findViewById(R.id.output_player_view);
     debugTextView = findViewById(R.id.debug_text_view);
@@ -154,6 +164,8 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(informationTextView);
     checkNotNull(transformationStopwatch);
     checkNotNull(inputCardView);
+    checkNotNull(inputTextView);
+    checkNotNull(inputImageView);
     checkNotNull(inputPlayerView);
     checkNotNull(outputPlayerView);
     checkNotNull(debugTextView);
@@ -187,6 +199,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "inputCardView",
+    "inputTextView",
+    "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
     "displayInputButton",
@@ -262,6 +276,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "inputCardView",
+    "inputTextView",
+    "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
     "displayInputButton",
@@ -349,6 +365,8 @@ public final class TransformerActivity extends AppCompatActivity {
     if (bundle == null) {
       return editedMediaItemBuilder.build();
     }
+    // For image inputs. Automatically ignored if input is audio/video.
+    editedMediaItemBuilder.setDurationUs(5_000_000).setFrameRate(30);
     ImmutableList<AudioProcessor> audioProcessors = createAudioProcessorsFromBundle(bundle);
     ImmutableList<Effect> videoEffects = createVideoEffectsFromBundle(bundle);
     return editedMediaItemBuilder
@@ -617,6 +635,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "inputCardView",
+    "inputTextView",
+    "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
     "displayInputButton",
@@ -642,6 +662,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
   @RequiresNonNull({
     "inputCardView",
+    "inputTextView",
+    "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
     "debugTextView",
@@ -650,14 +672,7 @@ public final class TransformerActivity extends AppCompatActivity {
     inputPlayerView.setPlayer(null);
     outputPlayerView.setPlayer(null);
     releasePlayer();
-
-    ExoPlayer inputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
-    inputPlayerView.setPlayer(inputPlayer);
-    inputPlayerView.setControllerAutoShow(false);
-    inputPlayer.setMediaItem(inputMediaItem);
-    inputPlayer.prepare();
-    this.inputPlayer = inputPlayer;
-    inputPlayer.setVolume(0f);
+    Uri uri = checkNotNull(inputMediaItem.localConfiguration).uri;
 
     ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     outputPlayerView.setPlayer(outputPlayer);
@@ -666,7 +681,34 @@ public final class TransformerActivity extends AppCompatActivity {
     outputPlayer.prepare();
     this.outputPlayer = outputPlayer;
 
-    inputPlayer.play();
+    // Only support showing jpg images.
+    if (uri.toString().endsWith("jpg")) {
+      inputPlayerView.setVisibility(View.GONE);
+      inputImageView.setVisibility(View.VISIBLE);
+      inputTextView.setText(getString(R.string.input_image));
+
+      BitmapLoader bitmapLoader = new SimpleBitmapLoader();
+      ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(uri);
+      try {
+        Bitmap bitmap = future.get();
+        inputImageView.setImageBitmap(bitmap);
+      } catch (ExecutionException | InterruptedException e) {
+        throw new IllegalArgumentException("Failed to load bitmap.", e);
+      }
+    } else {
+      inputPlayerView.setVisibility(View.VISIBLE);
+      inputImageView.setVisibility(View.GONE);
+      inputTextView.setText(getString(R.string.input_video));
+
+      ExoPlayer inputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
+      inputPlayerView.setPlayer(inputPlayer);
+      inputPlayerView.setControllerAutoShow(false);
+      inputPlayer.setMediaItem(inputMediaItem);
+      inputPlayer.prepare();
+      this.inputPlayer = inputPlayer;
+      inputPlayer.setVolume(0f);
+      inputPlayer.play();
+    }
     outputPlayer.play();
 
     debugTextViewHelper = new DebugTextViewHelper(outputPlayer, debugTextView);
@@ -709,7 +751,9 @@ public final class TransformerActivity extends AppCompatActivity {
       inputCardView.setVisibility(View.VISIBLE);
       displayInputButton.setText(getString(R.string.hide_input_video));
     } else if (inputCardView.getVisibility() == View.VISIBLE) {
-      checkNotNull(inputPlayer).pause();
+      if (inputPlayer != null) {
+        inputPlayer.pause();
+      }
       inputCardView.setVisibility(View.GONE);
       displayInputButton.setText(getString(R.string.show_input_video));
     }

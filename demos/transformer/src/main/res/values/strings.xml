@@ -61,6 +61,7 @@
   <string name="hue_adjustment">Hue adjustment</string>
   <string name="saturation_adjustment">Saturation adjustment</string>
   <string name="lightness_adjustment">Lightness adjustment</string>
+  <string name="input_image">Input image:</string>
   <string name="input_video">Input video:</string>
   <string name="output_video">Output video:</string>
   <string name="permission_denied">Permission Denied</string>
