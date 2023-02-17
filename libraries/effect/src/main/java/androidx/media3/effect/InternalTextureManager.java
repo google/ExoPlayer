@@ -29,6 +29,7 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Forwards a video frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for
@@ -43,10 +44,12 @@ import java.util.concurrent.LinkedBlockingQueue;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
 
+  private @MonotonicNonNull TextureInfo currentTextureInfo;
   private int downstreamShaderProgramCapacity;
   private int framesToQueueForCurrentBitmap;
   private long currentPresentationTimeUs;
   private boolean inputEnded;
+  private boolean useHdr;
   private boolean outputEnded;
 
   /**
@@ -67,10 +70,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
   @Override
   public void onReadyToAcceptInputFrame() {
-    // TODO(b/262693274): Delete texture when last duplicate of the frame comes back from the shader
-    //    program and change to only allocate one texId at a time. A change to the
-    //    onInputFrameProcessed() method signature to include presentationTimeUs will probably be
-    //    needed to do this.
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           downstreamShaderProgramCapacity++;
@@ -105,48 +104,54 @@ import java.util.concurrent.LinkedBlockingQueue;
   @WorkerThread
   private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
-
+    this.useHdr = useHdr;
     if (inputEnded) {
       return;
     }
-    int bitmapTexId;
-    try {
-      bitmapTexId =
-          GlUtil.createTexture(
-              bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ useHdr);
-      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTexId);
-      GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-      GlUtil.checkGlError();
-    } catch (GlUtil.GlException e) {
-      throw VideoFrameProcessingException.from(e);
-    }
-    TextureInfo textureInfo =
-        new TextureInfo(
-            bitmapTexId, /* fboId= */ C.INDEX_UNSET, bitmap.getWidth(), bitmap.getHeight());
     int framesToAdd = (int) floor(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     long frameDurationUs = (long) floor(C.MICROS_PER_SECOND / frameRate);
-    pendingBitmaps.add(new BitmapFrameSequenceInfo(textureInfo, frameDurationUs, framesToAdd));
+    pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, frameDurationUs, framesToAdd));
 
     maybeQueueToShaderProgram();
   }
 
   @WorkerThread
-  private void maybeQueueToShaderProgram() {
+  private void maybeQueueToShaderProgram() throws VideoFrameProcessingException {
     if (pendingBitmaps.isEmpty() || downstreamShaderProgramCapacity == 0) {
       return;
     }
 
-    BitmapFrameSequenceInfo currentBitmap = checkNotNull(pendingBitmaps.peek());
+    BitmapFrameSequenceInfo currentBitmapInfo = checkNotNull(pendingBitmaps.peek());
     if (framesToQueueForCurrentBitmap == 0) {
-      framesToQueueForCurrentBitmap = currentBitmap.numberOfFrames;
+      Bitmap bitmap = currentBitmapInfo.bitmap;
+      framesToQueueForCurrentBitmap = currentBitmapInfo.numberOfFrames;
+      int currentTexId;
+      try {
+        if (currentTextureInfo != null) {
+          GlUtil.deleteTexture(currentTextureInfo.texId);
+        }
+        currentTexId =
+            GlUtil.createTexture(
+                bitmap.getWidth(),
+                bitmap.getHeight(),
+                /* useHighPrecisionColorComponents= */ useHdr);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, currentTexId);
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+        GlUtil.checkGlError();
+      } catch (GlUtil.GlException e) {
+        throw VideoFrameProcessingException.from(e);
+      }
+      currentTextureInfo =
+          new TextureInfo(
+              currentTexId, /* fboId= */ C.INDEX_UNSET, bitmap.getWidth(), bitmap.getHeight());
     }
 
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
 
-    shaderProgram.queueInputFrame(currentBitmap.textureInfo, currentPresentationTimeUs);
+    shaderProgram.queueInputFrame(checkNotNull(currentTextureInfo), currentPresentationTimeUs);
 
-    currentPresentationTimeUs += currentBitmap.frameDurationUs;
+    currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
     if (framesToQueueForCurrentBitmap == 0) {
       pendingBitmaps.remove();
       maybeSignalEndOfOutput();
@@ -166,13 +171,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
   /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
-    public final TextureInfo textureInfo;
+    public final Bitmap bitmap;
     public final long frameDurationUs;
     public final int numberOfFrames;
 
-    public BitmapFrameSequenceInfo(
-        TextureInfo textureInfo, long frameDurationUs, int numberOfFrames) {
-      this.textureInfo = textureInfo;
+    public BitmapFrameSequenceInfo(Bitmap bitmap, long frameDurationUs, int numberOfFrames) {
+      this.bitmap = bitmap;
       this.frameDurationUs = frameDurationUs;
       this.numberOfFrames = numberOfFrames;
     }
