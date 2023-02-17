@@ -64,7 +64,7 @@ public final class RgbFilterPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlShaderProgram matrixShaderProgram;
+  private @MonotonicNonNull SingleFrameGlShaderProgram defaultShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;
@@ -95,8 +95,8 @@ public final class RgbFilterPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
-    if (matrixShaderProgram != null) {
-      matrixShaderProgram.release();
+    if (defaultShaderProgram != null) {
+      defaultShaderProgram.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -105,11 +105,11 @@ public final class RgbFilterPixelTest {
   public void drawFrame_grayscale_producesGrayscaleImage() throws Exception {
     String testId = "drawFrame_grayscale";
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
-    matrixShaderProgram = grayscaleMatrix.toGlShaderProgram(context, /* useHdr= */ false);
-    Size outputSize = matrixShaderProgram.configure(inputWidth, inputHeight);
+    defaultShaderProgram = grayscaleMatrix.toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
-    matrixShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    defaultShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
@@ -123,11 +123,11 @@ public final class RgbFilterPixelTest {
   public void drawFrame_inverted_producesInvertedFrame() throws Exception {
     String testId = "drawFrame_inverted";
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
-    matrixShaderProgram = invertedMatrix.toGlShaderProgram(context, /* useHdr= */ false);
-    Size outputSize = matrixShaderProgram.configure(inputWidth, inputHeight);
+    defaultShaderProgram = invertedMatrix.toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
-    matrixShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    defaultShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
