@@ -229,6 +229,9 @@ public final class ExportException extends Exception {
       boolean isDecoder,
       Format format) {
     String details = "format=" + format;
+    if (isVideo) {
+      details += ", colorInfo=" + format.colorInfo;
+    }
     return createForCodec(cause, errorCode, isVideo, isDecoder, details);
   }
 
