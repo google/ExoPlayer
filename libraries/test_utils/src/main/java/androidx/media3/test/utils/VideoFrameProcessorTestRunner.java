@@ -27,8 +27,8 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
@@ -63,11 +63,13 @@ public final class VideoFrameProcessorTestRunner {
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
     private boolean isInputTextureExternal;
+    private OnOutputFrameAvailableListener onOutputFrameAvailableListener;
 
     /** Creates a new instance with default values. */
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
       isInputTextureExternal = true;
+      onOutputFrameAvailableListener = (unused) -> {};
     }
 
     /**
@@ -96,7 +98,7 @@ public final class VideoFrameProcessorTestRunner {
     /**
      * Sets the input video asset path.
      *
-     * <p>This is a required value.
+     * <p>No default value is set. Must be set when the input is a video file.
      */
     @CanIgnoreReturnValue
     public Builder setVideoAssetPath(String videoAssetPath) {
@@ -172,7 +174,8 @@ public final class VideoFrameProcessorTestRunner {
       return this;
     }
     /**
-     * Sets the input track type. See {@link VideoFrameProcessor.Factory#create}.
+     * Sets whether input comes from an external texture. See {@link
+     * VideoFrameProcessor.Factory#create}.
      *
      * <p>The default value is {@code true}.
      */
@@ -182,10 +185,21 @@ public final class VideoFrameProcessorTestRunner {
       return this;
     }
 
+    /**
+     * Sets the method to be called in {@link VideoFrameProcessor.Listener#onOutputFrameAvailable}.
+     *
+     * <p>The default value is a no-op.
+     */
+    @CanIgnoreReturnValue
+    public Builder setOnFrameAvailableListener(
+        OnOutputFrameAvailableListener onOutputFrameAvailableListener) {
+      this.onOutputFrameAvailableListener = onOutputFrameAvailableListener;
+      return this;
+    }
+
     public VideoFrameProcessorTestRunner build() throws VideoFrameProcessingException {
       checkStateNotNull(testId, "testId must be set.");
       checkStateNotNull(videoFrameProcessorFactory, "videoFrameProcessorFactory must be set.");
-      checkStateNotNull(videoAssetPath, "videoAssetPath must be set.");
 
       return new VideoFrameProcessorTestRunner(
           testId,
@@ -196,7 +210,8 @@ public final class VideoFrameProcessorTestRunner {
           pixelWidthHeightRatio,
           inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
           outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo,
-          isInputTextureExternal);
+          isInputTextureExternal,
+          onOutputFrameAvailableListener);
     }
   }
 
@@ -207,7 +222,7 @@ public final class VideoFrameProcessorTestRunner {
   private static final int VIDEO_FRAME_PROCESSING_WAIT_MS = 5000;
 
   private final String testId;
-  private final String videoAssetPath;
+  private final @MonotonicNonNull String videoAssetPath;
   private final String outputFileLabel;
   private final float pixelWidthHeightRatio;
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
@@ -220,13 +235,14 @@ public final class VideoFrameProcessorTestRunner {
   private VideoFrameProcessorTestRunner(
       String testId,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      String videoAssetPath,
+      @Nullable String videoAssetPath,
       String outputFileLabel,
       ImmutableList<Effect> effects,
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean isInputTextureExternal)
+      boolean isInputTextureExternal,
+      OnOutputFrameAvailableListener onOutputFrameAvailableListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
     this.videoAssetPath = videoAssetPath;
@@ -258,6 +274,7 @@ public final class VideoFrameProcessorTestRunner {
               @Override
               public void onOutputFrameAvailable(long presentationTimeUs) {
                 // Do nothing as frames are released automatically.
+                onOutputFrameAvailableListener.onFrameAvailable(presentationTimeUs);
               }
 
               @Override
@@ -274,7 +291,7 @@ public final class VideoFrameProcessorTestRunner {
 
   public Bitmap processFirstFrameAndEnd() throws Exception {
     DecodeOneFrameUtil.decodeOneAssetFileFrame(
-        videoAssetPath,
+        checkNotNull(videoAssetPath),
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
@@ -296,16 +313,15 @@ public final class VideoFrameProcessorTestRunner {
     return endFrameProcessingAndGetImage();
   }
 
-  public Bitmap processImageFrameAndEnd(Bitmap inputBitmap) throws Exception {
+  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
     videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    videoFrameProcessor.queueInputBitmap(inputBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
-    return endFrameProcessingAndGetImage();
+    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
-  private Bitmap endFrameProcessingAndGetImage() throws Exception {
+  public Bitmap endFrameProcessingAndGetImage() throws Exception {
     videoFrameProcessor.signalEndOfInput();
     Thread.sleep(VIDEO_FRAME_PROCESSING_WAIT_MS);
 
@@ -323,5 +339,9 @@ public final class VideoFrameProcessorTestRunner {
     if (videoFrameProcessor != null) {
       videoFrameProcessor.release();
     }
+  }
+
+  public interface OnOutputFrameAvailableListener {
+    void onFrameAvailable(long presentationTimeUs);
   }
 }
