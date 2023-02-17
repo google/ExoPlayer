@@ -273,14 +273,14 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
     assertThat(actualReleaseTimesNs).isEqualTo(releaseTimesNs);
   }
 
-  private interface OnFrameAvailableListener {
+  private interface OnOutputFrameAvailableListener {
     void onFrameAvailable(long presentationTimeUs);
   }
 
   @EnsuresNonNull("defaultVideoFrameProcessor")
   private void processFramesToEndOfStream(
       long[] inputPresentationTimesUs,
-      OnFrameAvailableListener onFrameAvailableListener,
+      OnOutputFrameAvailableListener onFrameAvailableListener,
       boolean releaseFramesAutomatically)
       throws Exception {
     AtomicReference<@NullableType VideoFrameProcessingException>

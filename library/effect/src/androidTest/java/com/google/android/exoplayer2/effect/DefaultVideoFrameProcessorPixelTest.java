@@ -27,6 +27,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.util.Effect;
@@ -109,7 +110,9 @@ public final class DefaultVideoFrameProcessorPixelTest {
         getDefaultFrameProcessorTestRunnerBuilder(testId).setIsInputTextureExternal(false).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processImageFrameAndEnd(expectedBitmap);
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        expectedBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -134,16 +137,15 @@ public final class DefaultVideoFrameProcessorPixelTest {
     Bitmap originalBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(WRAPPED_CROP_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processImageFrameAndEnd(originalBitmap);
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        originalBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
-  // TODO(b/262693274): Once texture deletion is added to InternalTextureManager.java, add a test
-  //  queuing multiple input bitmaps to ensure the operation successfully completes and that the
-  //  correct number of frames has been queued.
 
   @Test
   public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
