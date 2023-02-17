@@ -33,7 +33,6 @@ import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.audio.AudioProcessor;
-import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
@@ -86,7 +85,6 @@ public final class Transformer {
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
     private boolean transmux;
-    private boolean generateSilentAudio;
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
     private VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -123,7 +121,6 @@ public final class Transformer {
       this.videoEffects = transformer.videoEffects;
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
-      this.generateSilentAudio = transformer.generateSilentAudio;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
       this.videoFrameProcessorFactory = transformer.videoFrameProcessorFactory;
@@ -396,39 +393,6 @@ public final class Transformer {
     }
 
     /**
-     * Sets whether to generate silent audio for the output file, if there is no audio available.
-     *
-     * <p>This method is experimental and may be removed or changed without warning.
-     *
-     * <p>To replace existing audio with silence, {@linkplain
-     * EditedMediaItem.Builder#setRemoveAudio(boolean) remove the audio} from the {@link
-     * EditedMediaItem} to export.
-     *
-     * <p>Audio properties/format:
-     *
-     * <ul>
-     *   <li>Duration will match duration of the input media.
-     *   <li>Sample mime type will match {@link TransformationRequest#audioMimeType}, or {@link
-     *       MimeTypes#AUDIO_AAC} if {@code null}.
-     *   <li>Sample rate will be {@code 44100} Hz. This can be modified by creating a {@link
-     *       SonicAudioProcessor}, setting its {@linkplain
-     *       SonicAudioProcessor#setOutputSampleRateHz(int) sample rate}, and passing it to the
-     *       {@link EditedMediaItem} used to start the export.
-     *   <li>Channel count will be {@code 2}. This can be modified by implementing a custom {@link
-     *       AudioProcessor} and passing it to the {@link EditedMediaItem} used to start the export.
-     * </ul>
-     *
-     * @param generateSilentAudio Whether to generate silent audio for the output file if there is
-     *     no audio track.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder experimentalSetGenerateSilentAudio(boolean generateSilentAudio) {
-      this.generateSilentAudio = generateSilentAudio;
-      return this;
-    }
-
-    /**
      * Builds a {@link Transformer} instance.
      *
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
@@ -461,7 +425,6 @@ public final class Transformer {
           removeVideo,
           flattenForSlowMotion,
           transmux,
-          generateSilentAudio,
           listeners,
           assetLoaderFactory,
           videoFrameProcessorFactory,
@@ -620,7 +583,6 @@ public final class Transformer {
   private final boolean removeVideo;
   private final boolean flattenForSlowMotion;
   private final boolean transmux;
-  private final boolean generateSilentAudio;
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -641,7 +603,6 @@ public final class Transformer {
       boolean removeVideo,
       boolean flattenForSlowMotion,
       boolean transmux,
-      boolean generateSilentAudio,
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
@@ -659,7 +620,6 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.transmux = transmux;
-    this.generateSilentAudio = generateSilentAudio;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
@@ -779,7 +739,6 @@ public final class Transformer {
             path,
             transformationRequest,
             transmux,
-            generateSilentAudio,
             assetLoaderFactory,
             encoderFactory,
             muxerFactory,

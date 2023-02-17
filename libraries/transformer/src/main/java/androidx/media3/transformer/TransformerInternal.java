@@ -100,7 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ConditionVariable transformerConditionVariable;
   private final ExportResult.Builder exportResultBuilder;
 
-  private boolean generateSilentAudio;
+  private boolean forceAudioTrack;
   private boolean isDrainingPipelines;
   private @Transformer.ProgressState int progressState;
   private @MonotonicNonNull RuntimeException cancelException;
@@ -113,7 +113,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       String outputPath,
       TransformationRequest transformationRequest,
       boolean transmux,
-      boolean generateSilentAudio,
       AssetLoader.Factory assetLoaderFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
@@ -124,7 +123,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Clock clock) {
     this.context = context;
     this.transformationRequest = transformationRequest;
-    this.generateSilentAudio = generateSilentAudio;
+    this.forceAudioTrack = composition.experimentalForceAudioTrack;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
     this.applicationHandler = applicationHandler;
@@ -366,11 +365,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         throws ExportException {
       int trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
       if (!trackAdded) {
-        if (generateSilentAudio) {
+        if (forceAudioTrack) {
           if (trackCount.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
             trackCount.incrementAndGet();
           } else {
-            generateSilentAudio = false;
+            forceAudioTrack = false;
           }
         }
 
@@ -387,7 +386,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       compositeAssetLoader.addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
-      if (generateSilentAudio) {
+      if (forceAudioTrack) {
         Format silentAudioFormat =
             new Format.Builder()
                 .setSampleMimeType(MimeTypes.AUDIO_AAC)
@@ -479,7 +478,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             transformationRequest,
             firstEditedMediaItem.flattenForSlowMotion,
             firstEditedMediaItem.effects.audioProcessors,
-            generateSilentAudio ? durationUs : C.TIME_UNSET,
+            forceAudioTrack ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
             fallbackListener);
@@ -525,7 +524,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
         return true;
       }
-      if (generateSilentAudio) {
+      if (forceAudioTrack) {
         return true;
       }
 

@@ -116,9 +116,9 @@
         android:layout_weight="1">
         <TextView
           android:layout_gravity="center_vertical"
-          android:text="@string/generate_silent_audio" />
+          android:text="@string/force_audio_track" />
         <CheckBox
-          android:id="@+id/generate_silent_audio_checkbox"
+          android:id="@+id/force_audio_track_checkbox"
           android:layout_gravity="end" />
       </TableRow>
       <TableRow

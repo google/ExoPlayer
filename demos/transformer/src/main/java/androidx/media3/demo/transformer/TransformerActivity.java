@@ -82,6 +82,7 @@ import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.DefaultMuxer;
 import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.EditedMediaItemSequence;
 import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
@@ -99,6 +100,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -226,9 +229,9 @@ public final class TransformerActivity extends AppCompatActivity {
     MediaItem mediaItem = createMediaItem(bundle, uri);
     try {
       Transformer transformer = createTransformer(bundle, filePath);
-      EditedMediaItem editedMediaItem = createEditedMediaItem(mediaItem, bundle);
+      Composition composition = createComposition(mediaItem, bundle);
       exportStopwatch.start();
-      transformer.start(editedMediaItem, filePath);
+      transformer.start(composition, filePath);
       this.transformer = transformer;
     } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);
@@ -300,13 +303,10 @@ public final class TransformerActivity extends AppCompatActivity {
       requestBuilder.setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE));
       transformerBuilder.setTransformationRequest(requestBuilder.build());
 
-      transformerBuilder
-          .experimentalSetGenerateSilentAudio(
-              bundle.getBoolean(ConfigurationActivity.GENERATE_SILENT_AUDIO))
-          .setEncoderFactory(
-              new DefaultEncoderFactory.Builder(this.getApplicationContext())
-                  .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
-                  .build());
+      transformerBuilder.setEncoderFactory(
+          new DefaultEncoderFactory.Builder(this.getApplicationContext())
+              .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
+              .build());
 
       if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_EXPORT)) {
         transformerBuilder.setMuxerFactory(
@@ -357,23 +357,28 @@ public final class TransformerActivity extends AppCompatActivity {
     "exportStopwatch",
     "progressViewGroup",
   })
-  private EditedMediaItem createEditedMediaItem(MediaItem mediaItem, @Nullable Bundle bundle)
+  private Composition createComposition(MediaItem mediaItem, @Nullable Bundle bundle)
       throws PackageManager.NameNotFoundException {
     EditedMediaItem.Builder editedMediaItemBuilder = new EditedMediaItem.Builder(mediaItem);
-    if (bundle == null) {
-      return editedMediaItemBuilder.build();
-    }
     // For image inputs. Automatically ignored if input is audio/video.
     editedMediaItemBuilder.setDurationUs(5_000_000).setFrameRate(30);
-    ImmutableList<AudioProcessor> audioProcessors = createAudioProcessorsFromBundle(bundle);
-    ImmutableList<Effect> videoEffects = createVideoEffectsFromBundle(bundle);
-    return editedMediaItemBuilder
-        .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
-        .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
-        .setFlattenForSlowMotion(
-            bundle.getBoolean(ConfigurationActivity.SHOULD_FLATTEN_FOR_SLOW_MOTION))
-        .setEffects(new Effects(audioProcessors, videoEffects))
-        .build();
+    boolean forceAudioTrack = false;
+    if (bundle != null) {
+      ImmutableList<AudioProcessor> audioProcessors = createAudioProcessorsFromBundle(bundle);
+      ImmutableList<Effect> videoEffects = createVideoEffectsFromBundle(bundle);
+      editedMediaItemBuilder
+          .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
+          .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+          .setFlattenForSlowMotion(
+              bundle.getBoolean(ConfigurationActivity.SHOULD_FLATTEN_FOR_SLOW_MOTION))
+          .setEffects(new Effects(audioProcessors, videoEffects));
+      forceAudioTrack = bundle.getBoolean(ConfigurationActivity.FORCE_AUDIO_TRACK);
+    }
+    List<EditedMediaItem> editedMediaItems = new ArrayList<>();
+    editedMediaItems.add(editedMediaItemBuilder.build());
+    List<EditedMediaItemSequence> sequences = new ArrayList<>();
+    sequences.add(new EditedMediaItemSequence(editedMediaItems));
+    return new Composition(sequences, Effects.EMPTY, forceAudioTrack);
   }
 
   private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {
