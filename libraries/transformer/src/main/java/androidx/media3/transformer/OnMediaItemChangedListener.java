@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 
@@ -28,11 +29,15 @@ import androidx.media3.common.MediaItem;
    * <p>Can be called from any thread.
    *
    * @param editedMediaItem The {@link MediaItem} with the transformations to apply to it.
-   * @param trackFormat The {@link Format} of the {@link EditedMediaItem} track corresponding to the
-   *     {@link SamplePipeline}.
-   * @param mediaItemOffsetUs The offset to add to the presentation timestamps of the {@link
-   *     EditedMediaItem} samples received by the {@link SamplePipeline}, in microseconds.
+   * @param durationUs The duration of the {@link MediaItem}, in microseconds.
+   * @param trackFormat The {@link Format} of the {@link MediaItem} track corresponding to the
+   *     {@link SamplePipeline}, or {@code null} if no such track was extracted.
+   * @param isLast Whether the {@link MediaItem} is the last one passed to the {@link
+   *     SamplePipeline}.
    */
   void onMediaItemChanged(
-      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs);
+      EditedMediaItem editedMediaItem,
+      long durationUs,
+      @Nullable Format trackFormat,
+      boolean isLast);
 }

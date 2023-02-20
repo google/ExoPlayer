@@ -29,25 +29,39 @@ import org.junit.runner.RunWith;
 public class SilentAudioGeneratorTest {
 
   @Test
-  public void numberOfBytesProduced_isCorrect() {
+  public void addSilenceOnce_numberOfBytesProduced_isCorrect() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
             new Format.Builder()
                 .setSampleRate(88_200)
                 .setPcmEncoding(C.ENCODING_PCM_16BIT)
                 .setChannelCount(6)
-                .build(),
-            /* totalDurationUs= */ 3_000_000);
-    int bytesOutput = 0;
-    while (!generator.isEnded()) {
-      ByteBuffer output = generator.getBuffer();
-      bytesOutput += output.remaining();
-      // "Consume" buffer.
-      output.position(output.limit());
-    }
+                .build());
+
+    generator.addSilence(/* durationUs= */ 3_000_000);
+    int bytesOutput = drainGenerator(generator);
 
     // 88_200 * 12 * 3s = 3175200
     assertThat(bytesOutput).isEqualTo(3_175_200);
+  }
+
+  @Test
+  public void addSilenceTwice_numberOfBytesProduced_isCorrect() {
+    SilentAudioGenerator generator =
+        new SilentAudioGenerator(
+            new Format.Builder()
+                .setSampleRate(88_200)
+                .setPcmEncoding(C.ENCODING_PCM_16BIT)
+                .setChannelCount(6)
+                .build());
+
+    generator.addSilence(/* durationUs= */ 3_000_000);
+    int bytesOutput = drainGenerator(generator);
+    generator.addSilence(/* durationUs= */ 1_500_000);
+    bytesOutput += drainGenerator(generator);
+
+    // 88_200 * 12 * 4.5s = 4_762_800
+    assertThat(bytesOutput).isEqualTo(4_762_800);
   }
 
   @Test
@@ -58,11 +72,11 @@ public class SilentAudioGeneratorTest {
                 .setSampleRate(44_100)
                 .setPcmEncoding(C.ENCODING_PCM_16BIT)
                 .setChannelCount(2)
-                .build(),
-            /* totalDurationUs= */ 1_000_000);
+                .build());
+    generator.addSilence(/* durationUs= */ 1_000_000);
 
     int currentBufferSize = 0;
-    while (!generator.isEnded()) {
+    while (generator.hasRemaining()) {
       ByteBuffer output = generator.getBuffer();
       currentBufferSize = output.remaining();
       // "Consume" buffer.
@@ -82,9 +96,23 @@ public class SilentAudioGeneratorTest {
                 .setSampleRate(48_000)
                 .setPcmEncoding(C.ENCODING_PCM_16BIT)
                 .setChannelCount(2)
-                .build(),
-            /* totalDurationUs= */ 5_000);
+                .build());
+
+    generator.addSilence(/* durationUs= */ 5_000);
+
     // 5_000 * 48_000 * 4 / 1_000_000 = 960
     assertThat(generator.getBuffer().remaining()).isEqualTo(960);
+  }
+
+  /** Drains the generator and returns the number of bytes output. */
+  private static int drainGenerator(SilentAudioGenerator generator) {
+    int bytesOutput = 0;
+    while (generator.hasRemaining()) {
+      ByteBuffer output = generator.getBuffer();
+      bytesOutput += output.remaining();
+      // "Consume" buffer.
+      output.position(output.limit());
+    }
+    return bytesOutput;
   }
 }

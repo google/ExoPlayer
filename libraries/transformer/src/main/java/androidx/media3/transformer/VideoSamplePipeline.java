@@ -47,6 +47,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -56,10 +57,10 @@ import org.checkerframework.dataflow.qual.Pure;
   /** MIME type to use for output video if the input type is not a video. */
   private static final String DEFAULT_OUTPUT_MIME_TYPE = MimeTypes.VIDEO_H265;
 
+  private final AtomicLong mediaItemOffsetUs;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ColorInfo videoFrameProcessorInputColor;
   private final FrameInfo firstFrameInfo;
-
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
@@ -85,6 +86,7 @@ import org.checkerframework.dataflow.qual.Pure;
       throws ExportException {
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
+    mediaItemOffsetUs = new AtomicLong();
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
     encoderOutputBuffer =
@@ -187,9 +189,13 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
+      EditedMediaItem editedMediaItem,
+      long durationUs,
+      @Nullable Format trackFormat,
+      boolean isLast) {
     videoFrameProcessor.setInputFrameInfo(
-        new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(mediaItemOffsetUs).build());
+        new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(mediaItemOffsetUs.get()).build());
+    mediaItemOffsetUs.addAndGet(durationUs);
   }
 
   @Override

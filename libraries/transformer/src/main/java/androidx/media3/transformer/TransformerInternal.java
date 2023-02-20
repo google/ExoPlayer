@@ -100,7 +100,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ConditionVariable transformerConditionVariable;
   private final ExportResult.Builder exportResultBuilder;
 
-  private boolean forceAudioTrack;
   private boolean isDrainingPipelines;
   private @Transformer.ProgressState int progressState;
   private @MonotonicNonNull RuntimeException cancelException;
@@ -123,7 +122,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Clock clock) {
     this.context = context;
     this.transformationRequest = transformationRequest;
-    this.forceAudioTrack = composition.experimentalForceAudioTrack;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
     this.applicationHandler = applicationHandler;
@@ -137,7 +135,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         new ComponentListener(sequence, transmux, fallbackListener);
     compositeAssetLoader =
         new CompositeAssetLoader(
-            sequence, assetLoaderFactory, internalLooper, componentListener, clock);
+            sequence,
+            composition.experimentalForceAudioTrack,
+            assetLoaderFactory,
+            internalLooper,
+            componentListener,
+            clock);
     samplePipelines = new ArrayList<>();
     muxerWrapper = new MuxerWrapper(outputPath, muxerFactory, componentListener);
     transformerConditionVariable = new ConditionVariable();
@@ -316,8 +319,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private boolean trackAdded;
 
-    private volatile long durationUs;
-
     public ComponentListener(
         EditedMediaItemSequence sequence, boolean transmux, FallbackListener fallbackListener) {
       firstEditedMediaItem = sequence.editedMediaItems.get(0);
@@ -325,7 +326,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.transmux = transmux;
       this.fallbackListener = fallbackListener;
       trackCount = new AtomicInteger();
-      durationUs = C.TIME_UNSET;
     }
 
     // AssetLoader.Listener and MuxerWrapper.Listener implementation.
@@ -340,9 +340,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // AssetLoader.Listener implementation.
 
     @Override
-    public void onDurationUs(long durationUs) {
-      this.durationUs = durationUs;
-    }
+    public void onDurationUs(long durationUs) {}
 
     @Override
     public void onTrackCount(int trackCount) {
@@ -365,14 +363,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         throws ExportException {
       int trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
       if (!trackAdded) {
-        if (forceAudioTrack) {
-          if (trackCount.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
-            trackCount.incrementAndGet();
-          } else {
-            forceAudioTrack = false;
-          }
-        }
-
         // Call setTrackCount() methods here so that they are called from the same thread as the
         // MuxerWrapper and FallbackListener methods called when building the sample pipelines.
         muxerWrapper.setTrackCount(trackCount.get());
@@ -385,25 +375,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
       compositeAssetLoader.addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
-
-      if (forceAudioTrack) {
-        Format silentAudioFormat =
-            new Format.Builder()
-                .setSampleMimeType(MimeTypes.AUDIO_AAC)
-                .setSampleRate(44100)
-                .setChannelCount(2)
-                .build();
-        SamplePipeline audioSamplePipeline =
-            getSamplePipeline(
-                silentAudioFormat,
-                SUPPORTED_OUTPUT_TYPE_DECODED,
-                streamStartPositionUs,
-                streamOffsetUs);
-        compositeAssetLoader.addOnMediaItemChangedListener(audioSamplePipeline, C.TRACK_TYPE_AUDIO);
-        internalHandler
-            .obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, audioSamplePipeline)
-            .sendToTarget();
-      }
 
       return samplePipeline;
     }
@@ -478,7 +449,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             transformationRequest,
             firstEditedMediaItem.flattenForSlowMotion,
             firstEditedMediaItem.effects.audioProcessors,
-            forceAudioTrack ? durationUs : C.TIME_UNSET,
             encoderFactory,
             muxerWrapper,
             fallbackListener);
@@ -522,9 +492,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return true;
       }
       if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
-        return true;
-      }
-      if (forceAudioTrack) {
         return true;
       }
 

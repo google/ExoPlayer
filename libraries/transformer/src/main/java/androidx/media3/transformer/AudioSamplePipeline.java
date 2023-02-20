@@ -35,7 +35,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw audio samples. */
@@ -44,7 +43,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
-  @Nullable private final SilentAudioGenerator silentAudioGenerator;
+  private final SilentAudioGenerator silentAudioGenerator;
   private final Queue<DecoderInputBuffer> availableInputBuffers;
   private final Queue<DecoderInputBuffer> pendingInputBuffers;
   private final AudioProcessingPipeline audioProcessingPipeline;
@@ -56,7 +55,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private long nextEncoderInputBufferTimeUs;
   private long encoderBufferDurationRemainder;
 
-  private volatile long mediaItemOffsetUs;
+  private volatile boolean queueEndOfStreamAfterSilence;
 
   // TODO(b/260618558): Move silent audio generation upstream of this component.
   public AudioSamplePipeline(
@@ -66,19 +65,13 @@ import org.checkerframework.dataflow.qual.Pure;
       TransformationRequest transformationRequest,
       boolean flattenForSlowMotion,
       ImmutableList<AudioProcessor> audioProcessors,
-      long forceAudioTrackDurationUs,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
-    if (forceAudioTrackDurationUs != C.TIME_UNSET) {
-      silentAudioGenerator = new SilentAudioGenerator(firstInputFormat, forceAudioTrackDurationUs);
-    } else {
-      silentAudioGenerator = null;
-    }
-
+    silentAudioGenerator = new SilentAudioGenerator(firstInputFormat);
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
@@ -150,20 +143,30 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
-    this.mediaItemOffsetUs = mediaItemOffsetUs;
+      EditedMediaItem editedMediaItem,
+      long durationUs,
+      @Nullable Format trackFormat,
+      boolean isLast) {
+    if (trackFormat == null) {
+      silentAudioGenerator.addSilence(durationUs);
+      if (isLast) {
+        queueEndOfStreamAfterSilence = true;
+      }
+    }
   }
 
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
+    if (shouldGenerateSilence()) {
+      return null;
+    }
     return availableInputBuffers.peek();
   }
 
   @Override
   public void queueInputBuffer() {
     DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
-    inputBuffer.timeUs += mediaItemOffsetUs;
     pendingInputBuffers.add(inputBuffer);
   }
 
@@ -220,16 +223,17 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
-    if (isInputSilent()) {
-      if (silentAudioGenerator.isEnded()) {
-        queueEndOfStreamToEncoder();
-        return false;
-      }
+    if (shouldGenerateSilence()) {
       feedEncoder(silentAudioGenerator.getBuffer());
       return true;
     }
 
     if (pendingInputBuffers.isEmpty()) {
+      // Only read volatile variable queueEndOfStreamAfterSilence if there is a chance that end of
+      // stream should be queued.
+      if (!silentAudioGenerator.hasRemaining() && queueEndOfStreamAfterSilence) {
+        queueEndOfStreamToEncoder();
+      }
       return false;
     }
 
@@ -277,17 +281,18 @@ import org.checkerframework.dataflow.qual.Pure;
    * @return Whether it may be possible to feed more data immediately by calling this method again.
    */
   private boolean feedProcessingPipelineFromInput() {
-    if (isInputSilent()) {
-      if (silentAudioGenerator.isEnded()) {
-        audioProcessingPipeline.queueEndOfStream();
-        return false;
-      }
+    if (shouldGenerateSilence()) {
       ByteBuffer inputData = silentAudioGenerator.getBuffer();
       audioProcessingPipeline.queueInput(inputData);
       return !inputData.hasRemaining();
     }
 
     if (pendingInputBuffers.isEmpty()) {
+      // Only read volatile variable queueEndOfStreamAfterSilence if there is a chance that end of
+      // stream should be queued.
+      if (!silentAudioGenerator.hasRemaining() && queueEndOfStreamAfterSilence) {
+        audioProcessingPipeline.queueEndOfStream();
+      }
       return false;
     }
 
@@ -370,8 +375,7 @@ import org.checkerframework.dataflow.qual.Pure;
     nextEncoderInputBufferTimeUs += bufferDurationUs;
   }
 
-  @EnsuresNonNullIf(expression = "silentAudioGenerator", result = true)
-  private boolean isInputSilent() {
-    return silentAudioGenerator != null;
+  private boolean shouldGenerateSilence() {
+    return silentAudioGenerator.hasRemaining() && pendingInputBuffers.isEmpty();
   }
 }
