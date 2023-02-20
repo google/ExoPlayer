@@ -16,7 +16,8 @@ as described
 | CEA-608 | YES ||
 | WebVTT | YES ||
 | **Metadata** |||
-| ID3 metadata | YES ||
+| ID3 | YES ||
+| SCTE-35 | NO ||
 | **Content protection** |||
 | AES-128 | YES ||
 | Sample AES-128 | NO ||
