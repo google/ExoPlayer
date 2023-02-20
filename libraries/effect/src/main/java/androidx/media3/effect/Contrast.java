@@ -19,6 +19,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
+import androidx.annotation.FloatRange;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
@@ -35,7 +36,7 @@ public class Contrast implements GlEffect {
    * <p>Contrast values range from -1 (all gray pixels) to 1 (maximum difference of colors). 0 means
    * to add no contrast and leaves the frames unchanged.
    */
-  public Contrast(float contrast) {
+  public Contrast(@FloatRange(from = -1, to = 1) float contrast) {
     checkArgument(-1 <= contrast && contrast <= 1, "Contrast needs to be in the interval [-1, 1].");
     this.contrast = contrast;
   }

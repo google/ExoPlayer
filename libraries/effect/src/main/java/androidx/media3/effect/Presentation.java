@@ -21,6 +21,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Matrix;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Size;
@@ -116,7 +117,8 @@ public final class Presentation implements MatrixTransformation {
    * @param aspectRatio The aspect ratio (width/height ratio) of the output frame. Must be positive.
    * @param layout The layout of the output frame.
    */
-  public static Presentation createForAspectRatio(float aspectRatio, @Layout int layout) {
+  public static Presentation createForAspectRatio(
+      @FloatRange(from = 0, fromInclusive = false) float aspectRatio, @Layout int layout) {
     checkArgument(
         aspectRatio == C.LENGTH_UNSET || aspectRatio > 0,
         "aspect ratio " + aspectRatio + " must be positive or unset");
