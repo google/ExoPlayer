@@ -30,6 +30,7 @@ import android.media.MediaCodecList;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.MediaFormatUtil;
@@ -37,9 +38,8 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-/** Utilities for decoding a frame for tests. */
+/** Utilities for decoding a video frame for tests. */
 @UnstableApi
 public final class DecodeOneFrameUtil {
   public static final String NO_DECODER_SUPPORT_ERROR_STRING =
@@ -68,14 +68,19 @@ public final class DecodeOneFrameUtil {
    * @param listener A {@link Listener} implementation.
    * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
    *     frame is not needed.
-   * @throws IOException If extractor or codec creation fails.
+   * @throws IOException If the {@link MediaExtractor} or {@link MediaCodec} cannot be created.
    */
   public static void decodeOneCacheFileFrame(
       String cacheFilePath, Listener listener, @Nullable Surface surface) throws IOException {
     MediaExtractor mediaExtractor = new MediaExtractor();
+
     try {
       mediaExtractor.setDataSource(cacheFilePath);
-      decodeOneFrame(mediaExtractor, listener, surface);
+      if (surface == null) {
+        decodeOneVideoFrame(mediaExtractor, listener);
+      } else {
+        decodeOneVideoFrame(mediaExtractor, listener, surface);
+      }
     } finally {
       mediaExtractor.release();
     }
@@ -89,42 +94,72 @@ public final class DecodeOneFrameUtil {
    * @param listener A {@link Listener} implementation.
    * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
    *     frame is not needed.
+   * @throws IOException If the {@link MediaExtractor} or {@link MediaCodec} cannot be created.
    */
   public static void decodeOneAssetFileFrame(
-      String assetFilePath, Listener listener, @Nullable Surface surface) throws Exception {
+      String assetFilePath, Listener listener, @Nullable Surface surface) throws IOException {
     MediaExtractor mediaExtractor = new MediaExtractor();
     Context context = getApplicationContext();
+
     try (AssetFileDescriptor afd = context.getAssets().openFd(assetFilePath)) {
       mediaExtractor.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-      decodeOneFrame(mediaExtractor, listener, surface);
+      if (surface == null) {
+        decodeOneVideoFrame(mediaExtractor, listener);
+      } else {
+        decodeOneVideoFrame(mediaExtractor, listener, surface);
+      }
     } finally {
       mediaExtractor.release();
     }
   }
 
   /**
-   * Reads and decodes one frame from the {@code mediaExtractor} and renders it to the {@code
+   * Reads and decodes one video frame from the {@code mediaExtractor} and renders it to the {@code
+   * surface}.
+   *
+   * <p>A placeholder surface is used.
+   *
+   * @param mediaExtractor The {@link MediaExtractor} with a {@link
+   *     MediaExtractor#setDataSource(String) data source set}.
+   * @param listener A {@link Listener} implementation.
+   * @throws UnsupportedOperationException If there is no supported {@linkplain MediaCodec decoders}
+   *     available.
+   * @throws IOException If the {@link MediaExtractor} or {@link MediaCodec} cannot be created.
+   */
+  private static void decodeOneVideoFrame(MediaExtractor mediaExtractor, Listener listener)
+      throws IOException {
+    @Nullable SurfaceTexture placeholderSurfaceTexture = null;
+    @Nullable Surface placeholderSurface = null;
+    try {
+      placeholderSurfaceTexture = new SurfaceTexture(/* texName= */ 0);
+      placeholderSurface = new Surface(placeholderSurfaceTexture);
+      decodeOneVideoFrame(mediaExtractor, listener, placeholderSurface);
+    } finally {
+      if (placeholderSurfaceTexture != null) {
+        placeholderSurfaceTexture.release();
+      }
+      if (placeholderSurface != null) {
+        placeholderSurface.release();
+      }
+    }
+  }
+
+  /**
+   * Reads and decodes one video frame from the {@code mediaExtractor} and renders it to the {@code
    * surface}.
    *
    * @param mediaExtractor The {@link MediaExtractor} with a {@link
    *     MediaExtractor#setDataSource(String) data source set}.
    * @param listener A {@link Listener} implementation.
-   * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
-   *     frame is not needed.
-   * @throws IOException If codec creation fails.
-   * @throws UnsupportedOperationException If no decoder supports this file's MediaFormat.
+   * @param surface The {@link Surface} to render the decoded frame to.
+   * @throws IOException If the {@link MediaCodec} cannot be created.
+   * @throws UnsupportedOperationException If there is no supported {@linkplain MediaCodec decoders}
+   *     available.
    */
-  private static void decodeOneFrame(
-      MediaExtractor mediaExtractor, Listener listener, @Nullable Surface surface)
-      throws IOException {
-    // Set up the extractor to read the first video frame and get its format.
-    if (surface == null) {
-      // Creates a placeholder surface.
-      surface = new Surface(new SurfaceTexture(/* texName= */ 0));
-    }
-
-    @Nullable MediaCodec mediaCodec = null;
+  private static void decodeOneVideoFrame(
+      MediaExtractor mediaExtractor, Listener listener, Surface surface) throws IOException {
     @Nullable MediaFormat mediaFormat = null;
+    @Nullable MediaCodec mediaCodec = null;
 
     try {
       for (int i = 0; i < mediaExtractor.getTrackCount(); i++) {
