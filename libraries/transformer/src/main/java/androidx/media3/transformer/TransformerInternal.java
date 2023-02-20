@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
@@ -372,7 +373,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       SamplePipeline samplePipeline =
           getSamplePipeline(
-              firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
+              firstInputFormat,
+              shouldTranscode(
+                  firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs),
+              streamStartPositionUs,
+              streamOffsetUs);
       compositeAssetLoader.addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
@@ -421,59 +426,74 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private SamplePipeline getSamplePipeline(
         Format firstInputFormat,
-        @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
+        boolean shouldTranscode,
         long streamStartPositionUs,
         long streamOffsetUs)
         throws ExportException {
-      checkState(supportedOutputTypes != 0);
-      boolean isAudio = MimeTypes.isAudio(firstInputFormat.sampleMimeType);
-      boolean shouldTranscode;
-      if (mediaItemCount > 1 && !transmux) {
+      if (shouldTranscode) {
+        if (MimeTypes.isAudio(firstInputFormat.sampleMimeType)) {
+          return new AudioSamplePipeline(
+              firstInputFormat,
+              streamStartPositionUs,
+              streamOffsetUs,
+              transformationRequest,
+              firstEditedMediaItem.flattenForSlowMotion,
+              firstEditedMediaItem.effects.audioProcessors,
+              encoderFactory,
+              muxerWrapper,
+              fallbackListener);
+        }
+
+        if (MimeTypes.isVideo(firstInputFormat.sampleMimeType)) {
+          return new VideoSamplePipeline(
+              context,
+              firstInputFormat,
+              streamStartPositionUs,
+              streamOffsetUs,
+              transformationRequest,
+              firstEditedMediaItem.effects.videoEffects,
+              firstEditedMediaItem.effects.videoFrameProcessorFactory,
+              encoderFactory,
+              muxerWrapper,
+              /* errorConsumer= */ this::onError,
+              fallbackListener,
+              debugViewProvider);
+        }
+      }
+
+      return new EncodedSamplePipeline(
+          firstInputFormat,
+          streamStartPositionUs,
+          transformationRequest,
+          muxerWrapper,
+          fallbackListener);
+    }
+
+    private boolean shouldTranscode(
+        Format inputFormat,
+        @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
+        long streamStartPositionUs,
+        long streamOffsetUs) {
+      boolean assetLoaderCanOutputDecoded =
+          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) != 0;
+      boolean assetLoaderCanOutputEncoded =
+          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) != 0;
+      checkArgument(assetLoaderCanOutputDecoded || assetLoaderCanOutputEncoded);
+
+      boolean shouldTranscode = false;
+      if (!assetLoaderCanOutputEncoded) {
         shouldTranscode = true;
-      } else {
-        shouldTranscode =
-            isAudio
-                ? shouldTranscodeAudio(firstInputFormat)
-                : shouldTranscodeVideo(firstInputFormat, streamStartPositionUs, streamOffsetUs);
+      } else if (mediaItemCount > 1 && !transmux) {
+        shouldTranscode = true;
+      } else if (MimeTypes.isAudio(inputFormat.sampleMimeType)) {
+        shouldTranscode = shouldTranscodeAudio(inputFormat);
+      } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)) {
+        shouldTranscode = shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
       }
-      boolean assetLoaderNeverDecodes = (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) == 0;
-      checkState(!shouldTranscode || !assetLoaderNeverDecodes);
-      boolean assetLoaderAlwaysDecodes =
-          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) == 0;
-      boolean shouldUseTranscodingPipeline = shouldTranscode || assetLoaderAlwaysDecodes;
-      if (isAudio && shouldUseTranscodingPipeline) {
-        return new AudioSamplePipeline(
-            firstInputFormat,
-            streamStartPositionUs,
-            streamOffsetUs,
-            transformationRequest,
-            firstEditedMediaItem.flattenForSlowMotion,
-            firstEditedMediaItem.effects.audioProcessors,
-            encoderFactory,
-            muxerWrapper,
-            fallbackListener);
-      } else if (shouldUseTranscodingPipeline) {
-        return new VideoSamplePipeline(
-            context,
-            firstInputFormat,
-            streamStartPositionUs,
-            streamOffsetUs,
-            transformationRequest,
-            firstEditedMediaItem.effects.videoEffects,
-            firstEditedMediaItem.effects.videoFrameProcessorFactory,
-            encoderFactory,
-            muxerWrapper,
-            /* errorConsumer= */ this::onError,
-            fallbackListener,
-            debugViewProvider);
-      } else {
-        return new EncodedSamplePipeline(
-            firstInputFormat,
-            streamStartPositionUs,
-            transformationRequest,
-            muxerWrapper,
-            fallbackListener);
-      }
+
+      checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
+
+      return shouldTranscode;
     }
 
     private boolean shouldTranscodeAudio(Format inputFormat) {
