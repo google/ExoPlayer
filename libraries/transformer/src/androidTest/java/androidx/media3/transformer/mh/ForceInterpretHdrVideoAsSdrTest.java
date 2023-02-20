@@ -15,18 +15,22 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.Log;
-import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.TransformationRequest;
@@ -51,11 +55,21 @@ public class ForceInterpretHdrVideoAsSdrTest {
     String testId = "forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ null)) {
+    if (SDK_INT < 29) {
+      // TODO(b/269759013): Fix failures under API 29 to expand confidence on all API versions.
+      recordTestSkipped(
+          context, testId, /* reason= */ "Under API 29, this API is considered best-effort.");
+      return;
+    }
+
+    // Force interpret HDR as SDR signals SDR input to the decoder, even if the actual input is HDR.
+    Format decoderInputFormat =
+        MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build();
+    if (skipAndLogIfFormatsUnsupported(
+        context, testId, decoderInputFormat, /* outputFormat= */ null)) {
       return;
     }
 
@@ -76,7 +90,9 @@ public class ForceInterpretHdrVideoAsSdrTest {
       maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (ExportException exception) {
-      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+      String message = getMessageOrEmptyString(exception);
+      Log.i(TAG, "Exception: " + message);
+      if (!message.equals("The requested video decoding format is not supported.")) {
         throw exception;
       }
     }
@@ -87,11 +103,21 @@ public class ForceInterpretHdrVideoAsSdrTest {
     String testId = "forceInterpretHdrVideoAsSdrTest_hlg10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ null)) {
+    if (SDK_INT < 29) {
+      // TODO(b/269759013): Fix failures under API 29 to expand confidence on all API versions.
+      recordTestSkipped(
+          context, testId, /* reason= */ "Under API 29, this API is considered best-effort.");
+      return;
+    }
+
+    // Force interpret HDR as SDR signals SDR input to the decoder, even if the actual input is HDR.
+    Format decoderInputFormat =
+        MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build();
+    if (skipAndLogIfFormatsUnsupported(
+        context, testId, decoderInputFormat, /* outputFormat= */ null)) {
       return;
     }
 
@@ -112,9 +138,22 @@ public class ForceInterpretHdrVideoAsSdrTest {
       maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
       Log.i(TAG, "Transformed.");
     } catch (ExportException exception) {
-      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
+      String message = getMessageOrEmptyString(exception);
+      Log.i(TAG, "Exception: " + message);
+      if (!message.equals("The requested video decoding format is not supported.")) {
         throw exception;
       }
     }
+  }
+
+  private String getMessageOrEmptyString(Exception exception) {
+    if (exception.getCause() == null) {
+      return "";
+    }
+    String message = exception.getCause().getMessage();
+    if (message == null) {
+      return "";
+    }
+    return message;
   }
 }

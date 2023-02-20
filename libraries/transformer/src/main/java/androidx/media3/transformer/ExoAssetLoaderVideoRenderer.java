@@ -16,7 +16,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -61,17 +60,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  protected Format overrideFormat(Format inputFormat) throws ExportException {
+  protected Format overrideFormat(Format inputFormat) {
     if (forceInterpretHdrAsSdr && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
-      if (SDK_INT < 29) {
-        throw ExportException.createForCodec(
-            new IllegalArgumentException(
-                "Interpreting HDR video as SDR is not supported on this device."),
-            ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
-            /* isVideo= */ true,
-            /* isDecoder= */ true,
-            inputFormat);
-      }
       return inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
     }
     return inputFormat;
