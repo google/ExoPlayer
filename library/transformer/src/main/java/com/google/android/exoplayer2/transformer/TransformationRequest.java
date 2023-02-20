@@ -88,12 +88,12 @@ public final class TransformationRequest {
   /**
    * Interpret HDR input as SDR, likely with a washed out look.
    *
-   * <p>Supported on API 29+.
-   *
    * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
    * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. However, as HDR transfer functions and
    * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
    * look.
+   *
+   * <p>Using this API may lead to codec errors before API 29, per b/269759013.
    *
    * <p>Use of this flag may result in {@code ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
    *

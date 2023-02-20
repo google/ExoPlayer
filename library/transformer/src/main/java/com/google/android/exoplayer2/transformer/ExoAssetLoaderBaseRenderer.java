@@ -136,7 +136,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /** Overrides the {@code inputFormat}. */
-  protected Format overrideFormat(Format inputFormat) throws ExportException {
+  protected Format overrideFormat(Format inputFormat) {
     return inputFormat;
   }
 
