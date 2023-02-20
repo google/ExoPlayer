@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** Pipeline that muxes encoded samples without any transcoding or transformation. */
 /* package */ final class EncodedSamplePipeline extends SamplePipeline {
@@ -32,6 +33,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
   private final Format format;
+  private final AtomicLong nextMediaItemOffsetUs;
   private final Queue<DecoderInputBuffer> availableInputBuffers;
   private final Queue<DecoderInputBuffer> pendingInputBuffers;
 
@@ -46,6 +48,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
       FallbackListener fallbackListener) {
     super(format, streamStartPositionUs, muxerWrapper);
     this.format = format;
+    nextMediaItemOffsetUs = new AtomicLong();
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
@@ -59,8 +62,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
   @Override
   public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem, Format trackFormat, long mediaItemOffsetUs) {
-    this.mediaItemOffsetUs = mediaItemOffsetUs;
+      EditedMediaItem editedMediaItem,
+      long durationUs,
+      @Nullable Format trackFormat,
+      boolean isLast) {
+    mediaItemOffsetUs = nextMediaItemOffsetUs.get();
+    nextMediaItemOffsetUs.addAndGet(durationUs);
   }
 
   @Override

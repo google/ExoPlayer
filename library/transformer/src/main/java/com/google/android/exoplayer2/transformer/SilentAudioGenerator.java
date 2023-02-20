@@ -21,28 +21,43 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicLong;
 
 /* package */ final class SilentAudioGenerator {
   private static final int DEFAULT_BUFFER_SIZE_FRAMES = 1024;
 
+  private final int sampleRate;
+  private final int frameSize;
   private final ByteBuffer internalBuffer;
+  private final AtomicLong remainingBytesToOutput;
 
-  private long remainingBytesToOutput;
-
-  public SilentAudioGenerator(Format format, long totalDurationUs) {
-    int frameSize =
+  public SilentAudioGenerator(Format format) {
+    sampleRate = format.sampleRate;
+    frameSize =
         Util.getPcmFrameSize(
             format.pcmEncoding == Format.NO_VALUE ? C.ENCODING_PCM_16BIT : format.pcmEncoding,
             format.channelCount);
-    long outputFrameCount = (format.sampleRate * totalDurationUs) / C.MICROS_PER_SECOND;
-    remainingBytesToOutput = frameSize * outputFrameCount;
     internalBuffer =
         ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE_FRAMES * frameSize)
             .order(ByteOrder.nativeOrder());
     internalBuffer.flip();
+    remainingBytesToOutput = new AtomicLong();
+  }
+
+  /**
+   * Adds a silence duration to generate.
+   *
+   * <p>Can be called from any thread.
+   *
+   * @param durationUs The duration of the additional silence to generate, in microseconds.
+   */
+  public void addSilence(long durationUs) {
+    long outputFrameCount = (sampleRate * durationUs) / C.MICROS_PER_SECOND;
+    remainingBytesToOutput.addAndGet(frameSize * outputFrameCount);
   }
 
   public ByteBuffer getBuffer() {
+    long remainingBytesToOutput = this.remainingBytesToOutput.get();
     if (!internalBuffer.hasRemaining()) {
       // "next" buffer.
       internalBuffer.clear();
@@ -50,12 +65,12 @@ import java.nio.ByteOrder;
         internalBuffer.limit((int) remainingBytesToOutput);
       }
       // Only reduce remaining bytes when we "generate" a new one.
-      remainingBytesToOutput -= internalBuffer.remaining();
+      this.remainingBytesToOutput.addAndGet(-internalBuffer.remaining());
     }
     return internalBuffer;
   }
 
-  public boolean isEnded() {
-    return !internalBuffer.hasRemaining() && remainingBytesToOutput == 0;
+  public boolean hasRemaining() {
+    return internalBuffer.hasRemaining() || remainingBytesToOutput.get() > 0;
   }
 }
