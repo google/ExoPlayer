@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
+import androidx.annotation.FloatRange;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -61,7 +62,7 @@ public class HslAdjustment implements GlEffect {
      *     {@code 0}, which means no change is applied.
      */
     @CanIgnoreReturnValue
-    public Builder adjustSaturation(float saturationAdjustment) {
+    public Builder adjustSaturation(@FloatRange(from = -100, to = 100) float saturationAdjustment) {
       checkArgument(
           -100 <= saturationAdjustment && saturationAdjustment <= 100,
           "Can adjust the saturation by only 100 in either direction, but provided "
@@ -81,7 +82,7 @@ public class HslAdjustment implements GlEffect {
      *     {@code 0}, which means no change is applied.
      */
     @CanIgnoreReturnValue
-    public Builder adjustLightness(float lightnessAdjustment) {
+    public Builder adjustLightness(@FloatRange(from = -100, to = 100) float lightnessAdjustment) {
       checkArgument(
           -100 <= lightnessAdjustment && lightnessAdjustment <= 100,
           "Can adjust the lightness by only 100 in either direction, but provided "

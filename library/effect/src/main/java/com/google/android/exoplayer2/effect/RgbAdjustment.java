@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.opengl.Matrix;
+import androidx.annotation.FloatRange;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -45,7 +46,7 @@ public final class RgbAdjustment implements RgbMatrix {
      *     default value is {@code 1}.
      */
     @CanIgnoreReturnValue
-    public Builder setRedScale(float redScale) {
+    public Builder setRedScale(@FloatRange(from = 0) float redScale) {
       checkArgument(0 <= redScale, "Red scale needs to be non-negative.");
       this.redScale = redScale;
       return this;
@@ -58,7 +59,7 @@ public final class RgbAdjustment implements RgbMatrix {
      *     default value is {@code 1}.
      */
     @CanIgnoreReturnValue
-    public Builder setGreenScale(float greenScale) {
+    public Builder setGreenScale(@FloatRange(from = 0) float greenScale) {
       checkArgument(0 <= greenScale, "Green scale needs to be non-negative.");
       this.greenScale = greenScale;
       return this;
@@ -71,7 +72,7 @@ public final class RgbAdjustment implements RgbMatrix {
      *     default value is {@code 1}.
      */
     @CanIgnoreReturnValue
-    public Builder setBlueScale(float blueScale) {
+    public Builder setBlueScale(@FloatRange(from = 0) float blueScale) {
       checkArgument(0 <= blueScale, "Blue scale needs to be non-negative.");
       this.blueScale = blueScale;
       return this;
