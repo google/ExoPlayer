@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.util.SparseArray;
@@ -254,8 +253,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (trackTypeToInfo.size() == 1) {
       return true;
     }
+    if (presentationTimeUs - trackTypeToInfo.get(trackType).timeUs > MAX_TRACK_WRITE_AHEAD_US) {
+      TrackInfo trackInfoWithMinTimeUs = checkNotNull(getTrackInfoWithMinTimeUs(trackTypeToInfo));
+      if (MimeTypes.getTrackType(trackInfoWithMinTimeUs.format.sampleMimeType) == trackType) {
+        // Unstuck the muxer if consecutive timestamps from the same track are more than
+        // MAX_TRACK_WRITE_AHEAD_US apart.
+        return true;
+      }
+    }
     if (trackType != previousTrackType) {
-      minTrackTimeUs = getMinTrackTimeUs(trackTypeToInfo);
+      minTrackTimeUs = checkNotNull(getTrackInfoWithMinTimeUs(trackTypeToInfo)).timeUs;
     }
     return presentationTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
@@ -301,16 +308,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return fileSize > 0 ? fileSize : C.LENGTH_UNSET;
   }
 
-  private static long getMinTrackTimeUs(SparseArray<TrackInfo> trackTypeToInfo) {
+  @Nullable
+  private static TrackInfo getTrackInfoWithMinTimeUs(SparseArray<TrackInfo> trackTypeToInfo) {
     if (trackTypeToInfo.size() == 0) {
-      return C.TIME_UNSET;
+      return null;
     }
 
-    long minTrackTimeUs = Long.MAX_VALUE;
-    for (int i = 0; i < trackTypeToInfo.size(); i++) {
-      minTrackTimeUs = min(minTrackTimeUs, trackTypeToInfo.valueAt(i).timeUs);
+    TrackInfo trackInfoWithMinTimeUs = trackTypeToInfo.valueAt(0);
+    for (int i = 1; i < trackTypeToInfo.size(); i++) {
+      TrackInfo trackInfo = trackTypeToInfo.valueAt(i);
+      if (trackInfo.timeUs < trackInfoWithMinTimeUs.timeUs) {
+        trackInfoWithMinTimeUs = trackInfo;
+      }
     }
-    return minTrackTimeUs;
+    return trackInfoWithMinTimeUs;
   }
 
   private static final class TrackInfo {
