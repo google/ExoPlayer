@@ -490,6 +490,8 @@ public final class Transformer {
     /**
      * Called if an exception occurs during the export.
      *
+     * <p>The export output file (if any) is not deleted in this case.
+     *
      * @param composition The {@link Composition} for which the exception occurs.
      * @param exportResult The {@link ExportResult} of the export.
      * @param exportException The {@link ExportException} describing the exception. This is the same
@@ -851,6 +853,8 @@ public final class Transformer {
 
   /**
    * Cancels the export that is currently in progress, if any.
+   *
+   * <p>The export output file (if any) is not deleted.
    *
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
