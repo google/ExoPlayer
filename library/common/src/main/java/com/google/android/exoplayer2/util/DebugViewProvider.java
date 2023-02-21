@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.util;
 import android.view.SurfaceView;
 import androidx.annotation.Nullable;
 
-/** Provider for views to show diagnostic information during a transformation, for debugging. */
+/** Provider for views to show diagnostic information during an export, for debugging. */
 public interface DebugViewProvider {
 
   /** Debug view provider that doesn't show any debug info. */
