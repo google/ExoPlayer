@@ -23,6 +23,7 @@ import androidx.annotation.FloatRange;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.Arrays;
 
 /** Scales the red, green, and blue color channels of a frame. */
 @UnstableApi
@@ -99,5 +100,10 @@ public final class RgbAdjustment implements RgbMatrix {
   @Override
   public float[] getMatrix(long presentationTimeUs, boolean useHdr) {
     return rgbMatrix;
+  }
+
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    return Arrays.equals(rgbMatrix, GlUtil.create4x4IdentityMatrix());
   }
 }
