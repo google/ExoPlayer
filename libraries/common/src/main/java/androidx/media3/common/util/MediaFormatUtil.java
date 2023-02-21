@@ -197,18 +197,24 @@ public final class MediaFormatUtil {
   /**
    * Creates and returns a {@code ColorInfo}, if a valid instance is described in the {@link
    * MediaFormat}.
+   *
+   * <p>Under API 24, {@code null} will always be returned, because {@link MediaFormat} color keys
+   * like {@link MediaFormat#KEY_COLOR_STANDARD} were only added in API 24.
    */
   @Nullable
   public static ColorInfo getColorInfo(MediaFormat mediaFormat) {
-    if (SDK_INT < 29) {
+    if (SDK_INT < 24) {
+      // MediaFormat KEY_COLOR_TRANSFER and other KEY_COLOR values available from API 24.
       return null;
     }
     int colorSpace =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD, /* defaultValue= */ Format.NO_VALUE);
+        getInteger(
+            mediaFormat, MediaFormat.KEY_COLOR_STANDARD, /* defaultValue= */ Format.NO_VALUE);
     int colorRange =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE, /* defaultValue= */ Format.NO_VALUE);
+        getInteger(mediaFormat, MediaFormat.KEY_COLOR_RANGE, /* defaultValue= */ Format.NO_VALUE);
     int colorTransfer =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER, /* defaultValue= */ Format.NO_VALUE);
+        getInteger(
+            mediaFormat, MediaFormat.KEY_COLOR_TRANSFER, /* defaultValue= */ Format.NO_VALUE);
     @Nullable
     ByteBuffer hdrStaticInfoByteBuffer = mediaFormat.getByteBuffer(MediaFormat.KEY_HDR_STATIC_INFO);
     @Nullable
@@ -238,6 +244,16 @@ public final class MediaFormatUtil {
           .build();
     }
     return null;
+  }
+
+  /**
+   * Provides the same functionality as {@link MediaFormat#getInteger(String, int)}.
+   *
+   * <p>{@link MediaFormat#getInteger(String, int)} is only available from API 29. This convenience
+   * method provides support on lower API versions.
+   */
+  public static int getInteger(MediaFormat mediaFormat, String name, int defaultValue) {
+    return mediaFormat.containsKey(name) ? mediaFormat.getInteger(name) : defaultValue;
   }
 
   public static byte[] getArray(ByteBuffer byteBuffer) {

@@ -31,7 +31,6 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.Util;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
@@ -282,13 +281,6 @@ public class HdrEditingTest {
   public void exportUnexpectedColorInfo() throws Exception {
     String testId = "exportUnexpectedColorInfo";
     Context context = ApplicationProvider.getApplicationContext();
-    if (Util.SDK_INT < 29) {
-      recordTestSkipped(
-          context,
-          testId,
-          /* reason= */ "API version lacks support for MediaFormat#getInteger(String, int).");
-      return;
-    }
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
