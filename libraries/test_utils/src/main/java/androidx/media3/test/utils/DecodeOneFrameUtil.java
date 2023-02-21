@@ -171,14 +171,13 @@ public final class DecodeOneFrameUtil {
         }
       }
 
-      checkStateNotNull(mediaFormat);
-      if (!isSupportedByDecoder(mediaFormat)) {
+      @Nullable String decoderName = getSupportedDecoderName(checkStateNotNull(mediaFormat));
+      if (decoderName == null) {
         throw new UnsupportedOperationException(NO_DECODER_SUPPORT_ERROR_STRING);
       }
-      // Queue the first video frame from the extractor.
-      String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
-      mediaCodec = MediaCodec.createDecoderByType(mimeType);
+      mediaCodec = MediaCodec.createByCodecName(decoderName);
 
+      // Queue the first video frame from the extractor.
       mediaCodec.configure(mediaFormat, surface, /* crypto= */ null, /* flags= */ 0);
       mediaCodec.start();
       int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
@@ -224,12 +223,13 @@ public final class DecodeOneFrameUtil {
   }
 
   /**
-   * Returns whether a decoder supports this {@link MediaFormat}.
+   * Returns the name of a decoder that supports this {@link MediaFormat}.
    *
    * <p>Capability check is similar to
    * androidx.media3.transformer.EncoderUtil.java#findCodecForFormat().
    */
-  private static boolean isSupportedByDecoder(MediaFormat format) {
+  @Nullable
+  private static String getSupportedDecoderName(MediaFormat format) {
     if (Util.SDK_INT < 21) {
       throw new UnsupportedOperationException("Unable to detect decoder support under API 21.");
     }
@@ -253,7 +253,7 @@ public final class DecodeOneFrameUtil {
     if (Util.SDK_INT == 21) {
       MediaFormatUtil.maybeSetInteger(format, MediaFormat.KEY_FRAME_RATE, round(frameRate));
     }
-    return mediaCodecName != null;
+    return mediaCodecName;
   }
 
   private DecodeOneFrameUtil() {}
