@@ -60,7 +60,6 @@ import org.checkerframework.dataflow.qual.Pure;
   // TODO(b/260618558): Move silent audio generation upstream of this component.
   public AudioSamplePipeline(
       Format firstInputFormat,
-      long streamStartPositionUs,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       boolean flattenForSlowMotion,
@@ -69,7 +68,7 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
-    super(firstInputFormat, streamStartPositionUs, muxerWrapper);
+    super(firstInputFormat, /* streamStartPositionUs= */ streamOffsetUs, muxerWrapper);
 
     silentAudioGenerator = new SilentAudioGenerator(firstInputFormat);
     availableInputBuffers = new ConcurrentLinkedDeque<>();

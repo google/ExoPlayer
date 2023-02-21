@@ -434,7 +434,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (MimeTypes.isAudio(firstInputFormat.sampleMimeType)) {
           return new AudioSamplePipeline(
               firstInputFormat,
-              streamStartPositionUs,
               streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.flattenForSlowMotion,
