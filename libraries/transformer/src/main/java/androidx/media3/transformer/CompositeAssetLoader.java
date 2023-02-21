@@ -196,7 +196,7 @@ import java.util.concurrent.atomic.AtomicInteger;
                 compositeAssetLoaderListener.onTrackAdded(
                     firstAudioFormat,
                     SUPPORTED_OUTPUT_TYPE_DECODED,
-                    /* streamStartPositionUs= */ streamOffsetUs,
+                    streamStartPositionUs,
                     streamOffsetUs));
         sampleConsumersByTrackType.put(C.TRACK_TYPE_AUDIO, audioSampleConsumer);
       }
