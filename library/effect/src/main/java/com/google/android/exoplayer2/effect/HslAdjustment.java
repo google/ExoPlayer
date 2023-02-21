@@ -116,4 +116,9 @@ public class HslAdjustment implements GlEffect {
       throws VideoFrameProcessingException {
     return new HslShaderProgram(context, /* hslAdjustment= */ this, useHdr);
   }
+
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    return hueAdjustmentDegrees == 0f && saturationAdjustment == 0f && lightnessAdjustment == 0f;
+  }
 }

@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import android.opengl.Matrix;
 import androidx.annotation.FloatRange;
 import com.google.android.exoplayer2.util.GlUtil;
+import java.util.Arrays;
 
 /** Modifies brightness of an input frame. */
 public class Brightness implements RgbMatrix {
@@ -31,7 +32,8 @@ public class Brightness implements RgbMatrix {
    * Modifies brightness by adding a constant value to red, green, and blue values.
    *
    * @param brightness The constant value to add to red, green, and blue values. Should be greater
-   *     than or equal to -1f, and less than or equal to 1f.
+   *     than or equal to {@code -1f}, and less than or equal to {@code 1f}. {@code 0} means to
+   *     leave brightness unchanged.
    */
   public Brightness(@FloatRange(from = -1, to = 1) float brightness) {
     checkArgument(
@@ -50,5 +52,10 @@ public class Brightness implements RgbMatrix {
   public float[] getMatrix(long presentationTimeUs, boolean useHdr) {
     checkArgument(!useHdr, "HDR is not supported.");
     return rgbMatrix;
+  }
+
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    return Arrays.equals(rgbMatrix, GlUtil.create4x4IdentityMatrix());
   }
 }

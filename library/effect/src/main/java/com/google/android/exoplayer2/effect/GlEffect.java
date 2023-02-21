@@ -49,9 +49,6 @@ public interface GlEffect extends Effect {
    * @param inputHeight The input frame height, in pixels.
    */
   default boolean isNoOp(int inputWidth, int inputHeight) {
-    // TODO(b/265927935): Generalize this logic by implementing this method on all
-    //  subclasses, and deleting the default implementation here. Otherwise, some no-op effects may
-    //  not be properly detected or handled.
     return false;
   }
 }

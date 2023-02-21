@@ -44,4 +44,9 @@ public class Contrast implements GlEffect {
       throws VideoFrameProcessingException {
     return new ContrastShaderProgram(context, this, useHdr);
   }
+
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    return contrast == 0f;
+  }
 }
