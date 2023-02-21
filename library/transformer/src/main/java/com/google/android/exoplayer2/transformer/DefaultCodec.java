@@ -107,18 +107,17 @@ public final class DefaultCodec implements Codec {
 
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
-    boolean requestedHdrToneMapping =
-        SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
+    boolean requestedHdrToneMapping = isSdrToneMappingEnabled(configurationMediaFormat);
 
     try {
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
-      if (SDK_INT >= 29 && requestedHdrToneMapping) {
+      if (requestedHdrToneMapping) {
         // The MediaCodec input format reflects whether tone-mapping is possible after configure().
         // See
         // https://developer.android.com/reference/android/media/MediaFormat#KEY_COLOR_TRANSFER_REQUEST.
         checkArgument(
-            Api29.isSdrToneMappingEnabled(mediaCodec.getInputFormat()),
+            isSdrToneMappingEnabled(mediaCodec.getInputFormat()),
             "Tone-mapping requested but not supported by the decoder.");
       }
       if (isVideo && !isDecoder) {
@@ -325,10 +324,10 @@ public final class DefaultCodec implements Codec {
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
         outputFormat = convertToFormat(mediaCodec.getOutputFormat());
-        boolean isToneMappingEnabled =
-            SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
         ColorInfo expectedColorInfo =
-            isToneMappingEnabled ? ColorInfo.SDR_BT709_LIMITED : configurationFormat.colorInfo;
+            isSdrToneMappingEnabled(configurationMediaFormat)
+                ? ColorInfo.SDR_BT709_LIMITED
+                : configurationFormat.colorInfo;
         if (!areColorTransfersEqual(expectedColorInfo, outputFormat.colorInfo)) {
           // TODO(b/237674316): The container ColorInfo's transfer doesn't match the decoder output
           //   MediaFormat, or we requested tone-mapping but it hasn't been applied. We should
@@ -455,20 +454,19 @@ public final class DefaultCodec implements Codec {
     TraceUtil.endSection();
   }
 
+  private static boolean isSdrToneMappingEnabled(MediaFormat mediaFormat) {
+    // MediaFormat.KEY_COLOR_TRANSFER_REQUEST was added in API 31.
+    return SDK_INT >= 31
+        && MediaFormatUtil.getInteger(
+                mediaFormat, MediaFormat.KEY_COLOR_TRANSFER_REQUEST, /* defaultValue= */ 0)
+            == MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+  }
+
   @RequiresApi(29)
   private static final class Api29 {
     @DoNotInline
     public static String getCanonicalName(MediaCodec mediaCodec) {
       return mediaCodec.getCanonicalName();
-    }
-
-    @DoNotInline
-    public static boolean isSdrToneMappingEnabled(MediaFormat mediaFormat) {
-      // MediaFormat.getInteger(String, int) was added in API 29 but applying a color transfer
-      // request is only possible from API 31.
-      return SDK_INT >= 31
-          && mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER_REQUEST, /* defaultValue= */ 0)
-              == MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
     }
   }
 }

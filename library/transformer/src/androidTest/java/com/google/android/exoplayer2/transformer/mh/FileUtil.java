@@ -34,7 +34,7 @@ import java.io.IOException;
   /**
    * Assert that the file has a certain color transfer, if supported on this device.
    *
-   * <p>This will silently pass if under API 29, or if decoding this file is not supported on this
+   * <p>This will silently pass if under API 24, or if decoding this file is not supported on this
    * device.
    *
    * @param filePath The path of the input file.
@@ -43,9 +43,8 @@ import java.io.IOException;
    */
   public static void maybeAssertFileHasColorTransfer(
       @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) throws IOException {
-    if (Util.SDK_INT < 29) {
-      // Skipping on this API version due to lack of support for MediaFormat#getInteger, which is
-      // required for MediaFormatUtil#getColorInfo.
+    if (Util.SDK_INT < 24) {
+      // MediaFormat#KEY_COLOR_TRANSFER unsupported before API 24.
       return;
     }
     DecodeOneFrameUtil.Listener listener =

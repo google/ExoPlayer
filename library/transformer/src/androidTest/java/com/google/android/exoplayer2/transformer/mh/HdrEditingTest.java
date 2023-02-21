@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -282,13 +281,6 @@ public class HdrEditingTest {
   public void exportUnexpectedColorInfo() throws Exception {
     String testId = "exportUnexpectedColorInfo";
     Context context = ApplicationProvider.getApplicationContext();
-    if (Util.SDK_INT < 29) {
-      recordTestSkipped(
-          context,
-          testId,
-          /* reason= */ "API version lacks support for MediaFormat#getInteger(String, int).");
-      return;
-    }
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
