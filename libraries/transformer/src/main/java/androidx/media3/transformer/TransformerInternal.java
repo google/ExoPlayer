@@ -441,9 +441,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               encoderFactory,
               muxerWrapper,
               fallbackListener);
-        }
-
-        if (MimeTypes.isVideo(firstInputFormat.sampleMimeType)) {
+        } else { // MIME type is video or image.
           return new VideoSamplePipeline(
               context,
               firstInputFormat,
@@ -459,7 +457,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               debugViewProvider);
         }
       }
-
       return new EncodedSamplePipeline(
           firstInputFormat,
           streamStartPositionUs,
