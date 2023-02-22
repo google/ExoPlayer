@@ -628,15 +628,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       }
     }
 
-    List<MediaCodecInfo> removedEncoders = new ArrayList<>(encoders);
-    removedEncoders.removeAll(filteredEncoders);
-    StringBuilder stringBuilder =
-        new StringBuilder("Encoders removed for ").append(filterName).append(":\n");
-    for (int i = 0; i < removedEncoders.size(); i++) {
-      MediaCodecInfo encoderInfo = removedEncoders.get(i);
-      stringBuilder.append(Util.formatInvariant("  %s\n", encoderInfo.getName()));
+    if (filteredEncoders.size() != encoders.size()) {
+      logRemovedEncoders(encoders, filteredEncoders, filterName);
     }
-    Log.d(TAG, stringBuilder.toString());
 
     return ImmutableList.copyOf(filteredEncoders);
   }
@@ -669,5 +663,18 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
         format);
+  }
+
+  private static void logRemovedEncoders(
+      List<MediaCodecInfo> encoders, List<MediaCodecInfo> filteredEncoders, String filterName) {
+    List<MediaCodecInfo> removedEncoders = new ArrayList<>(encoders);
+    removedEncoders.removeAll(filteredEncoders);
+    StringBuilder stringBuilder =
+        new StringBuilder("Encoders removed for ").append(filterName).append(":\n");
+    for (int i = 0; i < removedEncoders.size(); i++) {
+      MediaCodecInfo encoderInfo = removedEncoders.get(i);
+      stringBuilder.append(Util.formatInvariant("  %s\n", encoderInfo.getName()));
+    }
+    Log.d(TAG, stringBuilder.toString());
   }
 }
