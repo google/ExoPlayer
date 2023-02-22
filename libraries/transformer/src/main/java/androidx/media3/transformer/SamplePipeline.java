@@ -36,6 +36,11 @@ import java.util.List;
  * Pipeline for processing media data.
  *
  * <p>This pipeline can be used to implement transformations of audio or video samples.
+ *
+ * <p>The {@link SampleConsumer} and {@link OnMediaItemChangedListener} methods must be called from
+ * the same thread. This thread can change when the {@link
+ * OnMediaItemChangedListener#onMediaItemChanged(EditedMediaItem, Format, long) MediaItem} changes,
+ * and can be different from the thread used to call the other {@code SamplePipeline} methods.
  */
 /* package */ abstract class SamplePipeline implements SampleConsumer, OnMediaItemChangedListener {
 

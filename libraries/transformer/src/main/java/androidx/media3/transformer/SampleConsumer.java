@@ -22,11 +22,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 
-/**
- * Consumer of encoded media samples, raw audio or raw video frames.
- *
- * <p>All the methods in this class can be called from any thread.
- */
+/** Consumer of encoded media samples, raw audio or raw video frames. */
 @UnstableApi
 public interface SampleConsumer {
 

@@ -66,17 +66,21 @@ public interface AssetLoader {
         EditedMediaItem editedMediaItem, Looper looper, Listener listener);
   }
 
-  /**
-   * A listener of {@link AssetLoader} events.
-   *
-   * <p>This listener can be called from any thread.
-   */
+  /** A listener of {@link AssetLoader} events. */
   interface Listener {
 
-    /** Called when the duration of the input media is known. */
+    /**
+     * Called when the duration of the input media is known.
+     *
+     * <p>Can be called from any thread.
+     */
     void onDurationUs(long durationUs);
 
-    /** Called when the number of tracks output by the asset loader is known. */
+    /**
+     * Called when the number of tracks output by the asset loader is known.
+     *
+     * <p>Can be called from any thread.
+     */
     void onTrackCount(@IntRange(from = 1) int trackCount);
 
     /**
@@ -86,6 +90,10 @@ public interface AssetLoader {
      * #onTrackCount(int) track count} have been reported.
      *
      * <p>Must be called once per {@linkplain #onTrackCount(int) declared} track.
+     *
+     * <p>Must be called from the thread that will be used to call the returned {@link
+     * SampleConsumer}'s methods. This thread is generally different from the one used to access the
+     * {@link AssetLoader} methods.
      *
      * @param format The {@link Format} of the input media (prior to video slow motion flattening or
      *     to decoding).
@@ -109,6 +117,8 @@ public interface AssetLoader {
     /**
      * Called if an error occurs in the asset loader. In this case, the asset loader will be
      * {@linkplain #release() released} automatically.
+     *
+     * <p>Can be called from any thread.
      */
     void onError(ExportException exportException);
   }

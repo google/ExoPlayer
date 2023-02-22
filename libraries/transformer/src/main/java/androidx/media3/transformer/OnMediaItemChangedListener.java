@@ -26,8 +26,6 @@ import androidx.media3.common.MediaItem;
    * Called when the {@link MediaItem} whose samples are passed to the {@link SamplePipeline}
    * changes.
    *
-   * <p>Can be called from any thread.
-   *
    * @param editedMediaItem The {@link MediaItem} with the transformations to apply to it.
    * @param durationUs The duration of the {@link MediaItem}, in microseconds.
    * @param trackFormat The {@link Format} of the {@link MediaItem} track corresponding to the
