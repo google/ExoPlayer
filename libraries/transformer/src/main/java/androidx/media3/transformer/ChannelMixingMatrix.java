@@ -27,20 +27,16 @@ import static androidx.media3.common.util.Assertions.checkArgument;
  *
  * <ul>
  *   <li>Stereo to mono with each channel at half volume:
- *     <pre>[0.5 0.5]
- *   <li>
+ *       <pre>
+ *         [0.5 0.5]</pre>
  *   <li>Stereo to stereo with no mixing or scaling:
- *     <pre>
- *     [1 0
- *      0 1]
- *     </pre>
- *   </li>
+ *       <pre>
+ *         [1 0
+ *          0 1]</pre>
  *   <li>Stereo to stereo with 0.7 volume:
- *     <pre>
- *     [0.7 0
- *      0 0.7]
- *     </pre>
- *   </li>
+ *       <pre>
+ *         [0.7 0
+ *          0 0.7]</pre>
  * </ul>
  */
 /* package */ final class ChannelMixingMatrix {
