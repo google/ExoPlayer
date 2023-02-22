@@ -21,11 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.video.ColorInfo;
 
-/**
- * Consumer of encoded media samples, raw audio or raw video frames.
- *
- * <p>All the methods in this class can be called from any thread.
- */
+/** Consumer of encoded media samples, raw audio or raw video frames. */
 public interface SampleConsumer {
 
   /**

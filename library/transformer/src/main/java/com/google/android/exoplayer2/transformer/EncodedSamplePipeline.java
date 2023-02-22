@@ -37,7 +37,8 @@ import java.util.concurrent.atomic.AtomicLong;
   private final Queue<DecoderInputBuffer> availableInputBuffers;
   private final Queue<DecoderInputBuffer> pendingInputBuffers;
 
-  private volatile long mediaItemOffsetUs;
+  private long mediaItemOffsetUs;
+
   private volatile boolean inputEnded;
 
   public EncodedSamplePipeline(
