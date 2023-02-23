@@ -16,10 +16,10 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 
@@ -121,7 +121,7 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
-        /* inputFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
+        /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
         /* outputFormat= */ null)) {
       return;
     }
@@ -135,7 +135,7 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
     try {
       ExportTestResult exportTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)

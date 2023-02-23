@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.transformer.mh;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static com.google.common.truth.Truth.assertThat;
@@ -161,7 +161,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     if (skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
-        /* inputFormat= */ MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT,
+        /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
         /* outputFormat= */ null)) {
       return;
     }
