@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
-import com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
@@ -397,8 +396,7 @@ public final class TransformerEndToEndTest {
   public void start_concatenateMediaItemsWithSameFormat_completesSuccessfully() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(Effects.EMPTY).build();
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
@@ -419,14 +417,15 @@ public final class TransformerEndToEndTest {
       throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    AudioProcessor audioProcessor = new SilenceSkippingAudioProcessor();
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setPitch(2f);
     Effects effects =
-        new Effects(ImmutableList.of(audioProcessor), /* videoEffects= */ ImmutableList.of());
+        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
     // The video track must be removed in order for the export to end. Indeed, the
     // Robolectric decoder just copies the input buffers to the output and the audio timestamps are
-    // therefore computed based on the encoded samples. As a result, the audio timestamps are much
-    // smaller than they should be and the muxer waits for more audio samples before writing video
-    // samples.
+    // therefore computed based on the encoded samples (see [internal: b/178685617]). As a result,
+    // the audio timestamps are much smaller than they should be and the muxer waits for more audio
+    // samples before writing video samples.
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).setRemoveVideo(true).build();
     EditedMediaItemSequence editedMediaItemSequence =
@@ -438,7 +437,58 @@ public final class TransformerEndToEndTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_skipped_concatenated"));
+        context,
+        testMuxer,
+        getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_with_high_pitch_and_no_video"));
+  }
+
+  @Test
+  public void start_concatenateSilenceAndAudio_completesSuccessfully() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    EditedMediaItem noAudioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+    EditedMediaItem audioEditedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(noAudioEditedMediaItem, audioEditedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_then_audio"));
+  }
+
+  @Test
+  public void start_concatenateSilenceAndAudioWithEffects_completesSuccessfully() throws Exception {
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setPitch(2f);
+    Effects effects =
+        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem noAudioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(noAudioEditedMediaItem, audioEditedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_then_audio_with_effects"));
   }
 
   @Test
@@ -469,9 +519,10 @@ public final class TransformerEndToEndTest {
   public void start_multipleMediaItemsWithEffectsAndTransmux_ignoresTransmux() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    AudioProcessor audioProcessor = new SilenceSkippingAudioProcessor();
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setPitch(2f);
     Effects effects =
-        new Effects(ImmutableList.of(audioProcessor), /* videoEffects= */ ImmutableList.of());
+        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).setRemoveVideo(true).build();
     EditedMediaItemSequence editedMediaItemSequence =
@@ -489,7 +540,9 @@ public final class TransformerEndToEndTest {
     // audio effects have been added to the first MediaItem in the sequence, so the transcoding
     // audio sample pipeline should be picked to apply these effects.
     DumpFileAsserts.assertOutput(
-        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".silence_skipped_concatenated"));
+        context,
+        testMuxer,
+        getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_with_high_pitch_and_no_video"));
   }
 
   @Test
