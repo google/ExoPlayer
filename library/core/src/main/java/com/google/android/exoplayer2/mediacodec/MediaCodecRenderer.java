@@ -206,10 +206,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final long MAX_CODEC_HOTSWAP_TIME_MS = 1000;
 
-  // Generally there is zero or one pending output stream offset. We track more offsets to allow for
-  // pending output streams that have fewer frames than the codec latency.
-  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
-
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
@@ -304,9 +300,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
-  private final long[] pendingOutputStreamStartPositionsUs;
-  private final long[] pendingOutputStreamOffsetsUs;
-  private final long[] pendingOutputStreamSwitchTimesUs;
+  private final ArrayDeque<OutputStreamInfo> pendingOutputStreamChanges;
 
   @Nullable private Format inputFormat;
   @Nullable private Format outputFormat;
@@ -361,9 +355,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean pendingOutputEndOfStream;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
-  private long outputStreamStartPositionUs;
-  private long outputStreamOffsetUs;
-  private int pendingOutputStreamOffsetCount;
+  private OutputStreamInfo outputStreamInfo;
 
   /**
    * @param trackType The {@link C.TrackType track type} that the renderer handles.
@@ -396,11 +388,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     currentPlaybackSpeed = 1f;
     targetPlaybackSpeed = 1f;
     renderTimeLimitMs = C.TIME_UNSET;
-    pendingOutputStreamStartPositionsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    outputStreamStartPositionUs = C.TIME_UNSET;
-    setOutputStreamOffsetUs(C.TIME_UNSET);
+    pendingOutputStreamChanges = new ArrayDeque<>();
+    setOutputStreamInfo(OutputStreamInfo.UNSET);
     // MediaCodec outputs audio buffers in native endian:
     // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
     // and code called from MediaCodecAudioRenderer.processOutputBuffer expects this endianness.
@@ -646,23 +635,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
-    if (this.outputStreamOffsetUs == C.TIME_UNSET) {
-      checkState(this.outputStreamStartPositionUs == C.TIME_UNSET);
-      this.outputStreamStartPositionUs = startPositionUs;
-      setOutputStreamOffsetUs(offsetUs);
+    if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET) {
+      checkState(outputStreamInfo.startPositionUs == C.TIME_UNSET);
+      setOutputStreamInfo(
+          new OutputStreamInfo(
+              /* previousStreamLastBufferTimeUs= */ C.TIME_UNSET, startPositionUs, offsetUs));
     } else {
-      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
-        Log.w(
-            TAG,
-            "Too many stream changes, so dropping offset: "
-                + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
-      } else {
-        pendingOutputStreamOffsetCount++;
-      }
-      pendingOutputStreamStartPositionsUs[pendingOutputStreamOffsetCount - 1] = startPositionUs;
-      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
-      pendingOutputStreamSwitchTimesUs[pendingOutputStreamOffsetCount - 1] =
-          largestQueuedPresentationTimeUs;
+      pendingOutputStreamChanges.add(
+          new OutputStreamInfo(largestQueuedPresentationTimeUs, startPositionUs, offsetUs));
     }
   }
 
@@ -685,12 +665,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       waitingForFirstSampleInFormat = true;
     }
     formatQueue.clear();
-    if (pendingOutputStreamOffsetCount != 0) {
-      setOutputStreamOffsetUs(pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
-      outputStreamStartPositionUs =
-          pendingOutputStreamStartPositionsUs[pendingOutputStreamOffsetCount - 1];
-      pendingOutputStreamOffsetCount = 0;
-    }
+    pendingOutputStreamChanges.clear();
   }
 
   @Override
@@ -704,9 +679,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    outputStreamStartPositionUs = C.TIME_UNSET;
-    setOutputStreamOffsetUs(C.TIME_UNSET);
-    pendingOutputStreamOffsetCount = 0;
+    setOutputStreamInfo(OutputStreamInfo.UNSET);
+    pendingOutputStreamChanges.clear();
     flushOrReleaseCodec();
   }
 
@@ -1591,29 +1565,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   @CallSuper
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    while (pendingOutputStreamOffsetCount != 0
-        && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
-      outputStreamStartPositionUs = pendingOutputStreamStartPositionsUs[0];
-      setOutputStreamOffsetUs(pendingOutputStreamOffsetsUs[0]);
-      pendingOutputStreamOffsetCount--;
-      System.arraycopy(
-          pendingOutputStreamStartPositionsUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamStartPositionsUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
-      System.arraycopy(
-          pendingOutputStreamOffsetsUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamOffsetsUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
-      System.arraycopy(
-          pendingOutputStreamSwitchTimesUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamSwitchTimesUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
+    if (!pendingOutputStreamChanges.isEmpty()
+        && presentationTimeUs >= pendingOutputStreamChanges.peek().previousStreamLastBufferTimeUs) {
+      setOutputStreamInfo(pendingOutputStreamChanges.poll());
       onProcessedStreamChange();
     }
   }
@@ -2060,13 +2014,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * boolean, Format)} to get the playback position with respect to the media.
    */
   protected final long getOutputStreamOffsetUs() {
-    return outputStreamOffsetUs;
+    return outputStreamInfo.streamOffsetUs;
   }
 
-  private void setOutputStreamOffsetUs(long outputStreamOffsetUs) {
-    this.outputStreamOffsetUs = outputStreamOffsetUs;
-    if (outputStreamOffsetUs != C.TIME_UNSET) {
-      onOutputStreamOffsetUsChanged(outputStreamOffsetUs);
+  private void setOutputStreamInfo(OutputStreamInfo outputStreamInfo) {
+    this.outputStreamInfo = outputStreamInfo;
+    if (outputStreamInfo.streamOffsetUs != C.TIME_UNSET) {
+      onOutputStreamOffsetUsChanged(outputStreamInfo.streamOffsetUs);
     }
   }
 
@@ -2511,6 +2465,26 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18
         && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
+  }
+
+  private static final class OutputStreamInfo {
+
+    public static final OutputStreamInfo UNSET =
+        new OutputStreamInfo(
+            /* previousStreamLastBufferTimeUs= */ C.TIME_UNSET,
+            /* startPositionUs= */ C.TIME_UNSET,
+            /* streamOffsetUs= */ C.TIME_UNSET);
+
+    public final long previousStreamLastBufferTimeUs;
+    public final long startPositionUs;
+    public final long streamOffsetUs;
+
+    public OutputStreamInfo(
+        long previousStreamLastBufferTimeUs, long startPositionUs, long streamOffsetUs) {
+      this.previousStreamLastBufferTimeUs = previousStreamLastBufferTimeUs;
+      this.startPositionUs = startPositionUs;
+      this.streamOffsetUs = streamOffsetUs;
+    }
   }
 
   @RequiresApi(31)
