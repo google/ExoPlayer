@@ -129,6 +129,8 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_START = 3;
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
+  private static final long MICROS_PER_MILLI = 1000L;
+
   // Workarounds.
   private final @Flags int flags;
   @Nullable private final Track sideloadedTrack;
@@ -969,6 +971,27 @@ public class FragmentedMp4Extractor implements Extractor {
   }
 
   /**
+   * Retunrs if edts list duration is for the entire media timeline.
+   *
+   * @param track The {@link Track} for which edts list duration to be checked.
+   * @return flag indicating if the edts list duration is for entire timeline.
+   */
+  private static boolean isEdtsListDurationForEntireMediaTimeline(Track track) {
+    // Currently we only support a single edit that moves the entire media timeline (indicated by
+    // duration == 0 or duration == track duration).
+    // Other uses of edit lists are uncommon and unsupported.
+    if (track.editListDurations != null && track.editListDurations.length == 1) {
+      long edtsDurationUs = Util.scaleLargeTimestamp(track.editListDurations[0],
+          C.MICROS_PER_SECOND, track.movieTimescale);
+      return edtsDurationUs == 0
+          || (track.durationUs > MICROS_PER_MILLI
+          && edtsDurationUs >= track.durationUs - MICROS_PER_MILLI
+          && edtsDurationUs <= track.durationUs + MICROS_PER_MILLI);
+    }
+    return false;
+  }
+
+  /**
    * Parses a trun atom (defined in 14496-12).
    *
    * @param trackBundle The {@link TrackBundle} that contains the {@link TrackFragment} into which
@@ -1015,11 +1038,8 @@ public class FragmentedMp4Extractor implements Extractor {
     // ensure that the first frame's presentation timestamp is zero.
     long edtsOffset = 0;
 
-    // Currently we only support a single edit that moves the entire media timeline (indicated by
-    // duration == 0). Other uses of edit lists are uncommon and unsupported.
-    if (track.editListDurations != null
-        && track.editListDurations.length == 1
-        && track.editListDurations[0] == 0) {
+    // Currently we only support a single edit that moves the entire media timeline.
+    if (isEdtsListDurationForEntireMediaTimeline(track)) {
       edtsOffset = castNonNull(track.editListMediaTimes)[0];
     }
 
