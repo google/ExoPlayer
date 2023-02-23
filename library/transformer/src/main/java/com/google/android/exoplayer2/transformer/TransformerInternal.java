@@ -485,12 +485,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!assetLoaderCanOutputEncoded) {
         shouldTranscode = true;
       } else if (MimeTypes.isAudio(inputFormat.sampleMimeType)) {
-        shouldTranscode =
-            (mediaItemCount > 1 && !transmuxAudio) || shouldTranscodeAudio(inputFormat);
+        shouldTranscode = shouldTranscodeAudio(inputFormat);
       } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)) {
-        shouldTranscode =
-            (mediaItemCount > 1 && !transmuxVideo)
-                || shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
+        shouldTranscode = shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
       }
 
       checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
@@ -499,6 +496,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private boolean shouldTranscodeAudio(Format inputFormat) {
+      if (mediaItemCount > 1 && !transmuxAudio) {
+        return true;
+      }
       if (encoderFactory.audioNeedsEncoding()) {
         return true;
       }
@@ -535,6 +535,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private boolean shouldTranscodeVideo(
         Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
+      if (mediaItemCount > 1 && !transmuxVideo) {
+        return true;
+      }
       if ((streamStartPositionUs - streamOffsetUs) != 0
           && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
         return true;
