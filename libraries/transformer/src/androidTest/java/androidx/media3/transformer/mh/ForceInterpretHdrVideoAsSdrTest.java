@@ -16,22 +16,20 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.util.Util.SDK_INT;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
-import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
@@ -64,7 +62,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
 
     // Force interpret HDR as SDR signals SDR input to the decoder, even if the actual input is HDR.
     Format decoderInputFormat =
-        MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT
+        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT
             .buildUpon()
             .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
             .build();
@@ -81,21 +79,13 @@ public class ForceInterpretHdrVideoAsSdrTest {
                         TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
-    try {
-      ExportTestResult exportTestResult =
-          new TransformerAndroidTestRunner.Builder(context, transformer)
-              .build()
-              .run(testId, mediaItem);
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-      Log.i(TAG, "Transformed.");
-    } catch (ExportException exception) {
-      String message = getMessageOrEmptyString(exception);
-      Log.i(TAG, "Exception: " + message);
-      if (!message.equals("The requested video decoding format is not supported.")) {
-        throw exception;
-      }
-    }
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
+
+    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
   }
 
   @Test
@@ -130,30 +120,11 @@ public class ForceInterpretHdrVideoAsSdrTest {
                     .build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
-    try {
-      ExportTestResult exportTestResult =
-          new TransformerAndroidTestRunner.Builder(context, transformer)
-              .build()
-              .run(testId, mediaItem);
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-      Log.i(TAG, "Transformed.");
-    } catch (ExportException exception) {
-      String message = getMessageOrEmptyString(exception);
-      Log.i(TAG, "Exception: " + message);
-      if (!message.equals("The requested video decoding format is not supported.")) {
-        throw exception;
-      }
-    }
-  }
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
 
-  private String getMessageOrEmptyString(Exception exception) {
-    if (exception.getCause() == null) {
-      return "";
-    }
-    String message = exception.getCause().getMessage();
-    if (message == null) {
-      return "";
-    }
-    return message;
+    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
   }
 }

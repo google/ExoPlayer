@@ -53,8 +53,6 @@ public final class AndroidTestUtil {
    */
   public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
-  // Format values are sourced from `mediainfo` command.
-
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final Format MP4_ASSET_FORMAT =
       new Format.Builder()
@@ -62,6 +60,7 @@ public final class AndroidTestUtil {
           .setWidth(1080)
           .setHeight(720)
           .setFrameRate(29.97f)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING =
@@ -72,6 +71,7 @@ public final class AndroidTestUtil {
           .setWidth(1920)
           .setHeight(1080)
           .setFrameRate(30.00f)
+          .setCodecs("avc1.42C033")
           .build();
 
   /** Baseline profile level 3.0 H.264 stream, which should be supported on all devices. */
@@ -84,6 +84,7 @@ public final class AndroidTestUtil {
           .setWidth(320)
           .setHeight(240)
           .setFrameRate(30.00f)
+          .setCodecs("avc1.42C015")
           .build();
 
   public static final String MP4_ASSET_SEF_URI_STRING =
@@ -94,6 +95,7 @@ public final class AndroidTestUtil {
           .setWidth(320)
           .setHeight(240)
           .setFrameRate(30.472f)
+          .setCodecs("avc1.64000D")
           .build();
 
   public static final String MP4_ASSET_1080P_5_SECOND_HLG10 = "asset:///media/mp4/hlg-1080p.mp4";
@@ -109,20 +111,22 @@ public final class AndroidTestUtil {
                   .setColorRange(C.COLOR_RANGE_LIMITED)
                   .setColorTransfer(C.COLOR_TRANSFER_HLG)
                   .build())
+          .setCodecs("hvc1.2.4.L153")
           .build();
-  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 = "asset:///media/mp4/hdr10-1080p.mp4";
-  public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
+  public static final String MP4_ASSET_720P_4_SECOND_HDR10 = "asset:///media/mp4/hdr10-720p.mp4";
+  public static final Format MP4_ASSET_720P_4_SECOND_HDR10_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H265)
-          .setWidth(1920)
-          .setHeight(1080)
-          .setFrameRate(23.517f)
+          .setWidth(1280)
+          .setHeight(720)
+          .setFrameRate(29.97f)
           .setColorInfo(
               new ColorInfo.Builder()
                   .setColorSpace(C.COLOR_SPACE_BT2020)
                   .setColorRange(C.COLOR_RANGE_LIMITED)
                   .setColorTransfer(C.COLOR_TRANSFER_ST2084)
                   .build())
+          .setCodecs("hvc1.2.4.L153")
           .build();
   public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
       "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
@@ -135,6 +139,7 @@ public final class AndroidTestUtil {
           .setWidth(1280)
           .setHeight(720)
           .setFrameRate(29.97f)
+          .setCodecs("avc1.64001F")
           .build();
 
   /** Test clip transcoded from {@link #MP4_REMOTE_10_SECONDS_URI_STRING} with H264 and MP3. */
@@ -147,6 +152,7 @@ public final class AndroidTestUtil {
           .setWidth(1280)
           .setHeight(720)
           .setFrameRate(29.97f)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_REMOTE_4K60_PORTRAIT_URI_STRING =
@@ -157,6 +163,7 @@ public final class AndroidTestUtil {
           .setWidth(3840)
           .setHeight(2160)
           .setFrameRate(57.39f)
+          .setCodecs("avc1.640033")
           .build();
 
   public static final String MP4_REMOTE_8K24_URI_STRING =
@@ -167,6 +174,7 @@ public final class AndroidTestUtil {
           .setWidth(7680)
           .setHeight(4320)
           .setFrameRate(24.00f)
+          .setCodecs("hvc1.1.6.L183")
           .build();
 
   // The 7 HIGHMOTION files are H264 and AAC.
@@ -179,6 +187,7 @@ public final class AndroidTestUtil {
           .setHeight(720)
           .setAverageBitrate(8_939_000)
           .setFrameRate(30.075f)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION =
@@ -190,6 +199,7 @@ public final class AndroidTestUtil {
           .setHeight(1440)
           .setAverageBitrate(17_000_000)
           .setFrameRate(29.97f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION =
@@ -201,6 +211,7 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setAverageBitrate(17_100_000)
           .setFrameRate(30.037f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION =
@@ -212,6 +223,7 @@ public final class AndroidTestUtil {
           .setHeight(2160)
           .setAverageBitrate(48_300_000)
           .setFrameRate(30.090f)
+          .setCodecs("avc1.640033")
           .build();
 
   public static final String MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION =
@@ -223,6 +235,7 @@ public final class AndroidTestUtil {
           .setHeight(720)
           .setAverageBitrate(9_962_000)
           .setFrameRate(30.078f)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION =
@@ -234,6 +247,7 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setAverageBitrate(15_000_000)
           .setFrameRate(28.561f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION =
@@ -245,6 +259,7 @@ public final class AndroidTestUtil {
           .setHeight(2160)
           .setAverageBitrate(47_800_000)
           .setFrameRate(28.414f)
+          .setCodecs("avc1.640033")
           .build();
 
   public static final String MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
@@ -255,6 +270,7 @@ public final class AndroidTestUtil {
           .setWidth(256)
           .setHeight(144)
           .setFrameRate(30)
+          .setCodecs("avc1.64000C")
           .build();
 
   public static final String MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
@@ -265,6 +281,7 @@ public final class AndroidTestUtil {
           .setWidth(426)
           .setHeight(240)
           .setFrameRate(30)
+          .setCodecs("avc1.640015")
           .build();
 
   public static final String MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
@@ -275,6 +292,7 @@ public final class AndroidTestUtil {
           .setWidth(640)
           .setHeight(360)
           .setFrameRate(30)
+          .setCodecs("avc1.64001E")
           .build();
 
   public static final String MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED =
@@ -285,6 +303,7 @@ public final class AndroidTestUtil {
           .setWidth(854)
           .setHeight(480)
           .setFrameRate(30)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
@@ -295,6 +314,7 @@ public final class AndroidTestUtil {
           .setWidth(256)
           .setHeight(144)
           .setFrameRate(30)
+          .setCodecs("avc1.64000C")
           .build();
 
   public static final String MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
@@ -305,6 +325,7 @@ public final class AndroidTestUtil {
           .setWidth(426)
           .setHeight(240)
           .setFrameRate(30)
+          .setCodecs("avc1.640015")
           .build();
 
   public static final String MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
@@ -315,6 +336,7 @@ public final class AndroidTestUtil {
           .setWidth(640)
           .setHeight(360)
           .setFrameRate(30)
+          .setCodecs("avc1.64001E")
           .build();
 
   public static final String MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED =
@@ -325,6 +347,7 @@ public final class AndroidTestUtil {
           .setWidth(854)
           .setHeight(480)
           .setFrameRate(30)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3 =
@@ -336,6 +359,7 @@ public final class AndroidTestUtil {
           .setHeight(480)
           .setAverageBitrate(3_578_000)
           .setFrameRate(30)
+          .setCodecs("avc1.64001E")
           .build();
 
   public static final String MP4_REMOTE_1280W_720H_30_SECOND_ROOF_ONEPLUSNORD2 =
@@ -347,6 +371,7 @@ public final class AndroidTestUtil {
           .setHeight(720)
           .setAverageBitrate(8_966_000)
           .setFrameRate(29.763f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_1280W_720H_32_SECOND_ROOF_REDMINOTE9 =
@@ -358,6 +383,7 @@ public final class AndroidTestUtil {
           .setHeight(720)
           .setAverageBitrate(14_100_000)
           .setFrameRate(30)
+          .setCodecs("avc1.64001F")
           .build();
 
   public static final String MP4_REMOTE_1440W_1440H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G =
@@ -369,6 +395,7 @@ public final class AndroidTestUtil {
           .setHeight(1440)
           .setAverageBitrate(16_300_000)
           .setFrameRate(25.931f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_ONEPLUSNORD2 =
@@ -380,6 +407,7 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setAverageBitrate(20_000_000)
           .setFrameRate(59.94f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_REDMINOTE9 =
@@ -391,6 +419,7 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setAverageBitrate(20_100_000)
           .setFrameRate(61.069f)
+          .setCodecs("avc1.64002A")
           .build();
 
   public static final String MP4_REMOTE_2400W_1080H_34_SECOND_ROOF_SAMSUNGS20ULTRA5G =
@@ -402,6 +431,7 @@ public final class AndroidTestUtil {
           .setHeight(1080)
           .setAverageBitrate(29_500_000)
           .setFrameRate(27.472f)
+          .setCodecs("hvc1.2.4.L153.B0")
           .build();
 
   public static final String MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_ONEPLUSNORD2 =
@@ -413,6 +443,7 @@ public final class AndroidTestUtil {
           .setHeight(2160)
           .setAverageBitrate(49_800_000)
           .setFrameRate(29.802f)
+          .setCodecs("avc1.640028")
           .build();
 
   public static final String MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_REDMINOTE9 =
@@ -424,6 +455,13 @@ public final class AndroidTestUtil {
           .setHeight(2160)
           .setAverageBitrate(42_100_000)
           .setFrameRate(30)
+          .setColorInfo(
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .setColorRange(C.COLOR_RANGE_FULL)
+                  .setColorTransfer(C.COLOR_TRANSFER_SDR)
+                  .build())
+          .setCodecs("avc1.640033")
           .build();
 
   public static final String MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G =
@@ -435,6 +473,7 @@ public final class AndroidTestUtil {
           .setHeight(4320)
           .setAverageBitrate(79_900_000)
           .setFrameRate(23.163f)
+          .setCodecs("hvc1.1.6.L183.B0")
           .build();
   /**
    * Log in logcat and in an analysis file that this test was skipped.

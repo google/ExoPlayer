@@ -16,8 +16,8 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -75,7 +75,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                   }
                 })
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
 
     try {
       ExportTestResult exportTestResult =
@@ -159,7 +159,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                   }
                 })
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(
             new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
