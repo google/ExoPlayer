@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
 import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
+import static com.google.android.exoplayer2.transformer.DefaultCodec.DEFAULT_PCM_ENCODING;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
@@ -92,13 +93,14 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     audioProcessingPipeline = new AudioProcessingPipeline(audioProcessors);
+    // TODO(b/267301878): Once decoder format propagated, remove setting default PCM encoding.
     AudioFormat pipelineInputAudioFormat =
         new AudioFormat(
             firstInputFormat.sampleRate,
             firstInputFormat.channelCount,
-            // The decoder uses ENCODING_PCM_16BIT by default.
-            // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
-            C.ENCODING_PCM_16BIT);
+            firstInputFormat.pcmEncoding != Format.NO_VALUE
+                ? firstInputFormat.pcmEncoding
+                : DEFAULT_PCM_ENCODING);
 
     try {
       encoderInputAudioFormat = audioProcessingPipeline.configure(pipelineInputAudioFormat);
@@ -117,6 +119,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     : checkNotNull(firstInputFormat.sampleMimeType))
             .setSampleRate(encoderInputAudioFormat.sampleRate)
             .setChannelCount(encoderInputAudioFormat.channelCount)
+            .setPcmEncoding(encoderInputAudioFormat.encoding)
             .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
             .build();
 

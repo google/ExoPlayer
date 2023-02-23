@@ -50,12 +50,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A default {@link Codec} implementation that uses {@link MediaCodec}. */
 public final class DefaultCodec implements Codec {
+  // MediaCodec decoders output 16 bit PCM, unless configured to output PCM float.
+  // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
+  public static final int DEFAULT_PCM_ENCODING = C.ENCODING_PCM_16BIT;
 
   private static final String TAG = "DefaultCodec";
-
-  // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
-  // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
-  private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
 
   private final BufferInfo outputBufferInfo;
   /** The {@link MediaFormat} used to configure the underlying {@link MediaCodec}. */
@@ -323,7 +322,7 @@ public final class DefaultCodec implements Codec {
     }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = convertToFormat(mediaCodec.getOutputFormat());
+        outputFormat = convertToFormat(mediaCodec.getOutputFormat(), isDecoder);
         ColorInfo expectedColorInfo =
             isSdrToneMappingEnabled(configurationMediaFormat)
                 ? ColorInfo.SDR_BT709_LIMITED
@@ -400,7 +399,7 @@ public final class DefaultCodec implements Codec {
     return transfer1 == transfer2;
   }
 
-  private static Format convertToFormat(MediaFormat mediaFormat) {
+  private static Format convertToFormat(MediaFormat mediaFormat, boolean isDecoder) {
     ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
     int csdIndex = 0;
     while (true) {
@@ -422,12 +421,22 @@ public final class DefaultCodec implements Codec {
           .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
           .setColorInfo(MediaFormatUtil.getColorInfo(mediaFormat));
     } else if (MimeTypes.isAudio(mimeType)) {
-      // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
-      // simulate more realistic codec input/output formats in tests.
       formatBuilder
           .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
-          .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
-          .setPcmEncoding(MEDIA_CODEC_PCM_ENCODING);
+          .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE));
+
+      if (SDK_INT >= 24 && mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
+        formatBuilder.setPcmEncoding(mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING));
+      } else if (isDecoder) {
+        // TODO(b/178685617): Restrict this to only set the PCM encoding for audio/raw once we have
+        // a way to simulate more realistic codec input/output formats in tests.
+
+        // With Robolectric, codecs do not actually encode/decode. The format of buffers is passed
+        // through. However downstream components need to know the PCM encoding of the data being
+        // output, so if a decoder is not outputting raw audio, we need to set the PCM
+        // encoding to the default.
+        formatBuilder.setPcmEncoding(DEFAULT_PCM_ENCODING);
+      }
     }
     return formatBuilder.build();
   }
