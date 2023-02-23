@@ -101,6 +101,9 @@ public final class EditedMediaItem {
      * {@link Mp4Extractor} used. Otherwise, the slow motion metadata will be ignored and the input
      * won't be flattened.
      *
+     * <p>Slow motion flattening is only supported when the {@link Composition} contains one {@link
+     * MediaItem}.
+     *
      * <p>Using slow motion flattening together with {@link MediaItem.ClippingConfiguration} is not
      * supported yet.
      *
