@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-/** Effects to apply to a {@link MediaItem}. */
+/** Effects to apply to a {@link MediaItem} or to a {@link Composition}. */
 public final class Effects {
 
   /** An empty {@link Effects} instance. */

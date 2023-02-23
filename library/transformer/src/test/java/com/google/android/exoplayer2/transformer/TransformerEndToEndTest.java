@@ -286,8 +286,9 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
-        new Composition(
-            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -304,8 +305,9 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
-        new Composition(
-            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -323,8 +325,9 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
-        new Composition(
-            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -343,8 +346,9 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
-        new Composition(
-            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -360,8 +364,9 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
-        new Composition(
-            ImmutableList.of(sequence), Effects.EMPTY, /* experimentalForceAudioTrack= */ true);
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -390,15 +395,17 @@ public final class TransformerEndToEndTest {
 
   @Test
   public void start_concatenateMediaItemsWithSameFormat_completesSuccessfully() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false).setTransmux(true).build();
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(Effects.EMPTY).build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition(ImmutableList.of(editedMediaItemSequence), Effects.EMPTY);
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+            .setTransmuxAudio(true)
+            .setTransmuxVideo(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -425,7 +432,7 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition(ImmutableList.of(editedMediaItemSequence), Effects.EMPTY);
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -438,15 +445,20 @@ public final class TransformerEndToEndTest {
   public void start_singleMediaItemAndTransmux_ignoresTransmux() throws Exception {
     SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
     sonicAudioProcessor.setOutputSampleRateHz(48000);
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false).setTransmux(true).build();
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(sonicAudioProcessor);
     Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+            .setTransmuxAudio(true)
+            .build();
 
-    transformer.start(editedMediaItem, outputPath);
+    transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
@@ -455,8 +467,7 @@ public final class TransformerEndToEndTest {
 
   @Test
   public void start_multipleMediaItemsWithEffectsAndTransmux_ignoresTransmux() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false).setTransmux(true).build();
+    Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     AudioProcessor audioProcessor = new SilenceSkippingAudioProcessor();
     Effects effects =
@@ -466,7 +477,10 @@ public final class TransformerEndToEndTest {
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition(ImmutableList.of(editedMediaItemSequence), Effects.EMPTY);
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+            .setTransmuxAudio(true)
+            .setTransmuxVideo(true)
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);

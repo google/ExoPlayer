@@ -44,12 +44,12 @@ import org.robolectric.shadows.ShadowMediaCodecList;
 @RunWith(AndroidJUnit4.class)
 public final class VideoEncoderWrapperTest {
   private static final Composition FAKE_COMPOSITION =
-      new Composition(
-          ImmutableList.of(
-              new EditedMediaItemSequence(
-                  ImmutableList.of(
-                      new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))),
-          Effects.EMPTY);
+      new Composition.Builder(
+              ImmutableList.of(
+                  new EditedMediaItemSequence(
+                      ImmutableList.of(
+                          new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))))
+          .build();
 
   private final TransformationRequest emptyTransformationRequest =
       new TransformationRequest.Builder().build();
