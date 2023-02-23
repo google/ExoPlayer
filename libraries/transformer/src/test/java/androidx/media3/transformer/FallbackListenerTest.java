@@ -39,12 +39,12 @@ import org.robolectric.shadows.ShadowLooper;
 public class FallbackListenerTest {
 
   private static final Composition PLACEHOLDER_COMPOSITION =
-      new Composition(
-          ImmutableList.of(
-              new EditedMediaItemSequence(
-                  ImmutableList.of(
-                      new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))),
-          Effects.EMPTY);
+      new Composition.Builder(
+              ImmutableList.of(
+                  new EditedMediaItemSequence(
+                      ImmutableList.of(
+                          new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))))
+          .build();
 
   @Test
   public void onTransformationRequestFinalized_withoutTrackCountSet_throwsException() {

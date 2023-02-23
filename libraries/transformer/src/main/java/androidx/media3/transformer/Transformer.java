@@ -84,7 +84,6 @@ public final class Transformer {
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
-    private boolean transmux;
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
     private VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -201,28 +200,6 @@ public final class Transformer {
     @Deprecated
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       this.flattenForSlowMotion = flattenForSlowMotion;
-      return this;
-    }
-
-    /**
-     * Sets whether to transmux the {@linkplain MediaItem media items} in the input {@link
-     * Composition}.
-     *
-     * <p>The default value is {@code false}.
-     *
-     * <p>If the input {@link Composition} contains one {@link MediaItem}, the value set is ignored.
-     * The {@link MediaItem} will only be transcoded if necessary.
-     *
-     * <p>If the input {@link Composition} contains multiple {@linkplain MediaItem media items},
-     * they are all transmuxed if {@code transmux} is {@code true} and exporting the first {@link
-     * MediaItem} doesn't require transcoding. Otherwise, they are all transcoded.
-     *
-     * @param transmux Whether to transmux.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setTransmux(boolean transmux) {
-      this.transmux = transmux;
       return this;
     }
 
@@ -416,7 +393,6 @@ public final class Transformer {
           removeAudio,
           removeVideo,
           flattenForSlowMotion,
-          transmux,
           listeners,
           assetLoaderFactory,
           videoFrameProcessorFactory,
@@ -576,7 +552,6 @@ public final class Transformer {
   private final boolean removeAudio;
   private final boolean removeVideo;
   private final boolean flattenForSlowMotion;
-  private final boolean transmux;
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -596,7 +571,6 @@ public final class Transformer {
       boolean removeAudio,
       boolean removeVideo,
       boolean flattenForSlowMotion,
-      boolean transmux,
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
@@ -613,7 +587,6 @@ public final class Transformer {
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
-    this.transmux = transmux;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
@@ -732,7 +705,6 @@ public final class Transformer {
             composition,
             path,
             transformationRequest,
-            transmux,
             assetLoaderFactory,
             encoderFactory,
             muxerFactory,
@@ -772,7 +744,7 @@ public final class Transformer {
   public void start(EditedMediaItem editedMediaItem, String path) {
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
-    start(new Composition(ImmutableList.of(sequence), Effects.EMPTY), path);
+    start(new Composition.Builder(ImmutableList.of(sequence)).build(), path);
   }
 
   /**

@@ -378,7 +378,9 @@ public final class TransformerActivity extends AppCompatActivity {
     editedMediaItems.add(editedMediaItemBuilder.build());
     List<EditedMediaItemSequence> sequences = new ArrayList<>();
     sequences.add(new EditedMediaItemSequence(editedMediaItems));
-    return new Composition(sequences, Effects.EMPTY, forceAudioTrack);
+    return new Composition.Builder(sequences)
+        .experimentalSetForceAudioTrack(forceAudioTrack)
+        .build();
   }
 
   private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {

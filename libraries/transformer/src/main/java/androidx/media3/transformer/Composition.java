@@ -21,22 +21,153 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 
 /**
  * A composition of {@link MediaItem} instances, with transformations to apply to them.
  *
- * <p>The {@linkplain MediaItem} instances can be concatenated or mixed. {@link Effects} can be
- * applied to individual {@linkplain MediaItem} instances, as well as to the composition.
+ * <p>The {@link MediaItem} instances can be concatenated or mixed. {@link Effects} can be applied
+ * to individual {@link MediaItem} instances, as well as to the composition.
  */
 @UnstableApi
 public final class Composition {
 
+  /** A builder for {@link Composition} instances. */
+  public static final class Builder {
+
+    private final ImmutableList<EditedMediaItemSequence> sequences;
+
+    private Effects effects;
+    private boolean forceAudioTrack;
+    private boolean transmuxAudio;
+    private boolean transmuxVideo;
+
+    /**
+     * Creates an instance.
+     *
+     * @param sequences The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem}
+     *     instances from different sequences that are overlapping in time will be mixed in the
+     *     output. This list must not be empty.
+     */
+    public Builder(List<EditedMediaItemSequence> sequences) {
+      checkArgument(
+          !sequences.isEmpty(),
+          "The composition must contain at least one EditedMediaItemSequence.");
+      this.sequences = ImmutableList.copyOf(sequences);
+      effects = Effects.EMPTY;
+    }
+
+    /**
+     * Sets the {@link Effects} to apply to the {@link Composition}.
+     *
+     * <p>The default value is {@link Effects#EMPTY}.
+     *
+     * @param effects The {@link Composition} {@link Effects}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setEffects(Effects effects) {
+      this.effects = effects;
+      return this;
+    }
+
+    /**
+     * Sets whether the output file should always contain an audio track.
+     *
+     * <p>The default value is {@code false}.
+     *
+     * <ul>
+     *   <li>If {@code false}:
+     *       <ul>
+     *         <li>If the {@link Composition} export doesn't produce any audio at timestamp 0, the
+     *             output won't contain any audio, and audio tracks from the {@link MediaItem}
+     *             instances in the {@link Composition} will be ignored.
+     *         <li>If the {@link Composition} export produces audio at timestamp 0, the output will
+     *             contain an audio track.
+     *       </ul>
+     *   <li>If {@code true}, the output will always contain an audio track.
+     * </ul>
+     *
+     * If the output contains an audio track, silent audio will be generated for the segments where
+     * the {@link Composition} export doesn't produce any audio.
+     *
+     * <p>The MIME type of the output's audio track can be set using {@link
+     * TransformationRequest.Builder#setAudioMimeType(String)}. The sample rate and channel count
+     * can be set by passing relevant {@link AudioProcessor} instances to the {@link Composition}.
+     *
+     * <p>Forcing an audio track and {@linkplain #setTransmuxAudio(boolean) requesting audio
+     * transmuxing} are not allowed together because generating silence requires transcoding.
+     *
+     * <p>This method is experimental and may be removed or changed without warning.
+     *
+     * @param forceAudioTrack Whether to force an audio track in the output.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder experimentalSetForceAudioTrack(boolean forceAudioTrack) {
+      this.forceAudioTrack = forceAudioTrack;
+      return this;
+    }
+
+    /**
+     * Sets whether to transmux the {@linkplain MediaItem media items'} audio tracks.
+     *
+     * <p>The default value is {@code false}.
+     *
+     * <p>If the {@link Composition} contains one {@link MediaItem}, the value set is ignored. The
+     * audio track will only be transcoded if necessary.
+     *
+     * <p>If the input {@link Composition} contains multiple {@linkplain MediaItem media items}, all
+     * the audio tracks are transmuxed if {@code transmuxAudio} is {@code true} and exporting the
+     * first {@link MediaItem} doesn't require audio transcoding. Otherwise, they are all
+     * transcoded. Transmuxed tracks must be compatible and must not overlap in time.
+     *
+     * <p>Requesting audio transmuxing and {@linkplain #experimentalSetForceAudioTrack(boolean)
+     * forcing an audio track} are not allowed together because generating silence requires
+     * transcoding.
+     *
+     * @param transmuxAudio Whether to transmux the audio tracks.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setTransmuxAudio(boolean transmuxAudio) {
+      this.transmuxAudio = transmuxAudio;
+      return this;
+    }
+
+    /**
+     * Sets whether to transmux the {@linkplain MediaItem media items'} video tracks.
+     *
+     * <p>The default value is {@code false}.
+     *
+     * <p>If the {@link Composition} contains one {@link MediaItem}, the value set is ignored. The
+     * video track will only be transcoded if necessary.
+     *
+     * <p>If the input {@link Composition} contains multiple {@linkplain MediaItem media items}, all
+     * the video tracks are transmuxed if {@code transmuxVideo} is {@code true} and exporting the
+     * first {@link MediaItem} doesn't require video transcoding. Otherwise, they are all
+     * transcoded. Transmuxed tracks must be compatible and must not overlap in time.
+     *
+     * @param transmuxVideo Whether to transmux the video tracks.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setTransmuxVideo(boolean transmuxVideo) {
+      this.transmuxVideo = transmuxVideo;
+      return this;
+    }
+
+    /** Builds a {@link Composition} instance. */
+    public Composition build() {
+      return new Composition(sequences, effects, forceAudioTrack, transmuxAudio, transmuxVideo);
+    }
+  }
+
   /**
-   * The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem} instances from
-   * different sequences that are overlapping in time will be mixed in the output.
+   * The {@link EditedMediaItemSequence} instances to compose.
    *
-   * <p>This list must not be empty.
+   * <p>For more information, see {@link Builder#Builder(List)}.
    */
   public final ImmutableList<EditedMediaItemSequence> sequences;
   /** The {@link Effects} to apply to the composition. */
@@ -44,54 +175,35 @@ public final class Composition {
   /**
    * Whether the output file should always contain an audio track.
    *
-   * <ul>
-   *   <li>If {@code false}:
-   *       <ul>
-   *         <li>If the {@link Composition} export doesn't produce any audio at timestamp 0, the
-   *             output won't contain any audio, and audio tracks from the {@link MediaItem}
-   *             instances in the {@link Composition} will be ignored.
-   *         <li>If the {@link Composition} export produces audio at timestamp 0, the output will
-   *             contain an audio track.
-   *       </ul>
-   *   <li>If {@code true}, the output will always contain an audio track.
-   * </ul>
-   *
-   * If the output contains an audio track, silent audio will be generated for the segments where
-   * the {@link Composition} export doesn't produce any audio.
-   *
-   * <p>The MIME type of the output's audio track can be set using {@link
-   * TransformationRequest.Builder#setAudioMimeType(String)}. The sample rate and channel count can
-   * be set by passing relevant {@link AudioProcessor} instances to the {@link Composition}.
-   *
-   * <p>This parameter is experimental and may be removed or changed without warning.
+   * <p>For more information, see {@link Builder#experimentalSetForceAudioTrack(boolean)}.
    */
-  public final boolean experimentalForceAudioTrack;
-
+  public final boolean forceAudioTrack;
   /**
-   * Creates an instance.
+   * Whether to transmux the {@linkplain MediaItem media items'} audio tracks.
    *
-   * <p>This is equivalent to calling {@link Composition#Composition(List, Effects, boolean)} with
-   * {@link #experimentalForceAudioTrack} set to {@code false}.
+   * <p>For more information, see {@link Builder#setTransmuxAudio(boolean)}.
    */
-  public Composition(List<EditedMediaItemSequence> sequences, Effects effects) {
-    this(sequences, effects, /* experimentalForceAudioTrack= */ false);
-  }
-
+  public final boolean transmuxAudio;
   /**
-   * Creates an instance.
+   * Whether to transmux the {@linkplain MediaItem media items'} video tracks.
    *
-   * @param sequences The {@link #sequences}.
-   * @param effects The {@link #effects}.
-   * @param experimentalForceAudioTrack Whether to {@linkplain #experimentalForceAudioTrack always
-   *     add an audio track in the output}.
+   * <p>For more information, see {@link Builder#setTransmuxVideo(boolean)}.
    */
-  public Composition(
+  public final boolean transmuxVideo;
+
+  private Composition(
       List<EditedMediaItemSequence> sequences,
       Effects effects,
-      boolean experimentalForceAudioTrack) {
-    checkArgument(!sequences.isEmpty());
+      boolean forceAudioTrack,
+      boolean transmuxAudio,
+      boolean transmuxVideo) {
+    checkArgument(
+        !transmuxAudio || !forceAudioTrack,
+        "Audio transmuxing and audio track forcing are not allowed together.");
     this.sequences = ImmutableList.copyOf(sequences);
     this.effects = effects;
-    this.experimentalForceAudioTrack = experimentalForceAudioTrack;
+    this.transmuxAudio = transmuxAudio;
+    this.transmuxVideo = transmuxVideo;
+    this.forceAudioTrack = forceAudioTrack;
   }
 }

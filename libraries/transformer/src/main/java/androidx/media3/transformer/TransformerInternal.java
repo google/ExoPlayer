@@ -112,7 +112,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Composition composition,
       String outputPath,
       TransformationRequest transformationRequest,
-      boolean transmux,
       AssetLoader.Factory assetLoaderFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
@@ -133,11 +132,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Looper internalLooper = internalHandlerThread.getLooper();
     EditedMediaItemSequence sequence = composition.sequences.get(0);
     ComponentListener componentListener =
-        new ComponentListener(sequence, transmux, fallbackListener);
+        new ComponentListener(
+            sequence, composition.transmuxAudio, composition.transmuxVideo, fallbackListener);
     compositeAssetLoader =
         new CompositeAssetLoader(
             sequence,
-            composition.experimentalForceAudioTrack,
+            composition.forceAudioTrack,
             assetLoaderFactory,
             internalLooper,
             componentListener,
@@ -314,17 +314,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // The first EditedMediaItem in the sequence determines which SamplePipeline to use.
     private final EditedMediaItem firstEditedMediaItem;
     private final int mediaItemCount;
-    private final boolean transmux;
+    private final boolean transmuxAudio;
+    private final boolean transmuxVideo;
     private final FallbackListener fallbackListener;
     private final AtomicInteger trackCount;
 
     private boolean trackAdded;
 
     public ComponentListener(
-        EditedMediaItemSequence sequence, boolean transmux, FallbackListener fallbackListener) {
+        EditedMediaItemSequence sequence,
+        boolean transmuxAudio,
+        boolean transmuxVideo,
+        FallbackListener fallbackListener) {
       firstEditedMediaItem = sequence.editedMediaItems.get(0);
       mediaItemCount = sequence.editedMediaItems.size();
-      this.transmux = transmux;
+      this.transmuxAudio = transmuxAudio;
+      this.transmuxVideo = transmuxVideo;
       this.fallbackListener = fallbackListener;
       trackCount = new AtomicInteger();
     }
@@ -479,12 +484,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean shouldTranscode = false;
       if (!assetLoaderCanOutputEncoded) {
         shouldTranscode = true;
-      } else if (mediaItemCount > 1 && !transmux) {
-        shouldTranscode = true;
       } else if (MimeTypes.isAudio(inputFormat.sampleMimeType)) {
-        shouldTranscode = shouldTranscodeAudio(inputFormat);
+        shouldTranscode =
+            (mediaItemCount > 1 && !transmuxAudio) || shouldTranscodeAudio(inputFormat);
       } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)) {
-        shouldTranscode = shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
+        shouldTranscode =
+            (mediaItemCount > 1 && !transmuxVideo)
+                || shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
       }
 
       checkState(!shouldTranscode || assetLoaderCanOutputDecoded);

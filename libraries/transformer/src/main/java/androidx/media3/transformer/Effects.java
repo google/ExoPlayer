@@ -24,7 +24,7 @@ import androidx.media3.effect.DefaultVideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-/** Effects to apply to a {@link MediaItem}. */
+/** Effects to apply to a {@link MediaItem} or to a {@link Composition}. */
 @UnstableApi
 public final class Effects {
 
