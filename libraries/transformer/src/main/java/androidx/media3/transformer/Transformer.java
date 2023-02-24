@@ -39,6 +39,7 @@ import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
+import androidx.media3.effect.Presentation;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -653,8 +654,12 @@ public final class Transformer {
    *
    * <ul>
    *   <li>The {@link Composition} must contain exactly one {@link Composition#sequences
-   *       EditedMediaItemSequence} and its {@link Composition#effects Effects} must be {@linkplain
-   *       Effects#EMPTY empty}.
+   *       EditedMediaItemSequence}. Its {@link Composition#effects Effects} must
+   *       <ul>
+   *         <li>Contain no {@linkplain Effects#audioProcessors audio effects}.
+   *         <li>Either contain no {@linkplain Effects#videoEffects video effects}, or exactly one
+   *             {@link Presentation}.
+   *       </ul>
    *   <li>The {@link EditedMediaItem} instances in the {@link EditedMediaItemSequence} must:
    *       <ul>
    *         <li>have identical tracks of the same format (after {@linkplain
@@ -690,7 +695,12 @@ public final class Transformer {
    */
   public void start(Composition composition, String path) {
     checkArgument(composition.sequences.size() == 1);
-    checkArgument(composition.effects == Effects.EMPTY);
+    checkArgument(composition.effects.audioProcessors.isEmpty());
+    // Only supports Presentation in video effects.
+    ImmutableList<Effect> videoEffects = composition.effects.videoEffects;
+    checkArgument(
+        videoEffects.isEmpty()
+            || (videoEffects.size() == 1 && videoEffects.get(0) instanceof Presentation));
     verifyApplicationThread();
     checkState(transformerInternal == null, "There is already an export in progress.");
 

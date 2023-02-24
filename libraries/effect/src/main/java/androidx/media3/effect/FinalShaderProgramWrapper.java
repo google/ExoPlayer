@@ -321,6 +321,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws VideoFrameProcessingException, GlUtil.GlException {
 
+    boolean inputSizeChanged = false;
     if (this.inputWidth != inputWidth
         || this.inputHeight != inputHeight
         || this.outputSizeBeforeSurfaceTransformation == null) {
@@ -337,6 +338,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     outputSizeBeforeSurfaceTransformation.getWidth(),
                     outputSizeBeforeSurfaceTransformation.getHeight()));
       }
+      inputSizeChanged = true;
     }
 
     if (outputSurfaceInfo == null) {
@@ -372,7 +374,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.debugSurfaceView = debugSurfaceView;
     }
 
-    if (defaultShaderProgram != null && outputSizeOrRotationChanged) {
+    if (defaultShaderProgram != null && (outputSizeOrRotationChanged || inputSizeChanged)) {
       defaultShaderProgram.release();
       defaultShaderProgram = null;
       outputSizeOrRotationChanged = false;

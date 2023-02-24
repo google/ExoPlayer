@@ -41,11 +41,14 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.effect.Presentation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -60,7 +63,6 @@ import org.checkerframework.dataflow.qual.Pure;
   private final AtomicLong mediaItemOffsetUs;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ColorInfo videoFrameProcessorInputColor;
-  private final FrameInfo firstFrameInfo;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
@@ -77,6 +79,7 @@ import org.checkerframework.dataflow.qual.Pure;
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
+      @Nullable Presentation presentation,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
@@ -84,6 +87,7 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider)
       throws ExportException {
+    // TODO(b/262693177) Add tests for input format change.
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
 
     mediaItemOffsetUs = new AtomicLong();
@@ -119,11 +123,15 @@ import org.checkerframework.dataflow.qual.Pure;
                 .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
                 .build()
             : encoderInputColor;
+    List<Effect> effectsWithPresentation = new ArrayList<>(effects);
+    if (presentation != null) {
+      effectsWithPresentation.add(presentation);
+    }
     try {
       videoFrameProcessor =
           videoFrameProcessorFactory.create(
               context,
-              effects,
+              effectsWithPresentation,
               debugViewProvider,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
@@ -171,20 +179,6 @@ import org.checkerframework.dataflow.qual.Pure;
       throw ExportException.createForVideoFrameProcessingException(
           e, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);
     }
-    // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
-    int decodedWidth =
-        (firstInputFormat.rotationDegrees % 180 == 0)
-            ? firstInputFormat.width
-            : firstInputFormat.height;
-    int decodedHeight =
-        (firstInputFormat.rotationDegrees % 180 == 0)
-            ? firstInputFormat.height
-            : firstInputFormat.width;
-    firstFrameInfo =
-        new FrameInfo.Builder(decodedWidth, decodedHeight)
-            .setPixelWidthHeightRatio(firstInputFormat.pixelWidthHeightRatio)
-            .setStreamOffsetUs(streamOffsetUs)
-            .build();
   }
 
   @Override
@@ -193,8 +187,14 @@ import org.checkerframework.dataflow.qual.Pure;
       long durationUs,
       @Nullable Format trackFormat,
       boolean isLast) {
-    videoFrameProcessor.setInputFrameInfo(
-        new FrameInfo.Builder(firstFrameInfo).setOffsetToAddUs(mediaItemOffsetUs.get()).build());
+    if (trackFormat != null) {
+      Size decodedSize = getDecodedSize(trackFormat);
+      videoFrameProcessor.setInputFrameInfo(
+          new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
+              .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
+              .setOffsetToAddUs(mediaItemOffsetUs.get())
+              .build());
+    }
     mediaItemOffsetUs.addAndGet(durationUs);
   }
 
@@ -312,6 +312,13 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     return supportedRequestBuilder.build();
+  }
+
+  private static Size getDecodedSize(Format format) {
+    // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
+    int decodedWidth = (format.rotationDegrees % 180 == 0) ? format.width : format.height;
+    int decodedHeight = (format.rotationDegrees % 180 == 0) ? format.height : format.width;
+    return new Size(decodedWidth, decodedHeight);
   }
 
   /**
