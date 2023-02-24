@@ -14,6 +14,8 @@
     *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
         `int`. This changes the signatures of public methods
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
+    *   Fix network type detection on API 33
+        ([#10970](https://github.com/google/ExoPlayer/issues/10970)).
 *   Extractors:
     *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
         ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
