@@ -69,7 +69,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
   /** Input PQ video of which we only use the first frame. */
-  private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-1080p.mp4";
+  private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
 
   private static final String SKIP_REASON_NO_OPENGL_UNDER_API_29 =
       "OpenGL-based HDR to SDR tone mapping is unsupported below API 29.";
