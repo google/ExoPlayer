@@ -78,9 +78,12 @@ public final class Composition {
      * <ul>
      *   <li>If {@code false}:
      *       <ul>
-     *         <li>If the {@link Composition} export doesn't produce any audio at timestamp 0, the
-     *             output won't contain any audio, and audio tracks from the {@link MediaItem}
-     *             instances in the {@link Composition} will be ignored.
+     *         <li>If the {@link Composition} export doesn't produce any audio at timestamp 0, but
+     *             produces audio later on, the export is {@linkplain
+     *             Transformer.Listener#onError(Composition, ExportResult, ExportException)
+     *             aborted}.
+     *         <li>If the {@link Composition} doesn't produce any audio during the entire export,
+     *             the output won't contain any audio.
      *         <li>If the {@link Composition} export produces audio at timestamp 0, the output will
      *             contain an audio track.
      *       </ul>
