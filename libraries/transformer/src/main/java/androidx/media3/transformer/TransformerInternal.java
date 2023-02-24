@@ -367,7 +367,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long streamStartPositionUs,
         long streamOffsetUs)
         throws ExportException {
-      int trackType = MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
       if (!trackAdded) {
         // Call setTrackCount() methods here so that they are called from the same thread as the
         // MuxerWrapper and FallbackListener methods called when building the sample pipelines.
@@ -383,6 +382,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs),
               streamStartPositionUs,
               streamOffsetUs);
+      // Consider image as video because image inputs are fed to the VideoSamplePipeline.
+      int trackType =
+          MimeTypes.isAudio(firstInputFormat.sampleMimeType)
+              ? C.TRACK_TYPE_AUDIO
+              : C.TRACK_TYPE_VIDEO;
       compositeAssetLoader.addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
 
