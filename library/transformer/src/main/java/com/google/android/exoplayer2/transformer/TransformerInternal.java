@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.GlEffect;
+import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.Clock;
@@ -131,9 +132,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread.start();
     Looper internalLooper = internalHandlerThread.getLooper();
     EditedMediaItemSequence sequence = composition.sequences.get(0);
+    ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
+    @Nullable
+    Presentation presentation =
+        compositionVideoEffects.isEmpty() ? null : (Presentation) compositionVideoEffects.get(0);
     ComponentListener componentListener =
         new ComponentListener(
-            sequence, composition.transmuxAudio, composition.transmuxVideo, fallbackListener);
+            sequence,
+            presentation,
+            composition.transmuxAudio,
+            composition.transmuxVideo,
+            fallbackListener);
     compositeAssetLoader =
         new CompositeAssetLoader(
             sequence,
@@ -313,6 +322,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // The first EditedMediaItem in the sequence determines which SamplePipeline to use.
     private final EditedMediaItem firstEditedMediaItem;
+    @Nullable private final Presentation compositionPresentation;
     private final int mediaItemCount;
     private final boolean transmuxAudio;
     private final boolean transmuxVideo;
@@ -323,10 +333,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public ComponentListener(
         EditedMediaItemSequence sequence,
+        @Nullable Presentation compositionPresentation,
         boolean transmuxAudio,
         boolean transmuxVideo,
         FallbackListener fallbackListener) {
       firstEditedMediaItem = sequence.editedMediaItems.get(0);
+      this.compositionPresentation = compositionPresentation;
       mediaItemCount = sequence.editedMediaItems.size();
       this.transmuxAudio = transmuxAudio;
       this.transmuxVideo = transmuxVideo;
@@ -458,6 +470,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.effects.videoEffects,
+              compositionPresentation,
               firstEditedMediaItem.effects.videoFrameProcessorFactory,
               encoderFactory,
               muxerWrapper,
