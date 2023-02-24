@@ -129,8 +129,6 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_START = 3;
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
-  private static final long MICROS_PER_MILLI = 1000L;
-
   // Workarounds.
   private final @Flags int flags;
   @Nullable private final Track sideloadedTrack;
@@ -970,23 +968,18 @@ public class FragmentedMp4Extractor implements Extractor {
     return version == 1 ? tfdt.readUnsignedLongToLong() : tfdt.readUnsignedInt();
   }
 
-  /**
-   * Retunrs if edts list duration is for the entire media timeline.
-   *
-   * @param track The {@link Track} for which edts list duration to be checked.
-   * @return flag indicating if the edts list duration is for entire timeline.
-   */
   private static boolean isEdtsListDurationForEntireMediaTimeline(Track track) {
     // Currently we only support a single edit that moves the entire media timeline (indicated by
-    // duration == 0 or duration == track duration).
+    // duration == 0 or (editListDurationUs + editListMediaTimeUs) >= track duration.
     // Other uses of edit lists are uncommon and unsupported.
     if (track.editListDurations != null && track.editListDurations.length == 1) {
-      long edtsDurationUs = Util.scaleLargeTimestamp(track.editListDurations[0],
+      long editListDurationUs = Util.scaleLargeTimestamp(track.editListDurations[0],
           C.MICROS_PER_SECOND, track.movieTimescale);
-      return edtsDurationUs == 0
-          || (track.durationUs > MICROS_PER_MILLI
-          && edtsDurationUs >= track.durationUs - MICROS_PER_MILLI
-          && edtsDurationUs <= track.durationUs + MICROS_PER_MILLI);
+      long editListMediaTimeUs = Util.scaleLargeTimestamp(track.editListMediaTimes[0],
+          C.MICROS_PER_SECOND, track.timescale);
+
+      return editListDurationUs == 0 ||
+          (editListDurationUs + editListMediaTimeUs >= track.durationUs);
     }
     return false;
   }
