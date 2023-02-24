@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -90,7 +91,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     currentMediaItemIndex = new AtomicInteger();
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
-    mediaItemChangedListenersByTrackType = new HashMap<>();
+    mediaItemChangedListenersByTrackType = new ConcurrentHashMap<>();
     processedInputsBuilder = new ImmutableList.Builder<>();
     nonEndedTracks = new AtomicInteger();
     // It's safe to use "this" because we don't start the AssetLoader before exiting the
@@ -144,6 +145,8 @@ import java.util.concurrent.atomic.AtomicInteger;
    * Adds an {@link OnMediaItemChangedListener} for the given track type.
    *
    * <p>There can't be more than one {@link OnMediaItemChangedListener} for the same track type.
+   *
+   * <p>Can be called from any thread.
    *
    * @param onMediaItemChangedListener The {@link OnMediaItemChangedListener}.
    * @param trackType The {@link C.TrackType} for which to listen to {@link MediaItem} change
@@ -234,9 +237,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     onMediaItemChanged(trackType, format);
     if (nonEndedTracks.get() == 1 && sampleConsumersByTrackType.size() == 2) {
       for (Map.Entry<Integer, SampleConsumer> entry : sampleConsumersByTrackType.entrySet()) {
-        int listenerTrackType = entry.getKey();
-        if (trackType != listenerTrackType) {
-          onMediaItemChanged(listenerTrackType, /* format= */ null);
+        int outputTrackType = entry.getKey();
+        if (trackType != outputTrackType) {
+          onMediaItemChanged(outputTrackType, /* format= */ null);
         }
       }
     }
