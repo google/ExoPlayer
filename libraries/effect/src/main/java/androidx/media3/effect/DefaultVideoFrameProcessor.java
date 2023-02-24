@@ -41,6 +41,7 @@ import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -61,7 +62,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
-  public static class Factory implements VideoFrameProcessor.Factory {
+  public static final class Factory implements VideoFrameProcessor.Factory {
     /**
      * {@inheritDoc}
      *
@@ -350,6 +351,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
   }
 
+  private static final String TAG = "DefaultFrameProcessor";
+
   private static final String THREAD_NAME = "Effect:GlThread";
   private static final long RELEASE_WAIT_TIME_MS = 100;
 
@@ -548,11 +551,21 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
   @WorkerThread
-  private void releaseShaderProgramsAndDestroyGlContext()
-      throws GlUtil.GlException, VideoFrameProcessingException {
-    for (int i = 0; i < allShaderPrograms.size(); i++) {
-      allShaderPrograms.get(i).release();
+  private void releaseShaderProgramsAndDestroyGlContext() {
+    try {
+      for (int i = 0; i < allShaderPrograms.size(); i++) {
+        try {
+          allShaderPrograms.get(i).release();
+        } catch (Exception e) {
+          Log.e(TAG, "Error releasing shader program", e);
+        }
+      }
+    } finally {
+      try {
+        GlUtil.destroyEglContext(eglDisplay, eglContext);
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Error releasing GL context", e);
+      }
     }
-    GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
 }
