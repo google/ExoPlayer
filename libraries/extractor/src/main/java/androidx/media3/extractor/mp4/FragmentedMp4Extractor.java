@@ -970,6 +970,23 @@ public class FragmentedMp4Extractor implements Extractor {
     return version == 1 ? tfdt.readUnsignedLongToLong() : tfdt.readUnsignedInt();
   }
 
+  private static boolean isEdtsListDurationForEntireMediaTimeline(Track track) {
+    // Currently we only support a single edit that moves the entire media timeline (indicated by
+    // duration == 0 or (editListDurationUs + editListMediaTimeUs) >= track duration.
+    // Other uses of edit lists are uncommon and unsupported.
+    if (track.editListDurations != null && track.editListDurations.length == 1
+        && track.editListMediaTimes != null) {
+      long editListDurationUs = Util.scaleLargeTimestamp(track.editListDurations[0],
+          C.MICROS_PER_SECOND, track.movieTimescale);
+      long editListMediaTimeUs = Util.scaleLargeTimestamp(track.editListMediaTimes[0],
+          C.MICROS_PER_SECOND, track.timescale);
+
+      return editListDurationUs == 0
+          || ((editListDurationUs + editListMediaTimeUs) >= track.durationUs);
+    }
+    return false;
+  }
+
   /**
    * Parses a trun atom (defined in 14496-12).
    *
@@ -1017,11 +1034,8 @@ public class FragmentedMp4Extractor implements Extractor {
     // ensure that the first frame's presentation timestamp is zero.
     long edtsOffset = 0;
 
-    // Currently we only support a single edit that moves the entire media timeline (indicated by
-    // duration == 0). Other uses of edit lists are uncommon and unsupported.
-    if (track.editListDurations != null
-        && track.editListDurations.length == 1
-        && track.editListDurations[0] == 0) {
+    // Currently we only support a single edit that moves the entire media timeline.
+    if (isEdtsListDurationForEntireMediaTimeline(track)) {
       edtsOffset = castNonNull(track.editListMediaTimes)[0];
     }
 
