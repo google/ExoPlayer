@@ -1,11 +1,76 @@
 # Release notes
 
+### Unreleased changes
+
+* Core library:
+    * Add suppression reason for unsuitable audio route and play when ready
+        change reason for suppressed too long.
+        ([#15](https://github.com/androidx/media/issues/15)).
+    * Make the maximum difference of the start time of two segments to be
+        merged configurable in `SegmentDownloader` and subclasses
+        ([#248](https://github.com/androidx/media/pull/248)).
+    * Add `ExoPlayer.setVideoEffects()` for using `Effect` during video
+        playback.
+    * Update `SampleQueue` to store `sourceId` as a `long` rather than an
+        `int`. This changes the signatures of public methods
+        `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
+    * Fix network type detection on API 33
+        ([#10970](https://github.com/google/ExoPlayer/issues/10970)).
+    * Make the maximum difference of the start time of two segments to be
+          merged configurable in `SegmentDownloader` and subclasses
+          ([#248](https://github.com/androidx/media/pull/248)).
+* Extractors:
+    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
+        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
+* Audio:
+    *   Fix bug where some playbacks fail when tunneling is enabled and
+        `AudioProcessors` are active, e.g. for gapless trimming
+        ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
+    *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
+* Video:
+    *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
+        `HEVCProfileMain10`.
+* DASH:
+    *   Add full parsing for image adaptation sets, including tile counts
+        ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
+* RTSP:
+    *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
+        Describe response messages
+        ([#10971](https://github.com/google/ExoPlayer/issues/10971)).
+* Session:
+    * Fix a bug where notification play/pause button doesn't update with
+        player state ([#192](https://github.com/androidx/media/issues/192)).
+    *  Fix a bug where notification play/pause button doesn't update with
+           player state ([#192](https://github.com/androidx/media/issues/192)).
+*   RTSP:
+    *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
+        Describe response messages
+        ([#10971](https://github.com/google/ExoPlayer/issues/10971)).
+*   Metadata:
+    *   Parse multiple null-separated values from ID3 frames, as permitted by
+        ID3 v2.4.
+    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
+        of folder described by the metadata.
+    *   Add `MediaMetadata.isBrowsable` as a replacement for
+        `MediaMetadata.folderType`. The folder type will be deprecated in the
+        next release.  
+* Transformer:
+    *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
+        Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
+        `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
+        instead.
+    *   Remove `Transformer.startTransformation(MediaItem,
+        ParcelFileDescriptor)`.
+* Remove deprecated symbols:
+    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
+        instead.
+
 ### 1.0.0-rc01 (2023-02-16)
 
 This release corresponds to the
 [ExoPlayer 2.18.3 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.3).
 
-*   Core library:
+* Core library:
     *   Tweak the renderer's decoder ordering logic to uphold the
         `MediaCodecSelector`'s preferences, even if a decoder reports it may not
         be able to play the media performantly. For example with default
@@ -20,35 +85,29 @@ This release corresponds to the
         for seeking.
     *   Use theme when loading drawables on API 21+
         ([#220](https://github.com/androidx/media/issues/220)).
-    *   Make the maximum difference of the start time of two segments to be
-        merged configurable in `SegmentDownloader` and subclasses
-        ([#248](https://github.com/androidx/media/pull/248)).
     *   Add `ConcatenatingMediaSource2` that allows combining multiple media
         items into a single window
         ([#247](https://github.com/androidx/media/issues/247)).
-*   Extractors:
+* Extractors:
     *   Throw a `ParserException` instead of a `NullPointerException` if the
         sample table (stbl) is missing a required sample description (stsd) when
         parsing trak atoms.
     *   Correctly skip samples when seeking directly to a sync frame in fMP4
         ([#10941](https://github.com/google/ExoPlayer/issues/10941)).
     *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
-        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
-*   Audio:
-    *   Use the compressed audio format bitrate to calculate the min buffer size
+        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).  
+* Audio:
+    * Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
-    *   Fix bug where some playbacks fail when tunneling is enabled and
-        `AudioProcessors` are active, e.g. for gapless trimming
-        ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
-*   Video:
-    *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
-        `HEVCProfileMain10`.
-*   Text:
+    * Fix bug where some playbacks fail when tunneling is enabled and
+          `AudioProcessors` are active, e.g. for gapless trimming
+          ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
+* Text:
     *   Fix `TextRenderer` passing an invalid (negative) index to
         `Subtitle.getEventTime` if a subtitle file contains no cues.
     *   SubRip: Add support for UTF-16 files if they start with a byte order
         mark.
-*   Metadata:
+* Metadata:
     *   Parse multiple null-separated values from ID3 frames, as permitted by
         ID3 v2.4.
     *   Add `MediaMetadata.mediaType` to denote the type of content or the type
@@ -56,10 +115,10 @@ This release corresponds to the
     *   Add `MediaMetadata.isBrowsable` as a replacement for
         `MediaMetadata.folderType`. The folder type will be deprecated in the
         next release.
-*   DASH:
+* DASH:
     *   Add full parsing for image adaptation sets, including tile counts
         ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
-*   UI:
+* UI:
     *   Fix the deprecated
         `PlayerView.setControllerVisibilityListener(PlayerControlView.VisibilityListener)`
         to ensure visibility changes are passed to the registered listener
@@ -67,7 +126,7 @@ This release corresponds to the
     *   Fix the ordering of the center player controls in `PlayerView` when
         using a right-to-left (RTL) layout
         ([#227](https://github.com/androidx/media/issues/227)).
-*   Session:
+* Session:
     *   Add abstract `SimpleBasePlayer` to help implement the `Player` interface
         for custom players.
     *   Add helper method to convert platform session token to Media3
@@ -84,26 +143,12 @@ This release corresponds to the
         ([#233](https://github.com/androidx/media/issues/233)).
     *   Make `QueueTimeline` more robust in case of a shady legacy session state
         ([#241](https://github.com/androidx/media/issues/241)).
-    *   Fix a bug where notification play/pause button doesn't update with
-        player state ([#192](https://github.com/androidx/media/issues/192)).
-*   RTSP:
-    *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
-        Describe response messages
-        ([#10971](https://github.com/google/ExoPlayer/issues/10971)).
-*   Metadata:
-    *   Parse multiple null-separated values from ID3 frames, as permitted by
-        ID3 v2.4.
-    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
-        of folder described by the metadata.
-    *   Add `MediaMetadata.isBrowsable` as a replacement for
-        `MediaMetadata.folderType`. The folder type will be deprecated in the
-        next release.
-*   Cast extension:
+* Cast extension:
     *   Bump Cast SDK version to 21.2.0.
-*   IMA extension:
+* IMA extension:
     *   Map `PLAYER_STATE_LOADING` to `STATE_BUFFERING`
         ([#245](\(https://github.com/androidx/media/issues/245\)).
-*   IMA extension
+* IMA extension
     *   Remove player listener of the `ImaServerSideAdInsertionMediaSource` on
         the application thread to avoid threading issues.
     *   Add a property `focusSkipButtonWhenAvailable` to the
@@ -115,7 +160,7 @@ This release corresponds to the
     *   Fix a bug which prevented playback from starting for a DAI stream
         without any ads.
     *   Bump IMA SDK version to 3.29.0.
-*   Demo app:
+* Demo app:
     *   Request notification permission for download notifications at runtime
         ([#10884](https://github.com/google/ExoPlayer/issues/10884)).
 
