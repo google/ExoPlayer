@@ -21,7 +21,6 @@ import static java.lang.Math.floor;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -34,7 +33,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Forwards a video frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for
  * consumption.
  *
- * <p>Methods in this class can be called from any thread.
+ * <p>Public methods in this class can be called from any thread.
  */
 /* package */ final class InternalTextureManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram shaderProgram;
@@ -99,7 +98,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         });
   }
 
-  @WorkerThread
+  // Methods that must be called on the GL thread.
+
   private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
     this.useHdr = useHdr;
@@ -113,7 +113,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     maybeQueueToShaderProgram();
   }
 
-  @WorkerThread
   private void maybeQueueToShaderProgram() throws VideoFrameProcessingException {
     if (pendingBitmaps.isEmpty() || downstreamShaderProgramCapacity == 0) {
       return;
@@ -156,7 +155,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  @WorkerThread
   private void maybeSignalEndOfOutput() {
     if (framesToQueueForCurrentBitmap == 0
         && pendingBitmaps.isEmpty()

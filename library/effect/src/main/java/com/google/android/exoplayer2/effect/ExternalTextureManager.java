@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -186,7 +185,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     surface.release();
   }
 
-  @WorkerThread
+  private void maybeExecuteAfterFlushTask() {
+    if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
+      return;
+    }
+    videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
+  }
+
+  // Methods that must be called on the GL thread.
+
   private void flush() {
     // A frame that is registered before flush may arrive after flush.
     numberOfFramesToDropOnBecomingAvailable = pendingFrames.size() - availableFrameCount;
@@ -200,14 +207,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     maybeExecuteAfterFlushTask();
   }
 
-  private void maybeExecuteAfterFlushTask() {
-    if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
-      return;
-    }
-    videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
-  }
-
-  @WorkerThread
   private void maybeQueueFrameToExternalShaderProgram() {
     if (externalShaderProgramInputCapacity.get() == 0
         || availableFrameCount == 0

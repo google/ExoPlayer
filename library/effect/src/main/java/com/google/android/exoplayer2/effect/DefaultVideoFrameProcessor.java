@@ -31,7 +31,6 @@ import android.opengl.GLES30;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -151,206 +150,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
   }
 
-  /**
-   * Creates the OpenGL context, surfaces, textures, and frame buffers, initializes {@link
-   * GlShaderProgram} instances corresponding to the {@link GlEffect} instances, and returns a new
-   * {@code DefaultVideoFrameProcessor}.
-   *
-   * <p>All {@link Effect} instances must be {@link GlEffect} instances.
-   *
-   * <p>This method must be executed using the {@code singleThreadExecutorService}, as later OpenGL
-   * commands will be called on that thread.
-   */
-  @WorkerThread
-  private static DefaultVideoFrameProcessor createOpenGlObjectsAndFrameProcessor(
-      Context context,
-      List<Effect> effects,
-      DebugViewProvider debugViewProvider,
-      ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo,
-      boolean isInputTextureExternal,
-      boolean releaseFramesAutomatically,
-      ExecutorService singleThreadExecutorService,
-      Executor executor,
-      Listener listener)
-      throws GlUtil.GlException, VideoFrameProcessingException {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-
-    // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
-    //  configure based on the color info from the decoder output media format instead.
-    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-    int[] configAttributes =
-        ColorInfo.isTransferHdr(outputColorInfo)
-            ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
-            : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
-    int openGlVersion =
-        ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
-    EGLContext eglContext = GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
-    GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
-
-    // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
-    // require the BT2020 PQ GL extension.
-    if (!releaseFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
-      // Display hardware supports PQ only.
-      checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
-      if (Util.SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
-        GlUtil.destroyEglContext(eglDisplay, eglContext);
-        // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
-        // GL extension is supported.
-        throw new VideoFrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
-      }
-    }
-
-    ImmutableList<GlShaderProgram> shaderPrograms =
-        getGlShaderProgramsForGlEffects(
-            context,
-            effects,
-            eglDisplay,
-            eglContext,
-            debugViewProvider,
-            inputColorInfo,
-            outputColorInfo,
-            isInputTextureExternal,
-            releaseFramesAutomatically,
-            executor,
-            listener);
-    VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
-        new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
-    chainShaderProgramsWithListeners(
-        shaderPrograms, videoFrameProcessingTaskExecutor, listener, executor);
-
-    return new DefaultVideoFrameProcessor(
-        eglDisplay,
-        eglContext,
-        isInputTextureExternal,
-        videoFrameProcessingTaskExecutor,
-        shaderPrograms,
-        releaseFramesAutomatically);
-  }
-
-  /**
-   * Combines consecutive {@link GlMatrixTransformation} and {@link RgbMatrix} instances into a
-   * single {@link DefaultShaderProgram} and converts all other {@link GlEffect} instances to
-   * separate {@link GlShaderProgram} instances.
-   *
-   * <p>All {@link Effect} instances must be {@link GlEffect} instances.
-   *
-   * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order. The
-   *     first is an {@link ExternalShaderProgram} and the last is a {@link
-   *     FinalShaderProgramWrapper}.
-   */
-  private static ImmutableList<GlShaderProgram> getGlShaderProgramsForGlEffects(
-      Context context,
-      List<Effect> effects,
-      EGLDisplay eglDisplay,
-      EGLContext eglContext,
-      DebugViewProvider debugViewProvider,
-      ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo,
-      boolean isInputTextureExternal,
-      boolean releaseFramesAutomatically,
-      Executor executor,
-      Listener listener)
-      throws VideoFrameProcessingException {
-    ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
-    ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
-        new ImmutableList.Builder<>();
-    ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
-    boolean sampleFromInputTexture = true;
-    ColorInfo linearColorInfo =
-        outputColorInfo
-            .buildUpon()
-            .setColorTransfer(C.COLOR_TRANSFER_LINEAR)
-            .setHdrStaticInfo(null)
-            .build();
-    for (int i = 0; i < effects.size(); i++) {
-      Effect effect = effects.get(i);
-      checkArgument(
-          effect instanceof GlEffect, "DefaultVideoFrameProcessor only supports GlEffects");
-      GlEffect glEffect = (GlEffect) effect;
-      // The following logic may change the order of the RgbMatrix and GlMatrixTransformation
-      // effects. This does not influence the output since RgbMatrix only changes the individual
-      // pixels and does not take any location in account, which the GlMatrixTransformation
-      // may change.
-      if (glEffect instanceof GlMatrixTransformation) {
-        matrixTransformationListBuilder.add((GlMatrixTransformation) glEffect);
-        continue;
-      }
-      if (glEffect instanceof RgbMatrix) {
-        rgbMatrixListBuilder.add((RgbMatrix) glEffect);
-        continue;
-      }
-      ImmutableList<GlMatrixTransformation> matrixTransformations =
-          matrixTransformationListBuilder.build();
-      ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
-      boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
-      if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
-        DefaultShaderProgram defaultShaderProgram;
-        if (sampleFromInputTexture) {
-          if (isInputTextureExternal) {
-            defaultShaderProgram =
-                DefaultShaderProgram.createWithExternalSampler(
-                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
-          } else {
-            defaultShaderProgram =
-                DefaultShaderProgram.createWithInternalSampler(
-                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
-          }
-        } else {
-          defaultShaderProgram =
-              DefaultShaderProgram.create(
-                  context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
-        }
-        shaderProgramListBuilder.add(defaultShaderProgram);
-        matrixTransformationListBuilder = new ImmutableList.Builder<>();
-        rgbMatrixListBuilder = new ImmutableList.Builder<>();
-        sampleFromInputTexture = false;
-      }
-      shaderProgramListBuilder.add(glEffect.toGlShaderProgram(context, isOutputTransferHdr));
-    }
-
-    shaderProgramListBuilder.add(
-        new FinalShaderProgramWrapper(
-            context,
-            eglDisplay,
-            eglContext,
-            matrixTransformationListBuilder.build(),
-            rgbMatrixListBuilder.build(),
-            debugViewProvider,
-            /* inputColorInfo= */ sampleFromInputTexture ? inputColorInfo : linearColorInfo,
-            outputColorInfo,
-            sampleFromInputTexture,
-            isInputTextureExternal,
-            releaseFramesAutomatically,
-            executor,
-            listener));
-    return shaderProgramListBuilder.build();
-  }
-
-  /**
-   * Chains the given {@link GlShaderProgram} instances using {@link
-   * ChainingGlShaderProgramListener} instances.
-   */
-  private static void chainShaderProgramsWithListeners(
-      ImmutableList<GlShaderProgram> shaderPrograms,
-      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
-      Listener videoFrameProcessorListener,
-      Executor videoFrameProcessorListenerExecutor) {
-    for (int i = 0; i < shaderPrograms.size() - 1; i++) {
-      GlShaderProgram producingGlShaderProgram = shaderPrograms.get(i);
-      GlShaderProgram consumingGlShaderProgram = shaderPrograms.get(i + 1);
-      ChainingGlShaderProgramListener chainingGlShaderProgramListener =
-          new ChainingGlShaderProgramListener(
-              producingGlShaderProgram, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
-      producingGlShaderProgram.setOutputListener(chainingGlShaderProgramListener);
-      producingGlShaderProgram.setErrorListener(
-          videoFrameProcessorListenerExecutor, videoFrameProcessorListener::onError);
-      consumingGlShaderProgram.setInputListener(chainingGlShaderProgramListener);
-    }
-  }
-
   private static final String TAG = "DefaultFrameProcessor";
-
   private static final String THREAD_NAME = "Effect:GlThread";
   private static final long RELEASE_WAIT_TIME_MS = 100;
 
@@ -543,12 +343,210 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
   }
 
+  // Methods that must be called on the GL thread.
+
+  /**
+   * Creates the OpenGL context, surfaces, textures, and frame buffers, initializes {@link
+   * GlShaderProgram} instances corresponding to the {@link GlEffect} instances, and returns a new
+   * {@code DefaultVideoFrameProcessor}.
+   *
+   * <p>All {@link Effect} instances must be {@link GlEffect} instances.
+   *
+   * <p>This method must be executed using the {@code singleThreadExecutorService}, as later OpenGL
+   * commands will be called on that thread.
+   */
+  private static DefaultVideoFrameProcessor createOpenGlObjectsAndFrameProcessor(
+      Context context,
+      List<Effect> effects,
+      DebugViewProvider debugViewProvider,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
+      boolean isInputTextureExternal,
+      boolean releaseFramesAutomatically,
+      ExecutorService singleThreadExecutorService,
+      Executor executor,
+      Listener listener)
+      throws GlUtil.GlException, VideoFrameProcessingException {
+    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+
+    // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
+    //  configure based on the color info from the decoder output media format instead.
+    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
+    int[] configAttributes =
+        ColorInfo.isTransferHdr(outputColorInfo)
+            ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
+            : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
+    int openGlVersion =
+        ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
+    EGLContext eglContext = GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
+    GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+
+    // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
+    // require the BT2020 PQ GL extension.
+    if (!releaseFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
+      // Display hardware supports PQ only.
+      checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
+      if (Util.SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
+        GlUtil.destroyEglContext(eglDisplay, eglContext);
+        // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
+        // GL extension is supported.
+        throw new VideoFrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
+      }
+    }
+
+    ImmutableList<GlShaderProgram> shaderPrograms =
+        getGlShaderProgramsForGlEffects(
+            context,
+            effects,
+            eglDisplay,
+            eglContext,
+            debugViewProvider,
+            inputColorInfo,
+            outputColorInfo,
+            isInputTextureExternal,
+            releaseFramesAutomatically,
+            executor,
+            listener);
+    VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
+        new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
+    chainShaderProgramsWithListeners(
+        shaderPrograms, videoFrameProcessingTaskExecutor, listener, executor);
+
+    return new DefaultVideoFrameProcessor(
+        eglDisplay,
+        eglContext,
+        isInputTextureExternal,
+        videoFrameProcessingTaskExecutor,
+        shaderPrograms,
+        releaseFramesAutomatically);
+  }
+
+  /**
+   * Combines consecutive {@link GlMatrixTransformation} and {@link RgbMatrix} instances into a
+   * single {@link DefaultShaderProgram} and converts all other {@link GlEffect} instances to
+   * separate {@link GlShaderProgram} instances.
+   *
+   * <p>All {@link Effect} instances must be {@link GlEffect} instances.
+   *
+   * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order. The
+   *     first is an {@link ExternalShaderProgram} and the last is a {@link
+   *     FinalShaderProgramWrapper}.
+   */
+  private static ImmutableList<GlShaderProgram> getGlShaderProgramsForGlEffects(
+      Context context,
+      List<Effect> effects,
+      EGLDisplay eglDisplay,
+      EGLContext eglContext,
+      DebugViewProvider debugViewProvider,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
+      boolean isInputTextureExternal,
+      boolean releaseFramesAutomatically,
+      Executor executor,
+      Listener listener)
+      throws VideoFrameProcessingException {
+    ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
+    ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
+        new ImmutableList.Builder<>();
+    ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
+    boolean sampleFromInputTexture = true;
+    ColorInfo linearColorInfo =
+        outputColorInfo
+            .buildUpon()
+            .setColorTransfer(C.COLOR_TRANSFER_LINEAR)
+            .setHdrStaticInfo(null)
+            .build();
+    for (int i = 0; i < effects.size(); i++) {
+      Effect effect = effects.get(i);
+      checkArgument(
+          effect instanceof GlEffect, "DefaultVideoFrameProcessor only supports GlEffects");
+      GlEffect glEffect = (GlEffect) effect;
+      // The following logic may change the order of the RgbMatrix and GlMatrixTransformation
+      // effects. This does not influence the output since RgbMatrix only changes the individual
+      // pixels and does not take any location in account, which the GlMatrixTransformation
+      // may change.
+      if (glEffect instanceof GlMatrixTransformation) {
+        matrixTransformationListBuilder.add((GlMatrixTransformation) glEffect);
+        continue;
+      }
+      if (glEffect instanceof RgbMatrix) {
+        rgbMatrixListBuilder.add((RgbMatrix) glEffect);
+        continue;
+      }
+      ImmutableList<GlMatrixTransformation> matrixTransformations =
+          matrixTransformationListBuilder.build();
+      ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
+      boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
+      if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
+        DefaultShaderProgram defaultShaderProgram;
+        if (sampleFromInputTexture) {
+          if (isInputTextureExternal) {
+            defaultShaderProgram =
+                DefaultShaderProgram.createWithExternalSampler(
+                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
+          } else {
+            defaultShaderProgram =
+                DefaultShaderProgram.createWithInternalSampler(
+                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
+          }
+        } else {
+          defaultShaderProgram =
+              DefaultShaderProgram.create(
+                  context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
+        }
+        shaderProgramListBuilder.add(defaultShaderProgram);
+        matrixTransformationListBuilder = new ImmutableList.Builder<>();
+        rgbMatrixListBuilder = new ImmutableList.Builder<>();
+        sampleFromInputTexture = false;
+      }
+      shaderProgramListBuilder.add(glEffect.toGlShaderProgram(context, isOutputTransferHdr));
+    }
+
+    shaderProgramListBuilder.add(
+        new FinalShaderProgramWrapper(
+            context,
+            eglDisplay,
+            eglContext,
+            matrixTransformationListBuilder.build(),
+            rgbMatrixListBuilder.build(),
+            debugViewProvider,
+            /* inputColorInfo= */ sampleFromInputTexture ? inputColorInfo : linearColorInfo,
+            outputColorInfo,
+            sampleFromInputTexture,
+            isInputTextureExternal,
+            releaseFramesAutomatically,
+            executor,
+            listener));
+    return shaderProgramListBuilder.build();
+  }
+
+  /**
+   * Chains the given {@link GlShaderProgram} instances using {@link
+   * ChainingGlShaderProgramListener} instances.
+   */
+  private static void chainShaderProgramsWithListeners(
+      ImmutableList<GlShaderProgram> shaderPrograms,
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
+      Listener videoFrameProcessorListener,
+      Executor videoFrameProcessorListenerExecutor) {
+    for (int i = 0; i < shaderPrograms.size() - 1; i++) {
+      GlShaderProgram producingGlShaderProgram = shaderPrograms.get(i);
+      GlShaderProgram consumingGlShaderProgram = shaderPrograms.get(i + 1);
+      ChainingGlShaderProgramListener chainingGlShaderProgramListener =
+          new ChainingGlShaderProgramListener(
+              producingGlShaderProgram, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
+      producingGlShaderProgram.setOutputListener(chainingGlShaderProgramListener);
+      producingGlShaderProgram.setErrorListener(
+          videoFrameProcessorListenerExecutor, videoFrameProcessorListener::onError);
+      consumingGlShaderProgram.setInputListener(chainingGlShaderProgramListener);
+    }
+  }
+
   /**
    * Releases the {@link GlShaderProgram} instances and destroys the OpenGL context.
    *
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
-  @WorkerThread
   private void releaseShaderProgramsAndDestroyGlContext() {
     try {
       for (int i = 0; i < allShaderPrograms.size(); i++) {
