@@ -32,7 +32,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
@@ -153,6 +152,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  public void signalEndOfCurrentInputStream() {
+    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
+    streamOffsetUsQueue.remove();
+    if (streamOffsetUsQueue.isEmpty()) {
+      videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
+    }
+  }
+
+  /**
+   * Signals that there will be another input stream after all previously appended input streams
+   * have {@linkplain #signalEndOfCurrentInputStream() ended}.
+   *
+   * <p>This method does not need to be called on the GL thread, but the caller must ensure that
+   * stream offsets are appended in the correct order.
+   *
+   * @param streamOffsetUs The presentation timestamp offset, in microseconds.
+   */
+  public void appendStream(long streamOffsetUs) {
+    streamOffsetUsQueue.add(streamOffsetUs);
+  }
+
+  // Methods that must be called on the GL thread.
+
+  @Override
   public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     long streamOffsetUs =
         checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
@@ -174,7 +197,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     throw new UnsupportedOperationException();
   }
 
-  @WorkerThread
   public void releaseOutputFrame(long releaseTimeNs) {
     checkState(!releaseFramesAutomatically);
     Pair<TextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
@@ -182,15 +204,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* inputTexture= */ oldestAvailableFrame.first,
         /* presentationTimeUs= */ oldestAvailableFrame.second,
         releaseTimeNs);
-  }
-
-  @Override
-  public void signalEndOfCurrentInputStream() {
-    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
-    streamOffsetUsQueue.remove();
-    if (streamOffsetUsQueue.isEmpty()) {
-      videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
-    }
   }
 
   @Override
@@ -202,19 +215,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     inputListener.onFlush();
     inputListener.onReadyToAcceptInputFrame();
-  }
-
-  @Override
-  @WorkerThread
-  public synchronized void release() throws VideoFrameProcessingException {
-    if (defaultShaderProgram != null) {
-      defaultShaderProgram.release();
-    }
-    try {
-      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
-    } catch (GlUtil.GlException e) {
-      throw new VideoFrameProcessingException(e);
-    }
   }
 
   @Override
@@ -231,17 +231,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  /**
-   * Signals that there will be another input stream after all previously appended input streams
-   * have {@linkplain #signalEndOfCurrentInputStream() ended}.
-   *
-   * <p>This method does not need to be called on the GL thread, but the caller must ensure that
-   * stream offsets are appended in the correct order.
-   *
-   * @param streamOffsetUs The presentation timestamp offset, in microseconds.
-   */
-  public void appendStream(long streamOffsetUs) {
-    streamOffsetUsQueue.add(streamOffsetUs);
+  @Override
+  public synchronized void release() throws VideoFrameProcessingException {
+    if (defaultShaderProgram != null) {
+      defaultShaderProgram.release();
+    }
+    try {
+      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+    } catch (GlUtil.GlException e) {
+      throw new VideoFrameProcessingException(e);
+    }
   }
 
   /**
@@ -495,31 +494,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       height = surfaceView.getHeight();
     }
 
-    /**
-     * Focuses the wrapped surface view's surface as an {@link EGLSurface}, renders using {@code
-     * renderingTask} and swaps buffers, if the view's holder has a valid surface. Does nothing
-     * otherwise.
-     */
-    @WorkerThread
-    public synchronized void maybeRenderToSurfaceView(VideoFrameProcessingTask renderingTask)
-        throws GlUtil.GlException, VideoFrameProcessingException {
-      if (surface == null) {
-        return;
-      }
-
-      if (eglSurface == null) {
-        eglSurface =
-            GlUtil.createEglSurface(
-                eglDisplay, surface, outputColorTransfer, /* isEncoderInputSurface= */ false);
-      }
-      EGLSurface eglSurface = this.eglSurface;
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
-      renderingTask.run();
-      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
-      // Prevents white flashing on the debug SurfaceView when frames are rendered too fast.
-      GLES20.glFinish();
-    }
-
     @Override
     public void surfaceCreated(SurfaceHolder holder) {}
 
@@ -541,6 +515,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       eglSurface = null;
       width = C.LENGTH_UNSET;
       height = C.LENGTH_UNSET;
+    }
+
+    /**
+     * Focuses the wrapped surface view's surface as an {@link EGLSurface}, renders using {@code
+     * renderingTask} and swaps buffers, if the view's holder has a valid surface. Does nothing
+     * otherwise.
+     *
+     * <p>Must be called on the GL thread.
+     */
+    public synchronized void maybeRenderToSurfaceView(VideoFrameProcessingTask renderingTask)
+        throws GlUtil.GlException, VideoFrameProcessingException {
+      if (surface == null) {
+        return;
+      }
+
+      if (eglSurface == null) {
+        eglSurface =
+            GlUtil.createEglSurface(
+                eglDisplay, surface, outputColorTransfer, /* isEncoderInputSurface= */ false);
+      }
+      EGLSurface eglSurface = this.eglSurface;
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
+      renderingTask.run();
+      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+      // Prevents white flashing on the debug SurfaceView when frames are rendered too fast.
+      GLES20.glFinish();
     }
   }
 }

@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -186,7 +185,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     surface.release();
   }
 
-  @WorkerThread
+  private void maybeExecuteAfterFlushTask() {
+    if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
+      return;
+    }
+    videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
+  }
+
+  // Methods that must be called on the GL thread.
+
   private void flush() {
     // A frame that is registered before flush may arrive after flush.
     numberOfFramesToDropOnBecomingAvailable = pendingFrames.size() - availableFrameCount;
@@ -200,14 +207,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     maybeExecuteAfterFlushTask();
   }
 
-  private void maybeExecuteAfterFlushTask() {
-    if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
-      return;
-    }
-    videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
-  }
-
-  @WorkerThread
   private void maybeQueueFrameToExternalShaderProgram() {
     if (externalShaderProgramInputCapacity.get() == 0
         || availableFrameCount == 0
