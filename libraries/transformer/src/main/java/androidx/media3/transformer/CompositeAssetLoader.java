@@ -146,7 +146,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    *
    * <p>There can't be more than one {@link OnMediaItemChangedListener} for the same track type.
    *
-   * <p>Can be called from any thread.
+   * <p>Must always be called from the same thread. This thread can be any thread.
    *
    * @param onMediaItemChangedListener The {@link OnMediaItemChangedListener}.
    * @param trackType The {@link C.TrackType} for which to listen to {@link MediaItem} change

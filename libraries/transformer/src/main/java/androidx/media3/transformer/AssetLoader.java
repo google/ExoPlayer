@@ -92,8 +92,8 @@ public interface AssetLoader {
      * <p>Must be called once per {@linkplain #onTrackCount(int) declared} track.
      *
      * <p>Must be called from the thread that will be used to call the returned {@link
-     * SampleConsumer}'s methods. This thread is generally different from the one used to access the
-     * {@link AssetLoader} methods.
+     * SampleConsumer}'s methods. This thread must be the same for all the tracks added, and is
+     * generally different from the one used to access the {@link AssetLoader} methods.
      *
      * @param format The {@link Format} of the input media (prior to video slow motion flattening or
      *     to decoding).
