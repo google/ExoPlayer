@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
@@ -52,8 +53,21 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final AssetLoader.Factory assetLoaderFactory;
   private final HandlerWrapper handler;
   private final Listener compositeAssetLoaderListener;
+  /**
+   * A mapping from track types to {@link SampleConsumer} instances.
+   *
+   * <p>This map never contains more than 2 entries, as the only track types allowed are audio and
+   * video.
+   */
   private final Map<Integer, SampleConsumer> sampleConsumersByTrackType;
+  /**
+   * A mapping from track types to {@link OnMediaItemChangedListener} instances.
+   *
+   * <p>This map never contains more than 2 entries, as the only track types allowed are audio and
+   * video.
+   */
   private final Map<Integer, OnMediaItemChangedListener> mediaItemChangedListenersByTrackType;
+
   private final ImmutableList.Builder<ExportResult.ProcessedInput> processedInputsBuilder;
   private final AtomicInteger nonEndedTracks;
 
@@ -133,10 +147,11 @@ import java.util.concurrent.atomic.AtomicInteger;
    *
    * @param onMediaItemChangedListener The {@link OnMediaItemChangedListener}.
    * @param trackType The {@link C.TrackType} for which to listen to {@link MediaItem} change
-   *     events.
+   *     events. Must be {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}.
    */
   public void addOnMediaItemChangedListener(
       OnMediaItemChangedListener onMediaItemChangedListener, @C.TrackType int trackType) {
+    checkArgument(trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO);
     checkArgument(mediaItemChangedListenersByTrackType.get(trackType) == null);
     mediaItemChangedListenersByTrackType.put(trackType, onMediaItemChangedListener);
   }
@@ -172,19 +187,21 @@ import java.util.concurrent.atomic.AtomicInteger;
       long streamStartPositionUs,
       long streamOffsetUs)
       throws ExportException {
-    int trackType = MimeTypes.getTrackType(format.sampleMimeType);
+    // Consider image as video because image inputs are fed to the VideoSamplePipeline.
+    int trackType =
+        MimeTypes.isAudio(format.sampleMimeType) ? C.TRACK_TYPE_AUDIO : C.TRACK_TYPE_VIDEO;
     SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
-      boolean addAudioTrack =
+      boolean addForcedAudioTrack =
           forceAudioTrack && nonEndedTracks.get() == 1 && trackType == C.TRACK_TYPE_VIDEO;
-      int trackCount = nonEndedTracks.get() + (addAudioTrack ? 1 : 0);
+      int trackCount = nonEndedTracks.get() + (addForcedAudioTrack ? 1 : 0);
       compositeAssetLoaderListener.onTrackCount(trackCount);
       sampleConsumer =
           new SampleConsumerWrapper(
               compositeAssetLoaderListener.onTrackAdded(
                   format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs));
       sampleConsumersByTrackType.put(trackType, sampleConsumer);
-      if (addAudioTrack) {
+      if (addForcedAudioTrack) {
         Format firstAudioFormat =
             new Format.Builder()
                 .setSampleMimeType(MimeTypes.AUDIO_AAC)
@@ -201,6 +218,14 @@ import java.util.concurrent.atomic.AtomicInteger;
         sampleConsumersByTrackType.put(C.TRACK_TYPE_AUDIO, audioSampleConsumer);
       }
     } else {
+      // TODO(b/270533049): Remove the check below when implementing blank video frames generation.
+      boolean videoTrackDisappeared =
+          nonEndedTracks.get() == 1
+              && trackType == C.TRACK_TYPE_AUDIO
+              && sampleConsumersByTrackType.size() == 2;
+      checkState(
+          !videoTrackDisappeared,
+          "Inputs with no video track are not supported when the output contains a video track");
       sampleConsumer =
           checkStateNotNull(
               sampleConsumersByTrackType.get(trackType),
