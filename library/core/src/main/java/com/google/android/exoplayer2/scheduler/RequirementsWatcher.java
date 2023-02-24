@@ -109,7 +109,7 @@ public final class RequirementsWatcher {
       filter.addAction(Intent.ACTION_DEVICE_STORAGE_OK);
     }
     receiver = new DeviceStatusChangeReceiver();
-    Util.registerReceiverNotExported(context, receiver, filter, handler);
+    context.registerReceiver(receiver, filter, /* broadcastPermission= */ null, handler);
     return notMetRequirements;
   }
 

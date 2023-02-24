@@ -91,7 +91,9 @@ public final class AudioCapabilitiesReceiver {
     @Nullable Intent stickyIntent = null;
     if (receiver != null) {
       IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG);
-      stickyIntent = Util.registerReceiverNotExported(context, receiver, intentFilter, handler);
+      stickyIntent =
+          context.registerReceiver(
+              receiver, intentFilter, /* broadcastPermission= */ null, handler);
     }
     audioCapabilities = AudioCapabilities.getCapabilities(context, stickyIntent);
     return audioCapabilities;
