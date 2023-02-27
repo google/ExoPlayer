@@ -89,6 +89,7 @@ import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Looper;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -119,7 +120,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.WrappingMediaSource;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource;
-import com.google.android.exoplayer2.testutil.Action;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
@@ -143,6 +143,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -3834,41 +3835,29 @@ public final class ExoPlayerTest {
   @Test
   public void setPlaybackSpeedConsecutivelyNotifiesListenerForEveryChangeOnceAndIsMasked()
       throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     List<Float> maskedPlaybackSpeeds = new ArrayList<>();
-    Action getPlaybackSpeedAction =
-        new Action("getPlaybackSpeed", /* description= */ null) {
-          @Override
-          protected void doActionImpl(
-              ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-            maskedPlaybackSpeeds.add(player.getPlaybackParameters().speed);
-          }
-        };
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.1f))
-            .apply(getPlaybackSpeedAction)
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.2f))
-            .apply(getPlaybackSpeedAction)
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.3f))
-            .apply(getPlaybackSpeedAction)
-            .play()
-            .build();
     List<Float> reportedPlaybackSpeeds = new ArrayList<>();
-    Player.Listener listener =
+    player.addListener(
         new Player.Listener() {
           @Override
           public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
             reportedPlaybackSpeeds.add(playbackParameters.speed);
           }
-        };
-    new ExoPlayerTestRunner.Builder(context)
-        .setActionSchedule(actionSchedule)
-        .setPlayerListener(listener)
-        .build()
-        .start()
-        .blockUntilEnded(TIMEOUT_MS);
+        });
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.setPlaybackSpeed(1.1f);
+    maskedPlaybackSpeeds.add(player.getPlaybackParameters().speed);
+    player.setPlaybackSpeed(1.2f);
+    maskedPlaybackSpeeds.add(player.getPlaybackParameters().speed);
+    player.setPlaybackSpeed(1.3f);
+    maskedPlaybackSpeeds.add(player.getPlaybackParameters().speed);
+    runUntilPendingCommandsAreFullyHandled(player);
+    player.release();
 
     assertThat(reportedPlaybackSpeeds).containsExactly(1.1f, 1.2f, 1.3f).inOrder();
     assertThat(maskedPlaybackSpeeds).isEqualTo(reportedPlaybackSpeeds);
@@ -3878,46 +3867,28 @@ public final class ExoPlayerTest {
   public void
       setUnsupportedPlaybackSpeedConsecutivelyNotifiesListenerForEveryChangeOnceAndResetsOnceHandled()
           throws Exception {
-    Renderer renderer =
-        new FakeMediaClockRenderer(C.TRACK_TYPE_AUDIO) {
-          @Override
-          public long getPositionUs() {
-            return 0;
-          }
-
-          @Override
-          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
-
-          @Override
-          public PlaybackParameters getPlaybackParameters() {
-            return PlaybackParameters.DEFAULT;
-          }
-        };
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.1f))
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.2f))
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.3f))
-            .play()
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setRenderers(new AudioClockRendererWithoutSpeedChangeSupport())
             .build();
     List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
-    Player.Listener listener =
+    player.addListener(
         new Player.Listener() {
           @Override
           public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
             reportedPlaybackParameters.add(playbackParameters);
           }
-        };
-    new ExoPlayerTestRunner.Builder(context)
-        .setSupportedFormats(ExoPlayerTestRunner.AUDIO_FORMAT)
-        .setRenderers(renderer)
-        .setActionSchedule(actionSchedule)
-        .setPlayerListener(listener)
-        .build()
-        .start()
-        .blockUntilEnded(TIMEOUT_MS);
+        });
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.setPlaybackSpeed(1.1f);
+    player.setPlaybackSpeed(1.2f);
+    player.setPlaybackSpeed(1.3f);
+    runUntilPendingCommandsAreFullyHandled(player);
+    player.release();
 
     assertThat(reportedPlaybackParameters)
         .containsExactly(
@@ -3925,6 +3896,51 @@ public final class ExoPlayerTest {
             new PlaybackParameters(/* speed= */ 1.2f),
             new PlaybackParameters(/* speed= */ 1.3f),
             PlaybackParameters.DEFAULT)
+        .inOrder();
+  }
+
+  @Test
+  public void
+      setUnsupportedPlaybackSpeedDirectlyFollowedByDisablingTheRendererAndSupportedPlaybackSpeed_keepsCorrectFinalSpeedAndInformsListenersCorrectly()
+          throws Exception {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setRenderers(new AudioClockRendererWithoutSpeedChangeSupport())
+            .build();
+    List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+            reportedPlaybackParameters.add(playbackParameters);
+          }
+        });
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.setPlaybackSpeed(2f);
+    // We need to do something that reliably triggers a position sync with the renderer, but no
+    // further playback progress as we want to test what happens if the parameter reset is still
+    // pending when we disable the audio renderer below. Calling play and pause will achieve this.
+    player.play();
+    player.pause();
+    // Disabling the audio renderer and setting a new speed should work, and should not be affected
+    // by the still pending parameter reset from above.
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
+            .build());
+    player.setPlaybackSpeed(5f);
+    runUntilPendingCommandsAreFullyHandled(player);
+    player.release();
+
+    assertThat(reportedPlaybackParameters)
+        .containsExactly(
+            new PlaybackParameters(/* speed= */ 2f), new PlaybackParameters(/* speed= */ 5f))
         .inOrder();
   }
 
@@ -10062,8 +10078,10 @@ public final class ExoPlayerTest {
 
   @Test
   public void setPlaybackSpeed_withAdPlayback_onlyAppliesToContent() throws Exception {
-    // Create renderer with media clock to listen to playback parameter changes.
+    // Create renderer with media clock to listen to playback parameter changes and reported speed
+    // changes.
     ArrayList<PlaybackParameters> playbackParameters = new ArrayList<>();
+    ArrayList<Pair<Float, Float>> speedChanges = new ArrayList<>();
     FakeMediaClockRenderer audioRenderer =
         new FakeMediaClockRenderer(C.TRACK_TYPE_AUDIO) {
           private long positionUs;
@@ -10090,6 +10108,12 @@ public final class ExoPlayerTest {
             return playbackParameters.isEmpty()
                 ? PlaybackParameters.DEFAULT
                 : Iterables.getLast(playbackParameters);
+          }
+
+          @Override
+          public void setPlaybackSpeed(float currentPlaybackSpeed, float targetPlaybackSpeed)
+              throws ExoPlaybackException {
+            speedChanges.add(Pair.create(currentPlaybackSpeed, targetPlaybackSpeed));
           }
         };
     ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(audioRenderer).build();
@@ -10123,7 +10147,7 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
-    // Assert that the renderer received the playback speed updates at each ad/content boundary.
+    // Assert that the media clock received the playback parameters at each ad/content boundary.
     assertThat(playbackParameters)
         .containsExactly(
             /* preroll ad */ new PlaybackParameters(1f),
@@ -10132,6 +10156,18 @@ public final class ExoPlayerTest {
             /* content after midroll */ new PlaybackParameters(5f),
             /* postroll ad */ new PlaybackParameters(1f),
             /* content after postroll */ new PlaybackParameters(5f))
+        .inOrder();
+
+    // Assert that the renderer received the speed changes at each ad/content boundary.
+    assertThat(speedChanges)
+        .containsExactly(
+            /* initial setup */ Pair.create(5f, 5f),
+            /* preroll ad */ Pair.create(1f, 5f),
+            /* content after preroll */ Pair.create(5f, 5f),
+            /* midroll ad */ Pair.create(1f, 5f),
+            /* content after midroll */ Pair.create(5f, 5f),
+            /* postroll ad */ Pair.create(1f, 5f),
+            /* content after postroll */ Pair.create(5f, 5f))
         .inOrder();
 
     // Assert that user-set speed was reported, but none of the ad overrides.
@@ -12424,6 +12460,46 @@ public final class ExoPlayerTest {
         IOException error,
         int errorCount) {
       return Loader.RETRY;
+    }
+  }
+
+  private static final class AudioClockRendererWithoutSpeedChangeSupport
+      extends FakeMediaClockRenderer {
+
+    private PlaybackParameters playbackParameters;
+    private boolean delayingPlaybackParameterReset;
+    private long positionUs;
+
+    public AudioClockRendererWithoutSpeedChangeSupport() {
+      super(C.TRACK_TYPE_AUDIO);
+      playbackParameters = PlaybackParameters.DEFAULT;
+    }
+
+    @Override
+    protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+      super.onPositionReset(positionUs, joining);
+      this.positionUs = positionUs;
+    }
+
+    @Override
+    public long getPositionUs() {
+      return positionUs;
+    }
+
+    @Override
+    public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+      this.playbackParameters = playbackParameters;
+      // Similar to a real renderer, the missing speed support is only detected with a delay.
+      delayingPlaybackParameterReset = true;
+    }
+
+    @Override
+    public PlaybackParameters getPlaybackParameters() {
+      if (delayingPlaybackParameterReset) {
+        delayingPlaybackParameterReset = false;
+        return playbackParameters;
+      }
+      return PlaybackParameters.DEFAULT;
     }
   }
 
