@@ -154,7 +154,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   private static final String TAG = "DefaultFrameProcessor";
   private static final String THREAD_NAME = "Effect:GlThread";
-  private static final long RELEASE_WAIT_TIME_MS = 100;
+  private static final long RELEASE_WAIT_TIME_MS = 500;
 
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
