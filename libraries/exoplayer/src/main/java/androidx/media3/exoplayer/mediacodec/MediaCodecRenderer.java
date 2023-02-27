@@ -300,7 +300,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer bypassSampleBuffer;
   private final BatchBuffer bypassBatchBuffer;
-  private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
   private final ArrayDeque<OutputStreamInfo> pendingOutputStreamChanges;
@@ -361,6 +360,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
   private OutputStreamInfo outputStreamInfo;
   private long lastProcessedOutputBufferTimeUs;
+  private boolean needToNotifyOutputFormatChangeAfterStreamChange;
 
   /**
    * @param trackType The {@link C.TrackType track type} that the renderer handles.
@@ -387,7 +387,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     bypassSampleBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     bypassBatchBuffer = new BatchBuffer();
-    formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     currentPlaybackSpeed = 1f;
@@ -600,13 +599,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected final void updateOutputFormatForTime(long presentationTimeUs)
       throws ExoPlaybackException {
     boolean outputFormatChanged = false;
-    @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
-    if (format == null && codecOutputMediaFormatChanged) {
-      // If the codec's output MediaFormat has changed then there should be a corresponding Format
-      // change, which we've not found. Check the Format queue in case the corresponding
-      // presentation timestamp is greater than presentationTimeUs, which can happen for some codecs
-      // [Internal ref: b/162719047].
-      format = formatQueue.pollFirst();
+    @Nullable Format format = outputStreamInfo.formatQueue.pollFloor(presentationTimeUs);
+    if (format == null
+        && needToNotifyOutputFormatChangeAfterStreamChange
+        && codecOutputMediaFormat != null) {
+      // After a stream change or after the initial start, there should be an input format change,
+      // which we've not found. Check the Format queue in case the corresponding presentation
+      // timestamp is greater than presentationTimeUs, which can happen for some codecs
+      // [Internal ref: b/162719047 and https://github.com/google/ExoPlayer/issues/8594].
+      format = outputStreamInfo.formatQueue.pollFirst();
     }
     if (format != null) {
       outputFormat = format;
@@ -615,6 +616,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (outputFormatChanged || (codecOutputMediaFormatChanged && outputFormat != null)) {
       onOutputFormatChanged(outputFormat, codecOutputMediaFormat);
       codecOutputMediaFormatChanged = false;
+      needToNotifyOutputFormatChangeAfterStreamChange = false;
     }
   }
 
@@ -671,10 +673,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // If there is a format change on the input side still pending propagation to the output, we
     // need to queue a format next time a buffer is read. This is because we may not read a new
     // input format after the position reset.
-    if (formatQueue.size() > 0) {
+    if (outputStreamInfo.formatQueue.size() > 0) {
       waitingForFirstSampleInFormat = true;
     }
-    formatQueue.clear();
+    outputStreamInfo.formatQueue.clear();
     pendingOutputStreamChanges.clear();
   }
 
@@ -1338,7 +1340,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       decodeOnlyPresentationTimestamps.add(presentationTimeUs);
     }
     if (waitingForFirstSampleInFormat) {
-      formatQueue.add(presentationTimeUs, inputFormat);
+      if (!pendingOutputStreamChanges.isEmpty()) {
+        pendingOutputStreamChanges.peekLast().formatQueue.add(presentationTimeUs, inputFormat);
+      } else {
+        outputStreamInfo.formatQueue.add(presentationTimeUs, inputFormat);
+      }
       waitingForFirstSampleInFormat = false;
     }
     largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
@@ -2050,6 +2056,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void setOutputStreamInfo(OutputStreamInfo outputStreamInfo) {
     this.outputStreamInfo = outputStreamInfo;
     if (outputStreamInfo.streamOffsetUs != C.TIME_UNSET) {
+      needToNotifyOutputFormatChangeAfterStreamChange = true;
       onOutputStreamOffsetUsChanged(outputStreamInfo.streamOffsetUs);
     }
   }
@@ -2515,12 +2522,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     public final long previousStreamLastBufferTimeUs;
     public final long startPositionUs;
     public final long streamOffsetUs;
+    public final TimedValueQueue<Format> formatQueue;
 
     public OutputStreamInfo(
         long previousStreamLastBufferTimeUs, long startPositionUs, long streamOffsetUs) {
       this.previousStreamLastBufferTimeUs = previousStreamLastBufferTimeUs;
       this.startPositionUs = startPositionUs;
       this.streamOffsetUs = streamOffsetUs;
+      this.formatQueue = new TimedValueQueue<>();
     }
   }
 

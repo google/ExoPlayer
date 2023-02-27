@@ -24,6 +24,8 @@
         `AudioProcessors` are active, e.g. for gapless trimming
         ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
     *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
+    *   Fix broken gapless MP3 playback on Samsung devices
+        ([#8594](https://github.com/google/ExoPlayer/issues/8594)).
 *   Video:
     *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
         `HEVCProfileMain10`.
