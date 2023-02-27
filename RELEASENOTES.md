@@ -30,7 +30,11 @@
 * Video:
     *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
         `HEVCProfileMain10`.
-* DASH:
+* Add workaround for a device issue on Chromecast with Google TV and
+        Lenovo M10 FHD Plus that causes 60fps AVC streams to be marked as
+        unsupported
+        ([#10898](https://github.com/google/ExoPlayer/issues/10898)).
+*   DASH:
     *   Add full parsing for image adaptation sets, including tile counts
         ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
 * RTSP:
@@ -94,15 +98,10 @@ This release corresponds to the
         parsing trak atoms.
     *   Correctly skip samples when seeking directly to a sync frame in fMP4
         ([#10941](https://github.com/google/ExoPlayer/issues/10941)).
-    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
-        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).  
-* Audio:
-    * Use the compressed audio format bitrate to calculate the min buffer size
+*   Audio:
+    *   Use the compressed audio format bitrate to calculate the min buffer size
         for `AudioTrack` in direct playbacks (passthrough).
-    * Fix bug where some playbacks fail when tunneling is enabled and
-          `AudioProcessors` are active, e.g. for gapless trimming
-          ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
-* Text:
+*   Text:
     *   Fix `TextRenderer` passing an invalid (negative) index to
         `Subtitle.getEventTime` if a subtitle file contains no cues.
     *   SubRip: Add support for UTF-16 files if they start with a byte order
