@@ -27,6 +27,10 @@
 *   Video:
     *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
         `HEVCProfileMain10`.
+    *   Add workaround for a device issue on Chromecast with Google TV and
+        Lenovo M10 FHD Plus that causes 60fps AVC streams to be marked as
+        unsupported
+        ([#10898](https://github.com/google/ExoPlayer/issues/10898)).
 *   DASH:
     *   Add full parsing for image adaptation sets, including tile counts
         ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
