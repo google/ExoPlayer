@@ -358,6 +358,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private OutputStreamInfo outputStreamInfo;
+  private long lastProcessedOutputBufferTimeUs;
 
   /**
    * @param trackType The {@link C.TrackType track type} that the renderer handles.
@@ -408,6 +409,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecHotswapDeadlineMs = C.TIME_UNSET;
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
     lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
+    lastProcessedOutputBufferTimeUs = C.TIME_UNSET;
     codecDrainState = DRAIN_STATE_NONE;
     codecDrainAction = DRAIN_ACTION_NONE;
   }
@@ -637,8 +639,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
-    if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET) {
-      checkState(outputStreamInfo.startPositionUs == C.TIME_UNSET);
+    if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET
+        || (pendingOutputStreamChanges.isEmpty()
+            && lastProcessedOutputBufferTimeUs != C.TIME_UNSET
+            && lastProcessedOutputBufferTimeUs >= largestQueuedPresentationTimeUs)) {
+      // This is the first stream, or the previous has been fully output already.
       setOutputStreamInfo(
           new OutputStreamInfo(
               /* previousStreamLastBufferTimeUs= */ C.TIME_UNSET, startPositionUs, offsetUs));
@@ -871,6 +876,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decodeOnlyPresentationTimestamps.clear();
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
     lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
+    lastProcessedOutputBufferTimeUs = C.TIME_UNSET;
     if (c2Mp3TimestampTracker != null) {
       c2Mp3TimestampTracker.reset();
     }
@@ -1567,6 +1573,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   @CallSuper
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    lastProcessedOutputBufferTimeUs = presentationTimeUs;
     if (!pendingOutputStreamChanges.isEmpty()
         && presentationTimeUs >= pendingOutputStreamChanges.peek().previousStreamLastBufferTimeUs) {
       setOutputStreamInfo(pendingOutputStreamChanges.poll());
