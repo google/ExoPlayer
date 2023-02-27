@@ -26,6 +26,9 @@
     *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
     *   Fix broken gapless MP3 playback on Samsung devices
         ([#8594](https://github.com/google/ExoPlayer/issues/8594)).
+    *   Fix bug where playback speeds set immediately after disabling audio may
+        be overridden by a previous speed change
+        ([#10882](https://github.com/google/ExoPlayer/issues/10882)).
 *   Video:
     *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
         `HEVCProfileMain10`.
