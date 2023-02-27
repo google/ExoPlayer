@@ -27,10 +27,12 @@
         `AudioProcessors` are active, e.g. for gapless trimming
         ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
     *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
-* Video:
+    * Fix broken gapless MP3 playback on Samsung devices
+        ([#8594](https://github.com/google/ExoPlayer/issues/8594)).
+*   Video:
     *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
         `HEVCProfileMain10`.
-* Add workaround for a device issue on Chromecast with Google TV and
+    * Add workaround for a device issue on Chromecast with Google TV and
         Lenovo M10 FHD Plus that causes 60fps AVC streams to be marked as
         unsupported
         ([#10898](https://github.com/google/ExoPlayer/issues/10898)).
