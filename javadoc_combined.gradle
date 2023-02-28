@@ -17,11 +17,6 @@ apply from: "${buildscript.sourceFile.parentFile}/javadoc_util.gradle"
 class CombinedJavadocPlugin implements Plugin<Project> {
 
   static final String JAVADOC_TASK_NAME = "generateCombinedJavadoc"
-  static final String DACKKA_TASK_NAME = "generateCombinedDackka"
-
-  // Dackka snapshots are listed at https://androidx.dev/dackka/builds.
-  static final String DACKKA_JAR_URL =
-      "https://androidx.dev/dackka/builds/9221390/artifacts/dackka-1.0.4-all.jar"
 
   @Override
   void apply(Project project) {
@@ -83,71 +78,6 @@ class CombinedJavadocPlugin implements Plugin<Project> {
             project.fixJavadoc()
           }
         }
-
-        def dackkaOutputDir = project.file("$project.buildDir/docs/dackka")
-        project.task(DACKKA_TASK_NAME, type: JavaExec) {
-          doFirst {
-            // Recreate the output directory to remove any leftover files from a previous run.
-            project.delete dackkaOutputDir
-            project.mkdir dackkaOutputDir
-
-            // Download the Dackka JAR.
-            new URL(DACKKA_JAR_URL).withInputStream {
-              i -> classpath.getSingleFile().withOutputStream { it << i }
-            }
-
-            // Build lists of source files and dependencies.
-            def sources = []
-            def dependencies = []
-            libraryModules.each { libraryModule ->
-              libraryModule.android.libraryVariants.all { variant ->
-                def name = variant.buildType.name
-                if (name == "release") {
-                  def classpathFiles =
-                      project.files(variant.javaCompileProvider.get().classpath.files)
-                  variant.sourceSets.inject(sources) {
-                    acc, val -> acc << val.javaDirectories
-                  }
-                  dependencies << classpathFiles.filter { f -> !(f.path.contains("/buildout/")) }
-                  dependencies << libraryModule.project.android.getBootClasspath()
-                }
-              }
-            }
-
-            // Set command line arguments to Dackka.
-            def guavaPackageListFile = getGuavaPackageListFile(getTemporaryDir())
-            def globalLinksString = "$guavaReferenceUrl^$guavaPackageListFile^^"
-            def sourcesString = project.files(sources.flatten())
-                .filter({ f -> project.file(f).exists() }).join(";")
-            def dependenciesString = project.files(dependencies).asPath.replace(':', ';')
-            def sourceSet = [
-                "-src", sourcesString,
-                "-classpath", dependenciesString,
-                "-documentedVisibilities", "PUBLIC;PROTECTED"
-              ].join(" ")
-            args("-moduleName", "",
-                "-outputDir", "$dackkaOutputDir",
-                "-globalLinks", "$globalLinksString",
-                "-loggingLevel", "WARN",
-                "-sourceSet", "$sourceSet",
-                "-offlineMode")
-            environment("DEVSITE_TENANT", "androidx/media3")
-          }
-          description = "Generates combined javadoc for developer.android.com."
-          classpath = project.files(new File(getTemporaryDir(), "dackka.jar"))
-          doLast {
-            libraryModules.each { libraryModule ->
-              project.copy {
-                from "${libraryModule.projectDir}/src/main/javadoc"
-                into "${dackkaOutputDir}/reference/"
-              }
-              project.copy {
-                from "${libraryModule.projectDir}/src/main/javadoc"
-                into "${dackkaOutputDir}/reference/kotlin/"
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -158,17 +88,6 @@ class CombinedJavadocPlugin implements Plugin<Project> {
       it.plugins.findPlugin("com.android.library") &&
       it.tasks.findByName("generateJavadoc")
     }
-  }
-
-  // Returns a file containing the list of packages that should be linked to Guava documentation.
-  private static File getGuavaPackageListFile(File directory) {
-    def packageListFile = new File(directory, "guava")
-    packageListFile.text = ["com.google.common.base", "com.google.common.collect",
-                            "com.google.common.io", "com.google.common.math",
-                            "com.google.common.net", "com.google.common.primitives",
-                            "com.google.common.truth", "com.google.common.util.concurrent"]
-        .join('\n')
-    return packageListFile
   }
 
 }
