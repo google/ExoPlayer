@@ -32,7 +32,6 @@ import android.util.Pair;
 import android.util.Size;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -461,8 +460,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           return abs(
               requestedWidth * requestedHeight
                   - closestSupportedResolution.getWidth() * closestSupportedResolution.getHeight());
-        },
-        /* filterName= */ "resolution");
+        });
   }
 
   /** Returns a list of encoders that support the requested bitrate most closely. */
@@ -474,8 +472,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           int achievableBitrate =
               EncoderUtil.getSupportedBitrateRange(encoderInfo, mimeType).clamp(requestedBitrate);
           return abs(achievableBitrate - requestedBitrate);
-        },
-        /* filterName= */ "bitrate");
+        });
   }
 
   /** Returns a list of encoders that support the requested bitrate mode. */
@@ -486,8 +483,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         /* cost= */ (encoderInfo) ->
             EncoderUtil.isBitrateModeSupported(encoderInfo, mimeType, requestedBitrateMode)
                 ? 0
-                : Integer.MAX_VALUE, // Drops encoder.
-        /* filterName= */ "bitrate mode");
+                : Integer.MAX_VALUE); // Drops encoder.
   }
 
   private static final class VideoEncoderQueryResult {
@@ -608,7 +604,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    *     costs of all encoders are {@link Integer#MAX_VALUE}.
    */
   private static ImmutableList<MediaCodecInfo> filterEncoders(
-      List<MediaCodecInfo> encoders, EncoderFallbackCost cost, String filterName) {
+      List<MediaCodecInfo> encoders, EncoderFallbackCost cost) {
     List<MediaCodecInfo> filteredEncoders = new ArrayList<>(encoders.size());
 
     int minGap = Integer.MAX_VALUE;
@@ -626,10 +622,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       } else if (gap == minGap) {
         filteredEncoders.add(encoderInfo);
       }
-    }
-
-    if (filteredEncoders.size() != encoders.size()) {
-      logRemovedEncoders(encoders, filteredEncoders, filterName);
     }
 
     return ImmutableList.copyOf(filteredEncoders);
@@ -663,18 +655,5 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
         format);
-  }
-
-  private static void logRemovedEncoders(
-      List<MediaCodecInfo> encoders, List<MediaCodecInfo> filteredEncoders, String filterName) {
-    List<MediaCodecInfo> removedEncoders = new ArrayList<>(encoders);
-    removedEncoders.removeAll(filteredEncoders);
-    StringBuilder stringBuilder =
-        new StringBuilder("Encoders removed for ").append(filterName).append(":\n");
-    for (int i = 0; i < removedEncoders.size(); i++) {
-      MediaCodecInfo encoderInfo = removedEncoders.get(i);
-      stringBuilder.append(Util.formatInvariant("  %s\n", encoderInfo.getName()));
-    }
-    Log.d(TAG, stringBuilder.toString());
   }
 }
