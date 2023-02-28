@@ -73,6 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final AtomicInteger nonEndedTracks;
 
   private AssetLoader currentAssetLoader;
+  private boolean trackCountReported;
   private int processedInputsSize;
 
   private volatile long currentDurationUs;
@@ -197,8 +198,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (currentMediaItemIndex.get() == 0) {
       boolean addForcedAudioTrack =
           forceAudioTrack && nonEndedTracks.get() == 1 && trackType == C.TRACK_TYPE_VIDEO;
-      int trackCount = nonEndedTracks.get() + (addForcedAudioTrack ? 1 : 0);
-      compositeAssetLoaderListener.onTrackCount(trackCount);
+      if (!trackCountReported) {
+        int trackCount = nonEndedTracks.get() + (addForcedAudioTrack ? 1 : 0);
+        compositeAssetLoaderListener.onTrackCount(trackCount);
+        trackCountReported = true;
+      }
       sampleConsumer =
           new SampleConsumerWrapper(
               compositeAssetLoaderListener.onTrackAdded(

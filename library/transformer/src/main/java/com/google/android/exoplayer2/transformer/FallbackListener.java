@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Listener for fallback {@link TransformationRequest TransformationRequests} from the audio and
@@ -31,12 +32,12 @@ import com.google.android.exoplayer2.util.Util;
 /* package */ final class FallbackListener {
 
   private final Composition composition;
-  private final TransformationRequest originalTransformationRequest;
   private final ListenerSet<Transformer.Listener> transformerListeners;
   private final HandlerWrapper transformerListenerHandler;
+  private final TransformationRequest originalTransformationRequest;
+  private final AtomicInteger trackCount;
 
   private TransformationRequest fallbackTransformationRequest;
-  private int trackCount;
 
   /**
    * Creates a new instance.
@@ -58,6 +59,7 @@ import com.google.android.exoplayer2.util.Util;
     this.transformerListenerHandler = transformerListenerHandler;
     this.originalTransformationRequest = originalTransformationRequest;
     this.fallbackTransformationRequest = originalTransformationRequest;
+    trackCount = new AtomicInteger();
   }
 
   /**
@@ -65,9 +67,11 @@ import com.google.android.exoplayer2.util.Util;
    *
    * <p>The track count must be set before a transformation request is {@linkplain
    * #onTransformationRequestFinalized(TransformationRequest) finalized}.
+   *
+   * <p>Can be called from any thread.
    */
   public void setTrackCount(@IntRange(from = 1) int trackCount) {
-    this.trackCount = trackCount;
+    this.trackCount.set(trackCount);
   }
 
   /**
@@ -86,7 +90,7 @@ import com.google.android.exoplayer2.util.Util;
    *     #setTrackCount(int)}.
    */
   public void onTransformationRequestFinalized(TransformationRequest transformationRequest) {
-    checkState(trackCount-- > 0);
+    checkState(trackCount.getAndDecrement() > 0);
 
     TransformationRequest.Builder fallbackRequestBuilder =
         fallbackTransformationRequest.buildUpon();
@@ -107,7 +111,8 @@ import com.google.android.exoplayer2.util.Util;
     TransformationRequest newFallbackTransformationRequest = fallbackRequestBuilder.build();
     fallbackTransformationRequest = newFallbackTransformationRequest;
 
-    if (trackCount == 0 && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
+    if (trackCount.get() == 0
+        && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
       transformerListenerHandler.post(
           () ->
               transformerListeners.sendEvent(
