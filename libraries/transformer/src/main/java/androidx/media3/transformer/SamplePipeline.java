@@ -39,8 +39,9 @@ import java.util.List;
  *
  * <p>The {@link SampleConsumer} and {@link OnMediaItemChangedListener} methods must be called from
  * the same thread. This thread can change when the {@link
- * OnMediaItemChangedListener#onMediaItemChanged(EditedMediaItem, Format, long) MediaItem} changes,
- * and can be different from the thread used to call the other {@code SamplePipeline} methods.
+ * OnMediaItemChangedListener#onMediaItemChanged(EditedMediaItem, long, Format, boolean) MediaItem}
+ * changes, and can be different from the thread used to call the other {@code SamplePipeline}
+ * methods.
  */
 /* package */ abstract class SamplePipeline implements SampleConsumer, OnMediaItemChangedListener {
 

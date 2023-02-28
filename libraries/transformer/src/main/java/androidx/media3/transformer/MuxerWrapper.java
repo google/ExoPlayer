@@ -69,7 +69,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final SparseArray<TrackInfo> trackTypeToInfo;
   private final ScheduledExecutorService abortScheduledExecutorService;
 
-  private int trackCount;
   private boolean isReady;
   private boolean isEnded;
   private @C.TrackType int previousTrackType;
@@ -78,6 +77,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
   private boolean isAborted;
   private @MonotonicNonNull Muxer muxer;
+
+  private volatile int trackCount;
 
   public MuxerWrapper(String outputPath, Muxer.Factory muxerFactory, Listener listener) {
     this.outputPath = outputPath;
@@ -94,6 +95,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>The track count must be set before any track format is {@linkplain #addTrackFormat(Format)
    * added}.
+   *
+   * <p>Can be called from any thread.
    *
    * @throws IllegalStateException If a track format was {@linkplain #addTrackFormat(Format) added}
    *     before calling this method.
@@ -135,6 +138,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     the track.
    */
   public void addTrackFormat(Format format) throws Muxer.MuxerException {
+    int trackCount = this.trackCount;
     checkState(trackCount > 0, "The track count should be set before the formats are added.");
     checkState(trackTypeToInfo.size() < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
