@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2019 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="exo_controls_show">ప్లేయర్ నియంత్రణలను చూపు</string>
   <string name="exo_controls_hide">ప్లేయర్ నియంత్రణలను దాచిపెట్టు</string>
@@ -21,7 +7,7 @@
   <string name="exo_controls_overflow_hide_description">అదనపు సెట్టింగ్‌లను దాచు</string>
   <string name="exo_controls_overflow_show_description">అదనపు సెట్టింగ్‌లను చూపు</string>
   <string name="exo_controls_fullscreen_enter_description">ఫుల్ స్క్రీన్‌లోకి ప్రవేశించు</string>
-  <string name="exo_controls_fullscreen_exit_description">ఫుల్ స్క్రీన్ నుండి నిష్క్రమించు</string>
+  <string name="exo_controls_fullscreen_exit_description">ఫుల్ స్క్రీన్ నుండి నిష్క్రమించండి</string>
   <string name="exo_controls_previous_description">మునుపటి</string>
   <string name="exo_controls_next_description">తర్వాత</string>
   <string name="exo_controls_pause_description">పాజ్ చేయండి</string>
@@ -32,14 +18,14 @@
     <item quantity="one">%d సెకండ్ రివైండ్ చేయండి</item>
     <item quantity="other">%d సెకన్లు రివైండ్ చేయండి</item>
   </plurals>
-  <string name="exo_controls_fastforward_description">వేగంగా ఫార్వార్డ్ చేయండి</string>
+  <string name="exo_controls_fastforward_description">వేగంగా ఫార్వర్డ్ చేయండి</string>
   <plurals name="exo_controls_fastforward_by_amount_description">
     <item quantity="one">%d సెకండ్ వేగంగా ఫార్వర్డ్ చేయండి</item>
     <item quantity="other">%d సెకన్లు వేగంగా ఫార్వర్డ్ చేయండి</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">ప్రస్తుత మోడ్: ఏదీ పునరావృతం చేయవద్దు. పునరావృతం మోడ్‌ను టోగుల్ చేయండి.</string>
-  <string name="exo_controls_repeat_one_description">ప్రస్తుత మోడ్: ఒకదానిని పునరావృతం చేయండి. పునరావృతం మోడ్‌ను టోగుల్ చేయండి.</string>
-  <string name="exo_controls_repeat_all_description">ప్రస్తుత మోడ్: అన్నింటిని పునరావృతం చేయండి. పునరావృతం మోడ్‌ను టోగుల్ చేయండి.</string>
+  <string name="exo_controls_repeat_off_description">ప్రస్తుత మోడ్: ఏదీ రిపీట్‌ చేయవద్దు. రిపీట్‌ మోడ్‌ను టోగుల్ చేయండి.</string>
+  <string name="exo_controls_repeat_one_description">ప్రస్తుత మోడ్: ఒకదానిని రిపీట్‌ చేయండి. రిపీట్‌ మోడ్‌ను టోగుల్ చేయండి.</string>
+  <string name="exo_controls_repeat_all_description">ప్రస్తుత మోడ్: అన్నింటిని రిపీట్‌ చేయండి. రిపీట్‌ మోడ్‌ను టోగుల్ చేయండి.</string>
   <string name="exo_controls_shuffle_on_description">షఫుల్ మోడ్‌ను డిజేబుల్ చేయండి</string>
   <string name="exo_controls_shuffle_off_description">షఫుల్ మోడ్‌ను ఎనేబుల్ చేయండి</string>
   <string name="exo_controls_vr_description">వర్చువల్ రియాలిటీ మోడ్</string>
