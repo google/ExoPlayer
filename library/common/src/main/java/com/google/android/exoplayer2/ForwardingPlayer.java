@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
 /**
- * A {@link Player} that forwards operations to another {@link Player}. Applications can use this
+ * A {@link Player} that forwards method calls to another {@link Player}. Applications can use this
  * class to suppress or modify specific operations, by overriding the respective methods.
  */
 public class ForwardingPlayer implements Player {
