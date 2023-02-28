@@ -451,13 +451,13 @@ import java.lang.reflect.Method;
   }
 
   private void maybeSampleSyncParams() {
-    long playbackPositionUs = getPlaybackHeadPositionUs();
-    if (playbackPositionUs == 0) {
-      // The AudioTrack hasn't output anything yet.
-      return;
-    }
     long systemTimeUs = System.nanoTime() / 1000;
     if (systemTimeUs - lastPlayheadSampleTimeUs >= MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US) {
+      long playbackPositionUs = getPlaybackHeadPositionUs();
+      if (playbackPositionUs == 0) {
+        // The AudioTrack hasn't output anything yet.
+        return;
+      }
       // Take a new sample and update the smoothed offset between the system clock and the playhead.
       playheadOffsets[nextPlayheadOffsetIndex] =
           Util.getPlayoutDurationForMediaDuration(playbackPositionUs, audioTrackPlaybackSpeed)
@@ -479,11 +479,11 @@ import java.lang.reflect.Method;
       return;
     }
 
-    maybePollAndCheckTimestamp(systemTimeUs, playbackPositionUs);
+    maybePollAndCheckTimestamp(systemTimeUs);
     maybeUpdateLatency(systemTimeUs);
   }
 
-  private void maybePollAndCheckTimestamp(long systemTimeUs, long playbackPositionUs) {
+  private void maybePollAndCheckTimestamp(long systemTimeUs) {
     AudioTimestampPoller audioTimestampPoller = checkNotNull(this.audioTimestampPoller);
     if (!audioTimestampPoller.maybePollTimestamp(systemTimeUs)) {
       return;
@@ -492,6 +492,7 @@ import java.lang.reflect.Method;
     // Check the timestamp and accept/reject it.
     long audioTimestampSystemTimeUs = audioTimestampPoller.getTimestampSystemTimeUs();
     long audioTimestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
+    long playbackPositionUs = getPlaybackHeadPositionUs();
     if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
       listener.onSystemTimeUsMismatch(
           audioTimestampPositionFrames,
