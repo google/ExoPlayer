@@ -28,7 +28,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
 /**
- * A {@link Player} that forwards operations to another {@link Player}. Applications can use this
+ * A {@link Player} that forwards method calls to another {@link Player}. Applications can use this
  * class to suppress or modify specific operations, by overriding the respective methods.
  */
 @UnstableApi
