@@ -65,7 +65,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
  *   <li>cell-resolution
  * </ul>
  *
- * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
+ * <p>See the <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
  */
 @UnstableApi
 public final class TtmlDecoder extends SimpleSubtitleDecoder {
