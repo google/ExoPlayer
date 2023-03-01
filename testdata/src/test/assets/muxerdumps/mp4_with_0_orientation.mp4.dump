@@ -1,0 +1,26 @@
+seekMap:
+  isSeekable = true
+  duration = 0
+  getPosition(0) = [[timeUs=0, position=44]]
+  getPosition(1) = [[timeUs=0, position=44]]
+  getPosition(0) = [[timeUs=0, position=44]]
+  getPosition(0) = [[timeUs=0, position=44]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 55
+  sample count = 1
+  format 0:
+    id = 1
+    sampleMimeType = video/avc
+    codecs = avc1.9B2BF3
+    maxInputSize = 85
+    width = 12
+    height = 10
+    initializationData:
+      data = length 24, hash 7F12E259
+      data = length 5, hash 1B4D906
+  sample 0:
+    time = 0
+    flags = 536870913
+    data = length 55, hash A481CEF4
+tracksEnded = true
