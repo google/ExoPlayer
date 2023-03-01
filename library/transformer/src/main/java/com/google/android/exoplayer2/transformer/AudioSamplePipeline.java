@@ -84,10 +84,12 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    if (flattenForSlowMotion) {
+    if (flattenForSlowMotion && firstInputFormat.metadata != null) {
       audioProcessors =
           new ImmutableList.Builder<AudioProcessor>()
-              .add(new SpeedChangingAudioProcessor(new SegmentSpeedProvider(firstInputFormat)))
+              .add(
+                  new SpeedChangingAudioProcessor(
+                      new SegmentSpeedProvider(firstInputFormat.metadata)))
               .addAll(audioProcessors)
               .build();
     }
