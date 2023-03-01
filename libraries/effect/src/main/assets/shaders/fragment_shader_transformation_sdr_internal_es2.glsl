@@ -36,22 +36,23 @@ uniform int uOutputColorTransfer;
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
 
-// Transforms a single channel from electrical to optical SDR using the SMPTE 
-// 170M OETF.
-float smpte170mEotfSingleChannel(float electricalChannel) {
+// Transforms a single channel from electrical to optical SDR using the sRGB
+// EOTF.
+float srgbEotfSingleChannel(float electricalChannel) {
   // Specification:
-  // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
-  return electricalChannel < 0.0812
-    ? electricalChannel / 4.500
-    : pow((electricalChannel + 0.099) / 1.099, gamma);
+  // https://developer.android.com/ndk/reference/group/a-data-space#group___a_data_space_1gga2759ad19cae46646cc5f7002758c4a1cac1bef6aa3a72abbf4a651a0bfb117f96
+  return electricalChannel <= 0.04045
+    ? electricalChannel / 12.92
+    : pow((electricalChannel + 0.055) / 1.055, 2.4);
 }
 
-// Transforms electrical to optical SDR using the SMPTE 170M EOTF.
-vec3 smpte170mEotf(vec3 electricalColor) {
+// Transforms electrical to optical SDR using the sRGB EOTF.
+vec3 srgbEotf(const vec3 electricalColor) {
   return vec3(
-    smpte170mEotfSingleChannel(electricalColor.r),
-    smpte170mEotfSingleChannel(electricalColor.g),
-    smpte170mEotfSingleChannel(electricalColor.b));
+    srgbEotfSingleChannel(electricalColor.r),
+    srgbEotfSingleChannel(electricalColor.g),
+    srgbEotfSingleChannel(electricalColor.b)
+  );
 }
 
 // Transforms a single channel from optical to electrical SDR.
@@ -95,7 +96,7 @@ void main() {
   // texture gets flipped. We flip the texture vertically to ensure the
   // orientation of the output is correct.
   vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoordFlipped);
-  vec3 linearInputColor = smpte170mEotf(inputColor.rgb);
+  vec3 linearInputColor = srgbEotf(inputColor.rgb);
 
   vec4 transformedColors = uRgbMatrix * vec4(linearInputColor, 1);
 
