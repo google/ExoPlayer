@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
@@ -39,9 +38,7 @@ public class SegmentSpeedProviderTest {
 
   @Test
   public void getSpeed_noSegments_returnsBaseSpeed() {
-    SegmentSpeedProvider provider =
-        new SegmentSpeedProvider(
-            new Format.Builder().setMetadata(new Metadata(SMTA_SPEED_8)).build());
+    SegmentSpeedProvider provider = new SegmentSpeedProvider(new Metadata(SMTA_SPEED_8));
     assertThat(provider.getSpeed(0)).isEqualTo(8);
     assertThat(provider.getSpeed(1_000_000)).isEqualTo(8);
   }
@@ -55,10 +52,7 @@ public class SegmentSpeedProviderTest {
             new Segment(/* startTimeMs= */ 2000, /* endTimeMs= */ 2500, /* speedDivisor= */ 2));
 
     SegmentSpeedProvider provider =
-        new SegmentSpeedProvider(
-            new Format.Builder()
-                .setMetadata(new Metadata(new SlowMotionData(segments), SMTA_SPEED_8))
-                .build());
+        new SegmentSpeedProvider(new Metadata(new SlowMotionData(segments), SMTA_SPEED_8));
 
     assertThat(provider.getSpeed(Util.msToUs(0))).isEqualTo(8);
     assertThat(provider.getSpeed(Util.msToUs(500))).isEqualTo(1);
@@ -77,9 +71,6 @@ public class SegmentSpeedProviderTest {
   public void getSpeed_withNegativeTimestamp_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            new SegmentSpeedProvider(
-                    new Format.Builder().setMetadata(new Metadata(SMTA_SPEED_8)).build())
-                .getSpeed(-1));
+        () -> new SegmentSpeedProvider(new Metadata(SMTA_SPEED_8)).getSpeed(-1));
   }
 }
