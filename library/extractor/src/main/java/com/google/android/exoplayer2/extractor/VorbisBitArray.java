@@ -22,8 +22,8 @@ import com.google.android.exoplayer2.util.Assertions;
 /**
  * Wraps a byte array, providing methods that allow it to be read as a Vorbis bitstream.
  *
- * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-360002">Vorbis bitpacking
- *     specification</a>
+ * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-360002">Vorbis
+ * bitpacking specification</a>
  */
 public final class VorbisBitArray {
 

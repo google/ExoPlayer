@@ -23,7 +23,7 @@ import static java.lang.Math.pow;
  *
  * <p>MSSIM divides the image into windows, calculates SSIM of each, then returns the average.
  *
- * @see <a href=https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf>The SSIM paper</a>.
+ * <p>See <a href=https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf>the SSIM paper</a>.
  */
 /* package */ final class MssimCalculator {
   // Referred to as 'L' in the SSIM paper, this constant defines the maximum pixel values. The

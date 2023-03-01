@@ -27,8 +27,12 @@ import java.util.regex.Pattern;
 /**
  * Parser for color expressions found in styling formats, e.g. TTML and CSS.
  *
- * @see <a href="https://w3c.github.io/webvtt/#styling">WebVTT CSS Styling</a>
- * @see <a href="https://www.w3.org/TR/ttml2/">Timed Text Markup Language 2 (TTML2) - 10.3.5</a>
+ * <p>See also:
+ *
+ * <ul>
+ *   <li><a href="https://w3c.github.io/webvtt/#styling">WebVTT CSS Styling</a>
+ *   <li><a href="https://www.w3.org/TR/ttml2/">Timed Text Markup Language 2 (TTML2) - 10.3.5</a>
+ * </ul>
  */
 public final class ColorParser {
 
