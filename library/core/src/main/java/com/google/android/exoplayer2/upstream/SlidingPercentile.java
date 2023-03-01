@@ -29,8 +29,12 @@ import java.util.Comparator;
  * rate observations. This is an alternative to sliding mean and exponential averaging which suffer
  * from susceptibility to outliers and slow adaptation to step functions.
  *
- * @see <a href="http://en.wikipedia.org/wiki/Moving_average">Wiki: Moving average</a>
- * @see <a href="http://en.wikipedia.org/wiki/Selection_algorithm">Wiki: Selection algorithm</a>
+ * <p>See the following Wikipedia articles:
+ *
+ * <ul>
+ *   <li><a href="http://en.wikipedia.org/wiki/Moving_average">Moving average</a>
+ *   <li><a href="http://en.wikipedia.org/wiki/Selection_algorithm">Selection algorithm</a>
+ * </ul>
  */
 public class SlidingPercentile {
 

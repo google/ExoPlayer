@@ -112,14 +112,11 @@ public final class TtmlDecoderTest {
    * Regression test for devices on JellyBean where some named colors are not correctly defined on
    * framework level. Tests that <i>lime</i> resolves to <code>#FF00FF00</code> not <code>#00FF00
    * </code>.
-   *
-   * @throws IOException thrown if reading subtitle file fails.
-   * @see <a
-   *     href="https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414">
-   *     JellyBean Color</a> <a
-   *     href="https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414">
-   *     Kitkat Color</a>
    */
+  // JellyBean Color:
+  // https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414
+  // KitKat Color:
+  // https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414
   @Test
   public void lime() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);

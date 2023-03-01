@@ -35,10 +35,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Style object of a Css style block in a Webvtt file.
+ * Style object of a CSS style block in a WebVTT file.
  *
- * @see <a href="https://w3c.github.io/webvtt/#applying-css-properties">W3C specification - Apply
- *     CSS properties</a>
+ * <p>See the <a href="https://w3c.github.io/webvtt/#applying-css-properties">Apply CSS properties
+ * section of the W3C specification</a>
  */
 public final class WebvttCssStyle {
 

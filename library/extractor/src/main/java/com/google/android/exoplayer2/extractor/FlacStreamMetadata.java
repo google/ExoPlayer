@@ -32,14 +32,18 @@ import java.util.List;
 /**
  * Holder for FLAC metadata.
  *
- * @see <a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
- *     METADATA_BLOCK_STREAMINFO</a>
- * @see <a href="https://xiph.org/flac/format.html#metadata_block_seektable">FLAC format
- *     METADATA_BLOCK_SEEKTABLE</a>
- * @see <a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
- *     METADATA_BLOCK_VORBIS_COMMENT</a>
- * @see <a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
- *     METADATA_BLOCK_PICTURE</a>
+ * <p>See the following spec references:
+ *
+ * <ul>
+ *   <li><a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
+ *       METADATA_BLOCK_STREAMINFO</a>
+ *   <li><a href="https://xiph.org/flac/format.html#metadata_block_seektable">FLAC format
+ *       METADATA_BLOCK_SEEKTABLE</a>
+ *   <li><a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
+ *       METADATA_BLOCK_VORBIS_COMMENT</a>
+ *   <li><a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
+ *       METADATA_BLOCK_PICTURE</a>
+ * </ul>
  */
 public final class FlacStreamMetadata {
 

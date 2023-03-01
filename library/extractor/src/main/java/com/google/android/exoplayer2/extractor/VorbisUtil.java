@@ -50,8 +50,8 @@ public final class VorbisUtil {
   /**
    * Vorbis identification header.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
-   *     spec/Identification header</a>
+   * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
+   * spec/Identification header</a>
    */
   public static final class VorbisIdHeader {
 
@@ -133,8 +133,9 @@ public final class VorbisUtil {
   /**
    * Returns ilog(x), which is the index of the highest set bit in {@code x}.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis
-   *     spec</a>
+   * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis
+   * spec</a>
+   *
    * @param x the value of which the ilog should be calculated.
    * @return ilog(x)
    */
@@ -150,8 +151,9 @@ public final class VorbisUtil {
   /**
    * Reads a Vorbis identification header from {@code headerData}.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
-   *     spec/Identification header</a>
+   * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
+   * spec/Identification header</a>
+   *
    * @param headerData a {@link ParsableByteArray} wrapping the header data.
    * @return a {@link VorbisUtil.VorbisIdHeader} with meta data.
    * @throws ParserException thrown if invalid capture pattern is detected.
@@ -200,8 +202,9 @@ public final class VorbisUtil {
   /**
    * Reads a Vorbis comment header.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
-   *     spec/Comment header</a>
+   * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
+   * spec/Comment header</a>
+   *
    * @param headerData A {@link ParsableByteArray} wrapping the header data.
    * @return A {@link VorbisUtil.CommentHeader} with all the comments.
    * @throws ParserException If an error occurs parsing the comment header.
@@ -217,8 +220,9 @@ public final class VorbisUtil {
    *
    * <p>The data provided may not contain the Vorbis metadata common header and the framing bit.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
-   *     spec/Comment header</a>
+   * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
+   * spec/Comment header</a>
+   *
    * @param headerData A {@link ParsableByteArray} wrapping the header data.
    * @param hasMetadataHeader Whether the {@code headerData} contains a Vorbis metadata common
    *     header preceding the comment header.
@@ -347,8 +351,9 @@ public final class VorbisUtil {
    * That's why we need to partially decode or at least read the entire setup header to know where
    * to start reading the modes.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-650004.2.4">Vorbis
-   *     spec/Setup header</a>
+   * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-650004.2.4">Vorbis
+   * spec/Setup header</a>
+   *
    * @param headerData a {@link ParsableByteArray} containing setup header data.
    * @param channels the number of channels.
    * @return an array of {@link Mode}s.
@@ -590,7 +595,8 @@ public final class VorbisUtil {
   }
 
   /**
-   * @see <a href="http://svn.xiph.org/trunk/vorbis/lib/sharedbook.c">_book_maptype1_quantvals</a>
+   * See the <a
+   * href="http://svn.xiph.org/trunk/vorbis/lib/sharedbook.c">_book_maptype1_quantvals</a>
    */
   private static long mapType1QuantValues(long entries, long dimension) {
     return (long) Math.floor(Math.pow(entries, 1.d / dimension));
