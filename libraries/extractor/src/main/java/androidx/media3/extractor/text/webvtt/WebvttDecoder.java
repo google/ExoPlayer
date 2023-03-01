@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * A {@link SimpleSubtitleDecoder} for WebVTT.
  *
- * @see <a href="http://dev.w3.org/html5/webvtt">WebVTT specification</a>
+ * <p>See the <a href="http://dev.w3.org/html5/webvtt">WebVTT specification</a>.
  */
 @UnstableApi
 public final class WebvttDecoder extends SimpleSubtitleDecoder {

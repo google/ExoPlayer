@@ -34,8 +34,8 @@ import java.util.UUID;
 /**
  * Represents a SmoothStreaming manifest.
  *
- * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
- *     Streaming Client Manifest Format</a>
+ * <p>See the <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
+ * Streaming Client Manifest Format</a>
  */
 @UnstableApi
 public class SsManifest implements FilterableManifest<SsManifest> {
