@@ -58,7 +58,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class OverlayShaderProgramPixelTest {
-  public static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/overlay/media3test.png";
+  public static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   public static final String OVERLAY_BITMAP_DEFAULT =

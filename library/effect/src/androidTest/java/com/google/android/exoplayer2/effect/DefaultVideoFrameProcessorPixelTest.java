@@ -54,8 +54,11 @@ import org.junit.runner.RunWith;
 public final class DefaultVideoFrameProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
-  public static final String WRAPPED_CROP_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/image_input_with_wrapped_crop.png";
+  public static final String IMAGE_PNG_ASSET_PATH = "media/bitmap/input_images/london.jpg";
+  public static final String IMAGE_TO_VIDEO_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/london_image_to_video.png";
+  public static final String IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/london_image_to_video_with_crop.png";
   public static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
   public static final String SCALE_WIDE_PNG_ASSET_PATH =
@@ -108,10 +111,11 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "noEffects_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId).setIsInputTextureExternal(false).build();
-    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
-        expectedBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+        originalBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
     Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
@@ -134,8 +138,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
                         /* bottom= */ -0.5f,
                         /* top= */ 0.5f)))
             .build();
-    Bitmap originalBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
-    Bitmap expectedBitmap = readBitmap(WRAPPED_CROP_PNG_ASSET_PATH);
+    Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
