@@ -50,6 +50,6 @@ public final class FrameCache implements GlEffect {
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
-    return new FrameCacheShaderProgram(context, capacity, useHdr);
+    return new FrameCacheGlShaderProgram(context, capacity, useHdr);
   }
 }

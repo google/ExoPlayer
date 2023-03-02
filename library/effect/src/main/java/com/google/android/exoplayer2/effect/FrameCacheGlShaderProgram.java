@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
  *
  * <p>Implements {@link FrameCache}.
  */
-/* package */ final class FrameCacheShaderProgram implements GlShaderProgram {
+/* package */ final class FrameCacheGlShaderProgram implements GlShaderProgram {
   private static final String VERTEX_SHADER_TRANSFORMATION_ES2_PATH =
       "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_ES2_PATH =
@@ -53,7 +53,7 @@ import java.util.concurrent.Executor;
   private Executor errorListenerExecutor;
 
   /** Creates a new instance. */
-  public FrameCacheShaderProgram(Context context, int capacity, boolean useHdr)
+  public FrameCacheGlShaderProgram(Context context, int capacity, boolean useHdr)
       throws VideoFrameProcessingException {
     freeOutputTextures = new ArrayDeque<>();
     inUseOutputTextures = new ArrayDeque<>();
