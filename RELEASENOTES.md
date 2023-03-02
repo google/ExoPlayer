@@ -6,24 +6,42 @@
     *   Add suppression reason for unsuitable audio route and play when ready
         change reason for suppressed too long.
         ([#15](https://github.com/androidx/media/issues/15)).
-    *   Make the maximum difference of the start time of two segments to be
-        merged configurable in `SegmentDownloader` and subclasses
-        ([#248](https://github.com/androidx/media/pull/248)).
     *   Add `ExoPlayer.setVideoEffects()` for using `Effect` during video
         playback.
     *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
         `int`. This changes the signatures of public methods
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
-    *   Fix network type detection on API 33
-        ([#10970](https://github.com/google/ExoPlayer/issues/10970)).
-*   Extractors:
-    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
-        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
         ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
     *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
+*   Transformer:
+    *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
+        Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
+        `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
+        instead.
+    *   Remove `Transformer.startTransformation(MediaItem,
+        ParcelFileDescriptor)`.
+*   Remove deprecated symbols:
+    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
+        instead.
+
+### 1.0.0-rc02 (2023-03-02)
+
+This release corresponds to the
+[ExoPlayer 2.18.4 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.4).
+
+*   Core library:
+    *   Fix network type detection on API 33
+        ([#10970](https://github.com/google/ExoPlayer/issues/10970)).
+    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
+        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
+*   Downloads:
+    *   Make the maximum difference of the start time of two segments to be
+        merged configurable in `SegmentDownloader` and subclasses
+        ([#248](https://github.com/androidx/media/pull/248)).
+*   Audio:
     *   Fix broken gapless MP3 playback on Samsung devices
         ([#8594](https://github.com/google/ExoPlayer/issues/8594)).
     *   Fix bug where playback speeds set immediately after disabling audio may
@@ -36,9 +54,11 @@
         Lenovo M10 FHD Plus that causes 60fps AVC streams to be marked as
         unsupported
         ([#10898](https://github.com/google/ExoPlayer/issues/10898)).
-*   DASH:
-    *   Add full parsing for image adaptation sets, including tile counts
-        ([#3752](https://github.com/google/ExoPlayer/issues/3752)).
+    *   Fix frame release performance issues when playing media with a frame
+        rate far higher than the screen refresh rate.
+*   Cast:
+    *   Fix transient `STATE_IDLE` when transitioning between media items
+        ([#245](https://github.com/androidx/media/issues/245)).
 *   RTSP:
     *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
         Describe response messages
@@ -46,16 +66,6 @@
 *   Session:
     *   Fix a bug where notification play/pause button doesn't update with
         player state ([#192](https://github.com/androidx/media/issues/192)).
-*   Transformer:
-    *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
-        Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
-        `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
-        instead.
-    *   Remove `Transformer.startTransformation(MediaItem,
-        ParcelFileDescriptor)`.
-*   Remove deprecated symbols:
-    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
-        instead.
 
 ### 1.0.0-rc01 (2023-02-16)
 
