@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncoders;
 import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.video.ColorInfo.isTransferHdr;
@@ -55,10 +56,7 @@ import java.util.List;
       Format firstInputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.muxerWrapper = muxerWrapper;
-    outputTrackType =
-        MimeTypes.isImage(firstInputFormat.sampleMimeType)
-            ? C.TRACK_TYPE_VIDEO
-            : MimeTypes.getTrackType(firstInputFormat.sampleMimeType);
+    this.outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
   }
 
   @Override
