@@ -22,7 +22,7 @@
         errorLine2="  ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
-            line="31"
+            line="17"
             column="3"/>
     </issue>
 
@@ -33,7 +33,18 @@
         errorLine2="  ^">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="31"
+            line="17"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;iw&quot; (Hebrew) the following quantities should also be defined: `many`"
+        errorLine1="  &lt;plurals name=&quot;exo_controls_rewind_by_amount_description&quot;>"
+        errorLine2="  ^">
+        <location
+            file="src/main/res/values-iw/strings.xml"
+            line="17"
             column="3"/>
     </issue>
 
@@ -44,7 +55,7 @@
         errorLine2="  ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
-            line="36"
+            line="22"
             column="3"/>
     </issue>
 
@@ -55,7 +66,18 @@
         errorLine2="  ^">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="36"
+            line="22"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;iw&quot; (Hebrew) the following quantities should also be defined: `many`"
+        errorLine1="  &lt;plurals name=&quot;exo_controls_fastforward_by_amount_description&quot;>"
+        errorLine2="  ^">
+        <location
+            file="src/main/res/values-iw/strings.xml"
+            line="23"
             column="3"/>
     </issue>
 
