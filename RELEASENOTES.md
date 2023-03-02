@@ -66,6 +66,10 @@ This release corresponds to the
 *   Session:
     *   Fix a bug where notification play/pause button doesn't update with
         player state ([#192](https://github.com/androidx/media/issues/192)).
+*   IMA extension:
+    *   Fix a bug which prevented DAI streams without any ads from starting
+        because the first (and in the case without ads the only) `LOADED` event
+        wasn't received.
 
 ### 1.0.0-rc01 (2023-02-16)
 
