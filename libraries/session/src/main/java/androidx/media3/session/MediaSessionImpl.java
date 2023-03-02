@@ -448,7 +448,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   public MediaSession.ConnectionResult onConnectOnHandler(ControllerInfo controller) {
     return checkNotNull(
-        callback.onConnect(instance, controller), "onConntext must return non-null future");
+        callback.onConnect(instance, controller), "onConnect must return non-null future");
   }
 
   public void onPostConnectOnHandler(ControllerInfo controller) {

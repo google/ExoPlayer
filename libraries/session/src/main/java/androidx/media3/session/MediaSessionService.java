@@ -57,26 +57,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * Superclass to be extended by services hosting {@link MediaSession media sessions}.
  *
- * <p>It's highly recommended for an app to use this class if they want to keep media playback in
- * the background. The service allows other apps to know that your app supports {@link MediaSession}
- * even when your app isn't running. For example, a user voice command may start your app to play
- * media.
+ * <p>It's highly recommended for an app to use this class if media playback should continue while
+ * in the background. The service allows other apps to know that your app supports {@link
+ * MediaSession} even when your app isn't running. This way, a user voice command may be able start
+ * your app to play media.
  *
  * <p>To extend this class, declare the intent filter in your {@code AndroidManifest.xml}:
  *
  * <pre>{@code
  * <service
  *   android:name="NameOfYourService"
- *   android:foregroundServiceType="mediaPlayback">
+ *   android:foregroundServiceType="mediaPlayback"
+ *   android:exported="true">
  *   <intent-filter>
  *     <action android:name="androidx.media3.session.MediaSessionService"/>
  *   </intent-filter>
  * </service>
  * }</pre>
  *
- * <p>You may also declare {@code android.media.browse.MediaBrowserService} for compatibility with
- * {@link android.support.v4.media.MediaBrowserCompat}. This service can handle the case
- * automatically.
+ * <p>You may also declare the action {@code android.media.browse.MediaBrowserService} for
+ * compatibility with {@link android.support.v4.media.MediaBrowserCompat}. This service can handle
+ * the case automatically.
  *
  * <p>It's recommended for an app to have a single service declared in the manifest. Otherwise, your
  * app might be shown twice in the list of the controller apps, or another app might fail to pick
@@ -93,10 +94,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <h2 id="ServiceLifecycle">Service Lifecycle</h2>
  *
  * <p>A media session service is a bound service and its <a
- * href="https://developer.android.com/guide/topics/manifest/service-element#foregroundservicetype">foreground
- * service type</a> must include <em>mediaPlayback</em>. When a {@link MediaController} is created
- * for the service, the controller binds to the service. {@link #onGetSession(ControllerInfo)} will
- * be called from {@link #onBind(Intent)}.
+ * href="https://developer.android.com/guide/topics/manifest/service-element#foregroundservicetype">
+ * foreground service type</a> must include <em>mediaPlayback</em>. When a {@link MediaController}
+ * is created for the service, the controller binds to the service. {@link
+ * #onGetSession(ControllerInfo)} will be called from {@link #onBind(Intent)}.
  *
  * <p>After binding, the session's {@link MediaSession.Callback#onConnect(MediaSession,
  * MediaSession.ControllerInfo)} will be called to accept or reject the connection request from the
@@ -115,8 +116,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * #onUpdateNotification(MediaSession)}. In this case, you must also start or stop the service from
  * the foreground, when playback starts or stops respectively.
  *
- * <p>The service will be destroyed when all sessions are closed, or no controller is binding to the
- * service while the service is in the background.
+ * <p>The service will be destroyed when all sessions are {@linkplain MediaController#release()
+ * released}, or no controller is binding to the service while the service is in the background.
  *
  * <h2 id="MultipleSessions">Supporting Multiple Sessions</h2>
  *
@@ -247,7 +248,8 @@ public abstract class MediaSessionService extends Service {
    * Adds a {@link MediaSession} to this service. This is not necessary for most media apps. See <a
    * href="#MultipleSessions">Supporting Multiple Sessions</a> for details.
    *
-   * <p>The added session will be removed automatically when it's closed.
+   * <p>The added session will be removed automatically {@linkplain MediaSession#release() when the
+   * session is released}.
    *
    * @param session A session to be added.
    * @see #removeSession(MediaSession)
