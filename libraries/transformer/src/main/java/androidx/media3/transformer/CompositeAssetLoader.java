@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
 
 import android.graphics.Bitmap;
 import android.os.Looper;
@@ -191,9 +192,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       long streamStartPositionUs,
       long streamOffsetUs)
       throws ExportException {
-    // Consider image as video because image inputs are fed to the VideoSamplePipeline.
-    int trackType =
-        MimeTypes.isAudio(format.sampleMimeType) ? C.TRACK_TYPE_AUDIO : C.TRACK_TYPE_VIDEO;
+    @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
     SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
       boolean addForcedAudioTrack =

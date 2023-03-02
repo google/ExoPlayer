@@ -24,6 +24,7 @@ import static androidx.media3.transformer.ExportException.ERROR_CODE_FAILED_RUNT
 import static androidx.media3.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -452,11 +453,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs),
               streamStartPositionUs,
               streamOffsetUs);
-      // Consider image as video because image inputs are fed to the VideoSamplePipeline.
-      int trackType =
-          MimeTypes.isAudio(firstInputFormat.sampleMimeType)
-              ? C.TRACK_TYPE_AUDIO
-              : C.TRACK_TYPE_VIDEO;
+      @C.TrackType int trackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
       compositeAssetLoaders
           .get(sequenceIndex)
           .addOnMediaItemChangedListener(samplePipeline, trackType);
@@ -531,12 +528,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) != 0;
       checkArgument(assetLoaderCanOutputDecoded || assetLoaderCanOutputEncoded);
 
+      @C.TrackType int trackType = getProcessedTrackType(inputFormat.sampleMimeType);
+
       boolean shouldTranscode = false;
       if (!assetLoaderCanOutputEncoded) {
         shouldTranscode = true;
-      } else if (MimeTypes.isAudio(inputFormat.sampleMimeType)) {
+      } else if (trackType == C.TRACK_TYPE_AUDIO) {
         shouldTranscode = shouldTranscodeAudio(inputFormat);
-      } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)) {
+      } else if (trackType == C.TRACK_TYPE_VIDEO) {
         shouldTranscode = shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
       }
 
