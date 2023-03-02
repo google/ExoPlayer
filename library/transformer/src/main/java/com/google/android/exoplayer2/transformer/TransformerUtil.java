@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
    * Returns the {@link C.TrackType track type} constant corresponding to how a specified MIME type
    * should be processed, which may be {@link C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    *
-   * <p>{@linkplain MimeTypes#isImage image} mime types are processed as {@link C#TRACK_TYPE_VIDEO}.
+   * <p>{@linkplain MimeTypes#isImage Image} MIME types are processed as {@link C#TRACK_TYPE_VIDEO}.
    *
    * <p>See {@link MimeTypes#getTrackType} for more details.
    */
