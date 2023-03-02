@@ -1,32 +1,5 @@
 # Release notes
 
-### Unreleased changes
-
-*   Core library:
-    *   Add suppression reason for unsuitable audio route and play when ready
-        change reason for suppressed too long.
-        ([#15](https://github.com/androidx/media/issues/15)).
-    *   Add `ExoPlayer.setVideoEffects()` for using `Effect` during video
-        playback.
-    *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
-        `int`. This changes the signatures of public methods
-        `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
-*   Audio:
-    *   Fix bug where some playbacks fail when tunneling is enabled and
-        `AudioProcessors` are active, e.g. for gapless trimming
-        ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
-    *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
-*   Transformer:
-    *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
-        Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
-        `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
-        instead.
-    *   Remove `Transformer.startTransformation(MediaItem,
-        ParcelFileDescriptor)`.
-*   Remove deprecated symbols:
-    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
-        instead.
-
 ### 1.0.0-rc02 (2023-03-02)
 
 This release corresponds to the
