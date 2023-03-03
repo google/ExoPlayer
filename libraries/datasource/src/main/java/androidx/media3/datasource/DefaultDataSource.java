@@ -148,6 +148,7 @@ public final class DefaultDataSource implements DataSource {
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
    *
    * @param context A context.
+   * @param allowCrossProtocolRedirects Whether to allow cross-protocol redirects.
    */
   @UnstableApi
   public DefaultDataSource(Context context, boolean allowCrossProtocolRedirects) {
