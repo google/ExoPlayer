@@ -20,7 +20,9 @@ import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_RE
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
@@ -32,6 +34,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -42,6 +45,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected @MonotonicNonNull SampleConsumer sampleConsumer;
   protected @MonotonicNonNull Codec decoder;
   protected boolean isEnded;
+  private @MonotonicNonNull Format inputFormat;
 
   private final TransformerMediaClock mediaClock;
   private final AssetLoader.Listener assetLoaderListener;
@@ -92,15 +96,25 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
     try {
-      if (!isRunning || isEnded() || !ensureConfigured()) {
+      if (!isRunning || isEnded() || !hasReadInputFormat()) {
         return;
       }
 
-      if (sampleConsumer.expectsDecodedData()) {
-        while (feedConsumerFromDecoder() || feedDecoderFromInput()) {}
+      if (decoder != null) {
+        boolean progressMade;
+        do {
+          progressMade = false;
+          if (ensureSampleConsumerInitialized()) {
+            progressMade = feedConsumerFromDecoder();
+          }
+          progressMade |= feedDecoderFromInput();
+        } while (progressMade);
       } else {
-        while (feedConsumerFromInput()) {}
+        if (ensureSampleConsumerInitialized()) {
+          while (feedConsumerFromInput()) {}
+        }
       }
+
     } catch (ExportException e) {
       isRunning = false;
       assetLoaderListener.onError(e);
@@ -144,7 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected void onInputFormatRead(Format inputFormat) {}
 
   /** Initializes {@link #decoder} with an appropriate {@linkplain Codec decoder}. */
-  @RequiresNonNull("sampleConsumer")
+  @EnsuresNonNull("decoder")
   protected abstract void initDecoder(Format inputFormat) throws ExportException;
 
   /**
@@ -166,12 +180,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return Whether it may be possible to read more data immediately by calling this method again.
    * @throws ExportException If an error occurs in the decoder.
    */
-  @RequiresNonNull("sampleConsumer")
+  @RequiresNonNull({"sampleConsumer", "decoder"})
   protected abstract boolean feedConsumerFromDecoder() throws ExportException;
 
-  @EnsuresNonNullIf(expression = "sampleConsumer", result = true)
-  private boolean ensureConfigured() throws ExportException {
-    if (sampleConsumer != null) {
+  /**
+   * Attempts to read the input {@link Format} from the source, if not read.
+   *
+   * <p>After reading the format, {@link AssetLoader.Listener#onTrackAdded} is notified, and, if
+   * needed, the decoder is {@linkplain #initDecoder(Format) initialized}.
+   *
+   * @return Whether the input {@link Format} is available.
+   * @throws ExportException If an error occurs {@linkplain #initDecoder initializing} the
+   *     {@linkplain Codec decoder}.
+   */
+  @EnsuresNonNullIf(expression = "inputFormat", result = true)
+  private boolean hasReadInputFormat() throws ExportException {
+    if (inputFormat != null) {
       return true;
     }
 
@@ -181,16 +205,58 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    Format inputFormat = overrideFormat(checkNotNull(formatHolder.format));
-    @AssetLoader.SupportedOutputTypes
-    int supportedOutputTypes = SUPPORTED_OUTPUT_TYPE_ENCODED | SUPPORTED_OUTPUT_TYPE_DECODED;
-    sampleConsumer =
-        assetLoaderListener.onTrackAdded(
-            inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
+    inputFormat = overrideFormat(checkNotNull(formatHolder.format));
     onInputFormatRead(inputFormat);
-    if (sampleConsumer.expectsDecodedData()) {
-      initDecoder(inputFormat);
+
+    boolean decodeOutput =
+        assetLoaderListener.onTrackAdded(
+            inputFormat,
+            SUPPORTED_OUTPUT_TYPE_DECODED | SUPPORTED_OUTPUT_TYPE_ENCODED,
+            streamStartPositionUs,
+            streamOffsetUs);
+    if (decodeOutput) {
+      if (getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO) {
+        initDecoder(inputFormat);
+      } else {
+        // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and
+        // get decoder output Format before init sampleConsumer.
+        checkState(ensureSampleConsumerInitialized());
+        initDecoder(inputFormat);
+      }
     }
+
+    return true;
+  }
+
+  /**
+   * Attempts to initialize the {@link SampleConsumer}, if not initialized.
+   *
+   * @return Whether the {@link SampleConsumer} is initialized.
+   * @throws ExportException If the {@linkplain Codec decoder} errors getting it's {@linkplain
+   *     Codec#getOutputFormat() output format}.
+   * @throws ExportException If the {@link AssetLoader.Listener} errors providing a {@link
+   *     SampleConsumer}.
+   */
+  @RequiresNonNull("inputFormat")
+  @EnsuresNonNullIf(expression = "sampleConsumer", result = true)
+  private boolean ensureSampleConsumerInitialized() throws ExportException {
+    if (sampleConsumer != null) {
+      return true;
+    }
+
+    if (decoder != null
+        && getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO) {
+      @Nullable Format decoderOutputFormat = decoder.getOutputFormat();
+      if (decoderOutputFormat == null) {
+        return false;
+      }
+      sampleConsumer = assetLoaderListener.onOutputFormat(decoderOutputFormat);
+    } else {
+      // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and get
+      // decoderOutput Format before init sampleConsumer.
+      sampleConsumer = assetLoaderListener.onOutputFormat(inputFormat);
+    }
+
     return true;
   }
 
@@ -200,8 +266,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return Whether it may be possible to read more data immediately by calling this method again.
    * @throws ExportException If an error occurs in the decoder.
    */
+  @RequiresNonNull("decoder")
   private boolean feedDecoderFromInput() throws ExportException {
-    Codec decoder = checkNotNull(this.decoder);
     if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
       return false;
     }

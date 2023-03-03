@@ -1000,7 +1000,7 @@ public final class TransformerEndToEndTest {
     transformer.start(mediaItem, outputPath);
     runLooperUntil(transformer.getApplicationLooper(), () -> sampleConsumerRef.get() != null);
 
-    assertThat(sampleConsumerRef.get().expectsDecodedData()).isTrue();
+    assertThat(sampleConsumerRef.get()).isNotInstanceOf(EncodedSamplePipeline.class);
   }
 
   @Test
@@ -1488,12 +1488,10 @@ public final class TransformerEndToEndTest {
               .setChannelCount(2)
               .build();
       try {
-        SampleConsumer sampleConsumer =
-            listener.onTrackAdded(
-                format,
-                supportedOutputTypes,
-                /* streamStartPositionUs= */ 0,
-                /* streamOffsetUs= */ 0);
+        listener.onTrackAdded(
+            format, supportedOutputTypes, /* streamStartPositionUs= */ 0, /* streamOffsetUs= */ 0);
+
+        SampleConsumer sampleConsumer = listener.onOutputFormat(format);
         if (sampleConsumerRef != null) {
           sampleConsumerRef.set(sampleConsumer);
         }

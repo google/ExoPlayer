@@ -72,11 +72,6 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public boolean expectsDecodedData() {
-    return false;
-  }
-
-  @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
     return availableInputBuffers.peek();

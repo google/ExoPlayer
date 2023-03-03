@@ -18,7 +18,13 @@ package com.google.android.exoplayer2.transformer;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.effect.GlEffect;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 
 /** Utility methods for Transformer. */
 /* package */ final class TransformerUtil {
@@ -36,5 +42,46 @@ import com.google.android.exoplayer2.util.MimeTypes;
   public static @C.TrackType int getProcessedTrackType(@Nullable String mimeType) {
     @C.TrackType int trackType = MimeTypes.getTrackType(mimeType);
     return trackType == C.TRACK_TYPE_IMAGE ? C.TRACK_TYPE_VIDEO : trackType;
+  }
+
+  /**
+   * Returns whether the collection of {@code videoEffects} would be a {@linkplain
+   * GlEffect#isNoOp(int, int) no-op}, if queued samples of this {@link Format}.
+   */
+  public static boolean areVideoEffectsAllNoOp(
+      ImmutableList<Effect> videoEffects, Format inputFormat) {
+    int decodedWidth =
+        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+    int decodedHeight =
+        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+    for (int i = 0; i < videoEffects.size(); i++) {
+      Effect videoEffect = videoEffects.get(i);
+      if (!(videoEffect instanceof GlEffect)) {
+        // We cannot confirm whether Effect instances that are not GlEffect instances are
+        // no-ops.
+        return false;
+      }
+      GlEffect glEffect = (GlEffect) videoEffect;
+      if (!glEffect.isNoOp(decodedWidth, decodedHeight)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Returns whether the {@link Format} contains {@linkplain SlowMotionData slow motion metadata}.
+   */
+  public static boolean containsSlowMotionData(Format format) {
+    @Nullable Metadata metadata = format.metadata;
+    if (metadata == null) {
+      return false;
+    }
+    for (int i = 0; i < metadata.length(); i++) {
+      if (metadata.get(i) instanceof SlowMotionData) {
+        return true;
+      }
+    }
+    return false;
   }
 }

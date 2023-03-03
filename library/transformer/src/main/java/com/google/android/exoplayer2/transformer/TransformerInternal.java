@@ -22,9 +22,12 @@ import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CO
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.areVideoEffectsAllNoOp;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.containsSlowMotionData;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -35,10 +38,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.Presentation;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -51,7 +51,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -404,6 +406,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
     private final DebugViewProvider debugViewProvider;
+    private final Map<Integer, AddedTrackInfo> addedTrackInfoByTrackType;
 
     public CompositeAssetLoaderListener(
         int sequenceIndex,
@@ -417,6 +420,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
       this.debugViewProvider = debugViewProvider;
+      addedTrackInfoByTrackType = new HashMap<>();
     }
 
     @Override
@@ -440,20 +444,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public SampleConsumer onTrackAdded(
-        Format firstInputFormat,
+    public boolean onTrackAdded(
+        Format firstAssetLoaderInputFormat,
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
-        long streamOffsetUs)
-        throws ExportException {
-      SamplePipeline samplePipeline =
-          getSamplePipeline(
-              firstInputFormat,
-              shouldTranscode(
-                  firstInputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs),
+        long streamOffsetUs) {
+      AddedTrackInfo trackInfo =
+          new AddedTrackInfo(
+              firstAssetLoaderInputFormat,
+              supportedOutputTypes,
               streamStartPositionUs,
               streamOffsetUs);
-      @C.TrackType int trackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
+
+      addedTrackInfoByTrackType.put(
+          getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType), trackInfo);
+
+      return trackInfo.shouldTranscode;
+    }
+
+    @Override
+    public SampleConsumer onOutputFormat(Format assetLoaderOutputFormat) throws ExportException {
+      @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
+      AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
+      SamplePipeline samplePipeline = getSamplePipeline(assetLoaderOutputFormat, trackInfo);
+
       compositeAssetLoaders
           .get(sequenceIndex)
           .addOnMediaItemChangedListener(samplePipeline, trackType);
@@ -469,17 +483,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Private methods.
 
     private SamplePipeline getSamplePipeline(
-        Format firstInputFormat,
-        boolean shouldTranscode,
-        long streamStartPositionUs,
-        long streamOffsetUs)
-        throws ExportException {
-      if (shouldTranscode) {
+        Format firstAssetLoaderOutputFormat, AddedTrackInfo addedTrackInfo) throws ExportException {
+      if (addedTrackInfo.shouldTranscode) {
         EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-        if (MimeTypes.isAudio(firstInputFormat.sampleMimeType)) {
+        if (MimeTypes.isAudio(firstAssetLoaderOutputFormat.sampleMimeType)) {
           return new AudioSamplePipeline(
-              firstInputFormat,
-              streamOffsetUs,
+              addedTrackInfo.firstAssetLoaderInputFormat,
+              /* firstPipelineInputFormat= */ firstAssetLoaderOutputFormat,
+              addedTrackInfo.streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.flattenForSlowMotion,
               firstEditedMediaItem.effects.audioProcessors,
@@ -493,11 +504,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               compositionVideoEffects.isEmpty()
                   ? null
                   : (Presentation) compositionVideoEffects.get(0);
+
+          // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
           return new VideoSamplePipeline(
               context,
-              firstInputFormat,
-              streamStartPositionUs,
-              streamOffsetUs,
+              addedTrackInfo.firstAssetLoaderInputFormat,
+              addedTrackInfo.streamStartPositionUs,
+              addedTrackInfo.streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.effects.videoEffects,
               compositionPresentation,
@@ -509,135 +522,123 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               debugViewProvider);
         }
       }
+
       return new EncodedSamplePipeline(
-          firstInputFormat,
-          streamStartPositionUs,
+          firstAssetLoaderOutputFormat,
+          addedTrackInfo.streamStartPositionUs,
           transformationRequest,
           muxerWrapper,
           fallbackListener);
     }
 
-    private boolean shouldTranscode(
-        Format inputFormat,
-        @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
-        long streamStartPositionUs,
-        long streamOffsetUs) {
-      boolean assetLoaderCanOutputDecoded =
-          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) != 0;
-      boolean assetLoaderCanOutputEncoded =
-          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) != 0;
-      checkArgument(assetLoaderCanOutputDecoded || assetLoaderCanOutputEncoded);
+    private final class AddedTrackInfo {
+      public final Format firstAssetLoaderInputFormat;
+      public final long streamStartPositionUs;
+      public final long streamOffsetUs;
+      public final boolean shouldTranscode;
 
-      @C.TrackType int trackType = getProcessedTrackType(inputFormat.sampleMimeType);
-
-      boolean shouldTranscode = false;
-      if (!assetLoaderCanOutputEncoded) {
-        shouldTranscode = true;
-      } else if (trackType == C.TRACK_TYPE_AUDIO) {
-        shouldTranscode = shouldTranscodeAudio(inputFormat);
-      } else if (trackType == C.TRACK_TYPE_VIDEO) {
-        shouldTranscode = shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
-      }
-
-      checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
-
-      return shouldTranscode;
-    }
-
-    private boolean shouldTranscodeAudio(Format inputFormat) {
-      if (editedMediaItems.size() > 1 && !composition.transmuxAudio) {
-        return true;
-      }
-      if (encoderFactory.audioNeedsEncoding()) {
-        return true;
-      }
-      if (transformationRequest.audioMimeType != null
-          && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      if (transformationRequest.audioMimeType == null
-          && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-      if (firstEditedMediaItem.flattenForSlowMotion && isSlowMotion(inputFormat)) {
-        return true;
-      }
-      if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
-        return true;
+      public AddedTrackInfo(
+          Format firstAssetLoaderInputFormat,
+          @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
+          long streamStartPositionUs,
+          long streamOffsetUs) {
+        this.firstAssetLoaderInputFormat = firstAssetLoaderInputFormat;
+        this.streamStartPositionUs = streamStartPositionUs;
+        this.streamOffsetUs = streamOffsetUs;
+        shouldTranscode =
+            shouldTranscode(
+                firstAssetLoaderInputFormat,
+                supportedOutputTypes,
+                streamStartPositionUs,
+                streamOffsetUs);
       }
 
-      return false;
-    }
+      private boolean shouldTranscode(
+          Format inputFormat,
+          @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
+          long streamStartPositionUs,
+          long streamOffsetUs) {
+        boolean assetLoaderCanOutputDecoded =
+            (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) != 0;
+        boolean assetLoaderCanOutputEncoded =
+            (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) != 0;
+        checkArgument(assetLoaderCanOutputDecoded || assetLoaderCanOutputEncoded);
 
-    private boolean isSlowMotion(Format format) {
-      @Nullable Metadata metadata = format.metadata;
-      if (metadata == null) {
-        return false;
+        @C.TrackType int trackType = getProcessedTrackType(inputFormat.sampleMimeType);
+
+        boolean shouldTranscode = false;
+        if (!assetLoaderCanOutputEncoded) {
+          shouldTranscode = true;
+        } else if (trackType == C.TRACK_TYPE_AUDIO) {
+          shouldTranscode = shouldTranscodeAudio(inputFormat);
+        } else if (trackType == C.TRACK_TYPE_VIDEO) {
+          shouldTranscode =
+              shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
+        }
+
+        checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
+
+        return shouldTranscode;
       }
-      for (int i = 0; i < metadata.length(); i++) {
-        if (metadata.get(i) instanceof SlowMotionData) {
+
+      private boolean shouldTranscodeAudio(Format inputFormat) {
+        if (editedMediaItems.size() > 1 && !composition.transmuxAudio) {
           return true;
         }
-      }
-      return false;
-    }
-
-    private boolean shouldTranscodeVideo(
-        Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
-      if (editedMediaItems.size() > 1 && !composition.transmuxVideo) {
-        return true;
-      }
-      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-      if ((streamStartPositionUs - streamOffsetUs) != 0
-          && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
-        return true;
-      }
-      if (encoderFactory.videoNeedsEncoding()) {
-        return true;
-      }
-      if (transformationRequest.hdrMode != TransformationRequest.HDR_MODE_KEEP_HDR) {
-        return true;
-      }
-      if (transformationRequest.videoMimeType != null
-          && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      if (transformationRequest.videoMimeType == null
-          && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      if (inputFormat.pixelWidthHeightRatio != 1f) {
-        return true;
-      }
-      if (!areVideoEffectsAllNoOp(firstEditedMediaItem.effects.videoEffects, inputFormat)) {
-        return true;
-      }
-      return false;
-    }
-
-    /**
-     * Returns whether all {@code videoEffects} are {@linkplain GlEffect#isNoOp(int, int) no-ops},
-     * given an input {@link Format}.
-     */
-    private boolean areVideoEffectsAllNoOp(ImmutableList<Effect> videoEffects, Format inputFormat) {
-      int decodedWidth =
-          (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
-      int decodedHeight =
-          (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
-      for (int i = 0; i < videoEffects.size(); i++) {
-        Effect videoEffect = videoEffects.get(i);
-        if (!(videoEffect instanceof GlEffect)) {
-          // We cannot confirm whether Effect instances that are not GlEffect instances are
-          // no-ops.
-          return false;
+        if (encoderFactory.audioNeedsEncoding()) {
+          return true;
         }
-        GlEffect glEffect = (GlEffect) videoEffect;
-        if (!glEffect.isNoOp(decodedWidth, decodedHeight)) {
-          return false;
+        if (transformationRequest.audioMimeType != null
+            && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
+          return true;
         }
+        if (transformationRequest.audioMimeType == null
+            && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
+          return true;
+        }
+        EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
+        if (firstEditedMediaItem.flattenForSlowMotion && containsSlowMotionData(inputFormat)) {
+          return true;
+        }
+        if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
+          return true;
+        }
+
+        return false;
       }
-      return true;
+
+      private boolean shouldTranscodeVideo(
+          Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
+        if (editedMediaItems.size() > 1 && !composition.transmuxVideo) {
+          return true;
+        }
+        EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
+        if ((streamStartPositionUs - streamOffsetUs) != 0
+            && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
+          return true;
+        }
+        if (encoderFactory.videoNeedsEncoding()) {
+          return true;
+        }
+        if (transformationRequest.hdrMode != TransformationRequest.HDR_MODE_KEEP_HDR) {
+          return true;
+        }
+        if (transformationRequest.videoMimeType != null
+            && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
+          return true;
+        }
+        if (transformationRequest.videoMimeType == null
+            && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
+          return true;
+        }
+        if (inputFormat.pixelWidthHeightRatio != 1f) {
+          return true;
+        }
+        if (!areVideoEffectsAllNoOp(firstEditedMediaItem.effects.videoEffects, inputFormat)) {
+          return true;
+        }
+        return false;
+      }
     }
   }
 }

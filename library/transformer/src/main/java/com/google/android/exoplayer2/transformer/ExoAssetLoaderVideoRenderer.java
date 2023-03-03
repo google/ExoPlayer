@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -75,8 +76,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  @RequiresNonNull("sampleConsumer")
   protected void initDecoder(Format inputFormat) throws ExportException {
+    // TODO(b/237674316): Move surface creation out of sampleConsumer. Init decoder before
+    // sampleConsumer.
+    checkStateNotNull(sampleConsumer);
     boolean isDecoderToneMappingRequired =
         ColorInfo.isTransferHdr(inputFormat.colorInfo)
             && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedInputColorInfo());
@@ -116,9 +119,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  @RequiresNonNull("sampleConsumer")
+  @RequiresNonNull({"sampleConsumer", "decoder"})
   protected boolean feedConsumerFromDecoder() throws ExportException {
-    Codec decoder = checkNotNull(this.decoder);
     if (decoder.isEnded()) {
       sampleConsumer.signalEndOfVideoInput();
       isEnded = true;

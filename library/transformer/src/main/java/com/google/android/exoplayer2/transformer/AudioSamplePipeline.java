@@ -60,7 +60,8 @@ import org.checkerframework.dataflow.qual.Pure;
 
   // TODO(b/260618558): Move silent audio generation upstream of this component.
   public AudioSamplePipeline(
-      Format firstInputFormat,
+      Format firstAssetLoaderInputFormat,
+      Format firstPipelineInputFormat,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       boolean flattenForSlowMotion,
@@ -69,9 +70,9 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
-    super(firstInputFormat, /* streamStartPositionUs= */ streamOffsetUs, muxerWrapper);
+    super(firstPipelineInputFormat, /* streamStartPositionUs= */ streamOffsetUs, muxerWrapper);
 
-    silentAudioGenerator = new SilentAudioGenerator(firstInputFormat);
+    silentAudioGenerator = new SilentAudioGenerator(firstPipelineInputFormat);
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
@@ -84,12 +85,12 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    if (flattenForSlowMotion && firstInputFormat.metadata != null) {
+    if (flattenForSlowMotion && firstAssetLoaderInputFormat.metadata != null) {
       audioProcessors =
           new ImmutableList.Builder<AudioProcessor>()
               .add(
                   new SpeedChangingAudioProcessor(
-                      new SegmentSpeedProvider(firstInputFormat.metadata)))
+                      new SegmentSpeedProvider(firstAssetLoaderInputFormat.metadata)))
               .addAll(audioProcessors)
               .build();
     }
@@ -98,10 +99,10 @@ import org.checkerframework.dataflow.qual.Pure;
     // TODO(b/267301878): Once decoder format propagated, remove setting default PCM encoding.
     AudioFormat pipelineInputAudioFormat =
         new AudioFormat(
-            firstInputFormat.sampleRate,
-            firstInputFormat.channelCount,
-            firstInputFormat.pcmEncoding != Format.NO_VALUE
-                ? firstInputFormat.pcmEncoding
+            firstPipelineInputFormat.sampleRate,
+            firstPipelineInputFormat.channelCount,
+            firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE
+                ? firstPipelineInputFormat.pcmEncoding
                 : DEFAULT_PCM_ENCODING);
 
     try {
@@ -118,7 +119,7 @@ import org.checkerframework.dataflow.qual.Pure;
             .setSampleMimeType(
                 transformationRequest.audioMimeType != null
                     ? transformationRequest.audioMimeType
-                    : checkNotNull(firstInputFormat.sampleMimeType))
+                    : checkNotNull(firstAssetLoaderInputFormat.sampleMimeType))
             .setSampleRate(encoderInputAudioFormat.sampleRate)
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setPcmEncoding(encoderInputAudioFormat.encoding)
