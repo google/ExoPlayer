@@ -20,6 +20,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -49,14 +50,29 @@ public class ForwardingPlayer implements Player {
     return player.getApplicationLooper();
   }
 
-  /** Calls {@link Player#addListener(Listener)} on the delegate. */
+  /**
+   * Calls {@link Player#addListener(Listener)} on the delegate.
+   *
+   * <p>Overrides of this method must delegate to {@code super.addListener} and not {@code
+   * delegate.addListener}, in order to ensure the correct {@link Player} instance is passed to
+   * {@link Player.Listener#onEvents(Player, Events)} (i.e. this forwarding instance, and not the
+   * underlying {@code delegate} instance).
+   */
   @Override
+  @CallSuper
   public void addListener(Listener listener) {
     player.addListener(new ForwardingListener(this, listener));
   }
 
-  /** Calls {@link Player#removeListener(Listener)} on the delegate. */
+  /**
+   * Calls {@link Player#removeListener(Listener)} on the delegate.
+   *
+   * <p>Overrides of this method must delegate to {@code super.removeListener} and not {@code
+   * delegate.removeListener}, in order to ensure the listener 'matches' the listener added via
+   * {@link #addListener} (otherwise the listener registered on the delegate won't be removed).
+   */
   @Override
+  @CallSuper
   public void removeListener(Listener listener) {
     player.removeListener(new ForwardingListener(this, listener));
   }
