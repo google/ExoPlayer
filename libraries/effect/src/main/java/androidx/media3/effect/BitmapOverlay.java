@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -26,6 +27,8 @@ import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSourceBitmapLoader;
+import androidx.media3.datasource.DefaultHttpDataSource;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -136,7 +139,10 @@ public abstract class BitmapOverlay extends TextureOverlay {
       @Override
       public Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException {
         if (lastBitmap == null) {
-          BitmapLoader bitmapLoader = new SimpleBitmapLoader();
+          BitmapLoader bitmapLoader =
+              new DataSourceBitmapLoader(
+                  checkStateNotNull(DataSourceBitmapLoader.DEFAULT_EXECUTOR_SERVICE.get()),
+                  new DefaultHttpDataSource.Factory());
           ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(overlayBitmapUri);
           try {
             lastBitmap = future.get();

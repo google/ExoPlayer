@@ -58,6 +58,7 @@ import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
+import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.DrawableOverlay;
@@ -71,7 +72,6 @@ import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
 import androidx.media3.effect.ScaleAndRotateTransformation;
-import androidx.media3.effect.SimpleBitmapLoader;
 import androidx.media3.effect.SingleColorLut;
 import androidx.media3.effect.TextOverlay;
 import androidx.media3.effect.TextureOverlay;
@@ -690,7 +690,7 @@ public final class TransformerActivity extends AppCompatActivity {
       inputImageView.setVisibility(View.VISIBLE);
       inputTextView.setText(getString(R.string.input_image));
 
-      BitmapLoader bitmapLoader = new SimpleBitmapLoader();
+      BitmapLoader bitmapLoader = new DataSourceBitmapLoader(getApplicationContext());
       ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(uri);
       try {
         Bitmap bitmap = future.get();
