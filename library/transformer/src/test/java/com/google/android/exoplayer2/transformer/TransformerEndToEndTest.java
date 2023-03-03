@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.Presentation;
+import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -516,15 +517,16 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
-  public void start_multipleMediaItemsWithEffectsAndTransmux_ignoresTransmux() throws Exception {
+  public void start_multipleMediaItemsAndTransmux_transmux() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
     sonicAudioProcessor.setPitch(2f);
+    Effect videoEffect = RgbFilter.createGrayscaleFilter();
     Effects effects =
-        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
+        new Effects(ImmutableList.of(sonicAudioProcessor), ImmutableList.of(videoEffect));
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).setRemoveVideo(true).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
@@ -536,13 +538,8 @@ public final class TransformerEndToEndTest {
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
-    // The inputs should be transcoded even though transmuxing has been requested. This is because
-    // audio effects have been added to the first MediaItem in the sequence, so the transcoding
-    // audio sample pipeline should be picked to apply these effects.
     DumpFileAsserts.assertOutput(
-        context,
-        testMuxer,
-        getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_with_high_pitch_and_no_video"));
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated"));
   }
 
   @Test

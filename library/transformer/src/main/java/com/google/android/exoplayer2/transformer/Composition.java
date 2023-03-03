@@ -120,9 +120,10 @@ public final class Composition {
      * audio track will only be transcoded if necessary.
      *
      * <p>If the input {@link Composition} contains multiple {@linkplain MediaItem media items}, all
-     * the audio tracks are transmuxed if {@code transmuxAudio} is {@code true} and exporting the
-     * first {@link MediaItem} doesn't require audio transcoding. Otherwise, they are all
-     * transcoded. Transmuxed tracks must be compatible and must not overlap in time.
+     * the audio tracks are transcoded by default. They are all transmuxed if {@code transmuxAudio}
+     * is {@code true}. Transmuxed tracks must be compatible (typically, all the {@link MediaItem}
+     * instances containing the track to transmux are concatenated in a single {@link
+     * EditedMediaItemSequence} and have the same sample format for that track).
      *
      * <p>Requesting audio transmuxing and {@linkplain #experimentalSetForceAudioTrack(boolean)
      * forcing an audio track} are not allowed together because generating silence requires
@@ -146,9 +147,10 @@ public final class Composition {
      * video track will only be transcoded if necessary.
      *
      * <p>If the input {@link Composition} contains multiple {@linkplain MediaItem media items}, all
-     * the video tracks are transmuxed if {@code transmuxVideo} is {@code true} and exporting the
-     * first {@link MediaItem} doesn't require video transcoding. Otherwise, they are all
-     * transcoded. Transmuxed tracks must be compatible and must not overlap in time.
+     * the video tracks are transcoded by default. They are all transmuxed if {@code transmuxVideo}
+     * is {@code true}. Transmuxed tracks must be compatible (typically, all the {@link MediaItem}
+     * instances containing the track to transmux are concatenated in a single {@link
+     * EditedMediaItemSequence} and have the same sample format for that track).
      *
      * @param transmuxVideo Whether to transmux the video tracks.
      * @return This builder.
