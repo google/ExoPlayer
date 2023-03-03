@@ -816,6 +816,7 @@ public class MediaSession {
    *
    * <p>A command is not accepted if it is not a custom command.
    *
+   * @param controller The controller to send the custom command to.
    * @param command A custom command.
    * @param args A {@link Bundle} for additional arguments. May be empty.
    * @return A {@link ListenableFuture} of {@link SessionResult} from the controller.
