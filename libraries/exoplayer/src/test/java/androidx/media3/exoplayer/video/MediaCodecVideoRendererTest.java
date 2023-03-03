@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.video;
 
 import static android.view.Display.DEFAULT_DISPLAY;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.format;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
@@ -59,6 +60,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -72,6 +74,7 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowDisplay;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowSystemClock;
 
 /** Unit test for {@link MediaCodecVideoRenderer}. */
 @RunWith(AndroidJUnit4.class)
@@ -261,7 +264,7 @@ public class MediaCodecVideoRendererTest {
             /* initialFormat= */ pAsp1,
             ImmutableList.of(oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME)));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
-
+    SystemClock.setCurrentTimeMillis(876_000_000);
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {pAsp1, pAsp2, pAsp3},
@@ -272,25 +275,27 @@ public class MediaCodecVideoRendererTest {
         /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.start();
-    mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
-    mediaCodecVideoRenderer.render(/* positionUs= */ 250, SystemClock.elapsedRealtime() * 1000);
+    mediaCodecVideoRenderer.render(/* positionUs= */ 0, msToUs(SystemClock.elapsedRealtime()));
+    ShadowSystemClock.advanceBy(10, TimeUnit.MILLISECONDS);
+    mediaCodecVideoRenderer.render(/* positionUs= */ 10_000, msToUs(SystemClock.elapsedRealtime()));
 
     fakeSampleStream.append(
         ImmutableList.of(
             format(pAsp2),
-            oneByteSample(/* timeUs= */ 5_000),
-            oneByteSample(/* timeUs= */ 10_000),
-            format(pAsp3),
-            oneByteSample(/* timeUs= */ 15_000),
             oneByteSample(/* timeUs= */ 20_000),
+            oneByteSample(/* timeUs= */ 40_000),
+            format(pAsp3),
+            oneByteSample(/* timeUs= */ 60_000),
+            oneByteSample(/* timeUs= */ 80_000),
             END_OF_STREAM_ITEM));
-    fakeSampleStream.writeData(/* startPositionUs= */ 5_000);
+    fakeSampleStream.writeData(/* startPositionUs= */ 20_000);
     mediaCodecVideoRenderer.setCurrentStreamFinal();
 
-    int pos = 500;
+    int positionUs = 20_000;
     do {
-      mediaCodecVideoRenderer.render(/* positionUs= */ pos, SystemClock.elapsedRealtime() * 1000);
-      pos += 250;
+      ShadowSystemClock.advanceBy(10, TimeUnit.MILLISECONDS);
+      mediaCodecVideoRenderer.render(positionUs, msToUs(SystemClock.elapsedRealtime()));
+      positionUs += 10_000;
     } while (!mediaCodecVideoRenderer.isEnded());
     shadowOf(testMainLooper).idle();
 

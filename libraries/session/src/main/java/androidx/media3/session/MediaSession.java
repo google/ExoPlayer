@@ -67,14 +67,16 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A session that allows a media app to expose its transport controls and playback information in a
- * process to other processes including the Android framework and other apps. The common use cases
- * are as follows:
+ * A session that allows a media app to expose its player functionality, information of the playlist
+ * and the media item currently being played to other processes including the Android framework and
+ * other apps. The common use cases are as follows:
  *
  * <ul>
- *   <li>Bluetooth/wired headset key events support
- *   <li>Android Auto/Wearable support
- *   <li>Separating UI process and playback process
+ *   <li>Receiving and dispatching media key events (for instance Bluetooth/wired headset and remote
+ *       control devices).
+ *   <li>Publish media playback information and player commands to SystemUI (media notification) and
+ *       Android Auto/Wear OS.
+ *   <li>Separating UI process and playback process.
  * </ul>
  *
  * <p>A session should be created when an app wants to publish media playback information or handle
@@ -82,9 +84,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * sessions can be created to provide finer grain controls of media. See <a
  * href="#MultipleSessions">Supporting Multiple Sessions</a> for details.
  *
- * <p>If you want to support background playback, {@link MediaSessionService} is preferred. With the
- * service, your playback can be revived even after playback is finished. See {@link
- * MediaSessionService} for details.
+ * <p>If an app wants to support playback when in the background, using a {@link
+ * MediaSessionService} is the preferred approach. See {@link MediaSessionService} for details.
  *
  * <p>Topics covered here:
  *
@@ -103,7 +104,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * #getToken() session token} to other processes to allow them to create a {@link MediaController}
  * to interact with the session.
  *
- * <p>When a session receives transport control commands, the session sends the commands directly to
+ * <p>When a session receives playback commands, the session calls corresponding methods directly on
  * the underlying player set by {@link Builder#Builder(Context, Player)} or {@link
  * #setPlayer(Player)}.
  *
@@ -113,15 +114,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2 id="ThreadingModel">Threading Model</h2>
  *
- * <p>The instances are thread safe, but should be used on the thread with a looper.
+ * <p>The instances are thread safe, but must be used on a thread with a looper.
  *
- * <p>{@link Callback} methods will be called from the application thread associated with the {@link
+ * <p>{@link Callback} methods will be called on the application thread associated with the {@link
  * Player#getApplicationLooper() application looper} of the underlying player. When a new player is
- * set by {@link #setPlayer}, the player should use the same application looper as the previous one.
+ * set by {@link #setPlayer}, the player must use the same application looper as the previous one.
  *
- * <p>The session listens to events from the underlying player via {@link Player.Listener} and
- * expects the callback methods to be called from the application thread. If the player violates the
- * threading contract, {@link IllegalStateException} will be thrown.
+ * <p>The session listens to player events via {@link Player.Listener} and expects the callback
+ * methods to be called on the application thread. If the player violates the threading contract, an
+ * {@link IllegalStateException} will be thrown.
  *
  * <h2 id="KeyEvents">Media Key Events Mapping</h2>
  *
@@ -160,7 +161,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *           </li>
  *           <li>{@link Player#play()} otherwise</li>
  *         </ul>
- *       <li>For a double tap, {@link Player#seekToNext()}</li>
+ *       <li>In case the media key events are coming from another package ID than the package ID of
+ *         the media app (events coming for instance from Bluetooth), a double tap generating two
+ *         key events within a brief amount of time, is converted to {@link Player#seekToNext()}
+ *         </li>
  *     </ul>
  *   </td>
  * </tr>
@@ -193,16 +197,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * media or remote playback, since the <a
  * href="https://developer.android.com/guide/topics/media-apps/audio-focus">audio focus policy</a>
  * recommends not playing multiple audio content at the same time. Also, keep in mind that multiple
- * media sessions would make Android Auto and Bluetooth device with display to show your apps
+ * media sessions would make Android Auto and Bluetooth devices with display to show your app
  * multiple times, because they list up media sessions, not media apps.
  *
  * <h2 id="BackwardCompatibility">Backward Compatibility with Legacy Session APIs</h2>
  *
- * <p>An active {@link MediaSessionCompat} is internally created with the session for the backward
- * compatibility. It's used to handle incoming connection and commands from {@link
- * MediaControllerCompat}, and helps to utilize existing APIs that are built with legacy media
- * session APIs. Use {@link #getSessionCompatToken} to get the legacy token of {@link
- * MediaSessionCompat}.
+ * <p>An active {@link MediaSessionCompat} is internally created with the session for backwards
+ * compatibility. It's used to handle incoming connections and commands from {@link
+ * MediaControllerCompat} instances, and helps to utilize existing APIs that are built with legacy
+ * media session APIs.
  *
  * <h2 id="CompatibilityController">Backward Compatibility with Legacy Controller APIs</h2>
  *
@@ -211,10 +214,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * {@linkplain MediaControllerCompat AndroidX controller compat}. However, {@link ControllerInfo}
  * may not be precise for legacy controllers. See {@link ControllerInfo} for the details.
  *
- * <p>Unknown package name nor UID doesn't mean that you should disallow connection nor commands.
- * For SDK levels where such issues happen, session tokens could only be obtained by trusted
- * controllers (e.g. Bluetooth, Auto, ...), so it may be better for you to allow them as you did
- * with legacy sessions.
+ * <p>Neither an unknown package name nor an unknown UID mean that you should disallow a connection
+ * or commands per se. For SDK levels where such issues happen, session tokens can only be obtained
+ * by trusted controllers (e.g. Bluetooth, Auto, ...). This means only trusted controllers can
+ * connect and an app can accept such controllers in the same way as with legacy sessions.
  */
 public class MediaSession {
 
@@ -242,7 +245,7 @@ public class MediaSession {
      * Creates a builder for {@link MediaSession}.
      *
      * @param context The context.
-     * @param player The underlying player to perform playback and handle transport controls.
+     * @param player The underlying player to perform playback and handle player commands.
      * @throws IllegalArgumentException if {@link Player#canAdvertiseSession()} returns false.
      */
     public Builder(Context context, Player player) {
@@ -253,13 +256,13 @@ public class MediaSession {
      * Sets a {@link PendingIntent} to launch an {@link android.app.Activity} for the {@link
      * MediaSession}. This can be used as a quick link to an ongoing media screen.
      *
-     * <p>A client can use this pending intent to start an activity belonging to this session. When
-     * this pending intent is for instance included in the notification {@linkplain
-     * NotificationCompat.Builder#setContentIntent(PendingIntent) as the content intent}, tapping
-     * the notification will open this activity.
-     *
-     * <p>See <a href="https://developer.android.com/training/notify-user/navigation">'Start an
-     * Activity from a Notification'</a> also.
+     * <p>A client can use this pending intent to start an activity belonging to this session. On
+     * API levels below 33 the pending intent can be used {@linkplain
+     * NotificationCompat.Builder#setContentIntent(PendingIntent) as the content intent}. Tapping
+     * the notification will then send that pending intent and open the activity (see <a
+     * href="https://developer.android.com/training/notify-user/navigation">'Start an Activity from
+     * a Notification'</a>). For API levels starting with 33, the media notification reads the
+     * pending intent directly from the session.
      *
      * @param pendingIntent The pending intent.
      * @return The builder to allow chaining.
@@ -289,6 +292,13 @@ public class MediaSession {
     /**
      * Sets a callback for the {@link MediaSession} to handle incoming requests from {link
      * MediaController}.
+     *
+     * <p>Apps that want to allow controllers to {@linkplain MediaController#setMediaItems(List)
+     * set} or {@linkplain MediaController#addMediaItems(List) add} media items to the playlist,
+     * must use a callback and override its {@link
+     * MediaSession.Callback#onSetMediaItems(MediaSession, ControllerInfo, List, int, long)} or
+     * {@link MediaSession.Callback#onSetMediaItems(MediaSession, ControllerInfo, List, int, long)}
+     * methods.
      *
      * @param callback The callback.
      * @return The builder to allow chaining.
@@ -371,7 +381,8 @@ public class MediaSession {
      * @param remoteUserInfo The remote user info.
      * @param trusted {@code true} if trusted, {@code false} otherwise.
      * @param cb ControllerCb. Can be {@code null} only when a MediaBrowserCompat connects to
-     *     MediaSessionService and ControllerInfo is needed for SessionCallback#onConnected().
+     *     MediaSessionService and ControllerInfo is needed for {@link
+     *     MediaSession.Callback#onConnect(MediaSession, ControllerInfo)}.
      * @param connectionHints A session-specific argument sent from the controller for the
      *     connection. The contents of this bundle may affect the connection result.
      */

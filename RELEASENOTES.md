@@ -1,5 +1,49 @@
 # Release notes
 
+### 1.0.0-rc02 (2023-03-02)
+
+This release corresponds to the
+[ExoPlayer 2.18.4 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.4).
+
+*   Core library:
+    *   Fix network type detection on API 33
+        ([#10970](https://github.com/google/ExoPlayer/issues/10970)).
+    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
+        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
+*   Downloads:
+    *   Make the maximum difference of the start time of two segments to be
+        merged configurable in `SegmentDownloader` and subclasses
+        ([#248](https://github.com/androidx/media/pull/248)).
+*   Audio:
+    *   Fix broken gapless MP3 playback on Samsung devices
+        ([#8594](https://github.com/google/ExoPlayer/issues/8594)).
+    *   Fix bug where playback speeds set immediately after disabling audio may
+        be overridden by a previous speed change
+        ([#10882](https://github.com/google/ExoPlayer/issues/10882)).
+*   Video:
+    *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
+        `HEVCProfileMain10`.
+    *   Add workaround for a device issue on Chromecast with Google TV and
+        Lenovo M10 FHD Plus that causes 60fps AVC streams to be marked as
+        unsupported
+        ([#10898](https://github.com/google/ExoPlayer/issues/10898)).
+    *   Fix frame release performance issues when playing media with a frame
+        rate far higher than the screen refresh rate.
+*   Cast:
+    *   Fix transient `STATE_IDLE` when transitioning between media items
+        ([#245](https://github.com/androidx/media/issues/245)).
+*   RTSP:
+    *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
+        Describe response messages
+        ([#10971](https://github.com/google/ExoPlayer/issues/10971)).
+*   Session:
+    *   Fix a bug where notification play/pause button doesn't update with
+        player state ([#192](https://github.com/androidx/media/issues/192)).
+*   IMA extension:
+    *   Fix a bug which prevented DAI streams without any ads from starting
+        because the first (and in the case without ads the only) `LOADED` event
+        wasn't received.
+
 ### 1.0.0-rc01 (2023-02-16)
 
 This release corresponds to the
@@ -73,17 +117,12 @@ This release corresponds to the
         ([#233](https://github.com/androidx/media/issues/233)).
     *   Make `QueueTimeline` more robust in case of a shady legacy session state
         ([#241](https://github.com/androidx/media/issues/241)).
-*   Metadata:
-    *   Parse multiple null-separated values from ID3 frames, as permitted by
-        ID3 v2.4.
-    *   Add `MediaMetadata.mediaType` to denote the type of content or the type
-        of folder described by the metadata.
-    *   Add `MediaMetadata.isBrowsable` as a replacement for
-        `MediaMetadata.folderType`. The folder type will be deprecated in the
-        next release.
 *   Cast extension:
     *   Bump Cast SDK version to 21.2.0.
 *   IMA extension:
+    *   Map `PLAYER_STATE_LOADING` to `STATE_BUFFERING`
+        ([#245](\(https://github.com/androidx/media/issues/245\)).
+*   IMA extension
     *   Remove player listener of the `ImaServerSideAdInsertionMediaSource` on
         the application thread to avoid threading issues.
     *   Add a property `focusSkipButtonWhenAvailable` to the
@@ -92,6 +131,8 @@ This release corresponds to the
     *   Add a method `focusSkipButton()` to the
         `ImaServerSideAdInsertionMediaSource.AdsLoader` to programmatically
         request to focus the skip button.
+    *   Fix a bug which prevented playback from starting for a DAI stream
+        without any ads.
     *   Bump IMA SDK version to 3.29.0.
 *   Demo app:
     *   Request notification permission for download notifications at runtime
