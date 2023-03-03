@@ -310,9 +310,9 @@ metadata.
 
 Often, server-side inserted ad streams contain timed events to notify the player
 about ad metadata. Please see [supported formats][] for information on what
-timed metadata formats are supported by ExoPlayer. Custom ads SDK `MediaSource`s
-can listen for timed metadata events from the player, e.g., via
-`ExoPlayer.addMetadataOutput`.
+timed metadata formats are supported by ExoPlayer. Custom ads SDK `MediaSource`
+implementations can listen for timed metadata events from the player via
+`Player.Listener.onMetadata`.
 
 [VAST]: https://www.iab.com/wp-content/uploads/2015/06/VASTv3_0.pdf
 [VMAP]: https://www.iab.com/guidelines/digital-video-multiple-ad-playlist-vmap-1-0-1/
