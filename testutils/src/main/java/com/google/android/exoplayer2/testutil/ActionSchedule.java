@@ -347,7 +347,7 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set media items action to be executed.
+     * Schedules a set media source actions to be executed.
      *
      * @param mediaItemIndex The media item index to start playback from or {@link C#INDEX_UNSET} if
      *     the playback position should not be reset.
@@ -355,6 +355,7 @@ public final class ActionSchedule {
      *     C#TIME_UNSET} is passed the default position is used. In any case, if {@code
      *     mediaItemIndex} is set to {@link C#INDEX_UNSET} the position is not reset at all and this
      *     parameter is ignored.
+     * @param sources The media sources to be set on the player.
      * @return The builder, for convenience.
      */
     @CanIgnoreReturnValue
@@ -363,9 +364,10 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a set media items action to be executed.
+     * Schedules a set media sources action to be executed.
      *
      * @param resetPosition Whether the playback position should be reset.
+     * @param sources The media sources to be set on the player.
      * @return The builder, for convenience.
      */
     @CanIgnoreReturnValue
@@ -488,6 +490,7 @@ public final class ActionSchedule {
     /**
      * Schedules sending a {@link PlayerMessage}.
      *
+     * @param target A message target.
      * @param positionMs The position in the current media item at which the message should be sent,
      *     in milliseconds.
      * @return The builder, for convenience.

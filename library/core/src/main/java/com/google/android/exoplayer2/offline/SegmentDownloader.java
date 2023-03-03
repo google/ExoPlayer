@@ -323,6 +323,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   /**
    * Loads and parses a manifest.
    *
+   * @param dataSource The source to use when loading the manifest.
    * @param dataSpec The manifest {@link DataSpec}.
    * @param removing Whether the manifest is being loaded as part of the download being removed.
    * @return The loaded manifest.

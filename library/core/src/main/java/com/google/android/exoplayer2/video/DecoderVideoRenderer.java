@@ -648,6 +648,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    *
    * <p>The default implementation does not allow decoder reuse.
    *
+   * @param decoderName The name of the decoder.
    * @param oldFormat The previous format.
    * @param newFormat The new format.
    * @return The result of the evaluation.

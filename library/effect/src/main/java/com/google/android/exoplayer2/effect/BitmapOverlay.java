@@ -89,6 +89,8 @@ public abstract class BitmapOverlay extends TextureOverlay {
   /**
    * Creates a {@link BitmapOverlay} that shows the {@code overlayBitmap} in the same position and
    * size throughout the whole video.
+   *
+   * @param overlayBitmap The bitmap to overlay on the video.
    */
   public static BitmapOverlay createStaticBitmapOverlay(Bitmap overlayBitmap) {
     return new BitmapOverlay() {
@@ -103,6 +105,7 @@ public abstract class BitmapOverlay extends TextureOverlay {
    * Creates a {@link BitmapOverlay} that shows the {@code overlayBitmap} in the same {@link
    * OverlaySettings} throughout the whole video.
    *
+   * @param overlayBitmap The bitmap to overlay on the video.
    * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
    *     the frames.
    */

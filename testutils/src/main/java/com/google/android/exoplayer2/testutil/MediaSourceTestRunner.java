@@ -150,6 +150,7 @@ public class MediaSourceTestRunner {
    * playback thread, asserting that a non-null {@link MediaPeriod} is returned.
    *
    * @param periodId The id of the period to create.
+   * @param startPositionUs The expected start position, in microseconds.
    * @return The created {@link MediaPeriod}.
    */
   public MediaPeriod createPeriod(final MediaPeriodId periodId, long startPositionUs) {

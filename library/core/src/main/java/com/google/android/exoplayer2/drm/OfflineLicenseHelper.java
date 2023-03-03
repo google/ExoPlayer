@@ -97,6 +97,7 @@ public final class OfflineLicenseHelper {
    *     their own license URL.
    * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
    *     include their own license URL.
+   * @param dataSourceFactory A factory from which to obtain {@link DataSource} instances.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest}. May be null.
    * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute

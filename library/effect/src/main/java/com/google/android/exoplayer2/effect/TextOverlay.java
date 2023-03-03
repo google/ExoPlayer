@@ -54,6 +54,7 @@ public abstract class TextOverlay extends BitmapOverlay {
    * Creates a {@link TextOverlay} that shows the {@code overlayText} with the same {@link
    * OverlaySettings} throughout the whole video.
    *
+   * @param overlayText The text to overlay on the video.
    * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
    *     the frames.
    */

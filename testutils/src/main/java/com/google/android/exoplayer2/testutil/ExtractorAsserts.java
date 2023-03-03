@@ -358,6 +358,9 @@ public final class ExtractorAsserts {
    *
    * <p>The output of the extractor is compared against prerecorded dump files.
    *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param file The input file to pass to the extractor.
    * @param assertionConfig Details of how to read and process the source and dump files.
    * @param simulationConfig Details on the environment to simulate and behaviours to assert.
    * @throws IOException If reading from the input fails.

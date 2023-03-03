@@ -125,6 +125,8 @@ public final class ExoPlaybackException extends PlaybackException {
    * Creates an instance of type {@link #TYPE_RENDERER}.
    *
    * @param cause The cause of the failure.
+   * @param rendererName The {@linkplain Renderer#getName() name} of the renderer in which the
+   *     failure occurred.
    * @param rendererIndex The index of the renderer in which the failure occurred.
    * @param rendererFormat The {@link Format} the renderer was using at the time of the exception,
    *     or null if the renderer wasn't using a {@link Format}.

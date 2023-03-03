@@ -48,6 +48,8 @@ public interface DashChunkSource extends ChunkSource {
      *     if unknown.
      * @param enableEventMessageTrack Whether to output an event message track.
      * @param closedCaptionFormats The {@link Format Formats} of closed caption tracks to be output.
+     * @param playerEmsgHandler The track output to write emsg messages to, or null if emsgs
+     *     shouldn't be written.
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
      * @param playerId The {@link PlayerId} of the player using this chunk source.
@@ -73,8 +75,9 @@ public interface DashChunkSource extends ChunkSource {
    * Updates the manifest.
    *
    * @param newManifest The new manifest.
+   * @param newPeriodIndex The index of the period covered by {@code newManifest}.
    */
-  void updateManifest(DashManifest newManifest, int periodIndex);
+  void updateManifest(DashManifest newManifest, int newPeriodIndex);
 
   /**
    * Updates the track selection.

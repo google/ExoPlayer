@@ -809,6 +809,7 @@ public abstract class Timeline implements Bundleable {
      * adGroupIndex}, or {@link AdPlaybackState#AD_STATE_UNAVAILABLE} if not yet known.
      *
      * @param adGroupIndex The ad group index.
+     * @param adIndexInAdGroup The index of the ad in the ad group.
      * @return The state of the ad, or {@link AdPlaybackState#AD_STATE_UNAVAILABLE} if not yet
      *     known.
      */
