@@ -582,8 +582,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       private boolean shouldTranscodeAudio(Format inputFormat) {
-        if (editedMediaItems.size() > 1 && !composition.transmuxAudio) {
-          return true;
+        if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
+          return !composition.transmuxAudio;
         }
         if (encoderFactory.audioNeedsEncoding()) {
           return true;
@@ -603,14 +603,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
           return true;
         }
-
         return false;
       }
 
       private boolean shouldTranscodeVideo(
           Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
-        if (editedMediaItems.size() > 1 && !composition.transmuxVideo) {
-          return true;
+        if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
+          return !composition.transmuxVideo;
         }
         EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
         if ((streamStartPositionUs - streamOffsetUs) != 0
