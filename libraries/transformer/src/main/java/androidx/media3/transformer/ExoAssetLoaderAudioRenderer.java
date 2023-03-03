@@ -56,14 +56,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @throws ExportException If an error occurs in the decoder.
    */
   @Override
-  @RequiresNonNull("sampleConsumer")
+  @RequiresNonNull({"sampleConsumer", "decoder"})
   protected boolean feedConsumerFromDecoder() throws ExportException {
     @Nullable DecoderInputBuffer sampleConsumerInputBuffer = sampleConsumer.getInputBuffer();
     if (sampleConsumerInputBuffer == null) {
       return false;
     }
 
-    Codec decoder = checkNotNull(this.decoder);
     if (decoder.isEnded()) {
       checkNotNull(sampleConsumerInputBuffer.data).limit(0);
       sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);

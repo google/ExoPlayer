@@ -77,7 +77,7 @@ public interface AssetLoader {
     void onDurationUs(long durationUs);
 
     /**
-     * Called when the number of tracks output by the asset loader is known.
+     * Called when the number of tracks being output is known.
      *
      * <p>Can be called from any thread.
      */
@@ -91,28 +91,41 @@ public interface AssetLoader {
      *
      * <p>Must be called once per {@linkplain #onTrackCount(int) declared} track.
      *
-     * <p>Must be called from the thread that will be used to call the returned {@link
-     * SampleConsumer}'s methods. This thread must be the same for all the tracks added, and is
-     * generally different from the one used to access the {@link AssetLoader} methods.
+     * <p>Must be called from the thread that will be used to call {@link #onOutputFormat(Format)}.
      *
-     * @param format The {@link Format} of the input media (prior to video slow motion flattening or
-     *     to decoding).
+     * @param inputFormat The {@link Format} of samples that will be input to the {@link
+     *     AssetLoader} (prior to video slow motion flattening or to decoding).
      * @param supportedOutputTypes The output {@linkplain SupportedOutputTypes types} supported by
-     *     this asset loader for the track added. At least one output type must be supported.
+     *     this {@link AssetLoader} for the track added. At least one output type must be supported.
      * @param streamStartPositionUs The start position of the stream (offset by {@code
      *     streamOffsetUs}), in microseconds.
      * @param streamOffsetUs The offset that will be added to the timestamps to make sure they are
      *     non-negative, in microseconds.
-     * @return The {@link SampleConsumer} describing the type of sample data expected, and to which
-     *     to pass this data.
-     * @throws ExportException If an error occurs configuring the {@link SampleConsumer}.
+     * @return Whether the {@link AssetLoader} needs to provide decoded data to the {@link
+     *     SampleConsumer}.
      */
-    SampleConsumer onTrackAdded(
-        Format format,
+    boolean onTrackAdded(
+        Format inputFormat,
         @SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
-        long streamOffsetUs)
-        throws ExportException;
+        long streamOffsetUs);
+
+    /**
+     * Called when the {@link Format} of samples that will be output by the {@link AssetLoader} is
+     * known.
+     *
+     * <p>Must be called once per {@linkplain #onTrackCount declared} track, and only after that
+     * track has been {@link #onTrackAdded added}.
+     *
+     * <p>Must be called from the thread that will be used to call the returned {@link
+     * SampleConsumer}'s methods. This thread must be the same for all formats output, and is
+     * generally different from the one used to access the {@link AssetLoader} methods.
+     *
+     * @param format The {@link Format} of samples that will be output.
+     * @return The {@link SampleConsumer} of samples of the given {@link Format}.
+     * @throws ExportException If an error occurs configuring the {@link SampleConsumer}.
+     */
+    SampleConsumer onOutputFormat(Format format) throws ExportException;
 
     /**
      * Called if an error occurs in the asset loader. In this case, the asset loader will be

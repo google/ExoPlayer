@@ -88,12 +88,13 @@ public final class ImageAssetLoader implements AssetLoader {
                       .setWidth(bitmap.getWidth())
                       .setSampleMimeType(MIME_TYPE_IMAGE_ALL)
                       .build();
-              SampleConsumer sampleConsumer =
-                  listener.onTrackAdded(
-                      format,
-                      SUPPORTED_OUTPUT_TYPE_DECODED,
-                      /* streamStartPositionUs= */ 0,
-                      /* streamOffsetUs= */ 0);
+              listener.onTrackAdded(
+                  format,
+                  SUPPORTED_OUTPUT_TYPE_DECODED,
+                  /* streamStartPositionUs= */ 0,
+                  /* streamOffsetUs= */ 0);
+              SampleConsumer sampleConsumer = listener.onOutputFormat(format);
+
               checkState(editedMediaItem.durationUs != C.TIME_UNSET);
               checkState(editedMediaItem.frameRate != C.RATE_UNSET_INT);
               // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change

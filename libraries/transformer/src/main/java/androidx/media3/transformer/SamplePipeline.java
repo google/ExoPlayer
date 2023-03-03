@@ -56,12 +56,7 @@ import java.util.List;
       Format firstInputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.muxerWrapper = muxerWrapper;
-    this.outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
-  }
-
-  @Override
-  public boolean expectsDecodedData() {
-    return true;
+    outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
   }
 
   /**

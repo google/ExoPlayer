@@ -49,6 +49,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 /* package */ final class CompositeAssetLoader implements AssetLoader, AssetLoader.Listener {
 
+  private static final Format FORCE_AUDIO_TRACK_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.AUDIO_AAC)
+          .setSampleRate(44100)
+          .setChannelCount(2)
+          .build();
+
   private final List<EditedMediaItem> editedMediaItems;
   private final AtomicInteger currentMediaItemIndex;
   private final boolean forceAudioTrack;
@@ -76,6 +83,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private AssetLoader currentAssetLoader;
   private boolean trackCountReported;
   private int processedInputsSize;
+  private boolean decodeAudio;
+  private boolean decodeVideo;
 
   private volatile long currentDurationUs;
 
@@ -186,42 +195,65 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public SampleConsumer onTrackAdded(
-      Format format,
+  public boolean onTrackAdded(
+      Format inputFormat,
       @SupportedOutputTypes int supportedOutputTypes,
       long streamStartPositionUs,
-      long streamOffsetUs)
-      throws ExportException {
+      long streamOffsetUs) {
+    boolean isAudio = getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO;
+
+    if (currentMediaItemIndex.get() != 0) {
+      return isAudio ? decodeAudio : decodeVideo;
+    }
+
+    boolean addForcedAudioTrack = forceAudioTrack && nonEndedTracks.get() == 1 && !isAudio;
+
+    if (!trackCountReported) {
+      int trackCount = nonEndedTracks.get() + (addForcedAudioTrack ? 1 : 0);
+      compositeAssetLoaderListener.onTrackCount(trackCount);
+      trackCountReported = true;
+    }
+
+    boolean decodeOutput =
+        compositeAssetLoaderListener.onTrackAdded(
+            inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
+
+    if (isAudio) {
+      decodeAudio = decodeOutput;
+    } else {
+      decodeVideo = decodeOutput;
+    }
+
+    if (addForcedAudioTrack) {
+      compositeAssetLoaderListener.onTrackAdded(
+          FORCE_AUDIO_TRACK_FORMAT,
+          SUPPORTED_OUTPUT_TYPE_DECODED,
+          streamStartPositionUs,
+          streamOffsetUs);
+    }
+
+    return decodeOutput;
+  }
+
+  @Override
+  public SampleConsumer onOutputFormat(Format format) throws ExportException {
     @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
     SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
-      boolean addForcedAudioTrack =
-          forceAudioTrack && nonEndedTracks.get() == 1 && trackType == C.TRACK_TYPE_VIDEO;
-      if (!trackCountReported) {
-        int trackCount = nonEndedTracks.get() + (addForcedAudioTrack ? 1 : 0);
-        compositeAssetLoaderListener.onTrackCount(trackCount);
-        trackCountReported = true;
-      }
       sampleConsumer =
-          new SampleConsumerWrapper(
-              compositeAssetLoaderListener.onTrackAdded(
-                  format, supportedOutputTypes, streamStartPositionUs, streamOffsetUs));
+          new SampleConsumerWrapper(compositeAssetLoaderListener.onOutputFormat(format));
       sampleConsumersByTrackType.put(trackType, sampleConsumer);
-      if (addForcedAudioTrack) {
-        Format firstAudioFormat =
-            new Format.Builder()
-                .setSampleMimeType(MimeTypes.AUDIO_AAC)
-                .setSampleRate(44100)
-                .setChannelCount(2)
-                .build();
-        SampleConsumer audioSampleConsumer =
+
+      if (forceAudioTrack && nonEndedTracks.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
+        sampleConsumersByTrackType.put(
+            C.TRACK_TYPE_AUDIO,
             new SampleConsumerWrapper(
-                compositeAssetLoaderListener.onTrackAdded(
-                    firstAudioFormat,
-                    SUPPORTED_OUTPUT_TYPE_DECODED,
-                    streamStartPositionUs,
-                    streamOffsetUs));
-        sampleConsumersByTrackType.put(C.TRACK_TYPE_AUDIO, audioSampleConsumer);
+                compositeAssetLoaderListener.onOutputFormat(
+                    FORCE_AUDIO_TRACK_FORMAT
+                        .buildUpon()
+                        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+                        .setPcmEncoding(C.ENCODING_PCM_16BIT)
+                        .build())));
       }
     } else {
       // TODO(b/270533049): Remove the check below when implementing blank video frames generation.
@@ -286,13 +318,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     public SampleConsumerWrapper(SampleConsumer sampleConsumer) {
       this.sampleConsumer = sampleConsumer;
-    }
-
-    @Override
-    public boolean expectsDecodedData() {
-      // TODO(b/252537210): handle the case where the first media item doesn't need to be encoded
-      //  but a following one does.
-      return sampleConsumer.expectsDecodedData();
     }
 
     @Nullable

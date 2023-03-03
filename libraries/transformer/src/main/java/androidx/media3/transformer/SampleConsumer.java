@@ -27,14 +27,6 @@ import androidx.media3.decoder.DecoderInputBuffer;
 public interface SampleConsumer {
 
   /**
-   * Returns whether the consumer should be fed with decoded sample data. If false, encoded sample
-   * data should be fed.
-   */
-  boolean expectsDecodedData();
-
-  // Methods to pass compressed input or raw audio input.
-
-  /**
    * Returns a buffer if the consumer is ready to accept input, and {@code null} otherwise.
    *
    * <p>If the consumer is ready to accept input and this method is called multiple times before

@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUntil;
+import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Clock;
@@ -46,12 +48,16 @@ public class ExoPlayerAssetLoaderTest {
     assetLoaderThread.start();
     Looper assetLoaderLooper = assetLoaderThread.getLooper();
     AtomicReference<Exception> exceptionRef = new AtomicReference<>();
-    AtomicBoolean isTrackAdded = new AtomicBoolean();
+    AtomicBoolean isAudioOutputFormatSet = new AtomicBoolean();
+    AtomicBoolean isVideoOutputFormatSet = new AtomicBoolean();
+
     AssetLoader.Listener listener =
         new AssetLoader.Listener() {
 
           private volatile boolean isDurationSet;
           private volatile boolean isTrackCountSet;
+          private volatile boolean isAudioTrackAdded;
+          private volatile boolean isVideoTrackAdded;
 
           @Override
           public void onDurationUs(long durationUs) {
@@ -68,8 +74,8 @@ public class ExoPlayerAssetLoaderTest {
           }
 
           @Override
-          public SampleConsumer onTrackAdded(
-              Format format,
+          public boolean onTrackAdded(
+              Format inputFormat,
               @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
               long streamStartPositionUs,
               long streamOffsetUs) {
@@ -80,7 +86,32 @@ public class ExoPlayerAssetLoaderTest {
               exceptionRef.set(
                   new IllegalStateException("onTrackAdded() called before onTrackCount()"));
             }
-            isTrackAdded.set(true);
+            sleep();
+            @C.TrackType int trackType = getProcessedTrackType(inputFormat.sampleMimeType);
+            if (trackType == C.TRACK_TYPE_AUDIO) {
+              isAudioTrackAdded = true;
+            } else if (trackType == C.TRACK_TYPE_VIDEO) {
+              isVideoTrackAdded = true;
+            }
+            return false;
+          }
+
+          @Override
+          public SampleConsumer onOutputFormat(Format format) {
+            @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
+            boolean isAudio = trackType == C.TRACK_TYPE_AUDIO;
+            boolean isVideo = trackType == C.TRACK_TYPE_VIDEO;
+
+            boolean isTrackAdded = (isAudio && isAudioTrackAdded) || (isVideo && isVideoTrackAdded);
+            if (!isTrackAdded) {
+              exceptionRef.set(
+                  new IllegalStateException("onOutputFormat() called before onTrackAdded()"));
+            }
+            if (isAudio) {
+              isAudioOutputFormatSet.set(true);
+            } else if (isVideo) {
+              isVideoOutputFormatSet.set(true);
+            }
             return new FakeSampleConsumer();
           }
 
@@ -107,7 +138,8 @@ public class ExoPlayerAssetLoaderTest {
         Looper.myLooper(),
         () -> {
           ShadowSystemClock.advanceBy(Duration.ofMillis(10));
-          return isTrackAdded.get() || exceptionRef.get() != null;
+          return (isAudioOutputFormatSet.get() && isVideoOutputFormatSet.get())
+              || exceptionRef.get() != null;
         });
 
     assertThat(exceptionRef.get()).isNull();
@@ -125,11 +157,6 @@ public class ExoPlayerAssetLoaderTest {
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {
-
-    @Override
-    public boolean expectsDecodedData() {
-      return false;
-    }
 
     @Nullable
     @Override
