@@ -150,12 +150,13 @@ public final class WebvttCssStyle {
    *   <li>Universal selector matching scores 1.
    * </ul>
    *
+   * <p>See also <a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>.
+   *
    * @param id The id of the cue if present, {@code null} otherwise.
    * @param tag Name of the tag, {@code null} if it refers to the entire cue.
    * @param classes An array containing the classes the tag belongs to. Must not be null.
    * @param voice Annotated voice if present, {@code null} otherwise.
    * @return The score of the match, zero if there is no match.
-   * @see <a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>
    */
   public int getSpecificityScore(
       @Nullable String id, @Nullable String tag, Set<String> classes, @Nullable String voice) {

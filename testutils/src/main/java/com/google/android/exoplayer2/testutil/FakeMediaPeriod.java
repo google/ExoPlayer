@@ -373,6 +373,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   /**
    * Creates a new {@link FakeSampleStream}.
    *
+   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param mediaSourceEventDispatcher A {@link MediaSourceEventListener.EventDispatcher} to notify
    *     of media events.
    * @param drmSessionManager A {@link DrmSessionManager} for DRM interactions.

@@ -54,6 +54,7 @@ public final class DataSourceUtil {
    * array containing the read data.
    *
    * @param dataSource The source from which to read.
+   * @param length The number of bytes to read.
    * @return The read data.
    * @throws IOException If an error occurs reading from the source.
    * @throws IllegalStateException If the end of the source was reached before {@code length} bytes

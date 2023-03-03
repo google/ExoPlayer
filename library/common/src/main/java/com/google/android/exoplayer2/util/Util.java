@@ -1490,6 +1490,7 @@ public final class Util {
    * Returns the playout duration of {@code mediaDuration} of media.
    *
    * @param mediaDuration The duration to scale.
+   * @param speed The factor by which playback is sped up.
    * @return The scaled duration, in the same units as {@code mediaDuration}.
    */
   public static long getPlayoutDurationForMediaDuration(long mediaDuration, float speed) {

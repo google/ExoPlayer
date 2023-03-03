@@ -360,6 +360,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * @param trackType The {@link C.TrackType track type} that the renderer handles.
+   * @param codecAdapterFactory A factory for {@link MediaCodecAdapter} instances.
    * @param mediaCodecSelector A decoder selector.
    * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
    *     initialization fails. This may result in using a decoder that is less efficient or slower
