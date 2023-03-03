@@ -88,7 +88,6 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.IRemoteMediaSession;
@@ -107,7 +106,6 @@ import java.util.concurrent.Callable;
  * A Service that creates {@link MediaSession} and calls its methods according to the client app's
  * requests.
  */
-@UnstableApi
 public class MediaSessionProviderService extends Service {
 
   private static final String TAG = "MSProviderService";

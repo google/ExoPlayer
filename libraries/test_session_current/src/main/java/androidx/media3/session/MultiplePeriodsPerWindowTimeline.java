@@ -19,12 +19,10 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.util.List;
 
 /** A {@link PlaylistTimeline} implementation that allows setting multiple periods per window. */
-@UnstableApi
 public class MultiplePeriodsPerWindowTimeline extends PlaylistTimeline {
 
   private final int[] periodSizesPerWindow;

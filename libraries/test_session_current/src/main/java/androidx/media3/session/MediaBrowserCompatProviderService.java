@@ -32,7 +32,6 @@ import android.support.v4.media.MediaBrowserCompat.ItemCallback;
 import android.support.v4.media.MediaBrowserCompat.SearchCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaBrowserCompat;
 import androidx.media3.test.session.common.TestHandler;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import java.util.concurrent.Executor;
  * A Service that creates {@link MediaBrowserCompat} and calls its methods according to the service
  * app's requests.
  */
-@UnstableApi
 public class MediaBrowserCompatProviderService extends Service {
 
   private static final String TAG = "MBCompatProviderService";

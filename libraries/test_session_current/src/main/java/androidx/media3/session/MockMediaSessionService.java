@@ -23,14 +23,12 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.ConditionVariable;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** A mock MediaSessionService */
-@UnstableApi
 public class MockMediaSessionService extends MediaSessionService {
   /** ID of the session that this service will create. */
   public static final String ID = "TestSession";

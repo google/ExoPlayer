@@ -16,8 +16,6 @@
 package androidx.media3.test.session.common;
 
 import android.app.Activity;
-import androidx.media3.common.util.UnstableApi;
 
 /** An empty activity used for testing. */
-@UnstableApi
 public class MockActivity extends Activity {}

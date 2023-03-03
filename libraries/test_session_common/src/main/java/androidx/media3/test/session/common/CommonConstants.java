@@ -18,10 +18,8 @@ package androidx.media3.test.session.common;
 import android.content.ComponentName;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.media3.common.util.UnstableApi;
 
 /** Common constants for testing purpose. */
-@UnstableApi
 public class CommonConstants {
 
   public static final String SUPPORT_APP_PACKAGE_NAME = "androidx.media3.test.session";

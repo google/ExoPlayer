@@ -30,7 +30,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaBrowserCompat;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -39,7 +38,6 @@ import java.util.concurrent.CountDownLatch;
  * Represents remote {@link MediaBrowserCompat} the client app's MediaBrowserCompatProviderService.
  * Users can run {@link MediaBrowserCompat} methods remotely with this object.
  */
-@UnstableApi
 public class RemoteMediaBrowserCompat {
 
   private static final String TAG = "RMediaBrowserCompat";

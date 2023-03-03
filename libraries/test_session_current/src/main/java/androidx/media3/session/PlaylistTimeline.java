@@ -21,14 +21,12 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 
 /** A {@link Timeline} implementation for testing session/controller(s). */
-@UnstableApi
 public class PlaylistTimeline extends Timeline {
 
   private static final long DEFAULT_DURATION_MS = 100;

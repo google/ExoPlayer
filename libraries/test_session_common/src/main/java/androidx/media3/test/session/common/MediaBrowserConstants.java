@@ -16,12 +16,10 @@
 package androidx.media3.test.session.common;
 
 import android.os.Bundle;
-import androidx.media3.common.util.UnstableApi;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Constants for calling MediaBrowser methods. */
-@UnstableApi
 public class MediaBrowserConstants {
 
   public static final String ROOT_ID = "rootId";

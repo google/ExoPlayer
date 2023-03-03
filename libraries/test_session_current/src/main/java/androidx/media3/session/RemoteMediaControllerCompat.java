@@ -38,7 +38,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaControllerCompat;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -49,7 +48,6 @@ import java.util.concurrent.CountDownLatch;
  *
  * <p>Users can run {@link MediaControllerCompat} methods remotely with this object.
  */
-@UnstableApi
 public class RemoteMediaControllerCompat {
   static final String TAG = "RMediaControllerCompat";
 

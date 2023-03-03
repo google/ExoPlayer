@@ -40,7 +40,6 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaSessionCompat;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,6 @@ import java.util.concurrent.CountDownLatch;
  * MediaSessionCompatProviderService. Users can run {@link MediaSessionCompat} methods remotely with
  * this object.
  */
-@UnstableApi
 public class RemoteMediaSessionCompat {
 
   private static final String TAG = "RMediaSessionCompat";

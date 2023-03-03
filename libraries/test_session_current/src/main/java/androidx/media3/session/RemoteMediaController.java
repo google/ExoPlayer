@@ -37,7 +37,6 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaController;
 import androidx.media3.test.session.common.TestUtils;
 import java.util.List;
@@ -48,7 +47,6 @@ import java.util.concurrent.CountDownLatch;
  * Represents remote {@link MediaController} the client app's MediaControllerProviderService. Users
  * can run {@link MediaController} methods remotely with this object.
  */
-@UnstableApi
 public class RemoteMediaController {
   static final String TAG = "RemoteMediaController";
 

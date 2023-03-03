@@ -17,13 +17,10 @@ package androidx.media3.test.session.common;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import androidx.media3.common.util.UnstableApi;
-
 /**
  * Utility used for testing that allows to poll for a certain condition to happen within a timeout.
  */
 // It's forked from androidx.testutils.PollingCheck.
-@UnstableApi
 public abstract class PollingCheck {
   private static final long TIME_SLICE_MS = 50;
   private final long timeoutMs;

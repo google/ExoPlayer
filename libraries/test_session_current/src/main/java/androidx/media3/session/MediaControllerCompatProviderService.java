@@ -34,7 +34,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaControllerCompat;
 import androidx.media3.test.session.common.TestHandler;
 import java.util.HashMap;
@@ -46,7 +45,6 @@ import java.util.concurrent.Executor;
  * A Service that creates {@link MediaControllerCompat} and calls its methods according to the
  * service app's requests.
  */
-@UnstableApi
 public class MediaControllerCompatProviderService extends Service {
   private static final String TAG = "MCCProviderService";
 

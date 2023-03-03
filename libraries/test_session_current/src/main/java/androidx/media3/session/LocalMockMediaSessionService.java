@@ -15,8 +15,5 @@
  */
 package androidx.media3.session;
 
-import androidx.media3.common.util.UnstableApi;
-
 /** {@link MockMediaSessionService} running on a local process. */
-@UnstableApi
 public class LocalMockMediaSessionService extends MockMediaSessionService {}

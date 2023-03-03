@@ -42,7 +42,6 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Size;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -56,7 +55,6 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /** A mock implementation of {@link Player} for testing. */
-@UnstableApi
 public class MockPlayer implements Player {
 
   /** Player methods. */

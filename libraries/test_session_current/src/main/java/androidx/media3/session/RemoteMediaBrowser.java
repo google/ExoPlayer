@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
 
@@ -28,7 +27,6 @@ import com.google.common.collect.ImmutableList;
  * Represents remote {@link MediaBrowser} the client app's MediaControllerService. Users can run
  * {@link MediaBrowser} methods remotely with this object.
  */
-@UnstableApi
 public class RemoteMediaBrowser extends RemoteMediaController {
 
   /**

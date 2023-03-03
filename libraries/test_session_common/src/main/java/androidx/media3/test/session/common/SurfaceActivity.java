@@ -21,10 +21,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.ViewGroup;
-import androidx.media3.common.util.UnstableApi;
 
 /** An activity used for surface test */
-@UnstableApi
 public class SurfaceActivity extends Activity {
   private ViewGroup rootViewGroup;
 

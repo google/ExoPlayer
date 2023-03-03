@@ -25,13 +25,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaBrowserServiceCompat;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** A client to control service app's MockMediaBrowserServiceCompat remotely. */
-@UnstableApi
 public class RemoteMediaBrowserServiceCompat {
 
   private final Context context;

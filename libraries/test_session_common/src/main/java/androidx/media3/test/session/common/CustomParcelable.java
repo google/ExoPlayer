@@ -18,11 +18,9 @@ package androidx.media3.test.session.common;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.media3.common.util.UnstableApi;
 
 /** Custom Parcelable class to test sending/receiving user parcelables between processes. */
 @SuppressLint("BanParcelableUsage")
-@UnstableApi
 public class CustomParcelable implements Parcelable {
 
   private int value;

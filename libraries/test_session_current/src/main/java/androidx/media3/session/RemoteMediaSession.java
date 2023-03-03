@@ -81,7 +81,6 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaSession;
 import androidx.media3.test.session.common.TestUtils;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -93,7 +92,6 @@ import java.util.concurrent.CountDownLatch;
  * Represents remote {@link MediaSession} in the service app's MediaSessionProviderService. Users
  * can run {@link MediaSession} methods remotely with this object.
  */
-@UnstableApi
 public class RemoteMediaSession {
   private static final String TAG = "RemoteMediaSession";
 

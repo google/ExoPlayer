@@ -18,7 +18,6 @@ package androidx.media3.test.session.common;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Looper;
-import androidx.media3.common.util.UnstableApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.rules.TestRule;
@@ -26,7 +25,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /** TestRule for preparing main looper. */
-@UnstableApi
 public final class MainLooperTestRule implements TestRule {
 
   @Override

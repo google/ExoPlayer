@@ -33,7 +33,6 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaController;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
@@ -53,7 +52,6 @@ import java.util.concurrent.TimeoutException;
  * A Service that creates {@link MediaController} and calls its methods according to the service
  * app's requests.
  */
-@UnstableApi
 public class MediaControllerProviderService extends Service {
   private static final String TAG = "MCProviderService";
 

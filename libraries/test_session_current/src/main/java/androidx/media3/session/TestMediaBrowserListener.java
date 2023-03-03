@@ -18,12 +18,10 @@ package androidx.media3.session;
 import android.os.Bundle;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.UnstableApi;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 
 /** A proxy class for {@link MediaBrowser.Listener}. */
-@UnstableApi
 public final class TestMediaBrowserListener implements MediaBrowser.Listener {
 
   private final MediaController.Listener delegate;

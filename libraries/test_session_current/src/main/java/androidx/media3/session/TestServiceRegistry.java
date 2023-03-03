@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
  *
  * <p>It only support only one service at a time.
  */
-@UnstableApi
 public class TestServiceRegistry {
 
   @GuardedBy("TestServiceRegistry.class")

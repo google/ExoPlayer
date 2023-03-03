@@ -15,10 +15,7 @@
  */
 package androidx.media3.test.session.common;
 
-import androidx.media3.common.util.UnstableApi;
-
 /** Constants for calling MediaBrowserServiceCompat methods. */
-@UnstableApi
 public class MediaBrowserServiceCompatConstants {
 
   public static final String TEST_CONNECT_REJECTED = "testConnect_rejected";

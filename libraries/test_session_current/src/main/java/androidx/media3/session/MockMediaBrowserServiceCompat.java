@@ -40,7 +40,6 @@ import android.support.v4.media.session.MediaSessionCompat.Callback;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaBrowserServiceCompat;
 import androidx.media3.test.session.common.MediaBrowserServiceCompatConstants;
 import com.google.common.collect.ImmutableList;
@@ -49,7 +48,6 @@ import java.util.Collections;
 import java.util.List;
 
 /** Mock implementation of the media browser service. */
-@UnstableApi
 public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
 
   /**

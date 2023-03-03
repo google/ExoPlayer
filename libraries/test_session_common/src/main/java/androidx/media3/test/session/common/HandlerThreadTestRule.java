@@ -16,12 +16,10 @@
 package androidx.media3.test.session.common;
 
 import android.os.HandlerThread;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import org.junit.rules.ExternalResource;
 
 /** TestRule for providing a handler and an executor for {@link HandlerThread}. */
-@UnstableApi
 public final class HandlerThreadTestRule extends ExternalResource {
 
   private final String threadName;

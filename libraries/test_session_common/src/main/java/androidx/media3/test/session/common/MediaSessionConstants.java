@@ -15,10 +15,7 @@
  */
 package androidx.media3.test.session.common;
 
-import androidx.media3.common.util.UnstableApi;
-
 /** Constants for calling MediaSession methods. */
-@UnstableApi
 public class MediaSessionConstants {
 
   // Test method names

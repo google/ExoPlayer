@@ -34,7 +34,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.annotation.Nullable;
 import androidx.media.VolumeProviderCompat;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaSessionCompat;
 import androidx.media3.test.session.common.TestHandler;
 import java.util.HashMap;
@@ -46,7 +45,6 @@ import java.util.concurrent.Executor;
  * A Service that creates {@link MediaSessionCompat} and calls its methods according to the client
  * app's requests.
  */
-@UnstableApi
 public class MediaSessionCompatProviderService extends Service {
 
   public static final String METHOD_ON_PREPARE_FROM_MEDIA_ID = "onPrepareFromMediaId";

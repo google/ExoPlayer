@@ -21,13 +21,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.media3.common.util.UnstableApi;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Handler for testing. */
-@UnstableApi
 public class TestHandler extends Handler {
 
   private static final long DEFAULT_TIMEOUT_MS = LONG_TIMEOUT_MS;
