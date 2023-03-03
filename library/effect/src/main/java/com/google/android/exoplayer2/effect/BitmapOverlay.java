@@ -16,11 +16,14 @@
 package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
@@ -134,7 +137,10 @@ public abstract class BitmapOverlay extends TextureOverlay {
       @Override
       public Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException {
         if (lastBitmap == null) {
-          BitmapLoader bitmapLoader = new SimpleBitmapLoader();
+          BitmapLoader bitmapLoader =
+              new DataSourceBitmapLoader(
+                  checkStateNotNull(DataSourceBitmapLoader.DEFAULT_EXECUTOR_SERVICE.get()),
+                  new DefaultHttpDataSource.Factory());
           ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(overlayBitmapUri);
           try {
             lastBitmap = future.get();

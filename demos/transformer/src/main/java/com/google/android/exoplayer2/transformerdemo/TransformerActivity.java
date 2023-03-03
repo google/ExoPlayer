@@ -68,7 +68,6 @@ import com.google.android.exoplayer2.effect.RgbAdjustment;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.RgbMatrix;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
-import com.google.android.exoplayer2.effect.SimpleBitmapLoader;
 import com.google.android.exoplayer2.effect.SingleColorLut;
 import com.google.android.exoplayer2.effect.TextOverlay;
 import com.google.android.exoplayer2.effect.TextureOverlay;
@@ -85,6 +84,7 @@ import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -691,7 +691,7 @@ public final class TransformerActivity extends AppCompatActivity {
       inputImageView.setVisibility(View.VISIBLE);
       inputTextView.setText(getString(R.string.input_image));
 
-      BitmapLoader bitmapLoader = new SimpleBitmapLoader();
+      BitmapLoader bitmapLoader = new DataSourceBitmapLoader(getApplicationContext());
       ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(uri);
       try {
         Bitmap bitmap = future.get();

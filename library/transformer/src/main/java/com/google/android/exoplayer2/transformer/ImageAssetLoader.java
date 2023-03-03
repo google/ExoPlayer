@@ -23,12 +23,13 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Looper;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.effect.SimpleBitmapLoader;
+import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableMap;
@@ -43,22 +44,30 @@ public final class ImageAssetLoader implements AssetLoader {
   /** An {@link AssetLoader.Factory} for {@link ImageAssetLoader} instances. */
   public static final class Factory implements AssetLoader.Factory {
 
+    private final Context context;
+
+    public Factory(Context context) {
+      this.context = context.getApplicationContext();
+    }
+
     @Override
     public AssetLoader createAssetLoader(
         EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
-      return new ImageAssetLoader(editedMediaItem, listener);
+      return new ImageAssetLoader(context, editedMediaItem, listener);
     }
   }
 
   public static final String MIME_TYPE_IMAGE_ALL = MimeTypes.BASE_TYPE_IMAGE + "/*";
 
+  private final Context context;
   private final EditedMediaItem editedMediaItem;
   private final Listener listener;
 
   private @Transformer.ProgressState int progressState;
   private int progress;
 
-  private ImageAssetLoader(EditedMediaItem editedMediaItem, Listener listener) {
+  private ImageAssetLoader(Context context, EditedMediaItem editedMediaItem, Listener listener) {
+    this.context = context;
     this.editedMediaItem = editedMediaItem;
     this.listener = listener;
 
@@ -69,7 +78,7 @@ public final class ImageAssetLoader implements AssetLoader {
   public void start() {
     progressState = PROGRESS_STATE_AVAILABLE;
     listener.onTrackCount(1);
-    BitmapLoader bitmapLoader = new SimpleBitmapLoader();
+    BitmapLoader bitmapLoader = new DataSourceBitmapLoader(context);
     MediaItem.LocalConfiguration localConfiguration =
         checkNotNull(editedMediaItem.mediaItem.localConfiguration);
     ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri);

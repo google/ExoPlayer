@@ -54,7 +54,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
       Codec.DecoderFactory decoderFactory,
       boolean forceInterpretHdrAsSdr,
       Clock clock) {
-    this.context = context;
+    this.context = context.getApplicationContext();
     this.decoderFactory = decoderFactory;
     this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     this.clock = clock;
@@ -80,7 +80,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
       boolean forceInterpretHdrAsSdr,
       Clock clock,
       MediaSource.Factory mediaSourceFactory) {
-    this.context = context;
+    this.context = context.getApplicationContext();
     this.decoderFactory = decoderFactory;
     this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     this.clock = clock;
@@ -93,7 +93,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     MediaItem mediaItem = editedMediaItem.mediaItem;
     if (isImage(mediaItem.localConfiguration)) {
       if (imageAssetLoaderFactory == null) {
-        imageAssetLoaderFactory = new ImageAssetLoader.Factory();
+        imageAssetLoaderFactory = new ImageAssetLoader.Factory(context);
       }
       return imageAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
     }
