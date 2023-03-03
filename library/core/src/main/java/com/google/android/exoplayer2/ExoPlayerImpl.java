@@ -1713,8 +1713,9 @@ import java.util.concurrent.TimeoutException;
   @Override
   public boolean isTunnelingEnabled() {
     verifyApplicationThread();
-    for (RendererConfiguration config : playbackInfo.trackSelectorResult.rendererConfigurations) {
-      if (config.tunneling) {
+    for (@Nullable
+    RendererConfiguration config : playbackInfo.trackSelectorResult.rendererConfigurations) {
+      if (config != null && config.tunneling) {
         return true;
       }
     }

@@ -794,11 +794,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public boolean exists() throws DatabaseIOException {
-      return VersionTable.getVersion(
-              databaseProvider.getReadableDatabase(),
-              VersionTable.FEATURE_CACHE_CONTENT_METADATA,
-              checkNotNull(hexUid))
-          != VersionTable.VERSION_UNSET;
+      try {
+        return VersionTable.getVersion(
+                databaseProvider.getReadableDatabase(),
+                VersionTable.FEATURE_CACHE_CONTENT_METADATA,
+                checkNotNull(hexUid))
+            != VersionTable.VERSION_UNSET;
+      } catch (SQLException e) {
+        throw new DatabaseIOException(e);
+      }
     }
 
     @Override

@@ -150,6 +150,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private long lastRenderRealtimeUs;
   private long totalVideoFrameProcessingOffsetUs;
   private int videoFrameProcessingOffsetCount;
+  private long lastFrameReleaseTimeNs;
 
   private int currentWidth;
   private int currentHeight;
@@ -1125,9 +1126,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
-        renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
+        if (adjustedReleaseTimeNs == lastFrameReleaseTimeNs) {
+          // This frame should be displayed on the same vsync with the previous released frame. We
+          // are likely rendering frames at a rate higher than the screen refresh rate. Skip
+          // this buffer so that it's returned to MediaCodec sooner otherwise MediaCodec may not
+          // be able to keep decoding with this rate [b/263454203].
+          skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        } else {
+          notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
+          renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
+        }
         updateVideoFrameProcessingOffsetCounters(earlyUs);
+        lastFrameReleaseTimeNs = adjustedReleaseTimeNs;
         return true;
       }
     } else {

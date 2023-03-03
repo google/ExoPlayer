@@ -87,7 +87,30 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    */
   public HlsDownloader(
       MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
-    this(mediaItem, new HlsPlaylistParser(), cacheDataSourceFactory, executor);
+    this(
+        mediaItem,
+        new HlsPlaylistParser(),
+        cacheDataSourceFactory,
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_MS);
+  }
+
+  /**
+   * @deprecated Use {@link HlsDownloader#HlsDownloader(MediaItem, Parser, CacheDataSource.Factory,
+   *     Executor, long)} instead.
+   */
+  @Deprecated
+  public HlsDownloader(
+      MediaItem mediaItem,
+      Parser<HlsPlaylist> manifestParser,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    this(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        DEFAULT_MAX_MERGED_SEGMENT_START_TIME_DIFF_MS);
   }
 
   /**
@@ -100,13 +123,22 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
    *     Providing an {@link Executor} that uses multiple threads will speed up the download by
    *     allowing parts of it to be executed in parallel.
+   * @param maxMergedSegmentStartTimeDiffMs The maximum difference of the start time of two
+   *     segments, up to which the segments (of the same URI) should be merged into a single
+   *     download segment, in milliseconds.
    */
   public HlsDownloader(
       MediaItem mediaItem,
       Parser<HlsPlaylist> manifestParser,
       CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    super(mediaItem, manifestParser, cacheDataSourceFactory, executor);
+      Executor executor,
+      long maxMergedSegmentStartTimeDiffMs) {
+    super(
+        mediaItem,
+        manifestParser,
+        cacheDataSourceFactory,
+        executor,
+        maxMergedSegmentStartTimeDiffMs);
   }
 
   @Override

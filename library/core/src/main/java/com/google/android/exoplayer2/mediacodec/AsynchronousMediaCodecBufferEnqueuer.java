@@ -162,7 +162,8 @@ class AsynchronousMediaCodecBufferEnqueuer {
     blockUntilHandlerThreadIsIdle();
   }
 
-  private void maybeThrowException() {
+  /** Throw any exception that occurred on the enqueuer's background queueing thread. */
+  public void maybeThrowException() {
     @Nullable RuntimeException exception = pendingRuntimeException.getAndSet(null);
     if (exception != null) {
       throw exception;

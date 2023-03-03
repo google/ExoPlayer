@@ -1,5 +1,46 @@
 # Release notes
 
+### 2.18.4 (2023-03-02)
+
+This release corresponds to the
+[AndroidX Media3 1.0.0-rc02 release](https://github.com/androidx/media/releases/tag/1.0.0-rc02).
+
+*   Core library:
+    *   Fix network type detection on API 33
+        ([#10970](https://github.com/google/ExoPlayer/issues/10970)).
+    *   Fix `NullPointerException` when calling `ExoPlayer.isTunnelingEnabled`
+        ([#10977](https://github.com/google/ExoPlayer/issues/10977)).
+*   Downloads:
+    *   Make the maximum difference of the start time of two segments to be
+        merged configurable in `SegmentDownloader` and subclasses
+        ([#248](https://github.com/androidx/media/pull/248)).
+*   Audio:
+    *   Fix broken gapless MP3 playback on Samsung devices
+        ([#8594](https://github.com/google/ExoPlayer/issues/8594)).
+    *   Fix bug where playback speeds set immediately after disabling audio may
+        be overridden by a previous speed change
+        ([#10882](https://github.com/google/ExoPlayer/issues/10882)).
+*   Video:
+    *   Map HEVC HDR10 format to `HEVCProfileMain10HDR10` instead of
+        `HEVCProfileMain10`.
+    *   Add workaround for a device issue on Chromecast with Google TV and
+        Lenovo M10 FHD Plus that causes 60fps AVC streams to be marked as
+        unsupported
+        ([#10898](https://github.com/google/ExoPlayer/issues/10898)).
+    *   Fix frame release performance issues when playing media with a frame
+        rate far higher than the screen refresh rate.
+*   Cast:
+    *   Fix transient `STATE_IDLE` when transitioning between media items
+        ([#245](https://github.com/androidx/media/issues/245)).
+*   RTSP:
+    *   Catch the IllegalArgumentException thrown in parsing of invalid RTSP
+        Describe response messages
+        ([#10971](https://github.com/google/ExoPlayer/issues/10971)).
+*   IMA extension:
+    *   Fix a bug which prevented DAI streams without any ads from starting
+        because the first (and in the case without ads the only) `LOADED` event
+        wasn't received.
+
 ### 2.18.3 (2023-02-16)
 
 This release corresponds to the

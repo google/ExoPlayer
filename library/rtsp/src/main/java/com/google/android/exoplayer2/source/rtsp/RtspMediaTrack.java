@@ -157,7 +157,8 @@ import com.google.common.collect.ImmutableMap;
    * @param sessionUri The {@link Uri} of the RTSP playback session.
    */
   public RtspMediaTrack(MediaDescription mediaDescription, Uri sessionUri) {
-    checkArgument(mediaDescription.attributes.containsKey(ATTR_CONTROL));
+    checkArgument(
+        mediaDescription.attributes.containsKey(ATTR_CONTROL), "missing attribute control");
     payloadFormat = generatePayloadFormat(mediaDescription);
     uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
   }
@@ -208,7 +209,7 @@ import com.google.common.collect.ImmutableMap;
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
         checkArgument(channelCount != C.INDEX_UNSET);
-        checkArgument(!fmtpParameters.isEmpty());
+        checkArgument(!fmtpParameters.isEmpty(), "missing attribute fmtp");
         if (mediaEncoding.equals(RtpPayloadFormat.RTP_MEDIA_MPEG4_LATM_AUDIO)) {
           // cpresent is defined in RFC3016 Section 5.3. cpresent=0 means the config fmtp parameter
           // must exist.
@@ -257,11 +258,11 @@ import com.google.common.collect.ImmutableMap;
         formatBuilder.setWidth(DEFAULT_H263_WIDTH).setHeight(DEFAULT_H263_HEIGHT);
         break;
       case MimeTypes.VIDEO_H264:
-        checkArgument(!fmtpParameters.isEmpty());
+        checkArgument(!fmtpParameters.isEmpty(), "missing attribute fmtp");
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
         break;
       case MimeTypes.VIDEO_H265:
-        checkArgument(!fmtpParameters.isEmpty());
+        checkArgument(!fmtpParameters.isEmpty(), "missing attribute fmtp");
         processH265FmtpAttribute(formatBuilder, fmtpParameters);
         break;
       case MimeTypes.VIDEO_VP8:
@@ -310,7 +311,8 @@ import com.google.common.collect.ImmutableMap;
       ImmutableMap<String, String> fmtpAttributes,
       int channelCount,
       int sampleRate) {
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_PROFILE_LEVEL_ID));
+    checkArgument(
+        fmtpAttributes.containsKey(PARAMETER_PROFILE_LEVEL_ID), "missing profile-level-id param");
     String profileLevel = checkNotNull(fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID));
     formatBuilder.setCodecs(AAC_CODECS_PREFIX + profileLevel);
     formatBuilder.setInitializationData(
@@ -378,10 +380,10 @@ import com.google.common.collect.ImmutableMap;
 
   private static void processH264FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_PARAMS));
+    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_PARAMS), "missing sprop parameter");
     String spropParameterSets = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_PARAMS));
     String[] parameterSets = Util.split(spropParameterSets, ",");
-    checkArgument(parameterSets.length == 2);
+    checkArgument(parameterSets.length == 2, "empty sprop value");
     ImmutableList<byte[]> initializationData =
         ImmutableList.of(
             getInitializationDataFromParameterSet(parameterSets[0]),
@@ -416,11 +418,14 @@ import com.google.common.collect.ImmutableMap;
           maxDonDiff == 0, "non-zero sprop-max-don-diff " + maxDonDiff + " is not supported");
     }
 
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_H265_SPROP_VPS));
+    checkArgument(
+        fmtpAttributes.containsKey(PARAMETER_H265_SPROP_VPS), "missing sprop-vps parameter");
     String spropVPS = checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_VPS));
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_H265_SPROP_SPS));
+    checkArgument(
+        fmtpAttributes.containsKey(PARAMETER_H265_SPROP_SPS), "missing sprop-sps parameter");
     String spropSPS = checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_SPS));
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_H265_SPROP_PPS));
+    checkArgument(
+        fmtpAttributes.containsKey(PARAMETER_H265_SPROP_PPS), "missing sprop-pps parameter");
     String spropPPS = checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_PPS));
     ImmutableList<byte[]> initializationData =
         ImmutableList.of(

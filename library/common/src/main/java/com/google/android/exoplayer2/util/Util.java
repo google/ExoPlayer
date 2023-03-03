@@ -203,6 +203,10 @@ public final class Util {
    * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
    * #SDK_INT} is 33 or above.
    *
+   * <p>Do not use this method if registering a receiver for a <a
+   * href="https://android.googlesource.com/platform/frameworks/base/+/master/core/res/AndroidManifest.xml">protected
+   * system broadcast</a>.
+   *
    * @param context The context on which {@link Context#registerReceiver} will be called.
    * @param receiver The {@link BroadcastReceiver} to register. This value may be null.
    * @param filter Selects the Intent broadcasts to be received.
@@ -215,32 +219,6 @@ public final class Util {
       return context.registerReceiver(receiver, filter);
     } else {
       return context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
-    }
-  }
-
-  /**
-   * Registers a {@link BroadcastReceiver} that's not intended to receive broadcasts from other
-   * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
-   * #SDK_INT} is 33 or above.
-   *
-   * @param context The context on which {@link Context#registerReceiver} will be called.
-   * @param receiver The {@link BroadcastReceiver} to register. This value may be null.
-   * @param filter Selects the Intent broadcasts to be received.
-   * @param handler Handler identifying the thread that will receive the Intent.
-   * @return The first sticky intent found that matches {@code filter}, or null if there are none.
-   */
-  @Nullable
-  public static Intent registerReceiverNotExported(
-      Context context, BroadcastReceiver receiver, IntentFilter filter, Handler handler) {
-    if (SDK_INT < 33) {
-      return context.registerReceiver(receiver, filter, /* broadcastPermission= */ null, handler);
-    } else {
-      return context.registerReceiver(
-          receiver,
-          filter,
-          /* broadcastPermission= */ null,
-          handler,
-          Context.RECEIVER_NOT_EXPORTED);
     }
   }
 

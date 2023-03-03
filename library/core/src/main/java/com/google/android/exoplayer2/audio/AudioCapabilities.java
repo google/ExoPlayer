@@ -86,8 +86,8 @@ public final class AudioCapabilities {
   @SuppressWarnings("InlinedApi")
   public static AudioCapabilities getCapabilities(Context context) {
     Intent intent =
-        Util.registerReceiverNotExported(
-            context, /* receiver= */ null, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
+        context.registerReceiver(
+            /* receiver= */ null, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
     return getCapabilities(context, intent);
   }
 

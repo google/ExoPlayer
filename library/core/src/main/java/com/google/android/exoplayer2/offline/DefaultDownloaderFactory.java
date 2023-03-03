@@ -103,7 +103,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
       return constructor.newInstance(mediaItem, cacheDataSourceFactory, executor);
     } catch (Exception e) {
       throw new IllegalStateException(
-          "Failed to instantiate downloader for content type " + contentType);
+          "Failed to instantiate downloader for content type " + contentType, e);
     }
   }
 

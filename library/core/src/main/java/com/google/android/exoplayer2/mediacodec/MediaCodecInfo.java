@@ -855,7 +855,7 @@ public final class MediaCodecInfo {
    * @param name The name of the codec.
    * @return Whether to enable the workaround.
    */
-  private static final boolean needsRotatedVerticalResolutionWorkaround(String name) {
+  private static boolean needsRotatedVerticalResolutionWorkaround(String name) {
     if ("OMX.MTK.VIDEO.DECODER.HEVC".equals(name) && "mcv5a".equals(Util.DEVICE)) {
       // See https://github.com/google/ExoPlayer/issues/6612.
       return false;
@@ -872,6 +872,17 @@ public final class MediaCodecInfo {
     return MimeTypes.VIDEO_H265.equals(mimeType)
         && CodecProfileLevel.HEVCProfileMain10 == profile
         && ("sailfish".equals(Util.DEVICE) || "marlin".equals(Util.DEVICE));
+  }
+
+  /** Whether the device is known to have wrong {@link PerformancePoint} declarations. */
+  private static boolean needsIgnorePerformancePointsWorkaround() {
+    // See https://github.com/google/ExoPlayer/issues/10898 and [internal ref: b/267324685].
+    return /* Chromecast with Google TV */ Util.DEVICE.equals("sabrina")
+        || Util.DEVICE.equals("boreal")
+        /* Lenovo Tablet M10 FHD Plus */
+        || Util.MODEL.startsWith("Lenovo TB-X605")
+        || Util.MODEL.startsWith("Lenovo TB-X606")
+        || Util.MODEL.startsWith("Lenovo TB-X616");
   }
 
   /** Possible outcomes of evaluating PerformancePoint coverage */
@@ -898,7 +909,9 @@ public final class MediaCodecInfo {
         VideoCapabilities videoCapabilities, int width, int height, double frameRate) {
       List<PerformancePoint> performancePointList =
           videoCapabilities.getSupportedPerformancePoints();
-      if (performancePointList == null || performancePointList.isEmpty()) {
+      if (performancePointList == null
+          || performancePointList.isEmpty()
+          || needsIgnorePerformancePointsWorkaround()) {
         return COVERAGE_RESULT_NO_EMPTY_LIST;
       }
 

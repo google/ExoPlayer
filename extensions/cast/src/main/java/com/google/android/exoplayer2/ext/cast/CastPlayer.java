@@ -1235,6 +1235,7 @@ public final class CastPlayer extends BasePlayer {
     int receiverAppStatus = remoteMediaClient.getPlayerState();
     switch (receiverAppStatus) {
       case MediaStatus.PLAYER_STATE_BUFFERING:
+      case MediaStatus.PLAYER_STATE_LOADING:
         return STATE_BUFFERING;
       case MediaStatus.PLAYER_STATE_PLAYING:
       case MediaStatus.PLAYER_STATE_PAUSED:
@@ -1297,6 +1298,7 @@ public final class CastPlayer extends BasePlayer {
     return false;
   }
 
+  @SuppressWarnings("VisibleForTests")
   private static int getCastRepeatMode(@RepeatMode int repeatMode) {
     switch (repeatMode) {
       case REPEAT_MODE_ONE:

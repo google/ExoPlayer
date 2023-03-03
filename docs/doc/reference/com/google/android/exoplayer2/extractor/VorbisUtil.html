@@ -277,15 +277,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>iLog</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;iLog&#8203;(int&nbsp;x)</pre>
-<div class="block">Returns ilog(x), which is the index of the highest set bit in <code>x</code>.</div>
+<div class="block">Returns ilog(x), which is the index of the highest set bit in <code>x</code>.
+
+ <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis
+ spec</a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>x</code> - the value of which the ilog should be calculated.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>ilog(x)</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis
-     spec</a></dd>
 </dl>
 </li>
 </ul>
@@ -297,7 +297,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>readVorbisIdentificationHeader</h4>
 <pre class="methodSignature">public static&nbsp;<a href="VorbisUtil.VorbisIdHeader.html" title="class in com.google.android.exoplayer2.extractor">VorbisUtil.VorbisIdHeader</a>&nbsp;readVorbisIdentificationHeader&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;headerData)
                                                                 throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
-<div class="block">Reads a Vorbis identification header from <code>headerData</code>.</div>
+<div class="block">Reads a Vorbis identification header from <code>headerData</code>.
+
+ <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
+ spec/Identification header</a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>headerData</code> - a <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> wrapping the header data.</dd>
@@ -305,9 +308,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>a <a href="VorbisUtil.VorbisIdHeader.html" title="class in com.google.android.exoplayer2.extractor"><code>VorbisUtil.VorbisIdHeader</code></a> with meta data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - thrown if invalid capture pattern is detected.</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
-     spec/Identification header</a></dd>
 </dl>
 </li>
 </ul>
@@ -319,7 +319,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>readVorbisCommentHeader</h4>
 <pre class="methodSignature">public static&nbsp;<a href="VorbisUtil.CommentHeader.html" title="class in com.google.android.exoplayer2.extractor">VorbisUtil.CommentHeader</a>&nbsp;readVorbisCommentHeader&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;headerData)
                                                         throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
-<div class="block">Reads a Vorbis comment header.</div>
+<div class="block">Reads a Vorbis comment header.
+
+ <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
+ spec/Comment header</a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>headerData</code> - A <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> wrapping the header data.</dd>
@@ -327,9 +330,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>A <a href="VorbisUtil.CommentHeader.html" title="class in com.google.android.exoplayer2.extractor"><code>VorbisUtil.CommentHeader</code></a> with all the comments.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If an error occurs parsing the comment header.</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
-     spec/Comment header</a></dd>
 </dl>
 </li>
 </ul>
@@ -345,7 +345,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                                         throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">Reads a Vorbis comment header.
 
- <p>The data provided may not contain the Vorbis metadata common header and the framing bit.</div>
+ <p>The data provided may not contain the Vorbis metadata common header and the framing bit.
+
+ <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
+ spec/Comment header</a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>headerData</code> - A <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> wrapping the header data.</dd>
@@ -356,9 +359,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>A <a href="VorbisUtil.CommentHeader.html" title="class in com.google.android.exoplayer2.extractor"><code>VorbisUtil.CommentHeader</code></a> with all the comments.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If an error occurs parsing the comment header.</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
-     spec/Comment header</a></dd>
 </dl>
 </li>
 </ul>
@@ -417,7 +417,10 @@ public static&nbsp;<a href="../metadata/Metadata.html" title="class in com.googl
                                          throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">This method reads the modes which are located at the very end of the Vorbis setup header.
  That's why we need to partially decode or at least read the entire setup header to know where
- to start reading the modes.</div>
+ to start reading the modes.
+
+ <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-650004.2.4">Vorbis
+ spec/Setup header</a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>headerData</code> - a <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> containing setup header data.</dd>
@@ -426,9 +429,6 @@ public static&nbsp;<a href="../metadata/Metadata.html" title="class in com.googl
 <dd>an array of <a href="VorbisUtil.Mode.html" title="class in com.google.android.exoplayer2.extractor"><code>VorbisUtil.Mode</code></a>s.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - thrown if bit stream is invalid.</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-650004.2.4">Vorbis
-     spec/Setup header</a></dd>
 </dl>
 </li>
 </ul>

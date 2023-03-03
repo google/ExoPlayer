@@ -552,11 +552,10 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       StreamManagerLoadable streamManagerLoadable =
           new StreamManagerLoadable(
               sdkAdsLoader,
-              adsLoader.configuration,
+              /* imaServerSideAdInsertionMediaSource= */ this,
               streamRequest,
               streamPlayer,
-              applicationAdErrorListener,
-              loadVideoTimeoutMs);
+              applicationAdErrorListener);
       loader.startLoading(
           streamManagerLoadable,
           new StreamManagerLoadableCallback(),
@@ -631,7 +630,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       }
       this.streamManager.removeAdEventListener(componentListener);
       this.streamManager.destroy();
-      this.streamManager = null;
     }
     this.streamManager = streamManager;
     if (streamManager != null) {
@@ -642,6 +640,12 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       if (applicationAdErrorListener != null) {
         streamManager.addAdErrorListener(applicationAdErrorListener);
       }
+      AdsRenderingSettings adsRenderingSettings =
+          ImaSdkFactory.getInstance().createAdsRenderingSettings();
+      adsRenderingSettings.setLoadVideoTimeout(loadVideoTimeoutMs);
+      adsRenderingSettings.setFocusSkipButtonWhenAvailable(
+          adsLoader.configuration.focusSkipButtonWhenAvailable);
+      streamManager.init(adsRenderingSettings);
     }
   }
 
@@ -950,7 +954,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     @Override
     public void onLoadCompleted(
         StreamManagerLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
-      mainHandler.post(() -> setStreamManager(checkNotNull(loadable.getStreamManager())));
       setContentUri(checkNotNull(loadable.getContentUri()));
     }
 
@@ -981,14 +984,12 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       implements Loadable, AdsLoadedListener, AdErrorListener {
 
     private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
-    private final ServerSideAdInsertionConfiguration serverSideAdInsertionConfiguration;
+    private final ImaServerSideAdInsertionMediaSource imaServerSideAdInsertionMediaSource;
     private final StreamRequest request;
     private final StreamPlayer streamPlayer;
     @Nullable private final AdErrorListener adErrorListener;
-    private final int loadVideoTimeoutMs;
     private final ConditionVariable conditionVariable;
 
-    @Nullable private volatile StreamManager streamManager;
     @Nullable private volatile Uri contentUri;
     private volatile boolean cancelled;
     private volatile boolean error;
@@ -998,17 +999,15 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     /** Creates an instance. */
     private StreamManagerLoadable(
         com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader,
-        ServerSideAdInsertionConfiguration serverSideAdInsertionConfiguration,
+        ImaServerSideAdInsertionMediaSource imaServerSideAdInsertionMediaSource,
         StreamRequest request,
         StreamPlayer streamPlayer,
-        @Nullable AdErrorListener adErrorListener,
-        int loadVideoTimeoutMs) {
+        @Nullable AdErrorListener adErrorListener) {
       this.adsLoader = adsLoader;
-      this.serverSideAdInsertionConfiguration = serverSideAdInsertionConfiguration;
+      this.imaServerSideAdInsertionMediaSource = imaServerSideAdInsertionMediaSource;
       this.request = request;
       this.streamPlayer = streamPlayer;
       this.adErrorListener = adErrorListener;
-      this.loadVideoTimeoutMs = loadVideoTimeoutMs;
       conditionVariable = new ConditionVariable();
       errorCode = -1;
     }
@@ -1017,12 +1016,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     @Nullable
     public Uri getContentUri() {
       return contentUri;
-    }
-
-    /** Returns the stream manager or null if not yet loaded. */
-    @Nullable
-    public StreamManager getStreamManager() {
-      return streamManager;
     }
 
     // Implement Loadable.
@@ -1078,14 +1071,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         conditionVariable.open();
         return;
       }
-      AdsRenderingSettings adsRenderingSettings =
-          ImaSdkFactory.getInstance().createAdsRenderingSettings();
-      adsRenderingSettings.setLoadVideoTimeout(loadVideoTimeoutMs);
-      adsRenderingSettings.setFocusSkipButtonWhenAvailable(
-          serverSideAdInsertionConfiguration.focusSkipButtonWhenAvailable);
-      // After initialization completed the streamUri will be reported to the streamPlayer.
-      streamManager.init(adsRenderingSettings);
-      this.streamManager = streamManager;
+      imaServerSideAdInsertionMediaSource.setStreamManager(streamManager);
     }
 
     // AdErrorEvent.AdErrorListener implementation.
