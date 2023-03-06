@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
@@ -79,7 +80,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
-  private final Queue<Pair<TextureInfo, Long>> availableFrames;
+  private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
 
   private int inputWidth;
   private int inputHeight;
@@ -176,7 +177,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Methods that must be called on the GL thread.
 
   @Override
-  public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     long streamOffsetUs =
         checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
     long offsetPresentationTimeUs = presentationTimeUs + streamOffsetUs;
@@ -192,14 +193,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void releaseOutputFrame(TextureInfo outputTexture) {
+  public void releaseOutputFrame(GlTextureInfo outputTexture) {
     // The final shader program writes to a surface so there is no texture to release.
     throw new UnsupportedOperationException();
   }
 
   public void releaseOutputFrame(long releaseTimeNs) {
     checkState(!releaseFramesAutomatically);
-    Pair<TextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
+    Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
     renderFrameToSurfaces(
         /* inputTexture= */ oldestAvailableFrame.first,
         /* presentationTimeUs= */ oldestAvailableFrame.second,
@@ -272,7 +273,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void renderFrameToSurfaces(
-      TextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
+      GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
     try {
       maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
@@ -286,7 +287,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private synchronized void maybeRenderFrameToOutputSurface(
-      TextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs)
+      GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs)
       throws VideoFrameProcessingException, GlUtil.GlException {
     if (releaseTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
         || !ensureConfigured(inputTexture.width, inputTexture.height)) {
@@ -436,7 +437,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return defaultShaderProgram;
   }
 
-  private void maybeRenderFrameToDebugSurface(TextureInfo inputTexture, long presentationTimeUs) {
+  private void maybeRenderFrameToDebugSurface(GlTextureInfo inputTexture, long presentationTimeUs) {
     if (debugSurfaceViewWrapper == null || this.defaultShaderProgram == null) {
       return;
     }

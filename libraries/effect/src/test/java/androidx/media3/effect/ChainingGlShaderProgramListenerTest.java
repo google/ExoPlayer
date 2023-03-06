@@ -18,6 +18,8 @@ package androidx.media3.effect;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import androidx.media3.common.C;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -51,8 +53,13 @@ public final class ChainingGlShaderProgramListenerTest {
   @Test
   public void onInputFrameProcessed_surrendersFrameToPreviousGlShaderProgram()
       throws InterruptedException {
-    TextureInfo texture =
-        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
+    GlTextureInfo texture =
+        new GlTextureInfo(
+            /* texId= */ 1,
+            /* fboId= */ 1,
+            /* rboId= */ C.INDEX_UNSET,
+            /* width= */ 100,
+            /* height= */ 100);
 
     chainingGlShaderProgramListener.onInputFrameProcessed(texture);
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
@@ -63,8 +70,13 @@ public final class ChainingGlShaderProgramListenerTest {
   @Test
   public void onOutputFrameAvailable_afterAcceptsInputFrame_passesFrameToNextGlShaderProgram()
       throws InterruptedException {
-    TextureInfo texture =
-        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
+    GlTextureInfo texture =
+        new GlTextureInfo(
+            /* texId= */ 1,
+            /* fboId= */ 1,
+            /* rboId= */ C.INDEX_UNSET,
+            /* width= */ 100,
+            /* height= */ 100);
     long presentationTimeUs = 123;
 
     chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
@@ -77,8 +89,13 @@ public final class ChainingGlShaderProgramListenerTest {
   @Test
   public void onOutputFrameAvailable_beforeAcceptsInputFrame_passesFrameToNextGlShaderProgram()
       throws InterruptedException {
-    TextureInfo texture =
-        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
+    GlTextureInfo texture =
+        new GlTextureInfo(
+            /* texId= */ 1,
+            /* fboId= */ 1,
+            /* rboId= */ C.INDEX_UNSET,
+            /* width= */ 100,
+            /* height= */ 100);
     long presentationTimeUs = 123;
 
     chainingGlShaderProgramListener.onOutputFrameAvailable(texture, presentationTimeUs);
@@ -91,11 +108,21 @@ public final class ChainingGlShaderProgramListenerTest {
   @Test
   public void onOutputFrameAvailable_twoFrames_passesFirstBeforeSecondToNextGlShaderProgram()
       throws InterruptedException {
-    TextureInfo firstTexture =
-        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
+    GlTextureInfo firstTexture =
+        new GlTextureInfo(
+            /* texId= */ 1,
+            /* fboId= */ 1,
+            /* rboId= */ C.INDEX_UNSET,
+            /* width= */ 100,
+            /* height= */ 100);
     long firstPresentationTimeUs = 123;
-    TextureInfo secondTexture =
-        new TextureInfo(/* texId= */ 2, /* fboId= */ 2, /* width= */ 100, /* height= */ 100);
+    GlTextureInfo secondTexture =
+        new GlTextureInfo(
+            /* texId= */ 2,
+            /* fboId= */ 2,
+            /* rboId= */ C.INDEX_UNSET,
+            /* width= */ 100,
+            /* height= */ 100);
     long secondPresentationTimeUs = 567;
 
     chainingGlShaderProgramListener.onOutputFrameAvailable(firstTexture, firstPresentationTimeUs);

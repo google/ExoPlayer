@@ -24,11 +24,11 @@ import android.content.Context;
 import android.opengl.EGL14;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.LibraryLoader;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.GlShaderProgram;
-import androidx.media3.effect.TextureInfo;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.framework.AppTextureFrame;
@@ -68,7 +68,7 @@ import java.util.concurrent.Future;
   }
 
   private final FrameProcessor frameProcessor;
-  private final ConcurrentHashMap<TextureInfo, TextureFrame> outputFrames;
+  private final ConcurrentHashMap<GlTextureInfo, TextureFrame> outputFrames;
   private final boolean isSingleFrameGraph;
   @Nullable private final ExecutorService singleThreadExecutorService;
   private final Queue<Future<?>> futures;
@@ -137,10 +137,11 @@ import java.util.concurrent.Future;
     this.outputListener = outputListener;
     frameProcessor.setConsumer(
         frame -> {
-          TextureInfo texture =
-              new TextureInfo(
+          GlTextureInfo texture =
+              new GlTextureInfo(
                   frame.getTextureName(),
                   /* fboId= */ C.INDEX_UNSET,
+                  /* rboId= */ C.INDEX_UNSET,
                   frame.getWidth(),
                   frame.getHeight());
           outputFrames.put(texture, frame);
@@ -159,7 +160,7 @@ import java.util.concurrent.Future;
   }
 
   @Override
-  public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     AppTextureFrame appTextureFrame =
         new AppTextureFrame(inputTexture.texId, inputTexture.width, inputTexture.height);
     // TODO(b/238302213): Handle timestamps restarting from 0 when applying effects to a playlist.
@@ -183,7 +184,7 @@ import java.util.concurrent.Future;
   }
 
   private boolean maybeQueueInputFrameSynchronous(
-      AppTextureFrame appTextureFrame, TextureInfo inputTexture) {
+      AppTextureFrame appTextureFrame, GlTextureInfo inputTexture) {
     acceptedFrame = false;
     frameProcessor.onNewFrame(appTextureFrame);
     try {
@@ -200,7 +201,7 @@ import java.util.concurrent.Future;
   }
 
   private void queueInputFrameAsynchronous(
-      AppTextureFrame appTextureFrame, TextureInfo inputTexture) {
+      AppTextureFrame appTextureFrame, GlTextureInfo inputTexture) {
     removeFinishedFutures();
     futures.add(
         checkStateNotNull(singleThreadExecutorService)
@@ -222,7 +223,7 @@ import java.util.concurrent.Future;
   }
 
   @Override
-  public void releaseOutputFrame(TextureInfo outputTexture) {
+  public void releaseOutputFrame(GlTextureInfo outputTexture) {
     checkStateNotNull(outputFrames.get(outputTexture)).release();
     if (isSingleFrameGraph) {
       inputListener.onReadyToAcceptInputFrame();

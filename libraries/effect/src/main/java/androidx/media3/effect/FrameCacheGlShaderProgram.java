@@ -19,6 +19,8 @@ import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import androidx.media3.common.C;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
@@ -31,7 +33,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
 /**
- * Manages a pool of {@linkplain TextureInfo textures}, and caches the input frame.
+ * Manages a pool of {@linkplain GlTextureInfo textures}, and caches the input frame.
  *
  * <p>Implements {@link FrameCache}.
  */
@@ -41,8 +43,8 @@ import java.util.concurrent.Executor;
   private static final String FRAGMENT_SHADER_TRANSFORMATION_ES2_PATH =
       "shaders/fragment_shader_transformation_es2.glsl";
 
-  private final ArrayDeque<TextureInfo> freeOutputTextures;
-  private final ArrayDeque<TextureInfo> inUseOutputTextures;
+  private final ArrayDeque<GlTextureInfo> freeOutputTextures;
+  private final ArrayDeque<GlTextureInfo> inUseOutputTextures;
   private final GlProgram copyProgram;
   private final int capacity;
   private final boolean useHdr;
@@ -112,12 +114,12 @@ import java.util.concurrent.Executor;
   }
 
   @Override
-  public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     try {
       configureAllOutputTextures(inputTexture.width, inputTexture.height);
 
       // Focus on the next free buffer.
-      TextureInfo outputTexture = freeOutputTextures.remove();
+      GlTextureInfo outputTexture = freeOutputTextures.remove();
       inUseOutputTextures.add(outputTexture);
 
       // Copy frame to fbo.
@@ -144,7 +146,7 @@ import java.util.concurrent.Executor;
   }
 
   @Override
-  public void releaseOutputFrame(TextureInfo outputTexture) {
+  public void releaseOutputFrame(GlTextureInfo outputTexture) {
     checkState(inUseOutputTextures.contains(outputTexture));
     inUseOutputTextures.remove(outputTexture);
     freeOutputTextures.add(outputTexture);
@@ -177,13 +179,13 @@ import java.util.concurrent.Executor;
 
   private void configureAllOutputTextures(int inputWidth, int inputHeight)
       throws GlUtil.GlException {
-    Iterator<TextureInfo> allTextures = getIteratorToAllTextures();
+    Iterator<GlTextureInfo> allTextures = getIteratorToAllTextures();
     if (!allTextures.hasNext()) {
       createAllOutputTextures(inputWidth, inputHeight);
       return;
     }
-    TextureInfo outputTextureInfo = allTextures.next();
-    if (outputTextureInfo.width != inputWidth || outputTextureInfo.height != inputHeight) {
+    GlTextureInfo outputGlTextureInfo = allTextures.next();
+    if (outputGlTextureInfo.width != inputWidth || outputGlTextureInfo.height != inputHeight) {
       deleteAllOutputTextures();
       createAllOutputTextures(inputWidth, inputHeight);
     }
@@ -195,15 +197,16 @@ import java.util.concurrent.Executor;
     for (int i = 0; i < capacity; i++) {
       int outputTexId = GlUtil.createTexture(width, height, useHdr);
       int outputFboId = GlUtil.createFboForTexture(outputTexId);
-      TextureInfo outputTexture = new TextureInfo(outputTexId, outputFboId, width, height);
+      GlTextureInfo outputTexture =
+          new GlTextureInfo(outputTexId, outputFboId, /* rboId= */ C.INDEX_UNSET, width, height);
       freeOutputTextures.add(outputTexture);
     }
   }
 
   private void deleteAllOutputTextures() throws GlUtil.GlException {
-    Iterator<TextureInfo> allTextures = getIteratorToAllTextures();
+    Iterator<GlTextureInfo> allTextures = getIteratorToAllTextures();
     while (allTextures.hasNext()) {
-      TextureInfo textureInfo = allTextures.next();
+      GlTextureInfo textureInfo = allTextures.next();
       GlUtil.deleteTexture(textureInfo.texId);
       GlUtil.deleteFbo(textureInfo.fboId);
     }
@@ -211,7 +214,7 @@ import java.util.concurrent.Executor;
     inUseOutputTextures.clear();
   }
 
-  private Iterator<TextureInfo> getIteratorToAllTextures() {
+  private Iterator<GlTextureInfo> getIteratorToAllTextures() {
     return Iterables.concat(freeOutputTextures, inUseOutputTextures).iterator();
   }
 }

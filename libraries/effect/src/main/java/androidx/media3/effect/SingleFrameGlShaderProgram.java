@@ -18,6 +18,8 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import androidx.annotation.CallSuper;
+import androidx.media3.common.C;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -48,7 +50,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   private Executor errorListenerExecutor;
   private int inputWidth;
   private int inputHeight;
-  private @MonotonicNonNull TextureInfo outputTexture;
+  private @MonotonicNonNull GlTextureInfo outputTexture;
   private boolean outputTextureInUse;
 
   /**
@@ -116,7 +118,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
-  public final void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+  public final void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     checkState(
         !outputTextureInUse,
         "The shader program does not currently accept input frames. Release prior output frames"
@@ -161,12 +163,17 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
       int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight(), useHdr);
       int outputFboId = GlUtil.createFboForTexture(outputTexId);
       outputTexture =
-          new TextureInfo(outputTexId, outputFboId, outputSize.getWidth(), outputSize.getHeight());
+          new GlTextureInfo(
+              outputTexId,
+              outputFboId,
+              /* rboId= */ C.INDEX_UNSET,
+              outputSize.getWidth(),
+              outputSize.getHeight());
     }
   }
 
   @Override
-  public final void releaseOutputFrame(TextureInfo outputTexture) {
+  public final void releaseOutputFrame(GlTextureInfo outputTexture) {
     outputTextureInUse = false;
     inputListener.onReadyToAcceptInputFrame();
   }

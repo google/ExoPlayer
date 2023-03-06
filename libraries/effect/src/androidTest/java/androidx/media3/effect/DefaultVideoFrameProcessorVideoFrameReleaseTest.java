@@ -24,9 +24,11 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
@@ -373,7 +375,7 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
   /** Produces blank frames with the given timestamps. */
   private static final class BlankFrameProducer implements GlShaderProgram {
 
-    private @MonotonicNonNull TextureInfo blankTexture;
+    private @MonotonicNonNull GlTextureInfo blankTexture;
     private @MonotonicNonNull OutputListener outputListener;
 
     public void configureGlObjects() throws VideoFrameProcessingException {
@@ -381,7 +383,7 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
         int texId =
             GlUtil.createTexture(WIDTH, HEIGHT, /* useHighPrecisionColorComponents= */ false);
         int fboId = GlUtil.createFboForTexture(texId);
-        blankTexture = new TextureInfo(texId, fboId, WIDTH, HEIGHT);
+        blankTexture = new GlTextureInfo(texId, fboId, /* rboId= */ C.INDEX_UNSET, WIDTH, HEIGHT);
         GlUtil.focusFramebufferUsingCurrentContext(fboId, WIDTH, HEIGHT);
         GlUtil.clearOutputFrame();
       } catch (GlUtil.GlException e) {
@@ -409,13 +411,13 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
     public void setErrorListener(Executor executor, ErrorListener errorListener) {}
 
     @Override
-    public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+    public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
       // No input is queued in these tests. The BlankFrameProducer is used to produce frames.
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void releaseOutputFrame(TextureInfo outputTexture) {}
+    public void releaseOutputFrame(GlTextureInfo outputTexture) {}
 
     @Override
     public void signalEndOfCurrentInputStream() {
