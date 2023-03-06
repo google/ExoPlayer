@@ -22,12 +22,10 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,7 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowSystemClock;
 
-/** Unit tests for {@link ExoPlayerAssetLoader}. */
+/** Unit tests for {@link ImageAssetLoader}. */
 @RunWith(AndroidJUnit4.class)
 public class ImageAssetLoaderTest {
 
@@ -55,6 +53,7 @@ public class ImageAssetLoaderTest {
 
           @Override
           public void onDurationUs(long durationUs) {
+            // Sleep to increase the chances of the test failing.
             sleep();
             isDurationSet = true;
           }
@@ -72,7 +71,10 @@ public class ImageAssetLoaderTest {
               @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
               long streamStartPositionUs,
               long streamOffsetUs) {
-            if (!isTrackCountSet) {
+            if (!isDurationSet) {
+              exceptionRef.set(
+                  new IllegalStateException("onTrackAdded() called before onDurationUs()"));
+            } else if (!isTrackCountSet) {
               exceptionRef.set(
                   new IllegalStateException("onTrackAdded() called before onTrackCount()"));
             }
@@ -83,11 +85,7 @@ public class ImageAssetLoaderTest {
 
           @Override
           public SampleConsumer onOutputFormat(Format format) {
-
-            if (!isDurationSet) {
-              exceptionRef.set(
-                  new IllegalStateException("onTrackAdded() called before onDurationUs()"));
-            } else if (!isTrackAdded) {
+            if (!isTrackAdded) {
               exceptionRef.set(
                   new IllegalStateException("onOutputFormat() called before onTrackAdded()"));
             }
@@ -100,7 +98,7 @@ public class ImageAssetLoaderTest {
             exceptionRef.set(e);
           }
 
-          void sleep() {
+          private void sleep() {
             try {
               Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -133,15 +131,6 @@ public class ImageAssetLoaderTest {
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {
-
-    @Nullable
-    @Override
-    public DecoderInputBuffer getInputBuffer() {
-      return null;
-    }
-
-    @Override
-    public void queueInputBuffer() {}
 
     @Override
     public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {}
