@@ -53,6 +53,9 @@ public final class AndroidTestUtil {
    */
   public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
+  public static final String PNG_ASSET_URI_STRING =
+      "asset:///media/bitmap/input_images/media3test.png";
+
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final Format MP4_ASSET_FORMAT =
       new Format.Builder()
