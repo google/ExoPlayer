@@ -21,6 +21,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.os.Looper;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableMap;
@@ -114,17 +115,21 @@ public interface AssetLoader {
      * Called when the {@link Format} of samples that will be output by the {@link AssetLoader} is
      * known.
      *
-     * <p>Must be called once per {@linkplain #onTrackCount declared} track, and only after that
-     * track has been {@link #onTrackAdded added}.
+     * <p>Must be called after the corresponding track has been {@link #onTrackAdded added}.
+     *
+     * <p>For each {@link #onTrackAdded added} track, this method must be called regularly until the
+     * returned {@link SampleConsumer} is non-null.
      *
      * <p>Must be called from the thread that will be used to call the returned {@link
      * SampleConsumer}'s methods. This thread must be the same for all formats output, and is
      * generally different from the one used to access the {@link AssetLoader} methods.
      *
      * @param format The {@link Format} of samples that will be output.
-     * @return The {@link SampleConsumer} of samples of the given {@link Format}.
+     * @return The {@link SampleConsumer} of samples of the given {@link Format}, or {@code null} if
+     *     it could not be retrieved yet.
      * @throws ExportException If an error occurs configuring the {@link SampleConsumer}.
      */
+    @Nullable
     SampleConsumer onOutputFormat(Format format) throws ExportException;
 
     /**

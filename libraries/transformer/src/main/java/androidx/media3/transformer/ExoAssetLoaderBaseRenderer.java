@@ -46,6 +46,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected @MonotonicNonNull Codec decoder;
   protected boolean isEnded;
   private @MonotonicNonNull Format inputFormat;
+  private @MonotonicNonNull Format outputFormat;
 
   private final TransformerMediaClock mediaClock;
   private final AssetLoader.Listener assetLoaderListener;
@@ -244,19 +245,26 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
 
-    if (decoder != null
-        && getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO) {
-      @Nullable Format decoderOutputFormat = decoder.getOutputFormat();
-      if (decoderOutputFormat == null) {
-        return false;
+    if (outputFormat == null) {
+      if (decoder != null
+          && getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO) {
+        @Nullable Format decoderOutputFormat = decoder.getOutputFormat();
+        if (decoderOutputFormat == null) {
+          return false;
+        }
+        outputFormat = decoderOutputFormat;
+      } else {
+        // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and
+        // get decoderOutput Format before init sampleConsumer.
+        outputFormat = inputFormat;
       }
-      sampleConsumer = assetLoaderListener.onOutputFormat(decoderOutputFormat);
-    } else {
-      // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and get
-      // decoderOutput Format before init sampleConsumer.
-      sampleConsumer = assetLoaderListener.onOutputFormat(inputFormat);
     }
 
+    SampleConsumer sampleConsumer = assetLoaderListener.onOutputFormat(outputFormat);
+    if (sampleConsumer == null) {
+      return false;
+    }
+    this.sampleConsumer = sampleConsumer;
     return true;
   }
 
