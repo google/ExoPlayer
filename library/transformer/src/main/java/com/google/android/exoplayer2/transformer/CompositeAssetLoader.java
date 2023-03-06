@@ -235,25 +235,31 @@ import java.util.concurrent.atomic.AtomicInteger;
     return decodeOutput;
   }
 
+  @Nullable
   @Override
   public SampleConsumer onOutputFormat(Format format) throws ExportException {
     @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
     SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
-      sampleConsumer =
-          new SampleConsumerWrapper(compositeAssetLoaderListener.onOutputFormat(format));
+      @Nullable
+      SampleConsumer wrappedSampleConsumer = compositeAssetLoaderListener.onOutputFormat(format);
+      if (wrappedSampleConsumer == null) {
+        return null;
+      }
+      sampleConsumer = new SampleConsumerWrapper(wrappedSampleConsumer);
       sampleConsumersByTrackType.put(trackType, sampleConsumer);
 
       if (forceAudioTrack && nonEndedTracks.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
-        sampleConsumersByTrackType.put(
-            C.TRACK_TYPE_AUDIO,
-            new SampleConsumerWrapper(
+        SampleConsumer wrappedAudioSampleConsumer =
+            checkStateNotNull(
                 compositeAssetLoaderListener.onOutputFormat(
                     FORCE_AUDIO_TRACK_FORMAT
                         .buildUpon()
                         .setSampleMimeType(MimeTypes.AUDIO_RAW)
                         .setPcmEncoding(C.ENCODING_PCM_16BIT)
-                        .build())));
+                        .build()));
+        sampleConsumersByTrackType.put(
+            C.TRACK_TYPE_AUDIO, new SampleConsumerWrapper(wrappedAudioSampleConsumer));
       }
     } else {
       // TODO(b/270533049): Remove the check below when implementing blank video frames generation.

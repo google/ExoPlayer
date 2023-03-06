@@ -22,14 +22,18 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +41,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /** An {@link AssetLoader} implementation that loads images into {@link Bitmap} instances. */
 public final class ImageAssetLoader implements AssetLoader {
@@ -59,26 +65,36 @@ public final class ImageAssetLoader implements AssetLoader {
 
   public static final String MIME_TYPE_IMAGE_ALL = MimeTypes.BASE_TYPE_IMAGE + "/*";
 
-  private final Context context;
+  private static final int QUEUE_BITMAP_INTERVAL_MS = 10;
+
   private final EditedMediaItem editedMediaItem;
+  private final DataSource.Factory dataSourceFactory;
   private final Listener listener;
+  private final ScheduledExecutorService scheduledExecutorService;
 
   private @Transformer.ProgressState int progressState;
-  private int progress;
+
+  private volatile int progress;
 
   private ImageAssetLoader(Context context, EditedMediaItem editedMediaItem, Listener listener) {
-    this.context = context;
+    checkState(editedMediaItem.durationUs != C.TIME_UNSET);
+    checkState(editedMediaItem.frameRate != C.RATE_UNSET_INT);
     this.editedMediaItem = editedMediaItem;
+    dataSourceFactory = new DefaultDataSource.Factory(context);
     this.listener = listener;
-
+    scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     progressState = PROGRESS_STATE_NOT_STARTED;
   }
 
   @Override
+  @SuppressWarnings("FutureReturnValueIgnored")
   public void start() {
     progressState = PROGRESS_STATE_AVAILABLE;
+    listener.onDurationUs(editedMediaItem.durationUs);
     listener.onTrackCount(1);
-    BitmapLoader bitmapLoader = new DataSourceBitmapLoader(context);
+    BitmapLoader bitmapLoader =
+        new DataSourceBitmapLoader(
+            MoreExecutors.listeningDecorator(scheduledExecutorService), dataSourceFactory);
     MediaItem.LocalConfiguration localConfiguration =
         checkNotNull(editedMediaItem.mediaItem.localConfiguration);
     ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri);
@@ -100,21 +116,10 @@ public final class ImageAssetLoader implements AssetLoader {
                   SUPPORTED_OUTPUT_TYPE_DECODED,
                   /* streamStartPositionUs= */ 0,
                   /* streamOffsetUs= */ 0);
-              SampleConsumer sampleConsumer = listener.onOutputFormat(format);
-
-              checkState(editedMediaItem.durationUs != C.TIME_UNSET);
-              checkState(editedMediaItem.frameRate != C.RATE_UNSET_INT);
-              // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change
-              //    callback (when it's added) rather than setting duration here.
-              sampleConsumer.queueInputBitmap(
-                  bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate);
-              sampleConsumer.signalEndOfVideoInput();
-            } catch (ExportException e) {
-              listener.onError(e);
+              scheduledExecutorService.submit(() -> queueBitmapInternal(bitmap, format));
             } catch (RuntimeException e) {
               listener.onError(ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
             }
-            progress = 100;
           }
 
           @Override
@@ -122,7 +127,7 @@ public final class ImageAssetLoader implements AssetLoader {
             listener.onError(ExportException.createForAssetLoader(t, ERROR_CODE_IO_UNSPECIFIED));
           }
         },
-        MoreExecutors.directExecutor());
+        scheduledExecutorService);
   }
 
   @Override
@@ -141,5 +146,28 @@ public final class ImageAssetLoader implements AssetLoader {
   @Override
   public void release() {
     progressState = PROGRESS_STATE_NOT_STARTED;
+    scheduledExecutorService.shutdownNow();
+  }
+
+  @SuppressWarnings("FutureReturnValueIgnored")
+  private void queueBitmapInternal(Bitmap bitmap, Format format) {
+    try {
+      @Nullable SampleConsumer sampleConsumer = listener.onOutputFormat(format);
+      if (sampleConsumer == null) {
+        scheduledExecutorService.schedule(
+            () -> queueBitmapInternal(bitmap, format), QUEUE_BITMAP_INTERVAL_MS, MILLISECONDS);
+        return;
+      }
+      // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change
+      //    callback rather than setting duration here.
+      sampleConsumer.queueInputBitmap(
+          bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate);
+      sampleConsumer.signalEndOfVideoInput();
+      progress = 100;
+    } catch (ExportException e) {
+      listener.onError(e);
+    } catch (RuntimeException e) {
+      listener.onError(ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
+    }
   }
 }

@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -99,8 +100,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final List<CompositeAssetLoader> compositeAssetLoaders;
-  private final AtomicInteger totalInputTrackCount;
-  private final AtomicInteger unreportedInputTrackCounts;
+  private final AtomicInteger trackCountsToReport;
+  private final AtomicInteger tracksToAdd;
+  private final AtomicBoolean outputHasAudio;
+  private final AtomicBoolean outputHasVideo;
   private final List<SamplePipeline> samplePipelines;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
@@ -153,8 +156,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               compositeAssetLoaderListener,
               clock));
     }
-    totalInputTrackCount = new AtomicInteger();
-    unreportedInputTrackCounts = new AtomicInteger(composition.sequences.size());
+    trackCountsToReport = new AtomicInteger(composition.sequences.size());
+    tracksToAdd = new AtomicInteger();
+    outputHasAudio = new AtomicBoolean();
+    outputHasVideo = new AtomicBoolean();
     samplePipelines = new ArrayList<>();
     transformerConditionVariable = new ConditionVariable();
     exportResultBuilder = new ExportResult.Builder();
@@ -435,12 +440,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
         return;
       }
-      totalInputTrackCount.addAndGet(trackCount);
-      unreportedInputTrackCounts.decrementAndGet();
-      if (unreportedInputTrackCounts.get() == 0) {
-        muxerWrapper.setTrackCount(totalInputTrackCount.get());
-        fallbackListener.setTrackCount(totalInputTrackCount.get());
-      }
+      trackCountsToReport.decrementAndGet();
+      tracksToAdd.addAndGet(trackCount);
     }
 
     @Override
@@ -449,21 +450,38 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
         long streamStartPositionUs,
         long streamOffsetUs) {
+      @C.TrackType
+      int trackType = getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType);
       AddedTrackInfo trackInfo =
           new AddedTrackInfo(
               firstAssetLoaderInputFormat,
               supportedOutputTypes,
               streamStartPositionUs,
               streamOffsetUs);
+      addedTrackInfoByTrackType.put(trackType, trackInfo);
 
-      addedTrackInfoByTrackType.put(
-          getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType), trackInfo);
+      if (trackType == C.TRACK_TYPE_AUDIO) {
+        outputHasAudio.set(true);
+      } else {
+        outputHasVideo.set(true);
+      }
+      if (trackCountsToReport.get() == 0 && tracksToAdd.get() == 1) {
+        int outputTrackCount = (outputHasAudio.get() ? 1 : 0) + (outputHasVideo.get() ? 1 : 0);
+        muxerWrapper.setTrackCount(outputTrackCount);
+        fallbackListener.setTrackCount(outputTrackCount);
+      }
+      tracksToAdd.decrementAndGet();
 
       return trackInfo.shouldTranscode;
     }
 
+    @Nullable
     @Override
     public SampleConsumer onOutputFormat(Format assetLoaderOutputFormat) throws ExportException {
+      if (trackCountsToReport.get() > 0 || tracksToAdd.get() > 0) {
+        return null;
+      }
+
       @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
       AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
       SamplePipeline samplePipeline = getSamplePipeline(assetLoaderOutputFormat, trackInfo);
