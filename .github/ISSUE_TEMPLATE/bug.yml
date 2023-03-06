@@ -5,12 +5,20 @@ body:
   - type: markdown
     attributes:
       value: |
-        We can only process bug reports that are actionable. Unclear bug reports or reports with insufficient information may not get attention.
+        We can only process bug reports that are actionable. Unclear bug reports or reports with
+        insufficient information may not get attention.
+
+        Please only file a bug here if you're using classes in the `com.google.android.exoplayer2`
+        package. If you're using classes in the `androidx.media3` package (including
+        `com.google.android.exoplayer2`), please file a bug on the AndroidX Media GitHub issue tracker
+        instead: https://github.com/androidx/media/issues/new/choose
 
         Before filing a bug:
         -------------------------
 
-        - Search existing issues, including issues that are closed: https://github.com/google/ExoPlayer/issues?q=is%3Aissue
+        - Search existing issues, including issues that are closed
+            - On this tracker: https://github.com/google/ExoPlayer/issues?q=is%3Aissue
+            - On the AndroidX Media tracker: https://github.com/androidx/media/issues?q=is%3Aissue
         - Consult our developer website: https://exoplayer.dev/
         - Check the supported formats: https://exoplayer.dev/supported-formats.html
   - type: dropdown
