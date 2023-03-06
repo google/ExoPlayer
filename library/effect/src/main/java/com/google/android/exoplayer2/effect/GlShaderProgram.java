@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.util.concurrent.Executor;
 
@@ -22,14 +23,14 @@ import java.util.concurrent.Executor;
  * Processes frames from one OpenGL 2D texture to another.
  *
  * <p>The {@code GlShaderProgram} consumes input frames it accepts via {@link
- * #queueInputFrame(TextureInfo, long)} and surrenders each texture back to the caller via its
- * {@linkplain InputListener#onInputFrameProcessed(TextureInfo) listener} once the texture's
+ * #queueInputFrame(GlTextureInfo, long)} and surrenders each texture back to the caller via its
+ * {@linkplain InputListener#onInputFrameProcessed(GlTextureInfo) listener} once the texture's
  * contents have been processed.
  *
  * <p>The {@code GlShaderProgram} produces output frames asynchronously and notifies its owner when
- * they are available via its {@linkplain OutputListener#onOutputFrameAvailable(TextureInfo, long)
+ * they are available via its {@linkplain OutputListener#onOutputFrameAvailable(GlTextureInfo, long)
  * listener}. The {@code GlShaderProgram} instance's owner must surrender the texture back to the
- * {@code GlShaderProgram} via {@link #releaseOutputFrame(TextureInfo)} when it has finished
+ * {@code GlShaderProgram} via {@link #releaseOutputFrame(GlTextureInfo)} when it has finished
  * processing it.
  *
  * <p>{@code GlShaderProgram} implementations can choose to produce output frames before receiving
@@ -53,7 +54,7 @@ public interface GlShaderProgram {
     /**
      * Called when the {@link GlShaderProgram} is ready to accept another input frame.
      *
-     * <p>For each time this method is called, {@link #queueInputFrame(TextureInfo, long)} can be
+     * <p>For each time this method is called, {@link #queueInputFrame(GlTextureInfo, long)} can be
      * called once.
      */
     default void onReadyToAcceptInputFrame() {}
@@ -64,10 +65,10 @@ public interface GlShaderProgram {
      * <p>The implementation shall not assume the {@link GlShaderProgram} is {@linkplain
      * #onReadyToAcceptInputFrame ready to accept another input frame} when this method is called.
      *
-     * @param inputTexture The {@link TextureInfo} that was used to {@linkplain
-     *     #queueInputFrame(TextureInfo, long) queue} the input frame.
+     * @param inputTexture The {@link GlTextureInfo} that was used to {@linkplain
+     *     #queueInputFrame(GlTextureInfo, long) queue} the input frame.
      */
-    default void onInputFrameProcessed(TextureInfo inputTexture) {}
+    default void onInputFrameProcessed(GlTextureInfo inputTexture) {}
 
     /**
      * Called when the {@link GlShaderProgram} has been flushed.
@@ -88,15 +89,15 @@ public interface GlShaderProgram {
      * Called when the {@link GlShaderProgram} has produced an output frame.
      *
      * <p>After the listener's owner has processed the output frame, it must call {@link
-     * #releaseOutputFrame(TextureInfo)}. The output frame should be released as soon as possible,
+     * #releaseOutputFrame(GlTextureInfo)}. The output frame should be released as soon as possible,
      * as there is no guarantee that the {@link GlShaderProgram} will produce further output frames
      * before this output frame is released.
      *
-     * @param outputTexture A {@link TextureInfo} describing the texture containing the output
+     * @param outputTexture A {@link GlTextureInfo} describing the texture containing the output
      *     frame.
      * @param presentationTimeUs The presentation timestamp of the output frame, in microseconds.
      */
-    default void onOutputFrameAvailable(TextureInfo outputTexture, long presentationTimeUs) {}
+    default void onOutputFrameAvailable(GlTextureInfo outputTexture, long presentationTimeUs) {}
 
     /**
      * Called when the {@link GlShaderProgram} will not produce further output frames belonging to
@@ -149,22 +150,22 @@ public interface GlShaderProgram {
    * Processes an input frame if possible.
    *
    * <p>The {@code GlShaderProgram} owns the accepted frame until it calls {@link
-   * InputListener#onInputFrameProcessed(TextureInfo)}. The caller should not overwrite or release
+   * InputListener#onInputFrameProcessed(GlTextureInfo)}. The caller should not overwrite or release
    * the texture before the {@code GlShaderProgram} has finished processing it.
    *
    * <p>This method must only be called when the {@code GlShaderProgram} can {@linkplain
    * InputListener#onReadyToAcceptInputFrame() accept an input frame}.
    *
-   * @param inputTexture A {@link TextureInfo} describing the texture containing the input frame.
+   * @param inputTexture A {@link GlTextureInfo} describing the texture containing the input frame.
    * @param presentationTimeUs The presentation timestamp of the input frame, in microseconds.
    */
-  void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs);
+  void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs);
 
   /**
    * Notifies the {@code GlShaderProgram} that the frame on the given output texture is no longer
    * used and can be overwritten.
    */
-  void releaseOutputFrame(TextureInfo outputTexture);
+  void releaseOutputFrame(GlTextureInfo outputTexture);
 
   /**
    * Notifies the {@code GlShaderProgram} that no further input frames belonging to the current

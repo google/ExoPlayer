@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -126,7 +127,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public void onInputFrameProcessed(TextureInfo inputTexture) {
+  public void onInputFrameProcessed(GlTextureInfo inputTexture) {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           currentFrame = null;
@@ -234,8 +235,12 @@ import java.util.concurrent.atomic.AtomicInteger;
     // Correct the presentation time so that GlShaderPrograms don't see the stream offset.
     long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs - streamOffsetUs;
     externalShaderProgram.queueInputFrame(
-        new TextureInfo(
-            externalTexId, /* fboId= */ C.INDEX_UNSET, currentFrame.width, currentFrame.height),
+        new GlTextureInfo(
+            externalTexId,
+            /* fboId= */ C.INDEX_UNSET,
+            /* rboId= */ C.INDEX_UNSET,
+            currentFrame.width,
+            currentFrame.height),
         presentationTimeUs);
     checkStateNotNull(pendingFrames.remove());
 

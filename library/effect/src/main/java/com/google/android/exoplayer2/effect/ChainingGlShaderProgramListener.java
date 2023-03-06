@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener;
+import com.google.android.exoplayer2.util.GlTextureInfo;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -38,7 +39,7 @@ import java.util.Queue;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
   @GuardedBy("this")
-  private final Queue<Pair<TextureInfo, Long>> availableFrames;
+  private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
 
   @GuardedBy("this")
   private int consumingGlShaderProgramInputCapacity;
@@ -67,7 +68,7 @@ import java.util.Queue;
 
   @Override
   public synchronized void onReadyToAcceptInputFrame() {
-    @Nullable Pair<TextureInfo, Long> pendingFrame = availableFrames.poll();
+    @Nullable Pair<GlTextureInfo, Long> pendingFrame = availableFrames.poll();
     if (pendingFrame == null) {
       consumingGlShaderProgramInputCapacity++;
       return;
@@ -86,7 +87,7 @@ import java.util.Queue;
   }
 
   @Override
-  public void onInputFrameProcessed(TextureInfo inputTexture) {
+  public void onInputFrameProcessed(GlTextureInfo inputTexture) {
     videoFrameProcessingTaskExecutor.submit(
         () -> producingGlShaderProgram.releaseOutputFrame(inputTexture));
   }
@@ -100,7 +101,7 @@ import java.util.Queue;
 
   @Override
   public synchronized void onOutputFrameAvailable(
-      TextureInfo outputTexture, long presentationTimeUs) {
+      GlTextureInfo outputTexture, long presentationTimeUs) {
     if (consumingGlShaderProgramInputCapacity > 0) {
       videoFrameProcessingTaskExecutor.submit(
           () ->
@@ -115,7 +116,7 @@ import java.util.Queue;
   @Override
   public synchronized void onCurrentOutputStreamEnded() {
     if (!availableFrames.isEmpty()) {
-      availableFrames.add(new Pair<>(TextureInfo.UNSET, C.TIME_END_OF_SOURCE));
+      availableFrames.add(new Pair<>(GlTextureInfo.UNSET, C.TIME_END_OF_SOURCE));
     } else {
       videoFrameProcessingTaskExecutor.submit(
           consumingGlShaderProgram::signalEndOfCurrentInputStream);

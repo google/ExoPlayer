@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -41,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
 
-  private @MonotonicNonNull TextureInfo currentTextureInfo;
+  private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
   private int framesToQueueForCurrentBitmap;
   private long currentPresentationTimeUs;
@@ -124,8 +125,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       framesToQueueForCurrentBitmap = currentBitmapInfo.numberOfFrames;
       int currentTexId;
       try {
-        if (currentTextureInfo != null) {
-          GlUtil.deleteTexture(currentTextureInfo.texId);
+        if (currentGlTextureInfo != null) {
+          GlUtil.deleteTexture(currentGlTextureInfo.texId);
         }
         currentTexId =
             GlUtil.createTexture(
@@ -138,15 +139,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } catch (GlUtil.GlException e) {
         throw VideoFrameProcessingException.from(e);
       }
-      currentTextureInfo =
-          new TextureInfo(
-              currentTexId, /* fboId= */ C.INDEX_UNSET, bitmap.getWidth(), bitmap.getHeight());
+      currentGlTextureInfo =
+          new GlTextureInfo(
+              currentTexId,
+              /* fboId= */ C.INDEX_UNSET,
+              /* rboId= */ C.INDEX_UNSET,
+              bitmap.getWidth(),
+              bitmap.getHeight());
     }
 
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
 
-    shaderProgram.queueInputFrame(checkNotNull(currentTextureInfo), currentPresentationTimeUs);
+    shaderProgram.queueInputFrame(checkNotNull(currentGlTextureInfo), currentPresentationTimeUs);
 
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
     if (framesToQueueForCurrentBitmap == 0) {

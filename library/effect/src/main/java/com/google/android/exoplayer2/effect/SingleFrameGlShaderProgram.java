@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.CallSuper;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -46,7 +48,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   private Executor errorListenerExecutor;
   private int inputWidth;
   private int inputHeight;
-  private @MonotonicNonNull TextureInfo outputTexture;
+  private @MonotonicNonNull GlTextureInfo outputTexture;
   private boolean outputTextureInUse;
 
   /**
@@ -114,7 +116,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
-  public final void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+  public final void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     checkState(
         !outputTextureInUse,
         "The shader program does not currently accept input frames. Release prior output frames"
@@ -159,12 +161,17 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
       int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight(), useHdr);
       int outputFboId = GlUtil.createFboForTexture(outputTexId);
       outputTexture =
-          new TextureInfo(outputTexId, outputFboId, outputSize.getWidth(), outputSize.getHeight());
+          new GlTextureInfo(
+              outputTexId,
+              outputFboId,
+              /* rboId= */ C.INDEX_UNSET,
+              outputSize.getWidth(),
+              outputSize.getHeight());
     }
   }
 
   @Override
-  public final void releaseOutputFrame(TextureInfo outputTexture) {
+  public final void releaseOutputFrame(GlTextureInfo outputTexture) {
     outputTextureInUse = false;
     inputListener.onReadyToAcceptInputFrame();
   }
