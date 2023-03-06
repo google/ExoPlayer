@@ -15,7 +15,8 @@ Before filing a question:
 - Ask general Android development questions on Stack Overflow
 - Search existing issues, including issues that are closed
   https://github.com/androidx/media/issues?q=is%3Aissue
-- For ExoPlayer-related questions, please also check the ExoPlayer tracker:
+- For ExoPlayer-related questions, please also check for existing questions on
+  the ExoPlayer tracker:
   https://github.com/google/ExoPlayer/issues?q=is%3Aissue
 
 When filing a question:
