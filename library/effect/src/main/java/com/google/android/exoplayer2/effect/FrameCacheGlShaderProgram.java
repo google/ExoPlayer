@@ -205,6 +205,7 @@ import java.util.concurrent.Executor;
     while (allTextures.hasNext()) {
       TextureInfo textureInfo = allTextures.next();
       GlUtil.deleteTexture(textureInfo.texId);
+      GlUtil.deleteFbo(textureInfo.fboId);
     }
     freeOutputTextures.clear();
     inUseOutputTextures.clear();

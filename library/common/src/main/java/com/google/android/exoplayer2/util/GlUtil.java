@@ -644,6 +644,14 @@ public final class GlUtil {
     return fboId[0];
   }
 
+  /** Deletes a framebuffer. */
+  public static void deleteFbo(int fboId) throws GlException {
+    int[] fboIdArray = new int[1];
+    fboIdArray[0] = fboId;
+    GLES20.glDeleteFramebuffers(/* n= */ 1, fboIdArray, /* offset= */ 0);
+    checkGlError();
+  }
+
   /**
    * Throws a {@link GlException} with the given message if {@code expression} evaluates to {@code
    * false}.

@@ -154,6 +154,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
         || outputSize.getHeight() != outputTexture.height) {
       if (outputTexture != null) {
         GlUtil.deleteTexture(outputTexture.texId);
+        GlUtil.deleteFbo(outputTexture.fboId);
       }
       int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight(), useHdr);
       int outputFboId = GlUtil.createFboForTexture(outputTexId);
@@ -187,6 +188,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
     if (outputTexture != null) {
       try {
         GlUtil.deleteTexture(outputTexture.texId);
+        GlUtil.deleteFbo(outputTexture.fboId);
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }
