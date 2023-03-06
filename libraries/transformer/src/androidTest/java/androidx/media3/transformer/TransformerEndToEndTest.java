@@ -17,11 +17,13 @@ package androidx.media3.transformer;
 
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 import android.net.Uri;
+import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
@@ -40,6 +42,53 @@ import org.junit.runner.RunWith;
 public class TransformerEndToEndTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
+
+  @Test
+  public void videoEditing_withImageInput_completesWithCorrectFrameCountAndDuration()
+      throws Exception {
+    String testId = "videoEditing_withImageInput_completesWithCorrectFrameCountAndDuration";
+    Transformer transformer = new Transformer.Builder(context).build();
+    ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    int expectedFrameCount = 40;
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(PNG_ASSET_URI_STRING))
+            .setDurationUs(C.MICROS_PER_SECOND)
+            .setFrameRate(expectedFrameCount)
+            .setEffects(effects)
+            .build();
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
+    // Expected timestamp of the last frame.
+    assertThat(result.exportResult.durationMs)
+        .isEqualTo((C.MILLIS_PER_SECOND / expectedFrameCount) * (expectedFrameCount - 1));
+  }
+
+  @Test
+  public void videoTranscoding_withImageInput_completesWithCorrectFrameCountAndDuration()
+      throws Exception {
+    String testId = "videoTranscoding_withImageInput_completesWithCorrectFrameCountAndDuration";
+    Transformer transformer = new Transformer.Builder(context).build();
+    int expectedFrameCount = 40;
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(PNG_ASSET_URI_STRING))
+            .setDurationUs(C.MICROS_PER_SECOND)
+            .setFrameRate(expectedFrameCount)
+            .build();
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
+    // Expected timestamp of the last frame.
+    assertThat(result.exportResult.durationMs)
+        .isEqualTo((C.MILLIS_PER_SECOND / expectedFrameCount) * (expectedFrameCount - 1));
+  }
 
   @Test
   public void videoEditing_completesWithConsistentFrameCount() throws Exception {

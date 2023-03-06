@@ -253,22 +253,4 @@ public class ExportTest {
         .build()
         .run(testId, editedMediaItem);
   }
-
-  @Test
-  public void exportImage() throws Exception {
-    // TODO(b/262693274): consider removing this test when Robolectric tests have been added for
-    //  image input.
-    String testId = TAG + "_exportImage";
-    Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder(context).build();
-    String imageUri = "https://storage.googleapis.com/exoplayer-test-media-1/jpg/london.jpg";
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(imageUri))
-            .setDurationUs(1_000_000)
-            .setFrameRate(30)
-            .build();
-    new TransformerAndroidTestRunner.Builder(context, transformer)
-        .build()
-        .run(testId, editedMediaItem);
-  }
 }
