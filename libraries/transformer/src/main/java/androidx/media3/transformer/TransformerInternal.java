@@ -99,7 +99,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Clock clock;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
-  private final List<CompositeAssetLoader> compositeAssetLoaders;
+  private final List<SequenceAssetLoader> sequenceAssetLoaders;
   private final AtomicInteger trackCountsToReport;
   private final AtomicInteger tracksToAdd;
   private final AtomicBoolean outputHasAudio;
@@ -137,23 +137,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.clock = clock;
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
-    compositeAssetLoaders = new ArrayList<>();
+    sequenceAssetLoaders = new ArrayList<>();
     Looper internalLooper = internalHandlerThread.getLooper();
     for (int i = 0; i < composition.sequences.size(); i++) {
-      CompositeAssetLoaderListener compositeAssetLoaderListener =
-          new CompositeAssetLoaderListener(
+      SequenceAssetLoaderListener sequenceAssetLoaderListener =
+          new SequenceAssetLoaderListener(
               /* sequenceIndex= */ i,
               composition,
               transformationRequest,
               fallbackListener,
               debugViewProvider);
-      compositeAssetLoaders.add(
-          new CompositeAssetLoader(
+      sequenceAssetLoaders.add(
+          new SequenceAssetLoader(
               composition.sequences.get(i),
               composition.forceAudioTrack,
               assetLoaderFactory,
               internalLooper,
-              compositeAssetLoaderListener,
+              sequenceAssetLoaderListener,
               clock));
     }
     trackCountsToReport = new AtomicInteger(composition.sequences.size());
@@ -286,8 +286,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void startInternal() {
-    for (int i = 0; i < compositeAssetLoaders.size(); i++) {
-      compositeAssetLoaders.get(i).start();
+    for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
+      sequenceAssetLoaders.get(i).start();
     }
   }
 
@@ -312,8 +312,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void endInternal(@EndReason int endReason, @Nullable ExportException exportException) {
     ImmutableList.Builder<ExportResult.ProcessedInput> processedInputsBuilder =
         new ImmutableList.Builder<>();
-    for (int i = 0; i < compositeAssetLoaders.size(); i++) {
-      processedInputsBuilder.addAll(compositeAssetLoaders.get(i).getProcessedInputs());
+    for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
+      processedInputsBuilder.addAll(sequenceAssetLoaders.get(i).getProcessedInputs());
     }
     exportResultBuilder
         .setProcessedInputs(processedInputsBuilder.build())
@@ -324,9 +324,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable ExportException releaseExportException = null;
     if (!released) {
       released = true;
-      for (int i = 0; i < compositeAssetLoaders.size(); i++) {
+      for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
         try {
-          compositeAssetLoaders.get(i).release();
+          sequenceAssetLoaders.get(i).release();
         } catch (RuntimeException e) {
           if (releaseExportException == null) {
             releaseExportException = ExportException.createForUnexpected(e);
@@ -391,19 +391,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void updateProgressInternal(ProgressHolder progressHolder) {
     int progressSum = 0;
     ProgressHolder individualProgressHolder = new ProgressHolder();
-    for (int i = 0; i < compositeAssetLoaders.size(); i++) {
-      progressState = compositeAssetLoaders.get(i).getProgress(individualProgressHolder);
+    for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
+      progressState = sequenceAssetLoaders.get(i).getProgress(individualProgressHolder);
       if (progressState != PROGRESS_STATE_AVAILABLE) {
         transformerConditionVariable.open();
         return;
       }
       progressSum += individualProgressHolder.progress;
     }
-    progressHolder.progress = progressSum / compositeAssetLoaders.size();
+    progressHolder.progress = progressSum / sequenceAssetLoaders.size();
     transformerConditionVariable.open();
   }
 
-  private final class CompositeAssetLoaderListener implements AssetLoader.Listener {
+  private final class SequenceAssetLoaderListener implements AssetLoader.Listener {
 
     private final int sequenceIndex;
     private final ImmutableList<EditedMediaItem> editedMediaItems;
@@ -413,7 +413,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final DebugViewProvider debugViewProvider;
     private final Map<Integer, AddedTrackInfo> addedTrackInfoByTrackType;
 
-    public CompositeAssetLoaderListener(
+    public SequenceAssetLoaderListener(
         int sequenceIndex,
         Composition composition,
         TransformationRequest transformationRequest,
@@ -486,7 +486,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
       SamplePipeline samplePipeline = getSamplePipeline(assetLoaderOutputFormat, trackInfo);
 
-      compositeAssetLoaders
+      sequenceAssetLoaders
           .get(sequenceIndex)
           .addOnMediaItemChangedListener(samplePipeline, trackType);
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
