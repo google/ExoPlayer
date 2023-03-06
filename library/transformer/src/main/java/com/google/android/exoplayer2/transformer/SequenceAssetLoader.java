@@ -44,10 +44,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * An {@link AssetLoader} that is composed of a sequence of non-overlapping {@linkplain AssetLoader
- * asset loaders}.
+ * An {@link AssetLoader} that is composed of a {@linkplain EditedMediaItemSequence sequence} of
+ * non-overlapping {@linkplain AssetLoader asset loaders}.
  */
-/* package */ final class CompositeAssetLoader implements AssetLoader, AssetLoader.Listener {
+/* package */ final class SequenceAssetLoader implements AssetLoader, AssetLoader.Listener {
 
   private static final Format FORCE_AUDIO_TRACK_FORMAT =
       new Format.Builder()
@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean forceAudioTrack;
   private final AssetLoader.Factory assetLoaderFactory;
   private final HandlerWrapper handler;
-  private final Listener compositeAssetLoaderListener;
+  private final Listener sequenceAssetLoaderListener;
   /**
    * A mapping from track types to {@link SampleConsumer} instances.
    *
@@ -88,7 +88,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private volatile long currentDurationUs;
 
-  public CompositeAssetLoader(
+  public SequenceAssetLoader(
       EditedMediaItemSequence sequence,
       boolean forceAudioTrack,
       AssetLoader.Factory assetLoaderFactory,
@@ -98,7 +98,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     editedMediaItems = sequence.editedMediaItems;
     this.forceAudioTrack = forceAudioTrack;
     this.assetLoaderFactory = assetLoaderFactory;
-    compositeAssetLoaderListener = listener;
+    sequenceAssetLoaderListener = listener;
     currentMediaItemIndex = new AtomicInteger();
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
@@ -182,9 +182,9 @@ import java.util.concurrent.atomic.AtomicInteger;
             + ". An unset duration is only allowed for the last EditedMediaItem in the sequence.");
     currentDurationUs = durationUs;
     if (editedMediaItems.size() == 1) {
-      compositeAssetLoaderListener.onDurationUs(durationUs);
+      sequenceAssetLoaderListener.onDurationUs(durationUs);
     } else if (currentMediaItemIndex == 0) {
-      compositeAssetLoaderListener.onDurationUs(C.TIME_UNSET);
+      sequenceAssetLoaderListener.onDurationUs(C.TIME_UNSET);
     }
   }
 
@@ -210,12 +210,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     if (!trackCountReported) {
       int trackCount = nonEndedTracks.get() + (addForcedAudioTrack ? 1 : 0);
-      compositeAssetLoaderListener.onTrackCount(trackCount);
+      sequenceAssetLoaderListener.onTrackCount(trackCount);
       trackCountReported = true;
     }
 
     boolean decodeOutput =
-        compositeAssetLoaderListener.onTrackAdded(
+        sequenceAssetLoaderListener.onTrackAdded(
             inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
 
     if (isAudio) {
@@ -225,7 +225,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     if (addForcedAudioTrack) {
-      compositeAssetLoaderListener.onTrackAdded(
+      sequenceAssetLoaderListener.onTrackAdded(
           FORCE_AUDIO_TRACK_FORMAT,
           SUPPORTED_OUTPUT_TYPE_DECODED,
           streamStartPositionUs,
@@ -242,7 +242,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     SampleConsumer sampleConsumer;
     if (currentMediaItemIndex.get() == 0) {
       @Nullable
-      SampleConsumer wrappedSampleConsumer = compositeAssetLoaderListener.onOutputFormat(format);
+      SampleConsumer wrappedSampleConsumer = sequenceAssetLoaderListener.onOutputFormat(format);
       if (wrappedSampleConsumer == null) {
         return null;
       }
@@ -252,7 +252,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (forceAudioTrack && nonEndedTracks.get() == 1 && trackType == C.TRACK_TYPE_VIDEO) {
         SampleConsumer wrappedAudioSampleConsumer =
             checkStateNotNull(
-                compositeAssetLoaderListener.onOutputFormat(
+                sequenceAssetLoaderListener.onOutputFormat(
                     FORCE_AUDIO_TRACK_FORMAT
                         .buildUpon()
                         .setSampleMimeType(MimeTypes.AUDIO_RAW)
@@ -289,7 +289,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void onError(ExportException exportException) {
-    compositeAssetLoaderListener.onError(exportException);
+    sequenceAssetLoaderListener.onError(exportException);
   }
 
   private void onMediaItemChanged(int trackType, @Nullable Format format) {
@@ -402,7 +402,7 @@ import java.util.concurrent.atomic.AtomicInteger;
                 assetLoaderFactory.createAssetLoader(
                     editedMediaItem,
                     checkNotNull(Looper.myLooper()),
-                    /* listener= */ CompositeAssetLoader.this);
+                    /* listener= */ SequenceAssetLoader.this);
             currentAssetLoader.start();
           });
     }
