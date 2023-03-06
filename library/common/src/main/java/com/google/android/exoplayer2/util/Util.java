@@ -201,6 +201,23 @@ public final class Util {
   }
 
   /**
+   * Converts an array of 32-bit integers into an equivalent byte array.
+   *
+   * <p>Each integer is converted into 4 sequential bytes.
+   */
+  public static byte[] toByteArray(int... values) {
+    byte[] array = new byte[values.length * 4];
+    int index = 0;
+    for (int value : values) {
+      array[index++] = (byte) (value >> 24);
+      array[index++] = (byte) (value >> 16);
+      array[index++] = (byte) (value >> 8);
+      array[index++] = (byte) (value /* >> 0 */);
+    }
+    return array;
+  }
+
+  /**
    * Registers a {@link BroadcastReceiver} that's not intended to receive broadcasts from other
    * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
    * #SDK_INT} is 33 or above.
