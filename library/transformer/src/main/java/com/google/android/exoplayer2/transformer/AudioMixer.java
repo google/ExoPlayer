@@ -46,7 +46,7 @@ import java.nio.ByteBuffer;
  * <p><b>Operation:</b> The mixer must be {@linkplain #configure configured} before any methods are
  * called. Once configured, sources can queue audio data via {@link #queueInput} and the mixer will
  * consume input audio up to the configured buffer size and end time. Once all sources have produced
- * data for a period then {@link getOutput()} will return the mixed result. The cycle repeats until
+ * data for a period then {@link #getOutput()} will return the mixed result. The cycle repeats until
  * the mixer {@link #isEnded()}.
  */
 public interface AudioMixer {
@@ -59,12 +59,12 @@ public interface AudioMixer {
    * Configures the mixer.
    *
    * <p>The mixer must be configured before use and can only be reconfigured after a call to {@link
-   * reset()}.
+   * #reset()}.
    *
    * <p>The mixing buffer size is set by {@code bufferSizeMs} and indicates how much audio can be
-   * queued before {@link getOutput()} is called.
+   * queued before {@link #getOutput()} is called.
    *
-   * @param outputAudioFormat The audio format of buffers returned from {@link getOutput()}.
+   * @param outputAudioFormat The audio format of buffers returned from {@link #getOutput()}.
    * @param bufferSizeMs The mixing buffer size in milliseconds.
    * @param startTimeUs The start time of the mixer output in microseconds.
    * @throws UnhandledAudioFormatException If the output audio format is not supported.
