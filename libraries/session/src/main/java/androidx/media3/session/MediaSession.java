@@ -1042,6 +1042,10 @@ public class MediaSession {
      * Called when a controller sent a custom command through {@link
      * MediaController#sendCustomCommand(SessionCommand, Bundle)}.
      *
+     * <p>{@link MediaController} instances are only allowed to send a command if the command has
+     * been added to the {@link MediaSession.ConnectionResult#availableSessionCommands list of
+     * available session commands} in {@link #onConnect} or set via {@link #setAvailableCommands}.
+     *
      * <p>Interoperability: This will be also called by {@link
      * android.support.v4.media.MediaBrowserCompat#sendCustomAction}. If so, {@code extras} from
      * {@link android.support.v4.media.MediaBrowserCompat#sendCustomAction} will be considered as
