@@ -70,7 +70,7 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
-    super(firstPipelineInputFormat, /* streamStartPositionUs= */ streamOffsetUs, muxerWrapper);
+    super(firstAssetLoaderInputFormat, /* streamStartPositionUs= */ streamOffsetUs, muxerWrapper);
 
     silentAudioGenerator = new SilentAudioGenerator(firstPipelineInputFormat);
     availableInputBuffers = new ConcurrentLinkedDeque<>();

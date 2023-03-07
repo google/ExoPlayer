@@ -3,6 +3,7 @@ format 0:
   channelCount = 1
   sampleRate = 44100
   pcmEncoding = 2
+  metadata = entries=[TSSE: description=null: values=[Lavf56.1.0]]
 sample:
   trackIndex = 0
   dataHashCode = 915609509
