@@ -41,6 +41,15 @@ public interface VideoFrameProcessor {
 
   /** A factory for {@link VideoFrameProcessor} instances. */
   interface Factory {
+
+    /**
+     * Sets the {@link GlObjectsProvider}.
+     *
+     * <p>Must be called before {@link #create}.
+     */
+    Factory setGlObjectsProvider(GlObjectsProvider glObjectsProvider);
+
+    // TODO(271433904): Turn parameters with default values into setters.
     /**
      * Creates a new {@link VideoFrameProcessor} instance.
      *

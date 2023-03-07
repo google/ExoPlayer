@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SurfaceInfo;
@@ -60,6 +61,20 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
   public static final class Factory implements VideoFrameProcessor.Factory {
+    private GlObjectsProvider glObjectsProvider = GlObjectsProvider.DEFAULT;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default value is {@link GlObjectsProvider#DEFAULT}.
+     */
+    @Override
+    public DefaultVideoFrameProcessor.Factory setGlObjectsProvider(
+        GlObjectsProvider glObjectsProvider) {
+      this.glObjectsProvider = glObjectsProvider;
+      return this;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -137,7 +152,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       releaseFramesAutomatically,
                       singleThreadExecutorService,
                       listenerExecutor,
-                      listener));
+                      listener,
+                      glObjectsProvider));
 
       try {
         return defaultVideoFrameProcessorFuture.get();
@@ -365,7 +381,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean releaseFramesAutomatically,
       ExecutorService singleThreadExecutorService,
       Executor executor,
-      Listener listener)
+      Listener listener,
+      GlObjectsProvider glObjectsProvider)
       throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
@@ -378,7 +395,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
     int openGlVersion =
         ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
-    EGLContext eglContext = GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
+    EGLContext eglContext =
+        glObjectsProvider.createEglContext(eglDisplay, openGlVersion, configAttributes);
     GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
 
     // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
@@ -407,6 +425,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             releaseFramesAutomatically,
             executor,
             listener);
+    setGlObjectProviderOnShaderPrograms(shaderPrograms, glObjectsProvider);
     VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
         new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainShaderProgramsWithListeners(
@@ -518,6 +537,15 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             executor,
             listener));
     return shaderProgramListBuilder.build();
+  }
+
+  /** Sets the {@link GlObjectsProvider} on all of the {@linkplain GlShaderProgram}s provided. */
+  private static void setGlObjectProviderOnShaderPrograms(
+      ImmutableList<GlShaderProgram> shaderPrograms, GlObjectsProvider glObjectsProvider) {
+    for (int i = 0; i < shaderPrograms.size() - 1; i++) {
+      GlShaderProgram shaderProgram = shaderPrograms.get(i);
+      shaderProgram.setGlObjectsProvider(glObjectsProvider);
+    }
   }
 
   /**

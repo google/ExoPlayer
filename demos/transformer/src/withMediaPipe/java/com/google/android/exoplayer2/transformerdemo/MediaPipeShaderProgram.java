@@ -25,6 +25,7 @@ import android.opengl.EGL14;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
 import com.google.android.exoplayer2.util.Util;
@@ -158,6 +159,9 @@ import java.util.concurrent.Future;
             errorListenerExecutor.execute(
                 () -> errorListener.onError(new VideoFrameProcessingException(error))));
   }
+
+  @Override
+  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {}
 
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {

@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.CallSuper;
-import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
@@ -42,6 +42,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
 
   private final boolean useHdr;
 
+  private GlObjectsProvider glObjectsProvider;
   private InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
@@ -50,6 +51,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   private int inputHeight;
   private @MonotonicNonNull GlTextureInfo outputTexture;
   private boolean outputTextureInUse;
+  private boolean frameProcessingStarted;
 
   /**
    * Creates a {@code SingleFrameGlShaderProgram} instance.
@@ -59,6 +61,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
    */
   public SingleFrameGlShaderProgram(boolean useHdr) {
     this.useHdr = useHdr;
+    glObjectsProvider = GlObjectsProvider.DEFAULT;
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = (videoFrameProcessingException) -> {};
@@ -97,6 +100,14 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
       throws VideoFrameProcessingException;
 
   @Override
+  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
+    checkState(
+        !frameProcessingStarted,
+        "The GlObjectsProvider cannot be set after frame processing has started.");
+    this.glObjectsProvider = glObjectsProvider;
+  }
+
+  @Override
   public final void setInputListener(InputListener inputListener) {
     this.inputListener = inputListener;
     if (!outputTextureInUse) {
@@ -121,7 +132,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
         !outputTextureInUse,
         "The shader program does not currently accept input frames. Release prior output frames"
             + " first.");
-
+    frameProcessingStarted = true;
     try {
       if (outputTexture == null
           || inputTexture.width != inputWidth
@@ -131,7 +142,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
       outputTextureInUse = true;
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.fboId, outputTexture.width, outputTexture.height);
-      GlUtil.clearOutputFrame();
+      glObjectsProvider.clearOutputFrame();
       drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
@@ -159,25 +170,22 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
         GlUtil.deleteFbo(outputTexture.fboId);
       }
       int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight(), useHdr);
-      int outputFboId = GlUtil.createFboForTexture(outputTexId);
       outputTexture =
-          new GlTextureInfo(
-              outputTexId,
-              outputFboId,
-              /* rboId= */ C.INDEX_UNSET,
-              outputSize.getWidth(),
-              outputSize.getHeight());
+          glObjectsProvider.createBuffersForTexture(
+              outputTexId, outputSize.getWidth(), outputSize.getHeight());
     }
   }
 
   @Override
   public final void releaseOutputFrame(GlTextureInfo outputTexture) {
     outputTextureInUse = false;
+    frameProcessingStarted = true;
     inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override
   public final void signalEndOfCurrentInputStream() {
+    frameProcessingStarted = true;
     outputListener.onCurrentOutputStreamEnded();
   }
 
@@ -185,6 +193,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   @CallSuper
   public void flush() {
     outputTextureInUse = false;
+    frameProcessingStarted = true;
     inputListener.onFlush();
     inputListener.onReadyToAcceptInputFrame();
   }
@@ -192,6 +201,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
   @Override
   @CallSuper
   public void release() throws VideoFrameProcessingException {
+    frameProcessingStarted = true;
     if (outputTexture != null) {
       try {
         GlUtil.deleteTexture(outputTexture.texId);

@@ -28,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.SurfaceInfo;
@@ -409,6 +410,9 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
 
     @Override
     public void setErrorListener(Executor executor, ErrorListener errorListener) {}
+
+    @Override
+    public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {}
 
     @Override
     public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
