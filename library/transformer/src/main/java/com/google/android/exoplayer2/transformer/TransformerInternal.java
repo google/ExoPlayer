@@ -440,8 +440,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
         return;
       }
-      trackCountsToReport.decrementAndGet();
       tracksToAdd.addAndGet(trackCount);
+      trackCountsToReport.decrementAndGet();
     }
 
     @Override
@@ -465,12 +465,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else {
         outputHasVideo.set(true);
       }
-      if (trackCountsToReport.get() == 0 && tracksToAdd.get() == 1) {
+      if (trackCountsToReport.get() == 0 && tracksToAdd.decrementAndGet() == 0) {
         int outputTrackCount = (outputHasAudio.get() ? 1 : 0) + (outputHasVideo.get() ? 1 : 0);
         muxerWrapper.setTrackCount(outputTrackCount);
         fallbackListener.setTrackCount(outputTrackCount);
       }
-      tracksToAdd.decrementAndGet();
 
       return trackInfo.shouldTranscode;
     }
