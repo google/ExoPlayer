@@ -28,6 +28,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -409,6 +410,9 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
 
     @Override
     public void setErrorListener(Executor executor, ErrorListener errorListener) {}
+
+    @Override
+    public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {}
 
     @Override
     public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {

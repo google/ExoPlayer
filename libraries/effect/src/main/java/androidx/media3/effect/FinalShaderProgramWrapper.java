@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -86,9 +87,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int inputHeight;
   @Nullable private DefaultShaderProgram defaultShaderProgram;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
+  private GlObjectsProvider glObjectsProvider;
   private InputListener inputListener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
+  private boolean frameProcessingStarted;
 
   private volatile boolean outputSizeOrRotationChanged;
 
@@ -130,8 +133,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
+    glObjectsProvider = GlObjectsProvider.DEFAULT;
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
+  }
+
+  @Override
+  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
+    checkState(
+        !frameProcessingStarted,
+        "The GlObjectsProvider cannot be set after frame processing has started.");
+    this.glObjectsProvider = glObjectsProvider;
   }
 
   @Override
@@ -154,6 +166,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void signalEndOfCurrentInputStream() {
+    frameProcessingStarted = true;
     checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
     streamOffsetUsQueue.remove();
     if (streamOffsetUsQueue.isEmpty()) {
@@ -178,6 +191,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+    frameProcessingStarted = true;
     long streamOffsetUs =
         checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
     long offsetPresentationTimeUs = presentationTimeUs + streamOffsetUs;
@@ -199,6 +213,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void releaseOutputFrame(long releaseTimeNs) {
+    frameProcessingStarted = true;
     checkState(!releaseFramesAutomatically);
     Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
     renderFrameToSurfaces(
@@ -209,6 +224,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void flush() {
+    frameProcessingStarted = true;
     // Drops all frames that aren't released yet.
     availableFrames.clear();
     if (defaultShaderProgram != null) {
@@ -304,7 +320,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputEglSurface,
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
-    GlUtil.clearOutputFrame();
+    glObjectsProvider.clearOutputFrame();
     defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(
@@ -446,7 +462,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       debugSurfaceViewWrapper.maybeRenderToSurfaceView(
           () -> {
-            GlUtil.clearOutputFrame();
+            glObjectsProvider.clearOutputFrame();
             @C.ColorTransfer
             int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
             defaultShaderProgram.setOutputColorTransfer(

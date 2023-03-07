@@ -35,6 +35,7 @@ import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -81,6 +82,7 @@ import org.checkerframework.dataflow.qual.Pure;
       ImmutableList<Effect> effects,
       @Nullable Presentation presentation,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
+      GlObjectsProvider glObjectsProvider,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       Consumer<ExportException> errorConsumer,
@@ -129,52 +131,54 @@ import org.checkerframework.dataflow.qual.Pure;
     }
     try {
       videoFrameProcessor =
-          videoFrameProcessorFactory.create(
-              context,
-              effectsWithPresentation,
-              debugViewProvider,
-              videoFrameProcessorInputColor,
-              videoFrameProcessorOutputColor,
-              MimeTypes.isVideo(firstInputFormat.sampleMimeType),
-              /* releaseFramesAutomatically= */ true,
-              MoreExecutors.directExecutor(),
-              new VideoFrameProcessor.Listener() {
-                private long lastProcessedFramePresentationTimeUs;
+          videoFrameProcessorFactory
+              .setGlObjectsProvider(glObjectsProvider)
+              .create(
+                  context,
+                  effectsWithPresentation,
+                  debugViewProvider,
+                  videoFrameProcessorInputColor,
+                  videoFrameProcessorOutputColor,
+                  MimeTypes.isVideo(firstInputFormat.sampleMimeType),
+                  /* releaseFramesAutomatically= */ true,
+                  MoreExecutors.directExecutor(),
+                  new VideoFrameProcessor.Listener() {
+                    private long lastProcessedFramePresentationTimeUs;
 
-                @Override
-                public void onOutputSizeChanged(int width, int height) {
-                  try {
-                    checkNotNull(videoFrameProcessor)
-                        .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
-                  } catch (ExportException exception) {
-                    errorConsumer.accept(exception);
-                  }
-                }
+                    @Override
+                    public void onOutputSizeChanged(int width, int height) {
+                      try {
+                        checkNotNull(videoFrameProcessor)
+                            .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
+                      } catch (ExportException exception) {
+                        errorConsumer.accept(exception);
+                      }
+                    }
 
-                @Override
-                public void onOutputFrameAvailable(long presentationTimeUs) {
-                  // Frames are released automatically.
-                  lastProcessedFramePresentationTimeUs = presentationTimeUs;
-                }
+                    @Override
+                    public void onOutputFrameAvailable(long presentationTimeUs) {
+                      // Frames are released automatically.
+                      lastProcessedFramePresentationTimeUs = presentationTimeUs;
+                    }
 
-                @Override
-                public void onError(VideoFrameProcessingException exception) {
-                  errorConsumer.accept(
-                      ExportException.createForVideoFrameProcessingException(
-                          exception, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
-                }
+                    @Override
+                    public void onError(VideoFrameProcessingException exception) {
+                      errorConsumer.accept(
+                          ExportException.createForVideoFrameProcessingException(
+                              exception, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
+                    }
 
-                @Override
-                public void onEnded() {
-                  VideoSamplePipeline.this.finalFramePresentationTimeUs =
-                      lastProcessedFramePresentationTimeUs;
-                  try {
-                    encoderWrapper.signalEndOfInputStream();
-                  } catch (ExportException exception) {
-                    errorConsumer.accept(exception);
-                  }
-                }
-              });
+                    @Override
+                    public void onEnded() {
+                      VideoSamplePipeline.this.finalFramePresentationTimeUs =
+                          lastProcessedFramePresentationTimeUs;
+                      try {
+                        encoderWrapper.signalEndOfInputStream();
+                      } catch (ExportException exception) {
+                        errorConsumer.accept(exception);
+                      }
+                    }
+                  });
     } catch (VideoFrameProcessingException e) {
       throw ExportException.createForVideoFrameProcessingException(
           e, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);

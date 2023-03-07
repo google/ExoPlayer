@@ -19,7 +19,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import androidx.media3.common.C;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
@@ -49,10 +49,12 @@ import java.util.concurrent.Executor;
   private final int capacity;
   private final boolean useHdr;
 
+  private GlObjectsProvider glObjectsProvider;
   private InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
   private Executor errorListenerExecutor;
+  private boolean frameProcessingStarted;
 
   /** Creates a new instance. */
   public FrameCacheGlShaderProgram(Context context, int capacity, boolean useHdr)
@@ -80,10 +82,19 @@ import java.util.concurrent.Executor;
         GlUtil.getNormalizedCoordinateBounds(),
         GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
 
+    glObjectsProvider = GlObjectsProvider.DEFAULT;
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = videoFrameProcessingException -> {};
     errorListenerExecutor = MoreExecutors.directExecutor();
+  }
+
+  @Override
+  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
+    checkState(
+        !frameProcessingStarted,
+        "The GlObjectsProvider cannot be set after frame processing has started.");
+    this.glObjectsProvider = glObjectsProvider;
   }
 
   @Override
@@ -115,6 +126,7 @@ import java.util.concurrent.Executor;
 
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+    frameProcessingStarted = true;
     try {
       configureAllOutputTextures(inputTexture.width, inputTexture.height);
 
@@ -125,7 +137,7 @@ import java.util.concurrent.Executor;
       // Copy frame to fbo.
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.fboId, outputTexture.width, outputTexture.height);
-      GlUtil.clearOutputFrame();
+      glObjectsProvider.clearOutputFrame();
       drawFrame(inputTexture.texId);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
@@ -147,6 +159,7 @@ import java.util.concurrent.Executor;
 
   @Override
   public void releaseOutputFrame(GlTextureInfo outputTexture) {
+    frameProcessingStarted = true;
     checkState(inUseOutputTextures.contains(outputTexture));
     inUseOutputTextures.remove(outputTexture);
     freeOutputTextures.add(outputTexture);
@@ -155,11 +168,13 @@ import java.util.concurrent.Executor;
 
   @Override
   public void signalEndOfCurrentInputStream() {
+    frameProcessingStarted = true;
     outputListener.onCurrentOutputStreamEnded();
   }
 
   @Override
   public void flush() {
+    frameProcessingStarted = true;
     freeOutputTextures.addAll(inUseOutputTextures);
     inUseOutputTextures.clear();
     inputListener.onFlush();
@@ -170,6 +185,7 @@ import java.util.concurrent.Executor;
 
   @Override
   public void release() throws VideoFrameProcessingException {
+    frameProcessingStarted = true;
     try {
       deleteAllOutputTextures();
     } catch (GlUtil.GlException e) {
@@ -196,9 +212,8 @@ import java.util.concurrent.Executor;
     checkState(inUseOutputTextures.isEmpty());
     for (int i = 0; i < capacity; i++) {
       int outputTexId = GlUtil.createTexture(width, height, useHdr);
-      int outputFboId = GlUtil.createFboForTexture(outputTexId);
       GlTextureInfo outputTexture =
-          new GlTextureInfo(outputTexId, outputFboId, /* rboId= */ C.INDEX_UNSET, width, height);
+          glObjectsProvider.createBuffersForTexture(outputTexId, width, height);
       freeOutputTextures.add(outputTexture);
     }
   }

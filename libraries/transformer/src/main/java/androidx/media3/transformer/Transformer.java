@@ -28,6 +28,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
@@ -88,6 +89,7 @@ public final class Transformer {
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
     private VideoFrameProcessor.Factory videoFrameProcessorFactory;
+    private GlObjectsProvider glObjectsProvider;
     private Codec.EncoderFactory encoderFactory;
     private Muxer.Factory muxerFactory;
     private Looper looper;
@@ -105,6 +107,7 @@ public final class Transformer {
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
       videoFrameProcessorFactory = new DefaultVideoFrameProcessor.Factory();
+      glObjectsProvider = GlObjectsProvider.DEFAULT;
       encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       muxerFactory = new DefaultMuxer.Factory();
       looper = Util.getCurrentOrMainLooper();
@@ -124,6 +127,7 @@ public final class Transformer {
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
       this.videoFrameProcessorFactory = transformer.videoFrameProcessorFactory;
+      this.glObjectsProvider = transformer.glObjectsProvider;
       this.encoderFactory = transformer.encoderFactory;
       this.muxerFactory = transformer.muxerFactory;
       this.looper = transformer.looper;
@@ -397,6 +401,7 @@ public final class Transformer {
           listeners,
           assetLoaderFactory,
           videoFrameProcessorFactory,
+          glObjectsProvider,
           encoderFactory,
           muxerFactory,
           looper,
@@ -556,6 +561,7 @@ public final class Transformer {
   private final ListenerSet<Transformer.Listener> listeners;
   private final AssetLoader.Factory assetLoaderFactory;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
+  private final GlObjectsProvider glObjectsProvider;
   private final Codec.EncoderFactory encoderFactory;
   private final Muxer.Factory muxerFactory;
   private final Looper looper;
@@ -575,6 +581,7 @@ public final class Transformer {
       ListenerSet<Listener> listeners,
       AssetLoader.Factory assetLoaderFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
+      GlObjectsProvider glObjectsProvider,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
       Looper looper,
@@ -591,6 +598,7 @@ public final class Transformer {
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
+    this.glObjectsProvider = glObjectsProvider;
     this.encoderFactory = encoderFactory;
     this.muxerFactory = muxerFactory;
     this.looper = looper;
@@ -794,7 +802,9 @@ public final class Transformer {
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
             .setFlattenForSlowMotion(flattenForSlowMotion)
-            .setEffects(new Effects(audioProcessors, videoEffects, videoFrameProcessorFactory))
+            .setEffects(
+                new Effects(
+                    audioProcessors, videoEffects, videoFrameProcessorFactory, glObjectsProvider))
             .build();
     start(editedMediaItem, path);
   }

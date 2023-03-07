@@ -24,6 +24,7 @@ import android.content.Context;
 import android.opengl.EGL14;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.LibraryLoader;
@@ -158,6 +159,9 @@ import java.util.concurrent.Future;
             errorListenerExecutor.execute(
                 () -> errorListener.onError(new VideoFrameProcessingException(error))));
   }
+
+  @Override
+  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {}
 
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {

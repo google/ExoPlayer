@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
@@ -147,6 +148,13 @@ public interface GlShaderProgram {
    * <p>The {@link ErrorListener} is invoked on the provided {@link Executor}.
    */
   void setErrorListener(Executor executor, ErrorListener errorListener);
+
+  /**
+   * Sets the {@link GlObjectsProvider}.
+   *
+   * <p>This method should not be called after any of the frame processing methods.
+   */
+  void setGlObjectsProvider(GlObjectsProvider glObjectsProvider);
 
   /**
    * Processes an input frame if possible.
