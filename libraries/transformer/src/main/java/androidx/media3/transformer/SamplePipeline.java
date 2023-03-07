@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
@@ -49,6 +50,7 @@ import java.util.List;
   private final long streamStartPositionUs;
   private final MuxerWrapper muxerWrapper;
   private final @C.TrackType int outputTrackType;
+  @Nullable private final Metadata metadata;
 
   private boolean muxerWrapperTrackAdded;
 
@@ -56,6 +58,7 @@ import java.util.List;
       Format firstInputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.muxerWrapper = muxerWrapper;
+    this.metadata = firstInputFormat.metadata;
     outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
   }
 
@@ -93,6 +96,9 @@ import java.util.List;
       @Nullable Format inputFormat = getMuxerInputFormat();
       if (inputFormat == null) {
         return false;
+      }
+      if (metadata != null) {
+        inputFormat = inputFormat.buildUpon().setMetadata(metadata).build();
       }
       try {
         muxerWrapper.addTrackFormat(inputFormat);
