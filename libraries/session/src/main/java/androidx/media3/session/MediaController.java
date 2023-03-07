@@ -906,12 +906,13 @@ public class MediaController implements Player {
   /**
    * Sends a custom command to the session.
    *
+   * <p>A command is not accepted if it is not a custom command or the command is not in the list of
+   * {@linkplain #getAvailableSessionCommands() available session commands}.
+   *
    * <p>Interoperability: When connected to {@link
    * android.support.v4.media.session.MediaSessionCompat}, {@link SessionResult#resultCode} will
    * return the custom result code from the {@code android.os.ResultReceiver#onReceiveResult(int,
    * Bundle)} instead of the standard result codes defined in the {@link SessionResult}.
-   *
-   * <p>A command is not accepted if it is not a custom command.
    *
    * @param command The custom command.
    * @param args The additional arguments. May be empty.
