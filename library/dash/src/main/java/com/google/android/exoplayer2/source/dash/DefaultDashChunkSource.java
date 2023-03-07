@@ -234,9 +234,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     // Segments are aligned across representations, so any segment index will do.
     for (RepresentationHolder representationHolder : representationHolders) {
       if (representationHolder.segmentIndex != null) {
+        long segmentCount = representationHolder.getSegmentCount();
+        if (segmentCount == 0) {
+          continue;
+        }
         long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
-        long segmentCount = representationHolder.getSegmentCount();
         long secondSyncUs =
             firstSyncUs < positionUs
                     && (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED
@@ -592,7 +595,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private long getAvailableLiveDurationUs(long nowUnixTimeUs, long playbackPositionUs) {
-    if (!manifest.dynamic) {
+    if (!manifest.dynamic || representationHolders[0].getSegmentCount() == 0) {
       return C.TIME_UNSET;
     }
     long lastSegmentNum = representationHolders[0].getLastAvailableSegmentNum(nowUnixTimeUs);
