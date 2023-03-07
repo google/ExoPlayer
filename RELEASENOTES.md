@@ -23,6 +23,9 @@
         instead.
     *   Remove `Transformer.startTransformation(MediaItem,
         ParcelFileDescriptor)`.
+*   DASH:
+    *   Fix handling of empty segment timelines
+        ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
