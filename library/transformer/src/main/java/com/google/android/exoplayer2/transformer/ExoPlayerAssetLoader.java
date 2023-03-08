@@ -300,44 +300,54 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
-      if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
-        return;
-      }
-      Timeline.Window window = new Timeline.Window();
-      timeline.getWindow(/* windowIndex= */ 0, window);
-      if (!window.isPlaceholder) {
-        long durationUs = window.durationUs;
-        // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
-        // to a high value at the end of the export if the duration is set once the media is
-        // entirely loaded.
-        progressState =
-            durationUs <= 0 || durationUs == C.TIME_UNSET
-                ? PROGRESS_STATE_UNAVAILABLE
-                : PROGRESS_STATE_AVAILABLE;
-        assetLoaderListener.onDurationUs(window.durationUs);
+      try {
+        if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
+          return;
+        }
+        Timeline.Window window = new Timeline.Window();
+        timeline.getWindow(/* windowIndex= */ 0, window);
+        if (!window.isPlaceholder) {
+          long durationUs = window.durationUs;
+          // Make progress permanently unavailable if the duration is unknown, so that it doesn't
+          // jump to a high value at the end of the export if the duration is set once the media is
+          // entirely loaded.
+          progressState =
+              durationUs <= 0 || durationUs == C.TIME_UNSET
+                  ? PROGRESS_STATE_UNAVAILABLE
+                  : PROGRESS_STATE_AVAILABLE;
+          assetLoaderListener.onDurationUs(window.durationUs);
+        }
+      } catch (RuntimeException e) {
+        assetLoaderListener.onError(
+            ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
       }
     }
 
     @Override
     public void onTracksChanged(Tracks tracks) {
-      int trackCount = 0;
-      if (tracks.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
-        trackCount++;
-      }
-      if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
-        trackCount++;
-      }
+      try {
+        int trackCount = 0;
+        if (tracks.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
+          trackCount++;
+        }
+        if (tracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+          trackCount++;
+        }
 
-      if (trackCount > 0) {
-        assetLoaderListener.onTrackCount(trackCount);
-        // Start the renderers after having registered all the tracks to make sure the AssetLoader
-        // listener callbacks are called in the right order.
-        player.play();
-      } else {
+        if (trackCount > 0) {
+          assetLoaderListener.onTrackCount(trackCount);
+          // Start the renderers after having registered all the tracks to make sure the AssetLoader
+          // listener callbacks are called in the right order.
+          player.play();
+        } else {
+          assetLoaderListener.onError(
+              ExportException.createForAssetLoader(
+                  new IllegalStateException("The asset loader has no track to output."),
+                  ERROR_CODE_FAILED_RUNTIME_CHECK));
+        }
+      } catch (RuntimeException e) {
         assetLoaderListener.onError(
-            ExportException.createForAssetLoader(
-                new IllegalStateException("The asset loader has no track to output."),
-                ERROR_CODE_FAILED_RUNTIME_CHECK));
+            ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
       }
     }
 
