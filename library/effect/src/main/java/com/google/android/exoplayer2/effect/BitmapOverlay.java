@@ -16,14 +16,13 @@
 package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
@@ -128,22 +127,20 @@ public abstract class BitmapOverlay extends TextureOverlay {
    * Creates a {@link BitmapOverlay} that shows the input at {@code overlayBitmapUri} with the same
    * {@link OverlaySettings} throughout the whole video.
    *
+   * @param context The {@link Context}.
    * @param overlayBitmapUri The {@link Uri} pointing to the resource to be converted into a bitmap.
    * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
    *     the frames.
    */
   public static BitmapOverlay createStaticBitmapOverlay(
-      Uri overlayBitmapUri, OverlaySettings overlaySettings) {
+      Context context, Uri overlayBitmapUri, OverlaySettings overlaySettings) {
     return new BitmapOverlay() {
       private @MonotonicNonNull Bitmap lastBitmap;
 
       @Override
       public Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException {
         if (lastBitmap == null) {
-          BitmapLoader bitmapLoader =
-              new DataSourceBitmapLoader(
-                  checkStateNotNull(DataSourceBitmapLoader.DEFAULT_EXECUTOR_SERVICE.get()),
-                  new DefaultHttpDataSource.Factory());
+          BitmapLoader bitmapLoader = new DataSourceBitmapLoader(context);
           ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(overlayBitmapUri);
           try {
             lastBitmap = future.get();
