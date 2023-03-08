@@ -1338,16 +1338,18 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       }
       AdPlaybackState newAdPlaybackState = adPlaybackState;
       Timeline timeline = player.getCurrentTimeline();
+      Timeline.Period currentPeriod = new Timeline.Period();
       long positionInWindowUs =
-          timeline.getPeriod(player.getCurrentPeriodIndex(), new Timeline.Period())
-              .positionInWindowUs;
-      long currentContentPeriodPositionUs =
-          msToUs(player.getContentPosition()) - positionInWindowUs;
+          timeline.getPeriod(player.getCurrentPeriodIndex(), currentPeriod).positionInWindowUs;
+      long contentPositionUs =
+          player.isPlayingAd()
+              ? currentPeriod.getAdGroupTimeUs(player.getCurrentAdGroupIndex())
+              : msToUs(player.getContentPosition());
       Ad ad = event.getAd();
       AdPodInfo adPodInfo = ad.getAdPodInfo();
       newAdPlaybackState =
           addLiveAdBreak(
-              currentContentPeriodPositionUs,
+              /* currentContentPeriodPositionUs= */ contentPositionUs - positionInWindowUs,
               /* adDurationUs= */ secToUsRounded(ad.getDuration()),
               /* adPositionInAdPod= */ adPodInfo.getAdPosition(),
               /* totalAdDurationUs= */ secToUsRounded(adPodInfo.getMaxDuration()),
