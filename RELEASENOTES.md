@@ -16,6 +16,14 @@
         `AudioProcessors` are active, e.g. for gapless trimming
         ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
     *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
+*   DRM:
+    *   Reduce the visibility of several internal-only methods on
+        `DefaultDrmSession` that aren't expected to be called from outside the
+        DRM package:
+        *   `void onMediaDrmEvent(int)`
+        *   `void provision()`
+        *   `void onProvisionCompleted()`
+        *   `onProvisionError(Exception, boolean)`
 *   Transformer:
     *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
         Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
