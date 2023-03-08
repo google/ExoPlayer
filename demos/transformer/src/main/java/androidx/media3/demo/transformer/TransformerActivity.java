@@ -593,6 +593,7 @@ public final class TransformerActivity extends AppCompatActivity {
               .build();
       BitmapOverlay bitmapOverlay =
           BitmapOverlay.createStaticBitmapOverlay(
+              getApplicationContext(),
               Uri.parse(checkNotNull(bundle.getString(ConfigurationActivity.BITMAP_OVERLAY_URI))),
               overlaySettings);
       overlaysBuilder.add(bitmapOverlay);

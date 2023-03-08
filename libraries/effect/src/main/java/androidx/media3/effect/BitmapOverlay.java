@@ -16,8 +16,8 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.opengl.GLES20;
@@ -28,7 +28,6 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSourceBitmapLoader;
-import androidx.media3.datasource.DefaultHttpDataSource;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -130,22 +129,20 @@ public abstract class BitmapOverlay extends TextureOverlay {
    * Creates a {@link BitmapOverlay} that shows the input at {@code overlayBitmapUri} with the same
    * {@link OverlaySettings} throughout the whole video.
    *
+   * @param context The {@link Context}.
    * @param overlayBitmapUri The {@link Uri} pointing to the resource to be converted into a bitmap.
    * @param overlaySettings The {@link OverlaySettings} configuring how the overlay is displayed on
    *     the frames.
    */
   public static BitmapOverlay createStaticBitmapOverlay(
-      Uri overlayBitmapUri, OverlaySettings overlaySettings) {
+      Context context, Uri overlayBitmapUri, OverlaySettings overlaySettings) {
     return new BitmapOverlay() {
       private @MonotonicNonNull Bitmap lastBitmap;
 
       @Override
       public Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException {
         if (lastBitmap == null) {
-          BitmapLoader bitmapLoader =
-              new DataSourceBitmapLoader(
-                  checkStateNotNull(DataSourceBitmapLoader.DEFAULT_EXECUTOR_SERVICE.get()),
-                  new DefaultHttpDataSource.Factory());
+          BitmapLoader bitmapLoader = new DataSourceBitmapLoader(context);
           ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(overlayBitmapUri);
           try {
             lastBitmap = future.get();
