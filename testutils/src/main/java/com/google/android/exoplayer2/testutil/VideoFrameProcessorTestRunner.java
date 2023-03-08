@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
-import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -329,7 +329,7 @@ public final class VideoFrameProcessorTestRunner {
     Image videoFrameProcessorOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
     Bitmap actualBitmap = createArgb8888BitmapFromRgba8888Image(videoFrameProcessorOutputImage);
     videoFrameProcessorOutputImage.close();
-    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ outputFileLabel, actualBitmap);
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ outputFileLabel, actualBitmap, /* path= */ null);
     return actualBitmap;
   }
 
