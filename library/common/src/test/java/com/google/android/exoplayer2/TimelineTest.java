@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
@@ -430,6 +431,30 @@ public class TimelineTest {
     assertThat(restoredPeriod.uid).isNull();
     TimelineAsserts.assertPeriodEqualsExceptIds(
         /* expectedPeriod= */ period, /* actualPeriod= */ restoredPeriod);
+  }
+
+  @Test
+  public void periodIsLivePostrollPlaceholder_recognizesLivePostrollPlaceholder() {
+    FakeMultiPeriodLiveTimeline timeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeUs= */ 0,
+            /* liveWindowDurationUs= */ 60_000_000,
+            /* nowUs= */ 60_000_000,
+            /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* isContentTimeline= */ false,
+            /* populateAds= */ true);
+
+    assertThat(timeline.getPeriodCount()).isEqualTo(4);
+    assertThat(
+            timeline
+                .getPeriod(/* periodIndex= */ 1, new Timeline.Period())
+                .isLivePostrollPlaceholder(/* adGroupIndex= */ 0))
+        .isFalse();
+    assertThat(
+            timeline
+                .getPeriod(/* periodIndex= */ 1, new Timeline.Period())
+                .isLivePostrollPlaceholder(/* adGroupIndex= */ 1))
+        .isTrue();
   }
 
   @SuppressWarnings("deprecation") // Populates the deprecated window.tag property.
