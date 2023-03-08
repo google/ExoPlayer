@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.usToMs;
 
+import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Timeline;
@@ -54,6 +55,8 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
   private final MediaItem mediaItem;
   private final long availabilityStartTimeUs;
   private final long liveWindowDurationUs;
+  private final boolean isContentTimeline;
+  private final boolean populateAds;
 
   private long nowUs;
   private ImmutableList<PeriodData> periods;
@@ -66,19 +69,34 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
    * @param nowUs The current time that determines the end of the live window.
    * @param adSequencePattern The repeating pattern of periods starting at {@code
    *     availabilityStartTimeUs}. True is an ad period, and false a content period.
+   * @param isContentTimeline Whether the timeline is a content timeline without {@link
+   *     AdPlaybackState}s.
+   * @param populateAds Whether to populate ads like after the ad event has been received. This
+   *     parameter is ignored if the timeline is a content timeline.
    */
   public FakeMultiPeriodLiveTimeline(
       long availabilityStartTimeUs,
       long liveWindowDurationUs,
       long nowUs,
-      boolean[] adSequencePattern) {
+      boolean[] adSequencePattern,
+      boolean isContentTimeline,
+      boolean populateAds) {
     checkArgument(nowUs - liveWindowDurationUs >= availabilityStartTimeUs);
     this.availabilityStartTimeUs = availabilityStartTimeUs;
     this.liveWindowDurationUs = liveWindowDurationUs;
     this.nowUs = nowUs;
     this.adSequencePattern = Arrays.copyOf(adSequencePattern, adSequencePattern.length);
+    this.isContentTimeline = isContentTimeline;
+    this.populateAds = populateAds;
     mediaItem = new MediaItem.Builder().build();
-    periods = invalidate(availabilityStartTimeUs, liveWindowDurationUs, nowUs, adSequencePattern);
+    periods =
+        invalidate(
+            availabilityStartTimeUs,
+            liveWindowDurationUs,
+            nowUs,
+            adSequencePattern,
+            isContentTimeline,
+            populateAds);
   }
 
   /** Calculates the total duration of the given ad period sequence. */
@@ -93,7 +111,14 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
   /** Advances the live window by the given duration, in microseconds. */
   public void advanceNowUs(long durationUs) {
     nowUs += durationUs;
-    periods = invalidate(availabilityStartTimeUs, liveWindowDurationUs, nowUs, adSequencePattern);
+    periods =
+        invalidate(
+            availabilityStartTimeUs,
+            liveWindowDurationUs,
+            nowUs,
+            adSequencePattern,
+            isContentTimeline,
+            populateAds);
   }
 
   @Override
@@ -136,7 +161,9 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
         periodData.uid,
         /* windowIndex= */ 0,
         /* durationUs= */ periodIndex < getPeriodCount() - 1 ? periodData.durationUs : C.TIME_UNSET,
-        periodData.positionInWindowUs);
+        periodData.positionInWindowUs,
+        periodData.adPlaybackState,
+        /* isPlaceholder= */ false);
     return period;
   }
 
@@ -159,7 +186,9 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
       long availabilityStartTimeUs,
       long liveWindowDurationUs,
       long now,
-      boolean[] adSequencePattern) {
+      boolean[] adSequencePattern,
+      boolean isContentTimeline,
+      boolean populateAds) {
     long windowStartTimeUs = now - liveWindowDurationUs;
     int sequencePeriodCount = adSequencePattern.length;
     long sequenceDurationUs = calculateAdSequencePatternDurationUs(adSequencePattern);
@@ -184,12 +213,28 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     while (lastPeriodStartTimeUs < now) {
       isAd = adSequencePattern[lastPeriodIndex % sequencePeriodCount];
       long periodDurationUs = isAd ? AD_PERIOD_DURATION_US : PERIOD_DURATION_US;
+      long adPeriodDurationUs = periodDurationUs;
+      AdPlaybackState adPlaybackState = AdPlaybackState.NONE;
+      if (!isContentTimeline) {
+        adPlaybackState = new AdPlaybackState("adsId").withLivePostrollPlaceholderAppended();
+        if (isAd && populateAds) {
+          adPlaybackState =
+              adPlaybackState
+                  .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ 0)
+                  .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
+                  .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                  .withAdDurationsUs(
+                      /* adGroupIndex= */ 0, /* adDurationsUs...= */ periodDurationUs);
+          adPeriodDurationUs = 0;
+        }
+      }
       liveWindow.add(
           new PeriodData(
               /* id= */ lastPeriodIndex++,
+              adPeriodDurationUs,
+              /* positionInWindowUs= */ lastPeriodStartTimeUs - windowStartTimeUs,
               isAd,
-              periodDurationUs,
-              /* positionInWindowUs= */ lastPeriodStartTimeUs - windowStartTimeUs));
+              adPlaybackState));
       lastPeriodStartTimeUs += periodDurationUs;
     }
     return liveWindow.build();
@@ -201,13 +246,20 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     private final Object uid;
     private final long durationUs;
     private final long positionInWindowUs;
+    private final AdPlaybackState adPlaybackState;
 
     /** Creates an instance. */
-    public PeriodData(int id, boolean isAd, long durationUs, long positionInWindowUs) {
+    public PeriodData(
+        int id,
+        long durationUs,
+        long positionInWindowUs,
+        boolean isAd,
+        AdPlaybackState adPlaybackState) {
       this.id = id;
       this.uid = "uid-" + id + "[" + (isAd ? "a" : "c") + "]";
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
+      this.adPlaybackState = adPlaybackState;
     }
   }
 }

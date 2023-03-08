@@ -172,6 +172,10 @@ public final class AdPlaybackState implements Bundleable {
       return false;
     }
 
+    private boolean isLivePostrollPlaceholder() {
+      return isServerSideInserted && timeUs == C.TIME_END_OF_SOURCE && count == C.LENGTH_UNSET;
+    }
+
     @Override
     public boolean equals(@Nullable Object o) {
       if (this == o) {
@@ -629,6 +633,7 @@ public final class AdPlaybackState implements Bundleable {
     // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
     int index = adGroupCount - 1;
+    index -= isLivePostrollPlaceholder(index) ? 1 : 0;
     while (index >= 0 && isPositionBeforeAdGroup(positionUs, periodDurationUs, index)) {
       index--;
     }
@@ -977,6 +982,49 @@ public final class AdPlaybackState implements Bundleable {
   }
 
   /**
+   * Appends a live postroll placeholder ad group to the ad playback state.
+   *
+   * <p>Adding such a placeholder is only required for periods of server side ad insertion live
+   * streams.
+   *
+   * <p>When building the media period queue, it sets {@link MediaPeriodId#nextAdGroupIndex} of a
+   * content period to the index of the placeholder. However, the placeholder will not produce a
+   * period in the media period queue. This only happens when an actual ad group is inserted at the
+   * given {@code nextAdGroupIndex}. In this case the newly inserted ad group will be used to insert
+   * an ad period into the media period queue following the content period with the given {@link
+   * MediaPeriodId#nextAdGroupIndex}.
+   *
+   * <p>See {@link #endsWithLivePostrollPlaceHolder()} also.
+   *
+   * @return The new ad playback state instance ending with a live postroll placeholder.
+   */
+  public AdPlaybackState withLivePostrollPlaceholderAppended() {
+    return withNewAdGroup(adGroupCount, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+        .withIsServerSideInserted(adGroupCount, true);
+  }
+
+  /**
+   * Returns whether the last ad group is a live postroll placeholder as inserted by {@link
+   * #withLivePostrollPlaceholderAppended()}.
+   *
+   * @return Whether the ad playback state ends with a live postroll placeholder.
+   */
+  public boolean endsWithLivePostrollPlaceHolder() {
+    int adGroupIndex = adGroupCount - 1;
+    return adGroupIndex >= 0 && isLivePostrollPlaceholder(adGroupIndex);
+  }
+
+  /**
+   * Whether the {@link AdGroup} at the given ad group index is a live postroll placeholder.
+   *
+   * @param adGroupIndex The ad group index.
+   * @return True if the ad group at the given index is a live postroll placeholder, false if not.
+   */
+  public boolean isLivePostrollPlaceholder(int adGroupIndex) {
+    return adGroupIndex == adGroupCount - 1 && getAdGroup(adGroupIndex).isLivePostrollPlaceholder();
+  }
+
+  /**
    * Returns a copy of the ad playback state with the given ads ID.
    *
    * @param adsId The new ads ID.
@@ -1088,15 +1136,21 @@ public final class AdPlaybackState implements Bundleable {
   private boolean isPositionBeforeAdGroup(
       long positionUs, long periodDurationUs, int adGroupIndex) {
     if (positionUs == C.TIME_END_OF_SOURCE) {
-      // The end of the content is at (but not before) any postroll ad, and after any other ads.
+      // The end of the content is at (but not before) any postroll ad, and after any other ad.
       return false;
     }
-    long adGroupPositionUs = getAdGroup(adGroupIndex).timeUs;
+    AdGroup adGroup = getAdGroup(adGroupIndex);
+    long adGroupPositionUs = adGroup.timeUs;
     if (adGroupPositionUs == C.TIME_END_OF_SOURCE) {
-      return periodDurationUs == C.TIME_UNSET || positionUs < periodDurationUs;
-    } else {
-      return positionUs < adGroupPositionUs;
+      // Handling postroll: The requested position is considered before a postroll when a)
+      // the period duration is unknown (last period in a live stream), or when b) the postroll is a
+      // placeholder in a period of a multi-period live window, or when c) the position actually is
+      // before the given period duration.
+      return periodDurationUs == C.TIME_UNSET
+          || (adGroup.isServerSideInserted && adGroup.count == C.LENGTH_UNSET)
+          || positionUs < periodDurationUs;
     }
+    return positionUs < adGroupPositionUs;
   }
 
   // Bundleable implementation.

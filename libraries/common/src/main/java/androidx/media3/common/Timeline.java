@@ -826,6 +826,18 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
+     * Returns whether the ad group at the given ad group index is a live postroll placeholder.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return True if the ad group at the given index is a live postroll placeholder.
+     */
+    @UnstableApi
+    public boolean isLivePostrollPlaceholder(int adGroupIndex) {
+      return adGroupIndex == getAdGroupCount() - 1
+          && adPlaybackState.isLivePostrollPlaceholder(adGroupIndex);
+    }
+
+    /**
      * Returns the position offset in the first unplayed ad at which to begin playback, in
      * microseconds.
      */

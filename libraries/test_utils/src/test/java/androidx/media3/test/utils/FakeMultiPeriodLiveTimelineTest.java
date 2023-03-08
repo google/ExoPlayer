@@ -41,7 +41,9 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* availabilityStartTimeUs= */ 0L,
             /* liveWindowDurationUs= */ 60_000_000L,
             /* nowUs= */ 60_000_000L,
-            adSequencePattern);
+            adSequencePattern,
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -68,6 +70,116 @@ public class FakeMultiPeriodLiveTimelineTest {
   }
 
   @Test
+  public void newInstance_timelineWithAdsPopulated_correctPlaybackStates() {
+    boolean[] adSequencePattern = {false, true, true};
+    FakeMultiPeriodLiveTimeline timeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeUs= */ 0L,
+            /* liveWindowDurationUs= */ 50_000_000L,
+            /* nowUs= */ 100_000_000L,
+            adSequencePattern,
+            /* isContentTimeline= */ false,
+            /* populateAds= */ true);
+    Timeline.Period period = new Timeline.Period();
+    Timeline.Window window = new Timeline.Window();
+
+    assertThat(timeline.getPeriodCount()).isEqualTo(3);
+    assertThat(timeline.getWindow(0, window).windowStartTimeMs).isEqualTo(50_000L);
+    assertThat(timeline.getPeriod(0, period).uid).isEqualTo("uid-3[c]");
+    assertThat(timeline.getPeriod(1, period).uid).isEqualTo("uid-4[a]");
+    assertThat(timeline.getPeriod(1, period).getAdGroupCount()).isEqualTo(2);
+    assertThat(timeline.getPeriod(1, period).getAdGroupTimeUs(/* adGroupIndex= */ 0)).isEqualTo(0L);
+    assertThat(timeline.getPeriod(1, period).getAdCountInAdGroup(/* adGroupIndex= */ 0))
+        .isEqualTo(1);
+    assertThat(
+            timeline
+                .getPeriod(1, period)
+                .getAdDurationUs(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0))
+        .isEqualTo(10_000_000L);
+    assertThat(timeline.getPeriod(1, period).getAdGroupTimeUs(/* adGroupIndex= */ 1))
+        .isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(timeline.getPeriod(1, period).getAdCountInAdGroup(/* adGroupIndex= */ 1))
+        .isEqualTo(C.LENGTH_UNSET);
+    assertThat(timeline.getPeriod(1, period).isServerSideInsertedAdGroup(/* adGroupIndex= */ 1))
+        .isTrue();
+    assertThat(timeline.getPeriod(2, period).uid).isEqualTo("uid-5[a]");
+    assertThat(timeline.getPeriod(2, period).getAdGroupCount()).isEqualTo(2);
+    assertThat(timeline.getPeriod(2, period).getAdGroupTimeUs(/* adGroupIndex= */ 0)).isEqualTo(0L);
+    assertThat(timeline.getPeriod(2, period).getAdCountInAdGroup(/* adGroupIndex= */ 0))
+        .isEqualTo(1);
+    assertThat(timeline.getPeriod(2, period).isServerSideInsertedAdGroup(/* adGroupIndex= */ 1))
+        .isTrue();
+    assertThat(
+            timeline
+                .getPeriod(2, period)
+                .getAdDurationUs(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0))
+        .isEqualTo(10_000_000L);
+    assertThat(timeline.getPeriod(2, period).getAdGroupTimeUs(/* adGroupIndex= */ 1))
+        .isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(timeline.getPeriod(2, period).getAdCountInAdGroup(/* adGroupIndex= */ 1))
+        .isEqualTo(C.LENGTH_UNSET);
+    assertExpectedWindow(
+        timeline,
+        calculateExpectedWindow(
+            /* availabilityStartTimeUs= */ 0L,
+            /* liveWindowDurationUs= */ 50_000_000L,
+            /* nowUs= */ 100_000_000L,
+            adSequencePattern),
+        adSequencePattern);
+  }
+
+  @Test
+  public void newInstance_timelineWithAdsNotPopulated_correctPlaybackStates() {
+    boolean[] adSequencePattern = {false, true, true};
+    FakeMultiPeriodLiveTimeline timeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeUs= */ 0L,
+            /* liveWindowDurationUs= */ 50_000_000L,
+            /* nowUs= */ 100_000_000L,
+            adSequencePattern,
+            /* isContentTimeline= */ false,
+            /* populateAds= */ false);
+    Timeline.Period period = new Timeline.Period();
+    Timeline.Window window = new Timeline.Window();
+
+    // Assert that each period has no ads but a fake postroll ad group at the end.
+    assertThat(timeline.getPeriodCount()).isEqualTo(3);
+    assertThat(timeline.getWindow(0, window).windowStartTimeMs).isEqualTo(50_000L);
+    assertThat(timeline.getPeriod(0, period).uid).isEqualTo("uid-3[c]");
+    assertThat(timeline.getPeriod(0, period).getAdGroupCount()).isEqualTo(1);
+    assertThat(timeline.getPeriod(0, period).getAdGroupTimeUs(/* adGroupIndex= */ 0))
+        .isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(timeline.getPeriod(0, period).getAdCountInAdGroup(/* adGroupIndex= */ 0))
+        .isEqualTo(C.LENGTH_UNSET);
+    assertThat(timeline.getPeriod(0, period).isServerSideInsertedAdGroup(/* adGroupIndex= */ 0))
+        .isTrue();
+    assertThat(timeline.getPeriod(1, period).uid).isEqualTo("uid-4[a]");
+    assertThat(timeline.getPeriod(1, period).getAdGroupCount()).isEqualTo(1);
+    assertThat(timeline.getPeriod(1, period).getAdGroupTimeUs(/* adGroupIndex= */ 0))
+        .isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(timeline.getPeriod(1, period).getAdCountInAdGroup(/* adGroupIndex= */ 0))
+        .isEqualTo(C.LENGTH_UNSET);
+    assertThat(timeline.getPeriod(1, period).isServerSideInsertedAdGroup(/* adGroupIndex= */ 0))
+        .isTrue();
+    assertThat(timeline.getPeriod(2, period).uid).isEqualTo("uid-5[a]");
+    assertThat(timeline.getPeriod(2, period).getAdGroupCount()).isEqualTo(1);
+    assertThat(timeline.getPeriod(2, period).getAdGroupTimeUs(/* adGroupIndex= */ 0))
+        .isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(timeline.getPeriod(2, period).getAdCountInAdGroup(/* adGroupIndex= */ 0))
+        .isEqualTo(C.LENGTH_UNSET);
+    assertThat(timeline.getPeriod(2, period).isServerSideInsertedAdGroup(/* adGroupIndex= */ 0))
+        .isTrue();
+    assertExpectedWindow(
+        timeline,
+        calculateExpectedWindow(
+            /* availabilityStartTimeUs= */ 0L,
+            /* liveWindowDurationUs= */ 50_000_000L,
+            /* nowUs= */ 100_000_000L,
+            adSequencePattern),
+        adSequencePattern);
+  }
+
+  @Test
   public void advanceTimeUs_availabilitySinceStartOfUnixEpoch_correctPeriodsInLiveWindow() {
     boolean[] adSequencePattern = {false, true, true};
     FakeMultiPeriodLiveTimeline timeline =
@@ -75,7 +187,9 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* availabilityStartTimeUs= */ 0L,
             /* liveWindowDurationUs= */ 60_000_000L,
             /* nowUs= */ 60_000_123L,
-            adSequencePattern);
+            adSequencePattern,
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -154,7 +268,12 @@ public class FakeMultiPeriodLiveTimelineTest {
 
     FakeMultiPeriodLiveTimeline timeline =
         new FakeMultiPeriodLiveTimeline(
-            availabilityStartTimeUs, liveWindowDurationUs, nowUs, adSequencePattern);
+            availabilityStartTimeUs,
+            liveWindowDurationUs,
+            nowUs,
+            adSequencePattern,
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false);
 
     assertThat(timeline.getWindow(0, new Timeline.Window()).windowStartTimeMs)
         .isEqualTo(Util.usToMs(nowUs - liveWindowDurationUs));
@@ -209,7 +328,12 @@ public class FakeMultiPeriodLiveTimelineTest {
 
     FakeMultiPeriodLiveTimeline timeline =
         new FakeMultiPeriodLiveTimeline(
-            availabilityStartTimeUs, liveWindowDurationUs, nowUs, adSequencePattern);
+            availabilityStartTimeUs,
+            liveWindowDurationUs,
+            nowUs,
+            adSequencePattern,
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false);
 
     assertThat(timeline.getWindow(0, new Timeline.Window()).windowStartTimeMs)
         .isEqualTo(Util.usToMs(nowUs - liveWindowDurationUs));
@@ -227,7 +351,9 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* availabilityStartTimeUs= */ 0L,
             /* liveWindowDurationUs= */ 120_000_000L,
             /* nowUs= */ 120_000_000L,
-            new boolean[] {false, true, true, true});
+            new boolean[] {false, true, true, true},
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -262,7 +388,9 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* availabilityStartTimeUs= */ 0L,
             /* liveWindowDurationUs= */ 220_000_000L,
             /* nowUs= */ 250_000_000L,
-            new boolean[] {false, true, false, true, false});
+            new boolean[] {false, true, false, true, false},
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false);
 
     assertThat(timeline.getPeriodCount()).isEqualTo(10);
     assertThat(timeline.getWindow(0, window).windowStartTimeMs).isEqualTo(30_000L);
