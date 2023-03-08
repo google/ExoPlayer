@@ -904,7 +904,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void attemptRendererErrorRecovery() throws ExoPlaybackException {
-    seekToCurrentPosition(/* sendDiscontinuity= */ true);
+    reselectTracksInternalAndSeek();
   }
 
   private void updatePlaybackPositions() throws ExoPlaybackException {
@@ -1686,6 +1686,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
     ensureStopped(renderer);
     renderer.disable();
     enabledRendererCount--;
+  }
+
+  private void reselectTracksInternalAndSeek() throws ExoPlaybackException {
+    reselectTracksInternal();
+    seekToCurrentPosition(/* sendDiscontinuity= */ true);
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {

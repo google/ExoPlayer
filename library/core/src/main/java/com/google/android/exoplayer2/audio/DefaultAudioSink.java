@@ -453,7 +453,6 @@ public final class DefaultAudioSink implements AudioSink {
   @GuardedBy("releaseExecutorLock")
   private static int pendingReleaseCount;
 
-  private final AudioCapabilities audioCapabilities;
   private final com.google.android.exoplayer2.audio.AudioProcessorChain audioProcessorChain;
   private final boolean enableFloatOutput;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
@@ -478,6 +477,7 @@ public final class DefaultAudioSink implements AudioSink {
   private @MonotonicNonNull Configuration configuration;
   private @MonotonicNonNull AudioProcessingPipeline audioProcessingPipeline;
   @Nullable private AudioTrack audioTrack;
+  private AudioCapabilities audioCapabilities;
 
   private AudioAttributes audioAttributes;
   @Nullable private MediaPositionParameters afterDrainParameters;
@@ -1128,6 +1128,8 @@ public final class DefaultAudioSink implements AudioSink {
         listener.onAudioSinkError(e);
       }
       if (e.isRecoverable) {
+        // Change to the audio capabilities supported by all the devices during the error recovery.
+        audioCapabilities = DEFAULT_AUDIO_CAPABILITIES;
         throw e; // Do not delay the exception if it can be recovered at higher level.
       }
       writeExceptionPendingExceptionHolder.throwExceptionIfDeadlineIsReached(e);
