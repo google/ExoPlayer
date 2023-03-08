@@ -42,6 +42,7 @@ import androidx.media3.extractor.ExtractorUtil;
 import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.HevcConfig;
 import androidx.media3.extractor.OpusUtil;
+import androidx.media3.extractor.metadata.mp4.Mp4LocationData;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
 import androidx.media3.extractor.mp4.Atom.LeafAtom;
 import com.google.common.base.Function;
@@ -57,6 +58,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
 @SuppressWarnings("ConstantField")
 /* package */ final class AtomParsers {
+
+  /** Stores metadata retrieved from the udta atom. */
+  public static final class UdtaInfo {
+    /** The metadata retrieved from the meta sub atom. */
+    @Nullable public final Metadata metaMetadata;
+    /** The metadata retrieved from the smta sub atom. */
+    @Nullable public final Metadata smtaMetadata;
+    /** The location metadata retrieved from the xyz sub atom. */
+    @Nullable public final Metadata xyzMetadata;
+
+    /** Creates an instance. */
+    public UdtaInfo(
+        @Nullable Metadata metaMetadata,
+        @Nullable Metadata smtaMetadata,
+        @Nullable Metadata xyzMetadata) {
+      this.metaMetadata = metaMetadata;
+      this.smtaMetadata = smtaMetadata;
+      this.xyzMetadata = xyzMetadata;
+    }
+  }
 
   private static final String TAG = "AtomParsers";
 
@@ -157,15 +178,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Parses a udta atom.
    *
    * @param udtaAtom The udta (user data) atom to decode.
-   * @return A {@link Pair} containing the metadata from the meta child atom as first value (if
-   *     any), and the metadata from the smta child atom as second value (if any).
+   * @return A {@link UdtaInfo} containing the metadata extracted from the meta, smta and xyz child
+   *     atoms (if present).
    */
-  public static Pair<@NullableType Metadata, @NullableType Metadata> parseUdta(
-      Atom.LeafAtom udtaAtom) {
+  public static UdtaInfo parseUdta(Atom.LeafAtom udtaAtom) {
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
     @Nullable Metadata metaMetadata = null;
     @Nullable Metadata smtaMetadata = null;
+    @Nullable Metadata xyzMetadata = null;
     while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
       int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
@@ -176,10 +197,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (atomType == Atom.TYPE_smta) {
         udtaData.setPosition(atomPosition);
         smtaMetadata = parseSmta(udtaData, atomPosition + atomSize);
+      } else if (atomType == Atom.TYPE_xyz) {
+        xyzMetadata = parseXyz(udtaData);
       }
       udtaData.setPosition(atomPosition + atomSize);
     }
-    return Pair.create(metaMetadata, smtaMetadata);
+    return new UdtaInfo(metaMetadata, smtaMetadata, xyzMetadata);
   }
 
   /**
@@ -758,6 +781,27 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
     return entries.isEmpty() ? null : new Metadata(entries);
+  }
+
+  /** Parses the location metadata from the xyz atom. */
+  @Nullable
+  private static Metadata parseXyz(ParsableByteArray xyzBox) {
+    int length = xyzBox.readShort();
+    xyzBox.skipBytes(2); // language code.
+    String location = xyzBox.readString(length);
+    // The location string looks like "+35.1345-15.1020/".
+    int plusSignIndex = location.lastIndexOf('+');
+    int minusSignIndex = location.lastIndexOf('-');
+    int latitudeEndIndex = max(plusSignIndex, minusSignIndex);
+    try {
+      float latitude = Float.parseFloat(location.substring(0, latitudeEndIndex));
+      float longitude =
+          Float.parseFloat(location.substring(latitudeEndIndex, location.length() - 1));
+      return new Metadata(new Mp4LocationData(latitude, longitude));
+    } catch (IndexOutOfBoundsException | NumberFormatException exception) {
+      // Invalid input.
+      return null;
+    }
   }
 
   /**

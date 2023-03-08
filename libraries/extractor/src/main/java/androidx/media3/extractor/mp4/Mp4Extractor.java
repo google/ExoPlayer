@@ -23,7 +23,6 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
-import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -58,7 +57,6 @@ import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Extracts data from the MP4 container format. */
@@ -494,14 +492,15 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     // Process metadata.
     @Nullable Metadata udtaMetaMetadata = null;
     @Nullable Metadata smtaMetadata = null;
+    @Nullable Metadata xyzMetadata = null;
     boolean isQuickTime = fileType == FILE_TYPE_QUICKTIME;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      Pair<@NullableType Metadata, @NullableType Metadata> udtaMetadata =
-          AtomParsers.parseUdta(udta);
-      udtaMetaMetadata = udtaMetadata.first;
-      smtaMetadata = udtaMetadata.second;
+      AtomParsers.UdtaInfo udtaInfo = AtomParsers.parseUdta(udta);
+      udtaMetaMetadata = udtaInfo.metaMetadata;
+      smtaMetadata = udtaInfo.smtaMetadata;
+      xyzMetadata = udtaInfo.xyzMetadata;
       if (udtaMetaMetadata != null) {
         gaplessInfoHolder.setFromMetadata(udtaMetaMetadata);
       }
@@ -562,7 +561,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           mdtaMetadata,
           formatBuilder,
           smtaMetadata,
-          slowMotionMetadataEntries.isEmpty() ? null : new Metadata(slowMotionMetadataEntries));
+          slowMotionMetadataEntries.isEmpty() ? null : new Metadata(slowMotionMetadataEntries),
+          xyzMetadata);
       mp4Track.trackOutput.format(formatBuilder.build());
 
       if (track.type == C.TRACK_TYPE_VIDEO && firstVideoTrackIndex == C.INDEX_UNSET) {
