@@ -21,7 +21,7 @@ import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIX
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createGlTextureFromBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
-import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -110,7 +110,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -131,7 +131,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -151,7 +151,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -171,7 +171,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -191,7 +191,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -214,7 +214,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -235,7 +235,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -256,7 +256,7 @@ public class SingleColorLutPixelTest {
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
 
-    maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    maybeSaveTestBitmap(testId, "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);

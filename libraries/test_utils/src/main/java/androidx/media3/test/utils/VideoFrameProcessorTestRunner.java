@@ -18,7 +18,7 @@ package androidx.media3.test.utils;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
-import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -331,7 +331,7 @@ public final class VideoFrameProcessorTestRunner {
     Image videoFrameProcessorOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
     Bitmap actualBitmap = createArgb8888BitmapFromRgba8888Image(videoFrameProcessorOutputImage);
     videoFrameProcessorOutputImage.close();
-    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ outputFileLabel, actualBitmap);
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ outputFileLabel, actualBitmap, /* path= */ null);
     return actualBitmap;
   }
 

@@ -15,6 +15,7 @@
  */
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.abs;
@@ -128,11 +129,16 @@ public class BitmapPixelTestUtil {
    * @param actual The actual {@link Bitmap} produced by the test.
    * @param testId The name of the test that produced the {@link Bitmap}, or {@code null} if the
    *     differences bitmap should not be saved to cache.
+   * @param differencesBitmapPath Folder path for the produced pixel-wise difference {@link Bitmap}
+   *     to be saved in or {@code null} if the assumed default save path should be used.
    * @return The average of the maximum absolute pixel-wise differences between the expected and
    *     actual bitmaps.
    */
   public static float getBitmapAveragePixelAbsoluteDifferenceArgb8888(
-      Bitmap expected, Bitmap actual, @Nullable String testId) {
+      Bitmap expected,
+      Bitmap actual,
+      @Nullable String testId,
+      @Nullable String differencesBitmapPath) {
     int width = actual.getWidth();
     int height = actual.getHeight();
     assertThat(width).isEqualTo(expected.getWidth());
@@ -164,13 +170,32 @@ public class BitmapPixelTestUtil {
       }
     }
     if (testId != null) {
-      maybeSaveTestBitmapToCacheDirectory(testId, "diff", differencesBitmap);
+      maybeSaveTestBitmap(
+          testId, /* bitmapLabel= */ "diff", differencesBitmap, differencesBitmapPath);
     }
     return (float) sumMaximumAbsoluteDifferences / (width * height);
   }
 
   /**
-   * Tries to save the {@link Bitmap} to the {@link Context#getCacheDir() cache directory} as a PNG.
+   * Returns the average difference between the expected and actual bitmaps, calculated using the
+   * maximum difference across all color channels for each pixel, then divided by the total number
+   * of pixels in the image, without saving the difference bitmap. See {@link
+   * BitmapPixelTestUtil#getBitmapAveragePixelAbsoluteDifferenceArgb8888(Bitmap, Bitmap, String,
+   * String)}.
+   *
+   * <p>This method is the overloaded version of {@link
+   * BitmapPixelTestUtil#getBitmapAveragePixelAbsoluteDifferenceArgb8888(Bitmap, Bitmap, String,
+   * String)} without a specified saved path.
+   */
+  public static float getBitmapAveragePixelAbsoluteDifferenceArgb8888(
+      Bitmap expected, Bitmap actual, @Nullable String testId) {
+    return getBitmapAveragePixelAbsoluteDifferenceArgb8888(
+        expected, actual, testId, /* differencesBitmapPath= */ null);
+  }
+
+  /**
+   * Tries to save the {@link Bitmap} as a PNG to the {@code <path>}, and if not provided, tries to
+   * save to the {@link Context#getCacheDir() cache directory}.
    *
    * <p>File name will be {@code <testId>_<bitmapLabel>.png}. If the file failed to write, any
    * {@link IOException} will be caught and logged.
@@ -178,11 +203,23 @@ public class BitmapPixelTestUtil {
    * @param testId Name of the test that produced the {@link Bitmap}.
    * @param bitmapLabel Label to identify the bitmap.
    * @param bitmap The {@link Bitmap} to save.
+   * @param path Folder path for the supplied {@link Bitmap} to be saved in or {@code null} if the
+   *     {@link Context#getCacheDir() cache directory} should be saved in.
    */
-  public static void maybeSaveTestBitmapToCacheDirectory(
-      String testId, String bitmapLabel, Bitmap bitmap) {
+  public static void maybeSaveTestBitmap(
+      String testId, String bitmapLabel, Bitmap bitmap, @Nullable String path) {
     String fileName = testId + (bitmapLabel.isEmpty() ? "" : "_" + bitmapLabel) + ".png";
-    File file = new File(getApplicationContext().getExternalCacheDir(), fileName);
+    File file = null;
+
+    if (path != null) {
+      File folder = new File(path);
+      checkState(
+          folder.exists() || folder.mkdirs(), "Could not create directory to save images: " + path);
+      file = new File(path, fileName);
+    } else {
+      file = new File(getApplicationContext().getExternalCacheDir(), fileName);
+    }
+
     try (FileOutputStream outputStream = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, outputStream);
     } catch (IOException e) {
