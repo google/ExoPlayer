@@ -527,7 +527,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               context,
               addedTrackInfo.firstAssetLoaderInputFormat,
               addedTrackInfo.streamStartPositionUs,
-              addedTrackInfo.streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.effects.videoEffects,
               compositionPresentation,
