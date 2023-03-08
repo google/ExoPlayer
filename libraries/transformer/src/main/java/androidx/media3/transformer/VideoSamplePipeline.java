@@ -77,7 +77,6 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format firstInputFormat,
       long streamStartPositionUs,
-      long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
       @Nullable Presentation presentation,
