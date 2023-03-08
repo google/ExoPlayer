@@ -34,6 +34,9 @@
 *   DASH:
     *   Fix handling of empty segment timelines
         ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
+*   IMA DAI extension:
+    *   Fix a bug where a new ad group is inserted in live streams because the
+        calculated content position in consecutive timelines varies slightly.
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
