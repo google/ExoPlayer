@@ -129,8 +129,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         // Gamma 2.2 is used instead of SMPTE 170M for SDR, despite MediaFormat's
         // COLOR_TRANSFER_SDR_VIDEO being defined as SMPTE 170M. This is to match
         // other known tone-mapping behavior within the Android ecosystem.
-        // TODO(b/239735341): Consider migrating SDR outside tone-mapping from SMPTE
-        //  170M to gamma 2.2.
         checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
         checkArgument(outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020);
         checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
