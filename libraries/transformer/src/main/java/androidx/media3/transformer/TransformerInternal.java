@@ -465,7 +465,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else {
         outputHasVideo.set(true);
       }
-      if (trackCountsToReport.get() == 0 && tracksToAdd.decrementAndGet() == 0) {
+      if (tracksToAdd.decrementAndGet() == 0 && trackCountsToReport.get() == 0) {
         int outputTrackCount = (outputHasAudio.get() ? 1 : 0) + (outputHasVideo.get() ? 1 : 0);
         muxerWrapper.setTrackCount(outputTrackCount);
         fallbackListener.setTrackCount(outputTrackCount);

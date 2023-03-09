@@ -27,7 +27,10 @@ import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.audio.AudioProcessor;
+import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.effect.Presentation;
+import androidx.media3.effect.RgbFilter;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -183,6 +186,51 @@ public class TransformerEndToEndTest {
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_ENCODER_INIT_FAILED);
     assertThat(exception).hasMessageThat().contains("video");
+  }
+
+  @Test
+  public void start_audioVideoTranscodedFromDifferentSequences_producesExpectedResult()
+      throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    String testId = "start_audioVideoTranscodedFromDifferentSequences_producesExpectedResult";
+    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(new SonicAudioProcessor());
+    ImmutableList<Effect> videoEffects = ImmutableList.of(RgbFilter.createGrayscaleFilter());
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(new Effects(audioProcessors, videoEffects))
+            .build();
+    ExportTestResult expectedResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of()))
+            .setRemoveVideo(true)
+            .build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(ImmutableList.of(audioEditedMediaItem));
+    EditedMediaItem videoEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects))
+            .setRemoveAudio(true)
+            .build();
+    EditedMediaItemSequence videoSequence =
+        new EditedMediaItemSequence(ImmutableList.of(videoEditedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence)).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.channelCount)
+        .isEqualTo(expectedResult.exportResult.channelCount);
+    assertThat(result.exportResult.videoFrameCount)
+        .isEqualTo(expectedResult.exportResult.videoFrameCount);
+    assertThat(result.exportResult.durationMs).isEqualTo(expectedResult.exportResult.durationMs);
   }
 
   private static final class VideoUnsupportedEncoderFactory implements Codec.EncoderFactory {
