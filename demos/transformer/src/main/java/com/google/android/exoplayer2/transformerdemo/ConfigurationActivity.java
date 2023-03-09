@@ -206,7 +206,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
-  private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
+  private @MonotonicNonNull Runnable onPermissionsGranted;
+  private @MonotonicNonNull ActivityResultLauncher<Intent> videoLocalFilePickerLauncher;
+  private @MonotonicNonNull ActivityResultLauncher<Intent> overlayLocalFilePickerLauncher;
   private @MonotonicNonNull Button selectPresetFileButton;
   private @MonotonicNonNull Button selectLocalFileButton;
   private @MonotonicNonNull TextView selectedFileTextView;
@@ -257,11 +259,23 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     findViewById(R.id.export_button).setOnClickListener(this::startExport);
 
+    videoLocalFilePickerLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::videoLocalFilePickerLauncherResult);
+    overlayLocalFilePickerLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::overlayLocalFilePickerLauncherResult);
+
     selectPresetFileButton = findViewById(R.id.select_preset_file_button);
     selectPresetFileButton.setOnClickListener(this::selectPresetFile);
 
     selectLocalFileButton = findViewById(R.id.select_local_file_button);
-    selectLocalFileButton.setOnClickListener(this::selectLocalFile);
+    selectLocalFileButton.setOnClickListener(
+        view ->
+            selectLocalFile(
+                view, checkNotNull(videoLocalFilePickerLauncher), /* mimeType= */ "video/*"));
 
     selectedFileTextView = findViewById(R.id.selected_file_text_view);
     selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
@@ -341,11 +355,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     videoEffectsSelections = new boolean[VIDEO_EFFECTS.length];
     selectVideoEffectsButton = findViewById(R.id.select_video_effects_button);
     selectVideoEffectsButton.setOnClickListener(this::selectVideoEffects);
-
-    localFilePickerLauncher =
-        registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            this::localFilePickerLauncherResult);
   }
 
   @Override
@@ -356,7 +365,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (requestCode == FILE_PERMISSION_REQUEST_CODE
         && grantResults.length == 1
         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-      launchLocalFilePicker();
+      checkNotNull(onPermissionsGranted).run();
     } else {
       Toast.makeText(
               getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_LONG)
@@ -489,29 +498,51 @@ public final class ConfigurationActivity extends AppCompatActivity {
     selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
   }
 
-  private void selectLocalFile(View view) {
+  private void selectLocalFile(
+      View view, ActivityResultLauncher<Intent> localFilePickerLauncher, String mimeType) {
     String permission = SDK_INT >= 33 ? READ_MEDIA_VIDEO : READ_EXTERNAL_STORAGE;
     if (ActivityCompat.checkSelfPermission(/* context= */ this, permission)
         != PackageManager.PERMISSION_GRANTED) {
+      onPermissionsGranted = () -> launchLocalFilePicker(localFilePickerLauncher, mimeType);
       ActivityCompat.requestPermissions(
           /* activity= */ this, new String[] {permission}, FILE_PERMISSION_REQUEST_CODE);
     } else {
-      launchLocalFilePicker();
+      launchLocalFilePicker(localFilePickerLauncher, mimeType);
     }
   }
 
-  private void launchLocalFilePicker() {
+  private void launchLocalFilePicker(
+      ActivityResultLauncher<Intent> localFilePickerLauncher, String mimeType) {
     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-    intent.setType("video/*");
+    intent.setType(mimeType);
     checkNotNull(localFilePickerLauncher).launch(intent);
   }
 
   @RequiresNonNull("selectedFileTextView")
-  private void localFilePickerLauncherResult(ActivityResult result) {
+  private void videoLocalFilePickerLauncherResult(ActivityResult result) {
     Intent data = result.getData();
     if (data != null) {
       localFileUri = checkNotNull(data.getData());
       selectedFileTextView.setText(localFileUri.toString());
+    } else {
+      Toast.makeText(
+              getApplicationContext(),
+              getString(R.string.local_file_picker_failed),
+              Toast.LENGTH_SHORT)
+          .show();
+    }
+  }
+
+  private void overlayLocalFilePickerLauncherResult(ActivityResult result) {
+    Intent data = result.getData();
+    if (data != null) {
+      bitmapOverlayUri = checkNotNull(data.getData()).toString();
+    } else {
+      Toast.makeText(
+              getApplicationContext(),
+              getString(R.string.local_file_picker_failed),
+              Toast.LENGTH_SHORT)
+          .show();
     }
   }
 
@@ -695,7 +726,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private void controlBitmapOverlaySettings() {
     View dialogView =
         getLayoutInflater().inflate(R.layout.bitmap_overlay_options, /* root= */ null);
-    EditText uriEditText = checkNotNull(dialogView.findViewById(R.id.bitmap_overlay_uri));
+    Button uriButton = checkNotNull(dialogView.findViewById(R.id.bitmap_overlay_uri));
+    uriButton.setOnClickListener(
+        (view ->
+            selectLocalFile(
+                view, checkNotNull(overlayLocalFilePickerLauncher), /* mimeType= */ "image/*")));
     Slider alphaSlider = checkNotNull(dialogView.findViewById(R.id.bitmap_overlay_alpha_slider));
     new AlertDialog.Builder(/* context= */ this)
         .setTitle(R.string.bitmap_overlay_settings)
@@ -703,7 +738,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .setPositiveButton(
             android.R.string.ok,
             (DialogInterface dialogInterface, int i) -> {
-              bitmapOverlayUri = uriEditText.getText().toString();
               bitmapOverlayAlpha = alphaSlider.getValue();
             })
         .create()

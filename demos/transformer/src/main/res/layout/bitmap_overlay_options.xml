@@ -38,9 +38,9 @@
       android:gravity="center_vertical" >
       <TextView
         android:text="@string/overlay_uri" />
-      <EditText
+      <Button
         android:id="@+id/bitmap_overlay_uri"
-        android:inputType="textUri|textMultiLine"
+        android:text="@string/select_local_image"
         android:layout_width="0dp"
         android:layout_height="wrap_content" />
     </TableRow>
