@@ -43,6 +43,11 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   // Muxer implementation.
 
   @Override
+  public void setLocation(float latitude, float longitude) {
+    muxer.setLocation(latitude, longitude);
+  }
+
+  @Override
   public int addTrack(Format format) throws MuxerException {
     int trackIndex = muxer.addTrack(format);
     dumpables.add(new DumpableFormat(format, trackIndex));

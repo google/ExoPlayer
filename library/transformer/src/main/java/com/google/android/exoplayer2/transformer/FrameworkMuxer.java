@@ -105,6 +105,11 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  public void setLocation(float latitude, float longitude) {
+    mediaMuxer.setLocation(latitude, longitude);
+  }
+
+  @Override
   public int addTrack(Format format) throws MuxerException {
     String sampleMimeType = checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat;

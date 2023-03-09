@@ -64,6 +64,14 @@ public interface Muxer {
   }
 
   /**
+   * Sets the location.
+   *
+   * @param latitude The latitude, in degrees. Its value must be in the range [-90, 90].
+   * @param longitude The longitude, in degrees. Its value must be in the range [-180, 180].
+   */
+  void setLocation(float latitude, float longitude);
+
+  /**
    * Adds a track with the specified format.
    *
    * @param format The {@link Format} of the track.

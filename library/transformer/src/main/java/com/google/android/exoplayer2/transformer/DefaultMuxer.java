@@ -77,6 +77,11 @@ public final class DefaultMuxer implements Muxer {
   }
 
   @Override
+  public void setLocation(float latitude, float longitude) {
+    this.muxer.setLocation(latitude, longitude);
+  }
+
+  @Override
   public int addTrack(Format format) throws MuxerException {
     return muxer.addTrack(format);
   }
