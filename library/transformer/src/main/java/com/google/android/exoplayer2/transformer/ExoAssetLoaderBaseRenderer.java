@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OU
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
@@ -54,6 +53,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private boolean isRunning;
   private long streamStartPositionUs;
+  private boolean shouldInitDecoder;
 
   public ExoAssetLoaderBaseRenderer(
       @C.TrackType int trackType,
@@ -97,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
     try {
-      if (!isRunning || isEnded() || !hasReadInputFormat()) {
+      if (!isRunning || isEnded() || !readInputFormatAndInitDecoderIfNeeded()) {
         return;
       }
 
@@ -195,35 +195,39 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     {@linkplain Codec decoder}.
    */
   @EnsuresNonNullIf(expression = "inputFormat", result = true)
-  private boolean hasReadInputFormat() throws ExportException {
-    if (inputFormat != null) {
+  private boolean readInputFormatAndInitDecoderIfNeeded() throws ExportException {
+    if (inputFormat != null && !shouldInitDecoder) {
       return true;
     }
 
-    FormatHolder formatHolder = getFormatHolder();
-    @ReadDataResult
-    int result = readSource(formatHolder, decoderInputBuffer, /* readFlags= */ FLAG_REQUIRE_FORMAT);
-    if (result != C.RESULT_FORMAT_READ) {
-      return false;
+    if (inputFormat == null) {
+      FormatHolder formatHolder = getFormatHolder();
+      @ReadDataResult
+      int result =
+          readSource(formatHolder, decoderInputBuffer, /* readFlags= */ FLAG_REQUIRE_FORMAT);
+      if (result != C.RESULT_FORMAT_READ) {
+        return false;
+      }
+      inputFormat = overrideFormat(checkNotNull(formatHolder.format));
+      onInputFormatRead(inputFormat);
+      shouldInitDecoder =
+          assetLoaderListener.onTrackAdded(
+              inputFormat,
+              SUPPORTED_OUTPUT_TYPE_DECODED | SUPPORTED_OUTPUT_TYPE_ENCODED,
+              streamStartPositionUs,
+              streamOffsetUs);
     }
-    inputFormat = overrideFormat(checkNotNull(formatHolder.format));
-    onInputFormatRead(inputFormat);
 
-    boolean decodeOutput =
-        assetLoaderListener.onTrackAdded(
-            inputFormat,
-            SUPPORTED_OUTPUT_TYPE_DECODED | SUPPORTED_OUTPUT_TYPE_ENCODED,
-            streamStartPositionUs,
-            streamOffsetUs);
-    if (decodeOutput) {
-      if (getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO) {
-        initDecoder(inputFormat);
-      } else {
+    if (shouldInitDecoder) {
+      if (getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_VIDEO) {
         // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and
         // get decoder output Format before init sampleConsumer.
-        checkState(ensureSampleConsumerInitialized());
-        initDecoder(inputFormat);
+        if (!ensureSampleConsumerInitialized()) {
+          return false;
+        }
       }
+      initDecoder(inputFormat);
+      shouldInitDecoder = false;
     }
 
     return true;

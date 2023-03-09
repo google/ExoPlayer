@@ -700,7 +700,6 @@ public final class Transformer {
    * @throws IllegalStateException If an export is already in progress.
    */
   public void start(Composition composition, String path) {
-    checkArgument(composition.sequences.size() == 1);
     checkArgument(composition.effects.audioProcessors.isEmpty());
     // Only supports Presentation in video effects.
     ImmutableList<Effect> videoEffects = composition.effects.videoEffects;

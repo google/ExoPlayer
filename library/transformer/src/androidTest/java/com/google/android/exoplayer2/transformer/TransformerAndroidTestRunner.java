@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
@@ -174,20 +176,20 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Exports the {@link EditedMediaItem}, saving a summary of the export to the application cache.
+   * Exports the {@link Composition}, saving a summary of the export to the application cache.
    *
    * @param testId A unique identifier for the transformer test run.
-   * @param editedMediaItem The {@link EditedMediaItem} to export.
+   * @param composition The {@link Composition} to export.
    * @return The {@link ExportTestResult}.
    * @throws Exception The cause of the export not completing.
    */
-  public ExportTestResult run(String testId, EditedMediaItem editedMediaItem) throws Exception {
+  public ExportTestResult run(String testId, Composition composition) throws Exception {
     JSONObject resultJson = new JSONObject();
     if (inputValues != null) {
       resultJson.put("inputValues", JSONObject.wrap(inputValues));
     }
     try {
-      ExportTestResult exportTestResult = runInternal(testId, editedMediaItem);
+      ExportTestResult exportTestResult = runInternal(testId, composition);
       resultJson.put("exportResult", exportTestResult.asJsonObject());
       if (exportTestResult.exportResult.exportException != null) {
         throw exportTestResult.exportResult.exportException;
@@ -210,6 +212,21 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
+   * Exports the {@link EditedMediaItem}, saving a summary of the export to the application cache.
+   *
+   * @param testId A unique identifier for the transformer test run.
+   * @param editedMediaItem The {@link EditedMediaItem} to export.
+   * @return The {@link ExportTestResult}.
+   * @throws Exception The cause of the export not completing.
+   */
+  public ExportTestResult run(String testId, EditedMediaItem editedMediaItem) throws Exception {
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition = new Composition.Builder(ImmutableList.of(sequence)).build();
+    return run(testId, composition);
+  }
+
+  /**
    * Exports the {@link MediaItem}, saving a summary of the export to the application cache.
    *
    * @param testId A unique identifier for the transformer test run.
@@ -223,33 +240,49 @@ public class TransformerAndroidTestRunner {
   }
 
   /**
-   * Exports the {@link EditedMediaItem}.
+   * Exports the {@link Composition}.
    *
    * @param testId An identifier for the test.
-   * @param editedMediaItem The {@link EditedMediaItem} to export.
+   * @param composition The {@link Composition} to export.
    * @return The {@link ExportTestResult}.
-   * @throws IllegalStateException See {@link Transformer#start(EditedMediaItem, String)}.
+   * @throws IllegalStateException See {@link Transformer#start(Composition, String)}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
    *     complete.
    * @throws IOException If an error occurs opening the output file for writing.
    * @throws TimeoutException If the export has not completed after {@linkplain
    *     Builder#setTimeoutSeconds(int) the given timeout}.
    */
-  private ExportTestResult runInternal(String testId, EditedMediaItem editedMediaItem)
+  private ExportTestResult runInternal(String testId, Composition composition)
       throws InterruptedException, IOException, TimeoutException {
-    MediaItem mediaItem = editedMediaItem.mediaItem;
-    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && requestCalculateSsim) {
-      throw new UnsupportedOperationException(
+    if (requestCalculateSsim) {
+      checkArgument(
+          composition.sequences.size() == 1
+              && composition.sequences.get(0).editedMediaItems.size() == 1,
+          "SSIM is only relevant for single MediaItem compositions");
+      checkArgument(
+          composition
+              .sequences
+              .get(0)
+              .editedMediaItems
+              .get(0)
+              .mediaItem
+              .clippingConfiguration
+              .equals(MediaItem.ClippingConfiguration.UNSET),
           "SSIM calculation is not supported for clipped inputs.");
     }
-
-    Uri mediaItemUri = checkNotNull(mediaItem.localConfiguration).uri;
-    String scheme = checkNotNull(mediaItemUri.getScheme());
-    if ((scheme.equals("http") || scheme.equals("https")) && !hasNetworkConnection(context)) {
-      throw new UnsupportedOperationException(
-          "Input network file requested on device with no network connection. Input file name: "
-              + mediaItemUri);
+    if (!hasNetworkConnection(context)) {
+      for (EditedMediaItemSequence sequence : composition.sequences) {
+        for (EditedMediaItem editedMediaItem : sequence.editedMediaItems) {
+          Uri mediaItemUri = checkNotNull(editedMediaItem.mediaItem.localConfiguration).uri;
+          String scheme = checkNotNull(mediaItemUri.getScheme());
+          if ((scheme.equals("http") || scheme.equals("https"))) {
+            throw new IllegalArgumentException(
+                "Input network file requested on device with no network connection. Input file"
+                    + " name: "
+                    + mediaItemUri);
+          }
+        }
+      }
     }
 
     AtomicReference<@NullableType FallbackDetails> fallbackDetailsReference =
@@ -307,7 +340,7 @@ public class TransformerAndroidTestRunner {
         .runOnMainSync(
             () -> {
               try {
-                testTransformer.start(editedMediaItem, outputVideoFile.getAbsolutePath());
+                testTransformer.start(composition, outputVideoFile.getAbsolutePath());
                 // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
                 // propagate.
               } catch (Exception e) {
@@ -359,6 +392,7 @@ public class TransformerAndroidTestRunner {
       return testResultBuilder.build();
     }
     try {
+      MediaItem mediaItem = composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
       double ssim =
           SsimHelper.calculate(
               context,
