@@ -27,8 +27,10 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.extractor.metadata.mp4.Mp4LocationData;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -129,6 +131,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * and all the formats must be added before any samples can be {@linkplain #writeSample(int,
    * ByteBuffer, boolean, long) written}.
    *
+   * <p>If the {@link Format#metadata} contains {@link Mp4LocationData}, then it will be added to
+   * the muxer.
+   *
    * @param format The {@link Format} to be added.
    * @throws IllegalArgumentException If the format is unsupported.
    * @throws IllegalStateException If the number of formats added exceeds the {@linkplain
@@ -158,6 +163,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (trackTypeToInfo.size() == trackCount) {
       isReady = true;
       resetAbortTimer();
+    }
+
+    @Nullable Mp4LocationData mp4LocationData = extractMp4LocationData(format);
+    if (mp4LocationData != null) {
+      muxer.setLocation(mp4LocationData.latitude, mp4LocationData.longitude);
     }
   }
 
@@ -326,6 +336,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     return trackInfoWithMinTimeUs;
+  }
+
+  @Nullable
+  private static Mp4LocationData extractMp4LocationData(Format format) {
+    if (format.metadata == null) {
+      return null;
+    }
+
+    for (int i = 0; i < format.metadata.length(); i++) {
+      Metadata.Entry entry = format.metadata.get(i);
+      if (entry instanceof Mp4LocationData) {
+        return (Mp4LocationData) entry;
+      }
+    }
+    return null;
   }
 
   private static final class TrackInfo {
