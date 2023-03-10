@@ -30,8 +30,11 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
+import com.google.android.exoplayer2.effect.Contrast;
+import com.google.android.exoplayer2.effect.FrameCache;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbFilter;
+import com.google.android.exoplayer2.effect.TimestampWrapper;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -113,6 +116,41 @@ public class TransformerEndToEndTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(/* testId= */ "videoEditing_completesWithConsistentFrameCount", editedMediaItem);
+
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
+  }
+
+  @Test
+  public void videoEditing_effectsOverTime_completesWithConsistentFrameCount() throws Exception {
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setEncoderFactory(
+                new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            new TimestampWrapper(
+                new Contrast(.5f),
+                /* startTimeUs= */ 0,
+                /* endTimeUs= */ Math.round(.1f * C.MICROS_PER_SECOND)),
+            new TimestampWrapper(
+                new FrameCache(/* capacity= */ 5),
+                /* startTimeUs= */ Math.round(.2f * C.MICROS_PER_SECOND),
+                /* endTimeUs= */ Math.round(.3f * C.MICROS_PER_SECOND)));
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+    // Result of the following command:
+    // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
+    int expectedFrameCount = 30;
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(
+                /* testId= */ "videoEditing_effectsOverTime_completesWithConsistentFrameCount",
+                editedMediaItem);
 
     assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
   }

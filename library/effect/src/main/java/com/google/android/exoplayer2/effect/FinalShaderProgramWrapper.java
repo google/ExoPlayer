@@ -167,7 +167,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void signalEndOfCurrentInputStream() {
     frameProcessingStarted = true;
-    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
+    if (streamOffsetUsQueue.isEmpty()) {
+      // No input stream to end.
+      return;
+    }
     streamOffsetUsQueue.remove();
     if (streamOffsetUsQueue.isEmpty()) {
       videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);

@@ -102,7 +102,7 @@ public interface GlShaderProgram {
 
     /**
      * Called when the {@link GlShaderProgram} will not produce further output frames belonging to
-     * the current output stream.
+     * the current output stream. May be called multiple times for one output stream.
      */
     default void onCurrentOutputStreamEnded() {}
   }

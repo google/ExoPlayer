@@ -61,6 +61,7 @@ import org.checkerframework.dataflow.qual.Pure;
   /** MIME type to use for output video if the input type is not a video. */
   private static final String DEFAULT_OUTPUT_MIME_TYPE = MimeTypes.VIDEO_H265;
 
+  private final long streamOffsetUs;
   private final AtomicLong mediaItemOffsetUs;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ColorInfo videoFrameProcessorInputColor;
@@ -77,6 +78,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format firstInputFormat,
       long streamStartPositionUs,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
       @Nullable Presentation presentation,
@@ -90,6 +92,7 @@ import org.checkerframework.dataflow.qual.Pure;
       throws ExportException {
     // TODO(b/262693177) Add tests for input format change.
     super(firstInputFormat, streamStartPositionUs, muxerWrapper);
+    this.streamOffsetUs = streamOffsetUs;
 
     mediaItemOffsetUs = new AtomicLong();
     finalFramePresentationTimeUs = C.TIME_UNSET;
@@ -196,6 +199,7 @@ import org.checkerframework.dataflow.qual.Pure;
           new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(mediaItemOffsetUs.get())
+              .setStreamOffsetUs(streamOffsetUs)
               .build());
     }
     mediaItemOffsetUs.addAndGet(durationUs);
