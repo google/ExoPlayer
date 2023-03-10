@@ -210,7 +210,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void onTrackEnded(
       @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
     if (trackType == C.TRACK_TYPE_AUDIO) {
-      exportResultBuilder.setAverageAudioBitrate(averageBitrate).setPcmEncoding(format.pcmEncoding);
+      exportResultBuilder.setAverageAudioBitrate(averageBitrate);
       if (format.channelCount != Format.NO_VALUE) {
         exportResultBuilder.setChannelCount(format.channelCount);
       }

@@ -20,7 +20,6 @@ import static androidx.media3.transformer.AndroidTestUtil.processedInputsAsJsonA
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.common.Format;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -190,9 +189,6 @@ public class ExportTestResult {
     }
     if (exportResult.height != C.LENGTH_UNSET) {
       jsonObject.put("height", exportResult.height);
-    }
-    if (exportResult.pcmEncoding != Format.NO_VALUE) {
-      jsonObject.put("pcmEncoding", exportResult.pcmEncoding);
     }
     if (exportResult.sampleRate != C.RATE_UNSET_INT) {
       jsonObject.put("sampleRate", exportResult.sampleRate);

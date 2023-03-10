@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
@@ -44,7 +43,6 @@ public final class TransformationResult {
     private long fileSizeBytes;
     private int averageAudioBitrate;
     private int channelCount;
-    private @C.PcmEncoding int pcmEncoding;
     private int sampleRate;
     @Nullable private String audioEncoderName;
     private int averageVideoBitrate;
@@ -62,7 +60,6 @@ public final class TransformationResult {
       fileSizeBytes = C.LENGTH_UNSET;
       averageAudioBitrate = C.RATE_UNSET_INT;
       channelCount = C.LENGTH_UNSET;
-      pcmEncoding = Format.NO_VALUE;
       sampleRate = C.RATE_UNSET_INT;
       averageVideoBitrate = C.RATE_UNSET_INT;
       height = C.LENGTH_UNSET;
@@ -85,7 +82,6 @@ public final class TransformationResult {
       fileSizeBytes = exportResult.fileSizeBytes;
       averageAudioBitrate = exportResult.averageAudioBitrate;
       channelCount = exportResult.channelCount;
-      pcmEncoding = exportResult.pcmEncoding;
       sampleRate = exportResult.sampleRate;
       audioEncoderName = exportResult.audioEncoderName;
       averageVideoBitrate = exportResult.averageVideoBitrate;
@@ -151,13 +147,6 @@ public final class TransformationResult {
     public Builder setChannelCount(int channelCount) {
       checkArgument(channelCount > 0 || channelCount == C.LENGTH_UNSET);
       this.channelCount = channelCount;
-      return this;
-    }
-
-    /** Sets the {@link C.PcmEncoding}. */
-    @CanIgnoreReturnValue
-    public Builder setPcmEncoding(@C.PcmEncoding int pcmEncoding) {
-      this.pcmEncoding = pcmEncoding;
       return this;
     }
 
@@ -258,7 +247,6 @@ public final class TransformationResult {
           fileSizeBytes,
           averageAudioBitrate,
           channelCount,
-          pcmEncoding,
           sampleRate,
           audioEncoderName,
           averageVideoBitrate,
@@ -312,8 +300,6 @@ public final class TransformationResult {
   public final int averageAudioBitrate;
   /** The channel count of the audio, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final int channelCount;
-  /** The {@link C.PcmEncoding} of the audio, or {@link Format#NO_VALUE} if unset or unknown. */
-  public final @C.PcmEncoding int pcmEncoding;
   /** The sample rate of the audio, or {@link C#RATE_UNSET_INT} if unset or unknown. */
   public final int sampleRate;
   /** The name of the audio encoder used, or {@code null} if none were used. */
@@ -346,7 +332,6 @@ public final class TransformationResult {
       long fileSizeBytes,
       int averageAudioBitrate,
       int channelCount,
-      @C.PcmEncoding int pcmEncoding,
       int sampleRate,
       @Nullable String audioEncoderName,
       int averageVideoBitrate,
@@ -361,7 +346,6 @@ public final class TransformationResult {
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
     this.channelCount = channelCount;
-    this.pcmEncoding = pcmEncoding;
     this.sampleRate = sampleRate;
     this.audioEncoderName = audioEncoderName;
     this.averageVideoBitrate = averageVideoBitrate;
@@ -380,7 +364,6 @@ public final class TransformationResult {
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)
         .setChannelCount(channelCount)
-        .setPcmEncoding(pcmEncoding)
         .setSampleRate(sampleRate)
         .setAudioEncoderName(audioEncoderName)
         .setAverageVideoBitrate(averageVideoBitrate)
@@ -406,7 +389,6 @@ public final class TransformationResult {
         && fileSizeBytes == result.fileSizeBytes
         && averageAudioBitrate == result.averageAudioBitrate
         && channelCount == result.channelCount
-        && pcmEncoding == result.pcmEncoding
         && sampleRate == result.sampleRate
         && Objects.equals(audioEncoderName, result.audioEncoderName)
         && averageVideoBitrate == result.averageVideoBitrate
@@ -425,7 +407,6 @@ public final class TransformationResult {
     result = 31 * result + (int) fileSizeBytes;
     result = 31 * result + averageAudioBitrate;
     result = 31 * result + channelCount;
-    result = 31 * result + pcmEncoding;
     result = 31 * result + sampleRate;
     result = 31 * result + Objects.hashCode(audioEncoderName);
     result = 31 * result + averageVideoBitrate;
