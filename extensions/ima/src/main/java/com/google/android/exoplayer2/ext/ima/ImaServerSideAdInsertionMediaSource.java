@@ -676,12 +676,24 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @MainThread
   private void invalidateServerSideAdInsertionAdPlaybackState() {
     if (!adPlaybackState.equals(AdPlaybackState.NONE) && contentTimeline != null) {
-      ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStates =
-          splitAdPlaybackStateForPeriods(adPlaybackState, contentTimeline);
+      ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStates;
+      if (streamRequest.getFormat() == StreamRequest.StreamFormat.DASH) {
+        // DASH ad groups are always split by period.
+        splitAdPlaybackStates = splitAdPlaybackStateForPeriods(adPlaybackState, contentTimeline);
+      } else {
+        // The HLS single period timeline for VOD and live must not be split.
+        int firstPeriodIndex =
+            contentTimeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).firstPeriodIndex;
+        Object periodUid =
+            checkNotNull(
+                contentTimeline.getPeriod(
+                        firstPeriodIndex, new Timeline.Period(), /* setIds= */ true)
+                    .uid);
+        splitAdPlaybackStates = ImmutableMap.of(periodUid, adPlaybackState);
+      }
       streamPlayer.setAdPlaybackStates(adsId, splitAdPlaybackStates, contentTimeline);
       checkNotNull(serverSideAdInsertionMediaSource).setAdPlaybackStates(splitAdPlaybackStates);
-      if (!ImaServerSideAdInsertionUriBuilder.isLiveStream(
-          checkNotNull(mediaItem.localConfiguration).uri)) {
+      if (!isLiveStream) {
         adsLoader.setAdPlaybackState(adsId, adPlaybackState);
       }
     }
