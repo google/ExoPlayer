@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
@@ -66,14 +67,6 @@ public interface Muxer {
   }
 
   /**
-   * Sets the location.
-   *
-   * @param latitude The latitude, in degrees. Its value must be in the range [-90, 90].
-   * @param longitude The longitude, in degrees. Its value must be in the range [-180, 180].
-   */
-  void setLocation(float latitude, float longitude);
-
-  /**
    * Adds a track with the specified format.
    *
    * @param format The {@link Format} of the track.
@@ -95,6 +88,9 @@ public interface Muxer {
   void writeSampleData(
       int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException;
+
+  /** Adds {@link Metadata} about the output file. */
+  void addMetadata(Metadata metadata);
 
   /**
    * Finishes writing the output and releases any resources associated with muxing.

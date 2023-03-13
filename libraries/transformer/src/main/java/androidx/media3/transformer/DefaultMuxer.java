@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -79,11 +80,6 @@ public final class DefaultMuxer implements Muxer {
   }
 
   @Override
-  public void setLocation(float latitude, float longitude) {
-    this.muxer.setLocation(latitude, longitude);
-  }
-
-  @Override
   public int addTrack(Format format) throws MuxerException {
     return muxer.addTrack(format);
   }
@@ -93,6 +89,11 @@ public final class DefaultMuxer implements Muxer {
       int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
     muxer.writeSampleData(trackIndex, data, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void addMetadata(Metadata metadata) {
+    muxer.addMetadata(metadata);
   }
 
   @Override

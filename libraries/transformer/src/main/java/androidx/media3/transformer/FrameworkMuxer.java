@@ -25,11 +25,14 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.util.SparseLongArray;
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Util;
+import androidx.media3.extractor.metadata.mp4.Mp4LocationData;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -102,11 +105,6 @@ import java.nio.ByteBuffer;
     bufferInfo = new MediaCodec.BufferInfo();
     trackIndexToLastPresentationTimeUs = new SparseLongArray();
     videoTrackIndex = C.INDEX_UNSET;
-  }
-
-  @Override
-  public void setLocation(float latitude, float longitude) {
-    mediaMuxer.setLocation(latitude, longitude);
   }
 
   @Override
@@ -191,6 +189,14 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  public void addMetadata(Metadata metadata) {
+    @Nullable Mp4LocationData mp4LocationData = getMp4LocationData(metadata);
+    if (mp4LocationData != null) {
+      mediaMuxer.setLocation(mp4LocationData.latitude, mp4LocationData.longitude);
+    }
+  }
+
+  @Override
   public void release(boolean forCancellation) throws MuxerException {
     if (!isStarted) {
       mediaMuxer.release();
@@ -260,5 +266,16 @@ import java.nio.ByteBuffer;
       // Rethrow the original error.
       throw e;
     }
+  }
+
+  @Nullable
+  private static Mp4LocationData getMp4LocationData(Metadata metadata) {
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry entry = metadata.get(i);
+      if (entry instanceof Mp4LocationData) {
+        return (Mp4LocationData) entry;
+      }
+    }
+    return null;
   }
 }
