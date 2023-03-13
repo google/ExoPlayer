@@ -5,12 +5,10 @@
 We use the [AndroidX Media issue tracker][] to track bugs, feature requests and
 questions.
 
-We are still handling ExoPlayer issues on the [ExoPlayer GitHub issue tracker][]
-while the ExoPlayer and AndroidX Media projects coexist.
-
 Before filing a new issue, please search the trackers to check if it's already
 covered by an existing report. Avoiding duplicates helps us maximize the time we
-can spend fixing bugs and adding new features.
+can spend fixing bugs and adding new features. You will also find older issues
+on our [ExoPlayer GitHub issue tracker][].
 
 When filing an issue, be sure to provide enough information for us to
 efficiently diagnose and reproduce the problem. In particular, please include
