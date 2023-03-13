@@ -1,26 +1,34 @@
 # ExoPlayer <img src="https://img.shields.io/github/v/release/google/ExoPlayer.svg?label=latest"/>
 
-ExoPlayer is an application level media player for Android. It provides an
-alternative to Android’s MediaPlayer API for playing audio and video both
-locally and over the Internet. ExoPlayer supports features not currently
-supported by Android’s MediaPlayer API, including DASH and SmoothStreaming
-adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to customize
-and extend, and can be updated through Play Store application updates.
+ExoPlayer is an application level media player for Android. The latest version
+is published as part of [AndroidX Media][] under a new package name and all
+future development will be in that project.
+
+Please refer to our [migration guide and script][] to move your codebase to the
+Media3 package names.
+
+[AndroidX Media]: https://github.com/androidx/media
+[migration guide and script]: https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide
 
 ## Documentation
 
-* The [developer guide][] provides a wealth of information.
-* The [class reference][] documents ExoPlayer classes.
-* The [release notes][] document the major changes in each release.
-* Follow our [developer blog][] to keep up to date with the latest ExoPlayer
-  developments!
+*   The [developer guide][] provides a wealth of information.
+*   The [class reference][] documents ExoPlayer classes. Note that the classes
+    are documented with their Media3 package names.
+*   The [release notes][] document the major changes in each release.
+*   Follow our [developer blog][] to keep up to date with the latest ExoPlayer
+    developments!
 
-[developer guide]: https://exoplayer.dev/guide.html
-[class reference]: https://exoplayer.dev/doc/reference
+[developer guide]: https://developer.android.com/guide/topics/media/exoplayer
+[class reference]: https://developer.android.com/reference/androidx/media3/common/package-summary
 [release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
 [developer blog]: https://medium.com/google-exoplayer
 
 ## Using ExoPlayer
+
+Please refer to
+[AndroidX Media](https://github.com/androidx/media/blob/release/README.md) for
+the usage instructions of the latest release.
 
 ExoPlayer modules can be obtained from [the Google Maven repository][]. It's
 also possible to clone the repository and depend on the modules locally.
@@ -125,16 +133,3 @@ implementation project(':exoplayer-library-core')
 implementation project(':exoplayer-library-dash')
 implementation project(':exoplayer-library-ui')
 ```
-
-## Developing ExoPlayer
-
-#### Project branches
-
-* Development work happens on the `dev-v2` branch. Pull requests should
-  normally be made to this branch.
-* The `release-v2` branch holds the most recent release.
-
-#### Using Android Studio
-
-To develop ExoPlayer using Android Studio, simply open the ExoPlayer project in
-the root directory of the repository.

@@ -2,6 +2,10 @@
 title: Live streaming
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer plays most adaptive live streams out-of-the-box without any special
 configuration. See the [Supported Formats page][] for more details.
 
@@ -207,6 +211,7 @@ public void onPlayerError(PlaybackException error) {
 ~~~
 {: .language-java}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/live-streaming
 [Supported Formats page]: {{ site.baseurl }}/supported-formats.html
 [default UI components]: {{ site.baseurl }}/ui-components.html
 [pending feature request (#2213)]: https://github.com/google/ExoPlayer/issues/2213

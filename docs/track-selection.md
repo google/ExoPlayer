@@ -2,6 +2,10 @@
 title: Track selection
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 When a media item contains multiple tracks, track selection is the process that
 determines which of them are chosen for playback. The track selection process is
 configured by [`TrackSelectionParameters`][], which allows many different
@@ -211,4 +215,5 @@ Tunneled playback can be enabled in cases where the combination of renderers and
 selected tracks supports it. This can be done by using
 `DefaultTrackSelector.ParametersBuilder.setTunnelingEnabled(true)`.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/track-selection
 [`TrackSelectionParameters`]: {{ site.exo_sdk }}/trackselection/TrackSelectionParameters.html

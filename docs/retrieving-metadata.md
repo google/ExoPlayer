@@ -2,6 +2,10 @@
 title: Retrieving metadata
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ## During playback ##
 
 The metadata of the media can be retrieved during playback in multiple ways. The
@@ -84,6 +88,7 @@ for (int i = 0; i < trackGroups.length; i++) {
 ~~~
 {: .language-java}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/retrieving-metadata
 [`MediaMetadata`]: {{ site.exo_sdk }}/MediaMetadata.html
 [`Metadata.Entry`]: {{ site.exo_sdk }}/metadata/Metadata.Entry.html
 [`MetadataRetriever`]: {{ site.exo_sdk }}/MetadataRetriever.html

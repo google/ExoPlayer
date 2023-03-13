@@ -2,6 +2,10 @@
 title: Media items
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 The [playlist API][] is based on `MediaItem`s, which can be conveniently built
 using `MediaItem.Builder`. Inside the player, media items are converted into
 playable `MediaSource`s by a `MediaSource.Factory`. Without
@@ -155,5 +159,6 @@ the player also needs to have its `DefaultMediaSourceFactory`
 
 {% include media3-known-issue-box.html issue-id="185" description="Subtitles, clipping and ad insertion are only supported if you use `DefaultMediaSourceFactory`." %}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/media-items
 [playlist API]: {{ site.baseurl }}/playlists.html
 [`MediaItem.Builder` Javadoc]: {{ site.exo_sdk }}/MediaItem.Builder.html

@@ -2,6 +2,10 @@
 title: Supported devices
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 The minimum Android versions required for core ExoPlayer use cases are:
 
 | Use case | Android version number | Android API level |
@@ -49,3 +53,5 @@ be found
   reported to the developer of the emulator rather than to the ExoPlayer team.
   Where possible, we recommend testing media applications on physical devices
   rather than emulators.
+
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/supported-devices

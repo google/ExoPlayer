@@ -2,6 +2,10 @@
 title: HLS
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 {% include_relative _page_fragments/supported-formats-hls.md %}
 
 ## Using MediaItem ##
@@ -128,6 +132,7 @@ The following guidelines apply specifically for live streams:
 * Use the `#EXT-X-DISCONTINUITY-SEQUENCE` tag.
 * Provide a long live window. One minute or more is great.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/hls
 [HlsMediaSource]: {{ site.exo_sdk }}/source/hls/HlsMediaSource.html
 [HTTP Live Streaming]: https://tools.ietf.org/html/rfc8216
 [Customization page]: {{ site.baseurl }}/customization.html

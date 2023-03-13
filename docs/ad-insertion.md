@@ -2,6 +2,10 @@
 title: Ad insertion
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer can be used for both client-side and server-side ad insertion.
 
 ## Client-side ad insertion ##
@@ -314,6 +318,7 @@ timed metadata formats are supported by ExoPlayer. Custom ads SDK `MediaSource`
 implementations can listen for timed metadata events from the player via
 `Player.Listener.onMetadata`.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/ad-insertion
 [VAST]: https://www.iab.com/wp-content/uploads/2015/06/VASTv3_0.pdf
 [VMAP]: https://www.iab.com/guidelines/digital-video-multiple-ad-playlist-vmap-1-0-1/
 [ExoPlayer UI components]: {{ site.baseurl }}/ui-components.html

@@ -2,6 +2,10 @@
 title: Playlists
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 The playlist API is defined by the `Player` interface, which is implemented by
 all `ExoPlayer` implementations. It enables sequential playback of multiple
 media items. The following example shows how to start playback of a playlist
@@ -205,3 +209,5 @@ timeline update include:
 
 * A manifest becoming available after preparing an adaptive media item.
 * A manifest being updated periodically during playback of a live stream.
+
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/playlists
