@@ -18,10 +18,12 @@ package com.google.android.exoplayer2.util;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.Locale;
 
 /**
@@ -131,6 +133,7 @@ public class DebugTextViewHelper {
         + format.width
         + "x"
         + format.height
+        + getColorInfoString(format.colorInfo)
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
         + " vfpo: "
@@ -176,6 +179,10 @@ public class DebugTextViewHelper {
         + counters.maxConsecutiveDroppedBufferCount
         + " dk:"
         + counters.droppedToKeyframeCount;
+  }
+
+  private static String getColorInfoString(@Nullable ColorInfo colorInfo) {
+    return colorInfo != null && colorInfo.isValid() ? " colr:" + colorInfo.toLogString() : "";
   }
 
   private static String getPixelAspectRatioString(float pixelAspectRatio) {
