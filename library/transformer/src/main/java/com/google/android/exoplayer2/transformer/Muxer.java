@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -64,14 +65,6 @@ public interface Muxer {
   }
 
   /**
-   * Sets the location.
-   *
-   * @param latitude The latitude, in degrees. Its value must be in the range [-90, 90].
-   * @param longitude The longitude, in degrees. Its value must be in the range [-180, 180].
-   */
-  void setLocation(float latitude, float longitude);
-
-  /**
    * Adds a track with the specified format.
    *
    * @param format The {@link Format} of the track.
@@ -93,6 +86,9 @@ public interface Muxer {
   void writeSampleData(
       int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException;
+
+  /** Adds {@link Metadata} about the output file. */
+  void addMetadata(Metadata metadata);
 
   /**
    * Finishes writing the output and releases any resources associated with muxing.

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 
@@ -77,11 +78,6 @@ public final class DefaultMuxer implements Muxer {
   }
 
   @Override
-  public void setLocation(float latitude, float longitude) {
-    this.muxer.setLocation(latitude, longitude);
-  }
-
-  @Override
   public int addTrack(Format format) throws MuxerException {
     return muxer.addTrack(format);
   }
@@ -91,6 +87,11 @@ public final class DefaultMuxer implements Muxer {
       int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
     muxer.writeSampleData(trackIndex, data, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void addMetadata(Metadata metadata) {
+    muxer.addMetadata(metadata);
   }
 
   @Override

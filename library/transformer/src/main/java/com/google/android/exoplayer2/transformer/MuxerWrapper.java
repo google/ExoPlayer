@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.Mp4LocationData;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -131,8 +130,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * and all the formats must be added before any samples can be {@linkplain #writeSample(int,
    * ByteBuffer, boolean, long) written}.
    *
-   * <p>If the {@link Format#metadata} contains {@link Mp4LocationData}, then it will be added to
-   * the muxer.
+   * <p>{@link Muxer#addMetadata(Metadata)} is called if the {@link Format#metadata} is present.
    *
    * @param format The {@link Format} to be added.
    * @throws IllegalArgumentException If the format is unsupported.
@@ -160,14 +158,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     TrackInfo trackInfo = new TrackInfo(format, muxer.addTrack(format));
     trackTypeToInfo.put(trackType, trackInfo);
+
+    if (format.metadata != null) {
+      muxer.addMetadata(format.metadata);
+    }
+
     if (trackTypeToInfo.size() == trackCount) {
       isReady = true;
       resetAbortTimer();
-    }
-
-    @Nullable Mp4LocationData mp4LocationData = extractMp4LocationData(format);
-    if (mp4LocationData != null) {
-      muxer.setLocation(mp4LocationData.latitude, mp4LocationData.longitude);
     }
   }
 
@@ -336,21 +334,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     return trackInfoWithMinTimeUs;
-  }
-
-  @Nullable
-  private static Mp4LocationData extractMp4LocationData(Format format) {
-    if (format.metadata == null) {
-      return null;
-    }
-
-    for (int i = 0; i < format.metadata.length(); i++) {
-      Metadata.Entry entry = format.metadata.get(i);
-      if (entry instanceof Mp4LocationData) {
-        return (Mp4LocationData) entry;
-      }
-    }
-    return null;
   }
 
   private static final class TrackInfo {
