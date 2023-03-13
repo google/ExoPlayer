@@ -2,6 +2,10 @@
 title: Battery consumption
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ## How important is battery consumption due to media playback? ##
 
 Avoiding unnecessary battery consumption is an important aspect of developing a
@@ -73,4 +77,5 @@ the increased power consumption for audio only use cases on older devices is
 something an app developer must decide, taking their requirements and app usage
 patterns into account.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/battery-consumption
 [Monsoon power monitor]: https://www.msoon.com/battery-configuration

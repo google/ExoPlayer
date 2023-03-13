@@ -2,6 +2,10 @@
 title: Demo application
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer's main demo app serves two primary purposes:
 
 1. To provide a relatively simple yet fully featured example of ExoPlayer usage.
@@ -254,6 +258,7 @@ adb shell am start -a com.google.android.exoplayer.demo.action.VIEW_LIST \
 ~~~
 {: .language-shell}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/demo-application
 [IMA extension]: {{ site.release_v2 }}/extensions/ima
 [GitHub project]: https://github.com/google/ExoPlayer
 [Supported devices]: {{ site.baseurl }}/supported-devices.html

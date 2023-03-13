@@ -2,6 +2,10 @@
 title: RTSP
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 {% include_relative _page_fragments/supported-formats-rtsp.md %}
 
 ## Using MediaItem ##
@@ -96,3 +100,4 @@ MediaSource mediaSource =
 ~~~
 {: .language-java}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/rtsp

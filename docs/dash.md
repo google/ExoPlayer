@@ -2,6 +2,10 @@
 title: DASH
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 {% include_relative _page_fragments/supported-formats-dash.md %}
 
 ## Using MediaItem ##
@@ -83,4 +87,5 @@ player.addListener(
 ExoPlayer provides multiple ways for you to tailor playback experience to your
 app's needs. See the [Customization page][] for examples.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/dash
 [Customization page]: {{ site.baseurl }}/customization.html

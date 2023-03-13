@@ -2,6 +2,10 @@
 title: Digital rights management
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer uses Android's [`MediaDrm`][] API to support DRM protected playbacks.
 The minimum Android versions required for different supported DRM schemes, along
 with the streaming formats for which they're supported, are:
@@ -105,6 +109,7 @@ If you're experiencing video stuttering on a device running Android 6 to 11 when
 playing DRM protected content, you can try [enabling asynchronous buffer
 queueing].
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/drm
 [main demo app]: {{ site.release_v2 }}/demos/main
 [`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html
 [used when building the player]: {{ site.baseurl }}/media-sources.html#customizing-media-source-creation

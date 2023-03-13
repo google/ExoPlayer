@@ -2,6 +2,10 @@
 title: Pros and cons
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer has a number of advantages over Android's built in MediaPlayer:
 
 * Fewer device specific issues and less variation in behavior across different
@@ -34,6 +38,7 @@ It's important to note that there are also some disadvantages:
   This is likely only a concern for extremely lightweight apps. Guidance for
   shrinking ExoPlayer can be found on the [APK shrinking page][].
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/pros-and-cons
 [Supported formats page]: {{ site.baseurl }}/supported-formats.html
 [IMA extension]: {{ site.release_v2 }}/extensions/ima
 [Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads

@@ -2,6 +2,10 @@
 title: Transforming media
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 The [Transformer API][] can be used to convert media streams. It takes an input
 media stream, applies changes to it as configured by the app, and produces the
 corresponding output file. The available transformations are:
@@ -133,6 +137,7 @@ flattened version of the video instead of the original one.
 
 Currently, Samsung's slow motion format is the only one supported.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/transforming-media
 [Transformer API]: {{ site.exo_sdk }}/transformer/Transformer.html
 [Supported formats page]: {{ site.baseurl }}/supported-formats.html
 

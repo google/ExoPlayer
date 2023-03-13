@@ -2,6 +2,10 @@
 title: Supported formats
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 When defining the formats that ExoPlayer supports, it's important to note that
 "media formats" are defined at multiple levels. From the lowest level to the
 highest, these are:
@@ -119,3 +123,5 @@ profile (if available), even if another decoder for the same MIME type that
 doesn't support that profile appears higher up the codec list. This can result
 in selecting a software decoder in cases where the stream exceeds the
 capabilities of a hardware decoder for the same MIME type.
+
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/supported-formats

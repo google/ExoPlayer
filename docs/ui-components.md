@@ -2,6 +2,10 @@
 title: UI components
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 An app playing media requires user interface components for displaying media and
 controlling playback. The ExoPlayer library includes a UI module that contains
 a number of UI components. To depend on the UI module add a dependency as shown
@@ -137,6 +141,7 @@ Where customization beyond that described above is required, we expect that app
 developers will implement their own UI components rather than use those provided
 by ExoPlayer's UI module.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/ui-components
 [`StyledPlayerView`]: {{ site.exo_sdk }}/ui/StyledPlayerView.html
 [`StyledPlayerControlView`]: {{ site.exo_sdk }}/ui/StyledPlayerControlView.html
 [resource IDs being marked 'private']: https://developer.android.com/studio/projects/android-library#PrivateResources

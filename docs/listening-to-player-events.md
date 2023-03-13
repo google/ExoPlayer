@@ -2,6 +2,10 @@
 title: Player events
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ## Listening to playback events ##
 
 Events such as changes in state and playback errors are reported to registered
@@ -224,6 +228,7 @@ player
 ~~~
 {: .language-java }
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/listening-to-player-events
 [`Player.Listener`]: {{ site.exo_sdk }}/Player.Listener.html
 [Javadoc]: {{ site.exo_sdk }}/Player.Listener.html
 [`Individual callbacks vs onEvents`]: #individual-callbacks-vs-onevents

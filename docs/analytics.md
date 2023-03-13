@@ -2,6 +2,10 @@
 title: Analytics
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer supports a wide range of playback analytics needs. Ultimately,
 analytics is about collecting, interpreting, aggregating and summarizing data
 from playbacks. This data can be used either on the device, for example for
@@ -260,5 +264,6 @@ player.addAnalyticsListener(new ExtendedListener() {
 ~~~
 {: .language-java}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/analytics
 [`PlaybackStats` Javadoc]: {{ site.exo_sdk }}/analytics/PlaybackStats.html
 [aggregate the analytics data]: {{ site.baseurl }}/analytics.html#aggregate-analytics-data-of-multiple-playbacks
