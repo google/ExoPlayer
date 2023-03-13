@@ -395,7 +395,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
     EGLContext eglContext =
         glObjectsProvider.createEglContext(eglDisplay, openGlVersion, configAttributes);
-    GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
 
     // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
     // require the BT2020 PQ GL extension.
@@ -422,7 +422,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             isInputTextureExternal,
             releaseFramesAutomatically,
             executor,
-            listener);
+            listener,
+            glObjectsProvider);
     setGlObjectProviderOnShaderPrograms(shaderPrograms, glObjectsProvider);
     VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
         new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
@@ -460,7 +461,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       Executor executor,
-      Listener listener)
+      Listener listener,
+      GlObjectsProvider glObjectsProvider)
       throws VideoFrameProcessingException {
     ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
@@ -533,7 +535,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             isInputTextureExternal,
             releaseFramesAutomatically,
             executor,
-            listener));
+            listener,
+            glObjectsProvider));
     return shaderProgramListBuilder.build();
   }
 

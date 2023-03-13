@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.opengl.EGLSurface;
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -37,6 +38,26 @@ public interface GlObjectsProvider {
         public EGLContext createEglContext(
             EGLDisplay eglDisplay, int openGlVersion, int[] configAttributes) throws GlException {
           return GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
+        }
+
+        @Override
+        @RequiresApi(17)
+        public EGLSurface createEglSurface(
+            EGLDisplay eglDisplay,
+            Object surface,
+            @C.ColorTransfer int colorTransfer,
+            boolean isEncoderInputSurface)
+            throws GlException {
+          return GlUtil.createEglSurface(eglDisplay, surface, colorTransfer, isEncoderInputSurface);
+        }
+
+        @Override
+        @RequiresApi(17)
+        public EGLSurface createFocusedPlaceholderEglSurface(
+            EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes)
+            throws GlException {
+          return GlUtil.createFocusedPlaceholderEglSurface(
+              eglContext, eglDisplay, configAttributes);
         }
 
         @Override
@@ -65,6 +86,23 @@ public interface GlObjectsProvider {
   EGLContext createEglContext(
       EGLDisplay eglDisplay, @IntRange(from = 2, to = 3) int openGlVersion, int[] configAttributes)
       throws GlException;
+
+  // TODO(b/271433904): Remove default implementations once photos have implemented these methods.
+  @RequiresApi(17)
+  default EGLSurface createEglSurface(
+      EGLDisplay eglDisplay,
+      Object surface,
+      @C.ColorTransfer int colorTransfer,
+      boolean isEncoderInputSurface)
+      throws GlException {
+    return GlUtil.createEglSurface(eglDisplay, surface, colorTransfer, isEncoderInputSurface);
+  }
+
+  @RequiresApi(17)
+  default EGLSurface createFocusedPlaceholderEglSurface(
+      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes) throws GlException {
+    return GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+  }
 
   /**
    * Returns a {@link GlTextureInfo} containing the identifiers of the newly created buffers.
