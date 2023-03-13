@@ -20,10 +20,12 @@ import static androidx.media3.common.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.sum;
 import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
 import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForContent;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Looper;
@@ -371,6 +373,19 @@ import java.util.Set;
   }
 
   /**
+   * Gets the window start in microseconds since the Unix epoch for a window of a {@linkplain
+   * Timeline timeline} of the {@code DashMediaSource}.
+   *
+   * @param windowStartTimeMs The window start time, in milliseconds.
+   * @param positionInFirstPeriodUs The position of the window in the first period.
+   * @return The window start time, in microseconds.
+   */
+  private static long getWindowStartTimeUs(long windowStartTimeMs, long positionInFirstPeriodUs) {
+    // Revert us/ms truncation introduced in `DashMediaSource.DashTimeline`.
+    return msToUs(windowStartTimeMs) + (positionInFirstPeriodUs % 1000);
+  }
+
+  /**
    * Splits an {@link AdPlaybackState} into a separate {@link AdPlaybackState} for each period of a
    * content timeline.
    *
@@ -387,19 +402,19 @@ import java.util.Set;
    */
   public static ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStateForPeriods(
       AdPlaybackState adPlaybackState, Timeline contentTimeline) {
+    checkArgument(!contentTimeline.isEmpty());
     Timeline.Period period = new Timeline.Period();
-    if (contentTimeline.getPeriodCount() == 1) {
-      // A single period gets the entire ad playback state that may contain multiple ad groups.
-      return ImmutableMap.of(
-          checkNotNull(
-              contentTimeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid),
-          adPlaybackState);
-    }
-
+    Timeline.Window window = contentTimeline.getWindow(0, new Timeline.Window());
     int periodIndex = 0;
     long totalElapsedContentDurationUs = 0;
     Object adsId = checkNotNull(adPlaybackState.adsId);
     AdPlaybackState contentOnlyAdPlaybackState = new AdPlaybackState(adsId);
+    if (window.isLive()) {
+      long windowStartTimeUs =
+          getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs);
+      totalElapsedContentDurationUs = windowStartTimeUs - window.positionInFirstPeriodUs;
+      contentOnlyAdPlaybackState = contentOnlyAdPlaybackState.withLivePostrollPlaceholderAppended();
+    }
     Map<Object, AdPlaybackState> adPlaybackStates = new HashMap<>();
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
@@ -418,22 +433,42 @@ import java.util.Set;
           // Period starts before the ad group, so it is a content period.
           adPlaybackStates.put(checkNotNull(period.uid), contentOnlyAdPlaybackState);
           totalElapsedContentDurationUs += period.durationUs;
+          // Current period added as a content period. Advance and look at the next period.
+          periodIndex++;
         } else {
           long periodStartUs = totalElapsedContentDurationUs + elapsedAdGroupAdDurationUs;
-          if (periodStartUs + period.durationUs <= adGroup.timeUs + adGroupDurationUs) {
-            // The period ends before the end of the ad group, so it is an ad period (Note: A VOD ad
-            // reported by the IMA SDK spans multiple periods before the LOADED event arrives).
+          long periodDurationUs = period.durationUs;
+          if ((periodDurationUs != C.TIME_UNSET
+                  && periodStartUs + periodDurationUs <= adGroup.timeUs + adGroupDurationUs)
+              || (periodDurationUs == C.TIME_UNSET
+                  && elapsedAdGroupAdDurationUs < adGroupDurationUs
+                  && periodStartUs < adGroup.timeUs + adGroupDurationUs)) {
+            // Ad period found. The period either ends before the end of the ad group, or it is the
+            // last period of a live stream and it starts in the ad group.
             adPlaybackStates.put(
                 checkNotNull(period.uid),
-                splitAdGroupForPeriod(adsId, adGroup, periodStartUs, period.durationUs));
-            elapsedAdGroupAdDurationUs += period.durationUs;
+                splitAdGroupForPeriod(
+                    adsId, adGroup, periodStartUs, periodDurationUs, window.isLive()));
+            // Current period added as an ad period. Advance and look at the next period.
+            periodIndex++;
+            elapsedAdGroupAdDurationUs += periodDurationUs;
+            if (periodStartUs + periodDurationUs == adGroup.timeUs + adGroupDurationUs) {
+              // Periods have consumed the ad group. We're at the end of the ad group.
+              if (window.isLive()) {
+                // Add elapsed ad duration to elapsed content duration for live streams to account
+                // for the content resume offset (relevant because we above compare against
+                // `adGroup.timeUs`). Instead of `adGroup.contentResumeOffsetUs` we use
+                // `elapsedAdGroupAdDurationUs` that is the sum of the actual period durations.
+                totalElapsedContentDurationUs += elapsedAdGroupAdDurationUs;
+              }
+              // Continue with next ad group.
+              break;
+            }
           } else {
             // Period is after the current ad group. Continue with next ad group.
             break;
           }
         }
-        // Increment the period index to the next unclassified period.
-        periodIndex++;
       }
     }
     // The remaining periods end after the last ad group, so these are content periods.
@@ -445,18 +480,32 @@ import java.util.Set;
   }
 
   private static AdPlaybackState splitAdGroupForPeriod(
-      Object adsId, AdGroup adGroup, long periodStartUs, long periodDurationUs) {
+      Object adsId,
+      AdGroup adGroup,
+      long periodStartUs,
+      long periodDurationUs,
+      boolean isLiveStream) {
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
-            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, periodDurationUs)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
-            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, adGroup.contentResumeOffsetUs);
-    long periodEndUs = periodStartUs + periodDurationUs;
-    long adDurationsUs = 0;
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1);
+    if (isLiveStream) {
+      adPlaybackState = adPlaybackState.withLivePostrollPlaceholderAppended();
+    }
+    long adGroupDurationUs = 0;
     for (int i = 0; i < adGroup.count; i++) {
-      adDurationsUs += adGroup.durationsUs[i];
-      if (periodEndUs <= adGroup.timeUs + adDurationsUs + 10_000) {
+      long sanitizedDurationUs =
+          periodDurationUs != C.TIME_UNSET ? periodDurationUs : adGroup.durationsUs[i];
+      long periodEndUs = periodStartUs + sanitizedDurationUs;
+      adGroupDurationUs += adGroup.durationsUs[i];
+      // TODO(bachinger): Remove margin constant by making sure the VOD ad group times are adjusted
+      //   to the actual DASH timeline periods.
+      if (periodEndUs <= adGroup.timeUs + adGroupDurationUs + 10_000) {
+        adPlaybackState =
+            adPlaybackState
+                .withAdDurationsUs(/* adGroupIndex= */ 0, sanitizedDurationUs)
+                .withContentResumeOffsetUs(
+                    /* adGroupIndex= */ 0, isLiveStream ? sanitizedDurationUs : 0);
         // Map the state of the global ad state to the period specific ad state.
         switch (adGroup.states[i]) {
           case AdPlaybackState.AD_STATE_PLAYED:
@@ -495,6 +544,12 @@ import java.util.Set;
     Timeline.Period period = new Timeline.Period();
     int periodIndex = 0;
     long totalElapsedContentDurationUs = 0;
+    Timeline.Window window = contentTimeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    if (window.isLive()) {
+      long windowStartTimeUs =
+          getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs);
+      totalElapsedContentDurationUs = windowStartTimeUs - window.positionInFirstPeriodUs;
+    }
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       int adIndexInAdGroup = 0;
       AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
@@ -516,6 +571,8 @@ import java.util.Set;
             adIndexInAdGroup++;
           } else {
             // Period is after the current ad group. Continue with next ad group.
+            totalElapsedContentDurationUs +=
+                min(elapsedAdGroupAdDurationUs, adGroup.contentResumeOffsetUs);
             break;
           }
         }
