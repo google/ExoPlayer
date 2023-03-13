@@ -238,6 +238,23 @@ public final class ColorInfo implements Bundleable {
         && colorTransfer != Format.NO_VALUE;
   }
 
+  /**
+   * Returns a prettier {@link String} than {@link #toString()}, intended for logging.
+   *
+   * @see Format#toLogString(Format)
+   */
+  public String toLogString() {
+    if (!isValid()) {
+      return "NA";
+    }
+
+    return Util.formatInvariant(
+        "%s/%s/%s",
+        colorSpaceToString(colorSpace),
+        colorRangeToString(colorRange),
+        colorTransferToString(colorTransfer));
+  }
+
   @Override
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
