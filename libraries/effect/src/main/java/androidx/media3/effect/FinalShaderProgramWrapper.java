@@ -116,7 +116,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       Executor videoFrameProcessorListenerExecutor,
-      VideoFrameProcessor.Listener videoFrameProcessorListener) {
+      VideoFrameProcessor.Listener videoFrameProcessorListener,
+      GlObjectsProvider glObjectsProvider) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
@@ -130,10 +131,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
     this.videoFrameProcessorListenerExecutor = videoFrameProcessorListenerExecutor;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
+    this.glObjectsProvider = glObjectsProvider;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
-    glObjectsProvider = GlObjectsProvider.DEFAULT;
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
   }
@@ -375,7 +376,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
       outputEglSurface =
-          GlUtil.createEglSurface(
+          glObjectsProvider.createEglSurface(
               eglDisplay,
               outputSurfaceInfo.surface,
               outputColorInfo.colorTransfer,
@@ -472,7 +473,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 checkNotNull(debugSurfaceViewWrapper).outputColorTransfer);
             defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
             defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
-          });
+          },
+          glObjectsProvider);
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       Log.d(TAG, "Error rendering to debug preview", e);
     }
@@ -546,7 +548,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      *
      * <p>Must be called on the GL thread.
      */
-    public synchronized void maybeRenderToSurfaceView(VideoFrameProcessingTask renderingTask)
+    public synchronized void maybeRenderToSurfaceView(
+        VideoFrameProcessingTask renderingTask, GlObjectsProvider glObjectsProvider)
         throws GlUtil.GlException, VideoFrameProcessingException {
       if (surface == null) {
         return;
@@ -554,7 +557,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       if (eglSurface == null) {
         eglSurface =
-            GlUtil.createEglSurface(
+            glObjectsProvider.createEglSurface(
                 eglDisplay, surface, outputColorTransfer, /* isEncoderInputSurface= */ false);
       }
       EGLSurface eglSurface = this.eglSurface;
