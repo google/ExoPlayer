@@ -938,7 +938,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
               /* isReadingAhead= */ playingPeriodHolder != queue.getReadingPeriod());
       long periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
       maybeTriggerPendingMessages(playbackInfo.positionUs, periodPositionUs);
-      playbackInfo.positionUs = periodPositionUs;
+      playbackInfo.updatePositionUs(periodPositionUs);
     }
 
     // Update the buffered position and total buffered duration.
@@ -1486,6 +1486,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* bufferedPositionUs= */ startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ startPositionUs,
+            /* positionUpdateTimeMs= */ 0,
             /* sleepingForOffload= */ false);
     if (releaseMediaSourceList) {
       mediaSourceList.release();

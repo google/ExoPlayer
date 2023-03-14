@@ -1002,6 +1002,9 @@ import java.util.concurrent.TimeoutException;
     listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
     bandwidthMeter.removeEventListener(analyticsCollector);
+    if (playbackInfo.sleepingForOffload) {
+      playbackInfo = playbackInfo.copyWithEstimatedPosition();
+    }
     playbackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_IDLE);
     playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(playbackInfo.periodId);
     playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
@@ -1792,11 +1795,18 @@ import java.util.concurrent.TimeoutException;
   private long getCurrentPositionUsInternal(PlaybackInfo playbackInfo) {
     if (playbackInfo.timeline.isEmpty()) {
       return Util.msToUs(maskingWindowPositionMs);
-    } else if (playbackInfo.periodId.isAd()) {
-      return playbackInfo.positionUs;
+    }
+
+    long positionUs =
+        playbackInfo.sleepingForOffload
+            ? playbackInfo.getEstimatedPositionUs()
+            : playbackInfo.positionUs;
+
+    if (playbackInfo.periodId.isAd()) {
+      return positionUs;
     } else {
       return periodPositionUsToWindowPositionUs(
-          playbackInfo.timeline, playbackInfo.periodId, playbackInfo.positionUs);
+          playbackInfo.timeline, playbackInfo.periodId, positionUs);
     }
   }
 
@@ -2009,10 +2019,10 @@ import java.util.concurrent.TimeoutException;
               listener.onPlaybackSuppressionReasonChanged(
                   newPlaybackInfo.playbackSuppressionReason));
     }
-    if (isPlaying(previousPlaybackInfo) != isPlaying(newPlaybackInfo)) {
+    if (previousPlaybackInfo.isPlaying() != newPlaybackInfo.isPlaying()) {
       listeners.queueEvent(
           Player.EVENT_IS_PLAYING_CHANGED,
-          listener -> listener.onIsPlayingChanged(isPlaying(newPlaybackInfo)));
+          listener -> listener.onIsPlayingChanged(newPlaybackInfo.isPlaying()));
     }
     if (!previousPlaybackInfo.playbackParameters.equals(newPlaybackInfo.playbackParameters)) {
       listeners.queueEvent(
@@ -2628,8 +2638,14 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     pendingOperationAcks++;
+
+    // Position estimation and copy must occur before changing/masking playback state.
     PlaybackInfo playbackInfo =
-        this.playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
+        this.playbackInfo.sleepingForOffload
+            ? this.playbackInfo.copyWithEstimatedPosition()
+            : this.playbackInfo;
+    playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
+
     internalPlayer.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
     updatePlaybackInfo(
         playbackInfo,
@@ -2749,12 +2765,6 @@ import java.util.concurrent.TimeoutException;
     return playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
         ? PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
         : PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
-  }
-
-  private static boolean isPlaying(PlaybackInfo playbackInfo) {
-    return playbackInfo.playbackState == Player.STATE_READY
-        && playbackInfo.playWhenReady
-        && playbackInfo.playbackSuppressionReason == PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   private static final class MediaSourceHolderSnapshot implements MediaSourceInfoHolder {

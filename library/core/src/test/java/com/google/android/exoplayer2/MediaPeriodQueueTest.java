@@ -1356,6 +1356,7 @@ public final class MediaPeriodQueueTest {
             /* bufferedPositionUs= */ 0,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ 0,
+            /* positionUpdateTimeMs= */ 0,
             /* sleepingForOffload= */ false);
   }
 
