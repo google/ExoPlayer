@@ -9875,6 +9875,82 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void enableOffloadScheduling_duringSleepGetCurrentPosition_returnsEstimatedPosition()
+      throws Exception {
+    FakeClock fakeClock =
+        new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context).setClock(fakeClock).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline();
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.prepare();
+    player.play();
+    sleepRenderer.sleepOnNextRender();
+    runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
+
+    long currentPosition = player.getCurrentPosition();
+    fakeClock.advanceTime(/* timeDiffMs= */ 800);
+    long newPosition = player.getCurrentPosition();
+
+    assertThat(newPosition - currentPosition).isNotEqualTo(0);
+    assertThat(newPosition).isEqualTo(800);
+  }
+
+  @Test
+  public void enableOffloadScheduling_pauseAndSeekDuringSleep_currentPositionIsSeekedPosition()
+      throws Exception {
+    FakeClock fakeClock =
+        new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context).setClock(fakeClock).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline();
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.prepare();
+    player.play();
+    sleepRenderer.sleepOnNextRender();
+    runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
+
+    // Pause, advance clock and then seek.
+    player.pause();
+    fakeClock.advanceTime(/* timeDiffMs= */ 1000);
+    player.seekTo(800);
+    long currentPosition = player.getCurrentPosition();
+
+    assertThat(currentPosition).isEqualTo(800);
+  }
+
+  @Test
+  public void enableOffloadScheduling_seekThenPauseDuringSleep_returnsEstimatePositionByPauseTime()
+      throws Exception {
+    FakeClock fakeClock =
+        new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context).setClock(fakeClock).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline();
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.prepare();
+    player.play();
+    sleepRenderer.sleepOnNextRender();
+    runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
+
+    // Seek, advance clock, then pause.
+    player.seekTo(800);
+    sleepRenderer.sleepOnNextRender();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    fakeClock.advanceTime(/* timeDiffMs= */ 1000);
+    player.pause();
+    long currentPosition = player.getCurrentPosition();
+
+    assertThat(currentPosition).isEqualTo(1800);
+  }
+
+  @Test
   public void targetLiveOffsetInMedia_adjustsLiveOffsetToTargetOffset() throws Exception {
     long windowStartUnixTimeMs = 987_654_321_000L;
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
