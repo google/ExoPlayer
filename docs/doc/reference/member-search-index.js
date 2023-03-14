@@ -44267,9 +44267,10 @@ memberSearchIndex =
       {
         'p': 'com.google.android.exoplayer2.trackselection',
         'c': 'RandomTrackSelection',
-        'l': 'RandomTrackSelection(TrackGroup, int[], int, Random)',
+        'l':
+            'RandomTrackSelection(TrackGroup, int[], @com.google.android.exoplayer2.trackselection.TrackSelection.Type int, Random)',
         'url':
-            '%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int[],int,java.util.Random)'
+            '%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int[],@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,java.util.Random)'
       },
       {
         'p': 'com.google.android.exoplayer2.source.dash.manifest',

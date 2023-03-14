@@ -380,7 +380,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSources(boolean,com.google.android.exoplayer2.source.MediaSource...)">setMediaSources</a></span>&#8203;(boolean&nbsp;resetPosition,
                <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
 <td class="colLast">
-<div class="block">Schedules a set media items action to be executed.</div>
+<div class="block">Schedules a set media sources action to be executed.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
@@ -389,7 +389,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                long&nbsp;positionMs,
                <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
 <td class="colLast">
-<div class="block">Schedules a set media items action to be executed.</div>
+<div class="block">Schedules a set media source actions to be executed.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
@@ -908,7 +908,7 @@ public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.and
 public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;mediaItemIndex,
                                               long&nbsp;positionMs,
                                               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
-<div class="block">Schedules a set media items action to be executed.</div>
+<div class="block">Schedules a set media source actions to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItemIndex</code> - The media item index to start playback from or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if
@@ -916,6 +916,7 @@ public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.and
 <dd><code>positionMs</code> - The position in milliseconds from where playback should start. If <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is passed the default position is used. In any case, if <code>
      mediaItemIndex</code> is set to <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> the position is not reset at all and this
      parameter is ignored.</dd>
+<dd><code>sources</code> - The media sources to be set on the player.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
@@ -930,10 +931,11 @@ public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.and
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(boolean&nbsp;resetPosition,
                                               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
-<div class="block">Schedules a set media items action to be executed.</div>
+<div class="block">Schedules a set media sources action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>resetPosition</code> - Whether the playback position should be reset.</dd>
+<dd><code>sources</code> - The media sources to be set on the player.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
@@ -1118,6 +1120,7 @@ public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.and
 <div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>target</code> - A message target.</dd>
 <dd><code>positionMs</code> - The position in the current media item at which the message should be sent,
      in milliseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
