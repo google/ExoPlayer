@@ -31,8 +31,8 @@
   <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
-  <string name="force_interpret_hdr_video_as_sdr" translatable="false">[Experimental] Force interpret HDR video as SDR (API 29+)</string>
-  <string name="hdr_editing" translatable="false">[Experimental] HDR editing (API 31+)</string>
+  <string name="force_interpret_hdr_video_as_sdr" translatable="false">Interpret HDR as SDR (API 29+)</string>
+  <string name="hdr_editing" translatable="false">HDR editing (API 31+)</string>
   <string name="select_demo_effects" translatable="false">Add demo effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
   <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
