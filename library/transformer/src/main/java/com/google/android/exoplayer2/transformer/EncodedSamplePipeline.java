@@ -78,7 +78,7 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public void queueInputBuffer() {
+  public boolean queueInputBuffer() {
     DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
     if (inputBuffer.isEndOfStream()) {
       inputEnded = true;
@@ -86,6 +86,7 @@ import java.util.concurrent.atomic.AtomicLong;
       inputBuffer.timeUs += mediaItemOffsetUs;
       pendingInputBuffers.add(inputBuffer);
     }
+    return true;
   }
 
   @Override

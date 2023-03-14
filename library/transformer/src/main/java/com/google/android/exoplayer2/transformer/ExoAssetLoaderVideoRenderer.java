@@ -142,7 +142,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    sampleConsumer.registerVideoFrame();
+    if (!sampleConsumer.registerVideoFrame(decoderOutputBufferInfo.presentationTimeUs)) {
+      return false;
+    }
+
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;
   }

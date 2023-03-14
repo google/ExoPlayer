@@ -63,26 +63,28 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    if (decoder.isEnded()) {
-      checkNotNull(sampleConsumerInputBuffer.data).limit(0);
-      sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-      sampleConsumer.queueInputBuffer();
-      isEnded = true;
-      return false;
+    ByteBuffer sampleConsumerInputData = checkNotNull(sampleConsumerInputBuffer.data);
+    if (sampleConsumerInputData.position() == 0) {
+      if (decoder.isEnded()) {
+        sampleConsumerInputData.limit(0);
+        sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        isEnded = sampleConsumer.queueInputBuffer();
+        return false;
+      }
+
+      ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
+      if (decoderOutputBuffer == null) {
+        return false;
+      }
+
+      sampleConsumerInputBuffer.ensureSpaceForWrite(decoderOutputBuffer.limit());
+      sampleConsumerInputBuffer.data.put(decoderOutputBuffer).flip();
+      MediaCodec.BufferInfo bufferInfo = checkNotNull(decoder.getOutputBufferInfo());
+      sampleConsumerInputBuffer.timeUs = bufferInfo.presentationTimeUs;
+      sampleConsumerInputBuffer.setFlags(bufferInfo.flags);
+      decoder.releaseOutputBuffer(/* render= */ false);
     }
 
-    ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
-    if (decoderOutputBuffer == null) {
-      return false;
-    }
-
-    sampleConsumerInputBuffer.ensureSpaceForWrite(decoderOutputBuffer.limit());
-    sampleConsumerInputBuffer.data.put(decoderOutputBuffer).flip();
-    MediaCodec.BufferInfo bufferInfo = checkNotNull(decoder.getOutputBufferInfo());
-    sampleConsumerInputBuffer.timeUs = bufferInfo.presentationTimeUs;
-    sampleConsumerInputBuffer.setFlags(bufferInfo.flags);
-    decoder.releaseOutputBuffer(/* render= */ false);
-    sampleConsumer.queueInputBuffer();
-    return true;
+    return sampleConsumer.queueInputBuffer();
   }
 }

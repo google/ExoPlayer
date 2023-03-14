@@ -72,6 +72,7 @@ public final class ImageAssetLoader implements AssetLoader {
   private final Listener listener;
   private final ScheduledExecutorService scheduledExecutorService;
 
+  @Nullable private SampleConsumer sampleConsumer;
   private @Transformer.ProgressState int progressState;
 
   private volatile int progress;
@@ -87,6 +88,8 @@ public final class ImageAssetLoader implements AssetLoader {
   }
 
   @Override
+  // Ignore Future returned by scheduledExecutorService because failures are already handled in the
+  // runnable.
   @SuppressWarnings("FutureReturnValueIgnored")
   public void start() {
     progressState = PROGRESS_STATE_AVAILABLE;
@@ -149,19 +152,23 @@ public final class ImageAssetLoader implements AssetLoader {
     scheduledExecutorService.shutdownNow();
   }
 
+  // Ignore Future returned by scheduledExecutorService because failures are already handled in the
+  // runnable.
   @SuppressWarnings("FutureReturnValueIgnored")
   private void queueBitmapInternal(Bitmap bitmap, Format format) {
     try {
-      @Nullable SampleConsumer sampleConsumer = listener.onOutputFormat(format);
       if (sampleConsumer == null) {
+        sampleConsumer = listener.onOutputFormat(format);
+      }
+      // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change
+      //    callback rather than setting duration here.
+      if (sampleConsumer == null
+          || !sampleConsumer.queueInputBitmap(
+              bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate)) {
         scheduledExecutorService.schedule(
             () -> queueBitmapInternal(bitmap, format), QUEUE_BITMAP_INTERVAL_MS, MILLISECONDS);
         return;
       }
-      // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change
-      //    callback rather than setting duration here.
-      sampleConsumer.queueInputBitmap(
-          bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate);
       sampleConsumer.signalEndOfVideoInput();
       progress = 100;
     } catch (ExportException e) {
