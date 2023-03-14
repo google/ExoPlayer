@@ -180,7 +180,7 @@ extends <a href="../chunk/ChunkSource.html" title="interface in com.google.andro
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateManifest(com.google.android.exoplayer2.source.dash.manifest.DashManifest,int)">updateManifest</a></span>&#8203;(<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
-              int&nbsp;periodIndex)</code></th>
+              int&nbsp;newPeriodIndex)</code></th>
 <td class="colLast">
 <div class="block">Updates the manifest.</div>
 </td>
@@ -223,11 +223,12 @@ extends <a href="../chunk/ChunkSource.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>updateManifest</h4>
 <pre class="methodSignature">void&nbsp;updateManifest&#8203;(<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
-                    int&nbsp;periodIndex)</pre>
+                    int&nbsp;newPeriodIndex)</pre>
 <div class="block">Updates the manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>newManifest</code> - The new manifest.</dd>
+<dd><code>newPeriodIndex</code> - The index of the period covered by <code>newManifest</code>.</dd>
 </dl>
 </li>
 </ul>

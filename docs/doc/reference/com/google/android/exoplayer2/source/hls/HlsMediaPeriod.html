@@ -393,12 +393,16 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 <dd><code>mediaTransferListener</code> - The transfer listener to inform of any media data transfers. May
      be null if no listener is available.</dd>
 <dd><code>drmSessionManager</code> - The <a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to acquire <a href="../../drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> with.</dd>
+<dd><code>drmEventDispatcher</code> - A <a href="../../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> used to distribute
+     DRM-related events.</dd>
 <dd><code>loadErrorHandlingPolicy</code> - A <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
 <dd><code>allocator</code> - An <a href="../../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which to obtain media buffer allocations.</dd>
 <dd><code>compositeSequenceableLoaderFactory</code> - A factory to create composite <a href="../SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source loads data from multiple streams.</dd>
 <dd><code>allowChunklessPreparation</code> - Whether chunkless preparation is allowed.</dd>
+<dd><code>metadataType</code> - The type of metadata to extract from the period.</dd>
 <dd><code>useSessionKeys</code> - Whether to use #EXT-X-SESSION-KEY tags.</dd>
+<dd><code>playerId</code> - The ID of the current player.</dd>
 </dl>
 </li>
 </ul>
