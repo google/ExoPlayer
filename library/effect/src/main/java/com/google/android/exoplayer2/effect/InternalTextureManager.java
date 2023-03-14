@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static java.lang.Math.floor;
+import static java.lang.Math.round;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
@@ -45,7 +45,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
   private int framesToQueueForCurrentBitmap;
-  private long currentPresentationTimeUs;
+  private double currentPresentationTimeUs;
   private boolean inputEnded;
   private boolean useHdr;
   private boolean outputEnded;
@@ -107,8 +107,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (inputEnded) {
       return;
     }
-    int framesToAdd = (int) floor(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
-    long frameDurationUs = (long) floor(C.MICROS_PER_SECOND / frameRate);
+    int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
+    double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
     pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, frameDurationUs, framesToAdd));
 
     maybeQueueToShaderProgram();
@@ -151,7 +151,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
 
-    shaderProgram.queueInputFrame(checkNotNull(currentGlTextureInfo), currentPresentationTimeUs);
+    shaderProgram.queueInputFrame(
+        checkNotNull(currentGlTextureInfo), round(currentPresentationTimeUs));
 
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
     if (framesToQueueForCurrentBitmap == 0) {
@@ -173,10 +174,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
     public final Bitmap bitmap;
-    public final long frameDurationUs;
+    public final double frameDurationUs;
     public final int numberOfFrames;
 
-    public BitmapFrameSequenceInfo(Bitmap bitmap, long frameDurationUs, int numberOfFrames) {
+    public BitmapFrameSequenceInfo(Bitmap bitmap, double frameDurationUs, int numberOfFrames) {
       this.bitmap = bitmap;
       this.frameDurationUs = frameDurationUs;
       this.numberOfFrames = numberOfFrames;
