@@ -41,6 +41,13 @@
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
 
+### 1.0.0 (2023-03-22)
+
+This release corresponds to the
+[ExoPlayer 2.18.5 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.5).
+
+There are no changes since 1.0.0-rc02.
+
 ### 1.0.0-rc02 (2023-03-02)
 
 This release corresponds to the
