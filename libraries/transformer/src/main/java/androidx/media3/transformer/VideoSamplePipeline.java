@@ -206,8 +206,9 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+  public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    return true;
   }
 
   @Override
@@ -221,8 +222,9 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void registerVideoFrame() {
+  public boolean registerVideoFrame(long presentationTimeUs) {
     videoFrameProcessor.registerInputFrame();
+    return true;
   }
 
   @Override

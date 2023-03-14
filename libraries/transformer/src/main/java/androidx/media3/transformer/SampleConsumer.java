@@ -27,11 +27,18 @@ import androidx.media3.decoder.DecoderInputBuffer;
 public interface SampleConsumer {
 
   /**
-   * Returns a buffer if the consumer is ready to accept input, and {@code null} otherwise.
+   * Returns a {@link DecoderInputBuffer}, if available.
    *
-   * <p>If the consumer is ready to accept input and this method is called multiple times before
-   * {@linkplain #queueInputBuffer() queuing} input, the same {@link DecoderInputBuffer} instance is
-   * returned.
+   * <p>This {@linkplain DecoderInputBuffer buffer} should be filled with new input data and
+   * {@linkplain #queueInputBuffer() queued} to the consumer.
+   *
+   * <p>If this method returns a non-null buffer:
+   *
+   * <ul>
+   *   <li>The buffer's {@linkplain DecoderInputBuffer#data data} is non-null.
+   *   <li>The same buffer instance is returned if this method is called multiple times before
+   *       {@linkplain #queueInputBuffer() queuing} input.
+   * </ul>
    *
    * <p>Should only be used for compressed data and raw audio data.
    */
@@ -41,30 +48,35 @@ public interface SampleConsumer {
   }
 
   /**
-   * Informs the consumer that its input buffer contains new input.
+   * Attempts to queue new input to the consumer.
    *
-   * <p>Should be called after filling the input buffer from {@link #getInputBuffer()} with new
-   * input.
+   * <p>The input buffer from {@link #getInputBuffer()} should be filled with the new input before
+   * calling this method.
    *
-   * <p>An input buffer should not be used anymore after it has been queued.
+   * <p>An input buffer should not be used anymore after it has been successfully queued.
    *
    * <p>Should only be used for compressed data and raw audio data.
+   *
+   * @return Whether the input was successfully queued. If {@code false}, the caller should try
+   *     again later.
    */
-  default void queueInputBuffer() {
+  default boolean queueInputBuffer() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Provides an input {@link Bitmap} to the consumer.
+   * Attempts to provide an input {@link Bitmap} to the consumer.
    *
    * <p>Should only be used for image data.
    *
-   * @param inputBitmap The {@link Bitmap} queued to the consumer.
+   * @param inputBitmap The {@link Bitmap} to queue to the consumer.
    * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
    * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
    *     second.
+   * @return Whether the {@link Bitmap} was successfully queued. If {@code false}, the caller should
+   *     try again later.
    */
-  default void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+  default boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
     throw new UnsupportedOperationException();
   }
 
@@ -90,8 +102,8 @@ public interface SampleConsumer {
 
   /**
    * Returns the number of input video frames pending in the consumer. Pending input frames are
-   * frames that have been {@linkplain #registerVideoFrame() registered} but not processed off the
-   * {@linkplain #getInputSurface() input surface} yet.
+   * frames that have been {@linkplain #registerVideoFrame(long) registered} but not processed off
+   * the {@linkplain #getInputSurface() input surface} yet.
    *
    * <p>Should only be used for raw video data.
    */
@@ -100,14 +112,18 @@ public interface SampleConsumer {
   }
 
   /**
-   * Informs the consumer that a frame will be queued to the {@linkplain #getInputSurface() input
-   * surface}.
+   * Attempts to register a video frame to the consumer.
    *
-   * <p>Must be called before rendering a frame to the input surface.
+   * <p>Each frame to consume should be registered using this method. After a frame is successfully
+   * registered, it should be rendered to the {@linkplain #getInputSurface() input surface}.
    *
    * <p>Should only be used for raw video data.
+   *
+   * @param presentationTimeUs The presentation time of the frame to register, in microseconds.
+   * @return Whether the frame was successfully registered. If {@code false}, the caller should try
+   *     again later.
    */
-  default void registerVideoFrame() {
+  default boolean registerVideoFrame(long presentationTimeUs) {
     throw new UnsupportedOperationException();
   }
 

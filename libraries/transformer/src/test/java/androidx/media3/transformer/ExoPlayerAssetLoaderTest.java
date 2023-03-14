@@ -165,6 +165,8 @@ public class ExoPlayerAssetLoaderTest {
     }
 
     @Override
-    public void queueInputBuffer() {}
+    public boolean queueInputBuffer() {
+      return true;
+    }
   }
 }

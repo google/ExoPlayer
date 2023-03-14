@@ -329,34 +329,31 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Nullable
     @Override
     public DecoderInputBuffer getInputBuffer() {
-      DecoderInputBuffer inputBuffer = sampleConsumer.getInputBuffer();
-      if (inputBuffer != null && inputBuffer.isEndOfStream()) {
-        inputBuffer.clear();
-        inputBuffer.timeUs = 0;
-      }
-      return inputBuffer;
+      return sampleConsumer.getInputBuffer();
     }
 
     @Override
-    public void queueInputBuffer() {
+    public boolean queueInputBuffer() {
       DecoderInputBuffer inputBuffer = checkStateNotNull(sampleConsumer.getInputBuffer());
       if (inputBuffer.isEndOfStream()) {
         nonEndedTracks.decrementAndGet();
         if (currentMediaItemIndex.get() < editedMediaItems.size() - 1) {
+          inputBuffer.clear();
+          inputBuffer.timeUs = 0;
           if (nonEndedTracks.get() == 0) {
             switchAssetLoader();
           }
-          return;
+          return true;
         }
       }
-      sampleConsumer.queueInputBuffer();
+      return sampleConsumer.queueInputBuffer();
     }
 
     // TODO(b/262693274): Test that concatenate 2 images or an image and a video works as expected
     //  once ImageAssetLoader implementation is complete.
     @Override
-    public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
-      sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+      return sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
     }
 
     @Override
@@ -375,8 +372,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public void registerVideoFrame() {
-      sampleConsumer.registerVideoFrame();
+    public boolean registerVideoFrame(long presentationTimeUs) {
+      return sampleConsumer.registerVideoFrame(presentationTimeUs);
     }
 
     @Override

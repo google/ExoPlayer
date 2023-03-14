@@ -170,9 +170,10 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void queueInputBuffer() {
+  public boolean queueInputBuffer() {
     DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
     pendingInputBuffers.add(inputBuffer);
+    return true;
   }
 
   @Override

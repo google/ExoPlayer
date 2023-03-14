@@ -309,16 +309,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    if (!readInput(sampleConsumerInputBuffer)) {
+    if (checkNotNull(sampleConsumerInputBuffer.data).position() == 0
+        && !sampleConsumerInputBuffer.isEndOfStream()) {
+      if (!readInput(sampleConsumerInputBuffer)) {
+        return false;
+      }
+      if (shouldDropInputBuffer(sampleConsumerInputBuffer)) {
+        return true;
+      }
+    }
+
+    boolean isInputEnded = sampleConsumerInputBuffer.isEndOfStream();
+    if (!sampleConsumer.queueInputBuffer()) {
       return false;
     }
 
-    if (shouldDropInputBuffer(sampleConsumerInputBuffer)) {
-      return true;
-    }
-
-    isEnded = sampleConsumerInputBuffer.isEndOfStream();
-    sampleConsumer.queueInputBuffer();
+    isEnded = isInputEnded;
     return !isEnded;
   }
 

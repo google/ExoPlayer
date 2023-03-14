@@ -133,7 +133,9 @@ public class ImageAssetLoaderTest {
   private static final class FakeSampleConsumer implements SampleConsumer {
 
     @Override
-    public void queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {}
+    public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+      return true;
+    }
 
     @Override
     public void signalEndOfVideoInput() {}
