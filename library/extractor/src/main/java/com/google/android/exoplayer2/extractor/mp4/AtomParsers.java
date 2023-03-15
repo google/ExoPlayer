@@ -1173,10 +1173,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
-        parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
-        // vpcC atom parsing based on FFmpeg implementation
-        // see https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/vpcc.c
-        parent.skipBytes(6);
+        // See vpcC atom syntax: https://www.webmproject.org/vp9/mp4/#syntax_1
+        // Skip FullBox header, and profile and level fields
+        parent.setPosition(childStartPosition + Atom.FULL_HEADER_SIZE);
+        parent.skipBytes(2);
         boolean fullRangeFlag = (parent.readUnsignedByte() & 1) != 0;
         int colorPrimaries = parent.readUnsignedByte();
         int transferCharacteristics = parent.readUnsignedByte();
