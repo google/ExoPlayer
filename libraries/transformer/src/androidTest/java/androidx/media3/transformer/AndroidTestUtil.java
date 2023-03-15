@@ -134,6 +134,17 @@ public final class AndroidTestUtil {
   public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
       "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
 
+  public static final String MP4_ASSET_4K60_PORTRAIT_URI_STRING =
+      "asset:///media/mp4/portrait_4k60.mp4";
+  public static final Format MP4_ASSET_4K60_PORTRAIT_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setFrameRate(57.39f)
+          .setCodecs("avc1.640033")
+          .build();
+
   public static final String MP4_REMOTE_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
   public static final Format MP4_REMOTE_10_SECONDS_FORMAT =
@@ -156,17 +167,6 @@ public final class AndroidTestUtil {
           .setHeight(720)
           .setFrameRate(29.97f)
           .setCodecs("avc1.64001F")
-          .build();
-
-  public static final String MP4_REMOTE_4K60_PORTRAIT_URI_STRING =
-      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4";
-  public static final Format MP4_REMOTE_4K60_PORTRAIT_FORMAT =
-      new Format.Builder()
-          .setSampleMimeType(VIDEO_H264)
-          .setWidth(3840)
-          .setHeight(2160)
-          .setFrameRate(57.39f)
-          .setCodecs("avc1.640033")
           .build();
 
   public static final String MP4_REMOTE_8K24_URI_STRING =
@@ -678,12 +678,12 @@ public final class AndroidTestUtil {
         return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT;
       case MP4_ASSET_SEF_URI_STRING:
         return MP4_ASSET_SEF_FORMAT;
+      case MP4_ASSET_4K60_PORTRAIT_URI_STRING:
+        return MP4_ASSET_4K60_PORTRAIT_FORMAT;
       case MP4_REMOTE_10_SECONDS_URI_STRING:
         return MP4_REMOTE_10_SECONDS_FORMAT;
       case MP4_REMOTE_H264_MP3_URI_STRING:
         return MP4_REMOTE_H264_MP3_FORMAT;
-      case MP4_REMOTE_4K60_PORTRAIT_URI_STRING:
-        return MP4_REMOTE_4K60_PORTRAIT_FORMAT;
       case MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED:
         return MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED_FORMAT;
       case MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED:

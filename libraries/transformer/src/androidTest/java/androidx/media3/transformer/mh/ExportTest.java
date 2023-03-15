@@ -15,12 +15,12 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_FORMAT;
-import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_8K24_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_8K24_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
@@ -125,7 +125,7 @@ public class ExportTest {
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* inputFormat= */ MP4_REMOTE_4K60_PORTRAIT_FORMAT,
+        /* inputFormat= */ MP4_ASSET_4K60_PORTRAIT_FORMAT,
         /* outputFormat= */ null)) {
       return;
     }
@@ -134,7 +134,7 @@ public class ExportTest {
         new Transformer.Builder(context)
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_4K60_PORTRAIT_URI_STRING));
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
