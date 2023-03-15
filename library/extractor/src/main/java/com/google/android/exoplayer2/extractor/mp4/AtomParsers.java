@@ -1173,6 +1173,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
+        parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
+        // vpcC atom parsing based on FFmpeg implementation
+        // see https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/vpcc.c
+        parent.skipBytes(6);
+        boolean fullRangeFlag = (parent.readUnsignedByte() & 1) != 0;
+        int colorPrimaries = parent.readUnsignedByte();
+        int transferCharacteristics = parent.readUnsignedByte();
+        colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+        colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+        colorTransfer =
+            ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
