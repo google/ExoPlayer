@@ -433,7 +433,8 @@ public final class GlUtil {
   /** Fills the pixels in the current output render target with (r=0, g=0, b=0, a=0). */
   public static void clearOutputFrame() throws GlException {
     GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    GLES20.glClearDepthf(1.0f);
+    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
     GlUtil.checkGlError();
   }
 
