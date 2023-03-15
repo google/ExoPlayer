@@ -50,7 +50,7 @@ public class EncoderPerformanceAnalysisTest {
       ImmutableList.of(
           AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING,
           AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
-          AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
+          AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_URI_STRING);
 
   private static final ImmutableList<Integer> OPERATING_RATE_SETTINGS =
       ImmutableList.of(VideoEncoderSettings.NO_VALUE, 30, Integer.MAX_VALUE);
