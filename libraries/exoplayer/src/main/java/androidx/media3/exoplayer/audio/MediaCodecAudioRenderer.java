@@ -628,6 +628,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  protected void onRelease() {
+    audioSink.release();
+  }
+
+  @Override
   public boolean isEnded() {
     return super.isEnded() && audioSink.isEnded();
   }

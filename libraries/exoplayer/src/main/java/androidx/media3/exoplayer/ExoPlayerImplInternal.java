@@ -1410,6 +1410,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         /* resetPosition= */ false,
         /* releaseMediaSourceList= */ true,
         /* resetError= */ false);
+    releaseRenderers();
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
     if (internalPlaybackThread != null) {
@@ -2543,6 +2544,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Start the renderer if playing.
     if (playing) {
       renderer.start();
+    }
+  }
+
+  private void releaseRenderers() {
+    for (Renderer renderer : renderers) {
+      renderer.release();
     }
   }
 

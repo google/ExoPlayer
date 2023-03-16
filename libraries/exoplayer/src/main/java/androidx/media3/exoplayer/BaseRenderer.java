@@ -197,6 +197,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     onReset();
   }
 
+  @Override
+  public final void release() {
+    Assertions.checkState(state == STATE_DISABLED);
+    onRelease();
+  }
+
   // RendererCapabilities implementation.
 
   @Override
@@ -300,6 +306,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * <p>The default implementation is a no-op.
    */
   protected void onReset() {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the renderer is released.
+   *
+   * <p>The default implementation is a no-op.
+   */
+  protected void onRelease() {
     // Do nothing.
   }
 

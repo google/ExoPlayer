@@ -17,6 +17,8 @@
         ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
     *   Encapsulate Opus frames in Ogg packets in direct playbacks (offload).
     *   Extrapolate current position during sleep with offload scheduling.
+    *   Add `Renderer.release()` and `AudioSink.release()` for releasing the
+        resources at the end of player's lifecycle.
 *   DRM:
     *   Reduce the visibility of several internal-only methods on
         `DefaultDrmSession` that aren't expected to be called from outside the
