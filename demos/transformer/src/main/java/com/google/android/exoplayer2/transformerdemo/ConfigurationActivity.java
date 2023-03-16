@@ -573,7 +573,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     View dialogView = getLayoutInflater().inflate(R.layout.trim_options, /* root= */ null);
     RangeSlider trimRangeSlider =
         checkNotNull(dialogView.findViewById(R.id.trim_bounds_range_slider));
-    trimRangeSlider.setValues(0f, 10f); // seconds
+    trimRangeSlider.setValues(0f, 1f); // seconds
     new AlertDialog.Builder(/* context= */ this)
         .setView(dialogView)
         .setPositiveButton(
