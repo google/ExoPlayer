@@ -1226,6 +1226,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
+        parent.setPosition(childStartPosition + Atom.FULL_HEADER_SIZE);
+        // See vpcC atom syntax: https://www.webmproject.org/vp9/mp4/#syntax_1
+        parent.skipBytes(2); // profile(8), level(8)
+        boolean fullRangeFlag = (parent.readUnsignedByte() & 1) != 0;
+        int colorPrimaries = parent.readUnsignedByte();
+        int transferCharacteristics = parent.readUnsignedByte();
+        // Modify these values only if they have not already been set. If 'Atom.TYPE_colr' atom is
+        // present, these values may be overridden.
+        if (colorSpace == Format.NO_VALUE
+            && colorRange == Format.NO_VALUE
+            && colorTransfer == Format.NO_VALUE) {
+          colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+          colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+          colorTransfer =
+              ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
+        }
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
