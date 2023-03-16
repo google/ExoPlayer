@@ -1208,6 +1208,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           pixelWidthHeightRatio = hevcConfig.pixelWidthHeightRatio;
         }
         codecs = hevcConfig.codecs;
+        // Modify these values only if they have not already been set. If 'Atom.TYPE_colr' atom is
+        // present, these values may be overridden.
+        if (colorSpace == Format.NO_VALUE
+            && colorRange == Format.NO_VALUE
+            && colorTransfer == Format.NO_VALUE) {
+          colorSpace = hevcConfig.colorSpace;
+          colorRange = hevcConfig.colorRange;
+          colorTransfer = hevcConfig.colorTransfer;
+        }
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
         @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
         if (dolbyVisionConfig != null) {
