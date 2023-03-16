@@ -16,6 +16,7 @@
 package androidx.media3.extractor;
 
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.CodecSpecificDataUtil;
@@ -61,6 +62,9 @@ public final class HevcConfig {
       int bufferPosition = 0;
       int width = Format.NO_VALUE;
       int height = Format.NO_VALUE;
+      @C.ColorSpace int colorSpace = Format.NO_VALUE;
+      @C.ColorRange int colorRange = Format.NO_VALUE;
+      @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
       float pixelWidthHeightRatio = 1;
       @Nullable String codecs = null;
       for (int i = 0; i < numberOfArrays; i++) {
@@ -84,6 +88,9 @@ public final class HevcConfig {
                     buffer, bufferPosition, bufferPosition + nalUnitLength);
             width = spsData.width;
             height = spsData.height;
+            colorSpace = spsData.colorSpace;
+            colorRange = spsData.colorRange;
+            colorTransfer = spsData.colorTransfer;
             pixelWidthHeightRatio = spsData.pixelWidthHeightRatio;
             codecs =
                 CodecSpecificDataUtil.buildHevcCodecString(
@@ -102,7 +109,15 @@ public final class HevcConfig {
       List<byte[]> initializationData =
           csdLength == 0 ? Collections.emptyList() : Collections.singletonList(buffer);
       return new HevcConfig(
-          initializationData, lengthSizeMinusOne + 1, width, height, pixelWidthHeightRatio, codecs);
+          initializationData,
+          lengthSizeMinusOne + 1,
+          width,
+          height,
+          pixelWidthHeightRatio,
+          codecs,
+          colorSpace,
+          colorRange,
+          colorTransfer);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw ParserException.createForMalformedContainer("Error parsing HEVC config", e);
     }
@@ -130,6 +145,22 @@ public final class HevcConfig {
   public final float pixelWidthHeightRatio;
 
   /**
+   * The {@link C.ColorSpace} of the video or {@link Format#NO_VALUE} if unknown or not applicable.
+   */
+  public final @C.ColorSpace int colorSpace;
+
+  /**
+   * The {@link C.ColorRange} of the video or {@link Format#NO_VALUE} if unknown or not applicable.
+   */
+  public final @C.ColorRange int colorRange;
+
+  /**
+   * The {@link C.ColorTransfer} of the video or {@link Format#NO_VALUE} if unknown or not
+   * applicable.
+   */
+  public final @C.ColorTransfer int colorTransfer;
+
+  /**
    * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
    *
    * <p>See {@link Format#codecs}.
@@ -142,12 +173,18 @@ public final class HevcConfig {
       int width,
       int height,
       float pixelWidthHeightRatio,
-      @Nullable String codecs) {
+      @Nullable String codecs,
+      @C.ColorSpace int colorSpace,
+      @C.ColorRange int colorRange,
+      @C.ColorTransfer int colorTransfer) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.width = width;
     this.height = height;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.codecs = codecs;
+    this.colorSpace = colorSpace;
+    this.colorRange = colorRange;
+    this.colorTransfer = colorTransfer;
   }
 }
