@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
@@ -649,8 +648,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       boolean enableFloatOutput,
       boolean enableAudioTrackPlaybackParams,
       boolean enableOffload) {
-    return new DefaultAudioSink.Builder()
-        .setAudioCapabilities(AudioCapabilities.getCapabilities(context))
+    return new DefaultAudioSink.Builder(context)
         .setEnableFloatOutput(enableFloatOutput)
         .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
         .setOffloadMode(
