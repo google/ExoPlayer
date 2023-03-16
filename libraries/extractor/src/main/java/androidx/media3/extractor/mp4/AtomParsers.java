@@ -1560,7 +1560,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         // because these streams can carry simultaneously multiple representations of the same
         // audio. Use stereo by default.
         channelCount = 2;
-      } else if (childAtomType == Atom.TYPE_ddts) {
+      } else if (childAtomType == Atom.TYPE_ddts || childAtomType == Atom.TYPE_udts) {
         out.format =
             new Format.Builder()
                 .setId(trackId)
