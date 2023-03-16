@@ -24,6 +24,7 @@ import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -227,6 +228,7 @@ public final class DefaultAudioSink implements AudioSink {
   /** A builder to create {@link DefaultAudioSink} instances. */
   public static final class Builder {
 
+    @Nullable private final Context context;
     private AudioCapabilities audioCapabilities;
     @Nullable private androidx.media3.common.audio.AudioProcessorChain audioProcessorChain;
     private boolean enableFloatOutput;
@@ -235,19 +237,34 @@ public final class DefaultAudioSink implements AudioSink {
     AudioTrackBufferSizeProvider audioTrackBufferSizeProvider;
     @Nullable AudioOffloadListener audioOffloadListener;
 
-    /** Creates a new builder. */
+    /**
+     * @deprecated Use {@link #Builder(Context)} instead.
+     */
+    @Deprecated
     public Builder() {
+      this(/* context= */ null);
+    }
+
+    /**
+     * Creates a new builder.
+     *
+     * @param context The {@link Context}.
+     */
+    public Builder(@Nullable Context context) {
+      this.context = context;
       audioCapabilities = DEFAULT_AUDIO_CAPABILITIES;
       offloadMode = OFFLOAD_MODE_DISABLED;
       audioTrackBufferSizeProvider = AudioTrackBufferSizeProvider.DEFAULT;
     }
 
     /**
-     * Sets audio capabilities for playback on this device. May be {@code null} if the default
-     * capabilities (no encoded audio passthrough support) should be assumed.
-     *
-     * <p>Default is {@link AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES}.
+     * @deprecated The {@linkplain AudioCapabilities audio capabilities} set to the {@linkplain
+     *     Builder builder} will be effective for the {@link DefaultAudioSink} only in the absence
+     *     of {@linkplain Context context}. If the {@code Context} is {@code null} and the {@code
+     *     audioCapabilities} is not set to the {@code Builder}, the default capabilities (no
+     *     encoded audio passthrough support) should be assumed.
      */
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder setAudioCapabilities(AudioCapabilities audioCapabilities) {
       checkNotNull(audioCapabilities);
@@ -483,6 +500,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final PendingExceptionHolder<WriteException> writeExceptionPendingExceptionHolder;
   private final AudioTrackBufferSizeProvider audioTrackBufferSizeProvider;
   @Nullable private final AudioOffloadListener audioOffloadListener;
+  @Nullable private final AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
   @Nullable private PlayerId playerId;
   @Nullable private Listener listener;
@@ -532,7 +550,14 @@ public final class DefaultAudioSink implements AudioSink {
 
   @RequiresNonNull("#1.audioProcessorChain")
   private DefaultAudioSink(Builder builder) {
-    audioCapabilities = builder.audioCapabilities;
+    audioCapabilitiesReceiver =
+        builder.context != null
+            ? new AudioCapabilitiesReceiver(builder.context, this::onAudioCapabilitiesChanged)
+            : null;
+    audioCapabilities =
+        audioCapabilitiesReceiver != null
+            ? audioCapabilitiesReceiver.register()
+            : builder.audioCapabilities;
     audioProcessorChain = builder.audioProcessorChain;
     enableFloatOutput = Util.SDK_INT >= 21 && builder.enableFloatOutput;
     preferAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
@@ -1429,6 +1454,21 @@ public final class DefaultAudioSink implements AudioSink {
     }
     playing = false;
     offloadDisabledUntilNextConfiguration = false;
+  }
+
+  @Override
+  public void release() {
+    if (audioCapabilitiesReceiver != null) {
+      audioCapabilitiesReceiver.unregister();
+    }
+  }
+
+  // AudioCapabilitiesReceiver.Listener implementation.
+
+  public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
+    if (!audioCapabilities.equals(this.audioCapabilities)) {
+      this.audioCapabilities = audioCapabilities;
+    }
   }
 
   // Internal methods.

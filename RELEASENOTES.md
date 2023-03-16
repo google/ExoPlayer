@@ -19,6 +19,11 @@
     *   Extrapolate current position during sleep with offload scheduling.
     *   Add `Renderer.release()` and `AudioSink.release()` for releasing the
         resources at the end of player's lifecycle.
+    *   Listen to audio capabilities changes in `DefaultAudioSink`. Add a
+        required parameter `context` in the constructor of `DefaultAudioSink`,
+        with which the `DefaultAudioSink` will register as the listener to the
+        `AudioCapabilitiesReceiver` and update its `audioCapabilities` property
+        when informed with a capabilities change.
 *   DRM:
     *   Reduce the visibility of several internal-only methods on
         `DefaultDrmSession` that aren't expected to be called from outside the
