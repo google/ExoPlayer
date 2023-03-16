@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.util;
 
+import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
@@ -66,11 +67,6 @@ public interface GlObjectsProvider {
           int fboId = GlUtil.createFboForTexture(texId);
           return new GlTextureInfo(texId, fboId, /* rboId= */ C.INDEX_UNSET, width, height);
         }
-
-        @Override
-        public void clearOutputFrame() throws GlException {
-          GlUtil.clearOutputFrame();
-        }
       };
 
   /**
@@ -87,22 +83,38 @@ public interface GlObjectsProvider {
       EGLDisplay eglDisplay, @IntRange(from = 2, to = 3) int openGlVersion, int[] configAttributes)
       throws GlException;
 
-  // TODO(b/271433904): Remove default implementations once photos have implemented these methods.
+  /**
+   * Creates a new {@link EGLSurface} wrapping the specified {@code surface}.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
+   * @param colorTransfer The {@linkplain C.ColorTransfer color transfer characteristics} to which
+   *     the {@code surface} is configured.
+   * @param isEncoderInputSurface Whether the {@code surface} is the input surface of an encoder.
+   * @throws GlException If an error occurs during creation.
+   */
   @RequiresApi(17)
-  default EGLSurface createEglSurface(
+  EGLSurface createEglSurface(
       EGLDisplay eglDisplay,
       Object surface,
       @C.ColorTransfer int colorTransfer,
       boolean isEncoderInputSurface)
-      throws GlException {
-    return GlUtil.createEglSurface(eglDisplay, surface, colorTransfer, isEncoderInputSurface);
-  }
+      throws GlException;
 
+  /**
+   * Creates and focuses a placeholder {@link EGLSurface}.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @param configAttributes The attributes to configure EGL with.
+   * @return A placeholder {@link EGLSurface} that has been focused to allow rendering to take
+   *     place, or {@link EGL14#EGL_NO_SURFACE} if the current context supports rendering without a
+   *     surface.
+   * @throws GlException If an error occurs during creation.
+   */
   @RequiresApi(17)
-  default EGLSurface createFocusedPlaceholderEglSurface(
-      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes) throws GlException {
-    return GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
-  }
+  EGLSurface createFocusedPlaceholderEglSurface(
+      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes) throws GlException;
 
   /**
    * Returns a {@link GlTextureInfo} containing the identifiers of the newly created buffers.
@@ -113,11 +125,4 @@ public interface GlObjectsProvider {
    * @throws GlException If an error occurs during creation.
    */
   GlTextureInfo createBuffersForTexture(int texId, int width, int height) throws GlException;
-
-  /**
-   * Clears the current render target.
-   *
-   * @throws GlException If an error occurs during clearing.
-   */
-  void clearOutputFrame() throws GlException;
 }

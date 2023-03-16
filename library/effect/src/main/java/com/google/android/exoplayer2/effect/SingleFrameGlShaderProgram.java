@@ -142,7 +142,7 @@ public abstract class SingleFrameGlShaderProgram implements GlShaderProgram {
       outputTextureInUse = true;
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.fboId, outputTexture.width, outputTexture.height);
-      glObjectsProvider.clearOutputFrame();
+      GlUtil.clearOutputFrame();
       drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);

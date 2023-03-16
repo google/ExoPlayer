@@ -324,7 +324,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputEglSurface,
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
-    glObjectsProvider.clearOutputFrame();
+    GlUtil.clearOutputFrame();
     defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(
@@ -466,7 +466,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       debugSurfaceViewWrapper.maybeRenderToSurfaceView(
           () -> {
-            glObjectsProvider.clearOutputFrame();
+            GlUtil.clearOutputFrame();
             @C.ColorTransfer
             int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
             defaultShaderProgram.setOutputColorTransfer(
