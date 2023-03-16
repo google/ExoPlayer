@@ -516,4 +516,11 @@ public interface Renderer extends PlayerMessage.Target {
    * #STATE_DISABLED}.
    */
   void reset();
+
+  /**
+   * Releases the renderer.
+   *
+   * <p>The renderer must not be used after calling this method.
+   */
+  default void release() {}
 }

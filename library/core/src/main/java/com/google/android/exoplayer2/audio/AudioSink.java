@@ -481,4 +481,7 @@ public interface AudioSink {
 
   /** Resets the sink, releasing any resources that it currently holds. */
   void reset();
+
+  /** Releases the audio sink. */
+  default void release() {}
 }
