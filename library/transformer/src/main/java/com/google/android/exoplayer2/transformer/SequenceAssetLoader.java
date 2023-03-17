@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           .build();
 
   private final List<EditedMediaItem> editedMediaItems;
-  private final AtomicInteger currentMediaItemIndex;
+  private final boolean isLooping;
   private final boolean forceAudioTrack;
   private final AssetLoader.Factory assetLoaderFactory;
   private final HandlerWrapper handler;
@@ -80,13 +80,22 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final ImmutableList.Builder<ExportResult.ProcessedInput> processedInputsBuilder;
   private final AtomicInteger nonEndedTracks;
 
+  private boolean isCurrentAssetFirstAsset;
+  private int currentMediaItemIndex;
   private AssetLoader currentAssetLoader;
   private boolean trackCountReported;
-  private int processedInputsSize;
+  private long currentAssetStartTimeUs;
   private boolean decodeAudio;
   private boolean decodeVideo;
+  private long totalDurationUs;
+  private long maxSequenceDurationUs;
+  private boolean isMaxSequenceDurationUsFinal;
+  private int sequenceLoopCount;
+  private boolean audioLoopingEnded;
+  private boolean videoLoopingEnded;
+  private int processedInputsSize;
 
-  private volatile long currentDurationUs;
+  private volatile long currentAssetDurationUs;
 
   public SequenceAssetLoader(
       EditedMediaItemSequence sequence,
@@ -96,15 +105,16 @@ import java.util.concurrent.atomic.AtomicInteger;
       Listener listener,
       Clock clock) {
     editedMediaItems = sequence.editedMediaItems;
+    isLooping = sequence.isLooping;
     this.forceAudioTrack = forceAudioTrack;
     this.assetLoaderFactory = assetLoaderFactory;
     sequenceAssetLoaderListener = listener;
-    currentMediaItemIndex = new AtomicInteger();
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
     mediaItemChangedListenersByTrackType = new ConcurrentHashMap<>();
     processedInputsBuilder = new ImmutableList.Builder<>();
     nonEndedTracks = new AtomicInteger();
+    isCurrentAssetFirstAsset = true;
     // It's safe to use "this" because we don't start the AssetLoader before exiting the
     // constructor.
     @SuppressWarnings("nullness:argument.type.incompatible")
@@ -116,17 +126,23 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Override
   public void start() {
     currentAssetLoader.start();
+    if (editedMediaItems.size() > 1 || isLooping) {
+      sequenceAssetLoaderListener.onDurationUs(C.TIME_UNSET);
+    }
   }
 
   @Override
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
+    if (isLooping) {
+      return Transformer.PROGRESS_STATE_UNAVAILABLE;
+    }
     int progressState = currentAssetLoader.getProgress(progressHolder);
     int mediaItemCount = editedMediaItems.size();
     if (mediaItemCount == 1 || progressState == PROGRESS_STATE_NOT_STARTED) {
       return progressState;
     }
 
-    int progress = currentMediaItemIndex.get() * 100 / mediaItemCount;
+    int progress = currentMediaItemIndex * 100 / mediaItemCount;
     if (progressState == PROGRESS_STATE_AVAILABLE) {
       progress += progressHolder.progress / mediaItemCount;
     }
@@ -170,21 +186,35 @@ import java.util.concurrent.atomic.AtomicInteger;
     mediaItemChangedListenersByTrackType.put(trackType, onMediaItemChangedListener);
   }
 
+  /**
+   * Sets the maximum {@link EditedMediaItemSequence} duration in the {@link Composition}.
+   *
+   * <p>The duration passed is the current maximum duration. This method can be called multiple
+   * times as this duration increases. Indeed, a sequence duration will increase during an export
+   * when a new {@link MediaItem} is loaded, which can increase the maximum sequence duration.
+   *
+   * <p>Must be called from the thread used by the current {@link AssetLoader} to pass data to the
+   * {@link SampleConsumer}.
+   *
+   * @param maxSequenceDurationUs The current maximum sequence duration, in microseconds.
+   * @param isFinal Whether the duration passed is final. Setting this value to {@code true} means
+   *     that the duration passed will not change anymore during the entire export.
+   */
+  public void setMaxSequenceDurationUs(long maxSequenceDurationUs, boolean isFinal) {
+    this.maxSequenceDurationUs = maxSequenceDurationUs;
+    isMaxSequenceDurationUsFinal = isFinal;
+  }
+
   // AssetLoader.Listener implementation.
 
   @Override
   public void onDurationUs(long durationUs) {
-    int currentMediaItemIndex = this.currentMediaItemIndex.get();
     checkArgument(
         durationUs != C.TIME_UNSET || currentMediaItemIndex == editedMediaItems.size() - 1,
-        "Could not retrieve the duration for EditedMediaItem "
-            + currentMediaItemIndex
-            + ". An unset duration is only allowed for the last EditedMediaItem in the sequence.");
-    currentDurationUs = durationUs;
-    if (editedMediaItems.size() == 1) {
+        "Could not retrieve required duration for EditedMediaItem " + currentMediaItemIndex);
+    currentAssetDurationUs = durationUs;
+    if (editedMediaItems.size() == 1 && !isLooping) {
       sequenceAssetLoaderListener.onDurationUs(durationUs);
-    } else if (currentMediaItemIndex == 0) {
-      sequenceAssetLoaderListener.onDurationUs(C.TIME_UNSET);
     }
   }
 
@@ -200,9 +230,10 @@ import java.util.concurrent.atomic.AtomicInteger;
       @SupportedOutputTypes int supportedOutputTypes,
       long streamStartPositionUs,
       long streamOffsetUs) {
-    boolean isAudio = getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO;
+    currentAssetStartTimeUs = streamStartPositionUs;
 
-    if (currentMediaItemIndex.get() != 0) {
+    boolean isAudio = getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO;
+    if (!isCurrentAssetFirstAsset) {
       return isAudio ? decodeAudio : decodeVideo;
     }
 
@@ -240,7 +271,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public SampleConsumer onOutputFormat(Format format) throws ExportException {
     @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
     SampleConsumer sampleConsumer;
-    if (currentMediaItemIndex.get() == 0) {
+    if (isCurrentAssetFirstAsset) {
       @Nullable
       SampleConsumer wrappedSampleConsumer = sequenceAssetLoaderListener.onOutputFormat(format);
       if (wrappedSampleConsumer == null) {
@@ -300,16 +331,18 @@ import java.util.concurrent.atomic.AtomicInteger;
       return;
     }
     onMediaItemChangedListener.onMediaItemChanged(
-        editedMediaItems.get(currentMediaItemIndex.get()),
-        currentDurationUs,
+        editedMediaItems.get(currentMediaItemIndex),
+        currentAssetDurationUs,
         format,
-        /* isLast= */ currentMediaItemIndex.get() == editedMediaItems.size() - 1);
+        /* isLast= */ currentMediaItemIndex == editedMediaItems.size() - 1);
   }
 
   private void addCurrentProcessedInput() {
-    int currentMediaItemIndex = this.currentMediaItemIndex.get();
-    if (currentMediaItemIndex >= processedInputsSize) {
+    if ((sequenceLoopCount * editedMediaItems.size() + currentMediaItemIndex)
+        >= processedInputsSize) {
       MediaItem mediaItem = editedMediaItems.get(currentMediaItemIndex).mediaItem;
+      // TODO(b/252537210): consider getting the decoder names via a callback to simplify the logic
+      //  of adding processed inputs.
       ImmutableMap<Integer, String> decoders = currentAssetLoader.getDecoderNames();
       processedInputsBuilder.add(
           new ExportResult.ProcessedInput(
@@ -335,9 +368,23 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Override
     public boolean queueInputBuffer() {
       DecoderInputBuffer inputBuffer = checkStateNotNull(sampleConsumer.getInputBuffer());
+      long globalTimestampUs = totalDurationUs + inputBuffer.timeUs - currentAssetStartTimeUs;
+      if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
+        if (isMaxSequenceDurationUsFinal && !audioLoopingEnded) {
+          nonEndedTracks.decrementAndGet();
+          checkNotNull(inputBuffer.data).limit(0);
+          inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+          // We know that queueInputBuffer() will always return true for the underlying
+          // SampleConsumer so there is no need to handle the case where the sample wasn't queued.
+          checkState(sampleConsumer.queueInputBuffer());
+          audioLoopingEnded = true;
+        }
+        return false;
+      }
+
       if (inputBuffer.isEndOfStream()) {
         nonEndedTracks.decrementAndGet();
-        if (currentMediaItemIndex.get() < editedMediaItems.size() - 1) {
+        if (currentMediaItemIndex < editedMediaItems.size() - 1 || isLooping) {
           inputBuffer.clear();
           inputBuffer.timeUs = 0;
           if (nonEndedTracks.get() == 0) {
@@ -346,13 +393,30 @@ import java.util.concurrent.atomic.AtomicInteger;
           return true;
         }
       }
-      return sampleConsumer.queueInputBuffer();
+
+      checkState(sampleConsumer.queueInputBuffer());
+      return true;
     }
 
     // TODO(b/262693274): Test that concatenate 2 images or an image and a video works as expected
     //  once ImageAssetLoader implementation is complete.
     @Override
     public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+      if (isLooping && totalDurationUs + durationUs > maxSequenceDurationUs) {
+        if (!isMaxSequenceDurationUsFinal) {
+          return false;
+        }
+        durationUs = maxSequenceDurationUs - totalDurationUs;
+        if (durationUs == 0) {
+          if (!videoLoopingEnded) {
+            videoLoopingEnded = true;
+            signalEndOfVideoInput();
+          }
+          return false;
+        }
+        videoLoopingEnded = true;
+      }
+
       return sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
     }
 
@@ -373,28 +437,43 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     @Override
     public boolean registerVideoFrame(long presentationTimeUs) {
+      long globalTimestampUs = totalDurationUs + presentationTimeUs - currentAssetStartTimeUs;
+      if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
+        if (isMaxSequenceDurationUsFinal && !videoLoopingEnded) {
+          videoLoopingEnded = true;
+          signalEndOfVideoInput();
+        }
+        return false;
+      }
+
       return sampleConsumer.registerVideoFrame(presentationTimeUs);
     }
 
     @Override
     public void signalEndOfVideoInput() {
       nonEndedTracks.decrementAndGet();
-      if (currentMediaItemIndex.get() < editedMediaItems.size() - 1) {
-        if (nonEndedTracks.get() == 0) {
-          switchAssetLoader();
-        }
-        return;
+      boolean videoEnded =
+          isLooping ? videoLoopingEnded : currentMediaItemIndex == editedMediaItems.size() - 1;
+      if (videoEnded) {
+        sampleConsumer.signalEndOfVideoInput();
+      } else if (nonEndedTracks.get() == 0) {
+        switchAssetLoader();
       }
-      sampleConsumer.signalEndOfVideoInput();
     }
 
     private void switchAssetLoader() {
       handler.post(
           () -> {
             addCurrentProcessedInput();
+            totalDurationUs += currentAssetDurationUs;
             currentAssetLoader.release();
-            EditedMediaItem editedMediaItem =
-                editedMediaItems.get(currentMediaItemIndex.incrementAndGet());
+            isCurrentAssetFirstAsset = false;
+            currentMediaItemIndex++;
+            if (currentMediaItemIndex == editedMediaItems.size()) {
+              currentMediaItemIndex = 0;
+              sequenceLoopCount++;
+            }
+            EditedMediaItem editedMediaItem = editedMediaItems.get(currentMediaItemIndex);
             currentAssetLoader =
                 assetLoaderFactory.createAssetLoader(
                     editedMediaItem,

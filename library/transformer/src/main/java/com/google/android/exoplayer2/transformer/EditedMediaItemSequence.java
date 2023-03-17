@@ -34,6 +34,8 @@ public final class EditedMediaItemSequence {
    */
   public final ImmutableList<EditedMediaItem> editedMediaItems;
 
+  /* package */ final boolean isLooping;
+
   /**
    * Creates an instance.
    *
@@ -42,5 +44,6 @@ public final class EditedMediaItemSequence {
   public EditedMediaItemSequence(List<EditedMediaItem> editedMediaItems) {
     checkArgument(!editedMediaItems.isEmpty());
     this.editedMediaItems = ImmutableList.copyOf(editedMediaItems);
+    isLooping = false;
   }
 }
