@@ -220,7 +220,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void onTrackCount(int trackCount) {
-    // TODO(b/252537210): support varying track count and track types between AssetLoaders.
     nonEndedTracks.set(trackCount);
   }
 
@@ -341,8 +340,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     if ((sequenceLoopCount * editedMediaItems.size() + currentMediaItemIndex)
         >= processedInputsSize) {
       MediaItem mediaItem = editedMediaItems.get(currentMediaItemIndex).mediaItem;
-      // TODO(b/252537210): consider getting the decoder names via a callback to simplify the logic
-      //  of adding processed inputs.
       ImmutableMap<Integer, String> decoders = currentAssetLoader.getDecoderNames();
       processedInputsBuilder.add(
           new ExportResult.ProcessedInput(
