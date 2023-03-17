@@ -141,7 +141,7 @@ public final class AndroidTestUtil {
           .setSampleMimeType(VIDEO_H264)
           .setWidth(3840)
           .setHeight(2160)
-          .setFrameRate(57.39f)
+          .setFrameRate(60.00f)
           .setCodecs("avc1.640033")
           .build();
 
