@@ -153,6 +153,9 @@ import org.checkerframework.dataflow.qual.Pure;
       @Nullable Format trackFormat,
       boolean isLast) {
     if (trackFormat == null) {
+      checkState(
+          durationUs != C.TIME_UNSET,
+          "Could not generate silent audio because duration is unknown.");
       silentAudioGenerator.addSilence(durationUs);
       if (isLast) {
         queueEndOfStreamAfterSilence = true;
