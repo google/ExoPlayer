@@ -43,7 +43,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* nowUs= */ 60_000_000L,
             adSequencePattern,
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -79,7 +80,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* nowUs= */ 100_000_000L,
             adSequencePattern,
             /* isContentTimeline= */ false,
-            /* populateAds= */ true);
+            /* populateAds= */ true,
+            /* playedAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -138,7 +140,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* nowUs= */ 100_000_000L,
             adSequencePattern,
             /* isContentTimeline= */ false,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -189,7 +192,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* nowUs= */ 60_000_123L,
             adSequencePattern,
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -273,7 +277,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             nowUs,
             adSequencePattern,
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ true);
 
     assertThat(timeline.getWindow(0, new Timeline.Window()).windowStartTimeMs)
         .isEqualTo(Util.usToMs(nowUs - liveWindowDurationUs));
@@ -333,7 +338,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             nowUs,
             adSequencePattern,
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
 
     assertThat(timeline.getWindow(0, new Timeline.Window()).windowStartTimeMs)
         .isEqualTo(Util.usToMs(nowUs - liveWindowDurationUs));
@@ -353,7 +359,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* nowUs= */ 120_000_000L,
             new boolean[] {false, true, true, true},
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
 
@@ -390,7 +397,8 @@ public class FakeMultiPeriodLiveTimelineTest {
             /* nowUs= */ 250_000_000L,
             new boolean[] {false, true, false, true, false},
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
 
     assertThat(timeline.getPeriodCount()).isEqualTo(10);
     assertThat(timeline.getWindow(0, window).windowStartTimeMs).isEqualTo(30_000L);

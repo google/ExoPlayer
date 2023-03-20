@@ -57,6 +57,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
   private final long liveWindowDurationUs;
   private final boolean isContentTimeline;
   private final boolean populateAds;
+  private final boolean playedAds;
 
   private long nowUs;
   private ImmutableList<PeriodData> periods;
@@ -72,7 +73,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
    * @param isContentTimeline Whether the timeline is a content timeline without {@link
    *     AdPlaybackState}s.
    * @param populateAds Whether to populate ads like after the ad event has been received. This
-   *     parameter is ignored if the timeline is a content timeline.
+   * @param playedAds Whether ads should be marked as played if populated.
    */
   public FakeMultiPeriodLiveTimeline(
       long availabilityStartTimeUs,
@@ -80,7 +81,8 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
       long nowUs,
       boolean[] adSequencePattern,
       boolean isContentTimeline,
-      boolean populateAds) {
+      boolean populateAds,
+      boolean playedAds) {
     checkArgument(nowUs - liveWindowDurationUs >= availabilityStartTimeUs);
     this.availabilityStartTimeUs = availabilityStartTimeUs;
     this.liveWindowDurationUs = liveWindowDurationUs;
@@ -88,6 +90,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     this.adSequencePattern = Arrays.copyOf(adSequencePattern, adSequencePattern.length);
     this.isContentTimeline = isContentTimeline;
     this.populateAds = populateAds;
+    this.playedAds = playedAds;
     mediaItem = new MediaItem.Builder().build();
     periods =
         invalidate(
@@ -96,7 +99,8 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
             nowUs,
             adSequencePattern,
             isContentTimeline,
-            populateAds);
+            populateAds,
+            playedAds);
   }
 
   /** Calculates the total duration of the given ad period sequence. */
@@ -118,7 +122,8 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
             nowUs,
             adSequencePattern,
             isContentTimeline,
-            populateAds);
+            populateAds,
+            playedAds);
   }
 
   @Override
@@ -188,7 +193,8 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
       long now,
       boolean[] adSequencePattern,
       boolean isContentTimeline,
-      boolean populateAds) {
+      boolean populateAds,
+      boolean playedAds) {
     long windowStartTimeUs = now - liveWindowDurationUs;
     int sequencePeriodCount = adSequencePattern.length;
     long sequenceDurationUs = calculateAdSequencePatternDurationUs(adSequencePattern);
@@ -226,6 +232,10 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
                       /* adGroupIndex= */ 0, /* adDurationsUs...= */ periodDurationUs)
                   .withContentResumeOffsetUs(
                       /* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ periodDurationUs);
+          if (playedAds) {
+            adPlaybackState =
+                adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+          }
         }
       }
       liveWindow.add(

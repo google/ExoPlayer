@@ -441,7 +441,8 @@ public class TimelineTest {
             /* nowUs= */ 60_000_000,
             /* adSequencePattern= */ new boolean[] {false, true, true},
             /* isContentTimeline= */ false,
-            /* populateAds= */ true);
+            /* populateAds= */ true,
+            /* playedAds= */ false);
 
     assertThat(timeline.getPeriodCount()).isEqualTo(4);
     assertThat(
