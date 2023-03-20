@@ -472,13 +472,10 @@ import com.google.common.collect.ImmutableList;
       Timeline.Period period) {
     timeline.getPeriodByUid(periodUid, period);
     timeline.getWindow(period.windowIndex, window);
-    int periodIndex = timeline.getIndexOfPeriod(periodUid);
     // Skip ignorable server side inserted ad periods.
-    while ((period.durationUs == 0
-            && period.getAdGroupCount() > 0
-            && period.isServerSideInsertedAdGroup(period.getRemovedAdGroupCount())
-            && period.getAdGroupIndexForPositionUs(0) == C.INDEX_UNSET)
-        && periodIndex++ < window.lastPeriodIndex) {
+    for (int periodIndex = timeline.getIndexOfPeriod(periodUid);
+        isSkippableAdPeriod(period) && periodIndex <= window.lastPeriodIndex;
+        periodIndex++) {
       timeline.getPeriod(periodIndex, period, /* setIds= */ true);
       periodUid = checkNotNull(period.uid);
     }
@@ -491,6 +488,26 @@ import com.google.common.collect.ImmutableList;
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(adGroupIndex);
       return new MediaPeriodId(periodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber);
     }
+  }
+
+  private static boolean isSkippableAdPeriod(Timeline.Period period) {
+    int adGroupCount = period.getAdGroupCount();
+    if (adGroupCount == 0
+        || (adGroupCount == 1 && period.isLivePostrollPlaceholder(/* adGroupIndex= */ 0))
+        || !period.isServerSideInsertedAdGroup(period.getRemovedAdGroupCount())
+        || period.getAdGroupIndexForPositionUs(0L) != C.INDEX_UNSET) {
+      return false;
+    }
+    if (period.durationUs == 0) {
+      return true;
+    }
+    long contentResumeOffsetUs = 0;
+    int lastIndexInclusive =
+        adGroupCount - (period.isLivePostrollPlaceholder(adGroupCount - 1) ? 2 : 1);
+    for (int i = 0; i <= lastIndexInclusive; i++) {
+      contentResumeOffsetUs += period.getContentResumeOffsetUs(/* adGroupIndex= */ i);
+    }
+    return period.durationUs <= contentResumeOffsetUs;
   }
 
   /**

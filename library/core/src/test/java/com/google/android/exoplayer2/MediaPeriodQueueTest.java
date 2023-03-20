@@ -432,7 +432,8 @@ public final class MediaPeriodQueueTest {
             /* nowUs= */ 110_000_000,
             new boolean[] {false, true, true},
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     setupTimeline(multiPeriodLiveTimeline);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* periodUid= */ firstPeriodUid,
@@ -498,7 +499,8 @@ public final class MediaPeriodQueueTest {
             /* nowUs= */ 110_000_000,
             new boolean[] {false, true, true},
             /* isContentTimeline= */ false,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     setupTimeline(multiPeriodLiveTimeline);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* periodUid= */ firstPeriodUid,
@@ -563,7 +565,8 @@ public final class MediaPeriodQueueTest {
             /* nowUs= */ 110_000_000,
             new boolean[] {false, true, true},
             /* isContentTimeline= */ false,
-            /* populateAds= */ true);
+            /* populateAds= */ true,
+            /* playedAds= */ false);
     setupTimeline(multiPeriodLiveTimeline);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* periodUid= */ firstPeriodUid,
@@ -616,6 +619,47 @@ public final class MediaPeriodQueueTest {
         /* isLastInWindow= */ false,
         /* isFinal= */ false,
         /* nextAdGroupIndex= */ C.INDEX_UNSET);
+    advance();
+    assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
+        new Pair<Object, Object>(((Pair<Object, Object>) firstPeriodUid).first, "uid-6[c]"),
+        /* startPositionUs= */ 0,
+        /* requestedContentPositionUs= */ 0,
+        /* endPositionUs= */ C.TIME_UNSET,
+        /* durationUs= */ C.TIME_UNSET, // Last period in stream.
+        /* isFollowedByTransitionToSameStream= */ false,
+        /* isLastInPeriod= */ false,
+        /* isLastInWindow= */ false,
+        /* isFinal= */ false,
+        /* nextAdGroupIndex= */ 0);
+    advance();
+    assertThat(getNextMediaPeriodInfo()).isNull();
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void getNextMediaPeriodInfo_multiPeriodTimelineWithPlayedAdsAndWithPostRollPlaceHolder() {
+    long contentPeriodDurationUs = FakeMultiPeriodLiveTimeline.PERIOD_DURATION_US;
+    FakeMultiPeriodLiveTimeline multiPeriodLiveTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeUs= */ 0,
+            /* liveWindowDurationUs= */ 60_000_000,
+            /* nowUs= */ 110_000_000,
+            new boolean[] {false, true, true},
+            /* isContentTimeline= */ false,
+            /* populateAds= */ true,
+            /* playedAds= */ true);
+    setupTimeline(multiPeriodLiveTimeline);
+    assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
+        /* periodUid= */ firstPeriodUid,
+        /* startPositionUs= */ 0,
+        /* requestedContentPositionUs= */ C.TIME_UNSET,
+        /* endPositionUs= */ C.TIME_UNSET,
+        /* durationUs= */ contentPeriodDurationUs,
+        /* isFollowedByTransitionToSameStream= */ false,
+        /* isLastInPeriod= */ false,
+        /* isLastInWindow= */ false,
+        /* isFinal= */ false,
+        /* nextAdGroupIndex= */ 0);
     advance();
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         new Pair<Object, Object>(((Pair<Object, Object>) firstPeriodUid).first, "uid-6[c]"),

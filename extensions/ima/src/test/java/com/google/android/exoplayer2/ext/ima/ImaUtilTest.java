@@ -566,7 +566,8 @@ public class ImaUtilTest {
             /* nowUs= */ 150_000_000,
             /* adSequencePattern= */ new boolean[] {false, true, true},
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     // Ad event received from SDK around 130s.
     adPlaybackState =
         addLiveAdBreak(
@@ -855,7 +856,8 @@ public class ImaUtilTest {
             /* nowUs= */ 59_999_999,
             /* adSequencePattern= */ new boolean[] {false, true, true},
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     // Ad event received from SDK around 30s.
     adPlaybackState =
         addLiveAdBreak(
@@ -1296,7 +1298,8 @@ public class ImaUtilTest {
             /* nowUs= */ 150_000_000,
             /* adSequencePattern= */ new boolean[] {false, true, true},
             /* isContentTimeline= */ true,
-            /* populateAds= */ false);
+            /* populateAds= */ false,
+            /* playedAds= */ false);
     AdPlaybackState adPlaybackState =
         new AdPlaybackState("adsId").withLivePostrollPlaceholderAppended();
     adPlaybackState =
