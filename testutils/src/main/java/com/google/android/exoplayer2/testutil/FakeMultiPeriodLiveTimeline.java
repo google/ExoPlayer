@@ -211,7 +211,6 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     while (lastPeriodStartTimeUs < now) {
       isAd = adSequencePattern[lastPeriodIndex % sequencePeriodCount];
       long periodDurationUs = isAd ? AD_PERIOD_DURATION_US : PERIOD_DURATION_US;
-      long adPeriodDurationUs = periodDurationUs;
       AdPlaybackState adPlaybackState = AdPlaybackState.NONE;
       if (!isContentTimeline) {
         adPlaybackState = new AdPlaybackState("adsId").withLivePostrollPlaceholderAppended();
@@ -222,14 +221,15 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
                   .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
                   .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                   .withAdDurationsUs(
-                      /* adGroupIndex= */ 0, /* adDurationsUs...= */ periodDurationUs);
-          adPeriodDurationUs = 0;
+                      /* adGroupIndex= */ 0, /* adDurationsUs...= */ periodDurationUs)
+                  .withContentResumeOffsetUs(
+                      /* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ periodDurationUs);
         }
       }
       liveWindow.add(
           new PeriodData(
               /* id= */ lastPeriodIndex++,
-              adPeriodDurationUs,
+              periodDurationUs,
               /* positionInWindowUs= */ lastPeriodStartTimeUs - windowStartTimeUs,
               isAd,
               adPlaybackState));

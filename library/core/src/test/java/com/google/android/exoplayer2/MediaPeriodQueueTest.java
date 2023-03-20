@@ -587,10 +587,10 @@ public final class MediaPeriodQueueTest {
     advance();
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         new Pair<Object, Object>(((Pair<Object, Object>) firstPeriodUid).first, "uid-4[a]"),
-        /* startPositionUs= */ 0,
+        /* startPositionUs= */ adPeriodDurationUs,
         /* requestedContentPositionUs= */ 0,
-        /* endPositionUs= */ 0,
-        /* durationUs= */ 0,
+        /* endPositionUs= */ adPeriodDurationUs,
+        /* durationUs= */ adPeriodDurationUs,
         /* isFollowedByTransitionToSameStream= */ false,
         /* isLastInPeriod= */ true,
         /* isLastInWindow= */ false,
@@ -607,10 +607,10 @@ public final class MediaPeriodQueueTest {
     advance();
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         new Pair<Object, Object>(((Pair<Object, Object>) firstPeriodUid).first, "uid-5[a]"),
-        /* startPositionUs= */ 0,
+        /* startPositionUs= */ adPeriodDurationUs,
         /* requestedContentPositionUs= */ 0,
-        /* endPositionUs= */ 0,
-        /* durationUs= */ 0,
+        /* endPositionUs= */ adPeriodDurationUs,
+        /* durationUs= */ adPeriodDurationUs,
         /* isFollowedByTransitionToSameStream= */ false,
         /* isLastInPeriod= */ true,
         /* isLastInWindow= */ false,
