@@ -84,7 +84,7 @@ public final class EncoderUtil {
    */
   public static ImmutableList<MediaCodecInfo> getSupportedEncodersForHdrEditing(
       String mimeType, @Nullable ColorInfo colorInfo) {
-    if (Util.SDK_INT < 31 || colorInfo == null) {
+    if (Util.SDK_INT < 33 || colorInfo == null) {
       return ImmutableList.of();
     }
 
