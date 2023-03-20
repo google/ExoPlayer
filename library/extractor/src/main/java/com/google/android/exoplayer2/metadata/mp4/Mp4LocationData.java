@@ -59,7 +59,7 @@ public final class Mp4LocationData implements Metadata.Entry {
 
   @Override
   public String toString() {
-    return "xyz: latitude=" + latitude + " longitude=" + longitude;
+    return "xyz: latitude=" + latitude + ", longitude=" + longitude;
   }
 
   // Parcelable implementation.
