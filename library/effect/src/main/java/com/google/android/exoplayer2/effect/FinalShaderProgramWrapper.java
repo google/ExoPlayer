@@ -93,7 +93,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private SurfaceView debugSurfaceView;
   private boolean frameProcessingStarted;
 
-  private volatile boolean outputSizeOrRotationChanged;
+  private volatile boolean outputChanged;
 
   @GuardedBy("this")
   @Nullable
@@ -270,26 +270,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @see VideoFrameProcessor#setOutputSurfaceInfo(SurfaceInfo)
    */
   public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    if (!Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
-      if (outputSurfaceInfo != null
-          && this.outputSurfaceInfo != null
-          && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
-        try {
-          GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
-        } catch (GlUtil.GlException e) {
-          videoFrameProcessorListenerExecutor.execute(
-              () -> videoFrameProcessorListener.onError(VideoFrameProcessingException.from(e)));
-        }
-        this.outputEglSurface = null;
-      }
-      outputSizeOrRotationChanged =
-          this.outputSurfaceInfo == null
-              || outputSurfaceInfo == null
-              || this.outputSurfaceInfo.width != outputSurfaceInfo.width
-              || this.outputSurfaceInfo.height != outputSurfaceInfo.height
-              || this.outputSurfaceInfo.orientationDegrees != outputSurfaceInfo.orientationDegrees;
-      this.outputSurfaceInfo = outputSurfaceInfo;
+    if (Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
+      return;
     }
+
+    if (outputSurfaceInfo != null
+        && this.outputSurfaceInfo != null
+        && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
+      try {
+        GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+      } catch (GlUtil.GlException e) {
+        videoFrameProcessorListenerExecutor.execute(
+            () -> videoFrameProcessorListener.onError(VideoFrameProcessingException.from(e)));
+      }
+      this.outputEglSurface = null;
+    }
+    outputChanged =
+        this.outputSurfaceInfo == null
+            || outputSurfaceInfo == null
+            || this.outputSurfaceInfo.width != outputSurfaceInfo.width
+            || this.outputSurfaceInfo.height != outputSurfaceInfo.height
+            || this.outputSurfaceInfo.orientationDegrees != outputSurfaceInfo.orientationDegrees;
+    this.outputSurfaceInfo = outputSurfaceInfo;
   }
 
   private void renderFrameToSurfaces(
@@ -336,16 +338,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
   }
 
+  /**
+   * Ensures the instance is configured.
+   *
+   * <p>Returns {@code false} if {@code outputSurfaceInfo} is unset.
+   */
   @EnsuresNonNullIf(
       expression = {"outputSurfaceInfo", "outputEglSurface", "defaultShaderProgram"},
       result = true)
   private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws VideoFrameProcessingException, GlUtil.GlException {
 
-    boolean inputSizeChanged = false;
-    if (this.inputWidth != inputWidth
-        || this.inputHeight != inputHeight
-        || this.outputSizeBeforeSurfaceTransformation == null) {
+    boolean inputSizeChanged =
+        this.inputWidth != inputWidth
+            || this.inputHeight != inputHeight
+            || this.outputSizeBeforeSurfaceTransformation == null;
+    if (inputSizeChanged) {
       this.inputWidth = inputWidth;
       this.inputHeight = inputHeight;
       Size outputSizeBeforeSurfaceTransformation =
@@ -359,7 +367,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     outputSizeBeforeSurfaceTransformation.getWidth(),
                     outputSizeBeforeSurfaceTransformation.getHeight()));
       }
-      inputSizeChanged = true;
     }
 
     if (outputSurfaceInfo == null) {
@@ -395,10 +402,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.debugSurfaceView = debugSurfaceView;
     }
 
-    if (defaultShaderProgram != null && (outputSizeOrRotationChanged || inputSizeChanged)) {
+    if (defaultShaderProgram != null && (outputChanged || inputSizeChanged)) {
       defaultShaderProgram.release();
       defaultShaderProgram = null;
-      outputSizeOrRotationChanged = false;
+      outputChanged = false;
     }
     if (defaultShaderProgram == null) {
       defaultShaderProgram = createDefaultShaderProgramForOutputSurface(outputSurfaceInfo);
