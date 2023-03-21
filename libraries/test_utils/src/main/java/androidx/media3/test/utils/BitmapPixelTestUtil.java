@@ -31,6 +31,7 @@ import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -83,6 +84,7 @@ public class BitmapPixelTestUtil {
    * Returns a bitmap with the same information as the provided alpha/red/green/blue 8-bits per
    * component image.
    */
+  @RequiresApi(19)
   public static Bitmap createArgb8888BitmapFromRgba8888Image(Image image) {
     int width = image.getWidth();
     int height = image.getHeight();
