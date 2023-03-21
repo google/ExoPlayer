@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -270,17 +271,16 @@ public class TransformerAndroidTestRunner {
               .equals(MediaItem.ClippingConfiguration.UNSET),
           "SSIM calculation is not supported for clipped inputs.");
     }
-    if (!hasNetworkConnection(context)) {
-      for (EditedMediaItemSequence sequence : composition.sequences) {
-        for (EditedMediaItem editedMediaItem : sequence.editedMediaItems) {
-          Uri mediaItemUri = checkNotNull(editedMediaItem.mediaItem.localConfiguration).uri;
-          String scheme = checkNotNull(mediaItemUri.getScheme());
-          if ((scheme.equals("http") || scheme.equals("https"))) {
-            throw new IllegalArgumentException(
-                "Input network file requested on device with no network connection. Input file"
-                    + " name: "
-                    + mediaItemUri);
-          }
+    for (EditedMediaItemSequence sequence : composition.sequences) {
+      for (EditedMediaItem editedMediaItem : sequence.editedMediaItems) {
+        Uri mediaItemUri = checkNotNull(editedMediaItem.mediaItem.localConfiguration).uri;
+        String scheme = checkNotNull(mediaItemUri.getScheme());
+        if ((scheme.equals("http") || scheme.equals("https"))) {
+          assumeTrue(
+              "Input network file requested on device with no network connection. Input file"
+                  + " name: "
+                  + mediaItemUri,
+              hasNetworkConnection(context));
         }
       }
     }
