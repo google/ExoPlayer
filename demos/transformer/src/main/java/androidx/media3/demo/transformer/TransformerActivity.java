@@ -627,9 +627,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "exportStopwatch",
   })
   private void onError(ExportException exportException) {
-    if (exportStopwatch.isRunning()) {
-      exportStopwatch.stop();
-    }
+    exportStopwatch.stop();
     informationTextView.setText(R.string.export_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();

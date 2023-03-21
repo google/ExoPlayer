@@ -418,7 +418,12 @@ public final class Transformer {
     }
   }
 
-  /** A listener for the export events. */
+  /**
+   * A listener for the export events.
+   *
+   * <p>If the export is not cancelled, either {@link #onError} or {@link #onCompleted} will be
+   * called once for each export.
+   */
   public interface Listener {
 
     /**
