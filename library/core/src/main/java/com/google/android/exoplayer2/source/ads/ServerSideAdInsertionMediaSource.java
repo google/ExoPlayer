@@ -185,6 +185,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       if (playbackHandler == null) {
         this.adPlaybackStates = adPlaybackStates;
       } else {
+        Timeline finalContentTimeline = contentTimeline;
         playbackHandler.post(
             () -> {
               for (SharedMediaPeriod mediaPeriod : mediaPeriods.values()) {
@@ -203,9 +204,9 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
                 }
               }
               this.adPlaybackStates = adPlaybackStates;
-              if (contentTimeline != null) {
+              if (finalContentTimeline != null) {
                 refreshSourceInfo(
-                    new ServerSideAdInsertionTimeline(contentTimeline, adPlaybackStates));
+                    new ServerSideAdInsertionTimeline(finalContentTimeline, adPlaybackStates));
               }
             });
       }
