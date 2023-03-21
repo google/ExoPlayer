@@ -14,7 +14,7 @@ moov (764 bytes):
       Data = length 28, hash 2BFD5C32
   trak (534 bytes):
     tkhd (92 bytes):
-      Data = length 84, hash C25E979A
+      Data = length 84, hash 8893F5BB
     mdia (434 bytes):
       mdhd (32 bytes):
         Data = length 24, hash 50217AD
