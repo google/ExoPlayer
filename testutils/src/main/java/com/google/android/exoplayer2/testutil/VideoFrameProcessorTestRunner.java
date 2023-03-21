@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.media.Image;
@@ -259,6 +260,7 @@ public final class VideoFrameProcessorTestRunner {
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
+              @SuppressLint("WrongConstant")
               @Override
               public void onOutputSizeChanged(int width, int height) {
                 outputImageReader =
@@ -287,6 +289,7 @@ public final class VideoFrameProcessorTestRunner {
             });
   }
 
+  @RequiresApi(19)
   public Bitmap processFirstFrameAndEnd() throws Exception {
     DecodeOneFrameUtil.decodeOneAssetFileFrame(
         checkNotNull(videoAssetPath),
@@ -319,6 +322,7 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
+  @RequiresApi(19)
   public Bitmap endFrameProcessingAndGetImage() throws Exception {
     videoFrameProcessor.signalEndOfInput();
     Thread.sleep(VIDEO_FRAME_PROCESSING_WAIT_MS);
