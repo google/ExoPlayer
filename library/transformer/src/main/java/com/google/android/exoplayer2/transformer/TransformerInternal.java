@@ -34,6 +34,7 @@ import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -90,6 +91,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int MSG_END = 3;
   private static final int MSG_UPDATE_PROGRESS = 4;
 
+  private static final String TAG = "TransformerInternal";
   private static final int DRAIN_PIPELINES_DELAY_MS = 10;
 
   private final Context context;
@@ -322,6 +324,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     boolean forCancellation = endReason == END_REASON_CANCELLED;
     @Nullable ExportException releaseExportException = null;
+    boolean releasedPreviously = released;
     if (!released) {
       released = true;
       for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
@@ -378,12 +381,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (exception != null) {
+      if (releasedPreviously) {
+        Log.e(TAG, "Export error after export ended: ", exception);
+        return;
+      }
       ExportException finalException = exception;
       applicationHandler.post(
           () ->
               listener.onError(
                   exportResultBuilder.setExportException(finalException).build(), finalException));
     } else {
+      if (releasedPreviously) {
+        return;
+      }
       applicationHandler.post(() -> listener.onCompleted(exportResultBuilder.build()));
     }
   }
