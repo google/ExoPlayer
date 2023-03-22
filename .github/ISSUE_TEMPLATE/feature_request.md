@@ -6,23 +6,10 @@ labels: enhancement, needs triage
 assignees: ''
 ---
 
-Before filing a feature request:
------------------------
-- Search existing open issues, specifically with the label ‘enhancement’:
-  https://github.com/google/ExoPlayer/labels/enhancement
-- Search existing pull requests: https://github.com/google/ExoPlayer/pulls
+**Please do not file new issues in this repository.**
 
-When filing a feature request:
------------------------
-Replace the content in the sections below.
+All new feature requests should be filed in the
+[Media3 issue tracker](https://github.com/androidx/media/issues/new?template=feature_request.md).
 
-### [REQUIRED] Use case description
-Describe the use case or problem you are trying to solve in detail. If there are
-any standards or specifications involved, please provide the relevant details.
-
-### Proposed solution
-A clear and concise description of your proposed solution, if you have one.
-
-### Alternatives considered
-A clear and concise description of any alternative solutions you considered,
-if applicable.
+We will continue to update and reply to existing issues in this repository and
+will keep existing feature requests active.

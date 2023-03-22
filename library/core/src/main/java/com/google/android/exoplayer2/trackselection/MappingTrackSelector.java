@@ -287,6 +287,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *
      * @param rendererIndex The renderer index.
      * @param groupIndex The index of the track group.
+     * @param trackIndices The indices of the tracks in the track group for which to query support.
      * @return The {@link AdaptiveSupport}.
      */
     public @AdaptiveSupport int getAdaptiveSupport(

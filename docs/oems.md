@@ -2,6 +2,10 @@
 title: OEM testing
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer is used by a large number of Android applications. As an OEM, it's
 important to ensure that ExoPlayer works correctly both on new devices, and on
 new platform builds for existing devices. This page describes compatibility
@@ -102,4 +106,5 @@ that the test is getting stuck calling into a platform component (e.g.
 `MediaCodec`, `MediaDrm`, `AudioTrack` etc). Inspect the call stacks of the
 threads in the test process to establish whether this is the case.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/oems
 [GitHub]: https://github.com/google/ExoPlayer

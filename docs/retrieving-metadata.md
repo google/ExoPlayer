@@ -2,6 +2,10 @@
 title: Retrieving metadata
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ## During playback ##
 
 The metadata of the media can be retrieved during playback in multiple ways. The
@@ -22,10 +26,10 @@ public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
 {: .language-java}
 
 If an application needs access to specific [`Metadata.Entry`][] objects, then it
-should add a `MetadataOutput` (for dynamic metadata delivered during
-playback) to the player. Alternatively, if there is a need to look at static
-metadata, this can be accessed through the `TrackSelections#getFormat`. Both of
-these options are used to populate the `Player#getMediaMetadata`.
+should listen to `Player.Listener#onMetadata` (for dynamic metadata delivered
+during playback). Alternatively, if there is a need to look at static metadata,
+this can be accessed through the `TrackSelections#getFormat`.
+`Player#getMediaMetadata` is populated from both of these sources.
 
 ## Without playback ##
 
@@ -84,6 +88,7 @@ for (int i = 0; i < trackGroups.length; i++) {
 ~~~
 {: .language-java}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/retrieving-metadata
 [`MediaMetadata`]: {{ site.exo_sdk }}/MediaMetadata.html
 [`Metadata.Entry`]: {{ site.exo_sdk }}/metadata/Metadata.Entry.html
 [`MetadataRetriever`]: {{ site.exo_sdk }}/MetadataRetriever.html

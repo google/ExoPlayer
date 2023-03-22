@@ -130,6 +130,7 @@ public final class FlacFrameReader {
    * there is no guarantee on the peek position.
    *
    * @param input Input stream to get the sample number from (starting from the read position).
+   * @param flacStreamMetadata The FLAC metadata of the stream.
    * @return The frame first sample number.
    * @throws ParserException If an error occurs parsing the sample number.
    * @throws IOException If peeking from the input fails.

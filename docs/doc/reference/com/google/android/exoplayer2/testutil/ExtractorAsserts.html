@@ -432,6 +432,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <p>The output of the extractor is compared against prerecorded dump files.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>factory</code> - An <a href="ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.ExtractorFactory</code></a> which creates instances of the <a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>
+     class which is to be tested.</dd>
+<dd><code>file</code> - The input file to pass to the extractor.</dd>
 <dd><code>assertionConfig</code> - Details of how to read and process the source and dump files.</dd>
 <dd><code>simulationConfig</code> - Details on the environment to simulate and behaviours to assert.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

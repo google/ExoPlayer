@@ -2,6 +2,10 @@
 title: Debug logging
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 By default ExoPlayer only logs errors. To log player events, the `EventLogger`
 class can be used. The additional logging it provides can be helpful for
 understanding what the player is doing, as well as for debugging playback
@@ -116,4 +120,5 @@ EventLogger: videoDecoderInitialized [0.77, 0.00, window=0, period=0, video, OMX
 EventLogger: audioDecoderInitialized [0.79, 0.00, window=0, period=0, audio, OMX.google.aac.decoder]
 ```
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/debug-logging
 [logcat tab]: https://developer.android.com/studio/debug/am-logcat

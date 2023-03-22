@@ -2,6 +2,10 @@
 title: Network stacks
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer is commonly used for streaming media over the internet. It supports
 multiple network stacks for making its underlying network requests. Your choice
 of network stack can have a significant impact on streaming performance.
@@ -176,3 +180,5 @@ to media playback, your choice of network stack should ultimately factor in our
 recommendations above for media streaming in isolation, the requirements of any
 other components that perform networking, and their relative importance to your
 application.
+
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/network-stacks

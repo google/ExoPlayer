@@ -337,6 +337,7 @@ public class FakeMediaSource extends BaseMediaSource {
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param mediaSourceEventDispatcher An {@link MediaSourceEventListener.EventDispatcher} to
    *     dispatch media source events.
+   * @param drmSessionManager A {@link DrmSessionManager} to allow DRM interactions.
    * @param drmEventDispatcher An {@link MediaSourceEventListener.EventDispatcher} to dispatch DRM
    *     events.
    * @param transferListener The transfer listener which should be informed of any data transfers.

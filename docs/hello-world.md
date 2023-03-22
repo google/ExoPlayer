@@ -6,6 +6,10 @@ redirect_from:
   - /getting-started.html
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 Another way to get started is to work through
 [the ExoPlayer codelab](https://codelabs.developers.google.com/codelabs/exoplayer-intro/).
 {:.info}
@@ -209,6 +213,7 @@ It's important to release the player when it's no longer needed, so as to free
 up limited resources such as video decoders for use by other applications. This
 can be done by calling `ExoPlayer.release`.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/hello-world
 [main demo app]: {{ site.release_v2 }}/demos/main/
 [extensions directory]: {{ site.release_v2 }}/extensions/
 [release notes]: {{ site.release_v2 }}/RELEASENOTES.md

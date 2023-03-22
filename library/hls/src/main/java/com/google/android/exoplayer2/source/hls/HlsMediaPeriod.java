@@ -102,13 +102,17 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
    *     be null if no listener is available.
    * @param drmSessionManager The {@link DrmSessionManager} to acquire {@link DrmSession
    *     DrmSessions} with.
+   * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
+   *     DRM-related events.
    * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
    * @param eventDispatcher A dispatcher to notify of events.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param compositeSequenceableLoaderFactory A factory to create composite {@link
    *     SequenceableLoader}s for when this media source loads data from multiple streams.
    * @param allowChunklessPreparation Whether chunkless preparation is allowed.
+   * @param metadataType The type of metadata to extract from the period.
    * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
+   * @param playerId The ID of the current player.
    */
   public HlsMediaPeriod(
       HlsExtractorFactory extractorFactory,

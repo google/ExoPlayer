@@ -1,5 +1,12 @@
 # Release notes
 
+### 2.18.5 (2023-03-22)
+
+This release corresponds to the
+[AndroidX Media3 1.0.0 release](https://github.com/androidx/media/releases/tag/1.0.0).
+
+There are no changes since 2.18.4.
+
 ### 2.18.4 (2023-03-02)
 
 This release corresponds to the

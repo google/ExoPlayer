@@ -1096,7 +1096,10 @@ public abstract class Action {
     private final Runnable runnable;
 
     /**
+     * Constructs an instance.
+     *
      * @param tag A tag to use for logging.
+     * @param runnable The runnable to run.
      */
     public ExecuteRunnable(@Size(max = 23) String tag, Runnable runnable) {
       super(tag, "ExecuteRunnable");

@@ -5,6 +5,10 @@ redirect_from:
   - /debugging-playback-issues.html
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 * [Fixing "Cleartext HTTP traffic not permitted" errors][]
 * [Fixing "SSLHandshakeException", "CertPathValidatorException" and "ERR_CERT_AUTHORITY_INVALID" errors][]
 * [Why are some media files not seekable?][]
@@ -374,6 +378,7 @@ particularly when playing DRM protected or high frame rate content, you can try
 [Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-youtube-videos-directly-with-exoplayer
 [Video playback is stuttering]: #video-playback-is-stuttering
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/troubleshooting
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [set on a `DefaultExtractorsFactory`]: {{ site.base_url }}/customization.html#customizing-extractor-flags
 [`setMp3ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags(@com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.Flagsint)

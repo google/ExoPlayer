@@ -2,6 +2,10 @@
 layout: article
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 ExoPlayer is an application level media player for Android. It provides an
 alternative to Android’s MediaPlayer API for playing audio and video both
 locally and over the Internet. ExoPlayer supports features not currently
@@ -13,12 +17,13 @@ This website provides a wealth of information to help you get started. In
 addition, you can:
 
 * Learn how to add ExoPlayer to your app by [completing the codelab][] or
-reading the [Hello world][] documentation.
+  reading the [Hello world][] documentation.
 * Read news, hints and tips on our [developer blog][].
 * Read the latest [release notes][].
 * Browse the library [Javadoc][].
 * Browse the source code for the [latest release][] and current [tip of tree][].
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer
 [completing the codelab]: https://codelabs.developers.google.com/codelabs/exoplayer-intro/
 [Hello world]: {{ site.baseurl }}/hello-world.html
 [developer blog]: https://medium.com/google-exoplayer

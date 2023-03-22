@@ -2,6 +2,10 @@
 title: Customization
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 At the core of the ExoPlayer library is the `Player` interface. A `Player`
 exposes traditional high-level media player functionality such as the ability to
 buffer media, play, pause and seek. The default implementation `ExoPlayer` is
@@ -304,6 +308,7 @@ When building custom components, we recommend the following:
   ensures that they are executed in order with any other operations being
   performed on the player.
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/customization
 [customizing the network stack used by ExoPlayer]: {{ site.baseurl }}/network-stacks.html
 [LoadErrorHandlingPolicy]: {{ site.exo_sdk }}/upstream/LoadErrorHandlingPolicy.html
 [media source based playlist API]: {{ site.baseurl }}/media-sources.html#media-source-based-playlist-api

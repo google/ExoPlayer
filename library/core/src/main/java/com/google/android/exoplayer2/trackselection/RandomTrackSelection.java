@@ -66,12 +66,15 @@ public final class RandomTrackSelection extends BaseTrackSelection {
   private int selectedIndex;
 
   /**
+   * Creates a new instance.
+   *
    * @param group The {@link TrackGroup}. Must not be null.
    * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
    *     null or empty. May be in any order.
+   * @param type The {@link Type} of this track selection.
    * @param random A source of random numbers.
    */
-  public RandomTrackSelection(TrackGroup group, int[] tracks, int type, Random random) {
+  public RandomTrackSelection(TrackGroup group, int[] tracks, @Type int type, Random random) {
     super(group, tracks, type);
     this.random = random;
     selectedIndex = random.nextInt(length);

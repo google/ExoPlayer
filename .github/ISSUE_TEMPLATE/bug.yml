@@ -2,112 +2,18 @@ name: Bug Report
 description: Report a bug in the ExoPlayer library
 labels: ["bug", "needs triage"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        We can only process bug reports that are actionable. Unclear bug reports or reports with insufficient information may not get attention.
+- type: markdown
+  attributes:
+    value: |
+      **Please do not file new issues in this repository.**
 
-        Before filing a bug:
-        -------------------------
+      All new bugs should be filed in the
+      [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml).
 
-        - Search existing issues, including issues that are closed: https://github.com/google/ExoPlayer/issues?q=is%3Aissue
-        - Consult our developer website: https://exoplayer.dev/
-        - Check the supported formats: https://exoplayer.dev/supported-formats.html
-  - type: dropdown
-    attributes:
-      label: ExoPlayer Version
-      description: What version of ExoPlayer are you using?
-      options:
-        - 2.18.4
-        - 2.18.3
-        - 2.18.2
-        - 2.18.1
-        - 2.18.0
-        - 2.17.1
-        - 2.17.0
-        - 2.16.1
-        - 2.16.0
-        - 2.15.1
-        - 2.15.0
-        - 2.14.2
-        - 2.14.1
-        - 2.14.0
-        - 2.13.3
-        - Older (unsupported)
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Devices that reproduce the issue
-      placeholder: |
-        Example:
-        * Pixel 4 running Android 12
-        * Samsung S21 running Android 11
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Devices that do not reproduce the issue
-      placeholder: |
-        Example:
-        * Pixel 3 running Android Pie
-  - type: dropdown
-    attributes:
-      label: Reproducible in the demo app?
-      description: Please try and reproduce the issue in the [ExoPlayer demo app](https://exoplayer.dev/demo-application.html).
-      options:
-        - "Yes"
-        - "No"
-        - Not tested
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Reproduction steps
-      description: Clear and complete steps we can use to reproduce the problem
-      placeholder: |
-        Example:
-        1. Play the attached media in the demo app
-        2. Seek forward 10s
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Expected result
-      placeholder: |
-        Example:
-        The media plays successfully
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Actual result
-      placeholder: |
-        Example:
-        Playback crashes with the following stack trace:
-        ...
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Media
-      description: |
-        Media we can use to reproduce the problem. Either:
-        * Attach a file here
-        * Include a media URL
-        * Refer to a piece of media from the demo app (e.g. `Misc > Dizzy (MP4)`)
-        * If you don't want to post media publicly please email the info to dev.exoplayer@gmail.com with subject 'Issue #\<issuenumber\>' after filing this issue, and note that you will do this here.
-        * If you are certain the issue does not depend on the media being played, enter "Not applicable" here.
-
-        For DRM-protected media please also include the scheme and license server URL.
-    validations:
-      required: true
-  - type: checkboxes
-    attributes:
-      label: Bug Report
-      description: |
-        After filing this issue please run `adb bugreport` shortly after reproducing the problem (ideally in the [demo app](https://exoplayer.dev/demo-application.html)) to capture a zip file, and email this to dev.exoplayer@gmail.com with subject 'Issue #\<issuenumber\>'.
-
-        **Note:** Logcat output is **not** the same as a full bug report, and is often missing information that's useful for diagnosing issues. Please ensure you're sending a full bug report zip file.
-      options:
-        - label: You will email the zip file produced by `adb bugreport` to dev.exoplayer@gmail.com after filing this issue.
+      We will continue to update and reply to existing issues in this repository
+      and will keep existing feature requests active.
+- type: textarea
+  attributes:
+    label: Bug
+  validations:
+    required: true

@@ -224,11 +224,13 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int%5B%5D,int,java.util.Random)">RandomTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int%5B%5D,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,java.util.Random)">RandomTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                     int[]&nbsp;tracks,
-                    int&nbsp;type,
+                    @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                     <a href="https://developer.android.com/reference/java/util/Random.html" title="class or interface in java.util" class="externalLink" target="_top">Random</a>&nbsp;random)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Creates a new instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -318,7 +320,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int[],int,java.util.Random)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int[],@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,java.util.Random)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -326,13 +328,15 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h4>RandomTrackSelection</h4>
 <pre>public&nbsp;RandomTrackSelection&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                             int[]&nbsp;tracks,
-                            int&nbsp;type,
+                            @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                             <a href="https://developer.android.com/reference/java/util/Random.html" title="class or interface in java.util" class="externalLink" target="_top">Random</a>&nbsp;random)</pre>
+<div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>group</code> - The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be null.</dd>
 <dd><code>tracks</code> - The indices of the selected tracks within the <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be
      null or empty. May be in any order.</dd>
+<dd><code>type</code> - The <a href="TrackSelection.Type.html" title="annotation in com.google.android.exoplayer2.trackselection"><code>TrackSelection.Type</code></a> of this track selection.</dd>
 <dd><code>random</code> - A source of random numbers.</dd>
 </dl>
 </li>

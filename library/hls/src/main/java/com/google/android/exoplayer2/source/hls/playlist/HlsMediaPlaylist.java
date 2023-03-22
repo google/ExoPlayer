@@ -460,16 +460,20 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final ServerControl serverControl;
 
   /**
+   * Constructs an instance.
+   *
    * @param playlistType See {@link #playlistType}.
    * @param baseUri See {@link #baseUri}.
    * @param tags See {@link #tags}.
    * @param startOffsetUs See {@link #startOffsetUs}.
+   * @param preciseStart See {@link #preciseStart}.
    * @param startTimeUs See {@link #startTimeUs}.
    * @param hasDiscontinuitySequence See {@link #hasDiscontinuitySequence}.
    * @param discontinuitySequence See {@link #discontinuitySequence}.
    * @param mediaSequence See {@link #mediaSequence}.
    * @param version See {@link #version}.
    * @param targetDurationUs See {@link #targetDurationUs}.
+   * @param partTargetDurationUs See {@link #partTargetDurationUs}.
    * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    * @param hasEndTag See {@link #hasEndTag}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.

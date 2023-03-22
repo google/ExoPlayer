@@ -2,6 +2,10 @@
 title: APK shrinking
 ---
 
+This documentation may be out-of-date. Please refer to the
+[documentation for the latest ExoPlayer release][] on developer.android.com.
+{:.info}
+
 Minimizing APK size is an important aspect of developing a good Android
 application. This is particularly true when targeting developing markets, and
 also when developing an Android Instant App. For such cases it may be desirable
@@ -131,4 +135,5 @@ ProgressiveMediaSource mediaSource =
 ~~~
 {: .language-java}
 
+[documentation for the latest ExoPlayer release]: https://developer.android.com/guide/topics/media/exoplayer/shrinking
 [Shrink, obfuscate, and optimize your app]: https://developer.android.com/studio/build/shrink-code

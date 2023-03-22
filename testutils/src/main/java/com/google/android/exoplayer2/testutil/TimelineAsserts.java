@@ -48,6 +48,7 @@ public final class TimelineAsserts {
   /**
    * Asserts that window tags are set correctly.
    *
+   * @param timeline The timeline to read actual window tags from.
    * @param expectedWindowTags A list of expected window tags. If a tag is unknown or not important
    *     {@code null} can be passed to skip this window.
    */
