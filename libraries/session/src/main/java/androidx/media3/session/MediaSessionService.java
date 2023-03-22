@@ -104,17 +104,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * controller. If it's accepted, the controller will be available and keep the binding. If it's
  * rejected, the controller will unbind.
  *
- * <p>{@link #onUpdateNotification(MediaSession)} will be called whenever a notification needs to be
- * shown, updated or cancelled. The default implementation will display notifications using a
- * default UI or using a {@link MediaNotification.Provider} that's set with {@link
+ * <p>{@link #onUpdateNotification(MediaSession, boolean)} will be called whenever a notification
+ * needs to be shown, updated or cancelled. The default implementation will display notifications
+ * using a default UI or using a {@link MediaNotification.Provider} that's set with {@link
  * #setMediaNotificationProvider}. In addition, when playback starts, the service will become a <a
  * href="https://developer.android.com/guide/components/foreground-services">foreground service</a>.
  * It's required to keep the playback after the controller is destroyed. The service will become a
  * background service when all playbacks are stopped. Apps targeting {@code SDK_INT >= 28} must
  * request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order to make
  * the service foreground. You can control when to show or hide notifications by overriding {@link
- * #onUpdateNotification(MediaSession)}. In this case, you must also start or stop the service from
- * the foreground, when playback starts or stops respectively.
+ * #onUpdateNotification(MediaSession, boolean)}. In this case, you must also start or stop the
+ * service from the foreground, when playback starts or stops respectively.
  *
  * <p>The service will be destroyed when all sessions are {@linkplain MediaController#release()
  * released}, or no controller is binding to the service while the service is in the background.
@@ -431,30 +431,9 @@ public abstract class MediaSessionService extends Service {
   }
 
   /**
-   * Called when a notification needs to be updated. Override this method to show or cancel your own
-   * notifications.
-   *
-   * <p>This method is called whenever the service has detected a change that requires to show,
-   * update or cancel a notification. The method will be called on the application thread of the app
-   * that the service belongs to.
-   *
-   * <p>Override this method to create your own notification and customize the foreground handling
-   * of your service.
-   *
-   * <p>At most one of {@link #onUpdateNotification(MediaSession, boolean)} and this method should
-   * be overridden. If neither of the two methods is overridden, the default implementation will
-   * present a default notification or the notification provided by the {@link
-   * MediaNotification.Provider} that is {@link
-   * #setMediaNotificationProvider(MediaNotification.Provider) set} by the app. Further, the service
-   * is started in the <a
-   * href="https://developer.android.com/guide/components/foreground-services">foreground</a> when
-   * playback is ongoing and put back into background otherwise.
-   *
-   * <p>Apps targeting {@code SDK_INT >= 28} must request the permission, {@link
-   * android.Manifest.permission#FOREGROUND_SERVICE}.
-   *
-   * @param session A session that needs notification update.
+   * @deprecated Use {@link #onUpdateNotification(MediaSession, boolean)} instead.
    */
+  @Deprecated
   public void onUpdateNotification(MediaSession session) {
     setDefaultMethodCalled(true);
   }
@@ -471,10 +450,8 @@ public abstract class MediaSessionService extends Service {
    * <p>Override this method to create your own notification and customize the foreground handling
    * of your service.
    *
-   * <p>At most one of {@link #onUpdateNotification(MediaSession)} and this method should be
-   * overridden. If neither of the two methods is overridden, the default implementation will
-   * present a default notification or the notification provided by the {@link
-   * MediaNotification.Provider} that is {@link
+   * <p>The default implementation will present a default notification or the notification provided
+   * by the {@link MediaNotification.Provider} that is {@link
    * #setMediaNotificationProvider(MediaNotification.Provider) set} by the app. Further, the service
    * is started in the <a
    * href="https://developer.android.com/guide/components/foreground-services">foreground</a> when
@@ -486,7 +463,7 @@ public abstract class MediaSessionService extends Service {
    * @param session A session that needs notification update.
    * @param startInForegroundRequired Whether the service is required to start in the foreground.
    */
-  @UnstableApi
+  @SuppressWarnings("deprecation") // Calling deprecated method.
   public void onUpdateNotification(MediaSession session, boolean startInForegroundRequired) {
     onUpdateNotification(session);
     if (isDefaultMethodCalled()) {

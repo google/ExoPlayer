@@ -1684,7 +1684,8 @@ package androidx.media3.session {
     method public final boolean isSessionAdded(androidx.media3.session.MediaSession);
     method @CallSuper @Nullable public android.os.IBinder onBind(@Nullable android.content.Intent);
     method @Nullable public abstract androidx.media3.session.MediaSession onGetSession(androidx.media3.session.MediaSession.ControllerInfo);
-    method public void onUpdateNotification(androidx.media3.session.MediaSession);
+    method @Deprecated public void onUpdateNotification(androidx.media3.session.MediaSession);
+    method public void onUpdateNotification(androidx.media3.session.MediaSession, boolean);
     method public final void removeSession(androidx.media3.session.MediaSession);
     field public static final String SERVICE_INTERFACE = "androidx.media3.session.MediaSessionService";
   }
