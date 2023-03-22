@@ -118,6 +118,7 @@ public final class TransformerActivity extends AppCompatActivity {
   private @MonotonicNonNull ImageView inputImageView;
   private @MonotonicNonNull PlayerView inputPlayerView;
   private @MonotonicNonNull PlayerView outputPlayerView;
+  private @MonotonicNonNull TextView outputVideoTextView;
   private @MonotonicNonNull TextView debugTextView;
   private @MonotonicNonNull TextView informationTextView;
   private @MonotonicNonNull ViewGroup progressViewGroup;
@@ -141,6 +142,7 @@ public final class TransformerActivity extends AppCompatActivity {
     inputImageView = findViewById(R.id.input_image_view);
     inputPlayerView = findViewById(R.id.input_player_view);
     outputPlayerView = findViewById(R.id.output_player_view);
+    outputVideoTextView = findViewById(R.id.output_video_text_view);
     debugTextView = findViewById(R.id.debug_text_view);
     informationTextView = findViewById(R.id.information_text_view);
     progressViewGroup = findViewById(R.id.progress_view_group);
@@ -171,6 +173,7 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(inputImageView);
     checkNotNull(inputPlayerView);
     checkNotNull(outputPlayerView);
+    checkNotNull(outputVideoTextView);
     checkNotNull(debugTextView);
     checkNotNull(progressViewGroup);
     checkNotNull(debugFrame);
@@ -201,12 +204,13 @@ public final class TransformerActivity extends AppCompatActivity {
   }
 
   @RequiresNonNull({
+    "displayInputButton",
     "inputCardView",
     "inputTextView",
     "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
-    "displayInputButton",
+    "outputVideoTextView",
     "debugTextView",
     "informationTextView",
     "progressIndicator",
@@ -236,8 +240,11 @@ public final class TransformerActivity extends AppCompatActivity {
     } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);
     }
+    displayInputButton.setVisibility(View.GONE);
     inputCardView.setVisibility(View.GONE);
     outputPlayerView.setVisibility(View.GONE);
+    outputVideoTextView.setVisibility(View.GONE);
+    debugTextView.setVisibility(View.GONE);
     informationTextView.setText(R.string.export_started);
     progressViewGroup.setVisibility(View.VISIBLE);
     Handler mainHandler = new Handler(getMainLooper());
@@ -281,6 +288,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
+    "outputVideoTextView",
     "displayInputButton",
     "debugTextView",
     "informationTextView",
@@ -642,8 +650,9 @@ public final class TransformerActivity extends AppCompatActivity {
     "inputImageView",
     "inputPlayerView",
     "outputPlayerView",
-    "displayInputButton",
+    "outputVideoTextView",
     "debugTextView",
+    "displayInputButton",
     "informationTextView",
     "progressViewGroup",
     "debugFrame",
@@ -657,6 +666,8 @@ public final class TransformerActivity extends AppCompatActivity {
     debugFrame.removeAllViews();
     inputCardView.setVisibility(View.VISIBLE);
     outputPlayerView.setVisibility(View.VISIBLE);
+    outputVideoTextView.setVisibility(View.VISIBLE);
+    debugTextView.setVisibility(View.VISIBLE);
     displayInputButton.setVisibility(View.VISIBLE);
     playMediaItems(inputMediaItem, MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
