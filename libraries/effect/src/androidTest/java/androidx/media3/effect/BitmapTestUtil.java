@@ -106,6 +106,8 @@ public class BitmapTestUtil {
   /**
    * Returns a solid {@link Bitmap} with every pixel having the same color.
    *
+   * @param width The width of image to create, in pixels.
+   * @param height The height of image to create, in pixels.
    * @param color An RGBA color created by {@link Color}.
    */
   public static Bitmap createArgb8888BitmapWithSolidColor(int width, int height, int color) {

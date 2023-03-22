@@ -393,6 +393,7 @@ public final class FakeTimeline extends Timeline {
   /**
    * Creates a fake timeline with the given window definitions.
    *
+   * @param manifests The manifests of the windows.
    * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
    */
   public FakeTimeline(Object[] manifests, TimelineWindowDefinition... windowDefinitions) {
@@ -403,6 +404,8 @@ public final class FakeTimeline extends Timeline {
    * Creates a fake timeline with the given window definitions and {@link
    * androidx.media3.exoplayer.source.ShuffleOrder}.
    *
+   * @param manifests The manifests of the windows.
+   * @param shuffleOrder A shuffle ordering for the windows.
    * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
    */
   public FakeTimeline(

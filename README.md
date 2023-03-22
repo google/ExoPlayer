@@ -3,18 +3,27 @@
 AndroidX Media is a collection of libraries for implementing media use cases on
 Android, including local playback (via ExoPlayer) and media sessions.
 
-## Current status
+## Documentation
 
-AndroidX Media is currently in release candidate and we welcome your feedback
-via the [issue tracker][]. Please consult the [release notes][] for more details
-about the current release.
+*   The [developer guide][] provides a wealth of information.
+*   The [class reference][] documents the classes and methods.
+*   The [release notes][] document the major changes in each release.
+*   Follow our [developer blog][] to keep up to date with the latest
+    developments!
 
-ExoPlayer's new home will be in AndroidX Media, but for now we are publishing it
-both in AndroidX Media and via the existing [ExoPlayer project][] and we are
-still handling ExoPlayer issues on the [ExoPlayer issue tracker][].
+[developer guide]: https://developer.android.com/guide/topics/media/media3
+[class reference]: https://developer.android.com/reference/androidx/media3/common/package-summary
+[release notes]: RELEASENOTES.md
+[developer blog]: https://medium.com/google-exoplayer
 
-You'll find some [Media3 documentation on developer.android.com][], including a
-[migration guide for existing ExoPlayer and MediaSession users][].
+## Migration for existing ExoPlayer and MediaSession projects
+
+You'll find a [migration guide for existing ExoPlayer and MediaSession users][]
+on developer.android.com.
+
+[migration guide for existing ExoPlayer and MediaSession users]: https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide
+
+## API stability
 
 AndroidX Media releases provide API stability guarantees, ensuring that the API
 surface remains backwards compatible for the most commonly used APIs. APIs
@@ -22,17 +31,7 @@ intended for more advanced use cases are marked as unstable. To use an unstable
 method or class without lint warnings, you’ll need to add the OptIn annotation
 before using it. For more information see the [UnstableApi][] documentation.
 
-For a high level overview of the initial version of AndroidX Media please see
-the Android Dev Summit talk [What's next for AndroidX Media and ExoPlayer][].
-
-[release notes]: RELEASENOTES.md
-[issue tracker]: https://github.com/androidx/media/issues/new
-[ExoPlayer project]: https://github.com/google/ExoPlayer
-[ExoPlayer issue tracker]: https://github.com/google/ExoPlayer/issues
 [UnstableApi]: https://github.com/androidx/media/blob/main/libraries/common/src/main/java/androidx/media3/common/util/UnstableApi.java
-[What's next for AndroidX Media and ExoPlayer]: https://youtu.be/sTIBDcyCmCg
-[Media3 documentation on developer.android.com]: https://developer.android.com/guide/topics/media/media3
-[migration guide for existing ExoPlayer and MediaSession users]: https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide
 
 ## Using the libraries
 
