@@ -28,6 +28,7 @@ import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED
 import static androidx.media3.transformer.TransformerUtil.areVideoEffectsAllNoOp;
 import static androidx.media3.transformer.TransformerUtil.containsSlowMotionData;
 import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
+import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -95,6 +96,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int DRAIN_PIPELINES_DELAY_MS = 10;
 
   private final Context context;
+  private final Composition composition;
+  private final boolean compositionHasLoopingSequence;
   private final CapturingEncoderFactory encoderFactory;
   private final Listener listener;
   private final HandlerWrapper applicationHandler;
@@ -107,11 +110,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final AtomicBoolean outputHasAudio;
   private final AtomicBoolean outputHasVideo;
   private final List<SamplePipeline> samplePipelines;
+  private final Object setMaxSequenceDurationUsLock;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
   private final ExportResult.Builder exportResultBuilder;
 
   private boolean isDrainingPipelines;
+  private long currentMaxSequenceDurationUs;
+  private int nonLoopingSequencesWithNonFinalDuration;
   private @Transformer.ProgressState int progressState;
   private @MonotonicNonNull RuntimeException cancelException;
 
@@ -133,6 +139,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       DebugViewProvider debugViewProvider,
       Clock clock) {
     this.context = context;
+    this.composition = composition;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
     this.applicationHandler = applicationHandler;
@@ -149,20 +156,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               transformationRequest,
               fallbackListener,
               debugViewProvider);
+      EditedMediaItemSequence sequence = composition.sequences.get(i);
       sequenceAssetLoaders.add(
           new SequenceAssetLoader(
-              composition.sequences.get(i),
+              sequence,
               composition.forceAudioTrack,
               assetLoaderFactory,
               internalLooper,
               sequenceAssetLoaderListener,
               clock));
+      if (!sequence.isLooping) {
+        // All sequences have a non-final duration at this point, as the AssetLoaders haven't
+        // started loading yet.
+        nonLoopingSequencesWithNonFinalDuration++;
+      }
     }
+    compositionHasLoopingSequence =
+        nonLoopingSequencesWithNonFinalDuration != composition.sequences.size();
     trackCountsToReport = new AtomicInteger(composition.sequences.size());
     tracksToAdd = new AtomicInteger();
     outputHasAudio = new AtomicBoolean();
     outputHasVideo = new AtomicBoolean();
     samplePipelines = new ArrayList<>();
+    setMaxSequenceDurationUsLock = new Object();
     transformerConditionVariable = new ConditionVariable();
     exportResultBuilder = new ExportResult.Builder();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
@@ -400,16 +416,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void updateProgressInternal(ProgressHolder progressHolder) {
     int progressSum = 0;
+    int progressCount = 0;
     ProgressHolder individualProgressHolder = new ProgressHolder();
     for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
+      if (composition.sequences.get(i).isLooping) {
+        // Looping sequence progress is always unavailable. Skip it.
+        continue;
+      }
       progressState = sequenceAssetLoaders.get(i).getProgress(individualProgressHolder);
       if (progressState != PROGRESS_STATE_AVAILABLE) {
         transformerConditionVariable.open();
         return;
       }
       progressSum += individualProgressHolder.progress;
+      progressCount++;
     }
-    progressHolder.progress = progressSum / sequenceAssetLoaders.size();
+    progressHolder.progress = progressSum / progressCount;
     transformerConditionVariable.open();
   }
 
@@ -422,6 +444,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final FallbackListener fallbackListener;
     private final DebugViewProvider debugViewProvider;
     private final Map<Integer, AddedTrackInfo> addedTrackInfoByTrackType;
+
+    private long currentSequenceDurationUs;
 
     public SequenceAssetLoaderListener(
         int sequenceIndex,
@@ -495,9 +519,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
       SamplePipeline samplePipeline = getSamplePipeline(assetLoaderOutputFormat, trackInfo);
 
+      OnMediaItemChangedListener onMediaItemChangedListener =
+          (editedMediaItem, durationUs, trackFormat, isLast) -> {
+            onMediaItemChanged(trackType, durationUs, isLast);
+            samplePipeline.onMediaItemChanged(editedMediaItem, durationUs, trackFormat, isLast);
+          };
       sequenceAssetLoaders
           .get(sequenceIndex)
-          .addOnMediaItemChangedListener(samplePipeline, trackType);
+          .addOnMediaItemChangedListener(onMediaItemChangedListener, trackType);
+
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
       return samplePipeline;
     }
@@ -557,6 +587,46 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           transformationRequest,
           muxerWrapper,
           fallbackListener);
+    }
+
+    /**
+     * Updates the maximum sequence duration and passes it to the SequenceAssetLoaders if needed.
+     */
+    private void onMediaItemChanged(@C.TrackType int trackType, long durationUs, boolean isLast) {
+      if (!compositionHasLoopingSequence) {
+        // The code in this method handles looping sequences. Skip it if there are none.
+        return;
+      }
+      if (addedTrackInfoByTrackType.size() > 1 && trackType == C.TRACK_TYPE_VIDEO) {
+        // Make sure this method is only executed once per MediaItem (and not per track).
+        return;
+      }
+      if (composition.sequences.get(sequenceIndex).isLooping) {
+        return;
+      }
+      checkState(
+          durationUs != C.TIME_UNSET,
+          "MediaItem duration required for sequence looping could not be extracted.");
+      currentSequenceDurationUs += durationUs;
+      // onMediaItemChanged can be executed concurrently from different sequences.
+      synchronized (setMaxSequenceDurationUsLock) {
+        if (isLast) {
+          // The total sequence duration is known when the last MediaItem is loaded.
+          nonLoopingSequencesWithNonFinalDuration--;
+        }
+        boolean isMaxSequenceDurationUsFinal = nonLoopingSequencesWithNonFinalDuration == 0;
+        if (currentSequenceDurationUs > currentMaxSequenceDurationUs
+            || isMaxSequenceDurationUsFinal) {
+          currentMaxSequenceDurationUs =
+              max(currentSequenceDurationUs, currentMaxSequenceDurationUs);
+          for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
+            sequenceAssetLoaders
+                .get(i)
+                .setMaxSequenceDurationUs(
+                    currentMaxSequenceDurationUs, isMaxSequenceDurationUsFinal);
+          }
+        }
+      }
     }
 
     private final class AddedTrackInfo {
