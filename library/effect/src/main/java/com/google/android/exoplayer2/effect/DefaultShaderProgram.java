@@ -535,6 +535,8 @@ import java.util.List;
       return;
     }
 
+    GlUtil.setToIdentity(compositeRgbMatrixArray);
+
     for (int i = 0; i < rgbMatrices.size(); i++) {
       Matrix.multiplyMM(
           /* result= */ tempResultMatrix,
