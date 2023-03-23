@@ -42,6 +42,10 @@
 *   DASH:
     *   Fix handling of empty segment timelines
         ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
+*   RTSP:
+    *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
+        UnsupportedTransport
+        ([#11069](https://github.com/google/ExoPlayer/issues/11069)).
 *   IMA DAI extension:
     *   Fix a bug where a new ad group is inserted in live streams because the
         calculated content position in consecutive timelines varies slightly.

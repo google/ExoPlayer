@@ -49,6 +49,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.rtsp.RtspMediaPeriod.RtpLoadInfo;
 import androidx.media3.exoplayer.rtsp.RtspMediaSource.RtspPlaybackException;
+import androidx.media3.exoplayer.rtsp.RtspMediaSource.RtspUdpUnsupportedTransportException;
 import androidx.media3.exoplayer.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import androidx.media3.exoplayer.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import androidx.media3.exoplayer.rtsp.RtspMessageUtil.RtspSessionHeader;
@@ -577,8 +578,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               receivedAuthorizationRequest = true;
               return;
             }
-            // fall through: if unauthorized and no userInfo present, or previous authentication
-            // unsuccessful.
+            // if unauthorized and no userInfo present, or previous authentication
+            // unsuccessful, then dispatch RtspPlaybackException
+            dispatchRtspError(
+                new RtspPlaybackException(
+                    RtspMessageUtil.toMethodString(requestMethod) + " " + response.status));
+            return;
+          case 461:
+            String exceptionMessage =
+                RtspMessageUtil.toMethodString(requestMethod) + " " + response.status;
+            // If request was SETUP with UDP transport protocol, then throw
+            // RtspUdpUnsupportedTransportException.
+            String transportHeaderValue =
+                checkNotNull(matchingRequest.headers.get(RtspHeaders.TRANSPORT));
+            dispatchRtspError(
+                requestMethod == METHOD_SETUP && !transportHeaderValue.contains("TCP")
+                    ? new RtspUdpUnsupportedTransportException(exceptionMessage)
+                    : new RtspPlaybackException(exceptionMessage));
+            return;
           default:
             dispatchRtspError(
                 new RtspPlaybackException(
