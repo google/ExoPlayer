@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.min;
@@ -42,11 +43,13 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,30 +61,20 @@ import org.robolectric.annotation.Config;
 @RunWith(AndroidJUnit4.class)
 public final class RtspPlaybackTest {
 
+  private static final long DEFAULT_TIMEOUT_MS = 8000;
   private static final String SESSION_DESCRIPTION =
       "v=0\r\n"
           + "o=- 1606776316530225 1 IN IP4 127.0.0.1\r\n"
           + "s=Exoplayer test\r\n"
           + "t=0 0\r\n";
 
-  private final Context applicationContext;
-  private final CapturingRenderersFactory capturingRenderersFactory;
-  private final Clock clock;
-  private final FakeUdpDataSourceRtpDataChannel fakeRtpDataChannel;
-  private final RtpDataChannel.Factory rtpDataChannelFactory;
-
+  private Context applicationContext;
+  private CapturingRenderersFactory capturingRenderersFactory;
+  private Clock clock;
   private RtpPacketStreamDump aacRtpPacketStreamDump;
   // ExoPlayer does not support extracting MP4A-LATM RTP payload at the moment.
   private RtpPacketStreamDump mpeg2tsRtpPacketStreamDump;
-
-  /** Creates a new instance. */
-  public RtspPlaybackTest() {
-    applicationContext = ApplicationProvider.getApplicationContext();
-    capturingRenderersFactory = new CapturingRenderersFactory(applicationContext);
-    clock = new FakeClock(/* isAutoAdvancing= */ true);
-    fakeRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
-    rtpDataChannelFactory = (trackId) -> fakeRtpDataChannel;
-  }
+  private RtspServer rtspServer;
 
   @Rule
   public ShadowMediaCodecConfig mediaCodecConfig =
@@ -89,61 +82,162 @@ public final class RtspPlaybackTest {
 
   @Before
   public void setUp() throws Exception {
+    applicationContext = ApplicationProvider.getApplicationContext();
+    capturingRenderersFactory = new CapturingRenderersFactory(applicationContext);
+    clock = new FakeClock(/* isAutoAdvancing= */ true);
     aacRtpPacketStreamDump = RtspTestUtils.readRtpPacketStreamDump("media/rtsp/aac-dump.json");
     mpeg2tsRtpPacketStreamDump =
         RtspTestUtils.readRtpPacketStreamDump("media/rtsp/mpeg2ts-dump.json");
   }
 
+  @After
+  public void tearDown() {
+    Util.closeQuietly(rtspServer);
+  }
+
   @Test
   public void prepare_withSupportedTrack_playsTrackUntilEnded() throws Exception {
+    FakeUdpDataSourceRtpDataChannel fakeRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
+    RtpDataChannel.Factory rtpDataChannelFactory = (trackId) -> fakeRtpDataChannel;
     ResponseProvider responseProvider =
         new ResponseProvider(
             clock,
             ImmutableList.of(aacRtpPacketStreamDump, mpeg2tsRtpPacketStreamDump),
             fakeRtpDataChannel);
+    rtspServer = new RtspServer(responseProvider);
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
-    try (RtspServer rtspServer = new RtspServer(responseProvider)) {
-      ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
 
-      PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
-      player.prepare();
-      player.play();
-      TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
-      player.release();
-
-      // Only setup the supported track (aac).
-      assertThat(responseProvider.getDumpsForSetUpTracks()).containsExactly(aacRtpPacketStreamDump);
-      DumpFileAsserts.assertOutput(
-          applicationContext, playbackOutput, "playbackdumps/rtsp/aac.dump");
-    }
+    // Only setup the supported track (aac).
+    assertThat(responseProvider.getDumpsForSetUpTracks()).containsExactly(aacRtpPacketStreamDump);
+    DumpFileAsserts.assertOutput(applicationContext, playbackOutput, "playbackdumps/rtsp/aac.dump");
   }
 
   @Test
   public void prepare_noSupportedTrack_throwsPreparationError() throws Exception {
-
-    try (RtspServer rtspServer =
+    FakeUdpDataSourceRtpDataChannel fakeRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
+    RtpDataChannel.Factory rtpDataChannelFactory = (trackId) -> fakeRtpDataChannel;
+    rtspServer =
         new RtspServer(
             new ResponseProvider(
-                clock, ImmutableList.of(mpeg2tsRtpPacketStreamDump), fakeRtpDataChannel))) {
-      ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+                clock, ImmutableList.of(mpeg2tsRtpPacketStreamDump), fakeRtpDataChannel));
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
-      AtomicReference<Throwable> playbackError = new AtomicReference<>();
-      player.prepare();
-      player.addListener(
-          new Listener() {
-            @Override
-            public void onPlayerError(PlaybackException error) {
-              playbackError.set(error);
-            }
-          });
-      RobolectricUtil.runMainLooperUntil(() -> playbackError.get() != null);
-      player.release();
+    AtomicReference<Throwable> playbackError = new AtomicReference<>();
+    player.prepare();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onPlayerError(PlaybackException error) {
+            playbackError.set(error);
+          }
+        });
+    RobolectricUtil.runMainLooperUntil(() -> playbackError.get() != null);
+    player.release();
 
-      assertThat(playbackError.get())
-          .hasCauseThat()
-          .hasMessageThat()
-          .contains("No playable track.");
-    }
+    assertThat(playbackError.get()).hasCauseThat().hasMessageThat().contains("No playable track.");
+  }
+
+  @Test
+  public void prepare_withUdpUnsupportedWithFallback_fallsbackToTcpAndPlaysUntilEnd()
+      throws Exception {
+    FakeTcpDataSourceRtpDataChannel fakeTcpRtpDataChannel = new FakeTcpDataSourceRtpDataChannel();
+    RtpDataChannel.Factory rtpTcpDataChannelFactory = (trackId) -> fakeTcpRtpDataChannel;
+    ResponseProviderSupportingOnlyTcp responseProviderSupportingOnlyTcp =
+        new ResponseProviderSupportingOnlyTcp(
+            clock,
+            ImmutableList.of(aacRtpPacketStreamDump, mpeg2tsRtpPacketStreamDump),
+            fakeTcpRtpDataChannel);
+    ForwardingRtpDataChannelFactory forwardingRtpDataChannelFactory =
+        new ForwardingRtpDataChannelFactory(
+            new UdpDataSourceRtpDataChannelFactory(DEFAULT_TIMEOUT_MS), rtpTcpDataChannelFactory);
+    rtspServer = new RtspServer(responseProviderSupportingOnlyTcp);
+    ExoPlayer player =
+        createExoPlayer(rtspServer.startAndGetPortNumber(), forwardingRtpDataChannelFactory);
+
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    // Only setup the supported track (aac).
+    assertThat(responseProviderSupportingOnlyTcp.getDumpsForSetUpTracks())
+        .containsExactly(aacRtpPacketStreamDump);
+    DumpFileAsserts.assertOutput(applicationContext, playbackOutput, "playbackdumps/rtsp/aac.dump");
+  }
+
+  @Test
+  public void prepare_withUdpUnsupportedWithoutFallback_throwsRtspPlaybackException()
+      throws Exception {
+    FakeUdpDataSourceRtpDataChannel fakeUdpRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
+    RtpDataChannel.Factory rtpDataChannelFactory = (trackId) -> fakeUdpRtpDataChannel;
+    ResponseProviderSupportingOnlyTcp responseProvider =
+        new ResponseProviderSupportingOnlyTcp(
+            clock,
+            ImmutableList.of(aacRtpPacketStreamDump, mpeg2tsRtpPacketStreamDump),
+            fakeUdpRtpDataChannel);
+    rtspServer = new RtspServer(responseProvider);
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+
+    AtomicReference<PlaybackException> playbackError = new AtomicReference<>();
+    player.prepare();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onPlayerError(PlaybackException error) {
+            playbackError.set(error);
+          }
+        });
+    RobolectricUtil.runMainLooperUntil(() -> playbackError.get() != null);
+    player.release();
+
+    assertThat(playbackError.get())
+        .hasCauseThat()
+        .isInstanceOf(RtspMediaSource.RtspPlaybackException.class);
+    assertThat(playbackError.get())
+        .hasCauseThat()
+        .hasMessageThat()
+        .contains("No fallback data channel factory for TCP retry");
+  }
+
+  @Test
+  public void prepare_withUdpUnsupportedWithUdpFallback_throwsRtspUdpUnsupportedTransportException()
+      throws Exception {
+    FakeUdpDataSourceRtpDataChannel fakeUdpRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
+    RtpDataChannel.Factory rtpDataChannelFactory = (trackId) -> fakeUdpRtpDataChannel;
+    ResponseProviderSupportingOnlyTcp responseProviderSupportingOnlyTcp =
+        new ResponseProviderSupportingOnlyTcp(
+            clock,
+            ImmutableList.of(aacRtpPacketStreamDump, mpeg2tsRtpPacketStreamDump),
+            fakeUdpRtpDataChannel);
+    ForwardingRtpDataChannelFactory forwardingRtpDataChannelFactory =
+        new ForwardingRtpDataChannelFactory(rtpDataChannelFactory, rtpDataChannelFactory);
+    rtspServer = new RtspServer(responseProviderSupportingOnlyTcp);
+    ExoPlayer player =
+        createExoPlayer(rtspServer.startAndGetPortNumber(), forwardingRtpDataChannelFactory);
+
+    AtomicReference<PlaybackException> playbackError = new AtomicReference<>();
+    player.prepare();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onPlayerError(PlaybackException error) {
+            playbackError.set(error);
+          }
+        });
+    RobolectricUtil.runMainLooperUntil(() -> playbackError.get() != null);
+    player.release();
+
+    assertThat(playbackError.get())
+        .hasCauseThat()
+        .isInstanceOf(RtspMediaSource.RtspUdpUnsupportedTransportException.class);
+    assertThat(playbackError.get()).hasCauseThat().hasMessageThat().isEqualTo("SETUP 461");
   }
 
   private ExoPlayer createExoPlayer(
@@ -163,16 +257,16 @@ public final class RtspPlaybackTest {
     return player;
   }
 
-  private static final class ResponseProvider implements RtspServer.ResponseProvider {
+  private static class ResponseProvider implements RtspServer.ResponseProvider {
 
-    private static final String SESSION_ID = "00000000";
+    protected static final String SESSION_ID = "00000000";
 
-    private final Clock clock;
-    private final ArrayList<RtpPacketStreamDump> dumpsForSetUpTracks;
-    private final ImmutableList<RtpPacketStreamDump> rtpPacketStreamDumps;
+    protected final Clock clock;
+    protected final ArrayList<RtpPacketStreamDump> dumpsForSetUpTracks;
+    protected final ImmutableList<RtpPacketStreamDump> rtpPacketStreamDumps;
     private final RtspMessageChannel.InterleavedBinaryDataListener binaryDataListener;
 
-    private RtpPacketTransmitter packetTransmitter;
+    protected RtpPacketTransmitter packetTransmitter;
 
     /**
      * Creates a new instance.
@@ -240,22 +334,54 @@ public final class RtspPlaybackTest {
     }
   }
 
-  private static final class FakeUdpDataSourceRtpDataChannel extends BaseDataSource
-      implements RtpDataChannel, RtspMessageChannel.InterleavedBinaryDataListener {
+  private static final class ResponseProviderSupportingOnlyTcp extends ResponseProvider {
 
-    private static final int LOCAL_PORT = 40000;
+    /**
+     * Creates a new instance.
+     *
+     * @param clock The {@link Clock} used in the test.
+     * @param rtpPacketStreamDumps A list of {@link RtpPacketStreamDump}.
+     * @param binaryDataListener A {@link RtspMessageChannel.InterleavedBinaryDataListener} to send
+     *     RTP data.
+     */
+    public ResponseProviderSupportingOnlyTcp(
+        Clock clock,
+        List<RtpPacketStreamDump> rtpPacketStreamDumps,
+        RtspMessageChannel.InterleavedBinaryDataListener binaryDataListener) {
+      super(clock, rtpPacketStreamDumps, binaryDataListener);
+    }
+
+    @Override
+    public RtspResponse getSetupResponse(Uri requestedUri, RtspHeaders headers) {
+      String transportHeaderValue = checkNotNull(headers.get(RtspHeaders.TRANSPORT));
+      if (!transportHeaderValue.contains("TCP")) {
+        return new RtspResponse(
+            /* status= */ 461, headers.buildUpon().add(RtspHeaders.SESSION, SESSION_ID).build());
+      }
+      for (RtpPacketStreamDump rtpPacketStreamDump : rtpPacketStreamDumps) {
+        if (requestedUri.toString().contains(rtpPacketStreamDump.trackName)) {
+          dumpsForSetUpTracks.add(rtpPacketStreamDump);
+          packetTransmitter = new RtpPacketTransmitter(rtpPacketStreamDump, clock);
+        }
+      }
+      return new RtspResponse(
+          /* status= */ 200, headers.buildUpon().add(RtspHeaders.SESSION, SESSION_ID).build());
+    }
+  }
+
+  private abstract static class FakeBaseDataSourceRtpDataChannel extends BaseDataSource
+      implements RtpDataChannel, RtspMessageChannel.InterleavedBinaryDataListener {
+    protected static final int LOCAL_PORT = 40000;
 
     private final ConcurrentLinkedQueue<byte[]> packetQueue;
 
-    public FakeUdpDataSourceRtpDataChannel() {
+    public FakeBaseDataSourceRtpDataChannel() {
       super(/* isNetwork= */ false);
       packetQueue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
-    public String getTransport() {
-      return Util.formatInvariant("RTP/AVP;unicast;client_port=%d-%d", LOCAL_PORT, LOCAL_PORT + 1);
-    }
+    public abstract String getTransport();
 
     @Override
     public int getLocalPort() {
@@ -305,6 +431,51 @@ public final class RtspPlaybackTest {
       int byteToRead = min(length, data.length);
       System.arraycopy(data, /* srcPos= */ 0, buffer, offset, byteToRead);
       return byteToRead;
+    }
+  }
+
+  private static final class FakeUdpDataSourceRtpDataChannel
+      extends FakeBaseDataSourceRtpDataChannel {
+    @Override
+    public String getTransport() {
+      return Util.formatInvariant("RTP/AVP;unicast;client_port=%d-%d", LOCAL_PORT, LOCAL_PORT + 1);
+    }
+
+    @Override
+    public RtspMessageChannel.InterleavedBinaryDataListener getInterleavedBinaryDataListener() {
+      return null;
+    }
+  }
+
+  private static final class FakeTcpDataSourceRtpDataChannel
+      extends FakeBaseDataSourceRtpDataChannel {
+    @Override
+    public String getTransport() {
+      return Util.formatInvariant(
+          "RTP/AVP/TCP;unicast;interleaved=%d-%d", LOCAL_PORT + 2, LOCAL_PORT + 3);
+    }
+  }
+
+  private static class ForwardingRtpDataChannelFactory implements RtpDataChannel.Factory {
+
+    private final RtpDataChannel.Factory rtpChannelFactory;
+    private final RtpDataChannel.Factory rtpFallbackChannelFactory;
+
+    public ForwardingRtpDataChannelFactory(
+        RtpDataChannel.Factory rtpChannelFactory,
+        RtpDataChannel.Factory rtpFallbackChannelFactory) {
+      this.rtpChannelFactory = rtpChannelFactory;
+      this.rtpFallbackChannelFactory = rtpFallbackChannelFactory;
+    }
+
+    @Override
+    public RtpDataChannel createAndOpenDataChannel(int trackId) throws IOException {
+      return rtpChannelFactory.createAndOpenDataChannel(trackId);
+    }
+
+    @Override
+    public RtpDataChannel.Factory createFallbackDataChannelFactory() {
+      return rtpFallbackChannelFactory;
     }
   }
 }
