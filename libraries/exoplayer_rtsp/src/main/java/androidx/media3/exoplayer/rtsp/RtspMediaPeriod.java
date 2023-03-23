@@ -518,7 +518,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           // using TCP. Retrying will setup new loadables, so will not retry with the current
           // loadables.
           retryWithRtpTcp();
-          isUsingRtpTcp = true;
         }
         return;
       }
@@ -644,7 +643,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onPlaybackError(RtspPlaybackException error) {
-      playbackException = error;
+      if (error instanceof RtspMediaSource.RtspUdpUnsupportedTransportException && !isUsingRtpTcp) {
+        // Retry playback with TCP if we receive RtspUdpUnsupportedTransportException, and we are
+        // not already using TCP. Retrying will setup new loadables.
+        retryWithRtpTcp();
+      } else {
+        playbackException = error;
+      }
     }
 
     @Override
@@ -668,6 +673,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void retryWithRtpTcp() {
+    // Retry should only run once.
+    isUsingRtpTcp = true;
+
     rtspClient.retryWithRtpTcp();
 
     @Nullable
