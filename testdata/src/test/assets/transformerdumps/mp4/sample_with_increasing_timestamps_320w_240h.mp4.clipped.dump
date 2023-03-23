@@ -27,7 +27,7 @@ format 1:
   metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
   initializationData:
     data = length 2, hash 560
-metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
+container metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
 sample:
   trackIndex = 1
   dataHashCode = 620415738

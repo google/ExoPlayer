@@ -25,7 +25,6 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.util.SparseLongArray;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -190,9 +189,12 @@ import java.nio.ByteBuffer;
 
   @Override
   public void addMetadata(Metadata metadata) {
-    @Nullable Mp4LocationData mp4LocationData = getMp4LocationData(metadata);
-    if (mp4LocationData != null) {
-      mediaMuxer.setLocation(mp4LocationData.latitude, mp4LocationData.longitude);
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry entry = metadata.get(i);
+      if (entry instanceof Mp4LocationData) {
+        mediaMuxer.setLocation(
+            ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
+      }
     }
   }
 
@@ -266,16 +268,5 @@ import java.nio.ByteBuffer;
       // Rethrow the original error.
       throw e;
     }
-  }
-
-  @Nullable
-  private static Mp4LocationData getMp4LocationData(Metadata metadata) {
-    for (int i = 0; i < metadata.length(); i++) {
-      Metadata.Entry entry = metadata.get(i);
-      if (entry instanceof Mp4LocationData) {
-        return (Mp4LocationData) entry;
-      }
-    }
-    return null;
   }
 }

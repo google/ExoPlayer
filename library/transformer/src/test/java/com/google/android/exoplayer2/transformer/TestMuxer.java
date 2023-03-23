@@ -65,7 +65,7 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
   @Override
   public void addMetadata(Metadata metadata) {
-    dumpables.add(dumper -> dumper.add("metadata", metadata));
+    dumpables.add(dumper -> dumper.add("container metadata", metadata));
     muxer.addMetadata(metadata);
   }
 
