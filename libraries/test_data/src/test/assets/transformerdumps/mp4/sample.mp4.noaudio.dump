@@ -10,7 +10,7 @@ format 0:
   initializationData:
     data = length 29, hash 4746B5D9
     data = length 10, hash 7A0D0F2B
-metadata = entries=[xyz: latitude=40.68, longitude=-74.5]
+container metadata = entries=[xyz: latitude=40.68, longitude=-74.5]
 sample:
   trackIndex = 0
   dataHashCode = -770308242
