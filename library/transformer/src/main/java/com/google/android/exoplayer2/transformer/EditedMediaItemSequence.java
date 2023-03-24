@@ -33,8 +33,17 @@ public final class EditedMediaItemSequence {
    * <p>This list must not be empty.
    */
   public final ImmutableList<EditedMediaItem> editedMediaItems;
-
-  /* package */ final boolean isLooping;
+  /**
+   * Whether this sequence is looping.
+   *
+   * <p>This value indicates whether to loop over the {@link EditedMediaItem} instances in this
+   * sequence until all the non-looping sequences in the {@link Composition} have ended.
+   *
+   * <p>A looping sequence ends at the same time as the longest non-looping sequence. This means
+   * that the last exported {@link EditedMediaItem} from a looping sequence can be only partially
+   * exported.
+   */
+  public final boolean isLooping;
 
   /**
    * Creates an instance.
@@ -42,8 +51,18 @@ public final class EditedMediaItemSequence {
    * @param editedMediaItems The {@link #editedMediaItems}.
    */
   public EditedMediaItemSequence(List<EditedMediaItem> editedMediaItems) {
+    this(editedMediaItems, /* isLooping= */ false);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param editedMediaItems The {@link #editedMediaItems}.
+   * @param isLooping Whether the sequence {@linkplain #isLooping is looping}.
+   */
+  public EditedMediaItemSequence(List<EditedMediaItem> editedMediaItems, boolean isLooping) {
     checkArgument(!editedMediaItems.isEmpty());
     this.editedMediaItems = ImmutableList.copyOf(editedMediaItems);
-    isLooping = false;
+    this.isLooping = isLooping;
   }
 }

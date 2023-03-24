@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
@@ -227,10 +228,9 @@ public class TransformerEndToEndTest {
   }
 
   @Test
-  public void start_audioVideoTranscodedFromDifferentSequences_producesExpectedResult()
-      throws Exception {
+  public void audioVideoTranscodedFromDifferentSequences_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    String testId = "start_audioVideoTranscodedFromDifferentSequences_producesExpectedResult";
+    String testId = "audioVideoTranscodedFromDifferentSequences_producesExpectedResult";
     ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(new SonicAudioProcessor());
     ImmutableList<Effect> videoEffects = ImmutableList.of(RgbFilter.createGrayscaleFilter());
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
@@ -269,6 +269,99 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.videoFrameCount)
         .isEqualTo(expectedResult.exportResult.videoFrameCount);
     assertThat(result.exportResult.durationMs).isEqualTo(expectedResult.exportResult.durationMs);
+  }
+
+  @Test
+  public void loopingTranscodedAudio_producesExpectedResult() throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    String testId = "loopingTranscodedAudio_producesExpectedResult";
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem), /* isLooping= */ true);
+    EditedMediaItem videoEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP4_ASSET_URI_STRING))
+            .setRemoveAudio(true)
+            .build();
+    EditedMediaItemSequence videoSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem, videoEditedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+            .setTransmuxVideo(true)
+            .build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.processedInputs).hasSize(6);
+    assertThat(result.exportResult.channelCount).isEqualTo(1);
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(90);
+    assertThat(result.exportResult.durationMs).isEqualTo(3015);
+  }
+
+  @Test
+  public void loopingTranscodedVideo_producesExpectedResult() throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    String testId = "loopingTranscodedVideo_producesExpectedResult";
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem, audioEditedMediaItem));
+    EditedMediaItem videoEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP4_ASSET_URI_STRING))
+            .setRemoveAudio(true)
+            .build();
+    EditedMediaItemSequence videoSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem), /* isLooping= */ true);
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence)).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.processedInputs).hasSize(7);
+    assertThat(result.exportResult.channelCount).isEqualTo(1);
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(92);
+    assertThat(result.exportResult.durationMs).isEqualTo(3105);
+  }
+
+  @Test
+  public void loopingImage_producesExpectedResult() throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    String testId = "loopingImage_producesExpectedResult";
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem, audioEditedMediaItem));
+    EditedMediaItem imageEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(PNG_ASSET_URI_STRING))
+            .setDurationUs(1_000_000)
+            .setFrameRate(30)
+            .build();
+    EditedMediaItemSequence imageSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(imageEditedMediaItem, imageEditedMediaItem), /* isLooping= */ true);
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, imageSequence)).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.processedInputs).hasSize(7);
+    assertThat(result.exportResult.channelCount).isEqualTo(1);
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(94);
+    assertThat(result.exportResult.durationMs).isEqualTo(3100);
   }
 
   private static final class VideoUnsupportedEncoderFactory implements Codec.EncoderFactory {

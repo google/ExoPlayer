@@ -54,6 +54,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isRunning;
   private long streamStartPositionUs;
   private boolean shouldInitDecoder;
+  private boolean hasPendingConsumerInput;
 
   public ExoAssetLoaderBaseRenderer(
       @C.TrackType int trackType,
@@ -309,14 +310,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    if (checkNotNull(sampleConsumerInputBuffer.data).position() == 0
-        && !sampleConsumerInputBuffer.isEndOfStream()) {
+    if (!hasPendingConsumerInput) {
       if (!readInput(sampleConsumerInputBuffer)) {
         return false;
       }
       if (shouldDropInputBuffer(sampleConsumerInputBuffer)) {
         return true;
       }
+      hasPendingConsumerInput = true;
     }
 
     boolean isInputEnded = sampleConsumerInputBuffer.isEndOfStream();
@@ -324,6 +325,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
+    hasPendingConsumerInput = false;
     isEnded = isInputEnded;
     return !isEnded;
   }
