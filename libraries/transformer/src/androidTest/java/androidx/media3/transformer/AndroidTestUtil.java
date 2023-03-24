@@ -478,6 +478,9 @@ public final class AndroidTestUtil {
           .setFrameRate(23.163f)
           .setCodecs("hvc1.1.6.L183.B0")
           .build();
+
+  public static final String MP3_ASSET_URI_STRING = "asset:///media/mp3/test.mp3";
+
   /**
    * Log in logcat and in an analysis file that this test was skipped.
    *

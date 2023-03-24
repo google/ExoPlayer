@@ -16,7 +16,9 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.TestUtil.ASSET_URI_PREFIX;
+import static androidx.media3.transformer.TestUtil.FILE_AUDIO_ONLY;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO;
+import static androidx.media3.transformer.TestUtil.FILE_VIDEO_ONLY;
 import static androidx.media3.transformer.TestUtil.createTransformerBuilder;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -87,5 +89,65 @@ public class CompositionExportTest {
     assertThat(exportResult.channelCount).isEqualTo(expectedExportResult.channelCount);
     assertThat(exportResult.videoFrameCount).isEqualTo(expectedExportResult.videoFrameCount);
     assertThat(exportResult.durationMs).isEqualTo(expectedExportResult.durationMs);
+  }
+
+  @Test
+  public void start_loopingTransmuxedAudio_producesExpectedResult() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ONLY)).build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem), /* isLooping= */ true);
+    EditedMediaItem videoEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY)).build();
+    EditedMediaItemSequence videoSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem, videoEditedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+            .setTransmuxAudio(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.processedInputs).hasSize(6);
+    assertThat(exportResult.channelCount).isEqualTo(1);
+    assertThat(exportResult.videoFrameCount).isEqualTo(90);
+    assertThat(exportResult.durationMs).isEqualTo(2977);
+    assertThat(exportResult.fileSizeBytes).isEqualTo(293660);
+  }
+
+  @Test
+  public void start_loopingTransmuxedVideo_producesExpectedResult() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ONLY)).build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem, audioEditedMediaItem));
+    EditedMediaItem videoEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY)).build();
+    EditedMediaItemSequence videoSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem), /* isLooping= */ true);
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+            .setTransmuxAudio(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.processedInputs).hasSize(7);
+    assertThat(exportResult.channelCount).isEqualTo(1);
+    assertThat(exportResult.videoFrameCount).isEqualTo(93);
+    assertThat(exportResult.durationMs).isEqualTo(3108);
+    assertThat(exportResult.fileSizeBytes).isEqualTo(337308);
   }
 }

@@ -31,6 +31,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final Codec.DecoderFactory decoderFactory;
 
+  private boolean hasPendingConsumerInput;
+
   public ExoAssetLoaderAudioRenderer(
       Codec.DecoderFactory decoderFactory,
       TransformerMediaClock mediaClock,
@@ -63,10 +65,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    ByteBuffer sampleConsumerInputData = checkNotNull(sampleConsumerInputBuffer.data);
-    if (sampleConsumerInputData.position() == 0) {
+    if (!hasPendingConsumerInput) {
       if (decoder.isEnded()) {
-        sampleConsumerInputData.limit(0);
+        checkNotNull(sampleConsumerInputBuffer.data).limit(0);
         sampleConsumerInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         isEnded = sampleConsumer.queueInputBuffer();
         return false;
@@ -83,8 +84,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       sampleConsumerInputBuffer.timeUs = bufferInfo.presentationTimeUs;
       sampleConsumerInputBuffer.setFlags(bufferInfo.flags);
       decoder.releaseOutputBuffer(/* render= */ false);
+      hasPendingConsumerInput = true;
     }
 
-    return sampleConsumer.queueInputBuffer();
+    if (!sampleConsumer.queueInputBuffer()) {
+      return false;
+    }
+
+    hasPendingConsumerInput = false;
+    return true;
   }
 }
