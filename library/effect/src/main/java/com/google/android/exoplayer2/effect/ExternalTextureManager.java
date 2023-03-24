@@ -54,8 +54,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Read and written only on GL thread.
   private int availableFrameCount;
 
-  // Set to true on any thread. Read on the GL thread only.
-  private volatile boolean inputStreamEnded;
+  // Read and written on the GL thread only.
+  private boolean inputStreamEnded;
   // The frame that is sent downstream and is not done processing yet.
   // Set to null on any thread. Read and set to non-null on the GL thread only.
   @Nullable private volatile FrameInfo currentFrame;
