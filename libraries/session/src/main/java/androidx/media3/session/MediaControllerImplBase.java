@@ -22,7 +22,6 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
-import static androidx.media3.session.MediaUtils.intersect;
 import static androidx.media3.session.MediaUtils.mergePlayerInfo;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -146,7 +145,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     sessionCommands = SessionCommands.EMPTY;
     playerCommandsFromSession = Commands.EMPTY;
     playerCommandsFromPlayer = Commands.EMPTY;
-    intersectedPlayerCommands = Commands.EMPTY;
+    intersectedPlayerCommands =
+        createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
     listeners =
         new ListenerSet<>(
             applicationLooper,
@@ -250,6 +250,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void release() {
+    // No check for COMMAND_RELEASE needed as MediaControllers can always be released.
     @Nullable IMediaSession iSession = this.iSession;
     if (released) {
       return;
@@ -2141,7 +2142,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     sessionCommands = result.sessionCommands;
     playerCommandsFromSession = result.playerCommandsFromSession;
     playerCommandsFromPlayer = result.playerCommandsFromPlayer;
-    intersectedPlayerCommands = intersect(playerCommandsFromSession, playerCommandsFromPlayer);
+    intersectedPlayerCommands =
+        createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
     playerInfo = result.playerInfo;
     try {
       // Implementation for the local binder is no-op,
@@ -2420,7 +2422,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (playerCommandsChanged) {
       playerCommandsFromSession = playerCommands;
       Commands prevIntersectedPlayerCommands = intersectedPlayerCommands;
-      intersectedPlayerCommands = intersect(playerCommandsFromSession, playerCommandsFromPlayer);
+      intersectedPlayerCommands =
+          createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
       intersectedPlayerCommandsChanged =
           !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     }
@@ -2449,7 +2452,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     playerCommandsFromPlayer = commandsFromPlayer;
     Commands prevIntersectedPlayerCommands = intersectedPlayerCommands;
-    intersectedPlayerCommands = intersect(playerCommandsFromSession, playerCommandsFromPlayer);
+    intersectedPlayerCommands =
+        createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
     boolean intersectedPlayerCommandsChanged =
         !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     if (intersectedPlayerCommandsChanged) {
@@ -2827,6 +2831,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       }
     }
     return newMediaItemIndex;
+  }
+
+  private static Commands createIntersectedCommands(
+      Commands commandFromSession, Commands commandsFromPlayer) {
+    Commands.Builder intersectCommandsBuilder = new Commands.Builder();
+    // Release is always available as it just releases the connection, not the underlying player.
+    intersectCommandsBuilder.add(Player.COMMAND_RELEASE);
+    for (int i = 0; i < commandFromSession.size(); i++) {
+      if (commandsFromPlayer.contains(commandFromSession.get(i))) {
+        intersectCommandsBuilder.add(commandFromSession.get(i));
+      }
+    }
+    return intersectCommandsBuilder.build();
   }
 
   // This will be called on the main thread.

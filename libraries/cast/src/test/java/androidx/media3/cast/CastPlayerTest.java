@@ -1372,6 +1372,7 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_TEXT)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(Player.COMMAND_RELEASE)).isTrue();
   }
 
   @Test

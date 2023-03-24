@@ -26,6 +26,7 @@ import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_PREPARE;
+import static androidx.media3.common.Player.COMMAND_RELEASE;
 import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
 import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
@@ -1143,7 +1144,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         COMMAND_GET_TIMELINE,
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_GET_AUDIO_ATTRIBUTES);
+        COMMAND_GET_AUDIO_ATTRIBUTES,
+        COMMAND_RELEASE);
     if ((sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0) {
       playerCommandsBuilder.add(COMMAND_CHANGE_MEDIA_ITEMS);
       if (hasAction(actions, PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {

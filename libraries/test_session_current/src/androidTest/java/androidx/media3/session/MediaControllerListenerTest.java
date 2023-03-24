@@ -2207,9 +2207,13 @@ public class MediaControllerListenerTest {
     Commands commandsWithSetRepeat = createPlayerCommandsWith(Player.COMMAND_SET_REPEAT_MODE);
     remoteSession.getMockPlayer().notifyAvailableCommandsChanged(commandsWithSetRepeat);
 
+    Commands expectedCommands =
+        new Commands.Builder()
+            .addAll(Player.COMMAND_SET_REPEAT_MODE, Player.COMMAND_RELEASE)
+            .build();
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(availableCommandsFromParamRef.get()).isEqualTo(commandsWithSetRepeat);
-    assertThat(availableCommandsFromGetterRef.get()).isEqualTo(commandsWithSetRepeat);
+    assertThat(availableCommandsFromParamRef.get()).isEqualTo(expectedCommands);
+    assertThat(availableCommandsFromGetterRef.get()).isEqualTo(expectedCommands);
     assertThat(getEventsAsList(eventsRef.get()))
         .containsExactly(Player.EVENT_AVAILABLE_COMMANDS_CHANGED);
   }
@@ -2342,10 +2346,14 @@ public class MediaControllerListenerTest {
     Commands commandsWithSetRepeat = createPlayerCommandsWith(Player.COMMAND_SET_REPEAT_MODE);
     remoteSession.setAvailableCommands(SessionCommands.EMPTY, commandsWithSetRepeat);
 
+    Commands expectedCommands =
+        new Commands.Builder()
+            .addAll(Player.COMMAND_SET_REPEAT_MODE, Player.COMMAND_RELEASE)
+            .build();
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(availableCommandsFromParamRef.get()).isEqualTo(commandsWithSetRepeat);
-    assertThat(availableCommandsFromGetterRef.get()).isEqualTo(commandsWithSetRepeat);
-    assertThat(availableCommandsFromOnEventsRef.get()).isEqualTo(commandsWithSetRepeat);
+    assertThat(availableCommandsFromParamRef.get()).isEqualTo(expectedCommands);
+    assertThat(availableCommandsFromGetterRef.get()).isEqualTo(expectedCommands);
+    assertThat(availableCommandsFromOnEventsRef.get()).isEqualTo(expectedCommands);
     assertThat(getEventsAsList(eventsRef.get()))
         .containsExactly(Player.EVENT_AVAILABLE_COMMANDS_CHANGED);
   }

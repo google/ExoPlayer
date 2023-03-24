@@ -174,6 +174,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   public void release() {
+    // No check for COMMAND_RELEASE needed as MediaControllers can always be released.
     sessionCompat.release();
   }
 
