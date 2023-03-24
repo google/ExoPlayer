@@ -2341,7 +2341,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (released) { // TODO(b/261158047): Replace by !shouldHandleCommand(Player.COMMAND_RELEASE)
+    if (!shouldHandleCommand(Player.COMMAND_RELEASE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2840,10 +2840,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * Handles calls to {@link Player#release}.
    *
+   * <p>Will only be called if {@link Player#COMMAND_RELEASE} is available.
+   *
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
    *     changes caused by this call.
    */
-  // TODO(b/261158047): Add that this method will only be called if COMMAND_RELEASE is available.
   @ForOverride
   protected ListenableFuture<?> handleRelease() {
     throw new IllegalStateException("Missing implementation to handle COMMAND_RELEASE");

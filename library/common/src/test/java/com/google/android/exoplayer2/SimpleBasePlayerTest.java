@@ -61,7 +61,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -2480,14 +2479,12 @@ public class SimpleBasePlayerTest {
     verifyNoMoreInteractions(listener);
   }
 
-  @Ignore("b/261158047: Ignore test while Player.COMMAND_RELEASE doesn't exist.")
   @Test
   public void release_withoutAvailableCommand_isNotForwarded() {
     State state =
         new State.Builder()
-            // TODO(b/261158047): Uncomment once test is no longer ignored.
-            // .setAvailableCommands(
-            //    new Commands.Builder().addAllCommands().remove(Player.COMMAND_RELEASE).build())
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_RELEASE).build())
             .build();
     AtomicBoolean callForwarded = new AtomicBoolean();
     SimpleBasePlayer player =

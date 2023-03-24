@@ -383,6 +383,7 @@ public interface Player {
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         COMMAND_GET_TRACKS,
+        COMMAND_RELEASE
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -1430,6 +1431,7 @@ public interface Player {
    *   <li>{@link #COMMAND_GET_TEXT}
    *   <li>{@link #COMMAND_SET_TRACK_SELECTION_PARAMETERS}
    *   <li>{@link #COMMAND_GET_TRACKS}
+   *   <li>{@link #COMMAND_RELEASE}
    * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
@@ -1470,6 +1472,7 @@ public interface Player {
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
     COMMAND_GET_TRACKS,
+    COMMAND_RELEASE,
   })
   @interface Command {}
   /**
@@ -1825,6 +1828,13 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_GET_TRACKS = 30;
+  /**
+   * Command to release the player.
+   *
+   * <p>The {@link #release()} method must only be called if this command is {@linkplain
+   * #isCommandAvailable(int) available}.
+   */
+  int COMMAND_RELEASE = 32;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -2505,8 +2515,10 @@ public interface Player {
   /**
    * Releases the player. This method must be called when the player is no longer required. The
    * player must not be used after calling this method.
+   *
+   * <p>This method must only be called if {@link #COMMAND_RELEASE} is {@linkplain
+   * #getAvailableCommands() available}.
    */
-  // TODO(b/261158047): Document that COMMAND_RELEASE must be available once it exists.
   void release();
 
   /**
