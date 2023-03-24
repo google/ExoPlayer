@@ -662,26 +662,25 @@ public final class Transformer {
   /**
    * Starts an asynchronous operation to export the given {@link Composition}.
    *
-   * <p>This method is under implementation. Concatenating audio/video inputs with the same format
-   * and the same {@link Effects} applied is the only supported use case. More precisely:
+   * <p>This method is under implementation. Only the {@linkplain Composition compositions} meeting
+   * the below conditions are supported:
    *
    * <ul>
-   *   <li>The {@link Composition} must contain exactly one {@link Composition#sequences
-   *       EditedMediaItemSequence}. Its {@link Composition#effects Effects} must
-   *       <ul>
-   *         <li>Contain no {@linkplain Effects#audioProcessors audio effects}.
-   *         <li>Either contain no {@linkplain Effects#videoEffects video effects}, or exactly one
-   *             {@link Presentation}.
-   *       </ul>
-   *   <li>The {@link EditedMediaItem} instances in the {@link EditedMediaItemSequence} must:
-   *       <ul>
-   *         <li>have identical tracks of the same format (after {@linkplain
-   *             EditedMediaItem#removeAudio audio} or {@linkplain EditedMediaItem#removeVideo
-   *             video} removal and {@linkplain EditedMediaItem#flattenForSlowMotion slow motion
-   *             flattening}).
-   *         <li>have identical {@link EditedMediaItem#effects Effects} applied.
-   *         <li>not represent an image.
-   *       </ul>
+   *   <li>There must be no overlapping track corresponding to the same track type in the output.
+   *       More precisely, the composition must either contain a single {@linkplain
+   *       EditedMediaItemSequence sequence}, or contain one audio-only sequence and one
+   *       video/image-only sequence.
+   *   <li>A sequence cannot contain both video and image input.
+   *   <li>A sequence cannot contain both HDR and SDR video input.
+   *   <li>A sequence cannot have gaps in its video or image samples. In other words, if a sequence
+   *       contains video or image data, it must contain this type of data in the entire sequence.
+   *   <li>All the {@link EditedMediaItem} instances in a sequence must have the same audio format.
+   *   <li>All the {@link EditedMediaItem} instances in a sequence must have the same effects
+   *       applied.
+   *   <li>The {@linkplain Composition#effects composition effects} must contain no {@linkplain
+   *       Effects#audioProcessors audio effects}.
+   *   <li>The composition effects must either contain no {@linkplain Effects#videoEffects video
+   *       effects}, or exactly one {@link Presentation}.
    * </ul>
    *
    * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
