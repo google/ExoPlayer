@@ -41,6 +41,7 @@ import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.FakeMetadataEntry;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -1434,7 +1435,7 @@ public class SimpleBasePlayerTest {
                     .build()));
     verifyNoMoreInteractions(listener);
     // Assert that we actually called all listeners.
-    for (Method method : Player.Listener.class.getDeclaredMethods()) {
+    for (Method method : TestUtil.getPublicMethods(Player.Listener.class)) {
       if (method.getName().equals("onAudioSessionIdChanged")
           || method.getName().equals("onSkipSilenceEnabledChanged")) {
         // Skip listeners for ExoPlayer-specific states

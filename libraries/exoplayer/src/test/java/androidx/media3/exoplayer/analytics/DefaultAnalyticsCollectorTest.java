@@ -201,12 +201,7 @@ public final class DefaultAnalyticsCollectorTest {
    */
   @Test
   public void defaultAnalyticsCollector_overridesAllPlayerListenerMethods() throws Exception {
-    for (Method method : Player.Listener.class.getDeclaredMethods()) {
-      if (method.isSynthetic()) {
-        // JaCoCo inserts synthetic methods. See "My code uses reflection. Why does it fail when I
-        // execute it with JaCoCo?": https://www.eclemma.org/jacoco/trunk/doc/faq.html
-        continue;
-      }
+    for (Method method : TestUtil.getPublicMethods(Player.Listener.class)) {
       assertThat(
               DefaultAnalyticsCollector.class
                   .getMethod(method.getName(), method.getParameterTypes())
