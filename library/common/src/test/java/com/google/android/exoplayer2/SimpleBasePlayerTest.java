@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeMetadataEntry;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
@@ -1441,7 +1442,7 @@ public class SimpleBasePlayerTest {
                     .build()));
     verifyNoMoreInteractions(listener);
     // Assert that we actually called all listeners.
-    for (Method method : Player.Listener.class.getDeclaredMethods()) {
+    for (Method method : TestUtil.getPublicMethods(Player.Listener.class)) {
       if (method.getName().equals("onAudioSessionIdChanged")
           || method.getName().equals("onSkipSilenceEnabledChanged")) {
         // Skip listeners for ExoPlayer-specific states
