@@ -15,12 +15,15 @@
  */
 package androidx.media3.effect;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.util.UnstableApi;
 import java.util.ArrayDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +47,9 @@ import java.util.concurrent.RejectedExecutionException;
  * executed before {@linkplain #submit(VideoFrameProcessingTask) default priority tasks}. Tasks with
  * equal priority are executed in FIFO order.
  */
-/* package */ final class VideoFrameProcessingTaskExecutor {
+@UnstableApi
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+public final class VideoFrameProcessingTaskExecutor {
 
   private final ExecutorService singleThreadExecutorService;
   private final VideoFrameProcessor.Listener listener;

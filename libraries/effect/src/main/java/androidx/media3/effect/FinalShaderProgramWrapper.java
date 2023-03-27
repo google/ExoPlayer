@@ -32,6 +32,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
@@ -52,8 +53,8 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Wrapper around a {@link DefaultShaderProgram} that writes to the provided output surface and
- * optional debug surface view.
+ * Wrapper around a {@link DefaultShaderProgram} that writes to the provided output surface and if
+ * provided, the optional debug surface view or output texture.
  *
  * <p>The wrapped {@link DefaultShaderProgram} applies the {@link GlMatrixTransformation} and {@link
  * RgbMatrix} instances passed to the constructor, followed by any transformations needed to convert
@@ -82,6 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
+  private final boolean outputToTexture;
 
   private int inputWidth;
   private int inputHeight;
@@ -91,6 +93,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private InputListener inputListener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
+  private @MonotonicNonNull GlTextureInfo outputTexture;
   private boolean frameProcessingStarted;
 
   private volatile boolean outputChanged;
@@ -117,7 +120,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean releaseFramesAutomatically,
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
-      GlObjectsProvider glObjectsProvider) {
+      GlObjectsProvider glObjectsProvider,
+      boolean outputToTexture) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
@@ -132,6 +136,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.videoFrameProcessorListenerExecutor = videoFrameProcessorListenerExecutor;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
     this.glObjectsProvider = glObjectsProvider;
+    this.outputToTexture = outputToTexture;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
@@ -202,7 +207,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     videoFrameProcessorListenerExecutor.execute(
         () -> videoFrameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs));
     if (releaseFramesAutomatically) {
-      renderFrameToSurfaces(
+      renderFrame(
           inputTexture, presentationTimeUs, /* releaseTimeNs= */ offsetPresentationTimeUs * 1000);
     } else {
       availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
@@ -220,7 +225,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     frameProcessingStarted = true;
     checkState(!releaseFramesAutomatically);
     Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
-    renderFrameToSurfaces(
+    renderFrame(
         /* inputTexture= */ oldestAvailableFrame.first,
         /* presentationTimeUs= */ oldestAvailableFrame.second,
         releaseTimeNs);
@@ -258,6 +263,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       defaultShaderProgram.release();
     }
     try {
+      if (outputTexture != null) {
+        GlUtil.deleteTexture(outputTexture.texId);
+        GlUtil.deleteFbo(outputTexture.fboId);
+      }
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
@@ -294,17 +303,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.outputSurfaceInfo = outputSurfaceInfo;
   }
 
-  private void renderFrameToSurfaces(
+  private void renderFrame(
       GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
     try {
       maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
+      if (outputToTexture && defaultShaderProgram != null) {
+        renderFrameToOutputTexture(inputTexture, presentationTimeUs);
+      }
+
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       videoFrameProcessorListenerExecutor.execute(
           () ->
               videoFrameProcessorListener.onError(
                   VideoFrameProcessingException.from(e, presentationTimeUs)));
     }
-    maybeRenderFrameToDebugSurface(inputTexture, presentationTimeUs);
+    if (debugSurfaceViewWrapper != null && defaultShaderProgram != null) {
+      renderFrameToDebugSurface(inputTexture, presentationTimeUs);
+    }
+
     inputListener.onInputFrameProcessed(inputTexture);
   }
 
@@ -336,6 +352,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? System.nanoTime()
             : releaseTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
+  }
+
+  private void renderFrameToOutputTexture(GlTextureInfo inputTexture, long presentationTimeUs)
+      throws GlUtil.GlException, VideoFrameProcessingException {
+    checkNotNull(outputTexture);
+    GlUtil.focusFramebufferUsingCurrentContext(
+        outputTexture.fboId, outputTexture.width, outputTexture.height);
+    GlUtil.clearOutputFrame();
+    checkNotNull(defaultShaderProgram).drawFrame(inputTexture.texId, presentationTimeUs);
+  }
+
+  @VisibleForTesting
+  @Nullable
+  /* package */ GlTextureInfo getOutputTextureInfo() {
+    return outputTexture;
   }
 
   /**
@@ -408,12 +439,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       outputChanged = false;
     }
     if (defaultShaderProgram == null) {
-      defaultShaderProgram = createDefaultShaderProgramForOutputSurface(outputSurfaceInfo);
+      DefaultShaderProgram defaultShaderProgram =
+          createDefaultShaderProgramForOutputSurface(outputSurfaceInfo);
+      if (outputToTexture) {
+        configureOutputTexture(
+            checkNotNull(outputSizeBeforeSurfaceTransformation).getWidth(),
+            checkNotNull(outputSizeBeforeSurfaceTransformation).getHeight());
+      }
+      this.defaultShaderProgram = defaultShaderProgram;
     }
 
     this.outputSurfaceInfo = outputSurfaceInfo;
     this.outputEglSurface = outputEglSurface;
     return true;
+  }
+
+  private void configureOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
+    if (outputTexture != null) {
+      GlUtil.deleteTexture(outputTexture.texId);
+      GlUtil.deleteFbo(outputTexture.fboId);
+    }
+    int outputTexId =
+        GlUtil.createTexture(
+            outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);
+    outputTexture =
+        glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
   }
 
   private DefaultShaderProgram createDefaultShaderProgramForOutputSurface(
@@ -464,24 +514,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return defaultShaderProgram;
   }
 
-  private void maybeRenderFrameToDebugSurface(GlTextureInfo inputTexture, long presentationTimeUs) {
-    if (debugSurfaceViewWrapper == null || this.defaultShaderProgram == null) {
-      return;
-    }
-
-    DefaultShaderProgram defaultShaderProgram = this.defaultShaderProgram;
+  private void renderFrameToDebugSurface(GlTextureInfo inputTexture, long presentationTimeUs) {
+    DefaultShaderProgram defaultShaderProgram = checkNotNull(this.defaultShaderProgram);
+    SurfaceViewWrapper debugSurfaceViewWrapper = checkNotNull(this.debugSurfaceViewWrapper);
     try {
-      debugSurfaceViewWrapper.maybeRenderToSurfaceView(
-          () -> {
-            GlUtil.clearOutputFrame();
-            @C.ColorTransfer
-            int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
-            defaultShaderProgram.setOutputColorTransfer(
-                checkNotNull(debugSurfaceViewWrapper).outputColorTransfer);
-            defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
-            defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
-          },
-          glObjectsProvider);
+      checkNotNull(debugSurfaceViewWrapper)
+          .maybeRenderToSurfaceView(
+              () -> {
+                GlUtil.clearOutputFrame();
+                @C.ColorTransfer
+                int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
+                defaultShaderProgram.setOutputColorTransfer(
+                    debugSurfaceViewWrapper.outputColorTransfer);
+                defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
+              },
+              glObjectsProvider);
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       Log.d(TAG, "Error rendering to debug preview", e);
     }

@@ -15,14 +15,20 @@
  */
 package androidx.media3.effect;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 
 /**
  * Interface for tasks that may throw a {@link GlUtil.GlException} or {@link
  * VideoFrameProcessingException}.
  */
-/* package */ interface VideoFrameProcessingTask {
+@UnstableApi
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+public interface VideoFrameProcessingTask {
   /** Runs the task. */
   void run() throws VideoFrameProcessingException, GlUtil.GlException;
 }
