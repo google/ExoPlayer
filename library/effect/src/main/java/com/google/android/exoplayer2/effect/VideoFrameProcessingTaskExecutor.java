@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.util.ArrayDeque;
@@ -44,7 +46,8 @@ import java.util.concurrent.RejectedExecutionException;
  * executed before {@linkplain #submit(VideoFrameProcessingTask) default priority tasks}. Tasks with
  * equal priority are executed in FIFO order.
  */
-/* package */ final class VideoFrameProcessingTaskExecutor {
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+public final class VideoFrameProcessingTaskExecutor {
 
   private final ExecutorService singleThreadExecutorService;
   private final VideoFrameProcessor.Listener listener;

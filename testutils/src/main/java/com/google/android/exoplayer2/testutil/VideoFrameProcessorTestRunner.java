@@ -28,6 +28,7 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
+import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -55,6 +56,7 @@ public final class VideoFrameProcessorTestRunner {
 
     private @MonotonicNonNull String testId;
     private VideoFrameProcessor.@MonotonicNonNull Factory videoFrameProcessorFactory;
+    private BitmapReader.@MonotonicNonNull Factory bitmapReaderFactory;
     private @MonotonicNonNull String videoAssetPath;
     private @MonotonicNonNull String outputFileLabel;
     private @MonotonicNonNull ImmutableList<Effect> effects;
@@ -91,6 +93,17 @@ public final class VideoFrameProcessorTestRunner {
     public Builder setVideoFrameProcessorFactory(
         VideoFrameProcessor.Factory videoFrameProcessorFactory) {
       this.videoFrameProcessorFactory = videoFrameProcessorFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link BitmapReader.Factory}.
+     *
+     * <p>The default value is {@link SurfaceBitmapReader.Factory}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setBitmapReaderFactory(BitmapReader.Factory bitmapReaderFactory) {
+      this.bitmapReaderFactory = bitmapReaderFactory;
       return this;
     }
 
@@ -203,6 +216,7 @@ public final class VideoFrameProcessorTestRunner {
       return new VideoFrameProcessorTestRunner(
           testId,
           videoFrameProcessorFactory,
+          bitmapReaderFactory == null ? new SurfaceBitmapReader.Factory() : bitmapReaderFactory,
           videoAssetPath,
           outputFileLabel == null ? "" : outputFileLabel,
           effects == null ? ImmutableList.of() : effects,
@@ -225,15 +239,16 @@ public final class VideoFrameProcessorTestRunner {
   private final String outputFileLabel;
   private final float pixelWidthHeightRatio;
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
-
   private final VideoFrameProcessor videoFrameProcessor;
 
-  private volatile @MonotonicNonNull ImageReader outputImageReader;
+  private @MonotonicNonNull BitmapReader bitmapReader;
+
   private volatile boolean videoFrameProcessingEnded;
 
   private VideoFrameProcessorTestRunner(
       String testId,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
+      BitmapReader.Factory bitmapReaderFactory,
       @Nullable String videoAssetPath,
       String outputFileLabel,
       ImmutableList<Effect> effects,
@@ -260,15 +275,13 @@ public final class VideoFrameProcessorTestRunner {
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
-              @SuppressLint("WrongConstant")
               @Override
               public void onOutputSizeChanged(int width, int height) {
-                outputImageReader =
-                    ImageReader.newInstance(
-                        width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-                checkNotNull(videoFrameProcessor)
-                    .setOutputSurfaceInfo(
-                        new SurfaceInfo(outputImageReader.getSurface(), width, height));
+                bitmapReader =
+                    bitmapReaderFactory.create(checkNotNull(videoFrameProcessor), width, height);
+                Surface outputSurface = bitmapReader.getSurface();
+                videoFrameProcessor.setOutputSurfaceInfo(
+                    new SurfaceInfo(outputSurface, width, height));
               }
 
               @Override
@@ -289,7 +302,6 @@ public final class VideoFrameProcessorTestRunner {
             });
   }
 
-  @RequiresApi(19)
   public Bitmap processFirstFrameAndEnd() throws Exception {
     DecodeOneFrameUtil.decodeOneAssetFileFrame(
         checkNotNull(videoAssetPath),
@@ -322,19 +334,16 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
-  @RequiresApi(19)
   public Bitmap endFrameProcessingAndGetImage() throws Exception {
     videoFrameProcessor.signalEndOfInput();
     Thread.sleep(VIDEO_FRAME_PROCESSING_WAIT_MS);
 
-    assertThat(videoFrameProcessingEnded).isTrue();
     assertThat(videoFrameProcessingException.get()).isNull();
+    assertThat(videoFrameProcessingEnded).isTrue();
 
-    Image videoFrameProcessorOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = createArgb8888BitmapFromRgba8888Image(videoFrameProcessorOutputImage);
-    videoFrameProcessorOutputImage.close();
-    maybeSaveTestBitmap(testId, /* bitmapLabel= */ outputFileLabel, actualBitmap, /* path= */ null);
-    return actualBitmap;
+    Bitmap outputBitmap = checkNotNull(bitmapReader).getBitmap();
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ outputFileLabel, outputBitmap, /* path= */ null);
+    return outputBitmap;
   }
 
   public void release() {
@@ -345,5 +354,57 @@ public final class VideoFrameProcessorTestRunner {
 
   public interface OnOutputFrameAvailableListener {
     void onFrameAvailable(long presentationTimeUs);
+  }
+
+  /** Reads a {@link Bitmap} from {@link VideoFrameProcessor} output. */
+  public interface BitmapReader {
+    interface Factory {
+      BitmapReader create(VideoFrameProcessor videoFrameProcessor, int width, int height);
+    }
+
+    /** Returns the {@link VideoFrameProcessor} output {@link Surface}. */
+    Surface getSurface();
+
+    /** Returns the output {@link Bitmap}. */
+    Bitmap getBitmap();
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Reads from a {@link Surface}. Only supports SDR input.
+   */
+  public static final class SurfaceBitmapReader
+      implements VideoFrameProcessorTestRunner.BitmapReader {
+    public static final class Factory
+        implements VideoFrameProcessorTestRunner.BitmapReader.Factory {
+      @Override
+      public SurfaceBitmapReader create(
+          VideoFrameProcessor videoFrameProcessor, int width, int height) {
+        return new SurfaceBitmapReader(width, height);
+      }
+    }
+
+    // ImageReader only supports SDR input.
+    private final ImageReader imageReader;
+
+    @SuppressLint("WrongConstant")
+    private SurfaceBitmapReader(int width, int height) {
+      imageReader =
+          ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+    }
+
+    @Override
+    public Surface getSurface() {
+      return imageReader.getSurface();
+    }
+
+    @Override
+    public Bitmap getBitmap() {
+      Image outputImage = checkNotNull(imageReader).acquireLatestImage();
+      Bitmap outputBitmap = createArgb8888BitmapFromRgba8888Image(outputImage);
+      outputImage.close();
+      return outputBitmap;
+    }
   }
 }

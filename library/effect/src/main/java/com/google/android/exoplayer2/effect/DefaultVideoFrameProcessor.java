@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
+import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SurfaceInfo;
@@ -62,6 +63,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
   public static final class Factory implements VideoFrameProcessor.Factory {
     private GlObjectsProvider glObjectsProvider = GlObjectsProvider.DEFAULT;
+    private boolean outputToTexture;
 
     /**
      * {@inheritDoc}
@@ -72,6 +74,19 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     public DefaultVideoFrameProcessor.Factory setGlObjectsProvider(
         GlObjectsProvider glObjectsProvider) {
       this.glObjectsProvider = glObjectsProvider;
+      return this;
+    }
+
+    /**
+     * Sets whether to output to a texture for testing.
+     *
+     * <p>Must be called before {@link #create}.
+     *
+     * <p>The default value is {@code false}.
+     */
+    @VisibleForTesting
+    public Factory setOutputToTexture(boolean outputToTexture) {
+      this.outputToTexture = outputToTexture;
       return this;
     }
 
@@ -151,7 +166,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       singleThreadExecutorService,
                       listenerExecutor,
                       listener,
-                      glObjectsProvider));
+                      glObjectsProvider,
+                      outputToTexture));
 
       try {
         return defaultVideoFrameProcessorFuture.get();
@@ -224,7 +240,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /** Returns the task executor that runs video frame processing tasks. */
   @VisibleForTesting
-  /* package */ VideoFrameProcessingTaskExecutor getTaskExecutor() {
+  public VideoFrameProcessingTaskExecutor getTaskExecutor() {
     return videoFrameProcessingTaskExecutor;
   }
 
@@ -285,6 +301,20 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
     finalShaderProgramWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
+  }
+
+  /**
+   * Gets the output {@link GlTextureInfo}.
+   *
+   * <p>Should only be called if {@code outputToTexture} is true, and after a frame is available, as
+   * reported by the output {@linkplain #setOutputSurfaceInfo surface}'s {@link
+   * SurfaceTexture#setOnFrameAvailableListener}. Returns {@code null} if an output texture is not
+   * yet available.
+   */
+  @VisibleForTesting
+  @Nullable
+  public GlTextureInfo getOutputTextureInfo() {
+    return finalShaderProgramWrapper.getOutputTextureInfo();
   }
 
   @Override
@@ -380,7 +410,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ExecutorService singleThreadExecutorService,
       Executor executor,
       Listener listener,
-      GlObjectsProvider glObjectsProvider)
+      GlObjectsProvider glObjectsProvider,
+      boolean outputToTexture)
       throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
@@ -423,7 +454,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             releaseFramesAutomatically,
             executor,
             listener,
-            glObjectsProvider);
+            glObjectsProvider,
+            outputToTexture);
     setGlObjectProviderOnShaderPrograms(shaderPrograms, glObjectsProvider);
     VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
         new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
@@ -462,7 +494,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean releaseFramesAutomatically,
       Executor executor,
       Listener listener,
-      GlObjectsProvider glObjectsProvider)
+      GlObjectsProvider glObjectsProvider,
+      boolean outputToTexture)
       throws VideoFrameProcessingException {
     ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
@@ -536,7 +569,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             releaseFramesAutomatically,
             executor,
             listener,
-            glObjectsProvider));
+            glObjectsProvider,
+            outputToTexture));
     return shaderProgramListBuilder.build();
   }
 

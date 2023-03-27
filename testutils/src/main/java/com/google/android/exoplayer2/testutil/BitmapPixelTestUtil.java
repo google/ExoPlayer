@@ -50,18 +50,34 @@ public class BitmapPixelTestUtil {
 
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images in pixel
-   * difference-based tests. The value is chosen so that differences in decoder behavior across
-   * emulator versions don't affect whether the test passes for most emulators, but substantial
-   * distortions introduced by changes in tested components will cause the test to fail.
+   * difference-based tests, between emulators.
    *
-   * <p>To run pixel difference-based tests on physical devices, please use a value of 5f, rather
-   * than 0.5f. This higher value will ignore some very small errors, but will allow for some
-   * differences caused by graphics implementations to be ignored. When the difference is close to
-   * the threshold, manually inspect expected/actual bitmaps to confirm failure, as it's possible
-   * this is caused by a difference in the codec or graphics implementation as opposed to an issue
-   * in the tested component.
+   * <p>The value is chosen so that differences in decoder behavior across emulator versions don't
+   * affect whether the test passes, but substantial distortions introduced by changes in tested
+   * components will cause the test to fail.
+   *
+   * <p>When the difference is close to the threshold, manually inspect expected/actual bitmaps to
+   * confirm failure, as it's possible this is caused by a difference in the codec or graphics
+   * implementation as opposed to an issue in the tested component.
    */
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 1.f;
+
+  /**
+   * Maximum allowed average pixel difference between the expected and actual edited images in pixel
+   * difference-based tests, between devices, or devices and emulators.
+   *
+   * <p>The value is chosen so that differences in decoder behavior across devices don't affect
+   * whether the test passes, but substantial distortions introduced by changes in tested components
+   * will cause the test to fail.
+   *
+   * <p>When the difference is close to the threshold, manually inspect expected/actual bitmaps to
+   * confirm failure, as it's possible this is caused by a difference in the codec or graphics
+   * implementation as opposed to an issue in the tested component.
+   *
+   * <p>This value is larger than {@link #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} to support the
+   * larger variance in decoder outputs between different physical devices and emulators.
+   */
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE = 5.f;
 
   /**
    * Reads a bitmap from the specified asset location.
