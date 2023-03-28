@@ -94,7 +94,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean audioLoopingEnded;
   private boolean videoLoopingEnded;
   private int processedInputsSize;
-  private boolean released;
 
   private volatile long currentAssetDurationUs;
 
@@ -166,10 +165,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void release() {
-    if (!released) {
-      currentAssetLoader.release();
-      released = true;
-    }
+    currentAssetLoader.release();
   }
 
   /**
@@ -372,15 +368,13 @@ import java.util.concurrent.atomic.AtomicInteger;
       long globalTimestampUs = totalDurationUs + inputBuffer.timeUs - currentAssetStartTimeUs;
       if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
         if (isMaxSequenceDurationUsFinal && !audioLoopingEnded) {
+          nonEndedTracks.decrementAndGet();
           checkNotNull(inputBuffer.data).limit(0);
           inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
           // We know that queueInputBuffer() will always return true for the underlying
           // SampleConsumer so there is no need to handle the case where the sample wasn't queued.
           checkState(sampleConsumer.queueInputBuffer());
           audioLoopingEnded = true;
-          if (nonEndedTracks.decrementAndGet() == 0) {
-            release();
-          }
         }
         return false;
       }
@@ -393,13 +387,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           if (nonEndedTracks.get() == 0) {
             switchAssetLoader();
           }
-        } else {
-          checkState(sampleConsumer.queueInputBuffer());
-          if (nonEndedTracks.get() == 0) {
-            release();
-          }
+          return true;
         }
-        return true;
       }
 
       checkState(sampleConsumer.queueInputBuffer());
@@ -459,17 +448,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     @Override
     public void signalEndOfVideoInput() {
+      nonEndedTracks.decrementAndGet();
       boolean videoEnded =
           isLooping ? videoLoopingEnded : currentMediaItemIndex == editedMediaItems.size() - 1;
       if (videoEnded) {
         sampleConsumer.signalEndOfVideoInput();
-      }
-      if (nonEndedTracks.decrementAndGet() == 0) {
-        if (videoEnded) {
-          release();
-        } else {
-          switchAssetLoader();
-        }
+      } else if (nonEndedTracks.get() == 0) {
+        switchAssetLoader();
       }
     }
 
@@ -493,10 +478,6 @@ import java.util.concurrent.atomic.AtomicInteger;
                     /* listener= */ SequenceAssetLoader.this);
             currentAssetLoader.start();
           });
-    }
-
-    private void release() {
-      handler.post(SequenceAssetLoader.this::release);
     }
   }
 }
