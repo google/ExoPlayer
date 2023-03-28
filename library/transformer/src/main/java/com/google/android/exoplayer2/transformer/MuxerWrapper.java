@@ -301,7 +301,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                           "No output sample written in the last "
                               + maxDelayBetweenSamplesMs
                               + " milliseconds. Aborting transformation."),
-                      ExportException.ERROR_CODE_MUXING_FAILED));
+                      ExportException.ERROR_CODE_MUXING_TIMEOUT));
             },
             maxDelayBetweenSamplesMs,
             MILLISECONDS);
