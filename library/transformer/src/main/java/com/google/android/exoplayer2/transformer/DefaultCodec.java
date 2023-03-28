@@ -347,6 +347,7 @@ public final class DefaultCodec implements Codec {
         releaseOutputBuffer(/* render= */ false);
         return false;
       }
+      outputBufferInfo.flags &= ~MediaCodec.BUFFER_FLAG_END_OF_STREAM;
     }
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Encountered a CSD buffer, skip it.
