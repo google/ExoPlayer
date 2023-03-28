@@ -13,6 +13,9 @@
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
     *   Reset target live stream override when seeking to default position
         ([#11051](https://github.com/google/ExoPlayer/pull/11051)).
+    *   Add parameters to `LoadControl` methods `shouldStartPlayback` and
+        `onTracksSelected` that allow associating these methods with the
+        relevant `MediaPeriod`.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

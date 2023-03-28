@@ -16,9 +16,11 @@
 package androidx.media3.exoplayer;
 
 import androidx.media3.common.C;
+import androidx.media3.common.MediaPeriodId;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
@@ -27,18 +29,49 @@ import androidx.media3.exoplayer.upstream.Allocator;
 @UnstableApi
 public interface LoadControl {
 
+  /**
+   * @deprecated Used as a placeholder when MediaPeriodId is unknown. Only used when the deprecated
+   *     methods {@link #onTracksSelected(Renderer[], TrackGroupArray, ExoTrackSelection[])} or
+   *     {@link #shouldStartPlayback(long, float, boolean, long)} are called.
+   */
+  @Deprecated
+  MediaPeriodId EMPTY_MEDIA_PERIOD_ID = new MediaPeriodId(/* periodUid= */ new Object());
+
   /** Called by the player when prepared with a new source. */
   void onPrepared();
 
   /**
    * Called by the player when a track selection occurs.
    *
+   * @param timeline The current {@link Timeline} in ExoPlayer. Can be {@link Timeline#EMPTY} only
+   *     when the deprecated {@link #onTracksSelected(Renderer[], TrackGroupArray,
+   *     ExoTrackSelection[])} was called.
+   * @param mediaPeriodId Identifies (in the current timeline) the {@link MediaPeriod} for which the
+   *     selection was made. Will be {@link #EMPTY_MEDIA_PERIOD_ID} when {@code timeline} is empty.
    * @param renderers The renderers.
    * @param trackGroups The {@link TrackGroup}s from which the selection was made.
    * @param trackSelections The track selections that were made.
    */
-  void onTracksSelected(
-      Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections);
+  @SuppressWarnings("deprecation") // Calling deprecated version of this method.
+  default void onTracksSelected(
+      Timeline timeline,
+      MediaPeriodId mediaPeriodId,
+      Renderer[] renderers,
+      TrackGroupArray trackGroups,
+      ExoTrackSelection[] trackSelections) {
+    onTracksSelected(renderers, trackGroups, trackSelections);
+  }
+
+  /**
+   * @deprecated Implement {@link #onTracksSelected(Timeline, MediaPeriodId, Renderer[],
+   *     TrackGroupArray, ExoTrackSelection[])} instead.
+   */
+  @Deprecated
+  default void onTracksSelected(
+      Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections) {
+    onTracksSelected(
+        Timeline.EMPTY, EMPTY_MEDIA_PERIOD_ID, renderers, trackGroups, trackSelections);
+  }
 
   /** Called by the player when stopped. */
   void onStopped();
@@ -84,7 +117,9 @@ public interface LoadControl {
   boolean retainBackBufferFromKeyframe();
 
   /**
-   * Called by the player to determine whether it should continue to load the source.
+   * Called by the player to determine whether it should continue to load the source. If this method
+   * returns true, the {@link MediaPeriod} identified in the most recent {@link #onTracksSelected}
+   * call will continue being loaded.
    *
    * @param playbackPositionUs The current playback position in microseconds, relative to the start
    *     of the {@link Timeline.Period period} that will continue to be loaded if this method
@@ -104,6 +139,10 @@ public interface LoadControl {
    * determines whether playback is actually started. The load control may opt to return {@code
    * false} until some condition has been met (e.g. a certain amount of media is buffered).
    *
+   * @param timeline The current {@link Timeline} in ExoPlayer. Can be {@link Timeline#EMPTY} only
+   *     when the deprecated {@link #shouldStartPlayback(long, float, boolean, long)} was called.
+   * @param mediaPeriodId Identifies (in the current timeline) the {@link MediaPeriod} for which
+   *     playback will start. Will be {@link #EMPTY_MEDIA_PERIOD_ID} when {@code timeline} is empty.
    * @param bufferedDurationUs The duration of media that's currently buffered.
    * @param playbackSpeed The current factor by which playback is sped up.
    * @param rebuffering Whether the player is rebuffering. A rebuffer is defined to be caused by
@@ -114,6 +153,30 @@ public interface LoadControl {
    *     configured.
    * @return Whether playback should be allowed to start or resume.
    */
-  boolean shouldStartPlayback(
-      long bufferedDurationUs, float playbackSpeed, boolean rebuffering, long targetLiveOffsetUs);
+  @SuppressWarnings("deprecation") // Calling deprecated version of this method.
+  default boolean shouldStartPlayback(
+      Timeline timeline,
+      MediaPeriodId mediaPeriodId,
+      long bufferedDurationUs,
+      float playbackSpeed,
+      boolean rebuffering,
+      long targetLiveOffsetUs) {
+    return shouldStartPlayback(bufferedDurationUs, playbackSpeed, rebuffering, targetLiveOffsetUs);
+  }
+
+  /**
+   * @deprecated Implement {@link #shouldStartPlayback(Timeline, MediaPeriodId, long, float,
+   *     boolean, long)} instead.
+   */
+  @Deprecated
+  default boolean shouldStartPlayback(
+      long bufferedDurationUs, float playbackSpeed, boolean rebuffering, long targetLiveOffsetUs) {
+    return shouldStartPlayback(
+        Timeline.EMPTY,
+        EMPTY_MEDIA_PERIOD_ID,
+        bufferedDurationUs,
+        playbackSpeed,
+        rebuffering,
+        targetLiveOffsetUs);
+  }
 }

@@ -1823,8 +1823,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return true;
     }
     // Renderers are ready and we're loading. Ask the LoadControl whether to transition.
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     long targetLiveOffsetUs =
-        shouldUseLivePlaybackSpeedControl(playbackInfo.timeline, queue.getPlayingPeriod().info.id)
+        shouldUseLivePlaybackSpeedControl(playbackInfo.timeline, playingPeriodHolder.info.id)
             ? livePlaybackSpeedControl.getTargetLiveOffsetUs()
             : C.TIME_UNSET;
     MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
@@ -1836,6 +1837,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return isBufferedToEnd
         || isAdPendingPreparation
         || loadControl.shouldStartPlayback(
+            playbackInfo.timeline,
+            playingPeriodHolder.info.id,
             getTotalBufferedDurationUs(),
             mediaClock.getPlaybackParameters().speed,
             isRebuffering,
@@ -2291,7 +2294,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     loadingPeriodHolder.handlePrepared(
         mediaClock.getPlaybackParameters().speed, playbackInfo.timeline);
     updateLoadControlTrackSelection(
-        loadingPeriodHolder.getTrackGroups(), loadingPeriodHolder.getTrackSelectorResult());
+        loadingPeriodHolder.info.id,
+        loadingPeriodHolder.getTrackGroups(),
+        loadingPeriodHolder.getTrackSelectorResult());
     if (loadingPeriodHolder == queue.getPlayingPeriod()) {
       // This is the first prepared period, so update the position and the renderers.
       resetRendererPosition(loadingPeriodHolder.info.startPositionUs);
@@ -2576,6 +2581,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         && loadingMediaPeriodHolder != null
         && loadingMediaPeriodHolder.prepared) {
       updateLoadControlTrackSelection(
+          loadingMediaPeriodHolder.info.id,
           loadingMediaPeriodHolder.getTrackGroups(),
           loadingMediaPeriodHolder.getTrackSelectorResult());
     }
@@ -2596,8 +2602,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void updateLoadControlTrackSelection(
-      TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
-    loadControl.onTracksSelected(renderers, trackGroups, trackSelectorResult.selections);
+      MediaPeriodId mediaPeriodId,
+      TrackGroupArray trackGroups,
+      TrackSelectorResult trackSelectorResult) {
+    loadControl.onTracksSelected(
+        playbackInfo.timeline,
+        mediaPeriodId,
+        renderers,
+        trackGroups,
+        trackSelectorResult.selections);
   }
 
   private boolean shouldPlayWhenReady() {
