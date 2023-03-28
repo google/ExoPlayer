@@ -821,7 +821,7 @@ public final class MediaItemExportTest {
     ExportException exception =
         assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
-    assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_MUXING_FAILED);
+    assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_MUXING_TIMEOUT);
   }
 
   @Test

@@ -69,6 +69,7 @@ public final class ExportException extends Exception {
         ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED,
         ERROR_CODE_AUDIO_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
+        ERROR_CODE_MUXING_TIMEOUT,
       })
   public @interface ErrorCode {}
 
@@ -163,6 +164,12 @@ public final class ExportException extends Exception {
 
   /** Caused by a failure while muxing media samples. */
   public static final int ERROR_CODE_MUXING_FAILED = 7001;
+  /**
+   * Caused by a timeout while muxing media samples.
+   *
+   * @see Muxer#getMaxDelayBetweenSamplesMs()
+   */
+  public static final int ERROR_CODE_MUXING_TIMEOUT = 7002;
 
   /* package */ static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
@@ -185,6 +192,7 @@ public final class ExportException extends Exception {
           .put("ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED", ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
+          .put("ERROR_CODE_MUXING_TIMEOUT", ERROR_CODE_MUXING_TIMEOUT)
           .buildOrThrow();
 
   /** Returns the name of a given {@code errorCode}. */
