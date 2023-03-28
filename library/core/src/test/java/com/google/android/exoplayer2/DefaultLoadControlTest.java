@@ -178,7 +178,12 @@ public class DefaultLoadControlTest {
   @Test
   public void shouldContinueLoading_withNoSelectedTracks_returnsTrue() {
     loadControl = builder.build();
-    loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new ExoTrackSelection[0]);
+    loadControl.onTracksSelected(
+        Timeline.EMPTY,
+        LoadControl.EMPTY_MEDIA_PERIOD_ID,
+        new Renderer[0],
+        TrackGroupArray.EMPTY,
+        new ExoTrackSelection[0]);
 
     assertThat(
             loadControl.shouldContinueLoading(
@@ -202,6 +207,8 @@ public class DefaultLoadControlTest {
 
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 MIN_BUFFER_US,
                 SPEED,
                 /* rebuffering= */ false,
@@ -221,6 +228,8 @@ public class DefaultLoadControlTest {
 
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 2_999_999,
                 SPEED,
                 /* rebuffering= */ false,
@@ -228,6 +237,8 @@ public class DefaultLoadControlTest {
         .isFalse();
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 3_000_000,
                 SPEED,
                 /* rebuffering= */ false,
@@ -246,6 +257,8 @@ public class DefaultLoadControlTest {
 
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 499_999,
                 SPEED,
                 /* rebuffering= */ true,
@@ -253,6 +266,8 @@ public class DefaultLoadControlTest {
         .isFalse();
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 500_000,
                 SPEED,
                 /* rebuffering= */ true,
@@ -272,6 +287,8 @@ public class DefaultLoadControlTest {
 
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 3_999_999,
                 SPEED,
                 /* rebuffering= */ true,
@@ -279,6 +296,8 @@ public class DefaultLoadControlTest {
         .isFalse();
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 4_000_000,
                 SPEED,
                 /* rebuffering= */ true,
@@ -297,6 +316,8 @@ public class DefaultLoadControlTest {
 
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 499_999,
                 SPEED,
                 /* rebuffering= */ true,
@@ -304,6 +325,8 @@ public class DefaultLoadControlTest {
         .isFalse();
     assertThat(
             loadControl.shouldStartPlayback(
+                Timeline.EMPTY,
+                LoadControl.EMPTY_MEDIA_PERIOD_ID,
                 /* bufferedDurationUs= */ 500_000,
                 SPEED,
                 /* rebuffering= */ true,
@@ -314,7 +337,8 @@ public class DefaultLoadControlTest {
   private void build() {
     builder.setAllocator(allocator).setTargetBufferBytes(TARGET_BUFFER_BYTES);
     loadControl = builder.build();
-    loadControl.onTracksSelected(new Renderer[0], null, null);
+    loadControl.onTracksSelected(
+        Timeline.EMPTY, LoadControl.EMPTY_MEDIA_PERIOD_ID, new Renderer[0], null, null);
   }
 
   private void makeSureTargetBufferBytesReached() {
