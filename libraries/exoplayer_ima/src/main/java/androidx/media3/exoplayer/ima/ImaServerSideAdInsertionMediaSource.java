@@ -91,6 +91,7 @@ import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.StreamDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
+import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.common.collect.ImmutableList;
@@ -102,6 +103,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -158,7 +160,10 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     public MediaSource createMediaSource(MediaItem mediaItem) {
       checkNotNull(mediaItem.localConfiguration);
       Player player = checkNotNull(adsLoader.player);
-      StreamPlayer streamPlayer = new StreamPlayer(player, mediaItem);
+      Uri streamRequestUri = checkNotNull(mediaItem.localConfiguration).uri;
+      StreamRequest streamRequest =
+          ImaServerSideAdInsertionUriBuilder.createStreamRequest(streamRequestUri);
+      StreamPlayer streamPlayer = new StreamPlayer(player, mediaItem, streamRequest);
       ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
       StreamDisplayContainer streamDisplayContainer =
           createStreamDisplayContainer(imaSdkFactory, adsLoader.configuration, streamPlayer);
@@ -167,8 +172,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               adsLoader.context, adsLoader.configuration.imaSdkSettings, streamDisplayContainer);
       ImaServerSideAdInsertionMediaSource mediaSource =
           new ImaServerSideAdInsertionMediaSource(
-              mediaItem,
               player,
+              mediaItem,
+              streamRequest,
               adsLoader,
               imaAdsLoader,
               streamPlayer,
@@ -512,16 +518,18 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   private AdPlaybackState adPlaybackState;
 
   private ImaServerSideAdInsertionMediaSource(
-      MediaItem mediaItem,
       Player player,
+      MediaItem mediaItem,
+      StreamRequest streamRequest,
       AdsLoader adsLoader,
       com.google.ads.interactivemedia.v3.api.AdsLoader sdkAdsLoader,
       StreamPlayer streamPlayer,
       MediaSource.Factory contentMediaSourceFactory,
       @Nullable AdEventListener applicationAdEventListener,
-      @Nullable AdErrorEvent.AdErrorListener applicationAdErrorListener) {
-    this.mediaItem = mediaItem;
+      @Nullable AdErrorListener applicationAdErrorListener) {
     this.player = player;
+    this.mediaItem = mediaItem;
+    this.streamRequest = streamRequest;
     this.adsLoader = adsLoader;
     this.sdkAdsLoader = sdkAdsLoader;
     this.streamPlayer = streamPlayer;
@@ -535,7 +543,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     adsId = ImaServerSideAdInsertionUriBuilder.getAdsId(streamRequestUri);
     loadVideoTimeoutMs = ImaServerSideAdInsertionUriBuilder.getLoadVideoTimeoutMs(streamRequestUri);
     streamRequest = ImaServerSideAdInsertionUriBuilder.createStreamRequest(streamRequestUri);
-    boolean isDashStream = streamRequest.getFormat().equals(StreamRequest.StreamFormat.DASH);
+    boolean isDashStream = Objects.equals(streamRequest.getFormat(), StreamFormat.DASH);
     componentListener =
         new ComponentListener(
             isLiveStream
@@ -679,7 +687,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   private void invalidateServerSideAdInsertionAdPlaybackState() {
     if (!adPlaybackState.equals(AdPlaybackState.NONE) && contentTimeline != null) {
       ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStates;
-      if (streamRequest.getFormat() == StreamRequest.StreamFormat.DASH) {
+      if (streamRequest.getFormat() == StreamFormat.DASH) {
         // DASH ad groups are always split by period.
         splitAdPlaybackStates = splitAdPlaybackStateForPeriods(adPlaybackState, contentTimeline);
       } else {
@@ -1096,6 +1104,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     private final MediaItem mediaItem;
     private final Timeline.Window window;
     private final Timeline.Period period;
+    private final boolean isDashStream;
 
     private ImmutableMap<Object, AdPlaybackState> adPlaybackStates;
     @Nullable private Timeline contentTimeline;
@@ -1103,9 +1112,10 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     @Nullable private StreamLoadListener streamLoadListener;
 
     /** Creates an instance. */
-    public StreamPlayer(Player player, MediaItem mediaItem) {
+    public StreamPlayer(Player player, MediaItem mediaItem, StreamRequest streamRequest) {
       this.player = player;
       this.mediaItem = mediaItem;
+      this.isDashStream = streamRequest.getFormat() == StreamFormat.DASH;
       callbacks = new ArrayList<>(/* initialCapacity= */ 1);
       adPlaybackStates = ImmutableMap.of();
       window = new Timeline.Window();
@@ -1171,30 +1181,42 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       int currentPeriodIndex = player.getCurrentPeriodIndex();
       timeline.getPeriod(currentPeriodIndex, period, /* setIds= */ true);
       timeline.getWindow(player.getCurrentMediaItemIndex(), window);
-
-      // We need the period of the content timeline because its period UIDs are the key used in the
-      // ad playback state map. The period UIDs of the public timeline are different (masking).
-      Timeline.Period contentPeriod =
+      long streamPositionMs;
+      if (isDashStream && window.isLive()) {
+        // In multi-period live streams, we can't assume to find the same period in both timelines
+        // with a given period index. Calculate stream position from the period structure instead.
+        streamPositionMs =
+            player.isPlayingAd()
+                ? window.windowStartTimeMs
+                    + usToMs(period.positionInWindowUs)
+                    + player.getCurrentPosition()
+                : window.windowStartTimeMs + player.getContentPosition();
+      } else {
+        // The map of ad playback states is keyed with the period UID of the content timeline. In
+        // timelines that do not change the periods (VOD and single period live), we can use the
+        // period index in both timelines.
+        Timeline.Period contentPeriod =
+            checkNotNull(contentTimeline)
+                .getPeriod(
+                    currentPeriodIndex - window.firstPeriodIndex,
+                    new Timeline.Period(),
+                    /* setIds= */ true);
+        AdPlaybackState adPlaybackState = checkNotNull(adPlaybackStates.get(contentPeriod.uid));
+        // Calculate the stream position from the current position and the playback state.
+        streamPositionMs =
+            usToMs(ServerSideAdInsertionUtil.getStreamPositionUs(player, adPlaybackState));
+        if (window.windowStartTimeMs != C.TIME_UNSET) {
+          // Add the time since epoch at start of the window for live streams.
+          streamPositionMs += window.windowStartTimeMs + period.getPositionInWindowMs();
+        } else if (currentPeriodIndex > window.firstPeriodIndex) {
+          // Add the end position of the previous period in the underlying stream.
           checkNotNull(contentTimeline)
               .getPeriod(
-                  currentPeriodIndex - window.firstPeriodIndex,
-                  new Timeline.Period(),
+                  currentPeriodIndex - window.firstPeriodIndex - 1,
+                  contentPeriod,
                   /* setIds= */ true);
-      AdPlaybackState adPlaybackState = checkNotNull(adPlaybackStates.get(contentPeriod.uid));
-
-      long streamPositionMs =
-          usToMs(ServerSideAdInsertionUtil.getStreamPositionUs(player, adPlaybackState));
-      if (window.windowStartTimeMs != C.TIME_UNSET) {
-        // Add the time since epoch at start of the window for live streams.
-        streamPositionMs += window.windowStartTimeMs + period.getPositionInWindowMs();
-      } else if (currentPeriodIndex > window.firstPeriodIndex) {
-        // Add the end position of the previous period in the underlying stream.
-        checkNotNull(contentTimeline)
-            .getPeriod(
-                currentPeriodIndex - window.firstPeriodIndex - 1,
-                contentPeriod,
-                /* setIds= */ true);
-        streamPositionMs += usToMs(contentPeriod.positionInWindowUs + contentPeriod.durationUs);
+          streamPositionMs += usToMs(contentPeriod.positionInWindowUs + contentPeriod.durationUs);
+        }
       }
       return new VideoProgressUpdate(
           streamPositionMs,
