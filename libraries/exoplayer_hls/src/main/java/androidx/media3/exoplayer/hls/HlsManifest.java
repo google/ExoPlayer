@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.hls;
 
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist;
 import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist;
 
@@ -24,12 +23,6 @@ import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist;
 @UnstableApi
 public final class HlsManifest {
 
-  /**
-   * @deprecated Use {@link #multivariantPlaylist} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation") // Keeping deprecated field with deprecated class.
-  public final HlsMasterPlaylist masterPlaylist;
   /** The multivariant playlist of an HLS stream. */
   public final HlsMultivariantPlaylist multivariantPlaylist;
   /** A snapshot of a media playlist referred to by {@link #multivariantPlaylist}. */
@@ -39,24 +32,9 @@ public final class HlsManifest {
    * @param multivariantPlaylist The multivariant playlist.
    * @param mediaPlaylist The media playlist.
    */
-  @SuppressWarnings("deprecation") // Intentionally creating deprecated hlsMasterPlaylist field.
   /* package */ HlsManifest(
       HlsMultivariantPlaylist multivariantPlaylist, HlsMediaPlaylist mediaPlaylist) {
     this.multivariantPlaylist = multivariantPlaylist;
     this.mediaPlaylist = mediaPlaylist;
-    this.masterPlaylist =
-        new HlsMasterPlaylist(
-            multivariantPlaylist.baseUri,
-            multivariantPlaylist.tags,
-            multivariantPlaylist.variants,
-            multivariantPlaylist.videos,
-            multivariantPlaylist.audios,
-            multivariantPlaylist.subtitles,
-            multivariantPlaylist.closedCaptions,
-            multivariantPlaylist.muxedAudioFormat,
-            multivariantPlaylist.muxedCaptionFormats,
-            multivariantPlaylist.hasIndependentSegments,
-            multivariantPlaylist.variableDefinitions,
-            multivariantPlaylist.sessionKeyDrmInitData);
   }
 }

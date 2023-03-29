@@ -237,7 +237,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   /**
-   * Creates an instance where parsed media playlists inherit attributes from the given master
+   * Creates an instance where parsed media playlists inherit attributes from the given multivariant
    * playlist.
    *
    * @param multivariantPlaylist The multivariant playlist from which media playlists will inherit

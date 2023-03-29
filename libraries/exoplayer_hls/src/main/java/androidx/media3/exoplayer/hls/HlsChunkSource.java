@@ -131,7 +131,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final FullSegmentEncryptionKeyCache keyCache;
   private final PlayerId playerId;
 
-  private boolean isTimestampMaster;
+  private boolean isPrimaryTimestampSource;
   private byte[] scratchSpace;
   @Nullable private IOException fatalError;
   @Nullable private Uri expectedPlaylistUrl;
@@ -240,11 +240,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Sets whether this chunk source is responsible for initializing timestamp adjusters.
    *
-   * @param isTimestampMaster True if this chunk source is responsible for initializing timestamp
-   *     adjusters.
+   * @param isPrimaryTimestampSource True if this chunk source is responsible for initializing
+   *     timestamp adjusters.
    */
-  public void setIsTimestampMaster(boolean isTimestampMaster) {
-    this.isTimestampMaster = isTimestampMaster;
+  public void setIsPrimaryTimestampSource(boolean isPrimaryTimestampSource) {
+    this.isPrimaryTimestampSource = isPrimaryTimestampSource;
   }
 
   /**
@@ -505,7 +505,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             muxedCaptionFormats,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
-            isTimestampMaster,
+            isPrimaryTimestampSource,
             timestampAdjusterProvider,
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),

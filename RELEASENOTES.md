@@ -52,6 +52,7 @@
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
+    *   Remove `HlsMasterPlaylist`, use `HlsMultivariantPlaylist` instead.
 
 ### 1.0.0 (2023-03-22)
 
