@@ -162,6 +162,7 @@ import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -5041,25 +5042,40 @@ public final class ExoPlayerTest {
     ArgumentCaptor<PositionInfo> newPositionArgumentCaptor =
         ArgumentCaptor.forClass(PositionInfo.class);
     ArgumentCaptor<Integer> reasonArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 4,
+                "windowId",
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    // Create the ad playback state matching to the periods in the content timeline.
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
         FakeTimeline.createMultiPeriodAdTimeline(
-            "windowId",
-            /* numberOfPlayedAds= */ 0,
-            /* isAdPeriodFlags...= */ false,
-            true,
-            true,
-            false);
+                "windowId",
+                /* numberOfPlayedAds= */ 0,
+                /* isAdPeriodFlags...= */ false,
+                true,
+                true,
+                false)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline),
+            new FakeMediaSource(fakeContentTimeline),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());
@@ -5132,25 +5148,40 @@ public final class ExoPlayerTest {
     ArgumentCaptor<PositionInfo> newPositionArgumentCaptor =
         ArgumentCaptor.forClass(PositionInfo.class);
     ArgumentCaptor<Integer> reasonArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 4,
+                "windowId",
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    // Create the ad playback state matching to the periods in the content timeline.
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
         FakeTimeline.createMultiPeriodAdTimeline(
-            "windowId",
-            /* numberOfPlayedAds= */ 0,
-            /* isAdPeriodFlags...= */ false,
-            true,
-            false,
-            false);
+                "windowId",
+                /* numberOfPlayedAds= */ 0,
+                /* isAdPeriodFlags...= */ false,
+                true,
+                false,
+                false)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline),
+            new FakeMediaSource(fakeContentTimeline),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());
@@ -5194,25 +5225,40 @@ public final class ExoPlayerTest {
     ArgumentCaptor<PositionInfo> newPositionArgumentCaptor =
         ArgumentCaptor.forClass(PositionInfo.class);
     ArgumentCaptor<Integer> reasonArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 4,
+                "windowId",
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    // Create the ad playback state matching to the periods in the content timeline.
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
         FakeTimeline.createMultiPeriodAdTimeline(
-            "windowId",
-            /* numberOfPlayedAds= */ 0,
-            /* isAdPeriodFlags...= */ false,
-            true,
-            true,
-            false);
+                "windowId",
+                /* numberOfPlayedAds= */ 0,
+                /* isAdPeriodFlags...= */ false,
+                true,
+                true,
+                false)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline),
+            new FakeMediaSource(fakeContentTimeline),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());
@@ -5261,25 +5307,40 @@ public final class ExoPlayerTest {
     ArgumentCaptor<PositionInfo> newPositionArgumentCaptor =
         ArgumentCaptor.forClass(PositionInfo.class);
     ArgumentCaptor<Integer> reasonArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 4,
+                "windowId",
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    // Create the ad playback state matching to the periods in the content timeline.
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
         FakeTimeline.createMultiPeriodAdTimeline(
-            "windowId",
-            /* numberOfPlayedAds= */ 0,
-            /* isAdPeriodFlags...= */ false,
-            true,
-            true,
-            false);
+                "windowId",
+                /* numberOfPlayedAds= */ 0,
+                /* isAdPeriodFlags...= */ false,
+                true,
+                true,
+                false)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline),
+            new FakeMediaSource(fakeContentTimeline),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());
@@ -5342,25 +5403,40 @@ public final class ExoPlayerTest {
     ArgumentCaptor<PositionInfo> newPositionArgumentCaptor =
         ArgumentCaptor.forClass(PositionInfo.class);
     ArgumentCaptor<Integer> reasonArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 4,
+                "windowId",
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    // Create the ad playback state matching to the periods in the content timeline.
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
         FakeTimeline.createMultiPeriodAdTimeline(
-            "windowId",
-            /* numberOfPlayedAds= */ 2,
-            /* isAdPeriodFlags...= */ false,
-            true,
-            true,
-            false);
+                "windowId",
+                /* numberOfPlayedAds= */ 2,
+                /* isAdPeriodFlags...= */ false,
+                true,
+                true,
+                false)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline),
+            new FakeMediaSource(fakeContentTimeline),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());
@@ -5397,29 +5473,44 @@ public final class ExoPlayerTest {
     ArgumentCaptor<PositionInfo> newPositionArgumentCaptor =
         ArgumentCaptor.forClass(PositionInfo.class);
     ArgumentCaptor<Integer> reasonArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 8,
+                "windowId",
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    // Create the ad playback state matching to the periods in the content timeline.
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
         FakeTimeline.createMultiPeriodAdTimeline(
-            "windowId",
-            /* numberOfPlayedAds= */ Integer.MAX_VALUE,
-            /* isAdPeriodFlags...= */ true,
-            false,
-            true,
-            true,
-            false,
-            true,
-            true,
-            true);
+                "windowId",
+                /* numberOfPlayedAds= */ Integer.MAX_VALUE,
+                /* isAdPeriodFlags...= */ true,
+                false,
+                true,
+                true,
+                false,
+                true,
+                true,
+                true)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(fakeContentTimeline, ExoPlayerTestRunner.AUDIO_FORMAT),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());
@@ -5499,9 +5590,10 @@ public final class ExoPlayerTest {
         adPlaybackState.withPlayedAd(/* adGroupIndex= */ 2, /* adIndexInAdGroup+ */ 0);
     adPlaybackState =
         adPlaybackState.withPlayedAd(/* adGroupIndex= */ 3, /* adIndexInAdGroup+ */ 0);
-    FakeTimeline adTimeline =
+    // Create a multi-period timeline without ads.
+    FakeTimeline fakeContentTimeline =
         new FakeTimeline(
-            new TimelineWindowDefinition(
+            new FakeTimeline.TimelineWindowDefinition(
                 /* periodCount= */ 1,
                 "windowId",
                 /* isSeekable= */ true,
@@ -5511,20 +5603,19 @@ public final class ExoPlayerTest {
                 /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
                 /* defaultPositionUs= */ 0,
                 /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
-                /* adPlaybackStates= */ ImmutableList.of(adPlaybackState),
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
                 MediaItem.EMPTY));
-
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
+        ImmutableMap.of(/* period.uid */ new Pair<>("windowId", 0), adPlaybackState);
     Listener listener = mock(Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(listener);
     AtomicReference<ServerSideAdInsertionMediaSource> sourceReference = new AtomicReference<>();
     sourceReference.set(
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(adTimeline, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(fakeContentTimeline, ExoPlayerTestRunner.AUDIO_FORMAT),
             contentTimeline -> {
-              sourceReference
-                  .get()
-                  .setAdPlaybackStates(adTimeline.getAdPlaybackStates(/* windowIndex= */ 0));
+              sourceReference.get().setAdPlaybackStates(adPlaybackStates, contentTimeline);
               return true;
             }));
     player.setMediaSource(sourceReference.get());

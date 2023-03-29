@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.AUDIO_FORMAT;
 import static com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.VIDEO_FORMAT;
+import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -51,6 +52,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
@@ -1562,13 +1564,28 @@ public final class MediaPeriodQueueTest {
   private static Timeline createMultiPeriodServerSideInsertedTimeline(
       Object windowId, int numberOfPlayedAds, boolean... isAdPeriodFlags)
       throws InterruptedException {
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(windowId, numberOfPlayedAds, isAdPeriodFlags);
+    FakeTimeline fakeContentTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                isAdPeriodFlags.length,
+                windowId,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                /* adPlaybackStates= */ ImmutableList.of(AdPlaybackState.NONE),
+                MediaItem.EMPTY));
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
+        FakeTimeline.createMultiPeriodAdTimeline(windowId, numberOfPlayedAds, isAdPeriodFlags)
+            .getAdPlaybackStates(/* windowIndex= */ 0);
     ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource =
         new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(timeline, VIDEO_FORMAT, AUDIO_FORMAT), contentTimeline -> false);
-    serverSideAdInsertionMediaSource.setAdPlaybackStates(
-        timeline.getAdPlaybackStates(/* windowIndex= */ 0));
+            new FakeMediaSource(fakeContentTimeline, VIDEO_FORMAT, AUDIO_FORMAT),
+            contentTimeline -> false);
+    serverSideAdInsertionMediaSource.setAdPlaybackStates(adPlaybackStates, fakeContentTimeline);
     AtomicReference<Timeline> serverSideAdInsertionTimelineRef = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(/* count= */ 1);
     serverSideAdInsertionMediaSource.prepareSource(
