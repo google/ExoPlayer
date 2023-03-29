@@ -3358,7 +3358,8 @@ public abstract class SimpleBasePlayer extends BasePlayer {
               "Player is accessed on the wrong thread.\n"
                   + "Current thread: '%s'\n"
                   + "Expected thread: '%s'\n"
-                  + "See https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+                  + "See https://developer.android.com/guide/topics/media/issues/"
+                  + "player-accessed-on-wrong-thread",
               Thread.currentThread().getName(), applicationLooper.getThread().getName());
       throw new IllegalStateException(message);
     }

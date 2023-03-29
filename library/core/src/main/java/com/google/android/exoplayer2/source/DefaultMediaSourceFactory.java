@@ -70,17 +70,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *   <li>{@code DashMediaSource.Factory} if the item's {@link MediaItem.LocalConfiguration#uri uri}
  *       ends in '.mpd' or if its {@link MediaItem.LocalConfiguration#mimeType mimeType field} is
  *       explicitly set to {@link MimeTypes#APPLICATION_MPD} (Requires the <a
- *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-dash module
- *       to be added</a> to the app).
+ *       href="https://developer.android.com/guide/topics/media/exoplayer/hello-world#add-exoplayer-modules">exoplayer-dash
+ *       module to be added</a> to the app).
  *   <li>{@code HlsMediaSource.Factory} if the item's {@link MediaItem.LocalConfiguration#uri uri}
  *       ends in '.m3u8' or if its {@link MediaItem.LocalConfiguration#mimeType mimeType field} is
  *       explicitly set to {@link MimeTypes#APPLICATION_M3U8} (Requires the <a
- *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-hls module to
- *       be added</a> to the app).
+ *       href="https://developer.android.com/guide/topics/media/exoplayer/hello-world#add-exoplayer-modules">exoplayer-hls
+ *       module to be added</a> to the app).
  *   <li>{@code SsMediaSource.Factory} if the item's {@link MediaItem.LocalConfiguration#uri uri}
  *       ends in '.ism', '.ism/Manifest' or if its {@link MediaItem.LocalConfiguration#mimeType
  *       mimeType field} is explicitly set to {@link MimeTypes#APPLICATION_SS} (Requires the <a
- *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">
+ *       href="https://developer.android.com/guide/topics/media/exoplayer/hello-world#add-exoplayer-modules">
  *       exoplayer-smoothstreaming module to be added</a> to the app).
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
  *       MediaItem.LocalConfiguration#uri uri} doesn't match one of the above. It tries to infer the
