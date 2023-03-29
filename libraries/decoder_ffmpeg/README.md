@@ -115,7 +115,7 @@ then implement your own logic to use the renderer for a given track.
 [top level README]: ../../README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 [ExoPlayer issue 2781]: https://github.com/google/ExoPlayer/issues/2781
-[Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
+[Supported formats]: https://developer.android.com/guide/topics/media/exoplayer/supported-formats#ffmpeg-library
 
 ## Links
 

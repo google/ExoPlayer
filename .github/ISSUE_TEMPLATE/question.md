@@ -36,7 +36,7 @@ In case your question is related to a piece of media:
   - Authentication HTTP headers
 
 Don't forget to check ExoPlayer's supported formats and devices, if applicable
-(https://exoplayer.dev/supported-formats.html).
+(https://developer.android.com/guide/topics/media/exoplayer/supported-formats).
 
 If there's something you don't want to post publicly, please submit the issue,
 then email the link/bug report to dev.exoplayer@gmail.com using a subject in the
