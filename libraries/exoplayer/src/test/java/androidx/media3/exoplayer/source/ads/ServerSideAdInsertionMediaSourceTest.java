@@ -55,6 +55,7 @@ import androidx.media3.test.utils.robolectric.ShadowMediaCodecConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -110,7 +111,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
     AtomicReference<Timeline> timelineReference = new AtomicReference<>();
-    mediaSource.setAdPlaybackStates(ImmutableMap.of(new Pair<>(0, 0), adPlaybackState));
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Pair<>(0, 0), adPlaybackState), wrappedTimeline);
 
     mediaSource.prepareSource(
         (source, timeline) -> timelineReference.set(timeline),
@@ -191,7 +193,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             wrappedTimeline.getPeriod(
                     /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
                 .uid,
-            adPlaybackState));
+            adPlaybackState),
+        wrappedTimeline);
 
     mediaSource.prepareSource(
         (source, timeline) -> timelineReference.set(timeline),
@@ -231,12 +234,13 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
   @Test
   public void timeline_missingAdPlaybackStateByPeriodUid_isAssertedAndThrows() {
+    FakeMediaSource contentSource = new FakeMediaSource();
     ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(), /* adPlaybackStateUpdater= */ null);
+        new ServerSideAdInsertionMediaSource(contentSource, /* adPlaybackStateUpdater= */ null);
     // The map of adPlaybackStates does not contain a valid period UID as key.
     mediaSource.setAdPlaybackStates(
-        ImmutableMap.of(new Object(), new AdPlaybackState(/* adsId= */ new Object())));
+        ImmutableMap.of(new Object(), new AdPlaybackState(/* adsId= */ new Object())),
+        contentSource.getInitialTimeline());
 
     Assert.assertThrows(
         IllegalStateException.class,
@@ -292,7 +296,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                           .uid);
               mediaSourceRef
                   .get()
-                  .setAdPlaybackStates(ImmutableMap.of(periodUid, firstAdPlaybackState));
+                  .setAdPlaybackStates(
+                      ImmutableMap.of(periodUid, firstAdPlaybackState), contentTimeline);
               return true;
             }));
 
@@ -338,6 +343,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* contentResumeOffsetUs= */ 0,
             /* adDurationsUs...= */ 100_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    ArrayList<Timeline> contentTimelines = new ArrayList<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
@@ -347,9 +353,11 @@ public final class ServerSideAdInsertionMediaSourceTest {
                       contentTimeline.getPeriod(
                               /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
                           .uid));
+              contentTimelines.add(contentTimeline);
               mediaSourceRef
                   .get()
-                  .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), firstAdPlaybackState));
+                  .setAdPlaybackStates(
+                      ImmutableMap.of(periodUid.get(), firstAdPlaybackState), contentTimeline);
               return true;
             }));
     AnalyticsListener listener = mock(AnalyticsListener.class);
@@ -367,7 +375,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* adDurationsUs...= */ 500_000);
     mediaSourceRef
         .get()
-        .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
+        .setAdPlaybackStates(
+            ImmutableMap.of(periodUid.get(), secondAdPlaybackState), contentTimelines.get(1));
     runUntilPendingCommandsAreFullyHandled(player);
 
     player.play();
@@ -376,6 +385,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     // Assert all samples have been played.
     DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    assertThat(contentTimelines).hasSize(2);
     // Assert playback has been reported with ads: [content][ad0][content][ad1][content]
     // 5*2(audio+video) format changes, 4 discontinuities between parts.
     verify(listener, times(4))
@@ -409,10 +419,12 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* contentResumeOffsetUs= */ 0,
             /* adDurationsUs...= */ 500_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    ArrayList<Timeline> contentTimelines = new ArrayList<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
             /* adPlaybackStateUpdater= */ contentTimeline -> {
+              contentTimelines.add(contentTimeline);
               if (periodUid.get() == null) {
                 periodUid.set(
                     checkNotNull(
@@ -421,7 +433,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                             .uid));
                 mediaSourceRef
                     .get()
-                    .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), firstAdPlaybackState));
+                    .setAdPlaybackStates(
+                        ImmutableMap.of(periodUid.get(), firstAdPlaybackState), contentTimeline);
               }
               return true;
             }));
@@ -440,7 +453,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                 /* adGroupIndex= */ 0, /* adDurationsUs...= */ 50_000, 250_000, 200_000);
     mediaSourceRef
         .get()
-        .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
+        .setAdPlaybackStates(
+            ImmutableMap.of(periodUid.get(), secondAdPlaybackState), contentTimelines.get(1));
     runUntilPendingCommandsAreFullyHandled(player);
 
     player.play();
@@ -449,6 +463,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     // Assert all samples have been played.
     DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    assertThat(contentTimelines).hasSize(2);
     // Assert playback has been reported with ads: [ad0][ad1][ad2][content]
     // 4*2(audio+video) format changes, 3 discontinuities between parts.
     verify(listener, times(3))
@@ -501,7 +516,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                           .uid);
               mediaSourceRef
                   .get()
-                  .setAdPlaybackStates(ImmutableMap.of(periodUid, firstAdPlaybackState));
+                  .setAdPlaybackStates(
+                      ImmutableMap.of(periodUid, firstAdPlaybackState), contentTimeline);
               return true;
             }));
 

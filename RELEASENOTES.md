@@ -16,6 +16,11 @@
     *   Add parameters to `LoadControl` methods `shouldStartPlayback` and
         `onTracksSelected` that allow associating these methods with the
         relevant `MediaPeriod`.
+    *   Change signature of
+        `ServerSideAdInsertionMediaSource.setAdPlaybackStates(Map<Object,
+        AdPlaybackState>)` by adding a timeline parameter that contains the
+        periods with the UIDs used as keys in the map. This is required to avoid
+        concurrency issues with multi-period live streams.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

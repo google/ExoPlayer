@@ -92,8 +92,8 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
      * Called when the content source has refreshed the timeline.
      *
      * <p>If true is returned the source refresh publication is deferred, to wait for an {@link
-     * #setAdPlaybackStates(ImmutableMap)} ad playback state update}. If false is returned, the
-     * source refresh is immediately published.
+     * #setAdPlaybackStates(ImmutableMap, Timeline)} ad playback state update}. If false is
+     * returned, the source refresh is immediately published.
      *
      * <p>Called on the playback thread.
      *
@@ -115,7 +115,6 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
   private Handler playbackHandler;
 
   @Nullable private SharedMediaPeriod lastUsedMediaPeriod;
-  @Nullable private Timeline contentTimeline;
   private ImmutableMap<Object, AdPlaybackState> adPlaybackStates;
 
   /**
@@ -139,8 +138,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
 
   /**
    * Sets the map of {@link AdPlaybackState ad playback states} published by this source. The key is
-   * the period UID of a period in the {@link
-   * AdPlaybackStateUpdater#onAdPlaybackStateUpdateRequested(Timeline)} content timeline}.
+   * the period UID of a period in the {@code contentTimeline}.
    *
    * <p>Each period has an {@link AdPlaybackState} that tells where in the period the ad groups
    * start and end. Must only contain server-side inserted ad groups. The number of ad groups and
@@ -151,8 +149,11 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
    * <p>May be called from any thread.
    *
    * @param adPlaybackStates The map of {@link AdPlaybackState} keyed by their period UID.
+   * @param contentTimeline The content timeline containing the periods with the UIDs used as keys
+   *     in the map of playback states.
    */
-  public void setAdPlaybackStates(ImmutableMap<Object, AdPlaybackState> adPlaybackStates) {
+  public void setAdPlaybackStates(
+      ImmutableMap<Object, AdPlaybackState> adPlaybackStates, Timeline contentTimeline) {
     checkArgument(!adPlaybackStates.isEmpty());
     Object adsId = checkNotNull(adPlaybackStates.values().asList().get(0).adsId);
     for (Map.Entry<Object, AdPlaybackState> entry : adPlaybackStates.entrySet()) {
@@ -188,7 +189,6 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       if (playbackHandler == null) {
         this.adPlaybackStates = adPlaybackStates;
       } else {
-        Timeline finalContentTimeline = contentTimeline;
         playbackHandler.post(
             () -> {
               for (SharedMediaPeriod mediaPeriod : mediaPeriods.values()) {
@@ -207,10 +207,8 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
                 }
               }
               this.adPlaybackStates = adPlaybackStates;
-              if (finalContentTimeline != null) {
-                refreshSourceInfo(
-                    new ServerSideAdInsertionTimeline(finalContentTimeline, adPlaybackStates));
-              }
+              refreshSourceInfo(
+                  new ServerSideAdInsertionTimeline(contentTimeline, adPlaybackStates));
             });
       }
     }
@@ -250,7 +248,6 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
 
   @Override
   public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
-    this.contentTimeline = timeline;
     if ((adPlaybackStateUpdater == null
             || !adPlaybackStateUpdater.onAdPlaybackStateUpdateRequested(timeline))
         && !adPlaybackStates.isEmpty()) {
@@ -261,7 +258,6 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
   @Override
   protected void releaseSourceInternal() {
     releaseLastUsedMediaPeriod();
-    contentTimeline = null;
     synchronized (this) {
       playbackHandler = null;
     }

@@ -702,7 +702,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         splitAdPlaybackStates = ImmutableMap.of(periodUid, adPlaybackState);
       }
       streamPlayer.setAdPlaybackStates(adsId, splitAdPlaybackStates, contentTimeline);
-      checkNotNull(serverSideAdInsertionMediaSource).setAdPlaybackStates(splitAdPlaybackStates);
+      checkNotNull(serverSideAdInsertionMediaSource)
+          .setAdPlaybackStates(splitAdPlaybackStates, contentTimeline);
       if (!isLiveStream) {
         adsLoader.setAdPlaybackState(adsId, adPlaybackState);
       }
