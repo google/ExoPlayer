@@ -558,8 +558,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  public void setIsTimestampMaster(boolean isTimestampMaster) {
-    chunkSource.setIsTimestampMaster(isTimestampMaster);
+  public void setIsPrimaryTimestampSource(boolean isPrimaryTimestampSource) {
+    chunkSource.setIsPrimaryTimestampSource(isPrimaryTimestampSource);
   }
 
   /**

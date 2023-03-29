@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Represents an HLS multivariant playlist. */
-// TODO(b/211458101): Make non-final once HlsMasterPlaylist is removed.
-public class HlsMultivariantPlaylist extends HlsPlaylist {
+public final class HlsMultivariantPlaylist extends HlsPlaylist {
 
   /** Represents an empty multivariant playlist, from which no attributes can be inherited. */
   public static final HlsMultivariantPlaylist EMPTY =
