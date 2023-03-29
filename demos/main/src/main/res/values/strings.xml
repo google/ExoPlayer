@@ -21,7 +21,7 @@
 
   <string name="unexpected_intent_action">Unexpected intent action: <xliff:g id="action">%1$s</xliff:g></string>
 
-  <string name="error_cleartext_not_permitted">Cleartext HTTP traffic not permitted. See https://exoplayer.dev/issues/cleartext-not-permitted</string>
+  <string name="error_cleartext_not_permitted">Cleartext HTTP traffic not permitted. See https://developer.android.com/guide/topics/media/issues/cleartext-not-permitted</string>
 
   <string name="error_generic">Playback failed</string>
 

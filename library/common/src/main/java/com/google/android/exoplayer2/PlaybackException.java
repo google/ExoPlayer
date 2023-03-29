@@ -151,8 +151,9 @@ public class PlaybackException extends Exception implements Bundleable {
    * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
    * https://) when the app's Network Security Configuration does not permit it.
    *
-   * <p>See <a href="https://exoplayer.dev/issues/cleartext-not-permitted">this corresponding
-   * troubleshooting topic</a>.
+   * <p>See <a
+   * href="https://developer.android.com/guide/topics/media/issues/cleartext-not-permitted">this
+   * corresponding troubleshooting topic</a>.
    */
   public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2007;
   /** Caused by reading data out of the data bound. */
