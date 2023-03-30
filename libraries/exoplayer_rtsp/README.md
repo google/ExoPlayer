@@ -30,8 +30,8 @@ instances and pass them directly to the player.
 
 ## Links
 
-<!-- TODO(b/204738828): Add link to RTSP media3 guide entry when it's published on developer.android.com -->
-
+*   [Developer Guide][]
 *   [Javadoc][]
 
+[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/rtsp
 [Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/rtsp/package-summary

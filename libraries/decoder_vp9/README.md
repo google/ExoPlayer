@@ -137,5 +137,10 @@ gets from the libvpx decoder:
 Note: Although the default option uses `ANativeWindow`, based on our testing the
 GL rendering mode has better performance, so should be preferred.
 
-<!-- TODO(b/204738828): Add link to 'troubleshooting using decoding extensions' media3 guide entry when it's published on developer.android.com -->
+## Links
+
+*   [Troubleshooting using decoding extensions][]
+
 <!-- TODO(b/276289331): Add Javadoc link when it's published on developer.android.com -->
+
+[Troubleshooting using decoding extensions]: https://developer.android.com/guide/topics/media/exoplayer/troubleshooting#how-can-i-get-a-decoding-library-to-load-and-be-used-for-playback
