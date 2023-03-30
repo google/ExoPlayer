@@ -945,7 +945,6 @@ import java.util.concurrent.TimeoutException;
       if (!internalPlayer.setForegroundMode(foregroundMode)) {
         // One of the renderers timed out releasing its resources.
         stopInternal(
-            /* reset= */ false,
             ExoPlaybackException.createForUnexpected(
                 new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE),
                 PlaybackException.ERROR_CODE_TIMEOUT));
@@ -956,14 +955,8 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void stop() {
     verifyApplicationThread();
-    stop(/* reset= */ false);
-  }
-
-  @Override
-  public void stop(boolean reset) {
-    verifyApplicationThread();
     audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
-    stopInternal(reset, /* error= */ null);
+    stopInternal(/* error= */ null);
     currentCueGroup = new CueGroup(ImmutableList.of(), playbackInfo.positionUs);
   }
 
@@ -1748,38 +1741,27 @@ import java.util.concurrent.TimeoutException;
   /**
    * Stops the player.
    *
-   * @param reset Whether the playlist should be cleared and whether the playback position and
-   *     playback error should be reset.
    * @param error An optional {@link ExoPlaybackException} to set.
    */
-  private void stopInternal(boolean reset, @Nullable ExoPlaybackException error) {
-    PlaybackInfo playbackInfo;
-    if (reset) {
-      playbackInfo =
-          removeMediaItemsInternal(
-              /* fromIndex= */ 0, /* toIndex= */ mediaSourceHolderSnapshots.size());
-      playbackInfo = playbackInfo.copyWithPlaybackError(null);
-    } else {
-      playbackInfo = this.playbackInfo.copyWithLoadingMediaPeriodId(this.playbackInfo.periodId);
-      playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
-      playbackInfo.totalBufferedDurationUs = 0;
-    }
+  private void stopInternal(@Nullable ExoPlaybackException error) {
+    PlaybackInfo playbackInfo =
+        this.playbackInfo.copyWithLoadingMediaPeriodId(this.playbackInfo.periodId);
+    playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
+    playbackInfo.totalBufferedDurationUs = 0;
     playbackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_IDLE);
     if (error != null) {
       playbackInfo = playbackInfo.copyWithPlaybackError(error);
     }
     pendingOperationAcks++;
     internalPlayer.stop();
-    boolean positionDiscontinuity =
-        playbackInfo.timeline.isEmpty() && !this.playbackInfo.timeline.isEmpty();
     updatePlaybackInfo(
         playbackInfo,
-        TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* seekProcessed= */ false,
-        positionDiscontinuity,
-        DISCONTINUITY_REASON_REMOVE,
-        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(playbackInfo),
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ C.TIME_UNSET,
         /* ignored */ C.INDEX_UNSET,
         /* repeatCurrentMediaItem= */ false);
   }
@@ -2578,7 +2560,6 @@ import java.util.concurrent.TimeoutException;
     this.videoOutput = videoOutput;
     if (messageDeliveryTimedOut) {
       stopInternal(
-          /* reset= */ false,
           ExoPlaybackException.createForUnexpected(
               new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE),
               PlaybackException.ERROR_CODE_TIMEOUT));

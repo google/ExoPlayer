@@ -475,17 +475,6 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void stop() {
-    stop(/* reset= */ false);
-  }
-
-  /**
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @Deprecated
-  @Override
-  public void stop(boolean reset) {
     playbackState = STATE_IDLE;
     if (remoteMediaClient != null) {
       // TODO(b/69792021): Support or emulate stop without position reset.

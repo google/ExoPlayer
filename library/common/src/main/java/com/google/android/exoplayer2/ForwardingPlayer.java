@@ -480,20 +480,6 @@ public class ForwardingPlayer implements Player {
     player.stop();
   }
 
-  /**
-   * Calls {@link Player#stop(boolean)} on the delegate.
-   *
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @SuppressWarnings("deprecation") // Forwarding to deprecated method
-  @Deprecated
-  @Override
-  public void stop(boolean reset) {
-    player.stop(reset);
-  }
-
   /** Calls {@link Player#release()} on the delegate. */
   @Override
   public void release() {
