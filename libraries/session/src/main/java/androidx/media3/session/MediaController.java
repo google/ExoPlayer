@@ -471,21 +471,6 @@ public class MediaController implements Player {
   }
 
   /**
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @UnstableApi
-  @Deprecated
-  @Override
-  public void stop(boolean reset) {
-    stop();
-    if (reset) {
-      clearMediaItems();
-    }
-  }
-
-  /**
    * Releases the connection between {@link MediaController} and {@link MediaSession}. This method
    * must be called when the controller is no longer required. The controller must not be used after
    * calling this method.

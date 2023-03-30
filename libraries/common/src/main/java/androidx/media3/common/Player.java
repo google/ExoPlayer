@@ -2525,15 +2525,6 @@ public interface Player {
   void stop();
 
   /**
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @UnstableApi
-  @Deprecated
-  void stop(boolean reset);
-
-  /**
    * Releases the player. This method must be called when the player is no longer required. The
    * player must not be used after calling this method.
    *

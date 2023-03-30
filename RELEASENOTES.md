@@ -58,6 +58,8 @@
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
     *   Remove `HlsMasterPlaylist`, use `HlsMultivariantPlaylist` instead.
+    *   Remove `Player.stop(boolean)`. Use `Player.stop()` and
+        `Player.clearMediaItems()` (if `reset` is `true`) instead.
 
 ### 1.0.0 (2023-03-22)
 

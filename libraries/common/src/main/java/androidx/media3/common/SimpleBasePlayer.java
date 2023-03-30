@@ -2326,14 +2326,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final void stop(boolean reset) {
-    stop();
-    if (reset) {
-      clearMediaItems();
-    }
-  }
-
-  @Override
   public final void release() {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.

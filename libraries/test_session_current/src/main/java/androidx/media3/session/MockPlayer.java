@@ -314,17 +314,6 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_STOP)).open();
   }
 
-  /**
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @Deprecated
-  @Override
-  public void stop(boolean reset) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public void addListener(Listener listener) {
     listeners.add(listener);
