@@ -6,4 +6,4 @@ Provides test infrastructure for Robolectric-based media tests.
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/test/utils/robolectric/package-summary

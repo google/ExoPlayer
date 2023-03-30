@@ -50,4 +50,4 @@ doesn't need to handle any other protocols, you can update any
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/datasource/rtmp/package-summary

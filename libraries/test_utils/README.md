@@ -6,4 +6,4 @@ Provides utility classes for media unit and instrumentation tests.
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/test/utils/package-summary
