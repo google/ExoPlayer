@@ -16,14 +16,17 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
+import static com.google.android.exoplayer2.audio.AudioCapabilities.getCapabilities;
 import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.constrainValue;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -214,6 +217,7 @@ public final class DefaultAudioSink implements AudioSink {
   /** A builder to create {@link DefaultAudioSink} instances. */
   public static final class Builder {
 
+    @Nullable private final Context context;
     private AudioCapabilities audioCapabilities;
     @Nullable private com.google.android.exoplayer2.audio.AudioProcessorChain audioProcessorChain;
     private boolean enableFloatOutput;
@@ -222,19 +226,36 @@ public final class DefaultAudioSink implements AudioSink {
     AudioTrackBufferSizeProvider audioTrackBufferSizeProvider;
     @Nullable AudioOffloadListener audioOffloadListener;
 
-    /** Creates a new builder. */
+    /**
+     * @deprecated Use {@link #Builder(Context)} instead.
+     */
+    @Deprecated
     public Builder() {
+      this.context = null;
       audioCapabilities = DEFAULT_AUDIO_CAPABILITIES;
       offloadMode = OFFLOAD_MODE_DISABLED;
       audioTrackBufferSizeProvider = AudioTrackBufferSizeProvider.DEFAULT;
     }
 
     /**
-     * Sets audio capabilities for playback on this device. May be {@code null} if the default
-     * capabilities (no encoded audio passthrough support) should be assumed.
+     * Creates a new builder.
      *
-     * <p>Default is {@link AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES}.
+     * @param context The {@link Context}.
      */
+    public Builder(Context context) {
+      this.context = context;
+      audioCapabilities = DEFAULT_AUDIO_CAPABILITIES;
+      offloadMode = OFFLOAD_MODE_DISABLED;
+      audioTrackBufferSizeProvider = AudioTrackBufferSizeProvider.DEFAULT;
+    }
+
+    /**
+     * @deprecated These {@linkplain AudioCapabilities audio capabilities} are only used in the
+     *     absence of a {@linkplain Context context}. In the case when the {@code Context} is {@code
+     *     null} and the {@code audioCapabilities} is not set to the {@code Builder}, the default
+     *     capabilities (no encoded audio passthrough support) should be assumed.
+     */
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder setAudioCapabilities(AudioCapabilities audioCapabilities) {
       checkNotNull(audioCapabilities);
@@ -453,6 +474,7 @@ public final class DefaultAudioSink implements AudioSink {
   @GuardedBy("releaseExecutorLock")
   private static int pendingReleaseCount;
 
+  @Nullable private final Context context;
   private final com.google.android.exoplayer2.audio.AudioProcessorChain audioProcessorChain;
   private final boolean enableFloatOutput;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
@@ -478,6 +500,7 @@ public final class DefaultAudioSink implements AudioSink {
   private @MonotonicNonNull AudioProcessingPipeline audioProcessingPipeline;
   @Nullable private AudioTrack audioTrack;
   private AudioCapabilities audioCapabilities;
+  private @MonotonicNonNull AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
   private AudioAttributes audioAttributes;
   @Nullable private MediaPositionParameters afterDrainParameters;
@@ -516,10 +539,12 @@ public final class DefaultAudioSink implements AudioSink {
   private long lastFeedElapsedRealtimeMs;
   private boolean offloadDisabledUntilNextConfiguration;
   private boolean isWaitingForOffloadEndOfStreamHandled;
+  @Nullable private Looper playbackLooper;
 
   @RequiresNonNull("#1.audioProcessorChain")
   private DefaultAudioSink(Builder builder) {
-    audioCapabilities = builder.audioCapabilities;
+    context = builder.context;
+    audioCapabilities = context != null ? getCapabilities(context) : builder.audioCapabilities;
     audioProcessorChain = builder.audioProcessorChain;
     enableFloatOutput = Util.SDK_INT >= 21 && builder.enableFloatOutput;
     preferAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
@@ -586,7 +611,7 @@ public final class DefaultAudioSink implements AudioSink {
     if (!offloadDisabledUntilNextConfiguration && useOffloadedPlayback(format, audioAttributes)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
-    if (audioCapabilities.isPassthroughPlaybackSupported(format)) {
+    if (getAudioCapabilities().isPassthroughPlaybackSupported(format)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
     return SINK_FORMAT_UNSUPPORTED;
@@ -679,7 +704,7 @@ public final class DefaultAudioSink implements AudioSink {
         outputMode = OUTPUT_MODE_PASSTHROUGH;
         @Nullable
         Pair<Integer, Integer> encodingAndChannelConfig =
-            audioCapabilities.getEncodingAndChannelConfigForPassthrough(inputFormat);
+            getAudioCapabilities().getEncodingAndChannelConfigForPassthrough(inputFormat);
         if (encodingAndChannelConfig == null) {
           throw new ConfigurationException(
               "Unable to configure passthrough for: " + inputFormat, inputFormat);
@@ -1418,6 +1443,22 @@ public final class DefaultAudioSink implements AudioSink {
     offloadDisabledUntilNextConfiguration = false;
   }
 
+  @Override
+  public void release() {
+    if (audioCapabilitiesReceiver != null) {
+      audioCapabilitiesReceiver.unregister();
+    }
+  }
+
+  // AudioCapabilitiesReceiver.Listener implementation.
+
+  public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
+    checkState(playbackLooper == Looper.myLooper());
+    if (!audioCapabilities.equals(getAudioCapabilities())) {
+      this.audioCapabilities = audioCapabilities;
+    }
+  }
+
   // Internal methods.
 
   private void resetSinkStateForFlush() {
@@ -1631,6 +1672,18 @@ public final class DefaultAudioSink implements AudioSink {
       default:
         throw new IllegalStateException();
     }
+  }
+
+  private AudioCapabilities getAudioCapabilities() {
+    if (audioCapabilitiesReceiver == null && context != null) {
+      // Must be lazily initialized to receive audio capabilities receiver listener event on the
+      // current (playback) thread as the constructor is not called in the playback thread.
+      playbackLooper = Looper.myLooper();
+      audioCapabilitiesReceiver =
+          new AudioCapabilitiesReceiver(context, this::onAudioCapabilitiesChanged);
+      audioCapabilities = audioCapabilitiesReceiver.register();
+    }
+    return audioCapabilities;
   }
 
   @RequiresApi(29)
