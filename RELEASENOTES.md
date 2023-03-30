@@ -11,6 +11,8 @@
     *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
         `int`. This changes the signatures of public methods
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
+    *   Reset target live stream override when seeking to default position
+        ([#11051](https://github.com/google/ExoPlayer/pull/11051)).
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
