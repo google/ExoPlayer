@@ -20,8 +20,8 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 ## Links
 
-<!-- TODO(b/204738828): Add link to Transformer media3 guide entry when it's published on developer.android.com -->
-
+*   [Developer Guide][]
 *   [Javadoc][]
 
+[Developer Guide]: https://developer.android.com/guide/topics/media/transformer
 [Javadoc]: https://developer.android.com/reference/androidx/media3/transformer/package-summary

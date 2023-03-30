@@ -35,8 +35,8 @@ instances and pass them directly to the player. For advanced download use cases,
 
 ## Links
 
-<!-- TODO(b/204738828): Add link to SmoothStreaming media3 guide entry when it's published on developer.android.com -->
-
+*   [Developer Guide][]
 *   [Javadoc][]
 
+[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/smoothstreaming
 [Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/smoothstreaming/package-summary

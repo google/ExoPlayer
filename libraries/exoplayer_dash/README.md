@@ -36,8 +36,8 @@ instances and pass them directly to the player. For advanced download use cases,
 
 ## Links
 
-<!-- TODO(b/204738828): Add link to DASH media3 guide entry when it's published on developer.android.com -->
-
+*   [Developer Guide][]
 *   [Javadoc][]
 
+[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/dash
 [Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/dash/package-summary
