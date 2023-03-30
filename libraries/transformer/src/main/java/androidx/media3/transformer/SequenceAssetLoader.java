@@ -40,7 +40,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -88,8 +87,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean decodeAudio;
   private boolean decodeVideo;
   private long totalDurationUs;
-  private long maxSequenceDurationUs;
-  private boolean isMaxSequenceDurationUsFinal;
   private int sequenceLoopCount;
   private boolean audioLoopingEnded;
   private boolean videoLoopingEnded;
@@ -97,6 +94,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean released;
 
   private volatile long currentAssetDurationUs;
+  private volatile long maxSequenceDurationUs;
+  private volatile boolean isMaxSequenceDurationUsFinal;
 
   public SequenceAssetLoader(
       EditedMediaItemSequence sequence,
@@ -112,7 +111,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     sequenceAssetLoaderListener = listener;
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
-    mediaItemChangedListenersByTrackType = new ConcurrentHashMap<>();
+    mediaItemChangedListenersByTrackType = new HashMap<>();
     processedInputsBuilder = new ImmutableList.Builder<>();
     nonEndedTracks = new AtomicInteger();
     isCurrentAssetFirstAsset = true;
@@ -123,6 +122,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         assetLoaderFactory.createAssetLoader(editedMediaItems.get(0), looper, /* listener= */ this);
     this.currentAssetLoader = currentAssetLoader;
   }
+
+  // Methods called from TransformerInternal thread.
 
   @Override
   public void start() {
@@ -172,12 +173,27 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
+  private void addCurrentProcessedInput() {
+    if ((sequenceLoopCount * editedMediaItems.size() + currentMediaItemIndex)
+        >= processedInputsSize) {
+      MediaItem mediaItem = editedMediaItems.get(currentMediaItemIndex).mediaItem;
+      ImmutableMap<Integer, String> decoders = currentAssetLoader.getDecoderNames();
+      processedInputsBuilder.add(
+          new ExportResult.ProcessedInput(
+              mediaItem, decoders.get(C.TRACK_TYPE_AUDIO), decoders.get(C.TRACK_TYPE_VIDEO)));
+      processedInputsSize++;
+    }
+  }
+
+  // Methods called from AssetLoader threads.
+
   /**
    * Adds an {@link OnMediaItemChangedListener} for the given track type.
    *
    * <p>There can't be more than one {@link OnMediaItemChangedListener} for the same track type.
    *
-   * <p>Must always be called from the same thread. This thread can be any thread.
+   * <p>Must be called from the thread used by the current {@link AssetLoader} to pass data to the
+   * {@link SampleConsumer}.
    *
    * @param onMediaItemChangedListener The {@link OnMediaItemChangedListener}.
    * @param trackType The {@link C.TrackType} for which to listen to {@link MediaItem} change
@@ -188,43 +204,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     checkArgument(trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO);
     checkArgument(mediaItemChangedListenersByTrackType.get(trackType) == null);
     mediaItemChangedListenersByTrackType.put(trackType, onMediaItemChangedListener);
-  }
-
-  /**
-   * Sets the maximum {@link EditedMediaItemSequence} duration in the {@link Composition}.
-   *
-   * <p>The duration passed is the current maximum duration. This method can be called multiple
-   * times as this duration increases. Indeed, a sequence duration will increase during an export
-   * when a new {@link MediaItem} is loaded, which can increase the maximum sequence duration.
-   *
-   * <p>Must be called from the thread used by the current {@link AssetLoader} to pass data to the
-   * {@link SampleConsumer}.
-   *
-   * @param maxSequenceDurationUs The current maximum sequence duration, in microseconds.
-   * @param isFinal Whether the duration passed is final. Setting this value to {@code true} means
-   *     that the duration passed will not change anymore during the entire export.
-   */
-  public void setMaxSequenceDurationUs(long maxSequenceDurationUs, boolean isFinal) {
-    this.maxSequenceDurationUs = maxSequenceDurationUs;
-    isMaxSequenceDurationUsFinal = isFinal;
-  }
-
-  // AssetLoader.Listener implementation.
-
-  @Override
-  public void onDurationUs(long durationUs) {
-    checkArgument(
-        durationUs != C.TIME_UNSET || currentMediaItemIndex == editedMediaItems.size() - 1,
-        "Could not retrieve required duration for EditedMediaItem " + currentMediaItemIndex);
-    currentAssetDurationUs = durationUs;
-    if (editedMediaItems.size() == 1 && !isLooping) {
-      sequenceAssetLoaderListener.onDurationUs(durationUs);
-    }
-  }
-
-  @Override
-  public void onTrackCount(int trackCount) {
-    nonEndedTracks.set(trackCount);
   }
 
   @Override
@@ -321,11 +300,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     return sampleConsumer;
   }
 
-  @Override
-  public void onError(ExportException exportException) {
-    sequenceAssetLoaderListener.onError(exportException);
-  }
-
   private void onMediaItemChanged(int trackType, @Nullable Format format) {
     @Nullable
     OnMediaItemChangedListener onMediaItemChangedListener =
@@ -340,17 +314,48 @@ import java.util.concurrent.atomic.AtomicInteger;
         /* isLast= */ currentMediaItemIndex == editedMediaItems.size() - 1);
   }
 
-  private void addCurrentProcessedInput() {
-    if ((sequenceLoopCount * editedMediaItems.size() + currentMediaItemIndex)
-        >= processedInputsSize) {
-      MediaItem mediaItem = editedMediaItems.get(currentMediaItemIndex).mediaItem;
-      ImmutableMap<Integer, String> decoders = currentAssetLoader.getDecoderNames();
-      processedInputsBuilder.add(
-          new ExportResult.ProcessedInput(
-              mediaItem, decoders.get(C.TRACK_TYPE_AUDIO), decoders.get(C.TRACK_TYPE_VIDEO)));
-      processedInputsSize++;
+  // Methods called from any thread.
+
+  /**
+   * Sets the maximum {@link EditedMediaItemSequence} duration in the {@link Composition}.
+   *
+   * <p>The duration passed is the current maximum duration. This method can be called multiple
+   * times as this duration increases. Indeed, a sequence duration will increase during an export
+   * when a new {@link MediaItem} is loaded, which can increase the maximum sequence duration.
+   *
+   * <p>Can be called from any thread.
+   *
+   * @param maxSequenceDurationUs The current maximum sequence duration, in microseconds.
+   * @param isFinal Whether the duration passed is final. Setting this value to {@code true} means
+   *     that the duration passed will not change anymore during the entire export.
+   */
+  public void setMaxSequenceDurationUs(long maxSequenceDurationUs, boolean isFinal) {
+    this.maxSequenceDurationUs = maxSequenceDurationUs;
+    isMaxSequenceDurationUsFinal = isFinal;
+  }
+
+  @Override
+  public void onDurationUs(long durationUs) {
+    checkArgument(
+        durationUs != C.TIME_UNSET || currentMediaItemIndex == editedMediaItems.size() - 1,
+        "Could not retrieve required duration for EditedMediaItem " + currentMediaItemIndex);
+    currentAssetDurationUs = durationUs;
+    if (editedMediaItems.size() == 1 && !isLooping) {
+      sequenceAssetLoaderListener.onDurationUs(durationUs);
     }
   }
+
+  @Override
+  public void onTrackCount(int trackCount) {
+    nonEndedTracks.set(trackCount);
+  }
+
+  @Override
+  public void onError(ExportException exportException) {
+    sequenceAssetLoaderListener.onError(exportException);
+  }
+
+  // Classes accessed from AssetLoader threads.
 
   private final class SampleConsumerWrapper implements SampleConsumer {
 
