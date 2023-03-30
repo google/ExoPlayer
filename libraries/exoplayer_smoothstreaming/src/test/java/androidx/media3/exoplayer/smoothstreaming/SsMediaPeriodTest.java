@@ -72,7 +72,7 @@ public class SsMediaPeriodTest {
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(LoadErrorHandlingPolicy.class),
               new MediaSourceEventListener.EventDispatcher()
-                  .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(LoaderErrorThrower.class),
               mock(Allocator.class));
         };

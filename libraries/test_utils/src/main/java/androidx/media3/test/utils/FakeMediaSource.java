@@ -239,7 +239,7 @@ public class FakeMediaSource extends BaseMediaSource {
     Assertions.checkArgument(periodIndex != C.INDEX_UNSET);
     Period period = timeline.getPeriod(periodIndex, new Period());
     MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher =
-        createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
+        createEventDispatcher(period.windowIndex, id);
     DrmSessionEventListener.EventDispatcher drmEventDispatcher =
         createDrmEventDispatcher(period.windowIndex, id);
     MediaPeriod mediaPeriod =

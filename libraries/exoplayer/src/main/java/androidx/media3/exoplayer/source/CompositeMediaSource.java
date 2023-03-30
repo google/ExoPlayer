@@ -357,8 +357,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
       int windowIndex = getWindowIndexForChildWindowIndex(id, childWindowIndex);
       if (mediaSourceEventDispatcher.windowIndex != windowIndex
           || !Util.areEqual(mediaSourceEventDispatcher.mediaPeriodId, mediaPeriodId)) {
-        mediaSourceEventDispatcher =
-            createEventDispatcher(windowIndex, mediaPeriodId, /* mediaTimeOffsetMs= */ 0);
+        mediaSourceEventDispatcher = createEventDispatcher(windowIndex, mediaPeriodId);
       }
       if (drmEventDispatcher.windowIndex != windowIndex
           || !Util.areEqual(drmEventDispatcher.mediaPeriodId, mediaPeriodId)) {

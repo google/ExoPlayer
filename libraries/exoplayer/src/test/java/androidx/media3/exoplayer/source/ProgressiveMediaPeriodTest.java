@@ -69,7 +69,7 @@ public final class ProgressiveMediaPeriodTest {
                 .withParameters(/* windowIndex= */ 0, mediaPeriodId),
             new DefaultLoadErrorHandlingPolicy(),
             new MediaSourceEventListener.EventDispatcher()
-                .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             /* customCacheKey= */ null,

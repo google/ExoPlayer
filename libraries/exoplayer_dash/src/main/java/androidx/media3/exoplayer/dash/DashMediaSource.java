@@ -469,8 +469,7 @@ public final class DashMediaSource extends BaseMediaSource {
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     int periodIndex = (Integer) id.periodUid - firstPeriodId;
-    MediaSourceEventListener.EventDispatcher periodEventDispatcher =
-        createEventDispatcher(id, manifest.getPeriod(periodIndex).startMs);
+    MediaSourceEventListener.EventDispatcher periodEventDispatcher = createEventDispatcher(id);
     DrmSessionEventListener.EventDispatcher drmEventDispatcher = createDrmEventDispatcher(id);
     DashMediaPeriod mediaPeriod =
         new DashMediaPeriod(

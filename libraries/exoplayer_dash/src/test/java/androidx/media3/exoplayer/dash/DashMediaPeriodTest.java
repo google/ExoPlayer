@@ -216,7 +216,7 @@ public final class DashMediaPeriodTest {
             .withParameters(/* windowIndex= */ 0, mediaPeriodId),
         mock(LoadErrorHandlingPolicy.class),
         new MediaSourceEventListener.EventDispatcher()
-            .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+            .withParameters(/* windowIndex= */ 0, mediaPeriodId),
         /* elapsedRealtimeOffsetMs= */ 0,
         mock(LoaderErrorThrower.class),
         mock(Allocator.class),

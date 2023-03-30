@@ -517,8 +517,7 @@ public class DownloadHelperTest {
           trackGroupArrays[periodIndex],
           allocator,
           TEST_TIMELINE.getWindow(0, new Timeline.Window()).positionInFirstPeriodUs,
-          new EventDispatcher()
-              .withParameters(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0)) {
+          new EventDispatcher().withParameters(/* windowIndex= */ 0, id)) {
         @Override
         public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
           List<StreamKey> result = new ArrayList<>();

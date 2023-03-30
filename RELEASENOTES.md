@@ -21,6 +21,13 @@
         AdPlaybackState>)` by adding a timeline parameter that contains the
         periods with the UIDs used as keys in the map. This is required to avoid
         concurrency issues with multi-period live streams.
+    *   Deprecate `EventDispatcher.withParameters(int windowIndex, @Nullable
+        MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs)` and
+        `BaseMediaSource.createEventDispatcher(..., long mediaTimeOffsetMs)`.
+        The variant of the methods without the `mediaTimeOffsetUs` can be called
+        instead. Note that even for the deprecated variants, the offset is not
+        anymore added to `startTimeUs` and `endTimeUs` of the `MediaLoadData`
+        objects that are dispatched by the dispatcher.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
@@ -52,6 +59,8 @@
 *   DASH:
     *   Fix handling of empty segment timelines
         ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
+    *   Remove the media time offset from `MediaLoadData.startTimeMs` and
+        `MediaLoadData.endTimeMs` for multi period DASH streams.
 *   RTSP:
     *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
         UnsupportedTransport
