@@ -7,4 +7,4 @@ depend on this module directly.
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/decoder/package-summary

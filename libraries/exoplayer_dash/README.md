@@ -40,4 +40,4 @@ instances and pass them directly to the player. For advanced download use cases,
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/dash/package-summary

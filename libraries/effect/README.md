@@ -22,4 +22,4 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/effect/package-summary

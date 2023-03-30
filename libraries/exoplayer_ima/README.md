@@ -56,4 +56,4 @@ player position when backgrounded during ad playback.
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/ima/package-summary

@@ -100,10 +100,5 @@ a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibopusAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
 
-## Links
-
 <!-- TODO(b/204738828): Add link to 'troubleshooting using decoding extensions' media3 guide entry when it's published on developer.android.com -->
-
-*   [Javadoc][]
-
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+<!-- TODO(b/276289331): Add Javadoc link when it's published on developer.android.com -->

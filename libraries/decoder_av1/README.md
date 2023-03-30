@@ -124,10 +124,5 @@ gets from the libgav1 decoder:
 Note: Although the default option uses `ANativeWindow`, based on our testing the
 GL rendering mode has better performance, so should be preferred
 
-## Links
-
 <!-- TODO(b/204738828): Add link to 'troubleshooting using decoding extensions' media3 guide entry when it's published on developer.android.com -->
-
-*   [Javadoc][]
-
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+<!-- TODO(b/276289331): Add Javadoc link when it's published on developer.android.com -->

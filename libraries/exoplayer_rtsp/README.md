@@ -34,4 +34,4 @@ instances and pass them directly to the player.
 
 *   [Javadoc][]
 
-[Javadoc]: https://developer.android.com/reference/androidx/media3/packages
+[Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/rtsp/package-summary
