@@ -486,7 +486,7 @@ package androidx.media3.common {
     field public static final String APPLICATION_MP4VTT = "application/x-mp4-vtt";
     field public static final String APPLICATION_MPD = "application/dash+xml";
     field public static final String APPLICATION_PGS = "application/pgs";
-    field public static final String APPLICATION_RAWCC = "application/x-rawcc";
+    field @Deprecated public static final String APPLICATION_RAWCC = "application/x-rawcc";
     field public static final String APPLICATION_RTSP = "application/x-rtsp";
     field public static final String APPLICATION_SS = "application/vnd.ms-sstr+xml";
     field public static final String APPLICATION_SUBRIP = "application/x-subrip";
