@@ -44,9 +44,12 @@ import java.lang.annotation.Target;
  * valid state transitions are shown below, annotated with the methods that are called during each
  * transition.
  *
- * <p style="align:center"><img src="doc-files/renderer-states.svg" alt="Renderer state
- * transitions">
+ * <p style="align:center"><img
+ * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/renderer-states.svg"
+ * alt="Renderer state transitions">
  */
+// TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
+// developer.android.com.
 public interface Renderer extends PlayerMessage.Target {
 
   /**
