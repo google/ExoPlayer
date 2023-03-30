@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
     return super.onOptionsItemSelected(item)
   }
 
+  @SuppressWarnings("MissingSuperCall")
   override fun onBackPressed() {
     popPathStack()
   }
