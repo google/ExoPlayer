@@ -501,7 +501,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     private void release() {
-      handler.post(SequenceAssetLoader.this::release);
+      // TODO(b/276415739): releasing the player earlier causes more release timeouts on emulator
+      //  tests. Figure out what the cause is and uncomment the line below once fixed.
+      // handler.post(SequenceAssetLoader.this::release);
     }
   }
 }
