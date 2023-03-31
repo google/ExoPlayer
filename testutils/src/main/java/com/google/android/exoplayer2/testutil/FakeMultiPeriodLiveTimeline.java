@@ -70,7 +70,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
    *     availabilityStartTimeUs}. True is an ad period, and false a content period.
    * @param isContentTimeline Whether the timeline is a content timeline without {@link
    *     AdPlaybackState}s.
-   * @param populateAds Whether to populate ads like after the ad event has been received. This
+   * @param populateAds Whether to populate ads in the same way if an ad event has been received.
    * @param playedAds Whether ads should be marked as played if populated.
    */
   public FakeMultiPeriodLiveTimeline(
@@ -131,6 +131,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
 
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+    checkArgument(windowIndex == 0);
     MediaItem.LiveConfiguration liveConfiguration =
         new MediaItem.LiveConfiguration.Builder().build();
     window.set(
