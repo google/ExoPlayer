@@ -253,12 +253,21 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public void releaseOutputBuffer(boolean render) throws ExportException {
+    releaseOutputBuffer(render, checkStateNotNull(outputBufferInfo).presentationTimeUs);
+  }
+
+  @Override
+  public void releaseOutputBuffer(long renderPresentationTimeUs) throws ExportException {
+    releaseOutputBuffer(/* render= */ true, renderPresentationTimeUs);
+  }
+
+  private void releaseOutputBuffer(boolean render, long renderPresentationTimeUs)
+      throws ExportException {
     outputBuffer = null;
     try {
       if (render) {
         mediaCodec.releaseOutputBuffer(
-            outputBufferIndex,
-            /* renderTimestampNs= */ checkStateNotNull(outputBufferInfo).presentationTimeUs * 1000);
+            outputBufferIndex, /* renderTimestampNs= */ renderPresentationTimeUs * 1000);
       } else {
         mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
       }

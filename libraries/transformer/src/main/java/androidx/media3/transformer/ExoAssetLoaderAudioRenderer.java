@@ -51,6 +51,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     decoder = decoderFactory.createForAudioDecoding(inputFormat);
   }
 
+  @Override
+  protected boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
+    if (inputBuffer.isEndOfStream()) {
+      return false;
+    }
+
+    inputBuffer.timeUs -= streamStartPositionUs;
+    // Drop samples with negative timestamp in the transcoding case, to prevent encoder failures.
+    if (decoder != null && inputBuffer.timeUs < 0) {
+      inputBuffer.clear();
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * Attempts to get decoded audio data and pass it to the sample consumer.
    *

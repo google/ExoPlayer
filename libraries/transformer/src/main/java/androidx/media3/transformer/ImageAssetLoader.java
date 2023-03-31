@@ -116,11 +116,7 @@ public final class ImageAssetLoader implements AssetLoader {
                       .setWidth(bitmap.getWidth())
                       .setSampleMimeType(MIME_TYPE_IMAGE_ALL)
                       .build();
-              listener.onTrackAdded(
-                  format,
-                  SUPPORTED_OUTPUT_TYPE_DECODED,
-                  /* streamStartPositionUs= */ 0,
-                  /* streamOffsetUs= */ 0);
+              listener.onTrackAdded(format, SUPPORTED_OUTPUT_TYPE_DECODED);
               scheduledExecutorService.submit(() -> queueBitmapInternal(bitmap, format));
             } catch (RuntimeException e) {
               listener.onError(ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));

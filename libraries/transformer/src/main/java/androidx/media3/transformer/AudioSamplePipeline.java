@@ -62,7 +62,6 @@ import org.checkerframework.dataflow.qual.Pure;
   public AudioSamplePipeline(
       Format firstAssetLoaderInputFormat,
       Format firstPipelineInputFormat,
-      long streamOffsetUs,
       TransformationRequest transformationRequest,
       boolean flattenForSlowMotion,
       ImmutableList<AudioProcessor> audioProcessors,
@@ -70,7 +69,7 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
-    super(firstAssetLoaderInputFormat, /* streamStartPositionUs= */ streamOffsetUs, muxerWrapper);
+    super(firstAssetLoaderInputFormat, muxerWrapper);
 
     silentAudioGenerator = new SilentAudioGenerator(firstPipelineInputFormat);
     availableInputBuffers = new ConcurrentLinkedDeque<>();
@@ -141,9 +140,6 @@ import org.checkerframework.dataflow.qual.Pure;
             transformationRequest,
             requestedEncoderFormat,
             /* actualFormat= */ encoder.getConfigurationFormat()));
-
-    // Use the same stream offset as the input stream for encoder input buffers.
-    nextEncoderInputBufferTimeUs = streamOffsetUs;
   }
 
   @Override

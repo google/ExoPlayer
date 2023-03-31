@@ -216,10 +216,31 @@ public interface Codec {
    * <p>This should be called after the buffer has been processed. The next output buffer will not
    * be available until the current output buffer has been released.
    *
+   * <p>Calling this method with {@code render} set to {@code true} is equivalent to calling {@link
+   * #releaseOutputBuffer(long)} with the presentation timestamp of the {@link
+   * #getOutputBufferInfo() output buffer info}.
+   *
    * @param render Whether the buffer needs to be rendered to the output {@link Surface}.
    * @throws ExportException If the underlying decoder or encoder encounters a problem.
    */
   void releaseOutputBuffer(boolean render) throws ExportException;
+
+  /**
+   * Renders and releases the current output buffer.
+   *
+   * <p>This method must only be called on video decoders.
+   *
+   * <p>This method will first render the buffer to the output surface. The surface will then
+   * release the buffer back to the {@code Codec} once it is no longer used/displayed.
+   *
+   * <p>This should be called after the buffer has been processed. The next output buffer will not
+   * be available until the current output buffer has been released.
+   *
+   * @param renderPresentationTimeUs The presentation timestamp to associate with this buffer, in
+   *     microseconds.
+   * @throws ExportException If the underlying decoder or encoder encounters a problem.
+   */
+  void releaseOutputBuffer(long renderPresentationTimeUs) throws ExportException;
 
   /**
    * Returns whether the {@code Codec}'s output stream has ended, and no more data can be dequeued.

@@ -43,11 +43,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
   public EncodedSamplePipeline(
       Format format,
-      long streamStartPositionUs,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener) {
-    super(format, streamStartPositionUs, muxerWrapper);
+    super(format, muxerWrapper);
     this.format = format;
     nextMediaItemOffsetUs = new AtomicLong();
     availableInputBuffers = new ConcurrentLinkedDeque<>();

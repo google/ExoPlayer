@@ -40,6 +40,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /* package */ abstract class ExoAssetLoaderBaseRenderer extends BaseRenderer {
 
+  protected long streamStartPositionUs;
   protected long streamOffsetUs;
   protected @MonotonicNonNull SampleConsumer sampleConsumer;
   protected @MonotonicNonNull Codec decoder;
@@ -52,7 +53,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private boolean isRunning;
-  private long streamStartPositionUs;
   private boolean shouldInitDecoder;
   private boolean hasPendingConsumerInput;
 
@@ -213,10 +213,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       onInputFormatRead(inputFormat);
       shouldInitDecoder =
           assetLoaderListener.onTrackAdded(
-              inputFormat,
-              SUPPORTED_OUTPUT_TYPE_DECODED | SUPPORTED_OUTPUT_TYPE_ENCODED,
-              streamStartPositionUs,
-              streamOffsetUs);
+              inputFormat, SUPPORTED_OUTPUT_TYPE_DECODED | SUPPORTED_OUTPUT_TYPE_ENCODED);
     }
 
     if (shouldInitDecoder) {

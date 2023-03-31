@@ -83,7 +83,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private int currentMediaItemIndex;
   private AssetLoader currentAssetLoader;
   private boolean trackCountReported;
-  private long currentAssetStartTimeUs;
   private boolean decodeAudio;
   private boolean decodeVideo;
   private long totalDurationUs;
@@ -207,13 +206,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public boolean onTrackAdded(
-      Format inputFormat,
-      @SupportedOutputTypes int supportedOutputTypes,
-      long streamStartPositionUs,
-      long streamOffsetUs) {
-    currentAssetStartTimeUs = streamStartPositionUs;
-
+  public boolean onTrackAdded(Format inputFormat, @SupportedOutputTypes int supportedOutputTypes) {
     boolean isAudio = getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_AUDIO;
     if (!isCurrentAssetFirstAsset) {
       return isAudio ? decodeAudio : decodeVideo;
@@ -228,8 +221,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     boolean decodeOutput =
-        sequenceAssetLoaderListener.onTrackAdded(
-            inputFormat, supportedOutputTypes, streamStartPositionUs, streamOffsetUs);
+        sequenceAssetLoaderListener.onTrackAdded(inputFormat, supportedOutputTypes);
 
     if (isAudio) {
       decodeAudio = decodeOutput;
@@ -239,10 +231,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     if (addForcedAudioTrack) {
       sequenceAssetLoaderListener.onTrackAdded(
-          FORCE_AUDIO_TRACK_FORMAT,
-          SUPPORTED_OUTPUT_TYPE_DECODED,
-          streamStartPositionUs,
-          streamOffsetUs);
+          FORCE_AUDIO_TRACK_FORMAT, SUPPORTED_OUTPUT_TYPE_DECODED);
     }
 
     return decodeOutput;
@@ -374,7 +363,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Override
     public boolean queueInputBuffer() {
       DecoderInputBuffer inputBuffer = checkStateNotNull(sampleConsumer.getInputBuffer());
-      long globalTimestampUs = totalDurationUs + inputBuffer.timeUs - currentAssetStartTimeUs;
+      long globalTimestampUs = totalDurationUs + inputBuffer.timeUs;
       if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
         if (isMaxSequenceDurationUsFinal && !audioLoopingEnded) {
           checkNotNull(inputBuffer.data).limit(0);
@@ -450,7 +439,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     @Override
     public boolean registerVideoFrame(long presentationTimeUs) {
-      long globalTimestampUs = totalDurationUs + presentationTimeUs - currentAssetStartTimeUs;
+      long globalTimestampUs = totalDurationUs + presentationTimeUs;
       if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
         if (isMaxSequenceDurationUsFinal && !videoLoopingEnded) {
           videoLoopingEnded = true;
