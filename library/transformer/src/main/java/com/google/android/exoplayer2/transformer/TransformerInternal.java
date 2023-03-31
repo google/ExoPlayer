@@ -481,17 +481,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public boolean onTrackAdded(
         Format firstAssetLoaderInputFormat,
-        @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
-        long streamStartPositionUs,
-        long streamOffsetUs) {
+        @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
       @C.TrackType
       int trackType = getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType);
       AddedTrackInfo trackInfo =
-          new AddedTrackInfo(
-              firstAssetLoaderInputFormat,
-              supportedOutputTypes,
-              streamStartPositionUs,
-              streamOffsetUs);
+          new AddedTrackInfo(firstAssetLoaderInputFormat, supportedOutputTypes);
       addedTrackInfoByTrackType.put(trackType, trackInfo);
 
       if (trackType == C.TRACK_TYPE_AUDIO) {
@@ -547,7 +541,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           return new AudioSamplePipeline(
               addedTrackInfo.firstAssetLoaderInputFormat,
               /* firstPipelineInputFormat= */ firstAssetLoaderOutputFormat,
-              addedTrackInfo.streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.flattenForSlowMotion,
               firstEditedMediaItem.effects.audioProcessors,
@@ -566,8 +559,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           return new VideoSamplePipeline(
               context,
               addedTrackInfo.firstAssetLoaderInputFormat,
-              addedTrackInfo.streamStartPositionUs,
-              addedTrackInfo.streamOffsetUs,
               transformationRequest,
               firstEditedMediaItem.effects.videoEffects,
               compositionPresentation,
@@ -582,11 +573,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       return new EncodedSamplePipeline(
-          firstAssetLoaderOutputFormat,
-          addedTrackInfo.streamStartPositionUs,
-          transformationRequest,
-          muxerWrapper,
-          fallbackListener);
+          firstAssetLoaderOutputFormat, transformationRequest, muxerWrapper, fallbackListener);
     }
 
     /**
@@ -631,31 +618,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final class AddedTrackInfo {
       public final Format firstAssetLoaderInputFormat;
-      public final long streamStartPositionUs;
-      public final long streamOffsetUs;
       public final boolean shouldTranscode;
 
       public AddedTrackInfo(
           Format firstAssetLoaderInputFormat,
-          @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
-          long streamStartPositionUs,
-          long streamOffsetUs) {
+          @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
         this.firstAssetLoaderInputFormat = firstAssetLoaderInputFormat;
-        this.streamStartPositionUs = streamStartPositionUs;
-        this.streamOffsetUs = streamOffsetUs;
-        shouldTranscode =
-            shouldTranscode(
-                firstAssetLoaderInputFormat,
-                supportedOutputTypes,
-                streamStartPositionUs,
-                streamOffsetUs);
+        shouldTranscode = shouldTranscode(firstAssetLoaderInputFormat, supportedOutputTypes);
       }
 
       private boolean shouldTranscode(
-          Format inputFormat,
-          @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
-          long streamStartPositionUs,
-          long streamOffsetUs) {
+          Format inputFormat, @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
         boolean assetLoaderCanOutputDecoded =
             (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) != 0;
         boolean assetLoaderCanOutputEncoded =
@@ -670,8 +643,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } else if (trackType == C.TRACK_TYPE_AUDIO) {
           shouldTranscode = shouldTranscodeAudio(inputFormat);
         } else if (trackType == C.TRACK_TYPE_VIDEO) {
-          shouldTranscode =
-              shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs);
+          shouldTranscode = shouldTranscodeVideo(inputFormat);
         }
 
         checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
@@ -704,13 +676,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return false;
       }
 
-      private boolean shouldTranscodeVideo(
-          Format inputFormat, long streamStartPositionUs, long streamOffsetUs) {
+      private boolean shouldTranscodeVideo(Format inputFormat) {
         if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
           return !composition.transmuxVideo;
         }
         EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-        if ((streamStartPositionUs - streamOffsetUs) != 0
+        if (firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionMs > 0
             && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
           return true;
         }

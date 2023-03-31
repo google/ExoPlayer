@@ -115,8 +115,7 @@ public final class TestUtil {
               .setChannelCount(2)
               .build();
       try {
-        listener.onTrackAdded(
-            format, supportedOutputTypes, /* streamStartPositionUs= */ 0, /* streamOffsetUs= */ 0);
+        listener.onTrackAdded(format, supportedOutputTypes);
 
         SampleConsumer sampleConsumer = listener.onOutputFormat(format);
         if (sampleConsumerRef != null) {

@@ -47,16 +47,13 @@ import java.util.List;
  */
 /* package */ abstract class SamplePipeline implements SampleConsumer, OnMediaItemChangedListener {
 
-  private final long streamStartPositionUs;
   private final MuxerWrapper muxerWrapper;
   private final @C.TrackType int outputTrackType;
   @Nullable private final Metadata metadata;
 
   private boolean muxerWrapperTrackAdded;
 
-  public SamplePipeline(
-      Format firstInputFormat, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
-    this.streamStartPositionUs = streamStartPositionUs;
+  public SamplePipeline(Format firstInputFormat, MuxerWrapper muxerWrapper) {
     this.muxerWrapper = muxerWrapper;
     this.metadata = firstInputFormat.metadata;
     outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
@@ -118,15 +115,12 @@ import java.util.List;
       return false;
     }
 
-    long samplePresentationTimeUs = muxerInputBuffer.timeUs - streamStartPositionUs;
-    // TODO(b/204892224): Consider subtracting the first sample timestamp from the sample pipeline
-    //  buffer from all samples so that they are guaranteed to start from zero in the output file.
     try {
       if (!muxerWrapper.writeSample(
           outputTrackType,
           checkStateNotNull(muxerInputBuffer.data),
           muxerInputBuffer.isKeyFrame(),
-          samplePresentationTimeUs)) {
+          muxerInputBuffer.timeUs)) {
         return false;
       }
     } catch (Muxer.MuxerException e) {

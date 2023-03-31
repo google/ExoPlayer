@@ -75,10 +75,7 @@ public class ExoPlayerAssetLoaderTest {
 
           @Override
           public boolean onTrackAdded(
-              Format inputFormat,
-              @AssetLoader.SupportedOutputTypes int supportedOutputTypes,
-              long streamStartPositionUs,
-              long streamOffsetUs) {
+              Format inputFormat, @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
             if (!isDurationSet) {
               exceptionRef.set(
                   new IllegalStateException("onTrackAdded() called before onDurationUs()"));

@@ -93,22 +93,27 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
-    ByteBuffer inputBytes = checkNotNull(inputBuffer.data);
-
-    if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
+    if (inputBuffer.isEndOfStream()) {
       return false;
     }
 
-    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
-    boolean shouldDropInputBuffer =
-        sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
-    if (shouldDropInputBuffer) {
-      inputBytes.clear();
-    } else {
+    ByteBuffer inputBytes = checkNotNull(inputBuffer.data);
+    if (sefVideoSlowMotionFlattener != null) {
+      long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
+      boolean shouldDropInputBuffer =
+          sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
+      if (shouldDropInputBuffer) {
+        inputBytes.clear();
+        return true;
+      }
       inputBuffer.timeUs =
           streamOffsetUs + sefVideoSlowMotionFlattener.getSamplePresentationTimeUs();
     }
-    return shouldDropInputBuffer;
+
+    if (decoder == null) {
+      inputBuffer.timeUs -= streamStartPositionUs;
+    }
+    return false;
   }
 
   @Override
@@ -132,7 +137,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    if (isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
+    long presentationTimeUs = decoderOutputBufferInfo.presentationTimeUs - streamStartPositionUs;
+    // Drop samples with negative timestamp in the transcoding case, to prevent encoder failures.
+    if (presentationTimeUs < 0 || isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
       decoder.releaseOutputBuffer(/* render= */ false);
       return true;
     }
@@ -142,11 +149,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
-    if (!sampleConsumer.registerVideoFrame(decoderOutputBufferInfo.presentationTimeUs)) {
+    if (!sampleConsumer.registerVideoFrame(presentationTimeUs)) {
       return false;
     }
 
-    decoder.releaseOutputBuffer(/* render= */ true);
+    decoder.releaseOutputBuffer(presentationTimeUs);
     return true;
   }
 

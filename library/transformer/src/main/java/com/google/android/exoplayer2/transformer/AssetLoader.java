@@ -96,18 +96,10 @@ public interface AssetLoader {
      *     AssetLoader} (prior to video slow motion flattening or to decoding).
      * @param supportedOutputTypes The output {@linkplain SupportedOutputTypes types} supported by
      *     this {@link AssetLoader} for the track added. At least one output type must be supported.
-     * @param streamStartPositionUs The start position of the stream (offset by {@code
-     *     streamOffsetUs}), in microseconds.
-     * @param streamOffsetUs The offset that will be added to the timestamps to make sure they are
-     *     non-negative, in microseconds.
      * @return Whether the {@link AssetLoader} needs to provide decoded data to the {@link
      *     SampleConsumer}.
      */
-    boolean onTrackAdded(
-        Format inputFormat,
-        @SupportedOutputTypes int supportedOutputTypes,
-        long streamStartPositionUs,
-        long streamOffsetUs);
+    boolean onTrackAdded(Format inputFormat, @SupportedOutputTypes int supportedOutputTypes);
 
     /**
      * Called when the {@link Format} of samples that will be output by the {@link AssetLoader} is
