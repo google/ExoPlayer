@@ -260,9 +260,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     rendererCapabilities = new RendererCapabilities[renderers.length];
+    @Nullable
+    RendererCapabilities.Listener rendererCapabilitiesListener =
+        trackSelector.getRendererCapabilitiesListener();
     for (int i = 0; i < renderers.length; i++) {
       renderers[i].init(/* index= */ i, playerId);
       rendererCapabilities[i] = renderers[i].getCapabilities();
+      if (rendererCapabilitiesListener != null) {
+        rendererCapabilities[i].setListener(rendererCapabilitiesListener);
+      }
     }
     mediaClock = new DefaultMediaClock(this, clock);
     pendingMessages = new ArrayList<>();
@@ -2550,8 +2556,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void releaseRenderers() {
-    for (Renderer renderer : renderers) {
-      renderer.release();
+    for (int i = 0; i < renderers.length; i++) {
+      rendererCapabilities[i].clearListener();
+      renderers[i].release();
     }
   }
 

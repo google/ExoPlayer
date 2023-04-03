@@ -130,6 +130,9 @@ public interface AudioSink {
      *     a {@link WriteException}, or an {@link UnexpectedDiscontinuityException}.
      */
     default void onAudioSinkError(Exception audioSinkError) {}
+
+    /** Called when audio capabilities changed. */
+    default void onAudioCapabilitiesChanged() {}
   }
 
   /** Thrown when a failure occurs configuring the sink. */
