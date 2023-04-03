@@ -41,6 +41,10 @@
         with which the `DefaultAudioSink` will register as the listener to the
         `AudioCapabilitiesReceiver` and update its `audioCapabilities` property
         when informed with a capabilities change.
+    *   Propagate audio capabilities changes via a new event
+        `onAudioCapabilitiesChanged` in `AudioSink.Listener` interface, and a
+        new interface `RendererCapabilities.Listener` which triggers
+        `onRendererCapabilitiesChanged` events.
 *   DRM:
     *   Reduce the visibility of several internal-only methods on
         `DefaultDrmSession` that aren't expected to be called from outside the

@@ -18,6 +18,7 @@ package androidx.media3.exoplayer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -37,6 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
+  private final Object lock;
   private final @C.TrackType int trackType;
   private final FormatHolder formatHolder;
 
@@ -52,11 +54,16 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private boolean streamIsFinal;
   private boolean throwRendererExceptionIsExecuting;
 
+  @GuardedBy("lock")
+  @Nullable
+  protected RendererCapabilities.Listener rendererCapabilitiesListener;
+
   /**
    * @param trackType The track type that the renderer handles. One of the {@link C} {@code
    *     TRACK_TYPE_*} constants.
    */
   public BaseRenderer(@C.TrackType int trackType) {
+    lock = new Object();
     this.trackType = trackType;
     formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
@@ -208,6 +215,27 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
+  }
+
+  @Override
+  public final void setListener(RendererCapabilities.Listener listener) {
+    synchronized (lock) {
+      this.rendererCapabilitiesListener = listener;
+    }
+  }
+
+  @Override
+  public final void clearListener() {
+    synchronized (lock) {
+      this.rendererCapabilitiesListener = null;
+    }
+  }
+
+  @Nullable
+  private Listener getListener() {
+    synchronized (lock) {
+      return this.rendererCapabilitiesListener;
+    }
   }
 
   // PlayerMessage.Target implementation.
@@ -485,5 +513,13 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final boolean isSourceReady() {
     return hasReadStreamToEnd() ? streamIsFinal : Assertions.checkNotNull(stream).isReady();
+  }
+
+  /** Called when the renderer capabilities are changed. */
+  protected final void onRendererCapabilitiesChanged() {
+    @Nullable RendererCapabilities.Listener listener = getListener();
+    if (listener != null) {
+      listener.onRendererCapabilitiesChanged(this);
+    }
   }
 }

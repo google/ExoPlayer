@@ -960,6 +960,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
     }
+
+    @Override
+    public void onAudioCapabilitiesChanged() {
+      MediaCodecAudioRenderer.this.onRendererCapabilitiesChanged();
+    }
   }
 
   @RequiresApi(23)

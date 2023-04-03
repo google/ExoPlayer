@@ -188,6 +188,16 @@ public abstract class TrackSelector {
   }
 
   /**
+   * Returns the {@link RendererCapabilities.Listener} that the concrete instance uses to listen to
+   * the renderer capabilities changes. May be {@code null} if the implementation does not listen to
+   * the renderer capabilities changes.
+   */
+  @Nullable
+  public RendererCapabilities.Listener getRendererCapabilitiesListener() {
+    return null;
+  }
+
+  /**
    * Calls {@link InvalidationListener#onTrackSelectionsInvalidated()} to invalidate all previously
    * generated track selections.
    */

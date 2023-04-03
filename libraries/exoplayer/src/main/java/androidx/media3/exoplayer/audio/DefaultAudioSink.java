@@ -1469,6 +1469,9 @@ public final class DefaultAudioSink implements AudioSink {
     checkState(playbackLooper == Looper.myLooper());
     if (!audioCapabilities.equals(getAudioCapabilities())) {
       this.audioCapabilities = audioCapabilities;
+      if (listener != null) {
+        listener.onAudioCapabilitiesChanged();
+      }
     }
   }
 
