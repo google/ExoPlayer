@@ -89,8 +89,8 @@ import androidx.media3.common.util.Util;
         int controllerInterfaceVersion =
             bundle.getInt(FIELD_CONTROLLER_INTERFACE_VERSION, /* defaultValue= */ 0);
         String packageName = checkNotNull(bundle.getString(FIELD_PACKAGE_NAME));
-        int pid = bundle.getInt(FIELD_PID, /* defaultValue= */ 0);
-        checkArgument(pid != 0);
+        checkArgument(bundle.containsKey(FIELD_PID));
+        int pid = bundle.getInt(FIELD_PID);
         @Nullable Bundle connectionHints = bundle.getBundle(FIELD_CONNECTION_HINTS);
         return new ConnectionRequest(
             libraryVersion,
