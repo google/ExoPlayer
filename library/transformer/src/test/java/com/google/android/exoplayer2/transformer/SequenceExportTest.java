@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static com.google.android.exoplayer2.transformer.TestUtil.createEncodersAndDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
@@ -119,6 +120,49 @@ public final class SequenceExportTest {
         context,
         checkNotNull(testMuxerHolder.testMuxer),
         getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_with_high_pitch_and_no_video"));
+  }
+
+  @Test
+  public void start_concatenateClippedMediaItems_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem.ClippingConfiguration clippingConfiguration1 =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(0) // Corresponds to key frame.
+            .setEndPositionMs(500)
+            .build();
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S)
+            .setClippingConfiguration(clippingConfiguration1)
+            .build();
+    EditedMediaItem editedMediaItem1 = new EditedMediaItem.Builder(mediaItem1).build();
+    MediaItem.ClippingConfiguration clippingConfiguration2 =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(12_500) // Corresponds to key frame.
+            .setEndPositionMs(14_000)
+            .build();
+    MediaItem mediaItem2 =
+        new MediaItem.Builder()
+            .setUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S)
+            .setClippingConfiguration(clippingConfiguration2)
+            .build();
+    EditedMediaItem editedMediaItem2 = new EditedMediaItem.Builder(mediaItem2).build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem1, editedMediaItem2));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+            .setTransmuxAudio(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S + ".clipped_and_concatenated"));
   }
 
   @Test
