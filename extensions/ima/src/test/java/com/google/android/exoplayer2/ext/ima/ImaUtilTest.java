@@ -1663,7 +1663,6 @@ public class ImaUtilTest {
             /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
-    AdPlaybackState finalAdPlaybackState = adPlaybackState;
 
     assertThat(
             getAdGroupAndIndexInLiveMultiPeriodTimeline(
@@ -2040,7 +2039,7 @@ public class ImaUtilTest {
         .asList()
         .containsExactly(
             AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
+            AD_STATE_SKIPPED,
             AD_STATE_UNAVAILABLE,
             AD_STATE_UNAVAILABLE,
             AD_STATE_UNAVAILABLE,
@@ -2059,11 +2058,11 @@ public class ImaUtilTest {
         .asList()
         .containsExactly(
             AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED)
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED)
         .inOrder();
     assertThat(adPlaybackState5.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
@@ -2085,11 +2084,11 @@ public class ImaUtilTest {
         .asList()
         .containsExactly(
             AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED,
-            AD_STATE_PLAYED)
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED,
+            AD_STATE_SKIPPED)
         .inOrder();
     assertThat(adPlaybackState6.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
