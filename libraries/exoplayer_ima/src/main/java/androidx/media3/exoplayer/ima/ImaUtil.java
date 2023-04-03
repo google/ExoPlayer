@@ -737,7 +737,7 @@ import java.util.Set;
           return adPlaybackState;
         }
         if (state == AD_STATE_AVAILABLE || state == AD_STATE_UNAVAILABLE) {
-          adPlaybackState = adPlaybackState.withPlayedAd(adGroupIndex, /* adIndexInAdGroup= */ i);
+          adPlaybackState = adPlaybackState.withSkippedAd(adGroupIndex, /* adIndexInAdGroup= */ i);
         }
         adGroupDurationUs += adGroup.durationsUs[i];
       }
@@ -751,7 +751,11 @@ import java.util.Set;
     long[] newDurationsUs = new long[adGroup.durationsUs.length];
     for (int adIndex = 0; adIndex < newDurationsUs.length; adIndex++) {
       newDurationsUs[adIndex] = preserveDurations ? adGroup.durationsUs[adIndex] : 0;
-      adPlaybackState = adPlaybackState.withPlayedAd(adGroupIndex, /* adIndexInAdGroup= */ adIndex);
+      if (adGroup.states[adIndex] == AD_STATE_AVAILABLE
+          || adGroup.states[adIndex] == AD_STATE_UNAVAILABLE) {
+        adPlaybackState =
+            adPlaybackState.withSkippedAd(adGroupIndex, /* adIndexInAdGroup= */ adIndex);
+      }
     }
     return adPlaybackState
         .withAdDurationsUs(adGroupIndex, newDurationsUs)

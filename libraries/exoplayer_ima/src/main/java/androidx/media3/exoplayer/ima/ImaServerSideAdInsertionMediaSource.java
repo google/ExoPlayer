@@ -1435,7 +1435,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       Timeline timeline = player.getCurrentTimeline();
       Timeline.Window window = new Timeline.Window();
       Timeline.Period adPeriod = new Timeline.Period();
-      // In case all periods are in the live window, we need the correct ad group duration when
+      // In case all periods are in the live window, we need to correct the ad group duration when
       // inserting the first ad. Try calculate ad group duration from media structure.
       long totalAdDurationUs =
           getAdGroupDurationUsForLiveAdPeriodIndex(
