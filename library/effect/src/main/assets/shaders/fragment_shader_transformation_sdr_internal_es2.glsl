@@ -32,9 +32,12 @@ varying vec2 vTexSamplingCoord;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_LINEAR and COLOR_TRANSFER_SDR_VIDEO are allowed.
 uniform int uOutputColorTransfer;
+uniform int uEnableColorTransfer;
 
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
+const int GL_FALSE = 0;
+const int GL_TRUE = 1;
 
 // Transforms a single channel from electrical to optical SDR using the sRGB
 // EOTF.
@@ -78,13 +81,25 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_LINEAR = 1;
   const int COLOR_TRANSFER_SDR_VIDEO = 3;
-  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
+  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR
+    || uEnableColorTransfer == GL_FALSE) {
     return linearColor;
   } else if (uOutputColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
     return smpte170mOetf(linearColor);
   } else {
     // Output red as an obviously visible error.
     return vec3(1.0, 0.0, 0.0);
+  }
+}
+
+vec3 applyEotf(vec3 electricalColor){
+  if (uEnableColorTransfer == GL_TRUE){
+    return srgbEotf(electricalColor) ;
+  } else if (uEnableColorTransfer == GL_FALSE) {
+    return electricalColor;
+  } else {
+    // Output blue as an obviously visible error.
+    return vec3(0.0, 0.0, 1.0);
   }
 }
 
@@ -96,7 +111,7 @@ void main() {
   // texture gets flipped. We flip the texture vertically to ensure the
   // orientation of the output is correct.
   vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoordFlipped);
-  vec3 linearInputColor = srgbEotf(inputColor.rgb);
+  vec3 linearInputColor = applyEotf(inputColor.rgb);
 
   vec4 transformedColors = uRgbMatrix * vec4(linearInputColor, 1);
 

@@ -32,9 +32,12 @@ varying vec2 vTexSamplingCoord;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_LINEAR and COLOR_TRANSFER_SDR_VIDEO are allowed.
 uniform int uOutputColorTransfer;
+uniform int uEnableColorTransfer;
 
 const float inverseGamma = 0.4500;
 const float gamma = 1.0 / inverseGamma;
+const int GL_FALSE = 0;
+const int GL_TRUE = 1;
 
 // Transforms a single channel from electrical to optical SDR using the SMPTE 
 // 170M OETF.
@@ -77,7 +80,8 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_LINEAR = 1;
   const int COLOR_TRANSFER_SDR_VIDEO = 3;
-  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR) {
+  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR
+    || uEnableColorTransfer == GL_FALSE) {
     return linearColor;
   } else if (uOutputColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
     return smpte170mOetf(linearColor);
@@ -87,9 +91,20 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   }
 }
 
+vec3 applyEotf(vec3 electricalColor){
+  if (uEnableColorTransfer == GL_TRUE){
+    return smpte170mEotf(electricalColor);
+  } else if (uEnableColorTransfer == GL_FALSE) {
+    return electricalColor;
+  } else {
+    // Output blue as an obviously visible error.
+    return vec3(0.0, 0.0, 1.0);
+  }
+}
+
 void main() {
   vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
-  vec3 linearInputColor = smpte170mEotf(inputColor.rgb);
+  vec3 linearInputColor = applyEotf(inputColor.rgb);
 
   vec4 transformedColors = uRgbMatrix * vec4(linearInputColor, 1);
 

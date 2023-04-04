@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -62,9 +63,54 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
   public static final class Factory implements VideoFrameProcessor.Factory {
+
+    /** A builder for {@link DefaultVideoFrameProcessor.Factory} instances. */
+    public static final class Builder {
+      private boolean enableColorTransfers;
+
+      /** Creates an instance. */
+      public Builder() {
+        enableColorTransfers = true;
+      }
+
+      /**
+       * Sets whether to transfer colors to an intermediate color space when applying effects.
+       *
+       * <p>If the input or output is HDR, this must be {@code true}.
+       */
+      @CanIgnoreReturnValue
+      public DefaultVideoFrameProcessor.Factory.Builder setEnableColorTransfers(
+          boolean enableColorTransfers) {
+        this.enableColorTransfers = enableColorTransfers;
+        return this;
+      }
+
+      /** Builds an {@link DefaultVideoFrameProcessor.Factory} instance. */
+      public DefaultVideoFrameProcessor.Factory build() {
+        return new DefaultVideoFrameProcessor.Factory(enableColorTransfers);
+      }
+    }
+
+    /** Whether to transfer colors to an intermediate color space when applying effects. */
+    public final boolean enableColorTransfers;
+
     private GlObjectsProvider glObjectsProvider = GlObjectsProvider.DEFAULT;
     private boolean outputToTexture;
 
+    private Factory(boolean enableColorTransfers) {
+      this.enableColorTransfers = enableColorTransfers;
+    }
+
+    // TODO(276913828): Remove and change all calls to a builder.
+    /**
+     * @deprecated Use {@link DefaultVideoFrameProcessor.Factory.Builder} instead.
+     */
+    @Deprecated
+    public Factory() {
+      this(/* enableColorTransfers= */ true);
+    }
+
+    // TODO(276913828): Move this setter to the DefaultVideoFrameProcessor.Factory.Builder.
     /**
      * {@inheritDoc}
      *
@@ -77,10 +123,11 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       return this;
     }
 
+    // TODO(276913828): Move this setter to the DefaultVideoFrameProcessor.Factory.Builder.
     /**
      * Sets whether to output to a texture for testing.
      *
-     * <p>Must be called before {@link #create}.
+     * <p>Must be called before {@link VideoFrameProcessor.Factory#create}.
      *
      * <p>The default value is {@code false}.
      */
@@ -112,6 +159,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
      * are HDR}, textures will use {@link GLES30#GL_RGBA16F} and {@link GLES30#GL_HALF_FLOAT}.
      * Otherwise, textures will use {@link GLES20#GL_RGBA} and {@link GLES20#GL_UNSIGNED_BYTE}.
      *
+     * <p>If {@code inputColorInfo} or {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr}
+     * are HDR}, color transfers must be enabled.
+     *
      * <p>If {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr is HDR}, the context will
      * be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_1010102}. Otherwise, the context
      * will be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
@@ -137,6 +187,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       checkArgument(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
       checkArgument(outputColorInfo.isValid());
       checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
+      if (ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo)) {
+        checkArgument(enableColorTransfers);
+      }
 
       if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
           || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
@@ -161,6 +214,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       debugViewProvider,
                       inputColorInfo,
                       outputColorInfo,
+                      enableColorTransfers,
                       isInputTextureExternal,
                       releaseFramesAutomatically,
                       singleThreadExecutorService,
@@ -405,6 +459,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
+      boolean enableColorTransfers,
       boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       ExecutorService singleThreadExecutorService,
@@ -450,6 +505,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             debugViewProvider,
             inputColorInfo,
             outputColorInfo,
+            enableColorTransfers,
             isInputTextureExternal,
             releaseFramesAutomatically,
             executor,
@@ -490,6 +546,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
+      boolean enableColorTransfers,
       boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
       Executor executor,
@@ -535,11 +592,21 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           if (isInputTextureExternal) {
             defaultShaderProgram =
                 DefaultShaderProgram.createWithExternalSampler(
-                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
+                    context,
+                    matrixTransformations,
+                    rgbMatrices,
+                    inputColorInfo,
+                    linearColorInfo,
+                    enableColorTransfers);
           } else {
             defaultShaderProgram =
                 DefaultShaderProgram.createWithInternalSampler(
-                    context, matrixTransformations, rgbMatrices, inputColorInfo, linearColorInfo);
+                    context,
+                    matrixTransformations,
+                    rgbMatrices,
+                    inputColorInfo,
+                    linearColorInfo,
+                    enableColorTransfers);
           }
         } else {
           defaultShaderProgram =
@@ -564,6 +631,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             debugViewProvider,
             /* inputColorInfo= */ sampleFromInputTexture ? inputColorInfo : linearColorInfo,
             outputColorInfo,
+            enableColorTransfers,
             sampleFromInputTexture,
             isInputTextureExternal,
             releaseFramesAutomatically,

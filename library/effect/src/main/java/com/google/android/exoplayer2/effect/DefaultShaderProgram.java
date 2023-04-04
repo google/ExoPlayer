@@ -90,6 +90,9 @@ import java.util.List;
     1.6853f, -0.6530f, 0.0000f,
   };
 
+  private static final int GL_FALSE = 0;
+  private static final int GL_TRUE = 1;
+
   /** The {@link MatrixTransformation MatrixTransformations} to apply. */
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
   /** The {@link RgbMatrix RgbMatrices} to apply. */
@@ -183,6 +186,8 @@ import java.util.List;
    * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
    *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
    *     ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
+   * @param enableColorTransfers Whether to transfer colors to an intermediate color space when
+   *     applying effects. If the input or output is HDR, this must be {@code true}.
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
    *     OpenGL operation fails or is unsupported.
    */
@@ -191,7 +196,8 @@ import java.util.List;
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo)
+      ColorInfo outputColorInfo,
+      boolean enableColorTransfers)
       throws VideoFrameProcessingException {
     checkState(
         !ColorInfo.isTransferHdr(inputColorInfo),
@@ -202,7 +208,12 @@ import java.util.List;
             VERTEX_SHADER_TRANSFORMATION_PATH,
             FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH);
     return createWithSampler(
-        glProgram, matrixTransformations, rgbMatrices, inputColorInfo, outputColorInfo);
+        glProgram,
+        matrixTransformations,
+        rgbMatrices,
+        inputColorInfo,
+        outputColorInfo,
+        enableColorTransfers);
   }
 
   /**
@@ -227,6 +238,8 @@ import java.util.List;
    * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
    *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
    *     ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
+   * @param enableColorTransfers Whether to transfer colors to an intermediate color space when
+   *     applying effects. If the input or output is HDR, this must be {@code true}.
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files or an
    *     OpenGL operation fails or is unsupported.
    */
@@ -235,7 +248,8 @@ import java.util.List;
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo)
+      ColorInfo outputColorInfo,
+      boolean enableColorTransfers)
       throws VideoFrameProcessingException {
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
     String vertexShaderFilePath =
@@ -251,7 +265,8 @@ import java.util.List;
         matrixTransformations,
         rgbMatrices,
         inputColorInfo,
-        outputColorInfo);
+        outputColorInfo,
+        enableColorTransfers);
   }
 
   /**
@@ -314,12 +329,15 @@ import java.util.List;
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo)
+      ColorInfo outputColorInfo,
+      boolean enableColorTransfers)
       throws VideoFrameProcessingException {
+    glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (isInputTransferHdr) {
       checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
+      checkArgument(enableColorTransfers);
 
       // In HDR editing mode the decoder output is sampled in YUV.
       if (!GlUtil.isYuvTargetExtensionSupported()) {
