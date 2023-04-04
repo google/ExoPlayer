@@ -77,6 +77,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final boolean isInputTextureExternal;
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
+  private final boolean enableColorTransfers;
   private final boolean releaseFramesAutomatically;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
@@ -115,6 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
+      boolean enableColorTransfers,
       boolean sampleFromInputTexture,
       boolean isInputTextureExternal,
       boolean releaseFramesAutomatically,
@@ -132,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.isInputTextureExternal = isInputTextureExternal;
     this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
+    this.enableColorTransfers = enableColorTransfers;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
     this.videoFrameProcessorListenerExecutor = videoFrameProcessorListenerExecutor;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
@@ -491,7 +494,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 expandedMatrixTransformations,
                 rgbMatrices,
                 inputColorInfo,
-                outputColorInfo);
+                outputColorInfo,
+                enableColorTransfers);
       } else {
         defaultShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
@@ -499,7 +503,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 expandedMatrixTransformations,
                 rgbMatrices,
                 inputColorInfo,
-                outputColorInfo);
+                outputColorInfo,
+                enableColorTransfers);
       }
     } else {
       defaultShaderProgram =
@@ -522,12 +527,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           .maybeRenderToSurfaceView(
               () -> {
                 GlUtil.clearOutputFrame();
-                @C.ColorTransfer
-                int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
-                defaultShaderProgram.setOutputColorTransfer(
-                    debugSurfaceViewWrapper.outputColorTransfer);
-                defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
-                defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
+                if (enableColorTransfers) {
+                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                } else {
+                  @C.ColorTransfer
+                  int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
+                  defaultShaderProgram.setOutputColorTransfer(
+                      debugSurfaceViewWrapper.outputColorTransfer);
+                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                  defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
+                }
               },
               glObjectsProvider);
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
