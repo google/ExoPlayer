@@ -16,19 +16,21 @@
 package androidx.media3.session;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.media3.common.Player;
+import androidx.media3.test.utils.TestExoPlayerBuilder;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -38,41 +40,42 @@ import org.robolectric.shadows.ShadowPendingIntent;
 @RunWith(AndroidJUnit4.class)
 public class DefaultActionFactoryTest {
 
+  private Player player;
+  private MediaSession mediaSession;
+
+  @Before
+  public void setUp() {
+    Context context = ApplicationProvider.getApplicationContext();
+    player = new TestExoPlayerBuilder(context).build();
+    mediaSession = new MediaSession.Builder(context, player).build();
+  }
+
+  @After
+  public void tearDown() {
+    mediaSession.release();
+    player.release();
+  }
+
   @Test
   public void createMediaPendingIntent_intentIsMediaAction() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-    Uri dataUri = Uri.parse("http://example.com");
-    MediaSession mockMediaSession = mock(MediaSession.class);
-    Player mockPlayer = mock(Player.class);
-    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
-    when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
-    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
-    when(mockMediaSessionImpl.getUri()).thenReturn(dataUri);
 
     PendingIntent pendingIntent =
-        actionFactory.createMediaActionPendingIntent(mockMediaSession, Player.COMMAND_SEEK_FORWARD);
+        actionFactory.createMediaActionPendingIntent(mediaSession, Player.COMMAND_SEEK_FORWARD);
 
     ShadowPendingIntent shadowPendingIntent = shadowOf(pendingIntent);
     assertThat(actionFactory.isMediaAction(shadowPendingIntent.getSavedIntent())).isTrue();
-    assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(dataUri);
+    assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(mediaSession.getUri());
   }
 
   @Test
   public void createMediaPendingIntent_commandPlayPauseWhenNotPlayWhenReady_isForegroundService() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-    Uri dataUri = Uri.parse("http://example.com");
-    MediaSession mockMediaSession = mock(MediaSession.class);
-    Player mockPlayer = mock(Player.class);
-    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
-    when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
-    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
-    when(mockMediaSessionImpl.getUri()).thenReturn(dataUri);
-    when(mockPlayer.getPlayWhenReady()).thenReturn(false);
 
     PendingIntent pendingIntent =
-        actionFactory.createMediaActionPendingIntent(mockMediaSession, Player.COMMAND_PLAY_PAUSE);
+        actionFactory.createMediaActionPendingIntent(mediaSession, Player.COMMAND_PLAY_PAUSE);
 
     ShadowPendingIntent shadowPendingIntent = shadowOf(pendingIntent);
     assertThat(shadowPendingIntent.isForegroundService()).isTrue();
@@ -82,17 +85,10 @@ public class DefaultActionFactoryTest {
   public void createMediaPendingIntent_commandPlayPauseWhenPlayWhenReady_notAForegroundService() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-    Uri dataUri = Uri.parse("http://example.com");
-    MediaSession mockMediaSession = mock(MediaSession.class);
-    Player mockPlayer = mock(Player.class);
-    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
-    when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
-    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
-    when(mockMediaSessionImpl.getUri()).thenReturn(dataUri);
-    when(mockPlayer.getPlayWhenReady()).thenReturn(true);
 
+    player.play();
     PendingIntent pendingIntent =
-        actionFactory.createMediaActionPendingIntent(mockMediaSession, Player.COMMAND_PLAY_PAUSE);
+        actionFactory.createMediaActionPendingIntent(mediaSession, Player.COMMAND_PLAY_PAUSE);
 
     ShadowPendingIntent shadowPendingIntent = shadowOf(pendingIntent);
     assertThat(actionFactory.isMediaAction(shadowPendingIntent.getSavedIntent())).isTrue();
@@ -123,11 +119,6 @@ public class DefaultActionFactoryTest {
   public void createCustomActionFromCustomCommandButton() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-    MediaSession mockMediaSession = mock(MediaSession.class);
-    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
-    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
-    Uri dataUri = Uri.parse("http://example.com");
-    when(mockMediaSessionImpl.getUri()).thenReturn(dataUri);
     Bundle commandBundle = new Bundle();
     commandBundle.putString("command-key", "command-value");
     Bundle buttonBundle = new Bundle();
@@ -141,11 +132,10 @@ public class DefaultActionFactoryTest {
             .build();
 
     NotificationCompat.Action notificationAction =
-        actionFactory.createCustomActionFromCustomCommandButton(
-            mockMediaSession, customSessionCommand);
+        actionFactory.createCustomActionFromCustomCommandButton(mediaSession, customSessionCommand);
 
     ShadowPendingIntent shadowPendingIntent = shadowOf(notificationAction.actionIntent);
-    assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(dataUri);
+    assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(mediaSession.getUri());
     assertThat(String.valueOf(notificationAction.title)).isEqualTo("name");
     assertThat(notificationAction.getIconCompat().getResId())
         .isEqualTo(R.drawable.media3_notification_pause);
@@ -169,7 +159,7 @@ public class DefaultActionFactoryTest {
         IllegalArgumentException.class,
         () ->
             actionFactory.createCustomActionFromCustomCommandButton(
-                mock(MediaSession.class), customSessionCommand));
+                mediaSession, customSessionCommand));
   }
 
   /** A test service for unit tests. */

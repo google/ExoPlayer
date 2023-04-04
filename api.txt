@@ -1625,21 +1625,21 @@ package androidx.media3.session {
     field @IntRange(from=1) public final int notificationId;
   }
 
-  public class MediaSession {
-    method public void broadcastCustomCommand(androidx.media3.session.SessionCommand, android.os.Bundle);
-    method public java.util.List<androidx.media3.session.MediaSession.ControllerInfo> getConnectedControllers();
-    method public String getId();
-    method public androidx.media3.common.Player getPlayer();
-    method @Nullable public android.app.PendingIntent getSessionActivity();
-    method public androidx.media3.session.SessionToken getToken();
-    method public void release();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> sendCustomCommand(androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.session.SessionCommand, android.os.Bundle);
-    method public void setAvailableCommands(androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.session.SessionCommands, androidx.media3.common.Player.Commands);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> setCustomLayout(androidx.media3.session.MediaSession.ControllerInfo, java.util.List<androidx.media3.session.CommandButton>);
-    method public void setCustomLayout(java.util.List<androidx.media3.session.CommandButton>);
-    method public void setPlayer(androidx.media3.common.Player);
-    method public void setSessionExtras(android.os.Bundle);
-    method public void setSessionExtras(androidx.media3.session.MediaSession.ControllerInfo, android.os.Bundle);
+  @com.google.errorprone.annotations.DoNotMock public class MediaSession {
+    method public final void broadcastCustomCommand(androidx.media3.session.SessionCommand, android.os.Bundle);
+    method public final java.util.List<androidx.media3.session.MediaSession.ControllerInfo> getConnectedControllers();
+    method public final String getId();
+    method public final androidx.media3.common.Player getPlayer();
+    method @Nullable public final android.app.PendingIntent getSessionActivity();
+    method public final androidx.media3.session.SessionToken getToken();
+    method public final void release();
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> sendCustomCommand(androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.session.SessionCommand, android.os.Bundle);
+    method public final void setAvailableCommands(androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.session.SessionCommands, androidx.media3.common.Player.Commands);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> setCustomLayout(androidx.media3.session.MediaSession.ControllerInfo, java.util.List<androidx.media3.session.CommandButton>);
+    method public final void setCustomLayout(java.util.List<androidx.media3.session.CommandButton>);
+    method public final void setPlayer(androidx.media3.common.Player);
+    method public final void setSessionExtras(android.os.Bundle);
+    method public final void setSessionExtras(androidx.media3.session.MediaSession.ControllerInfo, android.os.Bundle);
   }
 
   public static final class MediaSession.Builder {

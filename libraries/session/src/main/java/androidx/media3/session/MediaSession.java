@@ -63,6 +63,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.DoNotMock;
 import java.util.HashMap;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -220,6 +221,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * by trusted controllers (e.g. Bluetooth, Auto, ...). This means only trusted controllers can
  * connect and an app can accept such controllers in the same way as with legacy sessions.
  */
+@DoNotMock
 public class MediaSession {
 
   static {
@@ -592,7 +594,7 @@ public class MediaSession {
    * @return The {@link PendingIntent} to launch an activity belonging to the session.
    */
   @Nullable
-  public PendingIntent getSessionActivity() {
+  public final PendingIntent getSessionActivity() {
     return impl.getSessionActivity();
   }
 
@@ -605,7 +607,7 @@ public class MediaSession {
    * @throws IllegalStateException if the new player's application looper differs from the current
    *     looper.
    */
-  public void setPlayer(Player player) {
+  public final void setPlayer(Player player) {
     checkNotNull(player);
     checkArgument(player.canAdvertiseSession());
     checkArgument(player.getApplicationLooper() == getPlayer().getApplicationLooper());
@@ -623,7 +625,7 @@ public class MediaSession {
    * further use the player after the session is released and needs to make sure to eventually
    * release the player.
    */
-  public void release() {
+  public final void release() {
     try {
       synchronized (STATIC_LOCK) {
         SESSION_ID_TO_SESSION_MAP.remove(impl.getId());
@@ -634,27 +636,27 @@ public class MediaSession {
     }
   }
 
-  /* package */ boolean isReleased() {
+  /* package */ final boolean isReleased() {
     return impl.isReleased();
   }
 
   /** Returns the underlying {@link Player}. */
-  public Player getPlayer() {
+  public final Player getPlayer() {
     return impl.getPlayerWrapper().getWrappedPlayer();
   }
 
   /** Returns the session ID. */
-  public String getId() {
+  public final String getId() {
     return impl.getId();
   }
 
   /** Returns the {@link SessionToken} for creating {@link MediaController}. */
-  public SessionToken getToken() {
+  public final SessionToken getToken() {
     return impl.getToken();
   }
 
   /** Returns the list of connected controllers. */
-  public List<ControllerInfo> getConnectedControllers() {
+  public final List<ControllerInfo> getConnectedControllers() {
     return impl.getConnectedControllers();
   }
 
@@ -705,7 +707,7 @@ public class MediaSession {
    * @param controller The controller to specify layout.
    * @param layout The ordered list of {@link CommandButton}.
    */
-  public ListenableFuture<SessionResult> setCustomLayout(
+  public final ListenableFuture<SessionResult> setCustomLayout(
       ControllerInfo controller, List<CommandButton> layout) {
     checkNotNull(controller, "controller must not be null");
     checkNotNull(layout, "layout must not be null");
@@ -728,7 +730,7 @@ public class MediaSession {
    *
    * @param layout The ordered list of {@link CommandButton}.
    */
-  public void setCustomLayout(List<CommandButton> layout) {
+  public final void setCustomLayout(List<CommandButton> layout) {
     checkNotNull(layout, "layout must not be null");
     impl.setCustomLayout(layout);
   }
@@ -749,7 +751,7 @@ public class MediaSession {
    * @param sessionCommands The new available session commands.
    * @param playerCommands The new available player commands.
    */
-  public void setAvailableCommands(
+  public final void setAvailableCommands(
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     checkNotNull(controller, "controller must not be null");
     checkNotNull(sessionCommands, "sessionCommands must not be null");
@@ -768,7 +770,7 @@ public class MediaSession {
    * @param args A {@link Bundle} for additional arguments. May be empty.
    * @see #sendCustomCommand(ControllerInfo, SessionCommand, Bundle)
    */
-  public void broadcastCustomCommand(SessionCommand command, Bundle args) {
+  public final void broadcastCustomCommand(SessionCommand command, Bundle args) {
     checkNotNull(command);
     checkNotNull(args);
     checkArgument(
@@ -784,7 +786,7 @@ public class MediaSession {
    *
    * @param sessionExtras The session extras.
    */
-  public void setSessionExtras(Bundle sessionExtras) {
+  public final void setSessionExtras(Bundle sessionExtras) {
     checkNotNull(sessionExtras);
     impl.setSessionExtras(sessionExtras);
   }
@@ -797,7 +799,7 @@ public class MediaSession {
    * @param controller The controller to send the extras to.
    * @param sessionExtras The session extras.
    */
-  public void setSessionExtras(ControllerInfo controller, Bundle sessionExtras) {
+  public final void setSessionExtras(ControllerInfo controller, Bundle sessionExtras) {
     checkNotNull(controller, "controller must not be null");
     checkNotNull(sessionExtras);
     impl.setSessionExtras(controller, sessionExtras);
@@ -805,7 +807,7 @@ public class MediaSession {
 
   /** Returns the {@link BitmapLoader}. */
   @UnstableApi
-  public BitmapLoader getBitmapLoader() {
+  public final BitmapLoader getBitmapLoader() {
     return impl.getBitmapLoader();
   }
 
@@ -823,7 +825,7 @@ public class MediaSession {
    * @return A {@link ListenableFuture} of {@link SessionResult} from the controller.
    * @see #broadcastCustomCommand(SessionCommand, Bundle)
    */
-  public ListenableFuture<SessionResult> sendCustomCommand(
+  public final ListenableFuture<SessionResult> sendCustomCommand(
       ControllerInfo controller, SessionCommand command, Bundle args) {
     checkNotNull(controller);
     checkNotNull(command);
@@ -834,7 +836,7 @@ public class MediaSession {
     return impl.sendCustomCommand(controller, command, args);
   }
 
-  /* package */ MediaSessionCompat getSessionCompat() {
+  /* package */ final MediaSessionCompat getSessionCompat() {
     return impl.getSessionCompat();
   }
 
@@ -843,7 +845,7 @@ public class MediaSession {
    * internally by this session.
    */
   @UnstableApi
-  public MediaSessionCompat.Token getSessionCompatToken() {
+  public final MediaSessionCompat.Token getSessionCompatToken() {
     return impl.getSessionCompat().getSessionToken();
   }
 
@@ -852,12 +854,12 @@ public class MediaSession {
    *
    * @param timeoutMs The timeout in milliseconds.
    */
-  /* package */ void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
+  /* package */ final void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
     impl.setLegacyControllerConnectionTimeoutMs(timeoutMs);
   }
 
   /** Handles the controller's connection request from {@link MediaSessionService}. */
-  /* package */ void handleControllerConnectionFromService(
+  /* package */ final void handleControllerConnectionFromService(
       IMediaController controller,
       int controllerVersion,
       int controllerInterfaceVersion,
@@ -875,7 +877,7 @@ public class MediaSession {
         connectionHints);
   }
 
-  /* package */ IBinder getLegacyBrowserServiceBinder() {
+  /* package */ final IBinder getLegacyBrowserServiceBinder() {
     return impl.getLegacyBrowserServiceBinder();
   }
 
@@ -887,21 +889,22 @@ public class MediaSession {
    * after an immediate one-time update.
    */
   @VisibleForTesting
-  /* package */ void setSessionPositionUpdateDelayMs(long updateDelayMs) {
+  /* package */ final void setSessionPositionUpdateDelayMs(long updateDelayMs) {
     impl.setSessionPositionUpdateDelayMsOnHandler(updateDelayMs);
   }
 
   /** Sets the {@linkplain Listener listener}. */
-  /* package */ void setListener(Listener listener) {
+  /* package */ final void setListener(Listener listener) {
     impl.setMediaSessionListener(listener);
   }
 
   /** Clears the {@linkplain Listener listener}. */
-  /* package */ void clearListener() {
+  /* package */ final void clearListener() {
     impl.clearMediaSessionListener();
   }
 
-  private Uri getUri() {
+  @VisibleForTesting
+  /* package */ final Uri getUri() {
     return impl.getUri();
   }
 
