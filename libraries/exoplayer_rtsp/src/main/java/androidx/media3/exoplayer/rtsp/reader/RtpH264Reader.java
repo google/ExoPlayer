@@ -23,12 +23,12 @@ import static androidx.media3.exoplayer.rtsp.reader.RtpReaderUtils.toSampleTimeU
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.NalUnitUtil;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.rtsp.RtpPacket;
 import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
 import androidx.media3.extractor.ExtractorOutput;
-import androidx.media3.extractor.NalUnitUtil;
 import androidx.media3.extractor.TrackOutput;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;

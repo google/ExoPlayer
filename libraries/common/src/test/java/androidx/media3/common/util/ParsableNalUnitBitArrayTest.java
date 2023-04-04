@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.extractor;
+package androidx.media3.common.util;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import androidx.media3.common.util.Assertions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;

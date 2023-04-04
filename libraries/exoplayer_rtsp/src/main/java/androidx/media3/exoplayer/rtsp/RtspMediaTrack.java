@@ -17,11 +17,11 @@ package androidx.media3.exoplayer.rtsp;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.NalUnitUtil.NAL_START_CODE;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.exoplayer.rtsp.MediaDescription.MEDIA_TYPE_AUDIO;
 import static androidx.media3.exoplayer.rtsp.RtpPayloadFormat.getMimeTypeFromRtpMediaType;
 import static androidx.media3.exoplayer.rtsp.SessionDescription.ATTR_CONTROL;
-import static androidx.media3.extractor.NalUnitUtil.NAL_START_CODE;
 
 import android.net.Uri;
 import android.util.Base64;
@@ -33,11 +33,11 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.CodecSpecificDataUtil;
+import androidx.media3.common.util.NalUnitUtil;
 import androidx.media3.common.util.ParsableBitArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.AacUtil;
-import androidx.media3.extractor.NalUnitUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
