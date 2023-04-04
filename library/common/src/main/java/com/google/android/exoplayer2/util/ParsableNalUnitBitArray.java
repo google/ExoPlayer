@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 /**
  * Wraps a byte array, providing methods that allow it to be read as a NAL unit bitstream.
  *
