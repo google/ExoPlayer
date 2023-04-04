@@ -17,7 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -31,12 +31,9 @@ import java.util.concurrent.atomic.AtomicLong;
   private final ByteBuffer internalBuffer;
   private final AtomicLong remainingBytesToOutput;
 
-  public SilentAudioGenerator(Format format) {
+  public SilentAudioGenerator(AudioFormat format) {
     sampleRate = format.sampleRate;
-    frameSize =
-        Util.getPcmFrameSize(
-            format.pcmEncoding == Format.NO_VALUE ? C.ENCODING_PCM_16BIT : format.pcmEncoding,
-            format.channelCount);
+    frameSize = Util.getPcmFrameSize(format.encoding, format.channelCount);
     internalBuffer =
         ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE_FRAMES * frameSize)
             .order(ByteOrder.nativeOrder());
