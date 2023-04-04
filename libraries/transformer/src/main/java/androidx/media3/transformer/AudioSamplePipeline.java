@@ -16,11 +16,11 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
-import static androidx.media3.transformer.DefaultCodec.DEFAULT_PCM_ENCODING;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
@@ -71,7 +71,6 @@ import org.checkerframework.dataflow.qual.Pure;
       throws ExportException {
     super(firstAssetLoaderInputFormat, muxerWrapper);
 
-    silentAudioGenerator = new SilentAudioGenerator(firstPipelineInputFormat);
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
@@ -84,6 +83,15 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
 
+    checkArgument(firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE);
+    AudioFormat inputAudioFormat =
+        new AudioFormat(
+            firstPipelineInputFormat.sampleRate,
+            firstPipelineInputFormat.channelCount,
+            firstPipelineInputFormat.pcmEncoding);
+
+    silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
+
     if (flattenForSlowMotion && firstAssetLoaderInputFormat.metadata != null) {
       audioProcessors =
           new ImmutableList.Builder<AudioProcessor>()
@@ -95,20 +103,12 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     audioProcessingPipeline = new AudioProcessingPipeline(audioProcessors);
-    // TODO(b/267301878): Once decoder format propagated, remove setting default PCM encoding.
-    AudioFormat pipelineInputAudioFormat =
-        new AudioFormat(
-            firstPipelineInputFormat.sampleRate,
-            firstPipelineInputFormat.channelCount,
-            firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE
-                ? firstPipelineInputFormat.pcmEncoding
-                : DEFAULT_PCM_ENCODING);
 
     try {
-      encoderInputAudioFormat = audioProcessingPipeline.configure(pipelineInputAudioFormat);
+      encoderInputAudioFormat = audioProcessingPipeline.configure(inputAudioFormat);
     } catch (AudioProcessor.UnhandledAudioFormatException unhandledAudioFormatException) {
       throw ExportException.createForAudioProcessing(
-          unhandledAudioFormatException, pipelineInputAudioFormat);
+          unhandledAudioFormatException, inputAudioFormat);
     }
 
     audioProcessingPipeline.flush();

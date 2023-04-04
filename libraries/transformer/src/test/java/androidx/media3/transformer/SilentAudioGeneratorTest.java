@@ -18,7 +18,7 @@ package androidx.media3.transformer;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
-import androidx.media3.common.Format;
+import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import org.junit.Test;
@@ -32,11 +32,7 @@ public class SilentAudioGeneratorTest {
   public void addSilenceOnce_numberOfBytesProduced_isCorrect() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            new Format.Builder()
-                .setSampleRate(88_200)
-                .setPcmEncoding(C.ENCODING_PCM_16BIT)
-                .setChannelCount(6)
-                .build());
+            new AudioFormat(/* sampleRate= */ 88_200, /* channelCount= */ 6, C.ENCODING_PCM_16BIT));
 
     generator.addSilence(/* durationUs= */ 3_000_000);
     int bytesOutput = drainGenerator(generator);
@@ -49,11 +45,7 @@ public class SilentAudioGeneratorTest {
   public void addSilenceTwice_numberOfBytesProduced_isCorrect() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            new Format.Builder()
-                .setSampleRate(88_200)
-                .setPcmEncoding(C.ENCODING_PCM_16BIT)
-                .setChannelCount(6)
-                .build());
+            new AudioFormat(/* sampleRate= */ 88_200, /* channelCount= */ 6, C.ENCODING_PCM_16BIT));
 
     generator.addSilence(/* durationUs= */ 3_000_000);
     int bytesOutput = drainGenerator(generator);
@@ -68,11 +60,8 @@ public class SilentAudioGeneratorTest {
   public void lastBufferProduced_isCorrectSize() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            new Format.Builder()
-                .setSampleRate(44_100)
-                .setPcmEncoding(C.ENCODING_PCM_16BIT)
-                .setChannelCount(2)
-                .build());
+            new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 2, C.ENCODING_PCM_16BIT));
+
     generator.addSilence(/* durationUs= */ 1_000_000);
 
     int currentBufferSize = 0;
@@ -92,11 +81,7 @@ public class SilentAudioGeneratorTest {
   public void totalBytesLowerThanDefaultBufferSize_smallBufferProduced() {
     SilentAudioGenerator generator =
         new SilentAudioGenerator(
-            new Format.Builder()
-                .setSampleRate(48_000)
-                .setPcmEncoding(C.ENCODING_PCM_16BIT)
-                .setChannelCount(2)
-                .build());
+            new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 2, C.ENCODING_PCM_16BIT));
 
     generator.addSilence(/* durationUs= */ 5_000);
 

@@ -17,7 +17,7 @@
 package androidx.media3.transformer;
 
 import androidx.media3.common.C;
-import androidx.media3.common.Format;
+import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -31,12 +31,9 @@ import java.util.concurrent.atomic.AtomicLong;
   private final ByteBuffer internalBuffer;
   private final AtomicLong remainingBytesToOutput;
 
-  public SilentAudioGenerator(Format format) {
+  public SilentAudioGenerator(AudioFormat format) {
     sampleRate = format.sampleRate;
-    frameSize =
-        Util.getPcmFrameSize(
-            format.pcmEncoding == Format.NO_VALUE ? C.ENCODING_PCM_16BIT : format.pcmEncoding,
-            format.channelCount);
+    frameSize = Util.getPcmFrameSize(format.encoding, format.channelCount);
     internalBuffer =
         ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE_FRAMES * frameSize)
             .order(ByteOrder.nativeOrder());

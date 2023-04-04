@@ -117,7 +117,9 @@ public final class TestUtil {
               .setChannelCount(2)
               .build();
       try {
-        listener.onTrackAdded(format, supportedOutputTypes);
+        if (listener.onTrackAdded(format, supportedOutputTypes)) {
+          format = format.buildUpon().setPcmEncoding(C.ENCODING_PCM_16BIT).build();
+        }
 
         SampleConsumer sampleConsumer = listener.onOutputFormat(format);
         if (sampleConsumerRef != null) {
