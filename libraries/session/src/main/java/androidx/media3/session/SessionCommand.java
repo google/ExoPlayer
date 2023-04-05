@@ -123,6 +123,10 @@ public final class SessionCommand implements Bundleable {
 
   /**
    * The extra bundle of a custom command. It will be {@link Bundle#EMPTY} for a predefined command.
+   *
+   * <p>Interoperability: This value is not used when the command is sent to a legacy {@link
+   * android.support.v4.media.session.MediaSessionCompat} or {@link
+   * android.support.v4.media.session.MediaControllerCompat}.
    */
   public final Bundle customExtras;
 
@@ -143,7 +147,9 @@ public final class SessionCommand implements Bundleable {
    * Creates a custom command.
    *
    * @param action The action of this custom command.
-   * @param extras An extra bundle for this custom command.
+   * @param extras An extra bundle for this custom command. This value is not used when the command
+   *     is sent to a legacy {@link android.support.v4.media.session.MediaSessionCompat} or {@link
+   *     android.support.v4.media.session.MediaControllerCompat}.
    */
   public SessionCommand(String action, Bundle extras) {
     commandCode = COMMAND_CODE_CUSTOM;
