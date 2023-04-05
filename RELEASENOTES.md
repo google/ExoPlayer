@@ -85,6 +85,9 @@
     *   Remove `HlsMasterPlaylist`, use `HlsMultivariantPlaylist` instead.
     *   Remove `Player.stop(boolean)`. Use `Player.stop()` and
         `Player.clearMediaItems()` (if `reset` is `true`) instead.
+*   Migration script
+    *   Fix bug where backup files for each touched file were left in a migrated
+        project on OSX.
 
 ### 1.0.0 (2023-03-22)
 
