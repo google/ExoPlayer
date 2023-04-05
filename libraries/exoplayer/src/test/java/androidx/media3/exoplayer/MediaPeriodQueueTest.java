@@ -15,8 +15,11 @@
  */
 package androidx.media3.exoplayer;
 
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.test.utils.ExoPlayerTestRunner.AUDIO_FORMAT;
 import static androidx.media3.test.utils.ExoPlayerTestRunner.VIDEO_FORMAT;
+import static androidx.media3.test.utils.FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_MS;
+import static androidx.media3.test.utils.FakeMultiPeriodLiveTimeline.PERIOD_DURATION_MS;
 import static androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
 import static androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
 import static com.google.common.truth.Truth.assertThat;
@@ -430,15 +433,18 @@ public final class MediaPeriodQueueTest {
   @Test
   @SuppressWarnings("unchecked")
   public void getNextMediaPeriodInfo_multiPeriodTimelineWithNoAdsAndNoPostrollPlaceholder() {
-    long contentPeriodDurationUs = FakeMultiPeriodLiveTimeline.PERIOD_DURATION_US;
-    long adPeriodDurationUs = FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_US;
+    long contentPeriodDurationUs = msToUs(PERIOD_DURATION_MS);
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Multi period timeline without ad playback state.
     FakeMultiPeriodLiveTimeline multiPeriodLiveTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 60_000_000,
             /* nowUs= */ 110_000_000,
-            new boolean[] {false, true, true},
+            /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -497,15 +503,18 @@ public final class MediaPeriodQueueTest {
   @Test
   @SuppressWarnings("unchecked")
   public void getNextMediaPeriodInfo_multiPeriodTimelineWithPostrollPlaceHolder() {
-    long contentPeriodDurationUs = FakeMultiPeriodLiveTimeline.PERIOD_DURATION_US;
-    long adPeriodDurationUs = FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_US;
+    long contentPeriodDurationUs = msToUs(PERIOD_DURATION_MS);
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Multi period timeline without ad playback state.
     FakeMultiPeriodLiveTimeline multiPeriodLiveTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 60_000_000,
             /* nowUs= */ 110_000_000,
-            new boolean[] {false, true, true},
+            /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -564,14 +573,17 @@ public final class MediaPeriodQueueTest {
   @Test
   @SuppressWarnings("unchecked")
   public void getNextMediaPeriodInfo_multiPeriodTimelineWithAdsAndWithPostRollPlaceHolder() {
-    long contentPeriodDurationUs = FakeMultiPeriodLiveTimeline.PERIOD_DURATION_US;
-    long adPeriodDurationUs = FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_US;
+    long contentPeriodDurationUs = msToUs(PERIOD_DURATION_MS);
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     FakeMultiPeriodLiveTimeline multiPeriodLiveTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 60_000_000,
             /* nowUs= */ 110_000_000,
-            new boolean[] {false, true, true},
+            /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ true,
             /* playedAds= */ false);
@@ -646,13 +658,16 @@ public final class MediaPeriodQueueTest {
   @Test
   @SuppressWarnings("unchecked")
   public void getNextMediaPeriodInfo_multiPeriodTimelineWithPlayedAdsAndWithPostRollPlaceHolder() {
-    long contentPeriodDurationUs = FakeMultiPeriodLiveTimeline.PERIOD_DURATION_US;
+    long contentPeriodDurationUs = msToUs(PERIOD_DURATION_MS);
     FakeMultiPeriodLiveTimeline multiPeriodLiveTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 60_000_000,
             /* nowUs= */ 110_000_000,
-            new boolean[] {false, true, true},
+            /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ true,
             /* playedAds= */ true);
