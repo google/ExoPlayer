@@ -334,7 +334,6 @@ import java.util.List;
       ColorInfo outputColorInfo,
       boolean enableColorTransfers)
       throws VideoFrameProcessingException {
-    glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (isInputTransferHdr) {
@@ -362,6 +361,7 @@ import java.util.List;
           outputColorTransfer != Format.NO_VALUE && outputColorTransfer != C.COLOR_TRANSFER_SDR);
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
+      glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
       checkArgument(
           outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020,
           "Converting from SDR to HDR is not supported.");
