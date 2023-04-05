@@ -28,6 +28,10 @@
         instead. Note that even for the deprecated variants, the offset is not
         anymore added to `startTimeUs` and `endTimeUs` of the `MediaLoadData`
         objects that are dispatched by the dispatcher.
+*   Session:
+    *   Fix bug where multiple identical queue items published by a legacy
+        `MediaSessionCompat` result in an exception in `MediaController`
+        ([#290](https://github.com/androidx/media/issues/290)).
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

@@ -79,6 +79,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.ext.truth.os.BundleSubject;
 import androidx.test.filters.MediumTest;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -413,6 +414,41 @@ public class MediaControllerWithMediaSessionCompatTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(timelineRef.get().getWindowCount()).isEqualTo(0);
     assertThat(timelineRef.get().getPeriodCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void setQueue_withDuplicatedMediaItems_updatesAndNotifiesTimeline() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+    AtomicInteger reasonRef = new AtomicInteger();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineFromGetterRef.set(controller.getCurrentTimeline());
+            reasonRef.set(reason);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 2);
+    Timeline testTimeline =
+        MediaTestUtils.createTimeline(
+            ImmutableList.copyOf(Iterables.concat(mediaItems, mediaItems)));
+    List<QueueItem> testQueue =
+        MediaTestUtils.convertToQueueItemsWithoutBitmap(
+            MediaUtils.convertToMediaItemList(testTimeline));
+    session.setQueue(testQueue);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertMediaIdEquals(testTimeline, timelineFromParamRef.get());
+    MediaTestUtils.assertMediaIdEquals(testTimeline, timelineFromGetterRef.get());
+    assertThat(reasonRef.get()).isEqualTo(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
   }
 
   @Test
