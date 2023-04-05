@@ -52,6 +52,9 @@
         `onAudioCapabilitiesChanged` in `AudioSink.Listener` interface, and a
         new interface `RendererCapabilities.Listener` which triggers
         `onRendererCapabilitiesChanged` events.
+*   Metadata:
+    *   Deprecate `MediaMetadata.folderType` in favor of `isBrowsable` and
+        `mediaType`.
 *   DRM:
     *   Reduce the visibility of several internal-only methods on
         `DefaultDrmSession` that aren't expected to be called from outside the

@@ -60,7 +60,11 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Uri artworkUri;
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
-    @Nullable private @FolderType Integer folderType;
+
+    @SuppressWarnings("deprecation") // Builder for deprecated field.
+    @Nullable
+    private @FolderType Integer folderType;
+
     @Nullable private Boolean isBrowsable;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer recordingYear;
@@ -82,6 +86,7 @@ public final class MediaMetadata implements Bundleable {
 
     public Builder() {}
 
+    @SuppressWarnings("deprecation") // Assigning from deprecated fields.
     private Builder(MediaMetadata mediaMetadata) {
       this.title = mediaMetadata.title;
       this.artist = mediaMetadata.artist;
@@ -251,9 +256,11 @@ public final class MediaMetadata implements Bundleable {
     /**
      * Sets the {@link FolderType}.
      *
-     * <p>This method will be deprecated. Use {@link #setIsBrowsable} to indicate if an item is a
-     * browsable folder and use {@link #setMediaType} to indicate the type of the folder.
+     * @deprecated Use {@link #setIsBrowsable} to indicate if an item is a browsable folder and use
+     *     {@link #setMediaType} to indicate the type of the folder.
      */
+    @SuppressWarnings("deprecation") // Using deprecated type.
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder setFolderType(@Nullable @FolderType Integer folderType) {
       this.folderType = folderType;
@@ -261,7 +268,6 @@ public final class MediaMetadata implements Bundleable {
     }
 
     /** Sets whether the media is a browsable folder. */
-    @UnstableApi
     @CanIgnoreReturnValue
     public Builder setIsBrowsable(@Nullable Boolean isBrowsable) {
       this.isBrowsable = isBrowsable;
@@ -402,7 +408,6 @@ public final class MediaMetadata implements Bundleable {
 
     /** Sets the {@link MediaType}. */
     @CanIgnoreReturnValue
-    @UnstableApi
     public Builder setMediaType(@Nullable @MediaType Integer mediaType) {
       this.mediaType = mediaType;
       return this;
@@ -458,6 +463,7 @@ public final class MediaMetadata implements Bundleable {
     }
 
     /** Populates all the fields from {@code mediaMetadata}, provided they are non-null. */
+    @SuppressWarnings("deprecation") // Populating deprecated fields.
     @CanIgnoreReturnValue
     @UnstableApi
     public Builder populate(@Nullable MediaMetadata mediaMetadata) {
@@ -595,7 +601,6 @@ public final class MediaMetadata implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @UnstableApi
   @IntDef({
     MEDIA_TYPE_MIXED,
     MEDIA_TYPE_MUSIC,
@@ -637,111 +642,111 @@ public final class MediaMetadata implements Bundleable {
   public @interface MediaType {}
 
   /** Media of undetermined type or a mix of multiple {@linkplain MediaType media types}. */
-  @UnstableApi public static final int MEDIA_TYPE_MIXED = 0;
+  public static final int MEDIA_TYPE_MIXED = 0;
   /** {@link MediaType} for music. */
-  @UnstableApi public static final int MEDIA_TYPE_MUSIC = 1;
+  public static final int MEDIA_TYPE_MUSIC = 1;
   /** {@link MediaType} for an audio book chapter. */
-  @UnstableApi public static final int MEDIA_TYPE_AUDIO_BOOK_CHAPTER = 2;
+  public static final int MEDIA_TYPE_AUDIO_BOOK_CHAPTER = 2;
   /** {@link MediaType} for a podcast episode. */
-  @UnstableApi public static final int MEDIA_TYPE_PODCAST_EPISODE = 3;
+  public static final int MEDIA_TYPE_PODCAST_EPISODE = 3;
   /** {@link MediaType} for a radio station. */
-  @UnstableApi public static final int MEDIA_TYPE_RADIO_STATION = 4;
+  public static final int MEDIA_TYPE_RADIO_STATION = 4;
   /** {@link MediaType} for news. */
-  @UnstableApi public static final int MEDIA_TYPE_NEWS = 5;
+  public static final int MEDIA_TYPE_NEWS = 5;
   /** {@link MediaType} for a video. */
-  @UnstableApi public static final int MEDIA_TYPE_VIDEO = 6;
+  public static final int MEDIA_TYPE_VIDEO = 6;
   /** {@link MediaType} for a movie trailer. */
-  @UnstableApi public static final int MEDIA_TYPE_TRAILER = 7;
+  public static final int MEDIA_TYPE_TRAILER = 7;
   /** {@link MediaType} for a movie. */
-  @UnstableApi public static final int MEDIA_TYPE_MOVIE = 8;
+  public static final int MEDIA_TYPE_MOVIE = 8;
   /** {@link MediaType} for a TV show. */
-  @UnstableApi public static final int MEDIA_TYPE_TV_SHOW = 9;
+  public static final int MEDIA_TYPE_TV_SHOW = 9;
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) belonging to an
    * album.
    */
-  @UnstableApi public static final int MEDIA_TYPE_ALBUM = 10;
+  public static final int MEDIA_TYPE_ALBUM = 10;
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) from the same
    * artist.
    */
-  @UnstableApi public static final int MEDIA_TYPE_ARTIST = 11;
+  public static final int MEDIA_TYPE_ARTIST = 11;
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) of the same
    * genre.
    */
-  @UnstableApi public static final int MEDIA_TYPE_GENRE = 12;
+  public static final int MEDIA_TYPE_GENRE = 12;
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) forming a
    * playlist.
    */
-  @UnstableApi public static final int MEDIA_TYPE_PLAYLIST = 13;
+  public static final int MEDIA_TYPE_PLAYLIST = 13;
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) from the same
    * year.
    */
-  @UnstableApi public static final int MEDIA_TYPE_YEAR = 14;
+  public static final int MEDIA_TYPE_YEAR = 14;
   /**
    * {@link MediaType} for a group of items forming an audio book. Items in this group are typically
    * of type {@link #MEDIA_TYPE_AUDIO_BOOK_CHAPTER}.
    */
-  @UnstableApi public static final int MEDIA_TYPE_AUDIO_BOOK = 15;
+  public static final int MEDIA_TYPE_AUDIO_BOOK = 15;
   /**
    * {@link MediaType} for a group of items belonging to a podcast. Items in this group are
    * typically of type {@link #MEDIA_TYPE_PODCAST_EPISODE}.
    */
-  @UnstableApi public static final int MEDIA_TYPE_PODCAST = 16;
+  public static final int MEDIA_TYPE_PODCAST = 16;
   /**
    * {@link MediaType} for a group of items that are part of a TV channel. Items in this group are
    * typically of type {@link #MEDIA_TYPE_TV_SHOW}, {@link #MEDIA_TYPE_TV_SERIES} or {@link
    * #MEDIA_TYPE_MOVIE}.
    */
-  @UnstableApi public static final int MEDIA_TYPE_TV_CHANNEL = 17;
+  public static final int MEDIA_TYPE_TV_CHANNEL = 17;
   /**
    * {@link MediaType} for a group of items that are part of a TV series. Items in this group are
    * typically of type {@link #MEDIA_TYPE_TV_SHOW} or {@link #MEDIA_TYPE_TV_SEASON}.
    */
-  @UnstableApi public static final int MEDIA_TYPE_TV_SERIES = 18;
+  public static final int MEDIA_TYPE_TV_SERIES = 18;
   /**
    * {@link MediaType} for a group of items that are part of a TV series. Items in this group are
    * typically of type {@link #MEDIA_TYPE_TV_SHOW}.
    */
-  @UnstableApi public static final int MEDIA_TYPE_TV_SEASON = 19;
+  public static final int MEDIA_TYPE_TV_SEASON = 19;
   /** {@link MediaType} for a folder with mixed or undetermined content. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_MIXED = 20;
+  public static final int MEDIA_TYPE_FOLDER_MIXED = 20;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_ALBUM albums}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_ALBUMS = 21;
+  public static final int MEDIA_TYPE_FOLDER_ALBUMS = 21;
   /** {@link MediaType} for a folder containing {@linkplain #FIELD_ARTIST artists}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_ARTISTS = 22;
+  public static final int MEDIA_TYPE_FOLDER_ARTISTS = 22;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_GENRE genres}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_GENRES = 23;
+  public static final int MEDIA_TYPE_FOLDER_GENRES = 23;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_PLAYLIST playlists}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_PLAYLISTS = 24;
+  public static final int MEDIA_TYPE_FOLDER_PLAYLISTS = 24;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_YEAR years}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_YEARS = 25;
+  public static final int MEDIA_TYPE_FOLDER_YEARS = 25;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_AUDIO_BOOK audio books}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_AUDIO_BOOKS = 26;
+  public static final int MEDIA_TYPE_FOLDER_AUDIO_BOOKS = 26;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_PODCAST podcasts}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_PODCASTS = 27;
+  public static final int MEDIA_TYPE_FOLDER_PODCASTS = 27;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_CHANNEL TV channels}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_TV_CHANNELS = 28;
+  public static final int MEDIA_TYPE_FOLDER_TV_CHANNELS = 28;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_SERIES TV series}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_TV_SERIES = 29;
+  public static final int MEDIA_TYPE_FOLDER_TV_SERIES = 29;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_SHOW TV shows}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_TV_SHOWS = 30;
+  public static final int MEDIA_TYPE_FOLDER_TV_SHOWS = 30;
   /**
    * {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_RADIO_STATION radio
    * stations}.
    */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_RADIO_STATIONS = 31;
+  public static final int MEDIA_TYPE_FOLDER_RADIO_STATIONS = 31;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_NEWS news}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_NEWS = 32;
+  public static final int MEDIA_TYPE_FOLDER_NEWS = 32;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_VIDEO videos}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_VIDEOS = 33;
+  public static final int MEDIA_TYPE_FOLDER_VIDEOS = 33;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TRAILER movie trailers}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_TRAILERS = 34;
+  public static final int MEDIA_TYPE_FOLDER_TRAILERS = 34;
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_MOVIE movies}. */
-  @UnstableApi public static final int MEDIA_TYPE_FOLDER_MOVIES = 35;
+  public static final int MEDIA_TYPE_FOLDER_MOVIES = 35;
 
   /**
    * The folder type of the media item.
@@ -753,12 +758,17 @@ public final class MediaMetadata implements Bundleable {
    * <p>One of {@link #FOLDER_TYPE_NONE}, {@link #FOLDER_TYPE_MIXED}, {@link #FOLDER_TYPE_TITLES},
    * {@link #FOLDER_TYPE_ALBUMS}, {@link #FOLDER_TYPE_ARTISTS}, {@link #FOLDER_TYPE_GENRES}, {@link
    * #FOLDER_TYPE_PLAYLISTS} or {@link #FOLDER_TYPE_YEARS}.
+   *
+   * @deprecated Use {@link #isBrowsable} to indicate if an item is a browsable folder and use
+   *     {@link #mediaType} to indicate the type of the folder.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
+  @Deprecated
+  @SuppressWarnings("deprecation") // Defining deprecated constants.
   @IntDef({
     FOLDER_TYPE_NONE,
     FOLDER_TYPE_MIXED,
@@ -771,22 +781,60 @@ public final class MediaMetadata implements Bundleable {
   })
   public @interface FolderType {}
 
-  /** Type for an item that is not a folder. */
-  public static final int FOLDER_TYPE_NONE = -1;
-  /** Type for a folder containing media of mixed types. */
-  public static final int FOLDER_TYPE_MIXED = 0;
-  /** Type for a folder containing only playable media. */
-  public static final int FOLDER_TYPE_TITLES = 1;
-  /** Type for a folder containing media categorized by album. */
-  public static final int FOLDER_TYPE_ALBUMS = 2;
-  /** Type for a folder containing media categorized by artist. */
-  public static final int FOLDER_TYPE_ARTISTS = 3;
-  /** Type for a folder containing media categorized by genre. */
-  public static final int FOLDER_TYPE_GENRES = 4;
-  /** Type for a folder containing a playlist. */
-  public static final int FOLDER_TYPE_PLAYLISTS = 5;
-  /** Type for a folder containing media categorized by year. */
-  public static final int FOLDER_TYPE_YEARS = 6;
+  /**
+   * Type for an item that is not a folder.
+   *
+   * @deprecated Use {@link #isBrowsable} set to false instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_NONE = -1;
+  /**
+   * Type for a folder containing media of mixed types.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_MIXED} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_MIXED = 0;
+  /**
+   * Type for a folder containing only playable media.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_TITLES = 1;
+  /**
+   * Type for a folder containing media categorized by album.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_ALBUMS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_ALBUMS = 2;
+  /**
+   * Type for a folder containing media categorized by artist.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_ARTISTS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_ARTISTS = 3;
+  /**
+   * Type for a folder containing media categorized by genre.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_GENRES} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_GENRES = 4;
+  /**
+   * Type for a folder containing a playlist.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_PLAYLISTS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_PLAYLISTS = 5;
+  /**
+   * Type for a folder containing media categorized by year.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_YEARS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_YEARS = 6;
 
   /**
    * The picture type of the artwork.
@@ -895,12 +943,15 @@ public final class MediaMetadata implements Bundleable {
   /**
    * Optional {@link FolderType}.
    *
-   * <p>This field will be deprecated. Use {@link #isBrowsable} to indicate if an item is a
-   * browsable folder and use {@link #mediaType} to indicate the type of the folder.
+   * @deprecated Use {@link #isBrowsable} to indicate if an item is a browsable folder and use
+   *     {@link #mediaType} to indicate the type of the folder.
    */
-  @Nullable public final @FolderType Integer folderType;
+  @SuppressWarnings("deprecation") // Defining field of deprecated type.
+  @Deprecated
+  @Nullable
+  public final @FolderType Integer folderType;
   /** Optional boolean to indicate that the media is a browsable folder. */
-  @UnstableApi @Nullable public final Boolean isBrowsable;
+  @Nullable public final Boolean isBrowsable;
   /** Optional boolean to indicate that the media is playable. */
   @Nullable public final Boolean isPlayable;
   /**
@@ -953,7 +1004,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional name of the station streaming the media. */
   @Nullable public final CharSequence station;
   /** Optional {@link MediaType}. */
-  @UnstableApi @Nullable public final @MediaType Integer mediaType;
+  @Nullable public final @MediaType Integer mediaType;
 
   /**
    * Optional extras {@link Bundle}.
@@ -963,6 +1014,7 @@ public final class MediaMetadata implements Bundleable {
    */
   @Nullable public final Bundle extras;
 
+  @SuppressWarnings("deprecation") // Assigning deprecated fields.
   private MediaMetadata(Builder builder) {
     // Handle compatibility for deprecated fields.
     @Nullable Boolean isBrowsable = builder.isBrowsable;
@@ -1021,6 +1073,7 @@ public final class MediaMetadata implements Bundleable {
     return new Builder(/* mediaMetadata= */ this);
   }
 
+  @SuppressWarnings("deprecation") // Comparing deprecated fields.
   @Override
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
@@ -1064,6 +1117,7 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(mediaType, that.mediaType);
   }
 
+  @SuppressWarnings("deprecation") // Hashing deprecated fields.
   @Override
   public int hashCode() {
     return Objects.hashCode(
@@ -1138,6 +1192,7 @@ public final class MediaMetadata implements Bundleable {
   private static final String FIELD_IS_BROWSABLE = Util.intToStringMaxRadix(32);
   private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(1000);
 
+  @SuppressWarnings("deprecation") // Bundling deprecated fields.
   @UnstableApi
   @Override
   public Bundle toBundle() {
@@ -1247,6 +1302,7 @@ public final class MediaMetadata implements Bundleable {
   /** Object that can restore {@link MediaMetadata} from a {@link Bundle}. */
   @UnstableApi public static final Creator<MediaMetadata> CREATOR = MediaMetadata::fromBundle;
 
+  @SuppressWarnings("deprecation") // Unbundling deprecated fields.
   private static MediaMetadata fromBundle(Bundle bundle) {
     Builder builder = new Builder();
     builder
@@ -1329,6 +1385,7 @@ public final class MediaMetadata implements Bundleable {
     return builder.build();
   }
 
+  @SuppressWarnings("deprecation") // Converting deprecated field.
   private static @FolderType int getFolderTypeFromMediaType(@MediaType int mediaType) {
     switch (mediaType) {
       case MEDIA_TYPE_ALBUM:
@@ -1378,6 +1435,7 @@ public final class MediaMetadata implements Bundleable {
     }
   }
 
+  @SuppressWarnings("deprecation") // Converting deprecated field.
   private static @MediaType int getMediaTypeFromFolderType(@FolderType int folderType) {
     switch (folderType) {
       case FOLDER_TYPE_ALBUMS:

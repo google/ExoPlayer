@@ -369,14 +369,50 @@ package androidx.media3.common {
   public final class MediaMetadata {
     method public androidx.media3.common.MediaMetadata.Builder buildUpon();
     field public static final androidx.media3.common.MediaMetadata EMPTY;
-    field public static final int FOLDER_TYPE_ALBUMS = 2; // 0x2
-    field public static final int FOLDER_TYPE_ARTISTS = 3; // 0x3
-    field public static final int FOLDER_TYPE_GENRES = 4; // 0x4
-    field public static final int FOLDER_TYPE_MIXED = 0; // 0x0
-    field public static final int FOLDER_TYPE_NONE = -1; // 0xffffffff
-    field public static final int FOLDER_TYPE_PLAYLISTS = 5; // 0x5
-    field public static final int FOLDER_TYPE_TITLES = 1; // 0x1
-    field public static final int FOLDER_TYPE_YEARS = 6; // 0x6
+    field @Deprecated public static final int FOLDER_TYPE_ALBUMS = 2; // 0x2
+    field @Deprecated public static final int FOLDER_TYPE_ARTISTS = 3; // 0x3
+    field @Deprecated public static final int FOLDER_TYPE_GENRES = 4; // 0x4
+    field @Deprecated public static final int FOLDER_TYPE_MIXED = 0; // 0x0
+    field @Deprecated public static final int FOLDER_TYPE_NONE = -1; // 0xffffffff
+    field @Deprecated public static final int FOLDER_TYPE_PLAYLISTS = 5; // 0x5
+    field @Deprecated public static final int FOLDER_TYPE_TITLES = 1; // 0x1
+    field @Deprecated public static final int FOLDER_TYPE_YEARS = 6; // 0x6
+    field public static final int MEDIA_TYPE_ALBUM = 10; // 0xa
+    field public static final int MEDIA_TYPE_ARTIST = 11; // 0xb
+    field public static final int MEDIA_TYPE_AUDIO_BOOK = 15; // 0xf
+    field public static final int MEDIA_TYPE_AUDIO_BOOK_CHAPTER = 2; // 0x2
+    field public static final int MEDIA_TYPE_FOLDER_ALBUMS = 21; // 0x15
+    field public static final int MEDIA_TYPE_FOLDER_ARTISTS = 22; // 0x16
+    field public static final int MEDIA_TYPE_FOLDER_AUDIO_BOOKS = 26; // 0x1a
+    field public static final int MEDIA_TYPE_FOLDER_GENRES = 23; // 0x17
+    field public static final int MEDIA_TYPE_FOLDER_MIXED = 20; // 0x14
+    field public static final int MEDIA_TYPE_FOLDER_MOVIES = 35; // 0x23
+    field public static final int MEDIA_TYPE_FOLDER_NEWS = 32; // 0x20
+    field public static final int MEDIA_TYPE_FOLDER_PLAYLISTS = 24; // 0x18
+    field public static final int MEDIA_TYPE_FOLDER_PODCASTS = 27; // 0x1b
+    field public static final int MEDIA_TYPE_FOLDER_RADIO_STATIONS = 31; // 0x1f
+    field public static final int MEDIA_TYPE_FOLDER_TRAILERS = 34; // 0x22
+    field public static final int MEDIA_TYPE_FOLDER_TV_CHANNELS = 28; // 0x1c
+    field public static final int MEDIA_TYPE_FOLDER_TV_SERIES = 29; // 0x1d
+    field public static final int MEDIA_TYPE_FOLDER_TV_SHOWS = 30; // 0x1e
+    field public static final int MEDIA_TYPE_FOLDER_VIDEOS = 33; // 0x21
+    field public static final int MEDIA_TYPE_FOLDER_YEARS = 25; // 0x19
+    field public static final int MEDIA_TYPE_GENRE = 12; // 0xc
+    field public static final int MEDIA_TYPE_MIXED = 0; // 0x0
+    field public static final int MEDIA_TYPE_MOVIE = 8; // 0x8
+    field public static final int MEDIA_TYPE_MUSIC = 1; // 0x1
+    field public static final int MEDIA_TYPE_NEWS = 5; // 0x5
+    field public static final int MEDIA_TYPE_PLAYLIST = 13; // 0xd
+    field public static final int MEDIA_TYPE_PODCAST = 16; // 0x10
+    field public static final int MEDIA_TYPE_PODCAST_EPISODE = 3; // 0x3
+    field public static final int MEDIA_TYPE_RADIO_STATION = 4; // 0x4
+    field public static final int MEDIA_TYPE_TRAILER = 7; // 0x7
+    field public static final int MEDIA_TYPE_TV_CHANNEL = 17; // 0x11
+    field public static final int MEDIA_TYPE_TV_SEASON = 19; // 0x13
+    field public static final int MEDIA_TYPE_TV_SERIES = 18; // 0x12
+    field public static final int MEDIA_TYPE_TV_SHOW = 9; // 0x9
+    field public static final int MEDIA_TYPE_VIDEO = 6; // 0x6
+    field public static final int MEDIA_TYPE_YEAR = 14; // 0xe
     field public static final int PICTURE_TYPE_ARTIST_PERFORMER = 8; // 0x8
     field public static final int PICTURE_TYPE_A_BRIGHT_COLORED_FISH = 17; // 0x11
     field public static final int PICTURE_TYPE_BACK_COVER = 4; // 0x4
@@ -411,9 +447,11 @@ package androidx.media3.common {
     field @Nullable public final Integer discNumber;
     field @Nullable public final CharSequence displayTitle;
     field @Nullable public final android.os.Bundle extras;
-    field @Nullable @androidx.media3.common.MediaMetadata.FolderType public final Integer folderType;
+    field @Deprecated @Nullable @androidx.media3.common.MediaMetadata.FolderType public final Integer folderType;
     field @Nullable public final CharSequence genre;
+    field @Nullable public final Boolean isBrowsable;
     field @Nullable public final Boolean isPlayable;
+    field @Nullable @androidx.media3.common.MediaMetadata.MediaType public final Integer mediaType;
     field @Nullable public final androidx.media3.common.Rating overallRating;
     field @Nullable public final Integer recordingDay;
     field @Nullable public final Integer recordingMonth;
@@ -447,9 +485,11 @@ package androidx.media3.common {
     method public androidx.media3.common.MediaMetadata.Builder setDiscNumber(@Nullable Integer);
     method public androidx.media3.common.MediaMetadata.Builder setDisplayTitle(@Nullable CharSequence);
     method public androidx.media3.common.MediaMetadata.Builder setExtras(@Nullable android.os.Bundle);
-    method public androidx.media3.common.MediaMetadata.Builder setFolderType(@Nullable @androidx.media3.common.MediaMetadata.FolderType Integer);
+    method @Deprecated public androidx.media3.common.MediaMetadata.Builder setFolderType(@Nullable @androidx.media3.common.MediaMetadata.FolderType Integer);
     method public androidx.media3.common.MediaMetadata.Builder setGenre(@Nullable CharSequence);
+    method public androidx.media3.common.MediaMetadata.Builder setIsBrowsable(@Nullable Boolean);
     method public androidx.media3.common.MediaMetadata.Builder setIsPlayable(@Nullable Boolean);
+    method public androidx.media3.common.MediaMetadata.Builder setMediaType(@Nullable @androidx.media3.common.MediaMetadata.MediaType Integer);
     method public androidx.media3.common.MediaMetadata.Builder setOverallRating(@Nullable androidx.media3.common.Rating);
     method public androidx.media3.common.MediaMetadata.Builder setRecordingDay(@IntRange(from=1, to=31) @Nullable Integer);
     method public androidx.media3.common.MediaMetadata.Builder setRecordingMonth(@IntRange(from=1, to=12) @Nullable Integer);
@@ -467,7 +507,10 @@ package androidx.media3.common {
     method public androidx.media3.common.MediaMetadata.Builder setWriter(@Nullable CharSequence);
   }
 
-  @IntDef({androidx.media3.common.MediaMetadata.FOLDER_TYPE_NONE, androidx.media3.common.MediaMetadata.FOLDER_TYPE_MIXED, androidx.media3.common.MediaMetadata.FOLDER_TYPE_TITLES, androidx.media3.common.MediaMetadata.FOLDER_TYPE_ALBUMS, androidx.media3.common.MediaMetadata.FOLDER_TYPE_ARTISTS, androidx.media3.common.MediaMetadata.FOLDER_TYPE_GENRES, androidx.media3.common.MediaMetadata.FOLDER_TYPE_PLAYLISTS, androidx.media3.common.MediaMetadata.FOLDER_TYPE_YEARS}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.TYPE_USE}) public static @interface MediaMetadata.FolderType {
+  @Deprecated @IntDef({androidx.media3.common.MediaMetadata.FOLDER_TYPE_NONE, androidx.media3.common.MediaMetadata.FOLDER_TYPE_MIXED, androidx.media3.common.MediaMetadata.FOLDER_TYPE_TITLES, androidx.media3.common.MediaMetadata.FOLDER_TYPE_ALBUMS, androidx.media3.common.MediaMetadata.FOLDER_TYPE_ARTISTS, androidx.media3.common.MediaMetadata.FOLDER_TYPE_GENRES, androidx.media3.common.MediaMetadata.FOLDER_TYPE_PLAYLISTS, androidx.media3.common.MediaMetadata.FOLDER_TYPE_YEARS}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.TYPE_USE}) public static @interface MediaMetadata.FolderType {
+  }
+
+  @IntDef({androidx.media3.common.MediaMetadata.MEDIA_TYPE_MIXED, androidx.media3.common.MediaMetadata.MEDIA_TYPE_MUSIC, androidx.media3.common.MediaMetadata.MEDIA_TYPE_AUDIO_BOOK_CHAPTER, androidx.media3.common.MediaMetadata.MEDIA_TYPE_PODCAST_EPISODE, androidx.media3.common.MediaMetadata.MEDIA_TYPE_RADIO_STATION, androidx.media3.common.MediaMetadata.MEDIA_TYPE_NEWS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_VIDEO, androidx.media3.common.MediaMetadata.MEDIA_TYPE_TRAILER, androidx.media3.common.MediaMetadata.MEDIA_TYPE_MOVIE, androidx.media3.common.MediaMetadata.MEDIA_TYPE_TV_SHOW, androidx.media3.common.MediaMetadata.MEDIA_TYPE_ALBUM, androidx.media3.common.MediaMetadata.MEDIA_TYPE_ARTIST, androidx.media3.common.MediaMetadata.MEDIA_TYPE_GENRE, androidx.media3.common.MediaMetadata.MEDIA_TYPE_PLAYLIST, androidx.media3.common.MediaMetadata.MEDIA_TYPE_YEAR, androidx.media3.common.MediaMetadata.MEDIA_TYPE_AUDIO_BOOK, androidx.media3.common.MediaMetadata.MEDIA_TYPE_PODCAST, androidx.media3.common.MediaMetadata.MEDIA_TYPE_TV_CHANNEL, androidx.media3.common.MediaMetadata.MEDIA_TYPE_TV_SERIES, androidx.media3.common.MediaMetadata.MEDIA_TYPE_TV_SEASON, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_MIXED, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_ARTISTS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_GENRES, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_YEARS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_AUDIO_BOOKS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_PODCASTS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_TV_CHANNELS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_TV_SERIES, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_TV_SHOWS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_RADIO_STATIONS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_NEWS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_VIDEOS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_TRAILERS, androidx.media3.common.MediaMetadata.MEDIA_TYPE_FOLDER_MOVIES}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) public static @interface MediaMetadata.MediaType {
   }
 
   @IntDef({androidx.media3.common.MediaMetadata.PICTURE_TYPE_OTHER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_FILE_ICON, androidx.media3.common.MediaMetadata.PICTURE_TYPE_FILE_ICON_OTHER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_FRONT_COVER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_BACK_COVER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_LEAFLET_PAGE, androidx.media3.common.MediaMetadata.PICTURE_TYPE_MEDIA, androidx.media3.common.MediaMetadata.PICTURE_TYPE_LEAD_ARTIST_PERFORMER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_ARTIST_PERFORMER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_CONDUCTOR, androidx.media3.common.MediaMetadata.PICTURE_TYPE_BAND_ORCHESTRA, androidx.media3.common.MediaMetadata.PICTURE_TYPE_COMPOSER, androidx.media3.common.MediaMetadata.PICTURE_TYPE_LYRICIST, androidx.media3.common.MediaMetadata.PICTURE_TYPE_RECORDING_LOCATION, androidx.media3.common.MediaMetadata.PICTURE_TYPE_DURING_RECORDING, androidx.media3.common.MediaMetadata.PICTURE_TYPE_DURING_PERFORMANCE, androidx.media3.common.MediaMetadata.PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE, androidx.media3.common.MediaMetadata.PICTURE_TYPE_A_BRIGHT_COLORED_FISH, androidx.media3.common.MediaMetadata.PICTURE_TYPE_ILLUSTRATION, androidx.media3.common.MediaMetadata.PICTURE_TYPE_BAND_ARTIST_LOGO, androidx.media3.common.MediaMetadata.PICTURE_TYPE_PUBLISHER_STUDIO_LOGO}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.TYPE_USE}) public static @interface MediaMetadata.PictureType {

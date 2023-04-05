@@ -176,8 +176,8 @@ public final class LibraryResult<V> implements Bundleable {
   /**
    * Creates an instance with a media item and {@link #resultCode}{@code ==}{@link #RESULT_SUCCESS}.
    *
-   * <p>The {@link MediaItem#mediaMetadata} must specify {@link MediaMetadata#isBrowsable} (or
-   * {@link MediaMetadata#folderType}) and {@link MediaMetadata#isPlayable} fields.
+   * <p>The {@link MediaItem#mediaMetadata} must specify {@link MediaMetadata#isBrowsable} and
+   * {@link MediaMetadata#isPlayable} fields.
    *
    * @param item The media item.
    * @param params The optional parameters to describe the media item.
@@ -193,8 +193,7 @@ public final class LibraryResult<V> implements Bundleable {
    * #RESULT_SUCCESS}.
    *
    * <p>The {@link MediaItem#mediaMetadata} of each item in the list must specify {@link
-   * MediaMetadata#isBrowsable} (or {@link MediaMetadata#folderType}) and {@link
-   * MediaMetadata#isPlayable} fields.
+   * MediaMetadata#isBrowsable} and {@link MediaMetadata#isPlayable} fields.
    *
    * @param items The list of media items.
    * @param params The optional parameters to describe the list of media items.

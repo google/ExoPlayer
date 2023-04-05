@@ -317,6 +317,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat} */
+  @SuppressWarnings("deprecation") // Converting deprecated fields.
   public static MediaDescriptionCompat convertToMediaDescriptionCompat(
       MediaItem item, @Nullable Bitmap artworkBitmap) {
     MediaDescriptionCompat.Builder builder =
@@ -372,6 +373,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         descriptionCompat, ratingType, /* browsable= */ false, /* playable= */ true);
   }
 
+  @SuppressWarnings("deprecation") // Populating deprecated fields.
   private static MediaMetadata convertToMediaMetadata(
       @Nullable MediaDescriptionCompat descriptionCompat,
       @RatingCompat.Style int ratingType,
@@ -425,6 +427,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Creates {@link MediaMetadata} from the {@link MediaMetadataCompat} and rating type. */
+  @SuppressWarnings("deprecation") // Populating deprecated fields.
   public static MediaMetadata convertToMediaMetadata(
       @Nullable MediaMetadataCompat metadataCompat, @RatingCompat.Style int ratingType) {
     if (metadataCompat == null) {
@@ -547,6 +550,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *     duration should be included.
    * @return An instance of the legacy {@link MediaMetadataCompat}.
    */
+  @SuppressWarnings("deprecation") // Converting deprecated fields.
   public static MediaMetadataCompat convertToMediaMetadataCompat(
       MediaMetadata metadata,
       String mediaId,
@@ -629,6 +633,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return builder.build();
   }
 
+  @SuppressWarnings("deprecation") // Converting to deprecated constants.
   @MediaMetadata.FolderType
   private static int convertToFolderType(long extraBtFolderType) {
     if (extraBtFolderType == MediaDescriptionCompat.BT_FOLDER_TYPE_MIXED) {
@@ -650,6 +655,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
+  @SuppressWarnings("deprecation") // Converting from deprecated constants.
   private static long convertToExtraBtFolderType(@MediaMetadata.FolderType int folderType) {
     switch (folderType) {
       case MediaMetadata.FOLDER_TYPE_MIXED:
