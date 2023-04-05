@@ -246,6 +246,8 @@ public class MediaControllerWithMediaSessionCompatTest {
     AtomicLong repeatModeRef = new AtomicLong();
     AtomicReference<MediaMetadata> playlistMetadataRef = new AtomicReference<>();
     AtomicBoolean isPlayingAdRef = new AtomicBoolean();
+    AtomicLong durationRef = new AtomicLong();
+    AtomicLong durationInTimelineRef = new AtomicLong();
     threadTestRule
         .getHandler()
         .postAndSync(
@@ -260,6 +262,12 @@ public class MediaControllerWithMediaSessionCompatTest {
               shuffleModeEnabledRef.set(controller.getShuffleModeEnabled());
               playlistMetadataRef.set(controller.getPlaylistMetadata());
               isPlayingAdRef.set(controller.isPlayingAd());
+              durationRef.set(controller.getDuration());
+              durationInTimelineRef.set(
+                  controller
+                      .getCurrentTimeline()
+                      .getWindow(/* windowIndex= */ 0, new Timeline.Window())
+                      .getDurationMs());
             });
 
     assertThat(positionRef.get())
@@ -273,6 +281,8 @@ public class MediaControllerWithMediaSessionCompatTest {
     assertThat(repeatModeRef.get()).isEqualTo(Player.REPEAT_MODE_ALL);
     assertThat(playlistMetadataRef.get().title.toString()).isEqualTo(queueTitle.toString());
     assertThat(isPlayingAdRef.get()).isEqualTo(isPlayingAd);
+    assertThat(durationRef.get()).isEqualTo(duration);
+    assertThat(durationInTimelineRef.get()).isEqualTo(duration);
   }
 
   @Test

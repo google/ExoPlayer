@@ -16,6 +16,7 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Util.msToUs;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -41,17 +42,18 @@ import java.util.List;
 /* package */ final class QueueTimeline extends Timeline {
 
   public static final QueueTimeline DEFAULT =
-      new QueueTimeline(ImmutableList.of(), /* fakeMediaItem= */ null);
+      new QueueTimeline(ImmutableList.of(), /* fakeQueuedMediaItem= */ null);
 
   private static final Object FAKE_WINDOW_UID = new Object();
 
   private final ImmutableList<QueuedMediaItem> queuedMediaItems;
-  @Nullable private final MediaItem fakeMediaItem;
+  @Nullable private final QueuedMediaItem fakeQueuedMediaItem;
 
   private QueueTimeline(
-      ImmutableList<QueuedMediaItem> queuedMediaItems, @Nullable MediaItem fakeMediaItem) {
+      ImmutableList<QueuedMediaItem> queuedMediaItems,
+      @Nullable QueuedMediaItem fakeQueuedMediaItem) {
     this.queuedMediaItems = queuedMediaItems;
-    this.fakeMediaItem = fakeMediaItem;
+    this.fakeQueuedMediaItem = fakeQueuedMediaItem;
   }
 
   /** Creates a {@link QueueTimeline} from a list of {@linkplain QueueItem queue items}. */
@@ -60,14 +62,15 @@ import java.util.List;
     for (int i = 0; i < queue.size(); i++) {
       QueueItem queueItem = queue.get(i);
       MediaItem mediaItem = MediaUtils.convertToMediaItem(queueItem);
-      queuedMediaItemsBuilder.add(new QueuedMediaItem(mediaItem, queueItem.getQueueId()));
+      queuedMediaItemsBuilder.add(
+          new QueuedMediaItem(mediaItem, queueItem.getQueueId(), /* durationMs= */ C.TIME_UNSET));
     }
-    return new QueueTimeline(queuedMediaItemsBuilder.build(), /* fakeMediaItem= */ null);
+    return new QueueTimeline(queuedMediaItemsBuilder.build(), /* fakeQueuedMediaItem= */ null);
   }
 
   /** Returns a copy of the current queue timeline. */
   public QueueTimeline copy() {
-    return new QueueTimeline(queuedMediaItems, fakeMediaItem);
+    return new QueueTimeline(queuedMediaItems, fakeQueuedMediaItem);
   }
 
   /**
@@ -87,10 +90,18 @@ import java.util.List;
    * Copies the timeline with the given fake media item.
    *
    * @param fakeMediaItem The fake media item.
+   * @param durationMs The duration of the fake media item, in milliseconds, or {@link C#TIME_UNSET}
+   *     if unknown.
    * @return A new {@link QueueTimeline} reflecting the update.
    */
-  public QueueTimeline copyWithFakeMediaItem(@Nullable MediaItem fakeMediaItem) {
-    return new QueueTimeline(queuedMediaItems, fakeMediaItem);
+  public QueueTimeline copyWithFakeMediaItem(MediaItem fakeMediaItem, long durationMs) {
+    return new QueueTimeline(
+        queuedMediaItems, new QueuedMediaItem(fakeMediaItem, QueueItem.UNKNOWN_ID, durationMs));
+  }
+
+  /** Copies the timeline while clearing any previously set fake media item. */
+  public QueueTimeline copyWithClearedFakeMediaItem() {
+    return new QueueTimeline(queuedMediaItems, /* fakeQueuedMediaItem= */ null);
   }
 
   /**
@@ -98,21 +109,25 @@ import java.util.List;
    *
    * @param replaceIndex The index at which to replace the media item.
    * @param newMediaItem The new media item that replaces the old one.
+   * @param durationMs The duration of the media item, in milliseconds, or {@link C#TIME_UNSET} if
+   *     unknown.
    * @return A new {@link QueueTimeline} reflecting the update.
    */
-  public QueueTimeline copyWithNewMediaItem(int replaceIndex, MediaItem newMediaItem) {
+  public QueueTimeline copyWithNewMediaItem(
+      int replaceIndex, MediaItem newMediaItem, long durationMs) {
     checkArgument(
         replaceIndex < queuedMediaItems.size()
-            || (replaceIndex == queuedMediaItems.size() && fakeMediaItem != null));
+            || (replaceIndex == queuedMediaItems.size() && fakeQueuedMediaItem != null));
     if (replaceIndex == queuedMediaItems.size()) {
-      return new QueueTimeline(queuedMediaItems, newMediaItem);
+      return new QueueTimeline(
+          queuedMediaItems, new QueuedMediaItem(newMediaItem, QueueItem.UNKNOWN_ID, durationMs));
     }
     long queueId = queuedMediaItems.get(replaceIndex).queueId;
     ImmutableList.Builder<QueuedMediaItem> queuedItemsBuilder = new ImmutableList.Builder<>();
     queuedItemsBuilder.addAll(queuedMediaItems.subList(0, replaceIndex));
-    queuedItemsBuilder.add(new QueuedMediaItem(newMediaItem, queueId));
+    queuedItemsBuilder.add(new QueuedMediaItem(newMediaItem, queueId, durationMs));
     queuedItemsBuilder.addAll(queuedMediaItems.subList(replaceIndex + 1, queuedMediaItems.size()));
-    return new QueueTimeline(queuedItemsBuilder.build(), fakeMediaItem);
+    return new QueueTimeline(queuedItemsBuilder.build(), fakeQueuedMediaItem);
   }
 
   /**
@@ -127,10 +142,12 @@ import java.util.List;
     ImmutableList.Builder<QueuedMediaItem> queuedItemsBuilder = new ImmutableList.Builder<>();
     queuedItemsBuilder.addAll(queuedMediaItems.subList(0, index));
     for (int i = 0; i < newMediaItems.size(); i++) {
-      queuedItemsBuilder.add(new QueuedMediaItem(newMediaItems.get(i), QueueItem.UNKNOWN_ID));
+      queuedItemsBuilder.add(
+          new QueuedMediaItem(
+              newMediaItems.get(i), QueueItem.UNKNOWN_ID, /* durationMs= */ C.TIME_UNSET));
     }
     queuedItemsBuilder.addAll(queuedMediaItems.subList(index, queuedMediaItems.size()));
-    return new QueueTimeline(queuedItemsBuilder.build(), fakeMediaItem);
+    return new QueueTimeline(queuedItemsBuilder.build(), fakeQueuedMediaItem);
   }
 
   /**
@@ -144,7 +161,7 @@ import java.util.List;
     ImmutableList.Builder<QueuedMediaItem> queuedItemsBuilder = new ImmutableList.Builder<>();
     queuedItemsBuilder.addAll(queuedMediaItems.subList(0, fromIndex));
     queuedItemsBuilder.addAll(queuedMediaItems.subList(toIndex, queuedMediaItems.size()));
-    return new QueueTimeline(queuedItemsBuilder.build(), fakeMediaItem);
+    return new QueueTimeline(queuedItemsBuilder.build(), fakeQueuedMediaItem);
   }
 
   /**
@@ -158,12 +175,12 @@ import java.util.List;
   public QueueTimeline copyWithMovedMediaItems(int fromIndex, int toIndex, int newIndex) {
     List<QueuedMediaItem> list = new ArrayList<>(queuedMediaItems);
     Util.moveItems(list, fromIndex, toIndex, newIndex);
-    return new QueueTimeline(ImmutableList.copyOf(list), fakeMediaItem);
+    return new QueueTimeline(ImmutableList.copyOf(list), fakeQueuedMediaItem);
   }
 
   /** Returns whether the timeline contains the given {@link MediaItem}. */
   public boolean contains(MediaItem mediaItem) {
-    if (mediaItem.equals(fakeMediaItem)) {
+    if (fakeQueuedMediaItem != null && mediaItem.equals(fakeQueuedMediaItem.mediaItem)) {
       return true;
     }
     for (int i = 0; i < queuedMediaItems.size(); i++) {
@@ -176,27 +193,33 @@ import java.util.List;
 
   @Nullable
   public MediaItem getMediaItemAt(int mediaItemIndex) {
-    if (mediaItemIndex >= 0 && mediaItemIndex < queuedMediaItems.size()) {
-      return queuedMediaItems.get(mediaItemIndex).mediaItem;
-    }
-    return (mediaItemIndex == queuedMediaItems.size()) ? fakeMediaItem : null;
+    return mediaItemIndex >= getWindowCount() ? null : getQueuedMediaItem(mediaItemIndex).mediaItem;
   }
 
   @Override
   public int getWindowCount() {
-    return queuedMediaItems.size() + ((fakeMediaItem == null) ? 0 : 1);
+    return queuedMediaItems.size() + ((fakeQueuedMediaItem == null) ? 0 : 1);
   }
 
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
-    // TODO(b/149713425): Set duration if it's available from MediaMetadataCompat.
-    MediaItem mediaItem;
-    if (windowIndex == queuedMediaItems.size() && fakeMediaItem != null) {
-      mediaItem = fakeMediaItem;
-    } else {
-      mediaItem = queuedMediaItems.get(windowIndex).mediaItem;
-    }
-    return getWindow(window, mediaItem, windowIndex);
+    QueuedMediaItem queuedMediaItem = getQueuedMediaItem(windowIndex);
+    window.set(
+        FAKE_WINDOW_UID,
+        queuedMediaItem.mediaItem,
+        /* manifest= */ null,
+        /* presentationStartTimeMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        /* isSeekable= */ true,
+        /* isDynamic= */ false,
+        /* liveConfiguration= */ null,
+        /* defaultPositionUs= */ 0,
+        /* durationUs= */ msToUs(queuedMediaItem.durationMs),
+        /* firstPeriodIndex= */ windowIndex,
+        /* lastPeriodIndex= */ windowIndex,
+        /* positionInFirstPeriodUs= */ 0);
+    return window;
   }
 
   @Override
@@ -206,12 +229,12 @@ import java.util.List;
 
   @Override
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-    // TODO(b/149713425): Set duration if it's available from MediaMetadataCompat.
+    QueuedMediaItem queuedMediaItem = getQueuedMediaItem(periodIndex);
     period.set(
-        /* id= */ null,
+        /* id= */ queuedMediaItem.queueId,
         /* uid= */ null,
         /* windowIndex= */ periodIndex,
-        /* durationUs= */ C.TIME_UNSET,
+        /* durationUs= */ msToUs(queuedMediaItem.durationMs),
         /* positionInWindowUs= */ 0);
     return period;
   }
@@ -236,41 +259,30 @@ import java.util.List;
     }
     QueueTimeline other = (QueueTimeline) obj;
     return Objects.equal(queuedMediaItems, other.queuedMediaItems)
-        && Objects.equal(fakeMediaItem, other.fakeMediaItem);
+        && Objects.equal(fakeQueuedMediaItem, other.fakeQueuedMediaItem);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(queuedMediaItems, fakeMediaItem);
+    return Objects.hashCode(queuedMediaItems, fakeQueuedMediaItem);
   }
 
-  private static Window getWindow(Window window, MediaItem mediaItem, int windowIndex) {
-    window.set(
-        FAKE_WINDOW_UID,
-        mediaItem,
-        /* manifest= */ null,
-        /* presentationStartTimeMs= */ C.TIME_UNSET,
-        /* windowStartTimeMs= */ C.TIME_UNSET,
-        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
-        /* isSeekable= */ true,
-        /* isDynamic= */ false,
-        /* liveConfiguration= */ null,
-        /* defaultPositionUs= */ 0,
-        /* durationUs= */ C.TIME_UNSET,
-        /* firstPeriodIndex= */ windowIndex,
-        /* lastPeriodIndex= */ windowIndex,
-        /* positionInFirstPeriodUs= */ 0);
-    return window;
+  private QueuedMediaItem getQueuedMediaItem(int index) {
+    return index == queuedMediaItems.size() && fakeQueuedMediaItem != null
+        ? fakeQueuedMediaItem
+        : queuedMediaItems.get(index);
   }
 
   private static final class QueuedMediaItem {
 
     public final MediaItem mediaItem;
     public final long queueId;
+    public final long durationMs;
 
-    public QueuedMediaItem(MediaItem mediaItem, long queueId) {
+    public QueuedMediaItem(MediaItem mediaItem, long queueId, long durationMs) {
       this.mediaItem = mediaItem;
       this.queueId = queueId;
+      this.durationMs = durationMs;
     }
 
     @Override
@@ -282,7 +294,9 @@ import java.util.List;
         return false;
       }
       QueuedMediaItem that = (QueuedMediaItem) o;
-      return queueId == that.queueId && mediaItem.equals(that.mediaItem);
+      return queueId == that.queueId
+          && mediaItem.equals(that.mediaItem)
+          && durationMs == that.durationMs;
     }
 
     @Override
@@ -290,6 +304,7 @@ import java.util.List;
       int result = 7;
       result = 31 * result + (int) (queueId ^ (queueId >>> 32));
       result = 31 * result + mediaItem.hashCode();
+      result = 31 * result + (int) (durationMs ^ (durationMs >>> 32));
       return result;
     }
   }

@@ -1804,6 +1804,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     long oldActiveQueueId = getActiveQueueId(oldLegacyPlayerInfo.playbackStateCompat);
     long newActiveQueueId = getActiveQueueId(newLegacyPlayerInfo.playbackStateCompat);
     boolean isCurrentActiveQueueIdChanged = (oldActiveQueueId != newActiveQueueId) || initialUpdate;
+    long durationMs = MediaUtils.convertToDurationMs(newLegacyPlayerInfo.mediaMetadataCompat);
     if (isMetadataCompatChanged || isCurrentActiveQueueIdChanged || isQueueChanged) {
       currentMediaItemIndex = findQueueItemIndex(newLegacyPlayerInfo.queue, newActiveQueueId);
       boolean hasMediaMetadataCompat = newLegacyPlayerInfo.mediaMetadataCompat != null;
@@ -1829,19 +1830,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   + " MediaItem.");
           MediaItem fakeMediaItem =
               MediaUtils.convertToMediaItem(newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
-          // Ad a tag to make sure the fake media item can't have an equal instance by accident.
-          fakeMediaItem = fakeMediaItem.buildUpon().setTag(new Object()).build();
-          currentTimeline = currentTimeline.copyWithFakeMediaItem(fakeMediaItem);
+          currentTimeline = currentTimeline.copyWithFakeMediaItem(fakeMediaItem, durationMs);
           currentMediaItemIndex = currentTimeline.getWindowCount() - 1;
         } else {
-          currentTimeline = currentTimeline.copyWithFakeMediaItem(/* fakeMediaItem= */ null);
+          currentTimeline = currentTimeline.copyWithClearedFakeMediaItem();
           // Shouldn't be C.INDEX_UNSET to make getCurrentMediaItemIndex() return masked index.
           // In other words, this index is either the currently playing media item index or the
           // would-be playing index when playing.
           currentMediaItemIndex = 0;
         }
       } else if (currentMediaItemIndex != C.INDEX_UNSET) {
-        currentTimeline = currentTimeline.copyWithFakeMediaItem(/* fakeMediaItem= */ null);
+        currentTimeline = currentTimeline.copyWithClearedFakeMediaItem();
         if (hasMediaMetadataCompat) {
           MediaItem mediaItem =
               MediaUtils.convertToMediaItem(
@@ -1850,7 +1849,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   ratingType);
           currentTimeline =
               currentTimeline.copyWithNewMediaItem(
-                  /* replaceIndex= */ currentMediaItemIndex, mediaItem);
+                  /* replaceIndex= */ currentMediaItemIndex, mediaItem, durationMs);
         }
       } else {
         // There's queue, but no valid queue item ID nor current media item metadata.
@@ -1897,7 +1896,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     PlaybackException playerError =
         MediaUtils.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
 
-    long durationMs = MediaUtils.convertToDurationMs(newLegacyPlayerInfo.mediaMetadataCompat);
     long currentPositionMs =
         MediaUtils.convertToCurrentPositionMs(
             newLegacyPlayerInfo.playbackStateCompat,
