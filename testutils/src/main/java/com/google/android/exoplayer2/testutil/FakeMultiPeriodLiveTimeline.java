@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Util.msToUs;
+import static com.google.android.exoplayer2.util.Util.sum;
 import static com.google.android.exoplayer2.util.Util.usToMs;
 
 import com.google.android.exoplayer2.C;
@@ -41,13 +42,13 @@ import java.util.Arrays;
  *
  * <p>Periods are either of type content or ad as defined by the ad sequence pattern. A period is an
  * ad if {@code adSequencePattern[id % adSequencePattern.length]} evaluates to true. Ad periods have
- * a duration of {@link #AD_PERIOD_DURATION_US} and content periods have a duration of {@link
- * #PERIOD_DURATION_US}.
+ * a duration of {@link #AD_PERIOD_DURATION_MS} and content periods have a duration of {@link
+ * #PERIOD_DURATION_MS}.
  */
 public class FakeMultiPeriodLiveTimeline extends Timeline {
 
-  public static final long AD_PERIOD_DURATION_US = 10_000_000L;
-  public static final long PERIOD_DURATION_US = 30_000_000L;
+  public static final long AD_PERIOD_DURATION_MS = 10_000L;
+  public static final long PERIOD_DURATION_MS = 30_000L;
 
   private final boolean[] adSequencePattern;
   private final MediaItem mediaItem;
@@ -56,6 +57,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
   private final boolean isContentTimeline;
   private final boolean populateAds;
   private final boolean playedAds;
+  private final long[] periodDurationUsPattern;
 
   private long nowUs;
   private ImmutableList<PeriodData> periods;
@@ -63,51 +65,53 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
   /**
    * Creates an instance.
    *
-   * @param availabilityStartTimeUs The start time of the available time range, in UNIX epoch.
+   * @param availabilityStartTimeMs The start time of the available time range, UNIX epoch in
+   *     milliseconds.
    * @param liveWindowDurationUs The duration of the live window.
    * @param nowUs The current time that determines the end of the live window.
    * @param adSequencePattern The repeating pattern of periods starting at {@code
-   *     availabilityStartTimeUs}. True is an ad period, and false a content period.
+   *     availabilityStartTimeMs}. True is an ad period, and false a content period.
+   * @param periodDurationMsPattern The repeating pattern of periods durations starting at {@code
+   *     availabilityStartTimeMs}, in milliseconds. Must have the same length as {@code
+   *     adSequencePattern}.
    * @param isContentTimeline Whether the timeline is a content timeline without {@link
    *     AdPlaybackState}s.
    * @param populateAds Whether to populate ads in the same way if an ad event has been received.
    * @param playedAds Whether ads should be marked as played if populated.
    */
   public FakeMultiPeriodLiveTimeline(
-      long availabilityStartTimeUs,
+      long availabilityStartTimeMs,
       long liveWindowDurationUs,
       long nowUs,
       boolean[] adSequencePattern,
+      long[] periodDurationMsPattern,
       boolean isContentTimeline,
       boolean populateAds,
       boolean playedAds) {
-    checkArgument(nowUs - liveWindowDurationUs >= availabilityStartTimeUs);
-    this.availabilityStartTimeUs = availabilityStartTimeUs;
+    checkArgument(nowUs - liveWindowDurationUs >= msToUs(availabilityStartTimeMs));
+    checkArgument(adSequencePattern.length == periodDurationMsPattern.length);
+    this.availabilityStartTimeUs = msToUs(availabilityStartTimeMs);
     this.liveWindowDurationUs = liveWindowDurationUs;
     this.nowUs = nowUs;
     this.adSequencePattern = Arrays.copyOf(adSequencePattern, adSequencePattern.length);
+    periodDurationUsPattern = new long[periodDurationMsPattern.length];
+    for (int i = 0; i < periodDurationMsPattern.length; i++) {
+      periodDurationUsPattern[i] = msToUs(periodDurationMsPattern[i]);
+    }
     this.isContentTimeline = isContentTimeline;
     this.populateAds = populateAds;
     this.playedAds = playedAds;
     mediaItem = new MediaItem.Builder().build();
     periods =
         invalidate(
-            availabilityStartTimeUs,
+            msToUs(availabilityStartTimeMs),
             liveWindowDurationUs,
             nowUs,
             adSequencePattern,
+            periodDurationUsPattern,
             isContentTimeline,
             populateAds,
             playedAds);
-  }
-
-  /** Calculates the total duration of the given ad period sequence. */
-  public static long calculateAdSequencePatternDurationUs(boolean[] adSequencePattern) {
-    long durationUs = 0;
-    for (boolean isAd : adSequencePattern) {
-      durationUs += (isAd ? AD_PERIOD_DURATION_US : PERIOD_DURATION_US);
-    }
-    return durationUs;
   }
 
   /** Advances the live window by the given duration, in microseconds. */
@@ -119,9 +123,33 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
             liveWindowDurationUs,
             nowUs,
             adSequencePattern,
+            periodDurationUsPattern,
             isContentTimeline,
             populateAds,
             playedAds);
+  }
+
+  /**
+   * The window's start time in microseconds since the Unix epoch, or {@link C#TIME_UNSET} if
+   * unknown or not applicable.
+   */
+  public long getWindowStartTimeUs() {
+    Window window = getWindow(/* windowIndex= */ 0, new Window());
+    // Revert us/ms truncation introduced in `getWindow()`. This is identical to the truncation
+    // applied in the Media3 `DashMediaSource.DashTimeline` and can be reverted in the same way.
+    return window.windowStartTimeMs != C.TIME_UNSET
+        ? msToUs(window.windowStartTimeMs) + (window.positionInFirstPeriodUs % 1000)
+        : C.TIME_UNSET;
+  }
+
+  /**
+   * Returns the period start time since Unix epoch, in microseconds.
+   *
+   * <p>Note: The returned value has millisecond precision only, so the trailing 3 digits are always
+   * zeros.
+   */
+  public long getPeriodStartTimeUs(int periodIndex) {
+    return msToUs(periods.get(periodIndex).periodStartTimeMs);
   }
 
   @Override
@@ -134,12 +162,13 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     checkArgument(windowIndex == 0);
     MediaItem.LiveConfiguration liveConfiguration =
         new MediaItem.LiveConfiguration.Builder().build();
+    long positionInFirstPeriodUs = -periods.get(0).positionInWindowUs;
     window.set(
         /* uid= */ "live-window",
         mediaItem,
         /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
-        /* windowStartTimeMs= */ usToMs(nowUs - liveWindowDurationUs),
+        /* windowStartTimeMs= */ periods.get(0).periodStartTimeMs + usToMs(positionInFirstPeriodUs),
         /* elapsedRealtimeEpochOffsetMs= */ 0,
         /* isSeekable= */ true,
         /* isDynamic= */ true,
@@ -148,7 +177,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
         /* durationUs= */ liveWindowDurationUs,
         /* firstPeriodIndex= */ 0,
         /* lastPeriodIndex= */ getPeriodCount() - 1,
-        /* positionInFirstPeriodUs= */ -periods.get(0).positionInWindowUs);
+        positionInFirstPeriodUs);
     return window;
   }
 
@@ -191,24 +220,23 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
       long liveWindowDurationUs,
       long now,
       boolean[] adSequencePattern,
+      long[] periodDurationUsPattern,
       boolean isContentTimeline,
       boolean populateAds,
       boolean playedAds) {
     long windowStartTimeUs = now - liveWindowDurationUs;
     int sequencePeriodCount = adSequencePattern.length;
-    long sequenceDurationUs = calculateAdSequencePatternDurationUs(adSequencePattern);
+    long sequenceDurationUs = sum(periodDurationUsPattern);
     long skippedSequenceCount = (windowStartTimeUs - availabilityStartTimeUs) / sequenceDurationUs;
     // Search the first period of the live window.
     int firstPeriodIndex = (int) (skippedSequenceCount * sequencePeriodCount);
-    boolean isAd = adSequencePattern[firstPeriodIndex % sequencePeriodCount];
-    long firstPeriodDurationUs = isAd ? AD_PERIOD_DURATION_US : PERIOD_DURATION_US;
+    long firstPeriodDurationUs = periodDurationUsPattern[firstPeriodIndex % sequencePeriodCount];
     long firstPeriodEndTimeUs =
         availabilityStartTimeUs
             + (sequenceDurationUs * skippedSequenceCount)
             + firstPeriodDurationUs;
     while (firstPeriodEndTimeUs <= windowStartTimeUs) {
-      isAd = adSequencePattern[++firstPeriodIndex % sequencePeriodCount];
-      firstPeriodDurationUs = isAd ? AD_PERIOD_DURATION_US : PERIOD_DURATION_US;
+      firstPeriodDurationUs = periodDurationUsPattern[++firstPeriodIndex % sequencePeriodCount];
       firstPeriodEndTimeUs += firstPeriodDurationUs;
     }
     ImmutableList.Builder<PeriodData> liveWindow = new ImmutableList.Builder<>();
@@ -216,8 +244,8 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     int lastPeriodIndex = firstPeriodIndex;
     // Add periods to the window from the first period until we find a period start after `now`.
     while (lastPeriodStartTimeUs < now) {
-      isAd = adSequencePattern[lastPeriodIndex % sequencePeriodCount];
-      long periodDurationUs = isAd ? AD_PERIOD_DURATION_US : PERIOD_DURATION_US;
+      long periodDurationUs = periodDurationUsPattern[lastPeriodIndex % sequencePeriodCount];
+      boolean isAd = adSequencePattern[lastPeriodIndex % sequencePeriodCount];
       AdPlaybackState adPlaybackState = AdPlaybackState.NONE;
       if (!isContentTimeline) {
         adPlaybackState = new AdPlaybackState("adsId").withLivePostrollPlaceholderAppended();
@@ -242,6 +270,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
               /* id= */ lastPeriodIndex++,
               periodDurationUs,
               /* positionInWindowUs= */ lastPeriodStartTimeUs - windowStartTimeUs,
+              /* periodStartTimeMs= */ usToMs(lastPeriodStartTimeUs),
               isAd,
               adPlaybackState));
       lastPeriodStartTimeUs += periodDurationUs;
@@ -255,6 +284,7 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
     private final Object uid;
     private final long durationUs;
     private final long positionInWindowUs;
+    private final long periodStartTimeMs;
     private final AdPlaybackState adPlaybackState;
 
     /** Creates an instance. */
@@ -262,9 +292,11 @@ public class FakeMultiPeriodLiveTimeline extends Timeline {
         int id,
         long durationUs,
         long positionInWindowUs,
+        long periodStartTimeMs,
         boolean isAd,
         AdPlaybackState adPlaybackState) {
       this.id = id;
+      this.periodStartTimeMs = periodStartTimeMs;
       this.uid = "uid-" + id + "[" + (isAd ? "a" : "c") + "]";
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;

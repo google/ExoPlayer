@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_MS;
+import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.PERIOD_DURATION_MS;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
@@ -437,10 +439,13 @@ public class TimelineTest {
   public void periodIsLivePostrollPlaceholder_recognizesLivePostrollPlaceholder() {
     FakeMultiPeriodLiveTimeline timeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 60_000_000,
             /* nowUs= */ 60_000_000,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ true,
             /* playedAds= */ false);

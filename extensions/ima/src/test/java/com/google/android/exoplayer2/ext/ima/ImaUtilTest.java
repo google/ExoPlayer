@@ -28,9 +28,11 @@ import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_
 import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_SKIPPED;
 import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
-import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_US;
+import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_MS;
+import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.PERIOD_DURATION_MS;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
+import static com.google.android.exoplayer2.util.Util.msToUs;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -560,7 +562,7 @@ public class ImaUtilTest {
   @Test
   public void
       splitAdPlaybackStateForPeriods_liveAdGroupStartedAndMovedOutOfWindow_splitCorrectly() {
-    long adPeriodDurationUs = AD_PERIOD_DURATION_US;
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(/* adsId= */ "adsId", C.TIME_END_OF_SOURCE)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
@@ -568,10 +570,13 @@ public class ImaUtilTest {
     // Period durations: content=30_000_000, ad=10_000_000
     FakeMultiPeriodLiveTimeline liveTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 100_000_000,
             /* nowUs= */ 150_000_000,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -851,6 +856,7 @@ public class ImaUtilTest {
   @Test
   public void
       splitAdPlaybackStateForPeriods_fullAdGroupAtBeginOfWindow_adPeriodsCorrectlyDetected() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(/* adsId= */ "adsId", C.TIME_END_OF_SOURCE)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
@@ -858,10 +864,13 @@ public class ImaUtilTest {
     // Period durations: content=30_000_000, ad=10_000_000
     FakeMultiPeriodLiveTimeline liveTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 30_000_000,
             /* nowUs= */ 59_999_999,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -869,9 +878,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 30_000_000,
-            AD_PERIOD_DURATION_US,
+            adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 2 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 2 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 2,
             adPlaybackState);
 
@@ -968,9 +977,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 80_000_000,
-            AD_PERIOD_DURATION_US - 1000L, // SDK fallback duration.
+            adPeriodDurationUs - 1000L, // SDK fallback duration.
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 2 * AD_PERIOD_DURATION_US - 1001L,
+            /* totalAdDurationUs= */ 2 * adPeriodDurationUs - 1001L,
             /* totalAdsInAdPod= */ 2,
             adPlaybackState);
     splitAdPlaybackStates = ImaUtil.splitAdPlaybackStateForPeriods(adPlaybackState, liveTimeline);
@@ -984,7 +993,7 @@ public class ImaUtilTest {
     AdPlaybackState.AdGroup actualAdGroup =
         splitAdPlaybackStates.get("uid-4[a]").getAdGroup(/* adGroupIndex= */ 0);
     assertThat(actualAdGroup.count).isEqualTo(1);
-    assertThat(actualAdGroup.durationsUs[0]).isEqualTo(AD_PERIOD_DURATION_US - 1000L);
+    assertThat(actualAdGroup.durationsUs[0]).isEqualTo(adPeriodDurationUs - 1000L);
 
     // Advance to make the window overlap 1 microsecond into the second ad period. Assert whether
     // both ad periods, including the last with unknown duration, are correctly marked as ad.
@@ -999,11 +1008,11 @@ public class ImaUtilTest {
     assertThat(splitAdPlaybackStates.get("uid-4[a]").adGroupCount).isEqualTo(2);
     actualAdGroup = splitAdPlaybackStates.get("uid-4[a]").getAdGroup(/* adGroupIndex= */ 0);
     assertThat(actualAdGroup.count).isEqualTo(1);
-    assertThat(actualAdGroup.durationsUs[0]).isEqualTo(AD_PERIOD_DURATION_US);
+    assertThat(actualAdGroup.durationsUs[0]).isEqualTo(adPeriodDurationUs);
     assertThat(splitAdPlaybackStates.get("uid-5[a]").adGroupCount).isEqualTo(2);
     actualAdGroup = splitAdPlaybackStates.get("uid-5[a]").getAdGroup(/* adGroupIndex= */ 0);
     assertThat(actualAdGroup.count).isEqualTo(1);
-    assertThat(actualAdGroup.durationsUs[0]).isEqualTo(AD_PERIOD_DURATION_US - 1L); // SDK fallback.
+    assertThat(actualAdGroup.durationsUs[0]).isEqualTo(adPeriodDurationUs - 1L); // SDK fallback.
   }
 
   @Test
@@ -1033,6 +1042,7 @@ public class ImaUtilTest {
 
   @Test
   public void maybeCorrectPreviouslyUnknownAdDuration_singleAdInAdGroup_adDurationCorrected() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     long liveWindowDurationUs = 60_000_000L;
     long nowUs = 110_234_567L;
     AdPlaybackState adPlaybackState =
@@ -1053,10 +1063,13 @@ public class ImaUtilTest {
             /* adDurationsUs...= */ 123);
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             liveWindowDurationUs,
             nowUs,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1070,13 +1083,14 @@ public class ImaUtilTest {
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 1).timeUs).isEqualTo(90_000_000L);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 1).durationsUs)
         .asList()
-        .containsExactly(AD_PERIOD_DURATION_US);
+        .containsExactly(adPeriodDurationUs);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 1).contentResumeOffsetUs)
-        .isEqualTo(AD_PERIOD_DURATION_US);
+        .isEqualTo(adPeriodDurationUs);
   }
 
   @Test
   public void maybeCorrectPreviouslyUnknownAdDuration_multipleAdsInAdGroup_adDurationCorrected() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     long liveWindowDurationUs = 60_000_000L;
     long nowUs = 110_234_567L;
     AdPlaybackState adPlaybackState =
@@ -1086,15 +1100,18 @@ public class ImaUtilTest {
             adPlaybackState,
             /* fromPositionUs= */ 80_000_000L,
             /* contentResumeOffsetUs= */ 10_000_123L,
-            /* adDurationsUs...= */ AD_PERIOD_DURATION_US,
+            /* adDurationsUs...= */ adPeriodDurationUs,
             123L);
     // Content timeline: [content, ad, ad, content]
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             liveWindowDurationUs,
             nowUs,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1104,9 +1121,9 @@ public class ImaUtilTest {
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).timeUs).isEqualTo(80_000_000L);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
-        .containsExactly(AD_PERIOD_DURATION_US, AD_PERIOD_DURATION_US);
+        .containsExactly(adPeriodDurationUs, adPeriodDurationUs);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).contentResumeOffsetUs)
-        .isEqualTo(2 * AD_PERIOD_DURATION_US);
+        .isEqualTo(2 * adPeriodDurationUs);
   }
 
   @Test
@@ -1128,10 +1145,13 @@ public class ImaUtilTest {
             /* adDurationsUs...= */ 123);
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 60_000_000L,
             /* nowUs= */ 160_000_000L,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1150,10 +1170,17 @@ public class ImaUtilTest {
     // Content and ad period in window at the beginning: [c, a, a]
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 50_000_000L,
             /* nowUs= */ 50_000_000L,
             /* adSequencePattern= */ new boolean[] {false, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1271,14 +1298,16 @@ public class ImaUtilTest {
   }
 
   @Test
-  public void
-      maybeCorrectPreviouslyUnknownAdDuration_singleContentPeriodTimeline_adPlaybackStateNotChanged() {
+  public void maybeCorrectPreviouslyUnknownAdDuration_singleContentPeriodTimeline_doNothing() {
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 30_000_000L,
             /* nowUs= */ 80_000_000L,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1308,10 +1337,13 @@ public class ImaUtilTest {
       maybeCorrectPreviouslyUnknownAdDuration_singleAdPeriodTimeline_doesNotOverrideWithTimeUnset() {
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 10_000_000L,
             /* nowUs= */ 90_000_000L,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1608,13 +1640,20 @@ public class ImaUtilTest {
   @Test
   public void
       getAdGroupAndIndexInLiveMultiPeriodTimeline_calledForPeriodsAfterUnplayedAdGroup_correctAdGroupIndexAndAdIndexInAdGroup() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Content live window with content and ad periods: c, [a, c, a, a, a, c, a], a, a
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 100_000_000,
             /* nowUs= */ 159_000_123,
             /* adSequencePattern= */ new boolean[] {false, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1623,9 +1662,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 50_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ adPeriodDurationUs,
             /* totalAdsInAdPod= */ 1,
             adPlaybackState);
 
@@ -1642,25 +1681,25 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 90_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 100_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 110_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 3,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
 
@@ -1699,9 +1738,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 150_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
 
@@ -1717,13 +1756,20 @@ public class ImaUtilTest {
   @Test
   public void
       getAdGroupAndIndexInLiveMultiPeriodTimeline_calledForPeriodsBeforeUnplayedAdGroup_throwsWhenCalledForNonAdPeriods() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Content live window with content and ad periods: c, [a, c, a, a, a, c, a], a, a
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 100_000_000,
             /* nowUs= */ 159_000_123,
             /* adSequencePattern= */ new boolean[] {false, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1732,9 +1778,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 50_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ adPeriodDurationUs,
             /* totalAdsInAdPod= */ 1,
             adPlaybackState);
     adPlaybackState =
@@ -1742,25 +1788,25 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 90_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 100_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 110_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 3,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     AdPlaybackState finalAdPlaybackState = adPlaybackState;
@@ -1783,9 +1829,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 150_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     AdPlaybackState anotherFinalAdPlaybackState = adPlaybackState;
@@ -1803,13 +1849,20 @@ public class ImaUtilTest {
   @Test
   public void
       getAdGroupAndIndexInLiveMultiPeriodTimeline_partialAdGroupAtTimelineStart_correctAdGroupIndexAndAdIndexInAdGroup() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Content timeline with content and ad periods: c, a, a, [a, c, a, a, a, c]
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 100_000_000,
             /* nowUs= */ 151_000_123,
             /* adSequencePattern= */ new boolean[] {false, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1818,25 +1871,25 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 30_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 40_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 50_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 3,
-            /* totalAdDurationUs= */ 3 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 3 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 3,
             adPlaybackState);
     adPlaybackState =
@@ -1856,14 +1909,24 @@ public class ImaUtilTest {
   @Test
   public void
       getAdGroupAndIndexInLiveMultiPeriodTimeline_onlyPartialAdGroupInWindow_correctAdGroupIndexAndAdIndexInAdGroup() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Content timeline with content and ad periods: c, a, [a, a, a, a], a, c
     // First three ad periods of the ad group already outside of the live window.
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 30_000_000,
             /* nowUs= */ 71_000_123,
             /* adSequencePattern= */ new boolean[] {false, true, true, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ true,
             /* populateAds= */ false,
             /* playedAds= */ false);
@@ -1873,9 +1936,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 30_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 6 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 6 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 6,
             adPlaybackState);
     adPlaybackState =
@@ -1883,9 +1946,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 40_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 6 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 6 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 6,
             adPlaybackState);
 
@@ -1903,9 +1966,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 50_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 3,
-            /* totalAdDurationUs= */ 6 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 6 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 6,
             adPlaybackState);
 
@@ -1941,13 +2004,23 @@ public class ImaUtilTest {
 
   @Test
   public void handleAdPeriodRemovedFromTimeline_removalCorrectlyHandled() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Content timeline with content and ad periods: a,[c, a, a, a, a, a, a, c], a
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 70_000_123,
             /* nowUs= */ 189_453_123,
             /* adSequencePattern= */ new boolean[] {false, true, true, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ true,
             /* playedAds= */ false);
@@ -1957,9 +2030,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 120_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 6 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 6 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 6,
             adPlaybackState);
     adPlaybackState =
@@ -1967,9 +2040,9 @@ public class ImaUtilTest {
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 130_000_000,
-            /* adDurationUs= */ AD_PERIOD_DURATION_US,
+            /* adDurationUs= */ adPeriodDurationUs,
             /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 6 * AD_PERIOD_DURATION_US,
+            /* totalAdDurationUs= */ 6 * adPeriodDurationUs,
             /* totalAdsInAdPod= */ 6,
             adPlaybackState);
 
@@ -2099,13 +2172,17 @@ public class ImaUtilTest {
   @Test
   public void getAdGroupDurationUsForLiveAdPeriodIndex_allAdsInTimeline_correctAdGroupDuration() {
     int adPodTotalAdCount = 2;
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     // Content and ad periods in timeline: [c, a, a, c, a, a].
     FakeMultiPeriodLiveTimeline timeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 75_007_123,
             /* nowUs= */ 99_321_457,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ true,
             /* playedAds= */ false);
@@ -2121,11 +2198,11 @@ public class ImaUtilTest {
     assertThat(
             ImaUtil.getAdGroupDurationUsForLiveAdPeriodIndex(
                 timeline, firstAdPodInfo, /* adPeriodIndex= */ 1, new Window(), new Period()))
-        .isEqualTo(2 * AD_PERIOD_DURATION_US);
+        .isEqualTo(2 * adPeriodDurationUs);
     assertThat(
             ImaUtil.getAdGroupDurationUsForLiveAdPeriodIndex(
                 timeline, secondAdPodInfo, /* adPeriodIndex= */ 2, new Window(), new Period()))
-        .isEqualTo(2 * AD_PERIOD_DURATION_US);
+        .isEqualTo(2 * adPeriodDurationUs);
     // The second ad group has the last ad with an unknown duration.
     assertThat(
             ImaUtil.getAdGroupDurationUsForLiveAdPeriodIndex(
@@ -2144,10 +2221,13 @@ public class ImaUtilTest {
     // Content and ad periods in timeline: [a, a, c]. First two ads not in window.
     FakeMultiPeriodLiveTimeline timeline =
         new FakeMultiPeriodLiveTimeline(
-            /* availabilityStartTimeUs= */ 0,
+            /* availabilityStartTimeMs= */ 0,
             /* liveWindowDurationUs= */ 49_321_753,
             /* nowUs= */ 85_007_123,
             /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
             /* isContentTimeline= */ false,
             /* populateAds= */ true,
             /* playedAds= */ false);
