@@ -52,7 +52,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @GuardedBy("lock")
   @Nullable
-  protected RendererCapabilities.Listener rendererCapabilitiesListener;
+  private RendererCapabilities.Listener rendererCapabilitiesListener;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@link C} {@code
@@ -224,13 +224,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   public final void clearListener() {
     synchronized (lock) {
       this.rendererCapabilitiesListener = null;
-    }
-  }
-
-  @Nullable
-  private Listener getListener() {
-    synchronized (lock) {
-      return this.rendererCapabilitiesListener;
     }
   }
 
@@ -513,7 +506,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /** Called when the renderer capabilities are changed. */
   protected final void onRendererCapabilitiesChanged() {
-    @Nullable RendererCapabilities.Listener listener = getListener();
+    @Nullable RendererCapabilities.Listener listener;
+    synchronized (lock) {
+      listener = rendererCapabilitiesListener;
+    }
     if (listener != null) {
       listener.onRendererCapabilitiesChanged(this);
     }
