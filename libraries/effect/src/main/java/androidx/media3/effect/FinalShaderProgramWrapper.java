@@ -527,16 +527,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           .maybeRenderToSurfaceView(
               () -> {
                 GlUtil.clearOutputFrame();
-                if (enableColorTransfers) {
-                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
-                } else {
-                  @C.ColorTransfer
-                  int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
-                  defaultShaderProgram.setOutputColorTransfer(
-                      debugSurfaceViewWrapper.outputColorTransfer);
-                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
-                  defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
-                }
+                @C.ColorTransfer
+                int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
+                defaultShaderProgram.setOutputColorTransfer(
+                    debugSurfaceViewWrapper.outputColorTransfer);
+                defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
               },
               glObjectsProvider);
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
