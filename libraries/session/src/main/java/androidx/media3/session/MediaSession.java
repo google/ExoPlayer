@@ -701,6 +701,9 @@ public class MediaSession {
    * </tr>
    * </table>
    *
+   * <p>Interoperability: This call has no effect when called for a {@linkplain
+   * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
+   *
    * @param controller The controller to specify layout.
    * @param layout The ordered list of {@link CommandButton}.
    */
@@ -793,6 +796,9 @@ public class MediaSession {
    *
    * <p>This is a synchronous call and doesn't wait for results from the controller.
    *
+   * <p>Interoperability: This call has no effect when called for a {@linkplain
+   * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
+   *
    * @param controller The controller to send the extras to.
    * @param sessionExtras The session extras.
    */
@@ -815,6 +821,9 @@ public class MediaSession {
    * SessionCommand, Bundle)} will be returned.
    *
    * <p>A command is not accepted if it is not a custom command.
+   *
+   * <p>Interoperability: This call has no effect when called for a {@linkplain
+   * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
    *
    * @param controller The controller to send the custom command to.
    * @param command A custom command.

@@ -988,6 +988,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public void sendCustomCommand(int seq, SessionCommand command, Bundle args) {
+      sessionImpl.getSessionCompat().sendSessionEvent(command.customAction, args);
+    }
+
+    @Override
     public void onPlayWhenReadyChanged(
         int seq, boolean playWhenReady, @Player.PlaybackSuppressionReason int reason)
         throws RemoteException {

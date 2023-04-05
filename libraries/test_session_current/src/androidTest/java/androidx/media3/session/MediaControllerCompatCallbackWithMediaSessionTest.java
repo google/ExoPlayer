@@ -981,6 +981,35 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   }
 
   @Test
+  public void broadcastCustomCommand_cnSessionEventCalled() throws Exception {
+    Bundle commandCallExtras = new Bundle();
+    commandCallExtras.putString("key-0", "value-0");
+    // Specify session command extras to see that they are NOT used.
+    Bundle sessionCommandExtras = new Bundle();
+    sessionCommandExtras.putString("key-0", "value-1");
+    SessionCommand sessionCommand = new SessionCommand("custom_action", sessionCommandExtras);
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<String> receivedCommand = new AtomicReference<>();
+    AtomicReference<Bundle> receivedCommandExtras = new AtomicReference<>();
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onSessionEvent(String event, Bundle extras) {
+            receivedCommand.set(event);
+            receivedCommandExtras.set(extras);
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    session.broadcastCustomCommand(sessionCommand, commandCallExtras);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedCommand.get()).isEqualTo("custom_action");
+    assertThat(TestUtils.equals(receivedCommandExtras.get(), commandCallExtras)).isTrue();
+  }
+
+  @Test
   public void onMediaItemTransition_updatesLegacyMetadataAndPlaybackState_correctModelConversion()
       throws Exception {
     int testItemIndex = 3;
