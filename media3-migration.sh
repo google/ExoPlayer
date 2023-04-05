@@ -217,9 +217,9 @@ function validate_string_patterns {
     'The MediaSessionConnector is integrated in androidx.media3.session.MediaSession'
 }
 
-SED_CMD_INPLACE='sed -i '
+SED_CMD_INPLACE='sed --in-place=.bak '
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  SED_CMD_INPLACE="sed -i '' "
+  SED_CMD_INPLACE="sed -i .bak "
 fi
 
 MIGRATE_FILES='1'
@@ -322,12 +322,9 @@ then
   exit 0
 fi
 
-PWD=$(pwd)
 if [[ ! -z $NO_CLEAN ]];
 then
-  cd "$PROJECT_ROOT"
   ./gradlew clean
-  cd "$PWD"
 fi
 
 # create expressions for class renamings
@@ -367,6 +364,7 @@ do
   echo "migrating $file"
   expr="$renaming_expressions $classes_expressions $packages_expressions"
   $SED_CMD_INPLACE $expr $file
+  rm ${file}.bak
 done <<< "$files"
 
 # create expressions for dependencies in gradle files
@@ -385,4 +383,5 @@ while read -r build_file;
 do
   echo "migrating build file $build_file"
   $SED_CMD_INPLACE $dependency_expressions $build_file
+  rm ${build_file}.bak
 done <<< "$(find . -type f -name 'build\.gradle')"
