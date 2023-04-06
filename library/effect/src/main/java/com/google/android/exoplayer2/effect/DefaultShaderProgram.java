@@ -292,7 +292,8 @@ import java.util.List;
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
-      ColorInfo outputColorInfo)
+      ColorInfo outputColorInfo,
+      boolean enableColorTransfers)
       throws VideoFrameProcessingException {
     boolean outputIsHdr = ColorInfo.isTransferHdr(outputColorInfo);
     String vertexShaderFilePath =
@@ -301,6 +302,9 @@ import java.util.List;
         outputIsHdr
             ? FRAGMENT_SHADER_OETF_ES3_PATH
             : FRAGMENT_SHADER_TRANSFORMATION_SDR_OETF_ES2_PATH;
+    if (!enableColorTransfers) {
+      fragmentShaderFilePath = FRAGMENT_SHADER_TRANSFORMATION_PATH;
+    }
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
@@ -308,8 +312,9 @@ import java.util.List;
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_HLG
               || outputColorTransfer == C.COLOR_TRANSFER_ST2084);
+      checkArgument(enableColorTransfers);
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
-    } else {
+    } else if (enableColorTransfers) {
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_SDR
               || outputColorTransfer == C.COLOR_TRANSFER_GAMMA_2_2);

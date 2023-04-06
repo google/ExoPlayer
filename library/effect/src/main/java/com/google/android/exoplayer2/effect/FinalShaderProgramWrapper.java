@@ -509,7 +509,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else {
       defaultShaderProgram =
           DefaultShaderProgram.createApplyingOetf(
-              context, expandedMatrixTransformations, rgbMatrices, outputColorInfo);
+              context,
+              expandedMatrixTransformations,
+              rgbMatrices,
+              outputColorInfo,
+              enableColorTransfers);
     }
 
     defaultShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
@@ -527,12 +531,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           .maybeRenderToSurfaceView(
               () -> {
                 GlUtil.clearOutputFrame();
-                @C.ColorTransfer
-                int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
-                defaultShaderProgram.setOutputColorTransfer(
-                    debugSurfaceViewWrapper.outputColorTransfer);
-                defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
-                defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
+                if (enableColorTransfers) {
+                  @C.ColorTransfer
+                  int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
+                  defaultShaderProgram.setOutputColorTransfer(
+                      debugSurfaceViewWrapper.outputColorTransfer);
+                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                  defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
+                } else {
+                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                }
               },
               glObjectsProvider);
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
