@@ -103,6 +103,9 @@ public final class NalUnitUtil {
     public final boolean generalTierFlag;
     public final int generalProfileIdc;
     public final int generalProfileCompatibilityFlags;
+    public final int chromaFormatIdc;
+    public final int bitDepthLumaMinus8;
+    public final int bitDepthChromaMinus8;
     public final int[] constraintBytes;
     public final int generalLevelIdc;
     public final int seqParameterSetId;
@@ -118,6 +121,9 @@ public final class NalUnitUtil {
         boolean generalTierFlag,
         int generalProfileIdc,
         int generalProfileCompatibilityFlags,
+        int chromaFormatIdc,
+        int bitDepthLumaMinus8,
+        int bitDepthChromaMinus8,
         int[] constraintBytes,
         int generalLevelIdc,
         int seqParameterSetId,
@@ -131,6 +137,9 @@ public final class NalUnitUtil {
       this.generalTierFlag = generalTierFlag;
       this.generalProfileIdc = generalProfileIdc;
       this.generalProfileCompatibilityFlags = generalProfileCompatibilityFlags;
+      this.chromaFormatIdc = chromaFormatIdc;
+      this.bitDepthLumaMinus8 = bitDepthLumaMinus8;
+      this.bitDepthChromaMinus8 = bitDepthChromaMinus8;
       this.constraintBytes = constraintBytes;
       this.generalLevelIdc = generalLevelIdc;
       this.seqParameterSetId = seqParameterSetId;
@@ -548,8 +557,8 @@ public final class NalUnitUtil {
       frameWidth -= subWidthC * (confWinLeftOffset + confWinRightOffset);
       frameHeight -= subHeightC * (confWinTopOffset + confWinBottomOffset);
     }
-    data.readUnsignedExpGolombCodedInt(); // bit_depth_luma_minus8
-    data.readUnsignedExpGolombCodedInt(); // bit_depth_chroma_minus8
+    int bitDepthLumaMinus8 = data.readUnsignedExpGolombCodedInt();
+    int bitDepthChromaMinus8 = data.readUnsignedExpGolombCodedInt();
     int log2MaxPicOrderCntLsbMinus4 = data.readUnsignedExpGolombCodedInt();
     // for (i = sps_sub_layer_ordering_info_present_flag ? 0 : sps_max_sub_layers_minus1; ...)
     for (int i = data.readBit() ? 0 : maxSubLayersMinus1; i <= maxSubLayersMinus1; i++) {
@@ -636,6 +645,9 @@ public final class NalUnitUtil {
         generalTierFlag,
         generalProfileIdc,
         generalProfileCompatibilityFlags,
+        chromaFormatIdc,
+        bitDepthLumaMinus8,
+        bitDepthChromaMinus8,
         constraintBytes,
         generalLevelIdc,
         seqParameterSetId,
