@@ -685,6 +685,9 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       if (mediaLoadData != null && mediaLoadData.mediaStartTimeMs != C.TIME_UNSET) {
         for (int i = 0; i < mediaPeriods.size(); i++) {
           MediaPeriodImpl mediaPeriod = mediaPeriods.get(i);
+          if (!mediaPeriod.isPrepared) {
+            continue;
+          }
           long startTimeInPeriodUs =
               getMediaPeriodPositionUs(
                   Util.msToUs(mediaLoadData.mediaStartTimeMs),
@@ -703,7 +706,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       mediaPeriod.lastStartPositionUs = positionUs;
       if (hasStartedPreparing) {
         if (isPrepared) {
-          checkNotNull(mediaPeriod.callback).onPrepared(mediaPeriod);
+          mediaPeriod.onPrepared();
         }
         return;
       }
@@ -920,10 +923,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     public void onPrepared(MediaPeriod actualMediaPeriod) {
       isPrepared = true;
       for (int i = 0; i < mediaPeriods.size(); i++) {
-        MediaPeriodImpl mediaPeriod = mediaPeriods.get(i);
-        if (mediaPeriod.callback != null) {
-          mediaPeriod.callback.onPrepared(mediaPeriod);
-        }
+        mediaPeriods.get(i).onPrepared();
       }
     }
 
@@ -1101,6 +1101,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     public @MonotonicNonNull Callback callback;
     public long lastStartPositionUs;
     public boolean[] hasNotifiedDownstreamFormatChange;
+    public boolean isPrepared;
 
     public MediaPeriodImpl(
         SharedMediaPeriod sharedPeriod,
@@ -1112,6 +1113,14 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
       this.drmEventDispatcher = drmEventDispatcher;
       hasNotifiedDownstreamFormatChange = new boolean[0];
+    }
+
+    /** Called when the preparation has completed. */
+    public void onPrepared() {
+      if (callback != null) {
+        callback.onPrepared(this);
+      }
+      isPrepared = true;
     }
 
     @Override
