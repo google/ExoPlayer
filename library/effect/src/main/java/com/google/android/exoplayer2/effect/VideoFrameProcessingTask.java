@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
@@ -25,8 +22,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  * Interface for tasks that may throw a {@link GlUtil.GlException} or {@link
  * VideoFrameProcessingException}.
  */
-@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-public interface VideoFrameProcessingTask {
+/* package */ interface VideoFrameProcessingTask {
   /** Runs the task. */
   void run() throws VideoFrameProcessingException, GlUtil.GlException;
 }

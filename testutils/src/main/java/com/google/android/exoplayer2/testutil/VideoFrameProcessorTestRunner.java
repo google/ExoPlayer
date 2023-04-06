@@ -56,7 +56,7 @@ public final class VideoFrameProcessorTestRunner {
 
     private @MonotonicNonNull String testId;
     private VideoFrameProcessor.@MonotonicNonNull Factory videoFrameProcessorFactory;
-    private BitmapReader.@MonotonicNonNull Factory bitmapReaderFactory;
+    private @MonotonicNonNull BitmapReader bitmapReader;
     private @MonotonicNonNull String videoAssetPath;
     private @MonotonicNonNull String outputFileLabel;
     private @MonotonicNonNull ImmutableList<Effect> effects;
@@ -97,13 +97,13 @@ public final class VideoFrameProcessorTestRunner {
     }
 
     /**
-     * Sets the {@link BitmapReader.Factory}.
+     * Sets the {@link BitmapReader}.
      *
-     * <p>The default value is {@link SurfaceBitmapReader.Factory}.
+     * <p>The default value is a {@link SurfaceBitmapReader} instance.
      */
     @CanIgnoreReturnValue
-    public Builder setBitmapReaderFactory(BitmapReader.Factory bitmapReaderFactory) {
-      this.bitmapReaderFactory = bitmapReaderFactory;
+    public Builder setBitmapReader(BitmapReader bitmapReader) {
+      this.bitmapReader = bitmapReader;
       return this;
     }
 
@@ -216,7 +216,7 @@ public final class VideoFrameProcessorTestRunner {
       return new VideoFrameProcessorTestRunner(
           testId,
           videoFrameProcessorFactory,
-          bitmapReaderFactory == null ? new SurfaceBitmapReader.Factory() : bitmapReaderFactory,
+          bitmapReader == null ? new SurfaceBitmapReader() : bitmapReader,
           videoAssetPath,
           outputFileLabel == null ? "" : outputFileLabel,
           effects == null ? ImmutableList.of() : effects,
@@ -248,7 +248,7 @@ public final class VideoFrameProcessorTestRunner {
   private VideoFrameProcessorTestRunner(
       String testId,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      BitmapReader.Factory bitmapReaderFactory,
+      BitmapReader bitmapReader,
       @Nullable String videoAssetPath,
       String outputFileLabel,
       ImmutableList<Effect> effects,
@@ -259,6 +259,7 @@ public final class VideoFrameProcessorTestRunner {
       OnOutputFrameAvailableListener onOutputFrameAvailableListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
+    this.bitmapReader = bitmapReader;
     this.videoAssetPath = videoAssetPath;
     this.outputFileLabel = outputFileLabel;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
@@ -277,11 +278,9 @@ public final class VideoFrameProcessorTestRunner {
             new VideoFrameProcessor.Listener() {
               @Override
               public void onOutputSizeChanged(int width, int height) {
-                bitmapReader =
-                    bitmapReaderFactory.create(checkNotNull(videoFrameProcessor), width, height);
-                Surface outputSurface = bitmapReader.getSurface();
-                videoFrameProcessor.setOutputSurfaceInfo(
-                    new SurfaceInfo(outputSurface, width, height));
+                Surface outputSurface = bitmapReader.getSurface(width, height);
+                checkNotNull(videoFrameProcessor)
+                    .setOutputSurfaceInfo(new SurfaceInfo(outputSurface, width, height));
               }
 
               @Override
@@ -358,12 +357,9 @@ public final class VideoFrameProcessorTestRunner {
 
   /** Reads a {@link Bitmap} from {@link VideoFrameProcessor} output. */
   public interface BitmapReader {
-    interface Factory {
-      BitmapReader create(VideoFrameProcessor videoFrameProcessor, int width, int height);
-    }
 
     /** Returns the {@link VideoFrameProcessor} output {@link Surface}. */
-    Surface getSurface();
+    Surface getSurface(int width, int height);
 
     /** Returns the output {@link Bitmap}. */
     Bitmap getBitmap();
@@ -376,26 +372,15 @@ public final class VideoFrameProcessorTestRunner {
    */
   public static final class SurfaceBitmapReader
       implements VideoFrameProcessorTestRunner.BitmapReader {
-    public static final class Factory
-        implements VideoFrameProcessorTestRunner.BitmapReader.Factory {
-      @Override
-      public SurfaceBitmapReader create(
-          VideoFrameProcessor videoFrameProcessor, int width, int height) {
-        return new SurfaceBitmapReader(width, height);
-      }
-    }
 
     // ImageReader only supports SDR input.
-    private final ImageReader imageReader;
-
-    @SuppressLint("WrongConstant")
-    private SurfaceBitmapReader(int width, int height) {
-      imageReader =
-          ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-    }
+    private @MonotonicNonNull ImageReader imageReader;
 
     @Override
-    public Surface getSurface() {
+    @SuppressLint("WrongConstant")
+    public Surface getSurface(int width, int height) {
+      imageReader =
+          ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
       return imageReader.getSurface();
     }
 

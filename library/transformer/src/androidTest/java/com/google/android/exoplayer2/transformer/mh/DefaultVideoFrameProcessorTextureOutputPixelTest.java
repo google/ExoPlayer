@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -105,13 +104,16 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
       String testId) {
+    TextureBitmapReader textureBitmapReader = new TextureBitmapReader();
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
-        new DefaultVideoFrameProcessor.Factory().setOutputToTexture(true);
+        new DefaultVideoFrameProcessor.Factory.Builder()
+            .setOnTextureRenderedListener(textureBitmapReader::readBitmapFromTexture)
+            .build();
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
         .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING)
-        .setBitmapReaderFactory(new TextureBitmapReader.Factory());
+        .setBitmapReader(textureBitmapReader);
   }
 
   /**
@@ -122,24 +124,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final class TextureBitmapReader
       implements VideoFrameProcessorTestRunner.BitmapReader {
     // TODO(b/239172735): This outputs an incorrect black output image on emulators.
-    public static final class Factory
-        implements VideoFrameProcessorTestRunner.BitmapReader.Factory {
-      @Override
-      public TextureBitmapReader create(
-          VideoFrameProcessor videoFrameProcessor, int width, int height) {
-        return new TextureBitmapReader((DefaultVideoFrameProcessor) videoFrameProcessor);
-      }
-    }
 
-    private final DefaultVideoFrameProcessor defaultVideoFrameProcessor;
     private @MonotonicNonNull Bitmap outputBitmap;
 
-    private TextureBitmapReader(DefaultVideoFrameProcessor defaultVideoFrameProcessor) {
-      this.defaultVideoFrameProcessor = defaultVideoFrameProcessor;
-    }
-
     @Override
-    public Surface getSurface() {
+    public Surface getSurface(int width, int height) {
       int texId;
       try {
         texId = GlUtil.createExternalTexture();
@@ -147,7 +136,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         throw new RuntimeException(e);
       }
       SurfaceTexture surfaceTexture = new SurfaceTexture(texId);
-      surfaceTexture.setOnFrameAvailableListener(this::onSurfaceTextureFrameAvailable);
       return new Surface(surfaceTexture);
     }
 
@@ -156,15 +144,8 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       return checkStateNotNull(outputBitmap);
     }
 
-    private void onSurfaceTextureFrameAvailable(SurfaceTexture surfaceTexture) {
-      defaultVideoFrameProcessor
-          .getTaskExecutor()
-          .submitWithHighPriority(this::getBitmapFromTexture);
-    }
-
-    private void getBitmapFromTexture() throws GlUtil.GlException {
-      GlTextureInfo outputTexture = checkNotNull(defaultVideoFrameProcessor.getOutputTextureInfo());
-
+    public void readBitmapFromTexture(GlTextureInfo outputTexture, long presentationTimeUs)
+        throws GlUtil.GlException {
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.fboId, outputTexture.width, outputTexture.height);
       outputBitmap =

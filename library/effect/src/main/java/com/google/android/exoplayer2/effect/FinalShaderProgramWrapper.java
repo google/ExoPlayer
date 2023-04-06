@@ -32,7 +32,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
@@ -84,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
-  private final boolean outputToTexture;
+  @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
 
   private int inputWidth;
   private int inputHeight;
@@ -123,7 +122,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
       GlObjectsProvider glObjectsProvider,
-      boolean outputToTexture) {
+      @Nullable DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
@@ -139,7 +138,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.videoFrameProcessorListenerExecutor = videoFrameProcessorListenerExecutor;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
     this.glObjectsProvider = glObjectsProvider;
-    this.outputToTexture = outputToTexture;
+    this.textureOutputListener = textureOutputListener;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
@@ -310,7 +309,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
     try {
       maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
-      if (outputToTexture && defaultShaderProgram != null) {
+      if (textureOutputListener != null && defaultShaderProgram != null) {
         renderFrameToOutputTexture(inputTexture, presentationTimeUs);
       }
 
@@ -364,12 +363,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearOutputFrame();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.texId, presentationTimeUs);
-  }
-
-  @VisibleForTesting
-  @Nullable
-  /* package */ GlTextureInfo getOutputTextureInfo() {
-    return outputTexture;
+    checkNotNull(textureOutputListener).onTextureRendered(outputTexture, presentationTimeUs);
   }
 
   /**
@@ -444,7 +438,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (defaultShaderProgram == null) {
       DefaultShaderProgram defaultShaderProgram =
           createDefaultShaderProgramForOutputSurface(outputSurfaceInfo);
-      if (outputToTexture) {
+      if (textureOutputListener != null) {
         configureOutputTexture(
             checkNotNull(outputSizeBeforeSurfaceTransformation).getWidth(),
             checkNotNull(outputSizeBeforeSurfaceTransformation).getHeight());
