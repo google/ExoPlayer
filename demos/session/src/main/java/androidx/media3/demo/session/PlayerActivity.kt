@@ -135,6 +135,7 @@ class PlayerActivity : AppCompatActivity() {
     updateMediaMetadataUI(controller.mediaMetadata)
     updateShuffleSwitchUI(controller.shuffleModeEnabled)
     updateRepeatSwitchUI(controller.repeatMode)
+    playerView.setShowSubtitleButton(controller.currentTracks.isTypeSupported(TRACK_TYPE_TEXT))
 
     controller.addListener(
       object : Player.Listener {
