@@ -112,7 +112,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       }
     }
 
-    /** Whether to transfer colors to an intermediate color space when applying effects. */
     private final boolean enableColorTransfers;
 
     @Nullable private final TextureOutputListener textureOutputListener;
