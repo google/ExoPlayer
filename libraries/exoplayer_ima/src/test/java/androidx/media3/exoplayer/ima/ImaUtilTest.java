@@ -25,7 +25,7 @@ import static androidx.media3.exoplayer.ima.ImaUtil.addLiveAdBreak;
 import static androidx.media3.exoplayer.ima.ImaUtil.getAdGroupAndIndexInLiveMultiPeriodTimeline;
 import static androidx.media3.exoplayer.ima.ImaUtil.getAdGroupAndIndexInVodMultiPeriodTimeline;
 import static androidx.media3.exoplayer.ima.ImaUtil.handleAdPeriodRemovedFromTimeline;
-import static androidx.media3.exoplayer.ima.ImaUtil.maybeCorrectPreviouslyUnknownAdDuration;
+import static androidx.media3.exoplayer.ima.ImaUtil.maybeCorrectPreviouslyUnknownAdDurations;
 import static androidx.media3.exoplayer.ima.ImaUtil.secToUsRounded;
 import static androidx.media3.exoplayer.ima.ImaUtil.splitAdGroup;
 import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
@@ -1074,7 +1074,7 @@ public class ImaUtilTest {
             /* populateAds= */ false,
             /* playedAds= */ false);
 
-    adPlaybackState = maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
 
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).timeUs).isEqualTo(80_000_000L);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
@@ -1116,7 +1116,7 @@ public class ImaUtilTest {
             /* populateAds= */ false,
             /* playedAds= */ false);
 
-    adPlaybackState = maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
 
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).timeUs).isEqualTo(80_000_000L);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
@@ -1135,14 +1135,8 @@ public class ImaUtilTest {
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 80_000_000L,
-            /* contentResumeOffsetUs= */ 123,
-            /* adDurationsUs...= */ 123);
-    adPlaybackState =
-        addAdGroupToAdPlaybackState(
-            adPlaybackState,
-            /* fromPositionUs= */ 90_000_000L,
-            /* contentResumeOffsetUs= */ 123,
-            /* adDurationsUs...= */ 123);
+            /* contentResumeOffsetUs= */ 123L,
+            /* adDurationsUs...= */ 123L);
     FakeMultiPeriodLiveTimeline contentTimeline =
         new FakeMultiPeriodLiveTimeline(
             /* availabilityStartTimeMs= */ 0,
@@ -1157,7 +1151,7 @@ public class ImaUtilTest {
             /* playedAds= */ false);
 
     AdPlaybackState correctedAdPlaybackState =
-        maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
 
     assertThat(contentTimeline.getWindow(/* windowIndex= */ 0, new Window()).windowStartTimeMs)
         .isEqualTo(100_000L);
@@ -1186,115 +1180,457 @@ public class ImaUtilTest {
             /* playedAds= */ false);
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(/* adsId= */ "adsId").withLivePostrollPlaceholderAppended();
-    // Insert first ad resulting in group [10_000, 20_000, 0]
+    // Insert first ad resulting in group [10_000_000, 29_000_123, 0, 0]
     adPlaybackState =
         addLiveAdBreak(
             /* currentContentPeriodPositionUs= */ 30_000_000,
             /* adDurationUs= */ 10_000_000,
             /* adPositionInAdPod= */ 1,
-            /* totalAdDurationUs= */ 40_000_123,
+            /* totalAdDurationUs= */ 39_000_123,
             /* totalAdsInAdPod= */ 4,
             adPlaybackState);
 
     AdPlaybackState correctedAdPlaybackState =
-        maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
 
-    // Assert starting point: no change because the second ad period is still last of window.
+    // Assert no change because the second ad period is still last of window.
     assertThat(correctedAdPlaybackState).isSameInstanceAs(adPlaybackState);
-    assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
-        .asList()
-        .containsExactly(10_000_000L, 30_000_123L, 0L, 0L)
-        .inOrder();
 
-    // Get third ad period into timeline so the second ad period gets a duration: [c, a, a, a]
+    // Get third ad period into timeline so the second ad period gets a duration: [c, a, a, a], a
     contentTimeline.advanceNowUs(1L);
     correctedAdPlaybackState =
-        maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, correctedAdPlaybackState);
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, correctedAdPlaybackState);
 
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
-        .containsExactly(10_000_000L, 10_000_000L, 20_000_123L, 0L)
+        .containsExactly(10_000_000L, 10_000_000L, 19_000_123L, 0L)
         .inOrder();
 
-    // Get next ad period into timeline so the third ad period gets a duration: [c, a, a, a, a]
+    // Second ad event resulting in group [10_000_000, 10_000_000, 19_000_123, 0]
+    correctedAdPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 40_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 39_000_123L,
+            /* totalAdsInAdPod= */ 4,
+            correctedAdPlaybackState);
+
+    // Get last ad period into timeline so the third ad period gets a duration: [c, a, a, a, a]
     contentTimeline.advanceNowUs(10_000_000L);
     correctedAdPlaybackState =
-        maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, correctedAdPlaybackState);
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, correctedAdPlaybackState);
 
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
-        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 10_000_123L)
+        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 9_000_123L)
         .inOrder();
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).states)
         .asList()
-        .containsExactly(1, 0, 0, 0)
+        .containsExactly(1, 1, 0, 0)
         .inOrder();
 
-    // It doesn't matter whether the live break event or the correction propagates the remainder
-    // forward. Updating the ad by ad event later only marks the ad as available.
+    // The event of the previously corrected ad sets the same duration and marks the ad available.
     correctedAdPlaybackState =
         addLiveAdBreak(
-            /* currentContentPeriodPositionUs= */ 40_000_000,
-            /* adDurationUs= */ 10_000_000,
-            /* adPositionInAdPod= */ 2,
-            /* totalAdDurationUs= */ 40_000_000,
-            /* totalAdsInAdPod= */ 4,
-            correctedAdPlaybackState);
-
-    // No change in durations.
-    assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
-        .asList()
-        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 10_000_123L)
-        .inOrder();
-    assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).states)
-        .asList()
-        .containsExactly(1, 1, 0, 0);
-
-    correctedAdPlaybackState =
-        addLiveAdBreak(
-            /* currentContentPeriodPositionUs= */ 40_000_000,
-            /* adDurationUs= */ 10_000_000,
+            /* currentContentPeriodPositionUs= */ 50_000_000L,
+            /* adDurationUs= */ 10_000_000L,
             /* adPositionInAdPod= */ 3,
-            /* totalAdDurationUs= */ 40_000_000,
+            /* totalAdDurationUs= */ 39_000_123L,
             /* totalAdsInAdPod= */ 4,
             correctedAdPlaybackState);
 
     // No change in durations.
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
-        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 10_000_123L)
+        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 9_000_123L)
         .inOrder();
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).states)
         .asList()
         .containsExactly(1, 1, 1, 0);
 
+    // The last ad is inserted with ad pod duration 123 as fallback of the missing duration.
     correctedAdPlaybackState =
         addLiveAdBreak(
-            /* currentContentPeriodPositionUs= */ 40_000_000,
-            /* adDurationUs= */ 9_999_999L,
-            /* adPositionInAdPod= */ 3,
-            /* totalAdDurationUs= */ 40_000_000,
+            /* currentContentPeriodPositionUs= */ 40_000_000L,
+            /* adDurationUs= */ 123L,
+            /* adPositionInAdPod= */ 4,
+            /* totalAdDurationUs= */ 40_000_000L,
             /* totalAdsInAdPod= */ 4,
             correctedAdPlaybackState);
 
     // Last duration updated with ad pod duration.
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
-        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 9_999_999L)
+        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 123L)
         .inOrder();
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).states)
         .asList()
         .containsExactly(1, 1, 1, 1);
 
-    // Get next period into timeline so the 4th ad period gets a duration: [..., a, a, c]
+    // Get period after the ad group into timeline. All ad periods have a duration: [..., a, a, c]
     contentTimeline.advanceNowUs(10_000_000L);
     correctedAdPlaybackState =
-        maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, correctedAdPlaybackState);
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, correctedAdPlaybackState);
 
-    // Last duration corrected when period arrives.
     assertThat(correctedAdPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
         .asList()
         .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 10_000_000L);
+  }
+
+  @Test
+  public void
+      maybeCorrectPreviouslyUnknownAdDuration_timelineMovesMultiplePeriodsForward_adDurationCorrected() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId").withLivePostrollPlaceholderAppended();
+    // Timeline window to start with: c, a, a, a, [a, c, a], a, a, a
+    FakeMultiPeriodLiveTimeline contentTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ 40_000_321L,
+            /* nowUs= */ 109_234_000L,
+            /* adSequencePattern= */ new boolean[] {false, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, 10_123L, 10_457L, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false,
+            /* playedAds= */ false);
+    // Get the period start position at which to insert the ad.
+    long adPeriodStartTimeUs =
+        contentTimeline.getWindowStartTimeUs()
+            + contentTimeline.getPeriod(/* periodIndex= */ 2, new Period()).positionInWindowUs;
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ adPeriodStartTimeUs,
+            /* adDurationUs= */ 123L, // Incorrect duration to be corrected.
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 28_000_000L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(123L, 27_999_877L, 0L, 0L)
+        .inOrder();
+
+    // Advance the live window in timeline: c, a, a, a, a, [c, a, a, a], a, c
+    contentTimeline.advanceNowUs(20_000_000L);
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(10_123_000L, 10_457_000L, 17_542_877L, 0L)
+        .inOrder();
+  }
+
+  @Test
+  public void
+      maybeCorrectPreviouslyUnknownAdDuration_allPeriodsInWindowWithKnownDuration_adDurationCorrected() {
+    // Timeline with window: c, a, a, a, a, [c, a, a, a], a, c
+    long nowUs = 38_064_000L + 38_064_000L - 3_333_000L;
+    long liveWindowDurationUs = 4_731_351L;
+    FakeMultiPeriodLiveTimeline contentTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ liveWindowDurationUs,
+            nowUs,
+            /* adSequencePattern= */ new boolean[] {false, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, 1_231L, 2_000L, 1_500L, 3_333L
+            },
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false,
+            /* playedAds= */ false) {
+          @Override
+          public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+            super.getPeriod(periodIndex, period, setIds);
+            if (periodIndex == 3 && period.durationUs == C.TIME_UNSET) {
+              // Normally the FakeMultiPeriodLiveTimeline sets the last period to an unknown
+              // duration. Make sure that the correct duration is used when overriding.
+              long positionInFirstPeriodUs =
+                  getWindow(period.windowIndex, new Window()).positionInFirstPeriodUs;
+              period.durationUs = positionInFirstPeriodUs != 0 ? 1_500_000L : 3_333_000L;
+            }
+            return period;
+          }
+        };
+    Window window = contentTimeline.getWindow(0, new Window());
+    long windowStartTimeUs =
+        ImaUtil.getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs);
+    long firstAdPeriodStartTimeUs =
+        windowStartTimeUs
+            + contentTimeline.getPeriod(/* periodIndex= */ 1, new Period()).positionInWindowUs;
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId").withLivePostrollPlaceholderAppended();
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ firstAdPeriodStartTimeUs,
+            /* adDurationUs= */ 753L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 8_000_000L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(753L, 7_999_247L, 0L, 0L)
+        .inOrder();
+
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(1_231_000L, 2_000_000L, 1_500_000L, 4_499_247L)
+        .inOrder();
+
+    // After advancing: c, a, a, a, a, c, [a, a, a, a], c
+    contentTimeline.advanceNowUs(351L);
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(1_231_000L, 2_000_000L, 1_500_000L, 3_333_000L)
+        .inOrder();
+  }
+
+  @Test
+  public void
+      maybeCorrectPreviouslyUnknownAdDuration_timelineMovesMultiplePeriodsForwardStartOfAdGroupNotInWindow_adDurationCorrected() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId").withLivePostrollPlaceholderAppended();
+    // Window with content and ad periods: c, a, a, a, a, [c, a, a], a, a, c
+    // Supposed insertion of ad for period with unknown duration.
+    // durationsUs: [10_000_000L, 28_000_000L, 0L, 0L]
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 100_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 38_000_000L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    // durationsUs: [10_000_000L, 123L, 27_999_877L, 0L]
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 110_000_000L,
+            /* adDurationUs= */ 123L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 38_000_000L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    // Correct with window that move more than a single period: c, a, a, a, a, c, a, [a, a, a, c]
+    FakeMultiPeriodLiveTimeline contentTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ 40_000_000L,
+            /* nowUs= */ 159_234_567L,
+            /* adSequencePattern= */ new boolean[] {false, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false,
+            /* playedAds= */ false);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(10_000_000L, 123L, 27_999_877L, 0L)
+        .inOrder();
+
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(10_000_000L, 10_000_000L, 10_000_000L, 10_000_000L)
+        .inOrder();
+  }
+
+  @Test
+  public void
+      maybeCorrectPreviouslyUnknownAdDuration_timelineMovesMultiplePeriodsForwardWithinAdOnlyWindow_adDurationCorrected() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId").withLivePostrollPlaceholderAppended();
+    // Supposed window when inserting ads: c, a, a, [a, a, a], a, a, a, c
+    // durationsUs: [10_000_000L, 10_000_000L, 10_000_000L, 10_000_000L, 123L, 0, 0, 0]
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 30_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 78_000_000L,
+            /* totalAdsInAdPod= */ 8,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 40_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 78_000_000L,
+            /* totalAdsInAdPod= */ 8,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 50_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 3,
+            /* totalAdDurationUs= */ 78_000_000L,
+            /* totalAdsInAdPod= */ 8,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 60_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 4,
+            /* totalAdDurationUs= */ 78_000_000L,
+            /* totalAdsInAdPod= */ 8,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 3);
+    // Ad event for the ad period that is last in the window.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 70_000_000L,
+            /* adDurationUs= */ 123L,
+            /* adPositionInAdPod= */ 4,
+            /* totalAdDurationUs= */ 78_000_000L,
+            /* totalAdsInAdPod= */ 8,
+            adPlaybackState);
+    // Correct with window that move more than a single period: c, a, a, a, a, [a, a, a, a], c
+    // Still playing at adIndex=4
+    FakeMultiPeriodLiveTimeline contentTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ 30_000_000L,
+            /* nowUs= */ 109_234_567L,
+            /* adSequencePattern= */ new boolean[] {
+              false, true, true, true, true, true, true, true, true
+            },
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS,
+              AD_PERIOD_DURATION_MS
+            },
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false,
+            /* playedAds= */ false);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(
+            10_000_000L, 10_000_000L, 10_000_000L, 10_000_000L, 123L, 37_999_877L, 0L, 0L)
+        .inOrder();
+
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            17_999_877L)
+        .inOrder();
+
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 4);
+    // Advance to get a duration for the last ad period: c, a, a, a, a, a, [a, a, a, c]
+    contentTimeline.advanceNowUs(/* durationUs= */ 10_000_000L);
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L,
+            10_000_000L)
+        .inOrder();
+  }
+
+  @Test
+  public void maybeCorrectPreviouslyUnknownAdDuration_playingAdPeriodRemoved_doNothing() {
+    long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
+    long periodDurationUs = msToUs(PERIOD_DURATION_MS);
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId").withLivePostrollPlaceholderAppended();
+    // Window with content and ad periods: c, a, a, a, a, [c, a, a], a, a, c
+    // Supposed insertion of ad for period with unknown duration. PLaying first ad.
+    // durationsUs: [10_000_000L, 28_000_000L, 0L, 0L]
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 100_000_000L,
+            /* adDurationUs= */ 10_000_000L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 38_000_000L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    // Playback advances to second ad. Insert second ad break. Playing on last period of window.
+    // durationsUs: [10_000_000L, 123L, 27_999_877L, 0L]
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 110_000_000L,
+            /* adDurationUs= */ 123L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 38_000_000L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    // Window advances to a state where the playing ad period has been removed:
+    // c, a, a, a, a, c, a, a, [a, a, c]
+    FakeMultiPeriodLiveTimeline contentTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ 40_000_000L,
+            /* nowUs= */ 169_234_567L,
+            /* adSequencePattern= */ new boolean[] {false, true, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              periodDurationUs,
+              adPeriodDurationUs,
+              adPeriodDurationUs,
+              adPeriodDurationUs,
+              adPeriodDurationUs
+            },
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false,
+            /* playedAds= */ false);
+
+    assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(10_000_000L, 123L, 27_999_877L, 0L)
+        .inOrder();
+
+    AdPlaybackState correctedAdPlaybackState =
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
+
+    assertThat(correctedAdPlaybackState).isSameInstanceAs(adPlaybackState);
   }
 
   @Test
@@ -1327,7 +1663,7 @@ public class ImaUtilTest {
             /* adDurationsUs...= */ 123);
 
     AdPlaybackState correctedAdPlaybackState =
-        maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+        maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
 
     assertThat(correctedAdPlaybackState).isSameInstanceAs(adPlaybackState);
   }
@@ -1356,7 +1692,7 @@ public class ImaUtilTest {
             /* contentResumeOffsetUs= */ 123L,
             /* adDurationsUs...= */ 123L);
 
-    adPlaybackState = maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+    adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
 
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).timeUs).isEqualTo(80_000_000L);
     assertThat(adPlaybackState.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
