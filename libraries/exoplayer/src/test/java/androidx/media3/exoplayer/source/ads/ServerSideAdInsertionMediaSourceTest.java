@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.source.ads;
 
+import static androidx.media3.common.C.DATA_TYPE_MEDIA;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
@@ -33,18 +34,28 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.os.Handler;
 import android.util.Pair;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaLoadData;
+import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.MediaSourceEventListener;
 import androidx.media3.exoplayer.source.SinglePeriodTimeline;
+import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
@@ -149,6 +160,125 @@ public final class ServerSideAdInsertionMediaSourceTest {
     assertThat(window.positionInFirstPeriodUs).isEqualTo(41_600_000);
     // windowDurationUs - sum(adDurationsInWindow) + sum(applicableContentResumeOffsetUs)
     assertThat(window.durationUs).isEqualTo(9_800_000);
+  }
+
+  @Test
+  public void createPeriod_unpreparedAdMediaPeriodImplReplacesContentPeriod_adPeriodNotSelected()
+      throws Exception {
+    DefaultAllocator allocator =
+        new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024);
+    MediaPeriod.Callback callback =
+        new MediaPeriod.Callback() {
+          @Override
+          public void onPrepared(MediaPeriod mediaPeriod) {}
+
+          @Override
+          public void onContinueLoadingRequested(MediaPeriod source) {}
+        };
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId").withLivePostrollPlaceholderAppended();
+    FakeTimeline wrappedTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10_000_000L,
+                /* defaultPositionUs= */ 3_000_000L,
+                /* windowOffsetInFirstPeriodUs= */ 0L,
+                AdPlaybackState.NONE));
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
+            new FakeMediaSource(wrappedTimeline), /* adPlaybackStateUpdater= */ null);
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+    AtomicReference<MediaSource.MediaPeriodId> mediaPeriodIdReference = new AtomicReference<>();
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Pair<>(0, 0), adPlaybackState), wrappedTimeline);
+    mediaSource.addEventListener(
+        new Handler(Util.getCurrentOrMainLooper()),
+        new MediaSourceEventListener() {
+          @Override
+          public void onDownstreamFormatChanged(
+              int windowIndex,
+              @Nullable MediaSource.MediaPeriodId mediaPeriodId,
+              MediaLoadData mediaLoadData) {
+            mediaPeriodIdReference.set(mediaPeriodId);
+          }
+        });
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    runMainLooperUntil(() -> timelineReference.get() != null);
+    Timeline firstTimeline = timelineReference.get();
+    MediaSource.MediaPeriodId mediaPeriodId1 =
+        new MediaSource.MediaPeriodId(
+            new Pair<>(0, 0), /* windowSequenceNumber= */ 0L, /* nextAdGroupIndex= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId2 =
+        new MediaSource.MediaPeriodId(
+            new Pair<>(0, 0),
+            /* adGroupIndex= */ 0,
+            /* adIndexInAdGroup= */ 0,
+            /* windowSequenceNumber= */ 0L);
+
+    // Create and prepare the first period.
+    MediaPeriod mediaPeriod1 =
+        mediaSource.createPeriod(mediaPeriodId1, allocator, /* startPositionUs= */ 0L);
+    mediaPeriod1.prepare(callback, /* positionUs= */ 0L);
+
+    // Update the playback state to turn the content period into an ad period.
+    adPlaybackState =
+        adPlaybackState
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ 0L)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
+            .withAdCount(/* adGroupIndex= */ 0, 1)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, 10_000_000L)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, 10_000_000L);
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Pair<>(0, 0), adPlaybackState), wrappedTimeline);
+    runMainLooperUntil(() -> !timelineReference.get().equals(firstTimeline));
+
+    // Create the second period that is tied to the same SharedMediaPeriod internally.
+    mediaSource.createPeriod(mediaPeriodId2, allocator, /* startPositionUs= */ 0L);
+
+    // Issue a onDownstreamFormatChanged event for mediaPeriodId1. The SharedPeriod selects in
+    // `getMediaPeriodForEvent` from the following `MediaPeriodImpl`s for
+    // MediaLoadData.mediaStartTimeMs=0 to 10_000_00.
+    // [
+    //    isPrepared: true,
+    //    startPositionMs: 0,
+    //    endPositionMs: 0,
+    //    adGroupIndex: -1,
+    //    adIndexInAdGroup: -1,
+    //    nextAdGroupIndex: 0,
+    // ],
+    // [
+    //    isPrepared: false,
+    //    startPositionMs: 0,
+    //    endPositionMs: 10_000_000,
+    //    adGroupIndex: 0,
+    //    adIndexInAdGroup: 0,
+    //    nextAdGroupIndex: -1,
+    // ]
+    MediaLoadData mediaLoadData =
+        new MediaLoadData(
+            /* dataType= */ DATA_TYPE_MEDIA,
+            C.TRACK_TYPE_VIDEO,
+            new Format.Builder().build(),
+            C.SELECTION_REASON_INITIAL,
+            /* trackSelectionData= */ null,
+            /* mediaStartTimeMs= */ 123L,
+            /* mediaEndTimeMs= */ 10_000_000L);
+    mediaSource.onDownstreamFormatChanged(/* windowIndex= */ 0, mediaPeriodId1, mediaLoadData);
+    runMainLooperUntil(
+        () -> mediaPeriodId1.equals(mediaPeriodIdReference.get()),
+        /* timeoutMs= */ 500L,
+        Clock.DEFAULT);
+
+    assertThat(mediaPeriodIdReference.get()).isEqualTo(mediaPeriodId1);
   }
 
   @Test
