@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
@@ -63,12 +64,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
+  /** Listener interface for texture output. */
+  @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+  public interface TextureOutputListener {
+    /** Called when a texture has been rendered to. */
+    void onTextureRendered(GlTextureInfo outputTexture, long presentationTimeUs)
+        throws GlUtil.GlException;
+  }
+
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
   public static final class Factory implements VideoFrameProcessor.Factory {
 
     /** A builder for {@link DefaultVideoFrameProcessor.Factory} instances. */
     public static final class Builder {
       private boolean enableColorTransfers;
+      @Nullable private TextureOutputListener textureOutputListener;
 
       /** Creates an instance. */
       public Builder() {
@@ -81,25 +91,39 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        * <p>If the input or output is HDR, this must be {@code true}.
        */
       @CanIgnoreReturnValue
-      public DefaultVideoFrameProcessor.Factory.Builder setEnableColorTransfers(
-          boolean enableColorTransfers) {
+      public Builder setEnableColorTransfers(boolean enableColorTransfers) {
         this.enableColorTransfers = enableColorTransfers;
+        return this;
+      }
+
+      /**
+       * Sets the {@link TextureOutputListener}.
+       *
+       * <p>If set, the {@link VideoFrameProcessor} will output to an OpenGL texture.
+       */
+      @VisibleForTesting
+      @CanIgnoreReturnValue
+      public Builder setOnTextureRenderedListener(TextureOutputListener textureOutputListener) {
+        this.textureOutputListener = textureOutputListener;
         return this;
       }
 
       /** Builds an {@link DefaultVideoFrameProcessor.Factory} instance. */
       public DefaultVideoFrameProcessor.Factory build() {
-        return new DefaultVideoFrameProcessor.Factory(enableColorTransfers);
+        return new DefaultVideoFrameProcessor.Factory(enableColorTransfers, textureOutputListener);
       }
     }
 
     /** Whether to transfer colors to an intermediate color space when applying effects. */
-    public final boolean enableColorTransfers;
+    private final boolean enableColorTransfers;
+
+    @Nullable private final TextureOutputListener textureOutputListener;
 
     private GlObjectsProvider glObjectsProvider = GlObjectsProvider.DEFAULT;
-    private boolean outputToTexture;
 
-    private Factory(boolean enableColorTransfers) {
+    private Factory(
+        boolean enableColorTransfers, @Nullable TextureOutputListener textureOutputListener) {
+      this.textureOutputListener = textureOutputListener;
       this.enableColorTransfers = enableColorTransfers;
     }
 
@@ -109,7 +133,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
      */
     @Deprecated
     public Factory() {
-      this(/* enableColorTransfers= */ true);
+      this(/* enableColorTransfers= */ true, /* textureOutputListener= */ null);
     }
 
     // TODO(276913828): Move this setter to the DefaultVideoFrameProcessor.Factory.Builder.
@@ -119,23 +143,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
      * <p>The default value is {@link GlObjectsProvider#DEFAULT}.
      */
     @Override
-    public DefaultVideoFrameProcessor.Factory setGlObjectsProvider(
-        GlObjectsProvider glObjectsProvider) {
+    public Factory setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
       this.glObjectsProvider = glObjectsProvider;
-      return this;
-    }
-
-    // TODO(276913828): Move this setter to the DefaultVideoFrameProcessor.Factory.Builder.
-    /**
-     * Sets whether to output to a texture for testing.
-     *
-     * <p>Must be called before {@link VideoFrameProcessor.Factory#create}.
-     *
-     * <p>The default value is {@code false}.
-     */
-    @VisibleForTesting
-    public Factory setOutputToTexture(boolean outputToTexture) {
-      this.outputToTexture = outputToTexture;
       return this;
     }
 
@@ -223,7 +232,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       listenerExecutor,
                       listener,
                       glObjectsProvider,
-                      outputToTexture));
+                      textureOutputListener));
 
       try {
         return defaultVideoFrameProcessorFuture.get();
@@ -359,20 +368,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     finalShaderProgramWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
-  /**
-   * Gets the output {@link GlTextureInfo}.
-   *
-   * <p>Should only be called if {@code outputToTexture} is true, and after a frame is available, as
-   * reported by the output {@linkplain #setOutputSurfaceInfo surface}'s {@link
-   * SurfaceTexture#setOnFrameAvailableListener}. Returns {@code null} if an output texture is not
-   * yet available.
-   */
-  @VisibleForTesting
-  @Nullable
-  public GlTextureInfo getOutputTextureInfo() {
-    return finalShaderProgramWrapper.getOutputTextureInfo();
-  }
-
   @Override
   public void releaseOutputFrame(long releaseTimeNs) {
     checkState(
@@ -468,7 +463,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Executor executor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
-      boolean outputToTexture)
+      @Nullable TextureOutputListener textureOutputListener)
       throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
@@ -513,7 +508,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             executor,
             listener,
             glObjectsProvider,
-            outputToTexture);
+            textureOutputListener);
     setGlObjectProviderOnShaderPrograms(shaderPrograms, glObjectsProvider);
     VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
         new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
@@ -554,7 +549,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Executor executor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
-      boolean outputToTexture)
+      @Nullable TextureOutputListener textureOutputListener)
       throws VideoFrameProcessingException {
     ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
@@ -640,7 +635,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             executor,
             listener,
             glObjectsProvider,
-            outputToTexture));
+            textureOutputListener));
     return shaderProgramListBuilder.build();
   }
 
