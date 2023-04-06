@@ -23,7 +23,7 @@ import static com.google.android.exoplayer2.ext.ima.ImaUtil.getAdGroupAndIndexIn
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.getAdGroupDurationUsForLiveAdPeriodIndex;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.getWindowStartTimeUs;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.handleAdPeriodRemovedFromTimeline;
-import static com.google.android.exoplayer2.ext.ima.ImaUtil.maybeCorrectPreviouslyUnknownAdDuration;
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.maybeCorrectPreviouslyUnknownAdDurations;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.secToMsRounded;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.secToUsRounded;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.splitAdGroup;
@@ -689,7 +689,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       // If the ad started playing while the corresponding period in the timeline had an unknown
       // duration, the ad duration is estimated and needs to be corrected when the actual duration
       // is reported.
-      adPlaybackState = maybeCorrectPreviouslyUnknownAdDuration(contentTimeline, adPlaybackState);
+      adPlaybackState = maybeCorrectPreviouslyUnknownAdDurations(contentTimeline, adPlaybackState);
     }
     this.contentTimeline = contentTimeline;
     invalidateServerSideAdInsertionAdPlaybackState();
