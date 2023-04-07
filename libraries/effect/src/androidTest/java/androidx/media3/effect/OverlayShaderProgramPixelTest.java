@@ -58,24 +58,24 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class OverlayShaderProgramPixelTest {
-  public static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
-  public static final String ORIGINAL_PNG_ASSET_PATH =
+  private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
+  private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
-  public static final String OVERLAY_BITMAP_DEFAULT =
+  private static final String OVERLAY_BITMAP_DEFAULT =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_default.png";
-  public static final String OVERLAY_BITMAP_ANCHORED =
+  private static final String OVERLAY_BITMAP_ANCHORED =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_anchored.png";
-  public static final String OVERLAY_BITMAP_SCALED =
+  private static final String OVERLAY_BITMAP_SCALED =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_scaled.png";
-  public static final String OVERLAY_BITMAP_TRANSLUCENT =
+  private static final String OVERLAY_BITMAP_TRANSLUCENT =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_translucent.png";
-  public static final String OVERLAY_TEXT_DEFAULT =
+  private static final String OVERLAY_TEXT_DEFAULT =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_default.png";
-  public static final String OVERLAY_TEXT_TRANSLATE =
+  private static final String OVERLAY_TEXT_TRANSLATE =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_translate.png";
-  public static final String OVERLAY_MULTIPLE =
+  private static final String OVERLAY_MULTIPLE =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_multiple.png";
-  public static final String OVERLAY_OVERLAP =
+  private static final String OVERLAY_OVERLAP =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_overlap.png";
 
   private final Context context = getApplicationContext();

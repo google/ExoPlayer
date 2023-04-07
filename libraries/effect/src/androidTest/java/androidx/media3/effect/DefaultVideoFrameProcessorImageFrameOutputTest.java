@@ -36,11 +36,11 @@ import org.junit.runner.RunWith;
 /** Tests for frame queuing and output in {@link DefaultVideoFrameProcessor} given image input. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultVideoFrameProcessorImageFrameOutputTest {
-  public static final String ORIGINAL_PNG_ASSET_PATH =
+  private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
-  public static final String SCALE_WIDE_PNG_ASSET_PATH =
+  private static final String SCALE_WIDE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_wide.png";
-  public static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
+  private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
 
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
