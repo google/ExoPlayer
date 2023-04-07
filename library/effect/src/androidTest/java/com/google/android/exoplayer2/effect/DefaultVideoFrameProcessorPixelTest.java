@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import static com.google.android.exoplayer2.effect.OverlayShaderProgramPixelTest.OVERLAY_PNG_ASSET_PATH;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
@@ -52,34 +51,35 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultVideoFrameProcessorPixelTest {
-  public static final String ORIGINAL_PNG_ASSET_PATH =
+  private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
-  public static final String IMAGE_PNG_ASSET_PATH = "media/bitmap/input_images/london.jpg";
-  public static final String IMAGE_TO_VIDEO_PNG_ASSET_PATH =
+  private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
+  private static final String IMAGE_PNG_ASSET_PATH = "media/bitmap/input_images/london.jpg";
+  private static final String IMAGE_TO_VIDEO_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/london_image_to_video.png";
-  public static final String IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH =
+  private static final String IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/london_image_to_video_with_crop.png";
-  public static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
+  private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
-  public static final String SCALE_WIDE_PNG_ASSET_PATH =
+  private static final String SCALE_WIDE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_wide.png";
-  public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
+  private static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/translate_right.png";
-  public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
+  private static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate_then_translate.png";
-  public static final String ROTATE_THEN_SCALE_PNG_ASSET_PATH =
+  private static final String ROTATE_THEN_SCALE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate45_then_scale2w.png";
-  public static final String TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH =
+  private static final String TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/translate_then_rotate.png";
-  public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
+  private static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/request_output_height.png";
-  public static final String CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH =
+  private static final String CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/crop_then_aspect_ratio.png";
-  public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
+  private static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate_45_scale_to_fit.png";
-  public static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
+  private static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/increase_brightness.png";
-  public static final String GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
+  private static final String GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/grayscale_then_increase_red_channel.png";
 
   /** Input video of which we only use the first frame. */
