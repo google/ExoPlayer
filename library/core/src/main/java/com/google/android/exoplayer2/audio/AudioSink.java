@@ -188,6 +188,8 @@ public interface AudioSink {
               + audioTrackState
               + " "
               + ("Config(" + sampleRate + ", " + channelConfig + ", " + bufferSize + ")")
+              + " "
+              + format
               + (isRecoverable ? " (recoverable)" : ""),
           audioTrackException);
       this.audioTrackState = audioTrackState;
