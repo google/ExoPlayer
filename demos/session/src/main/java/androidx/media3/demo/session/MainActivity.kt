@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
@@ -73,19 +74,22 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, PlayerActivity::class.java)
         startActivity(intent)
       }
+
+    onBackPressedDispatcher.addCallback(
+      object : OnBackPressedCallback(/* enabled= */ true) {
+        override fun handleOnBackPressed() {
+          popPathStack()
+        }
+      }
+    )
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     if (item.itemId == android.R.id.home) {
-      onBackPressed()
+      onBackPressedDispatcher.onBackPressed()
       return true
     }
     return super.onOptionsItemSelected(item)
-  }
-
-  @SuppressWarnings("MissingSuperCall")
-  override fun onBackPressed() {
-    popPathStack()
   }
 
   override fun onStart() {
