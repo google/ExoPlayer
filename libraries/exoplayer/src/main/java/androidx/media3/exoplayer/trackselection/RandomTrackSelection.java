@@ -93,7 +93,7 @@ public final class RandomTrackSelection extends BaseTrackSelection {
     long nowMs = SystemClock.elapsedRealtime();
     int allowedFormatCount = 0;
     for (int i = 0; i < length; i++) {
-      if (!isBlacklisted(i, nowMs)) {
+      if (!isTrackExcluded(i, nowMs)) {
         allowedFormatCount++;
       }
     }
@@ -103,7 +103,7 @@ public final class RandomTrackSelection extends BaseTrackSelection {
       // Adjust the format index to account for excluded formats.
       allowedFormatCount = 0;
       for (int i = 0; i < length; i++) {
-        if (!isBlacklisted(i, nowMs) && selectedIndex == allowedFormatCount++) {
+        if (!isTrackExcluded(i, nowMs) && selectedIndex == allowedFormatCount++) {
           selectedIndex = i;
           return;
         }

@@ -299,7 +299,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     return cancelable
         && fallbackSelection != null
         && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
-        && trackSelection.blacklist(
+        && trackSelection.excludeTrack(
             trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }
 

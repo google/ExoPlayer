@@ -166,11 +166,11 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public boolean blacklist(int index, long exclusionDurationMs) {
+  public boolean excludeTrack(int index, long exclusionDurationMs) {
     long nowMs = SystemClock.elapsedRealtime();
-    boolean canExclude = isBlacklisted(index, nowMs);
+    boolean canExclude = isTrackExcluded(index, nowMs);
     for (int i = 0; i < length && !canExclude; i++) {
-      canExclude = i != index && !isBlacklisted(i, nowMs);
+      canExclude = i != index && !isTrackExcluded(i, nowMs);
     }
     if (!canExclude) {
       return false;
@@ -183,7 +183,7 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public boolean isBlacklisted(int index, long nowMs) {
+  public boolean isTrackExcluded(int index, long nowMs) {
     return excludeUntilTimes[index] > nowMs;
   }
 

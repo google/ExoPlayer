@@ -573,7 +573,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return Whether the exclusion succeeded.
    */
   public boolean maybeExcludeTrack(Chunk chunk, long exclusionDurationMs) {
-    return trackSelection.blacklist(
+    return trackSelection.excludeTrack(
         trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), exclusionDurationMs);
   }
 
@@ -602,7 +602,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
     return exclusionDurationMs == C.TIME_UNSET
-        || (trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs)
+        || (trackSelection.excludeTrack(trackSelectionIndex, exclusionDurationMs)
             && playlistTracker.excludeMediaPlaylist(playlistUrl, exclusionDurationMs));
   }
 
@@ -894,12 +894,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         List<? extends MediaChunk> queue,
         MediaChunkIterator[] mediaChunkIterators) {
       long nowMs = SystemClock.elapsedRealtime();
-      if (!isBlacklisted(selectedIndex, nowMs)) {
+      if (!isTrackExcluded(selectedIndex, nowMs)) {
         return;
       }
       // Try from lowest bitrate to highest.
       for (int i = length - 1; i >= 0; i--) {
-        if (!isBlacklisted(i, nowMs)) {
+        if (!isTrackExcluded(i, nowMs)) {
           selectedIndex = i;
           return;
         }

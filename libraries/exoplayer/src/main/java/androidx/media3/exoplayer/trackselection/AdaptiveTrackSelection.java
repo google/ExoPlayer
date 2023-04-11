@@ -457,7 +457,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       previousReason = Iterables.getLast(queue).trackSelectionReason;
     }
     int newSelectedIndex = determineIdealSelectedIndex(nowMs, chunkDurationUs);
-    if (!isBlacklisted(previousSelectedIndex, nowMs)) {
+    if (!isTrackExcluded(previousSelectedIndex, nowMs)) {
       // Revert back to the previous selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(previousSelectedIndex);
       Format selectedFormat = getFormat(newSelectedIndex);
@@ -592,7 +592,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     long effectiveBitrate = getAllocatedBandwidth(chunkDurationUs);
     int lowestBitrateAllowedIndex = 0;
     for (int i = 0; i < length; i++) {
-      if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
+      if (nowMs == Long.MIN_VALUE || !isTrackExcluded(i, nowMs)) {
         Format format = getFormat(i);
         if (canSelectFormat(format, format.bitrate, effectiveBitrate)) {
           return i;

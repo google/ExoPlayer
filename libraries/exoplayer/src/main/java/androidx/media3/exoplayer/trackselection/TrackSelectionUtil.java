@@ -123,7 +123,7 @@ public final class TrackSelectionUtil {
     int numberOfTracks = trackSelection.length();
     int numberOfExcludedTracks = 0;
     for (int i = 0; i < numberOfTracks; i++) {
-      if (trackSelection.isBlacklisted(i, nowMs)) {
+      if (trackSelection.isTrackExcluded(i, nowMs)) {
         numberOfExcludedTracks++;
       }
     }

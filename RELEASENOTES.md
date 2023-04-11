@@ -28,6 +28,8 @@
         instead. Note that even for the deprecated variants, the offset is not
         anymore added to `startTimeUs` and `endTimeUs` of the `MediaLoadData`
         objects that are dispatched by the dispatcher.
+    *   Rename `ExoTrackSelection.blacklist` to `excludeTrack` and
+        `isBlacklisted` to `isTrackExcluded`.
 *   Session:
     *   Fix bug where multiple identical queue items published by a legacy
         `MediaSessionCompat` result in an exception in `MediaController`

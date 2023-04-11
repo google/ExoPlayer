@@ -596,13 +596,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public boolean blacklist(int index, long exclusionDurationMs) {
-      return trackSelection.blacklist(index, exclusionDurationMs);
+    public boolean excludeTrack(int index, long exclusionDurationMs) {
+      return trackSelection.excludeTrack(index, exclusionDurationMs);
     }
 
     @Override
-    public boolean isBlacklisted(int index, long nowMs) {
-      return trackSelection.isBlacklisted(index, nowMs);
+    public boolean isTrackExcluded(int index, long nowMs) {
+      return trackSelection.isTrackExcluded(index, nowMs);
     }
 
     @Override

@@ -148,13 +148,13 @@ public final class FakeTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public boolean blacklist(int index, long exclusionDurationMs) {
+  public boolean excludeTrack(int index, long exclusionDurationMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }
 
   @Override
-  public boolean isBlacklisted(int index, long nowMs) {
+  public boolean isTrackExcluded(int index, long nowMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }

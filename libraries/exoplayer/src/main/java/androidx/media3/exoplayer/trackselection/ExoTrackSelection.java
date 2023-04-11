@@ -280,7 +280,7 @@ public interface ExoTrackSelection extends TrackSelection {
    *     milliseconds.
    * @return Whether exclusion was successful.
    */
-  boolean blacklist(int index, long exclusionDurationMs);
+  boolean excludeTrack(int index, long exclusionDurationMs);
 
   /**
    * Returns whether the track at the specified index in the selection is excluded.
@@ -289,5 +289,5 @@ public interface ExoTrackSelection extends TrackSelection {
    * @param nowMs The current time in the timebase of {@link
    *     android.os.SystemClock#elapsedRealtime()}.
    */
-  boolean isBlacklisted(int index, long nowMs);
+  boolean isTrackExcluded(int index, long nowMs);
 }
