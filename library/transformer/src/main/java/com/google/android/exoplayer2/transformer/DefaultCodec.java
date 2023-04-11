@@ -124,6 +124,8 @@ public final class DefaultCodec implements Codec {
       }
       startCodec(mediaCodec);
     } catch (Exception e) {
+      Log.d(TAG, "MediaCodec error", e);
+
       if (inputSurface != null) {
         inputSurface.release();
       }
@@ -179,6 +181,7 @@ public final class DefaultCodec implements Codec {
       try {
         inputBufferIndex = mediaCodec.dequeueInputBuffer(/* timeoutUs= */ 0);
       } catch (RuntimeException e) {
+        Log.d(TAG, "MediaCodec error", e);
         throw createExportException(e);
       }
       if (inputBufferIndex < 0) {
@@ -187,6 +190,7 @@ public final class DefaultCodec implements Codec {
       try {
         inputBuffer.data = mediaCodec.getInputBuffer(inputBufferIndex);
       } catch (RuntimeException e) {
+        Log.d(TAG, "MediaCodec error", e);
         throw createExportException(e);
       }
       inputBuffer.clear();
@@ -214,6 +218,7 @@ public final class DefaultCodec implements Codec {
     try {
       mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
     } catch (RuntimeException e) {
+      Log.d(TAG, "MediaCodec error", e);
       throw createExportException(e);
     }
     inputBufferIndex = C.INDEX_UNSET;
@@ -225,6 +230,7 @@ public final class DefaultCodec implements Codec {
     try {
       mediaCodec.signalEndOfInputStream();
     } catch (RuntimeException e) {
+      Log.d(TAG, "MediaCodec error", e);
       throw createExportException(e);
     }
   }
@@ -270,6 +276,7 @@ public final class DefaultCodec implements Codec {
         mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
       }
     } catch (RuntimeException e) {
+      Log.d(TAG, "MediaCodec error", e);
       throw createExportException(e);
     }
     outputBufferIndex = C.INDEX_UNSET;
@@ -327,6 +334,7 @@ public final class DefaultCodec implements Codec {
     try {
       outputBufferIndex = mediaCodec.dequeueOutputBuffer(outputBufferInfo, /* timeoutUs= */ 0);
     } catch (RuntimeException e) {
+      Log.d(TAG, "MediaCodec error", e);
       throw createExportException(e);
     }
     if (outputBufferIndex < 0) {
@@ -368,6 +376,7 @@ public final class DefaultCodec implements Codec {
       try {
         outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
       } catch (RuntimeException e) {
+        Log.d(TAG, "MediaCodec error", e);
         throw createExportException(e);
       }
       outputBuffer.position(outputBufferInfo.offset);
