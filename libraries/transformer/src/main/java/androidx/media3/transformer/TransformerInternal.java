@@ -398,7 +398,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     if (exception != null) {
       if (releasedPreviously) {
-        Log.e(TAG, "Export error after export ended: ", exception);
+        Log.w(TAG, "Export error after export ended", exception);
         return;
       }
       ExportException finalException = exception;
