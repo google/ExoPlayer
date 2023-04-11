@@ -181,9 +181,7 @@ public interface GlShaderProgram {
    * Notifies the {@code GlShaderProgram} that no further input frames belonging to the current
    * input stream will be queued.
    *
-   * <p>Input frames that are queued after this method is called belong to a different input stream,
-   * so presentation timestamps may reset to start from a smaller presentation timestamp than the
-   * last frame of the previous input stream.
+   * <p>Input frames that are queued after this method is called belong to a different input stream.
    */
   void signalEndOfCurrentInputStream();
 

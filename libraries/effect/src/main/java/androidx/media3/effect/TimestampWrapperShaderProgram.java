@@ -54,6 +54,7 @@ import java.util.concurrent.Executor;
 
   @Override
   public void setInputListener(InputListener inputListener) {
+    // TODO(b/277726418) Fix over-reported input capacity.
     copyGlShaderProgram.setInputListener(inputListener);
     wrappedGlShaderProgram.setInputListener(inputListener);
   }
@@ -78,6 +79,8 @@ import java.util.concurrent.Executor;
 
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+    // TODO(b/277726418) Properly report shader program capacity when switching from wrapped shader
+    //  program to copying shader program.
     if (presentationTimeUs >= startTimeUs && presentationTimeUs <= endTimeUs) {
       pendingWrappedGlShaderProgramFrames++;
       wrappedGlShaderProgram.queueInputFrame(inputTexture, presentationTimeUs);
@@ -102,7 +105,10 @@ import java.util.concurrent.Executor;
 
   @Override
   public void signalEndOfCurrentInputStream() {
-    copyGlShaderProgram.signalEndOfCurrentInputStream();
+    // TODO(b/277726418) Properly handle EOS reporting.
+    // Only sending EOS signal along the wrapped GL shader program path is semantically incorrect,
+    // but it ensures the wrapped shader program receives the EOS signal. On the other hand, the
+    // copy shader program does not need special EOS handling.
     wrappedGlShaderProgram.signalEndOfCurrentInputStream();
   }
 

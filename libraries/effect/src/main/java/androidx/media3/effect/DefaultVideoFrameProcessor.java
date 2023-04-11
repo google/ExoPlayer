@@ -258,12 +258,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
 
-  /**
-   * Offset compared to original media presentation time that has been added to incoming frame
-   * timestamps, in microseconds.
-   */
-  private long previousStreamOffsetUs;
-
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
 
@@ -300,7 +294,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
     allShaderPrograms = shaderPrograms;
-    previousStreamOffsetUs = C.TIME_UNSET;
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
@@ -342,11 +335,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void setInputFrameInfo(FrameInfo inputFrameInfo) {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
-
-    if (nextInputFrameInfo.streamOffsetUs != previousStreamOffsetUs) {
-      finalShaderProgramWrapper.appendStream(nextInputFrameInfo.streamOffsetUs);
-      previousStreamOffsetUs = nextInputFrameInfo.streamOffsetUs;
-    }
   }
 
   @Override

@@ -63,8 +63,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   // TODO(b/238302341) Remove the use of after flush task, block the calling thread instead.
   @Nullable private volatile VideoFrameProcessingTask onFlushCompleteTask;
 
-  private long previousStreamOffsetUs;
-
   /**
    * Creates a new instance.
    *
@@ -90,7 +88,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     textureTransformMatrix = new float[16];
     pendingFrames = new ConcurrentLinkedQueue<>();
     externalShaderProgramInputCapacity = new AtomicInteger();
-    previousStreamOffsetUs = C.TIME_UNSET;
     surfaceTexture.setOnFrameAvailableListener(
         unused ->
             videoFrameProcessingTaskExecutor.submit(
@@ -225,15 +222,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     externalShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     long frameTimeNs = surfaceTexture.getTimestamp();
     long offsetToAddUs = currentFrame.offsetToAddUs;
-    long streamOffsetUs = currentFrame.streamOffsetUs;
-    if (streamOffsetUs != previousStreamOffsetUs) {
-      if (previousStreamOffsetUs != C.TIME_UNSET) {
-        externalShaderProgram.signalEndOfCurrentInputStream();
-      }
-      previousStreamOffsetUs = streamOffsetUs;
-    }
     // Correct the presentation time so that GlShaderPrograms don't see the stream offset.
-    long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs - streamOffsetUs;
+    long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs;
     externalShaderProgram.queueInputFrame(
         new GlTextureInfo(
             externalTexId,

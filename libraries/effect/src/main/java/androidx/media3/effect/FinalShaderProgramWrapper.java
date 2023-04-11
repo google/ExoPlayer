@@ -17,7 +17,6 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.EGL14;
@@ -81,7 +80,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final float[] textureTransformMatrix;
-  private final Queue<Long> streamOffsetUsQueue;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
   @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
 
@@ -141,7 +139,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.textureOutputListener = textureOutputListener;
 
     textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
-    streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
   }
@@ -175,27 +172,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void signalEndOfCurrentInputStream() {
     frameProcessingStarted = true;
-    if (streamOffsetUsQueue.isEmpty()) {
-      // No input stream to end.
-      return;
-    }
-    streamOffsetUsQueue.remove();
-    if (streamOffsetUsQueue.isEmpty()) {
-      videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
-    }
-  }
-
-  /**
-   * Signals that there will be another input stream after all previously appended input streams
-   * have {@linkplain #signalEndOfCurrentInputStream() ended}.
-   *
-   * <p>This method does not need to be called on the GL thread, but the caller must ensure that
-   * stream offsets are appended in the correct order.
-   *
-   * @param streamOffsetUs The presentation timestamp offset, in microseconds.
-   */
-  public void appendStream(long streamOffsetUs) {
-    streamOffsetUsQueue.add(streamOffsetUs);
+    videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
   }
 
   // Methods that must be called on the GL thread.
@@ -203,14 +180,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     frameProcessingStarted = true;
-    long streamOffsetUs =
-        checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
-    long offsetPresentationTimeUs = presentationTimeUs + streamOffsetUs;
     videoFrameProcessorListenerExecutor.execute(
-        () -> videoFrameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs));
+        () -> videoFrameProcessorListener.onOutputFrameAvailable(presentationTimeUs));
     if (releaseFramesAutomatically) {
-      renderFrame(
-          inputTexture, presentationTimeUs, /* releaseTimeNs= */ offsetPresentationTimeUs * 1000);
+      renderFrame(inputTexture, presentationTimeUs, /* releaseTimeNs= */ presentationTimeUs * 1000);
     } else {
       availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
     }

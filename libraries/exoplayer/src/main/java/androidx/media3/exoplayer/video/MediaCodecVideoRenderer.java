@@ -967,7 +967,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onReadyToInitializeCodec(Format format) throws ExoPlaybackException {
     if (!videoFrameProcessorManager.isEnabled()) {
-      videoFrameProcessorManager.maybeEnable(format);
+      videoFrameProcessorManager.maybeEnable(format, getOutputStreamOffsetUs());
     }
   }
 
@@ -1530,7 +1530,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // input surface, which is not a SurfaceView.
     long releaseTimeNs =
         videoFrameProcessorManager.isEnabled()
-            ? (presentationTimeUs + getOutputStreamOffsetUs()) * 1000
+            ? videoFrameProcessorManager.getCorrectedFramePresentationTimeUs(
+                    presentationTimeUs, getOutputStreamOffsetUs())
+                * 1000
             : System.nanoTime();
     if (notifyFrameMetadataListener) {
       notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
@@ -1893,6 +1895,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     /** The presentation time, after which the listener should be notified about the size change. */
     private long pendingOutputSizeChangeNotificationTimeUs;
 
+    private long initialStreamOffsetUs;
+
     /** Creates a new instance. */
     public VideoFrameProcessorManager(
         VideoFrameReleaseHelper frameReleaseHelper,
@@ -1906,6 +1910,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       lastCodecBufferPresentationTimestampUs = C.TIME_UNSET;
       processedFrameSize = VideoSize.UNKNOWN;
       pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
+      initialStreamOffsetUs = C.TIME_UNSET;
     }
 
     /** Sets the {@linkplain Effect video effects}. */
@@ -1965,7 +1970,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * @throws ExoPlaybackException When enabling the {@link VideoFrameProcessor} failed.
      */
     @CanIgnoreReturnValue
-    public boolean maybeEnable(Format inputFormat) throws ExoPlaybackException {
+    public boolean maybeEnable(Format inputFormat, long initialStreamOffsetUs)
+        throws ExoPlaybackException {
       checkState(!isEnabled());
       if (!canEnableFrameProcessing) {
         return false;
@@ -2061,6 +2067,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                         throw new IllegalStateException();
                       }
                     });
+        this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
         throw renderer.createRendererException(
             e, inputFormat, PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED);
@@ -2077,6 +2084,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
       setInputFormat(inputFormat);
       return true;
+    }
+
+    public long getCorrectedFramePresentationTimeUs(
+        long framePresentationTimeUs, long currentStreamOffsetUs) {
+      // VideoFrameProcessor takes in frames with monotonically increasing, non-offset frame
+      // timestamps. That is, with two ten-second long videos, the first frame of the second video
+      // should bear a timestamp of 10s seen from VideoFrameProcessor; while in ExoPlayer, the
+      // timestamp of the said frame would be 0s, but the streamOffset is incremented 10s to include
+      // the duration of the first video. Thus this correction is need to correct for the different
+      // handling of presentation timestamps in ExoPlayer and VideoFrameProcessor.
+      checkState(initialStreamOffsetUs != C.TIME_UNSET);
+      return framePresentationTimeUs + currentStreamOffsetUs - initialStreamOffsetUs;
     }
 
     /**
@@ -2133,7 +2152,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           .setInputFrameInfo(
               new FrameInfo.Builder(inputFormat.width, inputFormat.height)
                   .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
-                  .setStreamOffsetUs(renderer.getOutputStreamOffsetUs())
                   .build());
       this.inputFormat = inputFormat;
 
@@ -2210,7 +2228,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       checkStateNotNull(videoFrameProcessor);
       while (!processedFramesTimestampsUs.isEmpty()) {
         boolean isStarted = renderer.getState() == STATE_STARTED;
-        long bufferPresentationTimeUs = checkNotNull(processedFramesTimestampsUs.peek());
+        long framePresentationTimeUs = checkNotNull(processedFramesTimestampsUs.peek());
+        long bufferPresentationTimeUs = framePresentationTimeUs + initialStreamOffsetUs;
         long earlyUs =
             renderer.calculateEarlyTimeUs(
                 positionUs,
@@ -2252,8 +2271,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             && bufferPresentationTimeUs > pendingFrameFormats.peek().first) {
           currentFrameFormat = pendingFrameFormats.remove();
         }
-        long framePresentationTimeUs =
-            bufferPresentationTimeUs - renderer.getOutputStreamOffsetUs();
         renderer.notifyFrameMetadataListener(
             framePresentationTimeUs, adjustedFrameReleaseTimeNs, currentFrameFormat.second);
         if (pendingOutputSizeChangeNotificationTimeUs >= bufferPresentationTimeUs) {
