@@ -171,10 +171,6 @@ public interface VideoFrameProcessor {
    * <p>Pixels are expanded using the {@link FrameInfo#pixelWidthHeightRatio} so that the output
    * frames' pixels have a ratio of 1.
    *
-   * <p>The caller should update {@link FrameInfo#streamOffsetUs} when switching to an input stream
-   * whose first frame timestamp is less than or equal to the last timestamp received. This stream
-   * offset should ensure that frame timestamps are monotonically increasing.
-   *
    * <p>Can be called on any thread.
    */
   void setInputFrameInfo(FrameInfo inputFrameInfo);

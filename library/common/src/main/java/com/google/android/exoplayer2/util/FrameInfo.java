@@ -28,7 +28,6 @@ public class FrameInfo {
     private int width;
     private int height;
     private float pixelWidthHeightRatio;
-    private long streamOffsetUs;
     private long offsetToAddUs;
 
     /**
@@ -48,7 +47,6 @@ public class FrameInfo {
       width = frameInfo.width;
       height = frameInfo.height;
       pixelWidthHeightRatio = frameInfo.pixelWidthHeightRatio;
-      streamOffsetUs = frameInfo.streamOffsetUs;
       offsetToAddUs = frameInfo.offsetToAddUs;
     }
 
@@ -78,17 +76,6 @@ public class FrameInfo {
     }
 
     /**
-     * Sets the {@linkplain FrameInfo#streamOffsetUs stream offset}, in microseconds.
-     *
-     * <p>The default value is {@code 0}.
-     */
-    @CanIgnoreReturnValue
-    public Builder setStreamOffsetUs(long streamOffsetUs) {
-      this.streamOffsetUs = streamOffsetUs;
-      return this;
-    }
-
-    /**
      * Sets the {@linkplain FrameInfo#offsetToAddUs offset to add} to the frame presentation
      * timestamp, in microseconds.
      *
@@ -102,7 +89,7 @@ public class FrameInfo {
 
     /** Builds a {@link FrameInfo} instance. */
     public FrameInfo build() {
-      return new FrameInfo(width, height, pixelWidthHeightRatio, streamOffsetUs, offsetToAddUs);
+      return new FrameInfo(width, height, pixelWidthHeightRatio, offsetToAddUs);
     }
   }
 
@@ -113,16 +100,6 @@ public class FrameInfo {
   /** The ratio of width over height for each pixel. */
   public final float pixelWidthHeightRatio;
   /**
-   * An offset in microseconds that is part of the input timestamps and should be ignored for
-   * processing but added back to the output timestamps.
-   *
-   * <p>The offset stays constant within a stream. If the first timestamp of the next stream is less
-   * than or equal to the last timestamp of the current stream (including the {@linkplain
-   * #offsetToAddUs} offset to add), the stream offset must be updated between the streams to ensure
-   * that the offset frame timestamps are always monotonically increasing.
-   */
-  public final long streamOffsetUs;
-  /**
    * The offset that must be added to the frame presentation timestamp, in microseconds.
    *
    * <p>This offset is not part of the input timestamps. It is added to the frame timestamps before
@@ -132,15 +109,13 @@ public class FrameInfo {
 
   // TODO(b/227624622): Add color space information for HDR.
 
-  private FrameInfo(
-      int width, int height, float pixelWidthHeightRatio, long streamOffsetUs, long offsetToAddUs) {
+  private FrameInfo(int width, int height, float pixelWidthHeightRatio, long offsetToAddUs) {
     checkArgument(width > 0, "width must be positive, but is: " + width);
     checkArgument(height > 0, "height must be positive, but is: " + height);
 
     this.width = width;
     this.height = height;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
-    this.streamOffsetUs = streamOffsetUs;
     this.offsetToAddUs = offsetToAddUs;
   }
 }
