@@ -458,7 +458,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     int outputTexId =
         GlUtil.createTexture(
-            outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);
+            outputWidth,
+            outputHeight,
+            /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(outputColorInfo));
     outputTexture =
         glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
   }

@@ -29,6 +29,7 @@ import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -51,8 +52,9 @@ public class BitmapPixelTestUtil {
   private static final String TAG = "BitmapPixelTestUtil";
 
   /**
-   * Maximum allowed average pixel difference between the expected and actual edited images in pixel
-   * difference-based tests, between emulators.
+   * Maximum allowed average pixel difference between bitmaps generated using emulators.
+   *
+   * <p>This value is for for 8-bit primaries in pixel difference-based tests.
    *
    * <p>The value is chosen so that differences in decoder behavior across emulator versions don't
    * affect whether the test passes, but substantial distortions introduced by changes in tested
@@ -65,8 +67,9 @@ public class BitmapPixelTestUtil {
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 1.f;
 
   /**
-   * Maximum allowed average pixel difference between the expected and actual edited images in pixel
-   * difference-based tests, between devices, or devices and emulators.
+   * Maximum allowed average pixel difference between bitmaps generated using devices.
+   *
+   * <p>This value is for for 8-bit primaries in pixel difference-based tests.
    *
    * <p>The value is chosen so that differences in decoder behavior across devices don't affect
    * whether the test passes, but substantial distortions introduced by changes in tested components
@@ -80,6 +83,23 @@ public class BitmapPixelTestUtil {
    * larger variance in decoder outputs between different physical devices and emulators.
    */
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE = 5.f;
+
+  /**
+   * Maximum allowed average pixel difference between bitmaps with 16-bit primaries generated using
+   * devices.
+   *
+   * <p>The value is chosen so that differences in decoder behavior across devices in pixel
+   * difference-based tests don't affect whether the test passes, but substantial distortions
+   * introduced by changes in tested components will cause the test to fail.
+   *
+   * <p>When the difference is close to the threshold, manually inspect expected/actual bitmaps to
+   * confirm failure, as it's possible this is caused by a difference in the codec or graphics
+   * implementation as opposed to an issue in the tested component.
+   *
+   * <p>This value is larger than {@link #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} to support the
+   * larger variance in decoder outputs between different physical devices and emulators.
+   */
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16 = .01f;
 
   /**
    * Reads a bitmap from the specified asset location.
@@ -136,10 +156,11 @@ public class BitmapPixelTestUtil {
   }
 
   /**
-   * Returns the average difference between the expected and actual bitmaps, calculated using the
-   * maximum difference across all color channels for each pixel, then divided by the total number
-   * of pixels in the image. The bitmap resolutions must match and they must use configuration
-   * {@link Bitmap.Config#ARGB_8888}.
+   * Returns the average difference between the expected and actual bitmaps.
+   *
+   * <p>Calculated using the maximum difference across all color channels for each pixel, then
+   * divided by the total number of pixels in the image. Bitmap resolutions must match and must use
+   * configuration {@link Bitmap.Config#ARGB_8888}.
    *
    * <p>Tries to save a difference bitmap between expected and actual bitmaps.
    *
@@ -157,11 +178,9 @@ public class BitmapPixelTestUtil {
       Bitmap actual,
       @Nullable String testId,
       @Nullable String differencesBitmapPath) {
+    assertBitmapsMatch(expected, actual);
     int width = actual.getWidth();
     int height = actual.getHeight();
-    assertThat(width).isEqualTo(expected.getWidth());
-    assertThat(height).isEqualTo(expected.getHeight());
-    assertThat(actual.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
     long sumMaximumAbsoluteDifferences = 0;
     // Debug-only image diff without alpha. To use, set a breakpoint right before the method return
     // to view the difference between the expected and actual bitmaps. A passing test should show
@@ -192,6 +211,53 @@ public class BitmapPixelTestUtil {
           testId, /* bitmapLabel= */ "diff", differencesBitmap, differencesBitmapPath);
     }
     return (float) sumMaximumAbsoluteDifferences / (width * height);
+  }
+
+  /**
+   * Returns the average difference between the expected and actual bitmaps.
+   *
+   * <p>Calculated using the maximum difference across all color channels for each pixel, then
+   * divided by the total number of pixels in the image. Bitmap resolutions must match and must use
+   * configuration {@link Bitmap.Config#RGBA_F16}.
+   *
+   * @param expected The expected {@link Bitmap}.
+   * @param actual The actual {@link Bitmap} produced by the test.
+   * @return The average of the maximum absolute pixel-wise differences between the expected and
+   *     actual bitmaps.
+   */
+  @RequiresApi(29) // Bitmap#getColor()
+  public static float getBitmapAveragePixelAbsoluteDifferenceFp16(Bitmap expected, Bitmap actual) {
+    assertBitmapsMatch(expected, actual);
+    int width = actual.getWidth();
+    int height = actual.getHeight();
+    float sumMaximumAbsoluteDifferences = 0;
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        Color actualColor = actual.getColor(x, y);
+        Color expectedColor = expected.getColor(x, y);
+
+        float alphaDifference = abs(actualColor.alpha() - expectedColor.alpha());
+        float redDifference = abs(actualColor.red() - expectedColor.red());
+        float blueDifference = abs(actualColor.blue() - expectedColor.blue());
+        float greenDifference = abs(actualColor.green() - expectedColor.green());
+
+        float maximumAbsoluteDifference = 0;
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, alphaDifference);
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, redDifference);
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, blueDifference);
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, greenDifference);
+
+        sumMaximumAbsoluteDifferences += maximumAbsoluteDifference;
+      }
+    }
+    return sumMaximumAbsoluteDifferences / (width * height);
+  }
+
+  private static void assertBitmapsMatch(Bitmap expected, Bitmap actual) {
+    assertThat(actual.getWidth()).isEqualTo(expected.getWidth());
+    assertThat(actual.getHeight()).isEqualTo(expected.getHeight());
+    assertThat(actual.getConfig()).isEqualTo(expected.getConfig());
   }
 
   /**
@@ -246,7 +312,8 @@ public class BitmapPixelTestUtil {
   }
 
   /**
-   * Creates a bitmap with the values of the current OpenGL framebuffer.
+   * Creates a {@link Bitmap.Config#ARGB_8888} bitmap with the values of the current OpenGL
+   * framebuffer.
    *
    * <p>This method may block until any previously called OpenGL commands are complete.
    *
@@ -256,16 +323,39 @@ public class BitmapPixelTestUtil {
    */
   public static Bitmap createArgb8888BitmapFromCurrentGlFramebuffer(int width, int height)
       throws GlUtil.GlException {
-    ByteBuffer rgba8888Buffer = ByteBuffer.allocateDirect(width * height * 4);
-    // TODO(b/227624622): Add support for reading HDR bitmaps.
+    return createBitmapFromCurrentGlFrameBuffer(
+        width, height, /* pixelSize= */ 4, GLES20.GL_UNSIGNED_BYTE, Bitmap.Config.ARGB_8888);
+  }
+
+  /**
+   * Creates a {@link Bitmap.Config#RGBA_F16} bitmap with the values of the current OpenGL
+   * framebuffer.
+   *
+   * <p>This method may block until any previously called OpenGL commands are complete.
+   *
+   * @param width The width of the pixel rectangle to read.
+   * @param height The height of the pixel rectangle to read.
+   * @return A {@link Bitmap} with the framebuffer's values.
+   */
+  @RequiresApi(26) // Bitmap.Config.RGBA_F16
+  public static Bitmap createFp16BitmapFromCurrentGlFramebuffer(int width, int height)
+      throws GlUtil.GlException {
+    return createBitmapFromCurrentGlFrameBuffer(
+        width, height, /* pixelSize= */ 8, GLES30.GL_HALF_FLOAT, Bitmap.Config.RGBA_F16);
+  }
+
+  private static Bitmap createBitmapFromCurrentGlFrameBuffer(
+      int width, int height, int pixelSize, int glReadPixelsFormat, Bitmap.Config bitmapConfig)
+      throws GlUtil.GlException {
+    ByteBuffer pixelBuffer = ByteBuffer.allocateDirect(width * height * pixelSize);
     GLES20.glReadPixels(
-        0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, rgba8888Buffer);
+        /* x= */ 0, /* y= */ 0, width, height, GLES20.GL_RGBA, glReadPixelsFormat, pixelBuffer);
     GlUtil.checkGlError();
-    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    Bitmap bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
     // According to https://www.khronos.org/opengl/wiki/Pixel_Transfer#Endian_issues,
     // the colors will have the order RGBA in client memory. This is what the bitmap expects:
-    // https://developer.android.com/reference/android/graphics/Bitmap.Config#ARGB_8888.
-    bitmap.copyPixelsFromBuffer(rgba8888Buffer);
+    // https://developer.android.com/reference/android/graphics/Bitmap.Config.
+    bitmap.copyPixelsFromBuffer(pixelBuffer);
     // Flip the bitmap as its positive y-axis points down while OpenGL's positive y-axis points up.
     return flipBitmapVertically(bitmap);
   }
@@ -277,7 +367,6 @@ public class BitmapPixelTestUtil {
    * @return The identifier of the newly created texture.
    */
   public static int createGlTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
-    // TODO(b/227624622): Add support for reading HDR bitmaps.
     int texId =
         GlUtil.createTexture(
             bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
