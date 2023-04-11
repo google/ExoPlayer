@@ -100,6 +100,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   private int codecMaxInputSize;
   private boolean codecNeedsDiscardChannelsWorkaround;
+  @Nullable private Format inputFormat;
   /** Codec used for DRM decryption only in passthrough and offload. */
   @Nullable private Format decryptOnlyCodecFormat;
 
@@ -495,8 +496,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Nullable
   protected DecoderReuseEvaluation onInputFormatChanged(FormatHolder formatHolder)
       throws ExoPlaybackException {
+    inputFormat = checkNotNull(formatHolder.format);
     @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
-    eventDispatcher.inputFormatChanged(formatHolder.format, evaluation);
+    eventDispatcher.inputFormatChanged(inputFormat, evaluation);
     return evaluation;
   }
 
@@ -599,6 +601,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onDisabled() {
     audioSinkNeedsReset = true;
+    inputFormat = null;
     try {
       audioSink.flush();
     } finally {
@@ -706,7 +709,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs, sampleCount);
     } catch (InitializationException e) {
       throw createRendererException(
-          e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
+          e, inputFormat, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
     } catch (WriteException e) {
       throw createRendererException(
           e, format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
