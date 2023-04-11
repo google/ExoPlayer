@@ -530,7 +530,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     boolean cancelLoad = false;
     if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
       cancelLoad =
-          trackSelection.blacklist(
+          trackSelection.excludeTrack(
               trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
     } else if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION) {
       baseUrlExclusionList.exclude(
@@ -558,7 +558,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     int numberOfTracks = trackSelection.length();
     int numberOfExcludedTracks = 0;
     for (int i = 0; i < numberOfTracks; i++) {
-      if (trackSelection.isBlacklisted(i, nowMs)) {
+      if (trackSelection.isTrackExcluded(i, nowMs)) {
         numberOfExcludedTracks++;
       }
     }
