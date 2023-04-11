@@ -53,8 +53,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final DecoderInputBuffer encoderInputBuffer;
   private final DecoderInputBuffer encoderOutputBuffer;
 
-  private long nextEncoderInputBufferTimeUs;
-  private long encoderBufferDurationRemainder;
+  private long encoderTotalInputBytes;
 
   private volatile boolean queueEndOfStreamAfterSilence;
 
@@ -334,9 +333,8 @@ import org.checkerframework.dataflow.qual.Pure;
     int bufferLimit = inputBuffer.limit();
     inputBuffer.limit(min(bufferLimit, inputBuffer.position() + encoderInputBufferData.capacity()));
     encoderInputBufferData.put(inputBuffer);
-    encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
-    computeNextEncoderInputBufferTimeUs(
-        /* bytesWritten= */ encoderInputBufferData.position(), encoderInputAudioFormat);
+    encoderInputBuffer.timeUs = getOutputAudioDurationUs();
+    encoderTotalInputBytes += encoderInputBufferData.position();
     encoderInputBuffer.setFlags(0);
     encoderInputBuffer.flip();
     inputBuffer.limit(bufferLimit);
@@ -345,7 +343,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private void queueEndOfStreamToEncoder() throws ExportException {
     checkState(checkNotNull(encoderInputBuffer.data).position() == 0);
-    encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
+    encoderInputBuffer.timeUs = getOutputAudioDurationUs();
     encoderInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     encoderInputBuffer.flip();
     // Queuing EOS should only occur with an empty buffer.
@@ -363,21 +361,9 @@ import org.checkerframework.dataflow.qual.Pure;
     return transformationRequest.buildUpon().setAudioMimeType(actualFormat.sampleMimeType).build();
   }
 
-  private void computeNextEncoderInputBufferTimeUs(long bytesWritten, AudioFormat audioFormat) {
-    // The calculation below accounts for remainders and rounding. Without that it corresponds to
-    // the following:
-    // bufferDurationUs = numberOfFramesInBuffer * sampleDurationUs
-    //     where numberOfFramesInBuffer = bytesWritten / bytesPerFrame
-    //     and   sampleDurationUs       = C.MICROS_PER_SECOND / sampleRate
-    long numerator = bytesWritten * C.MICROS_PER_SECOND + encoderBufferDurationRemainder;
-    long denominator = (long) audioFormat.bytesPerFrame * audioFormat.sampleRate;
-    long bufferDurationUs = numerator / denominator;
-    encoderBufferDurationRemainder = numerator - bufferDurationUs * denominator;
-    if (encoderBufferDurationRemainder > 0) { // Ceil division result.
-      bufferDurationUs += 1;
-      encoderBufferDurationRemainder -= denominator;
-    }
-    nextEncoderInputBufferTimeUs += bufferDurationUs;
+  private long getOutputAudioDurationUs() {
+    long totalFramesWritten = encoderTotalInputBytes / encoderInputAudioFormat.bytesPerFrame;
+    return (totalFramesWritten * C.MICROS_PER_SECOND) / encoderInputAudioFormat.sampleRate;
   }
 
   private boolean shouldGenerateSilence() {
