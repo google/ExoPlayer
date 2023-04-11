@@ -15,24 +15,38 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.BitmapOverlay;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.OverlayEffect;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.EncoderUtil;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -54,19 +68,38 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
   private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
-  /** Input video of which we only use the first frame. */
+
+  private static final String ORIGINAL_HLG10_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/original_hlg10.png";
+  private static final String ORIGINAL_HDR10_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/original_hdr10.png";
+
+  /** Input SDR video of which we only use the first frame. */
   private static final String INPUT_SDR_MP4_ASSET_STRING = "media/mp4/sample.mp4";
+  /** Input PQ video of which we only use the first frame. */
+  private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
+  /** Input HLG video of which we only use the first frame. */
+  private static final String INPUT_HLG10_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
 
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   @After
   public void release() {
-    checkNotNull(videoFrameProcessorTestRunner).release();
+    if (videoFrameProcessorTestRunner != null) {
+      videoFrameProcessorTestRunner.release();
+    }
   }
 
   @Test
   public void noEffects_matchesGoldenFile() throws Exception {
     String testId = "noEffects_matchesGoldenFile";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        getApplicationContext(),
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
@@ -82,6 +115,13 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   @Test
   public void bitmapOverlay_matchesGoldenFile() throws Exception {
     String testId = "bitmapOverlay_matchesGoldenFile";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        getApplicationContext(),
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
     videoFrameProcessorTestRunner =
@@ -99,8 +139,79 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE);
   }
 
-  // TODO(b/227624622): Add a test for HDR input after BitmapPixelTestUtil can read HDR bitmaps,
-  //  using GlEffectWrapper to ensure usage of intermediate textures.
+  @Test
+  public void noEffects_hlg10Input_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_hlg10Input_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No HLG editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo hlg10ColorInfo =
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT2020)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_HLG)
+            .build();
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setInputColorInfo(hlg10ColorInfo)
+            .setOutputColorInfo(hlg10ColorInfo)
+            .setVideoAssetPath(INPUT_HLG10_MP4_ASSET_STRING)
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HLG10_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  @Test
+  public void noEffects_hdr10Input_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_hdr10Input_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No HLG editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo hdr10ColorInfo =
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT2020)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_ST2084)
+            .build();
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setInputColorInfo(hdr10ColorInfo)
+            .setOutputColorInfo(hdr10ColorInfo)
+            .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HDR10_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
 
   private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
       String testId) {
@@ -124,11 +235,13 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final class TextureBitmapReader
       implements VideoFrameProcessorTestRunner.BitmapReader {
     // TODO(b/239172735): This outputs an incorrect black output image on emulators.
+    private boolean useHighPrecisionColorComponents;
 
     private @MonotonicNonNull Bitmap outputBitmap;
 
     @Override
-    public Surface getSurface(int width, int height) {
+    public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
+      this.useHighPrecisionColorComponents = useHighPrecisionColorComponents;
       int texId;
       try {
         texId = GlUtil.createExternalTexture();
@@ -149,8 +262,23 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.fboId, outputTexture.width, outputTexture.height);
       outputBitmap =
-          BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-              outputTexture.width, outputTexture.height);
+          createBitmapFromCurrentGlFrameBuffer(
+              outputTexture.width, outputTexture.height, useHighPrecisionColorComponents);
     }
+
+    private static Bitmap createBitmapFromCurrentGlFrameBuffer(
+        int width, int height, boolean useHighPrecisionColorComponents) throws GlUtil.GlException {
+      if (!useHighPrecisionColorComponents) {
+        return BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
+      }
+      checkState(Util.SDK_INT > 26, "useHighPrecisionColorComponents only supported on API 26+");
+      return BitmapPixelTestUtil.createFp16BitmapFromCurrentGlFramebuffer(width, height);
+    }
+  }
+
+  private static boolean deviceSupportsHdrEditing(Format format) {
+    return !EncoderUtil.getSupportedEncodersForHdrEditing(
+            checkNotNull(checkNotNull(format).sampleMimeType), format.colorInfo)
+        .isEmpty();
   }
 }

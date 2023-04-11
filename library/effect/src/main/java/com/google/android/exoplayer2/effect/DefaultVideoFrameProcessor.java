@@ -97,7 +97,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /**
        * Sets the {@link TextureOutputListener}.
        *
-       * <p>If set, the {@link VideoFrameProcessor} will output to an OpenGL texture.
+       * <p>If set, the {@link VideoFrameProcessor} will output to an OpenGL texture, accessible via
+       * {@link TextureOutputListener#onTextureRendered}. Otherwise, no texture will be rendered to.
        */
       @VisibleForTesting
       @CanIgnoreReturnValue
