@@ -150,6 +150,7 @@ public final class TestUtil {
   public static final String FILE_AUDIO_VIDEO = "mp4/sample.mp4";
   public static final String FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S =
       "mp4/sample_with_increasing_timestamps_320w_240h.mp4";
+  public static final String FILE_AUDIO_RAW = "wav/sample.wav";
   public static final String FILE_WITH_SUBTITLES = "mkv/sample_with_srt.mkv";
   public static final String FILE_WITH_SEF_SLOW_MOTION = "mp4/sample_sef_slow_motion.mp4";
   public static final String FILE_AUDIO_UNSUPPORTED_BY_DECODER = "amr/sample_wb.amr";
@@ -179,7 +180,7 @@ public final class TestUtil {
         /* colorFormats= */ ImmutableList.of(),
         /* isDecoder= */ true);
     addCodec(
-        MimeTypes.AUDIO_AMR_NB,
+        MimeTypes.AUDIO_RAW,
         codecConfig,
         /* colorFormats= */ ImmutableList.of(),
         /* isDecoder= */ true);

@@ -21,6 +21,7 @@ import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUn
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static androidx.media3.transformer.TestUtil.ASSET_URI_PREFIX;
+import static androidx.media3.transformer.TestUtil.FILE_AUDIO_RAW;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_UNSUPPORTED_BY_DECODER;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_UNSUPPORTED_BY_ENCODER;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_UNSUPPORTED_BY_MUXER;
@@ -161,15 +162,13 @@ public final class MediaItemExportTest {
                     .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context,
-        checkNotNull(testMuxerHolder.testMuxer),
-        getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_ENCODER + ".aac"));
+        context, checkNotNull(testMuxerHolder.testMuxer), getDumpFileName(FILE_AUDIO_RAW + ".aac"));
   }
 
   @Test
