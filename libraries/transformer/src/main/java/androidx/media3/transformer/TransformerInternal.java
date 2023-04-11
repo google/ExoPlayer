@@ -343,9 +343,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean releasedPreviously = released;
     if (!released) {
       released = true;
-      for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
+      // The video sample pipeline can hold buffers from the asset loader's decoder in a surface
+      // texture, so we release the video sample pipeline first to avoid releasing the codec while
+      // its buffers are pending processing.
+      for (int i = 0; i < samplePipelines.size(); i++) {
         try {
-          sequenceAssetLoaders.get(i).release();
+          samplePipelines.get(i).release();
         } catch (RuntimeException e) {
           if (releaseExportException == null) {
             releaseExportException = ExportException.createForUnexpected(e);
@@ -355,9 +358,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           }
         }
       }
-      for (int i = 0; i < samplePipelines.size(); i++) {
+      for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
         try {
-          samplePipelines.get(i).release();
+          sequenceAssetLoaders.get(i).release();
         } catch (RuntimeException e) {
           if (releaseExportException == null) {
             releaseExportException = ExportException.createForUnexpected(e);
