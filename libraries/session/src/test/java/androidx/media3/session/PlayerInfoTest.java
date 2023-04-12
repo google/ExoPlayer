@@ -476,7 +476,7 @@ public class PlayerInfoTest {
             playerInfo.toBundle(
                 new Player.Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)
+                    .remove(Player.COMMAND_GET_METADATA)
                     .build(),
                 /* excludeTimeline= */ false,
                 /* excludeTracks= */ false));

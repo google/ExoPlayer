@@ -30,6 +30,9 @@
         objects that are dispatched by the dispatcher.
     *   Rename `ExoTrackSelection.blacklist` to `excludeTrack` and
         `isBlacklisted` to `isTrackExcluded`.
+    *   Deprecate `Player.COMMAND_GET_MEDIA_ITEMS_METADATA` and
+        `COMMAND_SET_MEDIA_ITEMS_METADATA`. Use `COMMAND_GET_METADATA` and
+        `COMMAND_SET_PLAYLIST_METADATA` instead.
 *   Session:
     *   Fix bug where multiple identical queue items published by a legacy
         `MediaSessionCompat` result in an exception in `MediaController`

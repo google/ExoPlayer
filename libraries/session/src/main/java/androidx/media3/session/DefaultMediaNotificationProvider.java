@@ -319,7 +319,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     mediaStyle.setShowActionsInCompactView(compactViewIndices);
 
     // Set metadata info in the notification.
-    if (player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (player.isCommandAvailable(Player.COMMAND_GET_METADATA)) {
       MediaMetadata metadata = player.getMediaMetadata();
       builder
           .setContentTitle(getNotificationContentTitle(metadata))

@@ -3060,7 +3060,7 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(
                 new Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)
+                    .remove(Player.COMMAND_SET_PLAYLIST_METADATA)
                     .build())
             .build();
     AtomicBoolean callForwarded = new AtomicBoolean();

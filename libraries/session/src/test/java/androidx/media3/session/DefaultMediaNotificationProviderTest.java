@@ -824,14 +824,14 @@ public class DefaultMediaNotificationProviderTest {
     return new ForwardingPlayer(new TestExoPlayerBuilder(context).build()) {
       @Override
       public boolean isCommandAvailable(int command) {
-        return isMetadataCommandAvailable || command != Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+        return isMetadataCommandAvailable || command != Player.COMMAND_GET_METADATA;
       }
 
       @Override
       public Commands getAvailableCommands() {
         Commands.Builder commandsBuilder = new Commands.Builder().addAllCommands();
         if (!isMetadataCommandAvailable) {
-          commandsBuilder.remove(Player.COMMAND_GET_MEDIA_ITEMS_METADATA);
+          commandsBuilder.remove(Player.COMMAND_GET_METADATA);
         }
         return commandsBuilder.build();
       }

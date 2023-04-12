@@ -831,7 +831,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
-    if (!isPlayerCommandAvailable(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_PLAYLIST_METADATA)) {
       return;
     }
 

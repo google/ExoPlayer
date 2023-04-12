@@ -371,8 +371,8 @@ public interface Player {
         COMMAND_SET_REPEAT_MODE,
         COMMAND_GET_CURRENT_MEDIA_ITEM,
         COMMAND_GET_TIMELINE,
-        COMMAND_GET_MEDIA_ITEMS_METADATA,
-        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_GET_METADATA,
+        COMMAND_SET_PLAYLIST_METADATA,
         COMMAND_SET_MEDIA_ITEM,
         COMMAND_CHANGE_MEDIA_ITEMS,
         COMMAND_GET_AUDIO_ATTRIBUTES,
@@ -1428,8 +1428,8 @@ public interface Player {
    *   <li>{@link #COMMAND_SET_REPEAT_MODE}
    *   <li>{@link #COMMAND_GET_CURRENT_MEDIA_ITEM}
    *   <li>{@link #COMMAND_GET_TIMELINE}
-   *   <li>{@link #COMMAND_GET_MEDIA_ITEMS_METADATA}
-   *   <li>{@link #COMMAND_SET_MEDIA_ITEMS_METADATA}
+   *   <li>{@link #COMMAND_GET_METADATA}
+   *   <li>{@link #COMMAND_SET_PLAYLIST_METADATA}
    *   <li>{@link #COMMAND_SET_MEDIA_ITEM}
    *   <li>{@link #COMMAND_CHANGE_MEDIA_ITEMS}
    *   <li>{@link #COMMAND_GET_AUDIO_ATTRIBUTES}
@@ -1447,6 +1447,7 @@ public interface Player {
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
+  @SuppressWarnings("deprecation") // Listing deprecated constants.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1470,7 +1471,9 @@ public interface Player {
     COMMAND_GET_CURRENT_MEDIA_ITEM,
     COMMAND_GET_TIMELINE,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_GET_METADATA,
     COMMAND_SET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_PLAYLIST_METADATA,
     COMMAND_SET_MEDIA_ITEM,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
@@ -1683,6 +1686,11 @@ public interface Player {
   int COMMAND_GET_TIMELINE = 17;
 
   /**
+   * @deprecated Use {@link #COMMAND_GET_METADATA} instead.
+   */
+  @Deprecated int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
+
+  /**
    * Command to get metadata related to the playlist and current {@link MediaItem}.
    *
    * <p>The following methods must only be called if this command is {@linkplain
@@ -1693,8 +1701,12 @@ public interface Player {
    *   <li>{@link #getPlaylistMetadata()}
    * </ul>
    */
-  // TODO(b/263132691): Rename this to COMMAND_GET_METADATA
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
+  int COMMAND_GET_METADATA = 18;
+
+  /**
+   * @deprecated Use {@link #COMMAND_SET_PLAYLIST_METADATA} instead.
+   */
+  @Deprecated int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
 
   /**
    * Command to set the playlist metadata.
@@ -1702,8 +1714,7 @@ public interface Player {
    * <p>The {@link #setPlaylistMetadata(MediaMetadata)} method must only be called if this command
    * is {@linkplain #isCommandAvailable(int) available}.
    */
-  // TODO(b/263132691): Rename this to COMMAND_SET_PLAYLIST_METADATA
-  int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
+  int COMMAND_SET_PLAYLIST_METADATA = 19;
 
   /**
    * Command to set a {@link MediaItem}.
@@ -2582,7 +2593,7 @@ public interface Player {
    * Listener#onMetadata(Metadata)}. If a field is populated in the {@link MediaItem#mediaMetadata},
    * it will be prioritised above the same field coming from static or timed metadata.
    *
-   * <p>This method must only be called if {@link #COMMAND_GET_MEDIA_ITEMS_METADATA} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_GET_METADATA} is {@linkplain
    * #getAvailableCommands() available}.
    */
   MediaMetadata getMediaMetadata();
@@ -2591,7 +2602,7 @@ public interface Player {
    * Returns the playlist {@link MediaMetadata}, as set by {@link
    * #setPlaylistMetadata(MediaMetadata)}, or {@link MediaMetadata#EMPTY} if not supported.
    *
-   * <p>This method must only be called if {@link #COMMAND_GET_MEDIA_ITEMS_METADATA} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_GET_METADATA} is {@linkplain
    * #getAvailableCommands() available}.
    */
   MediaMetadata getPlaylistMetadata();
@@ -2599,7 +2610,7 @@ public interface Player {
   /**
    * Sets the playlist {@link MediaMetadata}.
    *
-   * <p>This method must only be called if {@link #COMMAND_SET_MEDIA_ITEMS_METADATA} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_SET_PLAYLIST_METADATA} is {@linkplain
    * #getAvailableCommands() available}.
    */
   void setPlaylistMetadata(MediaMetadata mediaMetadata);

@@ -497,7 +497,7 @@ public final class MediaUtilsTest {
             Player.COMMAND_GET_TIMELINE,
             Player.COMMAND_GET_CURRENT_MEDIA_ITEM,
             Player.COMMAND_GET_DEVICE_VOLUME,
-            Player.COMMAND_GET_MEDIA_ITEMS_METADATA,
+            Player.COMMAND_GET_METADATA,
             Player.COMMAND_GET_AUDIO_ATTRIBUTES,
             Player.COMMAND_RELEASE);
   }

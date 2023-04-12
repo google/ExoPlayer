@@ -604,7 +604,7 @@ import java.util.List;
   }
 
   public MediaMetadata getPlaylistMetadataWithCommandCheck() {
-    return isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)
+    return isCommandAvailable(Player.COMMAND_GET_METADATA)
         ? getPlaylistMetadata()
         : MediaMetadata.EMPTY;
   }
@@ -811,9 +811,7 @@ import java.util.List;
   }
 
   public MediaMetadata getMediaMetadataWithCommandCheck() {
-    return isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)
-        ? getMediaMetadata()
-        : MediaMetadata.EMPTY;
+    return isCommandAvailable(COMMAND_GET_METADATA) ? getMediaMetadata() : MediaMetadata.EMPTY;
   }
 
   @Override
@@ -1155,7 +1153,7 @@ import java.util.List;
       case Player.COMMAND_GET_AUDIO_ATTRIBUTES:
       case Player.COMMAND_GET_CURRENT_MEDIA_ITEM:
       case Player.COMMAND_GET_DEVICE_VOLUME:
-      case Player.COMMAND_GET_MEDIA_ITEMS_METADATA:
+      case Player.COMMAND_GET_METADATA:
       case Player.COMMAND_GET_TEXT:
       case Player.COMMAND_GET_TIMELINE:
       case Player.COMMAND_GET_TRACKS:
@@ -1163,7 +1161,7 @@ import java.util.List;
       case Player.COMMAND_INVALID:
       case Player.COMMAND_SEEK_TO_DEFAULT_POSITION:
       case Player.COMMAND_SET_DEVICE_VOLUME:
-      case Player.COMMAND_SET_MEDIA_ITEMS_METADATA:
+      case Player.COMMAND_SET_PLAYLIST_METADATA:
       case Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS:
       case Player.COMMAND_SET_VIDEO_SURFACE:
       case Player.COMMAND_SET_VOLUME:

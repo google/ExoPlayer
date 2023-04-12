@@ -16,7 +16,7 @@
 package androidx.media3.ui;
 
 import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
-import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+import static androidx.media3.common.Player.COMMAND_GET_METADATA;
 import static androidx.media3.common.Player.COMMAND_GET_TEXT;
 import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
 import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
@@ -1382,7 +1382,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
   @RequiresNonNull("artworkView")
   private boolean setArtworkFromMediaMetadata(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return false;
     }
     MediaMetadata mediaMetadata = player.getMediaMetadata();

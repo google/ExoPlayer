@@ -829,7 +829,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
           timeline.toBundleWithOneWindowOnly(sessionPositionInfo.positionInfo.mediaItemIndex));
     }
     bundle.putBundle(FIELD_VIDEO_SIZE, videoSize.toBundle());
-    if (availableCommands.contains(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (availableCommands.contains(Player.COMMAND_GET_METADATA)) {
       bundle.putBundle(FIELD_PLAYLIST_METADATA, playlistMetadata.toBundle());
     }
     if (availableCommands.contains(Player.COMMAND_GET_VOLUME)) {
@@ -851,7 +851,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     bundle.putInt(FIELD_PLAYBACK_STATE, playbackState);
     bundle.putBoolean(FIELD_IS_PLAYING, isPlaying);
     bundle.putBoolean(FIELD_IS_LOADING, isLoading);
-    if (availableCommands.contains(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (availableCommands.contains(Player.COMMAND_GET_METADATA)) {
       bundle.putBundle(FIELD_MEDIA_METADATA, mediaMetadata.toBundle());
     }
     bundle.putLong(FIELD_SEEK_BACK_INCREMENT_MS, seekBackIncrementMs);
