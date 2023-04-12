@@ -24,7 +24,8 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
-import androidx.media3.common.audio.ToInt16PcmAudioProcessor;
+import androidx.media3.common.audio.ChannelMixingAudioProcessor;
+import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.media3.exoplayer.audio.TeeAudioProcessor;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -71,11 +72,10 @@ public class TransformerAudioEndToEndTest {
   public void mixMonoToStereo_outputsStereo() throws Exception {
     String testId = "mixMonoToStereo_outputsStereo";
 
-    Effects effects =
-        createForAudioProcessors(
-            new ChannelMixingAudioProcessor(
-                ChannelMixingMatrix.create(
-                    /* inputChannelCount= */ 1, /* outputChannelCount= */ 2)));
+    ChannelMixingAudioProcessor channelMixingAudioProcessor = new ChannelMixingAudioProcessor();
+    channelMixingAudioProcessor.putChannelMixingMatrix(
+        ChannelMixingMatrix.create(/* inputChannelCount= */ 1, /* outputChannelCount= */ 2));
+    Effects effects = createForAudioProcessors(channelMixingAudioProcessor);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
             .setRemoveVideo(true)
@@ -88,60 +88,6 @@ public class TransformerAudioEndToEndTest {
             .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.channelCount).isEqualTo(2);
-  }
-
-  @Test
-  public void channelMixing_outputsFloatPcm() throws Exception {
-    final String testId = "channelMixing_outputsFloatPcm";
-    FormatTrackingAudioBufferSink audioFormatTracker = new FormatTrackingAudioBufferSink();
-
-    Effects effects =
-        createForAudioProcessors(
-            new ChannelMixingAudioProcessor(
-                ChannelMixingMatrix.create(
-                    /* inputChannelCount= */ 1, /* outputChannelCount= */ 2)),
-            new TeeAudioProcessor(audioFormatTracker));
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
-            .setRemoveVideo(true)
-            .setEffects(effects)
-            .build();
-
-    new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
-        .build()
-        .run(testId, editedMediaItem);
-
-    ImmutableList<AudioFormat> audioFormats = audioFormatTracker.getFlushedAudioFormats().asList();
-    assertThat(audioFormats).hasSize(1);
-    assertThat(audioFormats.get(0).encoding).isEqualTo(C.ENCODING_PCM_FLOAT);
-  }
-
-  @Test
-  public void channelMixingThenToInt16Pcm_outputsInt16Pcm() throws Exception {
-    final String testId = "channelMixingThenToInt16Pcm_outputsInt16Pcm";
-
-    FormatTrackingAudioBufferSink audioFormatTracker = new FormatTrackingAudioBufferSink();
-
-    Effects effects =
-        createForAudioProcessors(
-            new ChannelMixingAudioProcessor(
-                ChannelMixingMatrix.create(
-                    /* inputChannelCount= */ 1, /* outputChannelCount= */ 2)),
-            new ToInt16PcmAudioProcessor(),
-            new TeeAudioProcessor(audioFormatTracker));
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
-            .setRemoveVideo(true)
-            .setEffects(effects)
-            .build();
-
-    new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
-        .build()
-        .run(testId, editedMediaItem);
-
-    ImmutableList<AudioFormat> audioFormats = audioFormatTracker.getFlushedAudioFormats().asList();
-    assertThat(audioFormats).hasSize(1);
-    assertThat(audioFormats.get(0).encoding).isEqualTo(C.ENCODING_PCM_16BIT);
   }
 
   private static Effects createForAudioProcessors(AudioProcessor... audioProcessors) {

@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;

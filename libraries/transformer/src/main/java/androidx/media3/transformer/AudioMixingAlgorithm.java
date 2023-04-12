@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import androidx.media3.common.C;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
+import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;

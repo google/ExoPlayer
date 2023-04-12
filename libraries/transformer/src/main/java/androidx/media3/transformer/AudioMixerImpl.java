@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
+import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.media3.common.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

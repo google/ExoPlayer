@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer;
+package androidx.media3.common.audio;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+
+import androidx.media3.common.util.UnstableApi;
 
 /**
  * An immutable matrix that describes the mapping of input channels to output channels.
@@ -39,7 +41,8 @@ import static androidx.media3.common.util.Assertions.checkArgument;
  *          0 0.7]</pre>
  * </ul>
  */
-/* package */ final class ChannelMixingMatrix {
+@UnstableApi
+public final class ChannelMixingMatrix {
   private final int inputChannelCount;
   private final int outputChannelCount;
   private final float[] coefficients;

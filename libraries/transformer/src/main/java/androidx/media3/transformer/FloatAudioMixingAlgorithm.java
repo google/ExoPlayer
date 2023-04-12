@@ -21,11 +21,10 @@ import android.annotation.SuppressLint;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
-import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.audio.ChannelMixingMatrix;
 import java.nio.ByteBuffer;
 
 /** An {@link AudioMixingAlgorithm} which mixes into float samples. */
-@UnstableApi
 /* package */ class FloatAudioMixingAlgorithm implements AudioMixingAlgorithm {
 
   // Short.MIN_VALUE != -Short.MAX_VALUE so use different scaling factors for positive and

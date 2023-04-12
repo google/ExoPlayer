@@ -56,6 +56,8 @@
         `onAudioCapabilitiesChanged` in `AudioSink.Listener` interface, and a
         new interface `RendererCapabilities.Listener` which triggers
         `onRendererCapabilitiesChanged` events.
+    *   Add `ChannelMixingAudioProcessor` for applying scaling/mixing to audio
+        channels.
 *   Metadata:
     *   Deprecate `MediaMetadata.folderType` in favor of `isBrowsable` and
         `mediaType`.
