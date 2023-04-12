@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
+import com.google.android.exoplayer2.audio.ChannelMixingMatrix;
 import java.nio.ByteBuffer;
 
 /** An {@link AudioMixingAlgorithm} which mixes into float samples. */
