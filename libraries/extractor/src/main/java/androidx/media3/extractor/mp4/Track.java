@@ -78,8 +78,8 @@ public final class Track {
   @Nullable public final long[] editListMediaTimes;
 
   /**
-   * For H264 video tracks, the length in bytes of the NALUnitLength field in each sample. 0 for
-   * other track types.
+   * The length in bytes of the NALUnitLength field in each sample. 0 for tracks that don't use
+   * length-delimited NAL units.
    */
   public final int nalUnitLengthFieldLength;
 
