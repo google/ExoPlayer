@@ -1780,6 +1780,14 @@ public final class Util {
         return AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
       case 8:
         return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
+      case 10:
+        if (Util.SDK_INT > 31) {
+          return AudioFormat.CHANNEL_OUT_5POINT1POINT4;
+        } else {
+          // This is used by DTS:X P2 with Direct Passthrough Playback.
+          // Specifying the audio format as 7.1 for 10 channels does not affect the playback.
+          return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
+        }
       case 12:
         return AudioFormat.CHANNEL_OUT_7POINT1POINT4;
       default:

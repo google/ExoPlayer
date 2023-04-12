@@ -54,8 +54,9 @@ public final class AudioCapabilities {
   @SuppressWarnings("InlinedApi")
   private static final AudioCapabilities EXTERNAL_SURROUND_SOUND_CAPABILITIES =
       new AudioCapabilities(
-          new int[] {
-            AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
+          new int[]{
+              AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3,
+              AudioFormat.ENCODING_DTS, AudioFormat.ENCODING_DTS_HD
           },
           DEFAULT_MAX_CHANNEL_COUNT);
 
@@ -210,7 +211,14 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (channelCount > maxChannelCount) {
+
+      if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
+        if (channelCount > 10) {
+          // To fix wrong reporting from device. ChannelCount is reported as 8 for DTS:X P2
+          // on some devices.
+          return null;
+        }
+      } else if (channelCount > maxChannelCount) {
         return null;
       }
     }

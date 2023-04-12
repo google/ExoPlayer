@@ -39,6 +39,9 @@ public final class DtsUtil {
   private static final int SYNC_VALUE_14B_BE = 0x1FFFE800;
   private static final int SYNC_VALUE_LE = 0xFE7F0180;
   private static final int SYNC_VALUE_14B_LE = 0xFF1F00E8;
+  private static final int SYNC_EXT_SUB_LE = 0x25205864;
+  private static final int SYNC_FTOC_LE = 0xF21B4140;
+  private static final int SYNC_FTOC_NON_SYNC_LE = 0xE842C471;
   private static final byte FIRST_BYTE_BE = (byte) (SYNC_VALUE_BE >>> 24);
   private static final byte FIRST_BYTE_14B_BE = (byte) (SYNC_VALUE_14B_BE >>> 24);
   private static final byte FIRST_BYTE_LE = (byte) (SYNC_VALUE_LE >>> 24);
@@ -147,6 +150,17 @@ public final class DtsUtil {
    * @return The number of audio samples represented by the syncframe.
    */
   public static int parseDtsAudioSampleCount(ByteBuffer buffer) {
+    // Check for sync or non sync word for DTS:X Profile 2.
+    // DTS:X Profile 2's FrameSize = 1024.
+    if ((buffer.getInt(0) == SYNC_FTOC_LE) || (buffer.getInt(0) == SYNC_FTOC_NON_SYNC_LE)) {
+      return 1024;
+    }
+    // Check for sync word for DTS Express.
+    // DTS Express's FrameSize = 4096.
+    else if (buffer.getInt(0) == SYNC_EXT_SUB_LE) {
+      return 4096;
+    }
+
     // See ETSI TS 102 114 subsection 5.4.1.
     int position = buffer.position();
     int nblks;
