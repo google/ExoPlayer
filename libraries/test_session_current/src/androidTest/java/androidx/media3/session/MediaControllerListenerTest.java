@@ -326,6 +326,8 @@ public class MediaControllerListenerTest {
     @Player.RepeatMode int testRepeatMode = Player.REPEAT_MODE_ALL;
     int testCurrentAdGroupIndex = 33;
     int testCurrentAdIndexInAdGroup = 11;
+    Commands testCommands =
+        new Commands.Builder().addAllCommands().remove(Player.COMMAND_STOP).build();
     AtomicInteger stateRef = new AtomicInteger();
     AtomicReference<Timeline> timelineRef = new AtomicReference<>();
     AtomicReference<MediaMetadata> playlistMetadataRef = new AtomicReference<>();
@@ -335,7 +337,8 @@ public class MediaControllerListenerTest {
     AtomicInteger currentAdIndexInAdGroupRef = new AtomicInteger();
     AtomicBoolean shuffleModeEnabledRef = new AtomicBoolean();
     AtomicInteger repeatModeRef = new AtomicInteger();
-    CountDownLatch latch = new CountDownLatch(7);
+    AtomicReference<Commands> commandsRef = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(8);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     threadTestRule
         .getHandler()
@@ -343,6 +346,12 @@ public class MediaControllerListenerTest {
             () ->
                 controller.addListener(
                     new Player.Listener() {
+                      @Override
+                      public void onAvailableCommandsChanged(Commands availableCommands) {
+                        commandsRef.set(availableCommands);
+                        latch.countDown();
+                      }
+
                       @Override
                       public void onAudioAttributesChanged(AudioAttributes attributes) {
                         audioAttributesRef.set(attributes);
@@ -402,6 +411,7 @@ public class MediaControllerListenerTest {
             .setIsPlayingAd(true)
             .setCurrentAdGroupIndex(testCurrentAdGroupIndex)
             .setCurrentAdIndexInAdGroup(testCurrentAdIndexInAdGroup)
+            .setAvailableCommands(testCommands)
             .build();
 
     remoteSession.setPlayer(playerConfig);
@@ -415,6 +425,7 @@ public class MediaControllerListenerTest {
     assertThat(currentAdIndexInAdGroupRef.get()).isEqualTo(testCurrentAdIndexInAdGroup);
     assertThat(shuffleModeEnabledRef.get()).isEqualTo(testShuffleModeEnabled);
     assertThat(repeatModeRef.get()).isEqualTo(testRepeatMode);
+    assertThat(commandsRef.get()).isEqualTo(testCommands);
   }
 
   @Test
