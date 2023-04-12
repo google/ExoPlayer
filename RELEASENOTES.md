@@ -37,6 +37,8 @@
     *   Add missing forwarding of `MediaSession.broadcastCustomCommand` to the
         legacy `MediaControllerCompat.Callback.onSessionEvent`
         ([#293](https://github.com/androidx/media/issues/293)).
+    *   Fix bug where calling `MediaSession.setPlayer` doesn't update the
+        available commands.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

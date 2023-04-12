@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_SESSION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_AUDIO_ATTRIBUTES;
+import static androidx.media3.test.session.common.CommonConstants.KEY_AVAILABLE_COMMANDS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_BUFFERED_PERCENTAGE;
 import static androidx.media3.test.session.common.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CONTENT_BUFFERED_POSITION;
@@ -394,6 +395,10 @@ public class MediaSessionProviderService extends Service {
       if (trackSelectionParametersBundle != null) {
         player.trackSelectionParameters =
             TrackSelectionParameters.fromBundle(trackSelectionParametersBundle);
+      }
+      @Nullable Bundle availableCommandsBundle = config.getBundle(KEY_AVAILABLE_COMMANDS);
+      if (availableCommandsBundle != null) {
+        player.commands = Player.Commands.CREATOR.fromBundle(availableCommandsBundle);
       }
       return player;
     }

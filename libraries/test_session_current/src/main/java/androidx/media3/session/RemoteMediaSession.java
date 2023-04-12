@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_SESSION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_AUDIO_ATTRIBUTES;
+import static androidx.media3.test.session.common.CommonConstants.KEY_AVAILABLE_COMMANDS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_BUFFERED_PERCENTAGE;
 import static androidx.media3.test.session.common.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CONTENT_BUFFERED_POSITION;
@@ -737,6 +738,12 @@ public class RemoteMediaSession {
     @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentTracks(Tracks tracks) {
       bundle.putBundle(KEY_CURRENT_TRACKS, tracks.toBundle());
+      return this;
+    }
+
+    @CanIgnoreReturnValue
+    public MockPlayerConfigBuilder setAvailableCommands(Player.Commands availableCommands) {
+      bundle.putBundle(KEY_AVAILABLE_COMMANDS, availableCommands.toBundle());
       return this;
     }
 

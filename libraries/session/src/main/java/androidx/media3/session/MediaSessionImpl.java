@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
@@ -279,8 +278,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     playerInfo = newPlayerWrapper.createPlayerInfoForBundling();
-    onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
-        /* excludeTimeline= */ false, /* excludeTracks= */ false);
+    handleAvailablePlayerCommandsChanged(newPlayerWrapper.getAvailableCommands());
   }
 
   public void release() {
@@ -773,6 +771,20 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
+  private void handleAvailablePlayerCommandsChanged(Player.Commands availableCommands) {
+    // Update PlayerInfo and do not force exclude elements in case they need to be updated because
+    // an available command has been removed.
+    onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+        /* excludeTimeline= */ false, /* excludeTracks= */ false);
+    dispatchRemoteControllerTaskWithoutReturn(
+        (callback, seq) -> callback.onAvailableCommandsChangedFromPlayer(seq, availableCommands));
+
+    // Forcefully update playback info to update VolumeProviderCompat in case
+    // COMMAND_ADJUST_DEVICE_VOLUME or COMMAND_SET_DEVICE_VOLUME value has changed.
+    dispatchRemoteControllerTaskToLegacyStub(
+        (callback, seq) -> callback.onDeviceInfoChanged(seq, playerInfo.deviceInfo));
+  }
+
   /* @FunctionalInterface */
   interface RemoteControllerTask {
 
@@ -1183,16 +1195,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      boolean excludeTracks = !availableCommands.contains(COMMAND_GET_TRACKS);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
-          /* excludeTimeline= */ false, excludeTracks);
-      session.dispatchRemoteControllerTaskWithoutReturn(
-          (callback, seq) -> callback.onAvailableCommandsChangedFromPlayer(seq, availableCommands));
-
-      // Forcefully update playback info to update VolumeProviderCompat in case
-      // COMMAND_ADJUST_DEVICE_VOLUME or COMMAND_SET_DEVICE_VOLUME value has changed.
-      session.dispatchRemoteControllerTaskToLegacyStub(
-          (callback, seq) -> callback.onDeviceInfoChanged(seq, session.playerInfo.deviceInfo));
+      session.handleAvailablePlayerCommandsChanged(availableCommands);
     }
 
     @Override
