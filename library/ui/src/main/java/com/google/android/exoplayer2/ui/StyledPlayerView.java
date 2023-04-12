@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
-import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TRACKS;
@@ -1347,7 +1347,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   @RequiresNonNull("artworkView")
   private boolean setArtworkFromMediaMetadata(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return false;
     }
     MediaMetadata mediaMetadata = player.getMediaMetadata();

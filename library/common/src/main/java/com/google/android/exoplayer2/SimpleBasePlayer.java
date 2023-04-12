@@ -2396,7 +2396,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!shouldHandleCommand(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_PLAYLIST_METADATA)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2903,7 +2903,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * Handles calls to {@link Player#setPlaylistMetadata}.
    *
-   * <p>Will only be called if {@link Player#COMMAND_SET_MEDIA_ITEMS_METADATA} is available.
+   * <p>Will only be called if {@link Player#COMMAND_SET_PLAYLIST_METADATA} is available.
    *
    * @param playlistMetadata The requested {@linkplain MediaMetadata playlist metadata}.
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
@@ -2912,7 +2912,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
     throw new IllegalStateException(
-        "Missing implementation to handle COMMAND_SET_MEDIA_ITEMS_METADATA");
+        "Missing implementation to handle COMMAND_SET_PLAYLIST_METADATA");
   }
 
   /**
