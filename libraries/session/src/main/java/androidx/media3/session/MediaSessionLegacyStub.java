@@ -35,6 +35,7 @@ import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.Player.STATE_IDLE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
@@ -43,9 +44,13 @@ import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -107,6 +112,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private static final String TAG = "MediaSessionLegacyStub";
 
+  private static final int PENDING_INTENT_FLAG_MUTABLE =
+      Util.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
   private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "androidx.media3.session.id";
   private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
 
@@ -122,6 +129,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
   private final String appPackageName;
+  @Nullable private final MediaButtonReceiver runtimeBroadcastReceiver;
+  private final boolean canResumePlaybackOnStart;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
 
   private volatile long connectionTimeoutMs;
@@ -130,8 +139,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   public MediaSessionLegacyStub(
       MediaSessionImpl session,
-      ComponentName mbrComponent,
-      PendingIntent mediaButtonIntent,
+      Uri sessionUri,
+      @Nullable ComponentName serviceComponentName,
       Handler handler) {
     sessionImpl = session;
     Context context = sessionImpl.getContext();
@@ -145,6 +154,44 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     connectedControllersManager = new ConnectedControllersManager<>(session);
     connectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
 
+    // Select a media button receiver component.
+    ComponentName receiverComponentName = queryPackageManagerForMediaButtonReceiver(context);
+    // Assume an app that intentionally puts a `MediaButtonReceiver` into the manifest has
+    // implemented some kind of resumption of the last recently played media item.
+    canResumePlaybackOnStart = receiverComponentName != null;
+    if (receiverComponentName == null) {
+      receiverComponentName = serviceComponentName;
+    }
+    Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, sessionUri);
+    PendingIntent mediaButtonIntent;
+    if (receiverComponentName == null) {
+      // Neither a media button receiver from the app manifest nor a service available that could
+      // handle media button events. Create a runtime receiver and a pending intent for it.
+      runtimeBroadcastReceiver = new MediaButtonReceiver();
+      IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+      filter.addDataScheme(castNonNull(sessionUri.getScheme()));
+      Util.registerReceiverNotExported(context, runtimeBroadcastReceiver, filter);
+      // Create a pending intent to be broadcast to the receiver.
+      intent.setPackage(context.getPackageName());
+      mediaButtonIntent =
+          PendingIntent.getBroadcast(
+              context, /* requestCode= */ 0, intent, PENDING_INTENT_FLAG_MUTABLE);
+      // Creates a fake ComponentName for MediaSessionCompat in pre-L.
+      receiverComponentName = new ComponentName(context, context.getClass());
+    } else {
+      intent.setComponent(receiverComponentName);
+      mediaButtonIntent =
+          Objects.equals(serviceComponentName, receiverComponentName)
+              ? (Util.SDK_INT >= 26
+                  ? PendingIntent.getForegroundService(
+                      context, /* requestCode= */ 0, intent, PENDING_INTENT_FLAG_MUTABLE)
+                  : PendingIntent.getService(
+                      context, /* requestCode= */ 0, intent, PENDING_INTENT_FLAG_MUTABLE))
+              : PendingIntent.getBroadcast(
+                  context, /* requestCode= */ 0, intent, PENDING_INTENT_FLAG_MUTABLE);
+      runtimeBroadcastReceiver = null;
+    }
+
     String sessionCompatId =
         TextUtils.join(
             DEFAULT_MEDIA_SESSION_TAG_DELIM,
@@ -153,7 +200,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         new MediaSessionCompat(
             context,
             sessionCompatId,
-            mbrComponent,
+            receiverComponentName,
             mediaButtonIntent,
             session.getToken().getExtras());
 
@@ -168,12 +215,38 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     sessionCompat.setCallback(thisRef, handler);
   }
 
+  @Nullable
+  private static ComponentName queryPackageManagerForMediaButtonReceiver(Context context) {
+    PackageManager pm = context.getPackageManager();
+    Intent queryIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+    queryIntent.setPackage(context.getPackageName());
+    List<ResolveInfo> resolveInfos = pm.queryBroadcastReceivers(queryIntent, /* flags= */ 0);
+    if (resolveInfos.size() == 1) {
+      ResolveInfo resolveInfo = resolveInfos.get(0);
+      return new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
+    } else if (resolveInfos.isEmpty()) {
+      return null;
+    } else {
+      throw new IllegalStateException(
+          "Expected 1 broadcast receiver that handles "
+              + Intent.ACTION_MEDIA_BUTTON
+              + ", found "
+              + resolveInfos.size());
+    }
+  }
+
   /** Starts to receive commands. */
   public void start() {
     sessionCompat.setActive(true);
   }
 
   public void release() {
+    if (!canResumePlaybackOnStart) {
+      setMediaButtonReceiver(sessionCompat, /* mediaButtonReceiverIntent= */ null);
+    }
+    if (runtimeBroadcastReceiver != null) {
+      sessionImpl.getContext().unregisterReceiver(runtimeBroadcastReceiver);
+    }
     sessionCompat.release();
   }
 
@@ -833,6 +906,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @SuppressWarnings("nullness:argument") // MediaSessionCompat didn't annotate @Nullable.
+  private static void setMediaButtonReceiver(
+      MediaSessionCompat sessionCompat, @Nullable PendingIntent mediaButtonReceiverIntent) {
+    sessionCompat.setMediaButtonReceiver(mediaButtonReceiverIntent);
+  }
+
+  @SuppressWarnings("nullness:argument") // MediaSessionCompat didn't annotate @Nullable.
   private static void setQueue(MediaSessionCompat sessionCompat, @Nullable List<QueueItem> queue) {
     sessionCompat.setQueue(queue);
   }
@@ -1357,5 +1436,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private static String getBitmapLoadErrorMessage(Throwable throwable) {
     return "Failed to load bitmap: " + throwable.getMessage();
+  }
+
+  // TODO(b/193193462): Replace this with androidx.media.session.MediaButtonReceiver
+  private final class MediaButtonReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      if (!Util.areEqual(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
+        return;
+      }
+      Uri sessionUri = intent.getData();
+      if (!Util.areEqual(sessionUri, sessionUri)) {
+        return;
+      }
+      KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+      if (keyEvent == null) {
+        return;
+      }
+      getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+    }
   }
 }
