@@ -190,9 +190,9 @@ public class TestUtil {
     return Util.toByteArray(getInputStream(context, fileName));
   }
 
-  /** Returns the bytes of a cache file using its file path. */
-  public static byte[] getByteArrayFromCache(String cacheFilePath) throws IOException {
-    InputStream inputStream = new FileInputStream(cacheFilePath);
+  /** Returns the bytes of a file using its file path. */
+  public static byte[] getByteArrayFromFilePath(String filePath) throws IOException {
+    InputStream inputStream = new FileInputStream(filePath);
     return Util.toByteArray(inputStream);
   }
 
@@ -400,7 +400,7 @@ public class TestUtil {
   /**
    * Extracts all samples from the given file into a {@link FakeTrackOutput}.
    *
-   * @param extractor The {@link Extractor} to extractor from input.
+   * @param extractor The {@link Extractor} to be used.
    * @param context A {@link Context}.
    * @param fileName The name of the input file.
    * @return The {@link FakeTrackOutput} containing the extracted samples.
@@ -414,17 +414,17 @@ public class TestUtil {
   }
 
   /**
-   * Extracts all samples from the given storage file into a {@link FakeTrackOutput}.
+   * Extracts all samples from the given file into a {@link FakeTrackOutput}.
    *
-   * @param extractor The {@link Extractor} to extractor from input.
-   * @param cacheFilePath The cache file path.
+   * @param extractor The {@link Extractor} to be used.
+   * @param filePath The file path.
    * @return The {@link FakeTrackOutput} containing the extracted samples.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
    */
-  public static FakeExtractorOutput extractAllSamplesFromCacheFile(
-      Extractor extractor, String cacheFilePath) throws IOException {
-    byte[] data = TestUtil.getByteArrayFromCache(cacheFilePath);
+  public static FakeExtractorOutput extractAllSamplesFromFilePath(
+      Extractor extractor, String filePath) throws IOException {
+    byte[] data = getByteArrayFromFilePath(filePath);
     return extractAllSamplesFromByteArray(extractor, data);
   }
 
