@@ -17,18 +17,15 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -42,7 +39,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.view.KeyEvent;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -66,7 +62,6 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition;
@@ -115,8 +110,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final SessionToken sessionToken;
   private final MediaSession instance;
   @Nullable private final PendingIntent sessionActivity;
-  private final PendingIntent mediaButtonIntent;
-  @Nullable private final BroadcastReceiver broadcastReceiver;
   private final Handler applicationHandler;
   private final BitmapLoader bitmapLoader;
   private final Runnable periodicSessionPositionInfoUpdateRunnable;
@@ -189,52 +182,21 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             sessionStub,
             tokenExtras);
 
-    @Nullable ComponentName mbrComponent;
     synchronized (STATIC_LOCK) {
       if (!componentNamesInitialized) {
-        serviceComponentName =
+        MediaSessionImpl.serviceComponentName =
             getServiceComponentByAction(context, MediaLibraryService.SERVICE_INTERFACE);
-        if (serviceComponentName == null) {
-          serviceComponentName =
+        if (MediaSessionImpl.serviceComponentName == null) {
+          MediaSessionImpl.serviceComponentName =
               getServiceComponentByAction(context, MediaSessionService.SERVICE_INTERFACE);
         }
         componentNamesInitialized = true;
       }
-      mbrComponent = serviceComponentName;
-    }
-    int pendingIntentFlagMutable = Util.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
-    if (mbrComponent == null) {
-      // No service to revive playback after it's dead.
-      // Create a PendingIntent that points to the runtime broadcast receiver.
-      Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, sessionUri);
-      intent.setPackage(context.getPackageName());
-      mediaButtonIntent =
-          PendingIntent.getBroadcast(
-              context, /* requestCode= */ 0, intent, pendingIntentFlagMutable);
-
-      // Creates a fake ComponentName for MediaSessionCompat in pre-L.
-      mbrComponent = new ComponentName(context, context.getClass());
-
-      // Create and register a BroadcastReceiver for receiving PendingIntent.
-      broadcastReceiver = new MediaButtonReceiver();
-      IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
-      filter.addDataScheme(castNonNull(sessionUri.getScheme()));
-      Util.registerReceiverNotExported(context, broadcastReceiver, filter);
-    } else {
-      // Has MediaSessionService to revive playback after it's dead.
-      Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, sessionUri);
-      intent.setComponent(mbrComponent);
-      if (Util.SDK_INT >= 26) {
-        mediaButtonIntent =
-            PendingIntent.getForegroundService(context, 0, intent, pendingIntentFlagMutable);
-      } else {
-        mediaButtonIntent = PendingIntent.getService(context, 0, intent, pendingIntentFlagMutable);
-      }
-      broadcastReceiver = null;
     }
 
     sessionLegacyStub =
-        new MediaSessionLegacyStub(thisRef, mbrComponent, mediaButtonIntent, applicationHandler);
+        new MediaSessionLegacyStub(
+            /* session= */ thisRef, sessionUri, serviceComponentName, applicationHandler);
 
     PlayerWrapper playerWrapper = new PlayerWrapper(player);
     this.playerWrapper = playerWrapper;
@@ -304,10 +266,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       Log.w(TAG, "Exception thrown while closing", e);
     }
     sessionLegacyStub.release();
-    mediaButtonIntent.cancel();
-    if (broadcastReceiver != null) {
-      context.unregisterReceiver(broadcastReceiver);
-    }
     sessionStub.release();
   }
 
@@ -1282,26 +1240,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     @Nullable
     private MediaSessionImpl getSession() {
       return this.session.get();
-    }
-  }
-
-  // TODO(b/193193462): Replace this with androidx.media.session.MediaButtonReceiver
-  private final class MediaButtonReceiver extends BroadcastReceiver {
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      if (!Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-        return;
-      }
-      Uri sessionUri = intent.getData();
-      if (!Util.areEqual(sessionUri, MediaSessionImpl.this.sessionUri)) {
-        return;
-      }
-      KeyEvent keyEvent = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-      if (keyEvent == null) {
-        return;
-      }
-      getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
     }
   }
 
