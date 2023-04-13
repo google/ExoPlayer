@@ -691,6 +691,7 @@ public final class TransformerActivity extends AppCompatActivity {
     ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     outputPlayerView.setPlayer(outputPlayer);
     outputPlayerView.setControllerAutoShow(false);
+    outputPlayerView.setOnClickListener(this::onClickingPlayerView);
     outputPlayer.setMediaItem(outputMediaItem);
     outputPlayer.prepare();
     this.outputPlayer = outputPlayer;
@@ -712,12 +713,13 @@ public final class TransformerActivity extends AppCompatActivity {
     } else {
       inputPlayerView.setVisibility(View.VISIBLE);
       inputImageView.setVisibility(View.GONE);
-      inputTextView.setText(getString(R.string.input_video));
+      inputTextView.setText(getString(R.string.input_video_no_sound));
 
       ExoPlayer inputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
       inputPlayerView.setPlayer(inputPlayer);
       inputPlayerView.setControllerAutoShow(false);
       inputPlayer.setMediaItem(inputMediaItem);
+      inputPlayerView.setOnClickListener(this::onClickingPlayerView);
       inputPlayer.prepare();
       this.inputPlayer = inputPlayer;
       inputPlayer.setVolume(0f);
@@ -727,6 +729,20 @@ public final class TransformerActivity extends AppCompatActivity {
 
     debugTextViewHelper = new DebugTextViewHelper(outputPlayer, debugTextView);
     debugTextViewHelper.start();
+  }
+
+  private void onClickingPlayerView(View view) {
+    if (view == inputPlayerView) {
+      checkNotNull(inputPlayer).setVolume(1f);
+      checkNotNull(inputTextView).setText(R.string.input_video_playing_sound);
+      checkNotNull(outputPlayer).setVolume(0f);
+      checkNotNull(outputVideoTextView).setText(R.string.output_video_no_sound);
+    } else {
+      checkNotNull(inputPlayer).setVolume(0f);
+      checkNotNull(inputTextView).setText(getString(R.string.input_video_no_sound));
+      checkNotNull(outputPlayer).setVolume(1f);
+      checkNotNull(outputVideoTextView).setText(R.string.output_video_playing_sound);
+    }
   }
 
   private void releasePlayer() {

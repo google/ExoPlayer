@@ -63,8 +63,10 @@
   <string name="saturation_adjustment">Saturation adjustment</string>
   <string name="lightness_adjustment">Lightness adjustment</string>
   <string name="input_image">Input image:</string>
-  <string name="input_video">Input video:</string>
-  <string name="output_video">Output video:</string>
+  <string name="input_video_no_sound">Input video (tap to play sound):</string>
+  <string name="input_video_playing_sound">Input video (sound playing):</string>
+  <string name="output_video_no_sound">Output video (tap to play sound):</string>
+  <string name="output_video_playing_sound">Output video (sound playing):</string>
   <string name="permission_denied">Permission Denied</string>
   <string name="hide_input_video">Hide input video</string>
   <string name="show_input_video">Show input video</string>
