@@ -85,6 +85,9 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.Commands;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -108,6 +111,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 import java.util.TimeZone;
@@ -180,7 +184,8 @@ public final class Util {
   private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
   // Replacement map of ISO language codes used for normalization.
-  @Nullable private static HashMap<String, String> languageTagReplacementMap;
+  private static final Supplier<ImmutableMap<String, String>> LANGUAGE_TAG_REPLACEMENT_MAP =
+      Suppliers.memoize(Util::createIsoLanguageReplacementMap);
 
   private Util() {}
 
@@ -818,10 +823,8 @@ public final class Util {
     }
     normalizedTag = Ascii.toLowerCase(normalizedTag);
     String mainLanguage = splitAtFirst(normalizedTag, "-")[0];
-    if (languageTagReplacementMap == null) {
-      languageTagReplacementMap = createIsoLanguageReplacementMap();
-    }
-    @Nullable String replacedLanguage = languageTagReplacementMap.get(mainLanguage);
+
+    @Nullable String replacedLanguage = LANGUAGE_TAG_REPLACEMENT_MAP.get().get(mainLanguage);
     if (replacedLanguage != null) {
       normalizedTag =
           replacedLanguage + normalizedTag.substring(/* beginIndex= */ mainLanguage.length());
@@ -2979,11 +2982,12 @@ public final class Util {
     return locale.toLanguageTag();
   }
 
-  private static HashMap<String, String> createIsoLanguageReplacementMap() {
+  private static ImmutableMap<String, String> createIsoLanguageReplacementMap() {
     String[] iso2Languages = Locale.getISOLanguages();
     HashMap<String, String> replacedLanguages =
         new HashMap<>(
-            /* initialCapacity= */ iso2Languages.length + additionalIsoLanguageReplacements.length);
+            /* initialCapacity= */ iso2Languages.length
+                + ADDITIONAL_ISO_LANGUAGE_REPLACEMENTS.size());
     for (String iso2 : iso2Languages) {
       try {
         // This returns the ISO 639-2/T code for the language.
@@ -2996,11 +3000,9 @@ public final class Util {
       }
     }
     // Add additional replacement mappings.
-    for (int i = 0; i < additionalIsoLanguageReplacements.length; i += 2) {
-      replacedLanguages.put(
-          additionalIsoLanguageReplacements[i], additionalIsoLanguageReplacements[i + 1]);
-    }
-    return replacedLanguages;
+    replacedLanguages.putAll(ADDITIONAL_ISO_LANGUAGE_REPLACEMENTS);
+
+    return ImmutableMap.copyOf(replacedLanguages);
   }
 
   @RequiresApi(api = Build.VERSION_CODES.M)
@@ -3022,84 +3024,84 @@ public final class Util {
   }
 
   private static String maybeReplaceLegacyLanguageTags(String languageTag) {
-    for (int i = 0; i < isoLegacyTagReplacements.length; i += 2) {
-      if (languageTag.startsWith(isoLegacyTagReplacements[i])) {
-        return isoLegacyTagReplacements[i + 1]
-            + languageTag.substring(/* beginIndex= */ isoLegacyTagReplacements[i].length());
+    for (Map.Entry<String, String> legacyTagToModernTag : ISO_LEGACY_TAG_REPLACEMENTS.entrySet()) {
+      if (languageTag.startsWith(legacyTagToModernTag.getKey())) {
+        return legacyTagToModernTag.getValue()
+            + languageTag.substring(/* beginIndex= */ legacyTagToModernTag.getKey().length());
       }
     }
+
     return languageTag;
   }
 
   // Additional mapping from ISO3 to ISO2 language codes.
-  private static final String[] additionalIsoLanguageReplacements =
-      new String[] {
-        // Bibliographical codes defined in ISO 639-2/B, replaced by terminological code defined in
-        // ISO 639-2/T. See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
-        "alb", "sq",
-        "arm", "hy",
-        "baq", "eu",
-        "bur", "my",
-        "tib", "bo",
-        "chi", "zh",
-        "cze", "cs",
-        "dut", "nl",
-        "ger", "de",
-        "gre", "el",
-        "fre", "fr",
-        "geo", "ka",
-        "ice", "is",
-        "mac", "mk",
-        "mao", "mi",
-        "may", "ms",
-        "per", "fa",
-        "rum", "ro",
-        "scc", "hbs-srp",
-        "slo", "sk",
-        "wel", "cy",
-        // Deprecated 2-letter codes, replaced by modern equivalent (including macrolanguage)
-        // See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, "ISO 639:1988"
-        "id", "ms-ind",
-        "iw", "he",
-        "heb", "he",
-        "ji", "yi",
-        // Individual macrolanguage codes mapped back to full macrolanguage code.
-        // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
-        "arb", "ar-arb",
-        "in", "ms-ind",
-        "ind", "ms-ind",
-        "nb", "no-nob",
-        "nob", "no-nob",
-        "nn", "no-nno",
-        "nno", "no-nno",
-        "tw", "ak-twi",
-        "twi", "ak-twi",
-        "bs", "hbs-bos",
-        "bos", "hbs-bos",
-        "hr", "hbs-hrv",
-        "hrv", "hbs-hrv",
-        "sr", "hbs-srp",
-        "srp", "hbs-srp",
-        "cmn", "zh-cmn",
-        "hak", "zh-hak",
-        "nan", "zh-nan",
-        "hsn", "zh-hsn"
-      };
+  private static final ImmutableMap<String, String> ADDITIONAL_ISO_LANGUAGE_REPLACEMENTS =
+      new ImmutableMap.Builder<String, String>()
+          // Bibliographical codes defined in ISO 639-2/B, replaced by terminological code defined
+          // in ISO 639-2/T. See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
+          .put("alb", "sq")
+          .put("arm", "hy")
+          .put("baq", "eu")
+          .put("bur", "my")
+          .put("tib", "bo")
+          .put("chi", "zh")
+          .put("cze", "cs")
+          .put("dut", "nl")
+          .put("ger", "de")
+          .put("gre", "el")
+          .put("fre", "fr")
+          .put("geo", "ka")
+          .put("ice", "is")
+          .put("mac", "mk")
+          .put("mao", "mi")
+          .put("may", "ms")
+          .put("per", "fa")
+          .put("rum", "ro")
+          .put("scc", "hbs-srp")
+          .put("slo", "sk")
+          .put("wel", "cy")
+          // Deprecated 2-letter codes, replaced by modern equivalent (including macrolanguage)
+          // See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, "ISO 639:1988"
+          .put("id", "ms-ind")
+          .put("iw", "he")
+          .put("heb", "he")
+          .put("ji", "yi")
+          // Individual macrolanguage codes mapped back to full macrolanguage code.
+          // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+          .put("arb", "ar-arb")
+          .put("in", "ms-ind")
+          .put("ind", "ms-ind")
+          .put("nb", "no-nob")
+          .put("nob", "no-nob")
+          .put("nn", "no-nno")
+          .put("nno", "no-nno")
+          .put("tw", "ak-twi")
+          .put("twi", "ak-twi")
+          .put("bs", "hbs-bos")
+          .put("bos", "hbs-bos")
+          .put("hr", "hbs-hrv")
+          .put("hrv", "hbs-hrv")
+          .put("sr", "hbs-srp")
+          .put("srp", "hbs-srp")
+          .put("cmn", "zh-cmn")
+          .put("hak", "zh-hak")
+          .put("nan", "zh-nan")
+          .put("hsn", "zh-hsn")
+          .buildOrThrow();
 
   // Legacy tags that have been replaced by modern equivalents (including macrolanguage)
   // See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.
-  private static final String[] isoLegacyTagReplacements =
-      new String[] {
-        "i-lux", "lb",
-        "i-hak", "zh-hak",
-        "i-navajo", "nv",
-        "no-bok", "no-nob",
-        "no-nyn", "no-nno",
-        "zh-guoyu", "zh-cmn",
-        "zh-hakka", "zh-hak",
-        "zh-min-nan", "zh-nan",
-        "zh-xiang", "zh-hsn"
-      };
+  private static final ImmutableMap<String, String> ISO_LEGACY_TAG_REPLACEMENTS =
+      ImmutableMap.of(
+          "i-lux", "lb",
+          "i-hak", "zh-hak",
+          "i-navajo", "nv",
+          "no-bok", "no-nob",
+          "no-nyn", "no-nno",
+          "zh-guoyu", "zh-cmn",
+          "zh-hakka", "zh-hak",
+          "zh-min-nan", "zh-nan",
+          "zh-xiang", "zh-hsn");
 
   /**
    * Allows the CRC-32 calculation to be done byte by byte instead of bit per bit in the order "most
