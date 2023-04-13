@@ -18,17 +18,17 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 
-import android.content.Context;
 import androidx.annotation.FloatRange;
-import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
-/** A {@link GlEffect} to control the contrast of video frames. */
+/** A {@link RgbMatrix} to control the contrast of video frames. */
 @UnstableApi
-public class Contrast implements GlEffect {
+public class Contrast implements RgbMatrix {
 
   /** Adjusts the contrast of video frames in the interval [-1, 1]. */
-  public final float contrast;
+  private final float contrast;
+
+  private final float[] contrastMatrix;
 
   /**
    * Creates a new instance for the given contrast value.
@@ -39,12 +39,33 @@ public class Contrast implements GlEffect {
   public Contrast(@FloatRange(from = -1, to = 1) float contrast) {
     checkArgument(-1 <= contrast && contrast <= 1, "Contrast needs to be in the interval [-1, 1].");
     this.contrast = contrast;
+    float contrastFactor = (1 + contrast) / (1.0001f - contrast);
+    contrastMatrix =
+        new float[] {
+          contrastFactor,
+          0.0f,
+          0.0f,
+          0.0f,
+          0.0f,
+          contrastFactor,
+          0.0f,
+          0.0f,
+          0.0f,
+          0.0f,
+          contrastFactor,
+          0.0f,
+          (1.0f - contrastFactor) * 0.5f,
+          (1.0f - contrastFactor) * 0.5f,
+          (1.0f - contrastFactor) * 0.5f,
+          1.0f
+        };
   }
 
   @Override
-  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws VideoFrameProcessingException {
-    return new ContrastShaderProgram(context, this, useHdr);
+  public float[] getMatrix(long presentationTimeUs, boolean useHdr) {
+    // Implementation is not currently time-varying, therefore matrix should not be changing between
+    // frames.
+    return contrastMatrix;
   }
 
   @Override
