@@ -378,7 +378,9 @@ public interface Player {
         COMMAND_GET_DEVICE_VOLUME,
         COMMAND_SET_VOLUME,
         COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
@@ -1426,7 +1428,9 @@ public interface Player {
    *   <li>{@link #COMMAND_GET_DEVICE_VOLUME}
    *   <li>{@link #COMMAND_SET_VOLUME}
    *   <li>{@link #COMMAND_SET_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS}
    *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS}
    *   <li>{@link #COMMAND_SET_VIDEO_SURFACE}
    *   <li>{@link #COMMAND_GET_TEXT}
    *   <li>{@link #COMMAND_SET_TRACK_SELECTION_PARAMETERS}
@@ -1470,7 +1474,9 @@ public interface Player {
     COMMAND_GET_DEVICE_VOLUME,
     COMMAND_SET_VOLUME,
     COMMAND_SET_DEVICE_VOLUME,
+    COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
     COMMAND_ADJUST_DEVICE_VOLUME,
+    COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
@@ -1776,27 +1782,36 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_SET_VOLUME = 24;
-  /**
-   * Command to set the device volume.
-   *
-   * <p>The {@link #setDeviceVolume(int)} method must only be called if this command is {@linkplain
-   * #isCommandAvailable(int) available}.
-   */
-  int COMMAND_SET_DEVICE_VOLUME = 25;
 
   /**
-   * Command to increase and decrease the device volume and mute it.
+   * @deprecated Use {@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} instead.
+   */
+  @Deprecated int COMMAND_SET_DEVICE_VOLUME = 25;
+  /**
+   * Command to set the device volume with volume flags.
+   *
+   * <p>The {@link #setDeviceVolume(int, int)} method must only be called if this command is
+   * {@linkplain #isCommandAvailable(int) available}.
+   */
+  int COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS = 33;
+
+  /**
+   * @deprecated Use {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} instead.
+   */
+  @Deprecated int COMMAND_ADJUST_DEVICE_VOLUME = 26;
+  /**
+   * Command to increase and decrease the device volume and mute it with volume flags.
    *
    * <p>The following methods must only be called if this command is {@linkplain
    * #isCommandAvailable(int) available}:
    *
    * <ul>
-   *   <li>{@link #increaseDeviceVolume()}
-   *   <li>{@link #decreaseDeviceVolume()}
-   *   <li>{@link #setDeviceMuted(boolean)}
+   *   <li>{@link #increaseDeviceVolume(int)}
+   *   <li>{@link #decreaseDeviceVolume(int)}
+   *   <li>{@link #setDeviceMuted(boolean, int)}
    * </ul>
    */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 26;
+  int COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS = 34;
 
   /**
    * Command to set and clear the surface on which to render the video.
@@ -3067,36 +3082,68 @@ public interface Player {
   boolean isDeviceMuted();
 
   /**
-   * Sets the volume of the device.
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
+  void setDeviceVolume(@IntRange(from = 0) int volume);
+
+  /**
+   * Sets the volume of the device with volume flags.
    *
-   * <p>This method must only be called if {@link #COMMAND_SET_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
    *
    * @param volume The volume to set.
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void setDeviceVolume(@IntRange(from = 0) int volume);
+  void setDeviceVolume(@IntRange(from = 0) int volume, int flags);
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  void increaseDeviceVolume();
 
   /**
    * Increases the volume of the device.
    *
-   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void increaseDeviceVolume();
+  void increaseDeviceVolume(@C.VolumeFlags int flags);
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  void decreaseDeviceVolume();
 
   /**
    * Decreases the volume of the device.
    *
-   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void decreaseDeviceVolume();
+  void decreaseDeviceVolume(@C.VolumeFlags int flags);
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  void setDeviceMuted(boolean muted);
 
   /**
    * Sets the mute state of the device.
    *
-   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
+   *
+   * @param muted Whether to set the device to be muted or not
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void setDeviceMuted(boolean muted);
+  void setDeviceMuted(boolean muted, @C.VolumeFlags int flags);
 }

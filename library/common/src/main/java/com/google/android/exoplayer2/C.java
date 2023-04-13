@@ -405,6 +405,37 @@ public final class C {
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
   /**
+   * Volume flags to be used when setting or adjusting device volume. The value can be either 0 or a
+   * combination of the following flags: {@link #VOLUME_FLAG_SHOW_UI}, {@link
+   * #VOLUME_FLAG_ALLOW_RINGER_MODES}, {@link #VOLUME_FLAG_PLAY_SOUND}, {@link
+   * #VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE}, {@link #VOLUME_FLAG_VIBRATE}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({TYPE_USE})
+  @IntDef(
+      flag = true,
+      value = {
+        VOLUME_FLAG_SHOW_UI,
+        VOLUME_FLAG_ALLOW_RINGER_MODES,
+        VOLUME_FLAG_PLAY_SOUND,
+        VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE,
+        VOLUME_FLAG_VIBRATE,
+      })
+  public @interface VolumeFlags {}
+  /** See {@link AudioManager#FLAG_SHOW_UI}. */
+  public static final int VOLUME_FLAG_SHOW_UI = AudioManager.FLAG_SHOW_UI;
+  /** See {@link AudioManager#FLAG_ALLOW_RINGER_MODES}. */
+  public static final int VOLUME_FLAG_ALLOW_RINGER_MODES = AudioManager.FLAG_ALLOW_RINGER_MODES;
+  /** See {@link AudioManager#FLAG_PLAY_SOUND}. */
+  public static final int VOLUME_FLAG_PLAY_SOUND = AudioManager.FLAG_PLAY_SOUND;
+  /** See {@link AudioManager#FLAG_REMOVE_SOUND_AND_VIBRATE}. */
+  public static final int VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE =
+      AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+  /** See {@link AudioManager#FLAG_VIBRATE}. */
+  public static final int VOLUME_FLAG_VIBRATE = AudioManager.FLAG_VIBRATE;
+
+  /**
    * Content types for audio attributes. One of:
    *
    * <ul>

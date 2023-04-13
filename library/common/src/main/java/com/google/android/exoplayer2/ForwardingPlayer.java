@@ -848,28 +848,64 @@ public class ForwardingPlayer implements Player {
     return player.isDeviceMuted();
   }
 
-  /** Calls {@link Player#setDeviceVolume(int)} on the delegate. */
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     player.setDeviceVolume(volume);
   }
 
-  /** Calls {@link Player#increaseDeviceVolume()} on the delegate. */
+  /** Calls {@link Player#setDeviceVolume(int, int)} on the delegate. */
+  @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    player.setDeviceVolume(volume, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void increaseDeviceVolume() {
     player.increaseDeviceVolume();
   }
 
-  /** Calls {@link Player#decreaseDeviceVolume()} on the delegate. */
+  /** Calls {@link Player#increaseDeviceVolume(int)} on the delegate. */
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    player.increaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     player.decreaseDeviceVolume();
   }
 
-  /** Calls {@link Player#setDeviceMuted(boolean)} on the delegate. */
+  /** Calls {@link Player#decreaseDeviceVolume(int)} on the delegate. */
+  @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    player.decreaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceMuted(boolean muted) {
     player.setDeviceMuted(muted);
+  }
+
+  /** Calls {@link Player#setDeviceMuted(boolean, int)} on the delegate. */
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    player.setDeviceMuted(muted, flags);
   }
 
   /** Returns the {@link Player} to which operations are forwarded. */

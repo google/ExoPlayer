@@ -1266,6 +1266,10 @@ public class SimpleExoPlayer extends BasePlayer
     return player.isDeviceMuted();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     blockUntilConstructorFinished();
@@ -1273,11 +1277,31 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.setDeviceVolume(volume, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
   public void increaseDeviceVolume() {
     blockUntilConstructorFinished();
     player.increaseDeviceVolume();
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.increaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     blockUntilConstructorFinished();
@@ -1285,9 +1309,25 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.decreaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     blockUntilConstructorFinished();
     player.setDeviceMuted(muted);
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.setDeviceMuted(muted, flags);
   }
 
   @Override
