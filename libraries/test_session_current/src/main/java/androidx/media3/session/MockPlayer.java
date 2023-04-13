@@ -68,7 +68,9 @@ public class MockPlayer implements Player {
     METHOD_ADD_MEDIA_ITEMS_WITH_INDEX,
     METHOD_CLEAR_MEDIA_ITEMS,
     METHOD_DECREASE_DEVICE_VOLUME,
+    METHOD_DECREASE_DEVICE_VOLUME_WITH_FLAGS,
     METHOD_INCREASE_DEVICE_VOLUME,
+    METHOD_INCREASE_DEVICE_VOLUME_WITH_FLAGS,
     METHOD_MOVE_MEDIA_ITEM,
     METHOD_MOVE_MEDIA_ITEMS,
     METHOD_PAUSE,
@@ -88,7 +90,9 @@ public class MockPlayer implements Player {
     METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM,
     METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX,
     METHOD_SET_DEVICE_MUTED,
+    METHOD_SET_DEVICE_MUTED_WITH_FLAGS,
     METHOD_SET_DEVICE_VOLUME,
+    METHOD_SET_DEVICE_VOLUME_WITH_FLAGS,
     METHOD_SET_MEDIA_ITEM,
     METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION,
     METHOD_SET_MEDIA_ITEM_WITH_START_POSITION,
@@ -191,6 +195,14 @@ public class MockPlayer implements Player {
   public static final int METHOD_SET_VOLUME = 40;
   /** Maps to {@link Player#stop()}. */
   public static final int METHOD_STOP = 41;
+  /** Maps to {@link Player#decreaseDeviceVolume(int)}. */
+  public static final int METHOD_DECREASE_DEVICE_VOLUME_WITH_FLAGS = 42;
+  /** Maps to {@link Player#increaseDeviceVolume(int)}. */
+  public static final int METHOD_INCREASE_DEVICE_VOLUME_WITH_FLAGS = 43;
+  /** Maps to {@link Player#setDeviceMuted(boolean, int)}. */
+  public static final int METHOD_SET_DEVICE_MUTED_WITH_FLAGS = 44;
+  /** Maps to {@link Player#setDeviceVolume(int, int)}. */
+  public static final int METHOD_SET_DEVICE_VOLUME_WITH_FLAGS = 45;
 
   private final boolean changePlayerStateWithTransportControl;
   private final Looper applicationLooper;
@@ -648,6 +660,7 @@ public class MockPlayer implements Player {
     return deviceMuted;
   }
 
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     deviceVolume = volume;
@@ -655,11 +668,25 @@ public class MockPlayer implements Player {
   }
 
   @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    deviceVolume = volume;
+    checkNotNull(conditionVariables.get(METHOD_SET_DEVICE_VOLUME_WITH_FLAGS)).open();
+  }
+
+  @Deprecated
+  @Override
   public void increaseDeviceVolume() {
     deviceVolume += 1;
     checkNotNull(conditionVariables.get(METHOD_INCREASE_DEVICE_VOLUME)).open();
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    deviceVolume += 1;
+    checkNotNull(conditionVariables.get(METHOD_INCREASE_DEVICE_VOLUME_WITH_FLAGS)).open();
+  }
+
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     deviceVolume -= 1;
@@ -667,9 +694,22 @@ public class MockPlayer implements Player {
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    deviceVolume -= 1;
+    checkNotNull(conditionVariables.get(METHOD_DECREASE_DEVICE_VOLUME_WITH_FLAGS)).open();
+  }
+
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     deviceMuted = muted;
     checkNotNull(conditionVariables.get(METHOD_SET_DEVICE_MUTED)).open();
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    deviceMuted = muted;
+    checkNotNull(conditionVariables.get(METHOD_SET_DEVICE_MUTED_WITH_FLAGS)).open();
   }
 
   @Override
@@ -1329,7 +1369,9 @@ public class MockPlayer implements Player {
         .put(METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, new ConditionVariable())
         .put(METHOD_CLEAR_MEDIA_ITEMS, new ConditionVariable())
         .put(METHOD_DECREASE_DEVICE_VOLUME, new ConditionVariable())
+        .put(METHOD_DECREASE_DEVICE_VOLUME_WITH_FLAGS, new ConditionVariable())
         .put(METHOD_INCREASE_DEVICE_VOLUME, new ConditionVariable())
+        .put(METHOD_INCREASE_DEVICE_VOLUME_WITH_FLAGS, new ConditionVariable())
         .put(METHOD_MOVE_MEDIA_ITEM, new ConditionVariable())
         .put(METHOD_MOVE_MEDIA_ITEMS, new ConditionVariable())
         .put(METHOD_PAUSE, new ConditionVariable())
@@ -1349,7 +1391,9 @@ public class MockPlayer implements Player {
         .put(METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM, new ConditionVariable())
         .put(METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, new ConditionVariable())
         .put(METHOD_SET_DEVICE_MUTED, new ConditionVariable())
+        .put(METHOD_SET_DEVICE_MUTED_WITH_FLAGS, new ConditionVariable())
         .put(METHOD_SET_DEVICE_VOLUME, new ConditionVariable())
+        .put(METHOD_SET_DEVICE_VOLUME_WITH_FLAGS, new ConditionVariable())
         .put(METHOD_SET_MEDIA_ITEM, new ConditionVariable())
         .put(METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION, new ConditionVariable())
         .put(METHOD_SET_MEDIA_ITEM_WITH_START_POSITION, new ConditionVariable())

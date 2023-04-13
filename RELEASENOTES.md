@@ -42,6 +42,12 @@
         ([#293](https://github.com/androidx/media/issues/293)).
     *   Fix bug where calling `MediaSession.setPlayer` doesn't update the
         available commands.
+    *   Deprecate 4 volume-controlling methods in `Player` and add overloaded
+        methods which allow users to specify volume flags:
+        *   `void setDeviceVolume(int, int)`
+        *   `void increaseDeviceVolume(int)`
+        *   `void decreaseDeviceVolume(int)`
+        *   `void setDeviceMuted(boolean, int)`
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

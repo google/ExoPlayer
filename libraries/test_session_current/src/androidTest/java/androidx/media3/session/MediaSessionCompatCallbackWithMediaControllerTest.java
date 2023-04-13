@@ -529,12 +529,13 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     int maxVolume = 100;
     int currentVolume = 23;
     int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI;
     TestVolumeProvider volumeProvider =
         new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
     session.setPlaybackToRemote(volumeProvider);
     RemoteMediaController controller = createControllerAndWaitConnection();
 
-    controller.decreaseDeviceVolume();
+    controller.decreaseDeviceVolume(volumeFlags);
     assertThat(volumeProvider.latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(volumeProvider.adjustVolumeCalled).isTrue();
     assertThat(volumeProvider.direction).isEqualTo(AudioManager.ADJUST_LOWER);
@@ -554,12 +555,14 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     if (maxVolume <= minVolume) {
       return;
     }
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
+
     session.setPlaybackToLocal(stream);
     RemoteMediaController controller = createControllerAndWaitConnection();
     int originalVolume = audioManager.getStreamVolume(stream);
     int targetVolume = originalVolume == minVolume ? originalVolume + 1 : originalVolume - 1;
 
-    controller.setDeviceVolume(targetVolume);
+    controller.setDeviceVolume(targetVolume, volumeFlags);
     PollingCheck.waitFor(
         VOLUME_CHANGE_TIMEOUT_MS, () -> targetVolume == audioManager.getStreamVolume(stream));
 
@@ -581,13 +584,15 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     if (maxVolume <= minVolume) {
       return;
     }
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
+
     session.setPlaybackToLocal(stream);
     RemoteMediaController controller = createControllerAndWaitConnection();
     int originalVolume = audioManager.getStreamVolume(stream);
     audioManager.setStreamVolume(stream, minVolume, /* flags= */ 0);
     int targetVolume = minVolume + 1;
 
-    controller.increaseDeviceVolume();
+    controller.increaseDeviceVolume(volumeFlags);
     PollingCheck.waitFor(
         VOLUME_CHANGE_TIMEOUT_MS, () -> targetVolume == audioManager.getStreamVolume(stream));
 
@@ -609,13 +614,15 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     if (maxVolume <= minVolume) {
       return;
     }
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
+
     session.setPlaybackToLocal(stream);
     RemoteMediaController controller = createControllerAndWaitConnection();
     int originalVolume = audioManager.getStreamVolume(stream);
     audioManager.setStreamVolume(stream, maxVolume, /* flags= */ 0);
     int targetVolume = maxVolume - 1;
 
-    controller.decreaseDeviceVolume();
+    controller.decreaseDeviceVolume(volumeFlags);
     PollingCheck.waitFor(
         VOLUME_CHANGE_TIMEOUT_MS, () -> targetVolume == audioManager.getStreamVolume(stream));
 
@@ -637,12 +644,14 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     if (maxVolume <= minVolume) {
       return;
     }
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
+
     session.setPlaybackToLocal(stream);
     RemoteMediaController controller = createControllerAndWaitConnection();
     boolean wasMuted = audioManager.isStreamMute(stream);
     audioManager.adjustStreamVolume(stream, AudioManager.ADJUST_UNMUTE, /* flags= */ 0);
 
-    controller.setDeviceMuted(true);
+    controller.setDeviceMuted(true, volumeFlags);
     PollingCheck.waitFor(VOLUME_CHANGE_TIMEOUT_MS, () -> audioManager.isStreamMute(stream));
 
     // Set back to original mute state.

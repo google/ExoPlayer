@@ -69,6 +69,7 @@ import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -90,8 +91,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Represents remote {@link MediaSession} in the service app's MediaSessionProviderService. Users
- * can run {@link MediaSession} methods remotely with this object.
+ * Represents remote {@link MediaSession} in the service app's {@link MediaSessionProviderService}.
+ * Users can run {@link MediaSession} methods remotely with this object.
  */
 public class RemoteMediaSession {
   private static final String TAG = "RemoteMediaSession";
@@ -284,6 +285,22 @@ public class RemoteMediaSession {
       binder.setVolume(sessionId, volume);
     }
 
+    public void setDeviceVolume(int volume, @C.VolumeFlags int flags) throws RemoteException {
+      binder.setDeviceVolume(sessionId, volume, flags);
+    }
+
+    public void decreaseDeviceVolume(@C.VolumeFlags int flags) throws RemoteException {
+      binder.decreaseDeviceVolume(sessionId, flags);
+    }
+
+    public void increaseDeviceVolume(@C.VolumeFlags int flags) throws RemoteException {
+      binder.increaseDeviceVolume(sessionId, flags);
+    }
+
+    public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) throws RemoteException {
+      binder.setDeviceMuted(sessionId, muted, flags);
+    }
+
     public void notifyPlayWhenReadyChanged(
         boolean playWhenReady, @Player.PlaybackSuppressionReason int reason)
         throws RemoteException {
@@ -397,16 +414,12 @@ public class RemoteMediaSession {
       return binder.surfaceExists(sessionId);
     }
 
-    public void notifyDeviceVolumeChanged(int volume, boolean muted) throws RemoteException {
-      binder.notifyDeviceVolumeChanged(sessionId, volume, muted);
+    public void notifyDeviceVolumeChanged() throws RemoteException {
+      binder.notifyDeviceVolumeChanged(sessionId);
     }
 
-    public void decreaseDeviceVolume() throws RemoteException {
-      binder.decreaseDeviceVolume(sessionId);
-    }
-
-    public void increaseDeviceVolume() throws RemoteException {
-      binder.increaseDeviceVolume(sessionId);
+    public void notifyVolumeChanged() throws RemoteException {
+      binder.notifyVolumeChanged(sessionId);
     }
 
     public void notifyCuesChanged(CueGroup cueGroup) throws RemoteException {

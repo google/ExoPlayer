@@ -2850,7 +2850,8 @@ public class MediaControllerListenerTest {
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
     int targetVolume = 45;
-    remoteSession.getMockPlayer().notifyDeviceVolumeChanged(targetVolume, /* muted= */ false);
+    remoteSession.getMockPlayer().setDeviceVolume(targetVolume, /* flags= */ 0);
+    remoteSession.getMockPlayer().notifyDeviceVolumeChanged();
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeFromParamRef.get()).isEqualTo(targetVolume);
@@ -2889,7 +2890,8 @@ public class MediaControllerListenerTest {
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().notifyDeviceVolumeChanged(/* volume= */ 0, /* muted= */ true);
+    remoteSession.getMockPlayer().setDeviceMuted(/* muted= */ true, /* flags= */ 0);
+    remoteSession.getMockPlayer().notifyDeviceVolumeChanged();
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceMutedFromParamRef.get()).isTrue();
@@ -2904,6 +2906,7 @@ public class MediaControllerListenerTest {
         new RemoteMediaSession.MockPlayerConfigBuilder().setDeviceVolume(10).build();
     remoteSession.setPlayer(playerConfig);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
     AtomicInteger deviceVolumeFromParamRef = new AtomicInteger();
     AtomicInteger deviceVolumeFromGetterRef = new AtomicInteger();
     AtomicInteger deviceVolumeFromOnEventsRef = new AtomicInteger();
@@ -2927,7 +2930,8 @@ public class MediaControllerListenerTest {
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().decreaseDeviceVolume();
+    remoteSession.getMockPlayer().decreaseDeviceVolume(volumeFlags);
+    remoteSession.getMockPlayer().notifyDeviceVolumeChanged();
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeFromParamRef.get()).isEqualTo(9);
@@ -2943,6 +2947,7 @@ public class MediaControllerListenerTest {
         new RemoteMediaSession.MockPlayerConfigBuilder().setDeviceVolume(10).build();
     remoteSession.setPlayer(playerConfig);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
     AtomicInteger deviceVolumeFromParamRef = new AtomicInteger();
     AtomicInteger deviceVolumeFromGetterRef = new AtomicInteger();
     AtomicInteger deviceVolumeFromOnEventsRef = new AtomicInteger();
@@ -2966,7 +2971,8 @@ public class MediaControllerListenerTest {
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().increaseDeviceVolume();
+    remoteSession.getMockPlayer().increaseDeviceVolume(volumeFlags);
+    remoteSession.getMockPlayer().notifyDeviceVolumeChanged();
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeFromParamRef.get()).isEqualTo(11);
@@ -3005,6 +3011,7 @@ public class MediaControllerListenerTest {
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
     remoteSession.getMockPlayer().setVolume(0.5f);
+    remoteSession.getMockPlayer().notifyVolumeChanged();
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(volumeFromParamRef.get()).isEqualTo(0.5f);

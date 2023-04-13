@@ -23,6 +23,7 @@ import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.BasePlayer;
+import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -370,23 +371,59 @@ public class StubPlayer extends BasePlayer {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
   public void increaseDeviceVolume() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
     throw new UnsupportedOperationException();
   }
 }

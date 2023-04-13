@@ -1286,7 +1286,8 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
         };
     controllerCompat.registerCallback(callback, handler);
 
-    session.getMockPlayer().notifyDeviceVolumeChanged(targetVolume, /* muted= */ false);
+    session.getMockPlayer().setDeviceVolume(targetVolume, /* flags= */ 0);
+    session.getMockPlayer().notifyDeviceVolumeChanged();
 
     assertThat(targetVolumeNotified.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controllerCompat.getPlaybackInfo().getCurrentVolume()).isEqualTo(targetVolume);

@@ -23,7 +23,6 @@ import androidx.media3.session.IMediaSession;
  *
  * <p>It's for internal use only, not intended to be used by library users.
  */
-// TODO(b/191643508): Hide the generated classes from javadoc.
 // Note: Keep this interface oneway. Otherwise a malicious app may make a blocking call to make
 // controller frozen.
 oneway interface IMediaController {

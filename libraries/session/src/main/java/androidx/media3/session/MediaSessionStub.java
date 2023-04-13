@@ -16,6 +16,7 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_PREPARE;
@@ -29,6 +30,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_PLAYLIST_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
@@ -1332,6 +1334,7 @@ import java.util.concurrent.ExecutionException;
         sendSessionResultSuccess(player -> player.setVolume(volume)));
   }
 
+  @SuppressWarnings("deprecation") // Backwards compatibility a for flag-less method
   @Override
   public void setDeviceVolume(@Nullable IMediaController caller, int sequenceNumber, int volume) {
     if (caller == null) {
@@ -1345,6 +1348,20 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
+  public void setDeviceVolumeWithFlags(
+      @Nullable IMediaController caller, int sequenceNumber, int volume, int flags) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
+        sendSessionResultSuccess(player -> player.setDeviceVolume(volume, flags)));
+  }
+
+  @SuppressWarnings("deprecation") // Backwards compatibility a for flag-less method
+  @Override
   public void increaseDeviceVolume(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
@@ -1353,9 +1370,23 @@ import java.util.concurrent.ExecutionException;
         caller,
         sequenceNumber,
         COMMAND_ADJUST_DEVICE_VOLUME,
-        sendSessionResultSuccess(Player::increaseDeviceVolume));
+        sendSessionResultSuccess(player -> player.increaseDeviceVolume()));
   }
 
+  @Override
+  public void increaseDeviceVolumeWithFlags(
+      @Nullable IMediaController caller, int sequenceNumber, int flags) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
+        sendSessionResultSuccess(player -> player.increaseDeviceVolume(flags)));
+  }
+
+  @SuppressWarnings("deprecation") // Backwards compatibility a for flag-less method
   @Override
   public void decreaseDeviceVolume(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
@@ -1365,9 +1396,23 @@ import java.util.concurrent.ExecutionException;
         caller,
         sequenceNumber,
         COMMAND_ADJUST_DEVICE_VOLUME,
-        sendSessionResultSuccess(Player::decreaseDeviceVolume));
+        sendSessionResultSuccess(player -> player.decreaseDeviceVolume()));
   }
 
+  @Override
+  public void decreaseDeviceVolumeWithFlags(
+      @Nullable IMediaController caller, int sequenceNumber, int flags) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
+        sendSessionResultSuccess(player -> player.decreaseDeviceVolume(flags)));
+  }
+
+  @SuppressWarnings("deprecation") // Backwards compatibility a for flag-less method
   @Override
   public void setDeviceMuted(@Nullable IMediaController caller, int sequenceNumber, boolean muted) {
     if (caller == null) {
@@ -1378,6 +1423,19 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_ADJUST_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.setDeviceMuted(muted)));
+  }
+
+  @Override
+  public void setDeviceMutedWithFlags(
+      @Nullable IMediaController caller, int sequenceNumber, boolean muted, int flags) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
+        sendSessionResultSuccess(player -> player.setDeviceMuted(muted, flags)));
   }
 
   @Override

@@ -736,18 +736,28 @@ import java.util.List;
     return isCommandAvailable(Player.COMMAND_GET_DEVICE_VOLUME) && isDeviceMuted();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     verifyApplicationThread();
     super.setDeviceVolume(volume);
   }
 
-  public void setDeviceVolumeIfCommandAvailable(int volume) {
-    if (isCommandAvailable(COMMAND_SET_DEVICE_VOLUME)) {
-      setDeviceVolume(volume);
-    }
+  @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    super.setDeviceVolume(volume, flags);
   }
 
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
+  @Deprecated
   @Override
   public void increaseDeviceVolume() {
     verifyApplicationThread();
@@ -755,15 +765,43 @@ import java.util.List;
   }
 
   @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    super.increaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
+  @Deprecated
+  @Override
   public void decreaseDeviceVolume() {
     verifyApplicationThread();
     super.decreaseDeviceVolume();
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    super.decreaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     verifyApplicationThread();
     super.setDeviceMuted(muted);
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    super.setDeviceMuted(muted, flags);
   }
 
   @Override
@@ -974,6 +1012,7 @@ import java.util.List;
   }
 
   @Nullable
+  @SuppressWarnings("deprecation") // Backwards compatibility with old volume commands
   public VolumeProviderCompat createVolumeProviderCompat() {
     if (getDeviceInfo().playbackType == DeviceInfo.PLAYBACK_TYPE_LOCAL) {
       return null;
@@ -988,10 +1027,23 @@ import java.util.List;
     }
     Handler handler = new Handler(getApplicationLooper());
     int currentVolume = getDeviceVolumeWithCommandCheck();
+    int legacyVolumeFlag = C.VOLUME_FLAG_SHOW_UI;
     return new VolumeProviderCompat(volumeControlType, getDeviceInfo().maxVolume, currentVolume) {
       @Override
       public void onSetVolumeTo(int volume) {
-        postOrRun(handler, () -> setDeviceVolumeIfCommandAvailable(volume));
+        postOrRun(
+            handler,
+            () -> {
+              if (!isCommandAvailable(COMMAND_SET_DEVICE_VOLUME)
+                  && !isCommandAvailable(COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)) {
+                return;
+              }
+              if (isCommandAvailable(COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)) {
+                setDeviceVolume(volume, legacyVolumeFlag);
+              } else {
+                setDeviceVolume(volume);
+              }
+            });
       }
 
       @Override
@@ -999,24 +1051,45 @@ import java.util.List;
         postOrRun(
             handler,
             () -> {
-              if (!isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)) {
+              if (!isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)
+                  && !isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
                 return;
               }
               switch (direction) {
                 case AudioManager.ADJUST_RAISE:
-                  increaseDeviceVolume();
+                  if (isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+                    increaseDeviceVolume(legacyVolumeFlag);
+                  } else {
+                    increaseDeviceVolume();
+                  }
                   break;
                 case AudioManager.ADJUST_LOWER:
-                  decreaseDeviceVolume();
+                  if (isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+                    decreaseDeviceVolume(legacyVolumeFlag);
+                  } else {
+                    decreaseDeviceVolume();
+                  }
                   break;
                 case AudioManager.ADJUST_MUTE:
-                  setDeviceMuted(true);
+                  if (isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+                    setDeviceMuted(true, legacyVolumeFlag);
+                  } else {
+                    setDeviceMuted(true);
+                  }
                   break;
                 case AudioManager.ADJUST_UNMUTE:
-                  setDeviceMuted(false);
+                  if (isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+                    setDeviceMuted(false, legacyVolumeFlag);
+                  } else {
+                    setDeviceMuted(false);
+                  }
                   break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
-                  setDeviceMuted(!isDeviceMutedWithCommandCheck());
+                  if (isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+                    setDeviceMuted(!isDeviceMutedWithCommandCheck(), legacyVolumeFlag);
+                  } else {
+                    setDeviceMuted(!isDeviceMutedWithCommandCheck());
+                  }
                   break;
                 default:
                   Log.w(

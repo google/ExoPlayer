@@ -309,7 +309,9 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_DEVICE_VOLUME,
                   COMMAND_SET_VOLUME,
                   COMMAND_SET_DEVICE_VOLUME,
+                  COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
                   COMMAND_ADJUST_DEVICE_VOLUME,
+                  COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
                   COMMAND_SET_VIDEO_SURFACE,
                   COMMAND_GET_TEXT,
                   COMMAND_RELEASE)
@@ -1703,28 +1705,68 @@ import java.util.concurrent.TimeoutException;
     return streamVolumeManager.isMuted();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     verifyApplicationThread();
-    streamVolumeManager.setVolume(volume);
+    streamVolumeManager.setVolume(volume, C.VOLUME_FLAG_SHOW_UI);
   }
 
+  @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.setVolume(volume, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void increaseDeviceVolume() {
     verifyApplicationThread();
-    streamVolumeManager.increaseVolume();
+    streamVolumeManager.increaseVolume(C.VOLUME_FLAG_SHOW_UI);
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.increaseVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     verifyApplicationThread();
-    streamVolumeManager.decreaseVolume();
+    streamVolumeManager.decreaseVolume(C.VOLUME_FLAG_SHOW_UI);
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.decreaseVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     verifyApplicationThread();
-    streamVolumeManager.setMuted(muted);
+    streamVolumeManager.setMuted(muted, C.VOLUME_FLAG_SHOW_UI);
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.setMuted(muted, flags);
   }
 
   @Override

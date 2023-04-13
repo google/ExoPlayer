@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
@@ -249,16 +250,32 @@ public class RemoteMediaController {
     binder.setDeviceVolume(controllerId, volume);
   }
 
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) throws RemoteException {
+    binder.setDeviceVolumeWithFlags(controllerId, volume, flags);
+  }
+
   public void increaseDeviceVolume() throws RemoteException {
     binder.increaseDeviceVolume(controllerId);
+  }
+
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) throws RemoteException {
+    binder.increaseDeviceVolumeWithFlags(controllerId, flags);
   }
 
   public void decreaseDeviceVolume() throws RemoteException {
     binder.decreaseDeviceVolume(controllerId);
   }
 
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) throws RemoteException {
+    binder.decreaseDeviceVolumeWithFlags(controllerId, flags);
+  }
+
   public void setDeviceMuted(boolean muted) throws RemoteException {
     binder.setDeviceMuted(controllerId, muted);
+  }
+
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) throws RemoteException {
+    binder.setDeviceMutedWithFlags(controllerId, muted, flags);
   }
 
   public SessionResult sendCustomCommand(SessionCommand command, Bundle args)

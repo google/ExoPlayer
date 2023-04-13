@@ -25,7 +25,6 @@ import androidx.media3.session.IMediaController;
  *
  * <p>It's for internal use only, not intended to be used by library users.
  */
-// TODO(b/191643508): Hide the generated classes from javadoc.
 // Note: Keep this interface oneway. Otherwise a malicious app may make a blocking call to make
 // session frozen.
 oneway interface IMediaSession {
@@ -34,9 +33,13 @@ oneway interface IMediaSession {
 
   void setVolume(IMediaController caller, int seq, float volume) = 3001;
   void setDeviceVolume(IMediaController caller, int seq, int volume) = 3002;
+  void setDeviceVolumeWithFlags(IMediaController caller, int seq, int volume, int flags) = 3050;
   void increaseDeviceVolume(IMediaController caller, int seq) = 3003;
+  void increaseDeviceVolumeWithFlags(IMediaController caller, int seq, int flags) = 3051;
   void decreaseDeviceVolume(IMediaController caller, int seq) = 3004;
+  void decreaseDeviceVolumeWithFlags(IMediaController caller, int seq, int flags) = 3052;
   void setDeviceMuted(IMediaController caller, int seq, boolean muted) = 3005;
+  void setDeviceMutedWithFlags(IMediaController caller, int seq, boolean muted, int flags) = 3053;
   void setMediaItem(
       IMediaController caller,
       int seq,
@@ -115,7 +118,7 @@ oneway interface IMediaSession {
   void setRatingWithMediaId(
        IMediaController caller, int seq, String mediaId, in Bundle rating) = 3048;
   void setRating(IMediaController caller, int seq, in Bundle rating) = 3049;
-  // Next Id for MediaSession: 3050
+  // Next Id for MediaSession: 3054
 
   void getLibraryRoot(IMediaController caller, int seq, in Bundle libraryParams) = 4000;
   void getItem(IMediaController caller, int seq, String mediaId) = 4001;

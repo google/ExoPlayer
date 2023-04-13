@@ -91,7 +91,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private static final String TAG = "MCImplLegacy";
 
   private static final long AGGREGATES_CALLBACKS_WITHIN_TIMEOUT_MS = 500L;
-  private static final int VOLUME_FLAGS = AudioManager.FLAG_SHOW_UI;
 
   /* package */ final Context context;
   private final MediaController instance;
@@ -1050,8 +1049,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return controllerInfo.playerInfo.deviceMuted;
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
+    setDeviceVolume(volume, C.VOLUME_FLAG_SHOW_UI);
+  }
+
+  @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
     DeviceInfo deviceInfo = getDeviceInfo();
     int minVolume = deviceInfo.minVolume;
     int maxVolume = deviceInfo.maxVolume;
@@ -1069,11 +1077,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           /* mediaItemTransitionReason= */ null);
     }
 
-    controllerCompat.setVolumeTo(volume, VOLUME_FLAGS);
+    controllerCompat.setVolumeTo(volume, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
+  public void increaseDeviceVolume() {
+    increaseDeviceVolume(C.VOLUME_FLAG_SHOW_UI);
   }
 
   @Override
-  public void increaseDeviceVolume() {
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
     int volume = getDeviceVolume();
     int maxVolume = getDeviceInfo().maxVolume;
     if (volume + 1 <= maxVolume) {
@@ -1090,11 +1107,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           /* discontinuityReason= */ null,
           /* mediaItemTransitionReason= */ null);
     }
-    controllerCompat.adjustVolume(AudioManager.ADJUST_RAISE, VOLUME_FLAGS);
+    controllerCompat.adjustVolume(AudioManager.ADJUST_RAISE, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
+  public void decreaseDeviceVolume() {
+    decreaseDeviceVolume(C.VOLUME_FLAG_SHOW_UI);
   }
 
   @Override
-  public void decreaseDeviceVolume() {
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
     int volume = getDeviceVolume();
     int minVolume = getDeviceInfo().minVolume;
 
@@ -1111,11 +1137,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           /* discontinuityReason= */ null,
           /* mediaItemTransitionReason= */ null);
     }
-    controllerCompat.adjustVolume(AudioManager.ADJUST_LOWER, VOLUME_FLAGS);
+    controllerCompat.adjustVolume(AudioManager.ADJUST_LOWER, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
+  public void setDeviceMuted(boolean muted) {
+    setDeviceMuted(muted, C.VOLUME_FLAG_SHOW_UI);
   }
 
   @Override
-  public void setDeviceMuted(boolean muted) {
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
     if (Util.SDK_INT < 23) {
       Log.w(TAG, "Session doesn't support setting mute state at API level less than 23");
       return;
@@ -1137,7 +1172,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     int direction = muted ? AudioManager.ADJUST_MUTE : AudioManager.ADJUST_UNMUTE;
-    controllerCompat.adjustVolume(direction, VOLUME_FLAGS);
+    controllerCompat.adjustVolume(direction, flags);
   }
 
   @Override

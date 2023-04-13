@@ -1667,6 +1667,10 @@ public class MediaController implements Player {
     return impl.isDeviceMuted();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public final void setDeviceVolume(@IntRange(from = 0) int volume) {
     verifyApplicationThread();
@@ -1678,6 +1682,19 @@ public class MediaController implements Player {
   }
 
   @Override
+  public final void setDeviceVolume(@IntRange(from = 0) int volume, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring setDeviceVolume().");
+      return;
+    }
+    impl.setDeviceVolume(volume, flags);
+  }
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
   public final void increaseDeviceVolume() {
     verifyApplicationThread();
     if (!isConnected()) {
@@ -1687,6 +1704,19 @@ public class MediaController implements Player {
     impl.increaseDeviceVolume();
   }
 
+  @Override
+  public final void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring increaseDeviceVolume().");
+      return;
+    }
+    impl.increaseDeviceVolume(flags);
+  }
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public final void decreaseDeviceVolume() {
     verifyApplicationThread();
@@ -1698,6 +1728,19 @@ public class MediaController implements Player {
   }
 
   @Override
+  public final void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring decreaseDeviceVolume().");
+      return;
+    }
+    impl.decreaseDeviceVolume(flags);
+  }
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public final void setDeviceMuted(boolean muted) {
     verifyApplicationThread();
     if (!isConnected()) {
@@ -1705,6 +1748,16 @@ public class MediaController implements Player {
       return;
     }
     impl.setDeviceMuted(muted);
+  }
+
+  @Override
+  public final void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring setDeviceMuted().");
+      return;
+    }
+    impl.setDeviceMuted(muted, flags);
   }
 
   @Override
@@ -2033,11 +2086,19 @@ public class MediaController implements Player {
 
     void setDeviceVolume(int volume);
 
+    void setDeviceVolume(int volume, @C.VolumeFlags int flags);
+
     void increaseDeviceVolume();
+
+    void increaseDeviceVolume(@C.VolumeFlags int flags);
 
     void decreaseDeviceVolume();
 
+    void decreaseDeviceVolume(@C.VolumeFlags int flags);
+
     void setDeviceMuted(boolean muted);
+
+    void setDeviceMuted(boolean muted, @C.VolumeFlags int flags);
 
     boolean getPlayWhenReady();
 

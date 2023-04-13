@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer;
 
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static androidx.media3.common.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
@@ -38,6 +39,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_PLAYLIST_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
@@ -12250,11 +12252,13 @@ public final class ExoPlayerTest {
     player.addListener(listener);
 
     int deviceVolume = player.getDeviceVolume();
+    int noVolumeFlags = 0;
+    int volumeFlags = C.VOLUME_FLAG_PLAY_SOUND | C.VOLUME_FLAG_VIBRATE;
     try {
-      player.setDeviceVolume(deviceVolume + 1); // No-op if at max volume.
-      player.setDeviceVolume(deviceVolume - 1); // No-op if at min volume.
+      player.setDeviceVolume(deviceVolume + 1, noVolumeFlags); // No-op if at max volume.
+      player.setDeviceVolume(deviceVolume - 1, noVolumeFlags); // No-op if at min volume.
     } finally {
-      player.setDeviceVolume(deviceVolume); // Restore original volume.
+      player.setDeviceVolume(deviceVolume, volumeFlags); // Restore original volume.
     }
 
     player.release();
@@ -12425,7 +12429,9 @@ public final class ExoPlayerTest {
         COMMAND_GET_DEVICE_VOLUME,
         COMMAND_SET_VOLUME,
         COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,

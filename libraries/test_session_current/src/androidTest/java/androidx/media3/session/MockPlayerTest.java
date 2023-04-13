@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
@@ -438,10 +439,30 @@ public class MockPlayerTest {
   }
 
   @Test
+  public void setDeviceVolumeWithFlags() {
+    int testVolume = 12;
+    int testVolumeFlags = C.VOLUME_FLAG_VIBRATE;
+
+    player.setDeviceVolume(testVolume, testVolumeFlags);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_DEVICE_VOLUME_WITH_FLAGS)).isTrue();
+    assertThat(player.deviceVolume).isEqualTo(testVolume);
+  }
+
+  @Test
   public void increaseDeviceVolume() {
     player.increaseDeviceVolume();
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_INCREASE_DEVICE_VOLUME)).isTrue();
+  }
+
+  @Test
+  public void increaseDeviceVolumeWithFlags() {
+    int testVolumeFlags = C.VOLUME_FLAG_VIBRATE | C.VOLUME_FLAG_PLAY_SOUND;
+    player.increaseDeviceVolume(testVolumeFlags);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_INCREASE_DEVICE_VOLUME_WITH_FLAGS))
+        .isTrue();
   }
 
   @Test
@@ -452,12 +473,32 @@ public class MockPlayerTest {
   }
 
   @Test
+  public void decreaseDeviceVolumeWithFlags() {
+    int testVolumeFlags = C.VOLUME_FLAG_SHOW_UI;
+    player.decreaseDeviceVolume(testVolumeFlags);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_DECREASE_DEVICE_VOLUME_WITH_FLAGS))
+        .isTrue();
+  }
+
+  @Test
   public void setDeviceMuted() {
     player.deviceMuted = false;
 
     player.setDeviceMuted(true);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_DEVICE_MUTED)).isTrue();
+    assertThat(player.deviceMuted).isTrue();
+  }
+
+  @Test
+  public void setDeviceMutedWithFlags() {
+    player.deviceMuted = false;
+    int testVolumeFlags = 0;
+
+    player.setDeviceMuted(true, testVolumeFlags);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_DEVICE_MUTED_WITH_FLAGS)).isTrue();
     assertThat(player.deviceMuted).isTrue();
   }
 

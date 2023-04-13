@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static androidx.media3.common.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
@@ -36,6 +37,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -1094,6 +1096,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param isSessionReady Whether the session compat is ready.
    * @return The converted player commands.
    */
+  @SuppressWarnings("deprecation") // Backwards compatibility with old volume commands
   public static Player.Commands convertToPlayerCommands(
       @Nullable PlaybackStateCompat playbackStateCompat,
       int volumeControlType,
@@ -1141,9 +1144,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       playerCommandsBuilder.add(COMMAND_STOP);
     }
     if (volumeControlType == VolumeProviderCompat.VOLUME_CONTROL_RELATIVE) {
-      playerCommandsBuilder.add(COMMAND_ADJUST_DEVICE_VOLUME);
+      playerCommandsBuilder.addAll(
+          COMMAND_ADJUST_DEVICE_VOLUME, COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS);
     } else if (volumeControlType == VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE) {
-      playerCommandsBuilder.addAll(COMMAND_ADJUST_DEVICE_VOLUME, COMMAND_SET_DEVICE_VOLUME);
+      playerCommandsBuilder.addAll(
+          COMMAND_ADJUST_DEVICE_VOLUME,
+          COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
+          COMMAND_SET_DEVICE_VOLUME,
+          COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS);
     }
     playerCommandsBuilder.addAll(
         COMMAND_GET_DEVICE_VOLUME,

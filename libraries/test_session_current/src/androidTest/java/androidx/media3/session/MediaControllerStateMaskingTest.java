@@ -437,6 +437,7 @@ public class MediaControllerStateMaskingTest {
   @Test
   public void setDeviceVolume() throws Exception {
     int testDeviceVolume = 2;
+    int volumeFlags = 0;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder().setDeviceVolume(0).build();
     remoteSession.setPlayer(playerConfig);
@@ -466,7 +467,7 @@ public class MediaControllerStateMaskingTest {
         .getHandler()
         .postAndSync(
             () -> {
-              controller.setDeviceVolume(testDeviceVolume);
+              controller.setDeviceVolume(testDeviceVolume, volumeFlags);
               deviceVolumeFromGetterRef.set(controller.getDeviceVolume());
             });
 
@@ -480,6 +481,7 @@ public class MediaControllerStateMaskingTest {
   @Test
   public void increaseDeviceVolume() throws Exception {
     int testDeviceVolume = 2;
+    int volumeFlags = 0;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setDeviceVolume(1)
@@ -514,7 +516,7 @@ public class MediaControllerStateMaskingTest {
         .getHandler()
         .postAndSync(
             () -> {
-              controller.increaseDeviceVolume();
+              controller.increaseDeviceVolume(volumeFlags);
               deviceVolumeFromGetterRef.set(controller.getDeviceVolume());
             });
 
@@ -552,12 +554,13 @@ public class MediaControllerStateMaskingTest {
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
+    int volumeFlags = 0;
     AtomicInteger deviceVolumeFromGetterRef = new AtomicInteger();
     threadTestRule
         .getHandler()
         .postAndSync(
             () -> {
-              controller.decreaseDeviceVolume();
+              controller.decreaseDeviceVolume(volumeFlags);
               deviceVolumeFromGetterRef.set(controller.getDeviceVolume());
             });
 
@@ -571,6 +574,7 @@ public class MediaControllerStateMaskingTest {
   @Test
   public void setDeviceMuted() throws Exception {
     boolean testDeviceMuted = true;
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder().setDeviceMuted(false).build();
     remoteSession.setPlayer(playerConfig);
@@ -600,7 +604,7 @@ public class MediaControllerStateMaskingTest {
         .getHandler()
         .postAndSync(
             () -> {
-              controller.setDeviceMuted(testDeviceMuted);
+              controller.setDeviceMuted(testDeviceMuted, volumeFlags);
               deviceMutedFromGetterRef.set(controller.isDeviceMuted());
             });
 

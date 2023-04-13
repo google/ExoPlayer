@@ -72,9 +72,13 @@ interface IRemoteMediaController {
   void adjustVolume(String controllerId, int direction, int flags);
   void setVolume(String controllerId, float volume);
   void setDeviceVolume(String controllerId, int volume);
+  void setDeviceVolumeWithFlags(String controllerId, int volume, int flags);
   void increaseDeviceVolume(String controllerId);
+  void increaseDeviceVolumeWithFlags(String controllerId, int flags);
   void decreaseDeviceVolume(String controllerId);
+  void decreaseDeviceVolumeWithFlags(String controllerId, int flags);
   void setDeviceMuted(String controllerId, boolean muted);
+  void setDeviceMutedWithFlags(String controllerId, boolean muted, int flags);
   Bundle sendCustomCommand(String controllerId, in Bundle command, in Bundle args);
   Bundle setRatingWithMediaId(String controllerId, String mediaId, in Bundle rating);
   Bundle setRating(String controllerId, in Bundle rating);

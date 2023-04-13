@@ -755,21 +755,49 @@ public final class CastPlayer extends BasePlayer {
     return false;
   }
 
-  /** This method is not supported and does nothing. */
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {}
 
   /** This method is not supported and does nothing. */
   @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {}
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
   public void increaseDeviceVolume() {}
 
   /** This method is not supported and does nothing. */
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {}
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {}
 
   /** This method is not supported and does nothing. */
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {}
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {}
 
   // Internal methods.
 

@@ -1386,6 +1386,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     return playerInfo.deviceMuted;
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     if (!isPlayerCommandAvailable(Player.COMMAND_SET_DEVICE_VOLUME)) {
@@ -1406,6 +1410,29 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) -> iSession.setDeviceVolumeWithFlags(controllerStub, seq, volume, flags));
+
+    if (playerInfo.deviceVolume != volume) {
+      playerInfo = playerInfo.copyWithDeviceVolume(volume, playerInfo.deviceMuted);
+
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
+          listener -> listener.onDeviceVolumeChanged(volume, playerInfo.deviceMuted));
+      listeners.flushEvents();
+    }
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
   public void increaseDeviceVolume() {
     if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
@@ -1424,6 +1451,29 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) -> iSession.increaseDeviceVolumeWithFlags(controllerStub, seq, flags));
+
+    int newDeviceVolume = playerInfo.deviceVolume + 1;
+    if (newDeviceVolume <= getDeviceInfo().maxVolume) {
+      playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
+          listener -> listener.onDeviceVolumeChanged(newDeviceVolume, playerInfo.deviceMuted));
+      listeners.flushEvents();
+    }
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
@@ -1444,6 +1494,29 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) -> iSession.decreaseDeviceVolumeWithFlags(controllerStub, seq, flags));
+
+    int newDeviceVolume = playerInfo.deviceVolume - 1;
+    if (newDeviceVolume >= getDeviceInfo().minVolume) {
+      playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
+          listener -> listener.onDeviceVolumeChanged(newDeviceVolume, playerInfo.deviceMuted));
+      listeners.flushEvents();
+    }
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
@@ -1451,6 +1524,24 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     dispatchRemoteSessionTaskWithPlayerCommand(
         (iSession, seq) -> iSession.setDeviceMuted(controllerStub, seq, muted));
+
+    if (playerInfo.deviceMuted != muted) {
+      playerInfo = playerInfo.copyWithDeviceVolume(playerInfo.deviceVolume, muted);
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
+          listener -> listener.onDeviceVolumeChanged(playerInfo.deviceVolume, muted));
+      listeners.flushEvents();
+    }
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) -> iSession.setDeviceMutedWithFlags(controllerStub, seq, muted, flags));
 
     if (playerInfo.deviceMuted != muted) {
       playerInfo = playerInfo.copyWithDeviceVolume(playerInfo.deviceVolume, muted);
