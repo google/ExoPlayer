@@ -74,7 +74,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:padding="8dp"
-        android:text="@string/input_video" />
+        android:text="@string/input_video_no_sound" />
 
     <FrameLayout
       android:layout_width="match_parent"
@@ -118,7 +118,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="@string/output_video" />
+        android:text="@string/output_video_playing_sound" />
 
       <TextView
         android:id="@+id/debug_text_view"
