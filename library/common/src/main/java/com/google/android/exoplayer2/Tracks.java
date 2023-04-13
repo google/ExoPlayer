@@ -189,6 +189,17 @@ public final class Tracks implements Bundleable {
       return mediaTrackGroup.type;
     }
 
+    /**
+     * Copies the {@code Group} with a new {@link TrackGroup#id}.
+     *
+     * @param groupId The new {@link TrackGroup#id}
+     * @return The copied {@code Group}.
+     */
+    public Group copyWithId(String groupId) {
+      return new Group(
+          mediaTrackGroup.copyWithId(groupId), adaptiveSupported, trackSupport, trackSelected);
+    }
+
     @Override
     public boolean equals(@Nullable Object other) {
       if (this == other) {
