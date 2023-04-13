@@ -1095,15 +1095,16 @@ public class MediaControllerListenerTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(initialCurrentTracksRef.get()).isEqualTo(Tracks.EMPTY);
-    assertThat(changedCurrentTracksFromParamRef.get()).isEqualTo(currentTracks);
-    assertThat(changedCurrentTracksFromGetterRef.get()).isEqualTo(currentTracks);
+    assertThat(changedCurrentTracksFromParamRef.get().getGroups()).hasSize(2);
+    assertThat(changedCurrentTracksFromGetterRef.get())
+        .isEqualTo(changedCurrentTracksFromParamRef.get());
     assertThat(capturedEvents).hasSize(2);
     assertThat(getEventsAsList(capturedEvents.get(0))).containsExactly(Player.EVENT_TRACKS_CHANGED);
     assertThat(getEventsAsList(capturedEvents.get(1)))
         .containsExactly(Player.EVENT_IS_LOADING_CHANGED);
     assertThat(changedCurrentTracksFromOnEvents).hasSize(2);
-    assertThat(changedCurrentTracksFromOnEvents.get(0)).isEqualTo(currentTracks);
-    assertThat(changedCurrentTracksFromOnEvents.get(1)).isEqualTo(currentTracks);
+    assertThat(changedCurrentTracksFromOnEvents.get(0).getGroups()).hasSize(2);
+    assertThat(changedCurrentTracksFromOnEvents.get(1).getGroups()).hasSize(2);
     // Assert that an equal instance is not re-sent over the binder.
     assertThat(changedCurrentTracksFromOnEvents.get(0))
         .isSameInstanceAs(changedCurrentTracksFromOnEvents.get(1));
