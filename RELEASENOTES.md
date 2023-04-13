@@ -98,6 +98,9 @@
     *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
         UnsupportedTransport
         ([#11069](https://github.com/google/ExoPlayer/issues/11069)).
+    *   For MPEG4-LATM, use default profile-level-id value if absent in Describe
+        Response SDP message
+        ([#302](https://github.com/androidx/media/issues/302)).
 *   IMA DAI extension:
     *   Fix a bug where a new ad group is inserted in live streams because the
         calculated content position in consecutive timelines varies slightly.

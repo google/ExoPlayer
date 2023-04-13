@@ -229,7 +229,8 @@ import com.google.common.collect.ImmutableMap;
               .setChannelCount(aacConfig.channelCount)
               .setCodecs(aacConfig.codecs);
         }
-        processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
+        processAacFmtpAttribute(
+            formatBuilder, fmtpParameters, mediaEncoding, channelCount, clockRate);
         break;
       case MimeTypes.AUDIO_AMR_NB:
       case MimeTypes.AUDIO_AMR_WB:
@@ -311,11 +312,17 @@ import com.google.common.collect.ImmutableMap;
   private static void processAacFmtpAttribute(
       Format.Builder formatBuilder,
       ImmutableMap<String, String> fmtpAttributes,
+      String mediaEncoding,
       int channelCount,
       int sampleRate) {
+    @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
+    if (profileLevel == null && mediaEncoding.equals(RtpPayloadFormat.RTP_MEDIA_MPEG4_LATM_AUDIO)) {
+      // As defined in RFC3016 Section 5.3 for MPEG4-LATM, if profile-level-id is not specified,
+      // then a default value of 30 should be used.
+      profileLevel = "30";
+    }
     checkArgument(
-        fmtpAttributes.containsKey(PARAMETER_PROFILE_LEVEL_ID), "missing profile-level-id param");
-    String profileLevel = checkNotNull(fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID));
+        profileLevel != null && !profileLevel.isEmpty(), "missing profile-level-id param");
     formatBuilder.setCodecs(AAC_CODECS_PREFIX + profileLevel);
     formatBuilder.setInitializationData(
         ImmutableList.of(

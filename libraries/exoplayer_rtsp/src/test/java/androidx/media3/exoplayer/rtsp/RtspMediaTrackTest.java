@@ -404,6 +404,22 @@ public class RtspMediaTrackTest {
 
   @Test
   public void
+      generatePayloadFormat_withMpeg4LatmMediaDescriptionMissingProfileLevel_generatesCorrectProfileLevel() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 96)
+            .setConnection("IN IP4 0.0.0.0")
+            .setBitrate(96_000)
+            .addAttribute(ATTR_RTPMAP, "96 MP4A-LATM/44100")
+            .addAttribute(ATTR_FMTP, "96 config=40002410adca00; cpresent=0")
+            .addAttribute(ATTR_CONTROL, "track1")
+            .build();
+    RtpPayloadFormat rtpPayloadFormat = RtspMediaTrack.generatePayloadFormat(mediaDescription);
+    assertThat(rtpPayloadFormat.format.codecs).isEqualTo("mp4a.40.30");
+  }
+
+  @Test
+  public void
       generatePayloadFormat_withAacMediaDescriptionMissingFmtpAttribute_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
         new MediaDescription.Builder(
@@ -420,7 +436,7 @@ public class RtspMediaTrackTest {
 
   @Test
   public void
-      generatePayloadFormat_withMediaDescriptionMissingProfileLevel_throwsIllegalArgumentException() {
+      generatePayloadFormat_withMpeg4GenericMediaDescriptionMissingProfileLevel_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
         new MediaDescription.Builder(
                 MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
@@ -431,6 +447,25 @@ public class RtspMediaTrackTest {
                 ATTR_FMTP,
                 "97 streamtype=5;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=1208")
             .addAttribute(ATTR_CONTROL, "track2")
+            .build();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RtspMediaTrack.generatePayloadFormat(mediaDescription));
+  }
+
+  @Test
+  public void
+      generatePayloadFormat_withMpeg4GenericMediaDescriptionEmptyProfileLevel_throwsIllegalArgumentException() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
+            .setConnection("IN IP4 0.0.0.0")
+            .setBitrate(96_000)
+            .addAttribute(ATTR_RTPMAP, "97 MPEG4-GENERIC/44100")
+            .addAttribute(
+                ATTR_FMTP,
+                "97 streamtype=5;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=1208;profile-level-id=;")
+            .addAttribute(ATTR_CONTROL, "track1")
             .build();
     assertThrows(
         IllegalArgumentException.class,
