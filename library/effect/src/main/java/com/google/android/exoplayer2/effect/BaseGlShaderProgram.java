@@ -51,7 +51,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   private final boolean useHdr;
 
   private GlObjectsProvider glObjectsProvider;
-  private InputListener inputListener;
+  protected InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
   private Executor errorListenerExecutor;
