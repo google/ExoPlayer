@@ -42,6 +42,7 @@ import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
@@ -50,6 +51,7 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
+import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
@@ -427,7 +429,7 @@ public class MediaControllerTest {
     assertThat(seekForwardIncrementRef.get()).isEqualTo(seekForwardIncrementMs);
     assertThat(maxSeekToPreviousPositionMsRef.get()).isEqualTo(maxSeekToPreviousPositionMs);
     assertThat(trackSelectionParametersRef.get()).isEqualTo(trackSelectionParameters);
-    assertThat(currentTracksRef.get()).isEqualTo(currentTracks);
+    assertThat(currentTracksRef.get().getGroups()).hasSize(2);
     assertTimelineMediaItemsEquals(timelineRef.get(), timeline);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(currentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(currentMediaItem);
@@ -1209,6 +1211,118 @@ public class MediaControllerTest {
         threadTestRule.getHandler().postAndSync(controller::getMediaMetadata);
 
     assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
+  }
+
+  @Test
+  public void getCurrentTracks_hasEqualTrackGroupsForEqualGroupsInPlayer() throws Exception {
+    // Include metadata in Format to ensure the track group can't be fully bundled.
+    Tracks initialPlayerTracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setMetadata(new Metadata()).setId("1").build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1]),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setMetadata(new Metadata()).setId("2").build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1])));
+    Tracks updatedPlayerTracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setMetadata(new Metadata()).setId("2").build()),
+                    /* adaptiveSupported= */ true,
+                    /* trackSupport= */ new int[] {C.FORMAT_HANDLED},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setMetadata(new Metadata()).setId("3").build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1])));
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentTracks(initialPlayerTracks)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    CountDownLatch trackChangedEvent = new CountDownLatch(1);
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () ->
+                controller.addListener(
+                    new Player.Listener() {
+                      @Override
+                      public void onTracksChanged(Tracks tracks) {
+                        trackChangedEvent.countDown();
+                      }
+                    }));
+
+    Tracks initialControllerTracks =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentTracks);
+    // Do something unrelated first to ensure tracks are correctly kept even after multiple updates.
+    remoteSession.getMockPlayer().notifyPlaybackStateChanged(Player.STATE_READY);
+    remoteSession.getMockPlayer().notifyTracksChanged(updatedPlayerTracks);
+    trackChangedEvent.await();
+    Tracks updatedControllerTracks =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentTracks);
+
+    assertThat(initialControllerTracks.getGroups()).hasSize(2);
+    assertThat(updatedControllerTracks.getGroups()).hasSize(2);
+    assertThat(initialControllerTracks.getGroups().get(1).getMediaTrackGroup())
+        .isEqualTo(updatedControllerTracks.getGroups().get(0).getMediaTrackGroup());
+  }
+
+  @Test
+  public void getCurrentTracksAndTrackOverrides_haveEqualTrackGroupsForEqualGroupsInPlayer()
+      throws Exception {
+    // Include metadata in Format to ensure the track group can't be fully bundled.
+    TrackGroup playerTrackGroupForOverride =
+        new TrackGroup(new Format.Builder().setMetadata(new Metadata()).setId("2").build());
+    Tracks playerTracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setMetadata(new Metadata()).setId("1").build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1]),
+                new Tracks.Group(
+                    playerTrackGroupForOverride,
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1])));
+    TrackSelectionParameters trackSelectionParameters =
+        TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
+            .buildUpon()
+            .addOverride(
+                new TrackSelectionOverride(playerTrackGroupForOverride, /* trackIndex= */ 0))
+            .build();
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentTracks(playerTracks)
+            .setTrackSelectionParameters(trackSelectionParameters)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    Tracks controllerTracks = threadTestRule.getHandler().postAndSync(controller::getCurrentTracks);
+    TrackSelectionParameters controllerTrackSelectionParameters =
+        threadTestRule.getHandler().postAndSync(controller::getTrackSelectionParameters);
+
+    TrackGroup controllerTrackGroup = controllerTracks.getGroups().get(1).getMediaTrackGroup();
+    assertThat(controllerTrackSelectionParameters.overrides)
+        .containsExactly(
+            controllerTrackGroup,
+            new TrackSelectionOverride(controllerTrackGroup, /* trackIndex= */ 0));
   }
 
   @Test

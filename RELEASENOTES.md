@@ -48,6 +48,10 @@
         *   `void increaseDeviceVolume(int)`
         *   `void decreaseDeviceVolume(int)`
         *   `void setDeviceMuted(boolean, int)`
+    *   Fix issue that `TrackSelectionOverride` instances sent from a
+        `MediaController` are ignored if they reference a group with
+        `Format.metadata`
+        ([#296](https://github.com/androidx/media/issues/296)).
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
