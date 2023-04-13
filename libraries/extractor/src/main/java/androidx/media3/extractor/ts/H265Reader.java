@@ -435,11 +435,15 @@ public final class H265Reader implements ElementaryStreamReader {
       if (interRefPicSetPredictionFlag) {
         bitArray.skipBit(); // delta_rps_sign
         bitArray.readUnsignedExpGolombCodedInt(); // abs_delta_rps_minus1
+        int numDeltaPocs = 0;
         for (int j = 0; j <= previousNumDeltaPocs; j++) {
           if (!bitArray.readBit()) { // used_by_curr_pic_flag[j]
-            bitArray.skipBit(); // use_delta_flag[j]
+            if(!bitArray.readBit())  // use_delta_flag[j]
+              continue; // if not use_delta_flag, skip increase numDeltaPocs
           }
+          numDeltaPocs++;
         }
+        previousNumDeltaPocs = numDeltaPocs;
       } else {
         numNegativePics = bitArray.readUnsignedExpGolombCodedInt();
         numPositivePics = bitArray.readUnsignedExpGolombCodedInt();
