@@ -72,7 +72,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
     /**
      * Sets the minimum length for PCM {@link AudioTrack} buffers, in microseconds. Default is
-     * {@value #MIN_PCM_BUFFER_DURATION_US}.
+     * {@link #MIN_PCM_BUFFER_DURATION_US}.
      */
     @CanIgnoreReturnValue
     public Builder setMinPcmBufferDurationUs(int minPcmBufferDurationUs) {
@@ -82,7 +82,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
     /**
      * Sets the maximum length for PCM {@link AudioTrack} buffers, in microseconds. Default is
-     * {@value #MAX_PCM_BUFFER_DURATION_US}.
+     * {@link #MAX_PCM_BUFFER_DURATION_US}.
      */
     @CanIgnoreReturnValue
     public Builder setMaxPcmBufferDurationUs(int maxPcmBufferDurationUs) {
@@ -92,7 +92,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
     /**
      * Sets the multiplication factor to apply to the minimum buffer size requested. Default is
-     * {@value #PCM_BUFFER_MULTIPLICATION_FACTOR}.
+     * {@link #PCM_BUFFER_MULTIPLICATION_FACTOR}.
      */
     @CanIgnoreReturnValue
     public Builder setPcmBufferMultiplicationFactor(int pcmBufferMultiplicationFactor) {
@@ -102,7 +102,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
     /**
      * Sets the length for passthrough {@link AudioTrack} buffers, in microseconds. Default is
-     * {@value #PASSTHROUGH_BUFFER_DURATION_US}.
+     * {@link #PASSTHROUGH_BUFFER_DURATION_US}.
      */
     @CanIgnoreReturnValue
     public Builder setPassthroughBufferDurationUs(int passthroughBufferDurationUs) {
@@ -111,7 +111,7 @@ public class DefaultAudioTrackBufferSizeProvider
     }
 
     /**
-     * The length for offload {@link AudioTrack} buffers, in microseconds. Default is {@value
+     * The length for offload {@link AudioTrack} buffers, in microseconds. Default is {@link
      * #OFFLOAD_BUFFER_DURATION_US}.
      */
     @CanIgnoreReturnValue
@@ -122,7 +122,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
     /**
      * Sets the multiplication factor to apply to the passthrough buffer for AC3 to avoid underruns
-     * on some devices (e.g., Broadcom 7271). Default is {@value #AC3_BUFFER_MULTIPLICATION_FACTOR}.
+     * on some devices (e.g., Broadcom 7271). Default is {@link #AC3_BUFFER_MULTIPLICATION_FACTOR}.
      */
     @CanIgnoreReturnValue
     public Builder setAc3BufferMultiplicationFactor(int ac3BufferMultiplicationFactor) {

@@ -264,7 +264,7 @@ public final class ImaAdsLoader implements AdsLoader {
     /**
      * Sets the duration in milliseconds for which the player must buffer while preloading an ad
      * group before that ad group is skipped and marked as having failed to load. Pass {@link
-     * C#TIME_UNSET} if there should be no such timeout. The default value is {@value
+     * C#TIME_UNSET} if there should be no such timeout. The default value is {@link
      * #DEFAULT_AD_PRELOAD_TIMEOUT_MS} ms.
      *
      * <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case that
