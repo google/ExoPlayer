@@ -55,9 +55,11 @@ public final class TransformationRequest {
   /**
    * Processes HDR input as HDR, to generate HDR output.
    *
+   * <p>The HDR output format (ex. color transfer) will be the same as the HDR input format.
+   *
    * <p>Supported on API 31+, by some device and HDR format combinations.
    *
-   * <p>If not supported, {@link Transformer} may fall back to {@link
+   * <p>If not supported, {@link Transformer} will attempt to use {@link
    * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}.
    */
   public static final int HDR_MODE_KEEP_HDR = 0;
@@ -66,7 +68,7 @@ public final class TransformationRequest {
    * android.media.MediaCodec} decoder tone-mapper.
    *
    * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
-   * guaranteed to be supported from Android T onwards.
+   * guaranteed to be supported on API 33+, on devices with HDR capture support.
    *
    * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
    */
@@ -93,7 +95,7 @@ public final class TransformationRequest {
    * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
    * look.
    *
-   * <p>Using this API may lead to codec errors before API 29, per b/269759013.
+   * <p>Using this API may lead to codec errors before API 29.
    *
    * <p>Use of this flag may result in {@code ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
    *
