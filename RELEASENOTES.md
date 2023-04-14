@@ -89,6 +89,9 @@
         instead.
     *   Remove `Transformer.startTransformation(MediaItem,
         ParcelFileDescriptor)`.
+    *   Fix a bug where transformation could get stuck (leading to muxer
+        timeout) if the end of the video stream was signaled at the moment when
+        an input frame was pending processing.
 *   DASH:
     *   Fix handling of empty segment timelines
         ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
