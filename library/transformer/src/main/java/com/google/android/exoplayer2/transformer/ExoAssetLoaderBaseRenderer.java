@@ -218,7 +218,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (shouldInitDecoder) {
       if (getProcessedTrackType(inputFormat.sampleMimeType) == C.TRACK_TYPE_VIDEO) {
-        // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and
+        // TODO(b/278259383): Move surface creation out of video sampleConsumer. Init decoder and
         // get decoder output Format before init sampleConsumer.
         if (!ensureSampleConsumerInitialized()) {
           return false;
@@ -256,7 +256,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         }
         outputFormat = decoderOutputFormat;
       } else {
-        // TODO(b/237674316): Move surface creation out of video sampleConsumer. Init decoder and
+        // TODO(b/278259383): Move surface creation out of video sampleConsumer. Init decoder and
         // get decoderOutput Format before init sampleConsumer.
         outputFormat = inputFormat;
       }

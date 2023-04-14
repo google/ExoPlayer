@@ -77,7 +77,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void initDecoder(Format inputFormat) throws ExportException {
-    // TODO(b/237674316): Move surface creation out of sampleConsumer. Init decoder before
+    // TODO(b/278259383): Move surface creation out of sampleConsumer. Init decoder before
     // sampleConsumer.
     checkStateNotNull(sampleConsumer);
     boolean isDecoderToneMappingRequired =

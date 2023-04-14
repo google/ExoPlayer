@@ -453,8 +453,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
-    // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
-    //  configure based on the color info from the decoder output media format instead.
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     int[] configAttributes =
         ColorInfo.isTransferHdr(outputColorInfo)
