@@ -105,6 +105,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (codecProfileAndLevel != null) {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
     }
 
     @Nullable
