@@ -222,7 +222,7 @@ public final class TransformerActivity extends AppCompatActivity {
     requestReadVideoPermission(/* activity= */ this);
 
     Intent intent = getIntent();
-    Uri uri = checkNotNull(intent.getData());
+    Uri inputUri = checkNotNull(intent.getData());
     try {
       externalCacheFile = createExternalCacheFile("transformer-output.mp4");
     } catch (IOException e) {
@@ -230,9 +230,9 @@ public final class TransformerActivity extends AppCompatActivity {
     }
     String filePath = externalCacheFile.getAbsolutePath();
     @Nullable Bundle bundle = intent.getExtras();
-    MediaItem mediaItem = createMediaItem(bundle, uri);
+    MediaItem mediaItem = createMediaItem(bundle, inputUri);
     try {
-      Transformer transformer = createTransformer(bundle, filePath);
+      Transformer transformer = createTransformer(bundle, inputUri, filePath);
       Composition composition = createComposition(mediaItem, bundle);
       exportStopwatch.start();
       transformer.start(composition, filePath);
@@ -296,7 +296,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "progressViewGroup",
     "debugFrame",
   })
-  private Transformer createTransformer(@Nullable Bundle bundle, String filePath) {
+  private Transformer createTransformer(@Nullable Bundle bundle, Uri inputUri, String filePath) {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
     if (bundle != null) {
       TransformationRequest.Builder requestBuilder = new TransformationRequest.Builder();
@@ -331,9 +331,7 @@ public final class TransformerActivity extends AppCompatActivity {
             new Transformer.Listener() {
               @Override
               public void onCompleted(Composition composition, ExportResult exportResult) {
-                MediaItem mediaItem =
-                    composition.sequences.get(0).editedMediaItems.get(0).mediaItem;
-                TransformerActivity.this.onCompleted(filePath, mediaItem);
+                TransformerActivity.this.onCompleted(inputUri, filePath);
               }
 
               @Override
@@ -659,7 +657,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugFrame",
     "exportStopwatch",
   })
-  private void onCompleted(String filePath, MediaItem inputMediaItem) {
+  private void onCompleted(Uri inputUri, String filePath) {
     exportStopwatch.stop();
     informationTextView.setText(
         getString(R.string.export_completed, exportStopwatch.elapsed(TimeUnit.SECONDS)));
@@ -670,7 +668,7 @@ public final class TransformerActivity extends AppCompatActivity {
     outputVideoTextView.setVisibility(View.VISIBLE);
     debugTextView.setVisibility(View.VISIBLE);
     displayInputButton.setVisibility(View.VISIBLE);
-    playMediaItems(inputMediaItem, MediaItem.fromUri("file://" + filePath));
+    playMediaItems(MediaItem.fromUri(inputUri), MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
   }
 
@@ -686,8 +684,8 @@ public final class TransformerActivity extends AppCompatActivity {
     inputPlayerView.setPlayer(null);
     outputPlayerView.setPlayer(null);
     releasePlayer();
-    Uri uri = checkNotNull(inputMediaItem.localConfiguration).uri;
 
+    Uri uri = checkNotNull(inputMediaItem.localConfiguration).uri;
     ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     outputPlayerView.setPlayer(outputPlayer);
     outputPlayerView.setControllerAutoShow(false);
@@ -718,8 +716,8 @@ public final class TransformerActivity extends AppCompatActivity {
       ExoPlayer inputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
       inputPlayerView.setPlayer(inputPlayer);
       inputPlayerView.setControllerAutoShow(false);
-      inputPlayer.setMediaItem(inputMediaItem);
       inputPlayerView.setOnClickListener(this::onClickingPlayerView);
+      inputPlayer.setMediaItem(inputMediaItem);
       inputPlayer.prepare();
       this.inputPlayer = inputPlayer;
       inputPlayer.setVolume(0f);
