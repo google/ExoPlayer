@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 import static androidx.media3.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -281,7 +282,8 @@ public class TransformerEndToEndTest {
         new EditedMediaItemSequence(
             ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem), /* isLooping= */ true);
     EditedMediaItem videoEditedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(MP4_ASSET_URI_STRING))
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING))
             .setRemoveAudio(true)
             .build();
     EditedMediaItemSequence videoSequence =
@@ -300,7 +302,7 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.processedInputs).hasSize(6);
     assertThat(result.exportResult.channelCount).isEqualTo(1);
     assertThat(result.exportResult.videoFrameCount).isEqualTo(90);
-    assertThat(result.exportResult.durationMs).isEqualTo(3015);
+    assertThat(result.exportResult.durationMs).isEqualTo(2980);
   }
 
   @Test
