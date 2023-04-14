@@ -33,7 +33,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
@@ -342,21 +341,6 @@ public final class DefaultCodec implements Codec {
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
         outputFormat = convertToFormat(mediaCodec.getOutputFormat(), isDecoder);
-        ColorInfo expectedColorInfo =
-            isSdrToneMappingEnabled(configurationMediaFormat)
-                ? ColorInfo.SDR_BT709_LIMITED
-                : configurationFormat.colorInfo;
-        if (!areColorTransfersEqual(expectedColorInfo, outputFormat.colorInfo)) {
-          // TODO(b/237674316): The container ColorInfo's transfer doesn't match the decoder output
-          //   MediaFormat, or we requested tone-mapping but it hasn't been applied. We should
-          //   reconfigure downstream components for this case instead.
-          Log.w(
-              TAG,
-              "Codec output color format does not match configured color format. Expected: "
-                  + expectedColorInfo
-                  + ". Actual: "
-                  + outputFormat.colorInfo);
-        }
       }
       return false;
     }
@@ -405,19 +389,6 @@ public final class DefaultCodec implements Codec {
     String codecDetails =
         "mediaFormat=" + configurationMediaFormat + ", mediaCodecName=" + mediaCodecName;
     return ExportException.createForCodec(cause, errorCode, isVideo, isDecoder, codecDetails);
-  }
-
-  private static boolean areColorTransfersEqual(
-      @Nullable ColorInfo colorInfo1, @Nullable ColorInfo colorInfo2) {
-    @C.ColorTransfer int transfer1 = C.COLOR_TRANSFER_SDR;
-    if (colorInfo1 != null && colorInfo1.colorTransfer != Format.NO_VALUE) {
-      transfer1 = colorInfo1.colorTransfer;
-    }
-    @C.ColorTransfer int transfer2 = C.COLOR_TRANSFER_SDR;
-    if (colorInfo2 != null && colorInfo2.colorTransfer != Format.NO_VALUE) {
-      transfer2 = colorInfo2.colorTransfer;
-    }
-    return transfer1 == transfer2;
   }
 
   private static Format convertToFormat(MediaFormat mediaFormat, boolean isDecoder) {

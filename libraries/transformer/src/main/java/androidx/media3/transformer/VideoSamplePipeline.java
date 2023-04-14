@@ -88,6 +88,8 @@ import org.checkerframework.dataflow.qual.Pure;
       DebugViewProvider debugViewProvider)
       throws ExportException {
     // TODO(b/262693177) Add tests for input format change.
+    // TODO(b/278259383) Consider delaying configuration of VideoSamplePipeline to use the decoder
+    // output format instead of the extractor output format, to match AudioSamplePipeline behavior.
     super(firstInputFormat, muxerWrapper);
 
     mediaItemOffsetUs = new AtomicLong();
@@ -384,7 +386,6 @@ import org.checkerframework.dataflow.qual.Pure;
       if (isInputToneMapped) {
         // When tone-mapping HDR to SDR is enabled, assume we get BT.709 to avoid having the encoder
         // populate default color info, which depends on the resolution.
-        // TODO(b/237674316): Get the color info from the decoder output media format instead.
         return ColorInfo.SDR_BT709_LIMITED;
       }
       if (inputFormat.colorInfo == null) {
