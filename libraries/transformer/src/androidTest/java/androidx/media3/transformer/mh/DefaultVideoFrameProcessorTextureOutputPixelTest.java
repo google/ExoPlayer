@@ -33,15 +33,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
-import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.GlTextureInfo;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
+import androidx.media3.effect.GlEffect;
+import androidx.media3.effect.GlShaderProgram;
 import androidx.media3.effect.OverlayEffect;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.media3.transformer.AndroidTestUtil;
@@ -80,6 +83,9 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG10_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
+
+  private static final GlEffect NO_OP_EFFECT =
+      new GlEffectWrapper(new ScaleAndRotateTransformation.Builder().build());
 
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
@@ -152,17 +158,47 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
     }
-    ColorInfo hlg10ColorInfo =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT2020)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_HLG)
-            .build();
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputColorInfo(hlg10ColorInfo)
-            .setOutputColorInfo(hlg10ColorInfo)
+            .setInputColorInfo(colorInfo)
+            .setOutputColorInfo(colorInfo)
             .setVideoAssetPath(INPUT_HLG10_MP4_ASSET_STRING)
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HLG10_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  // A passthrough effect allows for testing having an intermediate effect injected, which uses
+  // different OpenGL shaders from having no effects.
+  @Test
+  public void noOpEffect_hlg10Input_matchesGoldenFile() throws Exception {
+    String testId = "noOpEffect_hlg10Input_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No HLG editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setInputColorInfo(colorInfo)
+            .setOutputColorInfo(colorInfo)
+            .setVideoAssetPath(INPUT_HLG10_MP4_ASSET_STRING)
+            .setEffects(NO_OP_EFFECT)
             .build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_HLG10_PNG_ASSET_PATH);
 
@@ -189,17 +225,47 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
     }
-    ColorInfo hdr10ColorInfo =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT2020)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_ST2084)
-            .build();
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputColorInfo(hdr10ColorInfo)
-            .setOutputColorInfo(hdr10ColorInfo)
+            .setInputColorInfo(colorInfo)
+            .setOutputColorInfo(colorInfo)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HDR10_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  // A passthrough effect allows for testing having an intermediate effect injected, which uses
+  // different OpenGL shaders from having no effects.
+  @Test
+  public void noOpEffect_hdr10Input_matchesGoldenFile() throws Exception {
+    String testId = "noOpEffect_hdr10Input_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No HLG editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setInputColorInfo(colorInfo)
+            .setOutputColorInfo(colorInfo)
+            .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
+            .setEffects(NO_OP_EFFECT)
             .build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_HDR10_PNG_ASSET_PATH);
 
@@ -280,5 +346,28 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     return !EncoderUtil.getSupportedEncodersForHdrEditing(
             checkNotNull(checkNotNull(format).sampleMimeType), format.colorInfo)
         .isEmpty();
+  }
+
+  /**
+   * Wraps a {@link GlEffect} to prevent the {@link DefaultVideoFrameProcessor} from detecting its
+   * class and optimizing it.
+   *
+   * <p>This ensures that {@link DefaultVideoFrameProcessor} uses a separate {@link GlShaderProgram}
+   * for the wrapped {@link GlEffect} rather than merging it with preceding or subsequent {@link
+   * GlEffect} instances and applying them in one combined {@link GlShaderProgram}.
+   */
+  private static final class GlEffectWrapper implements GlEffect {
+
+    private final GlEffect effect;
+
+    public GlEffectWrapper(GlEffect effect) {
+      this.effect = effect;
+    }
+
+    @Override
+    public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+        throws VideoFrameProcessingException {
+      return effect.toGlShaderProgram(context, useHdr);
+    }
   }
 }
