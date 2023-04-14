@@ -688,7 +688,6 @@ public final class TransformerActivity extends AppCompatActivity {
     ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     outputPlayerView.setPlayer(outputPlayer);
     outputPlayerView.setControllerAutoShow(false);
-    outputPlayerView.setOnClickListener(this::onClickingPlayerView);
     outputPlayer.setMediaItem(outputMediaItem);
     outputPlayer.prepare();
     this.outputPlayer = outputPlayer;
@@ -716,6 +715,7 @@ public final class TransformerActivity extends AppCompatActivity {
       inputPlayerView.setPlayer(inputPlayer);
       inputPlayerView.setControllerAutoShow(false);
       inputPlayerView.setOnClickListener(this::onClickingPlayerView);
+      outputPlayerView.setOnClickListener(this::onClickingPlayerView);
       inputPlayer.setMediaItem(inputMediaItem);
       inputPlayer.prepare();
       this.inputPlayer = inputPlayer;
@@ -730,13 +730,17 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private void onClickingPlayerView(View view) {
     if (view == inputPlayerView) {
-      checkNotNull(inputPlayer).setVolume(1f);
-      checkNotNull(inputTextView).setText(R.string.input_video_playing_sound);
+      if (inputPlayer != null && inputTextView != null) {
+        inputPlayer.setVolume(1f);
+        inputTextView.setText(R.string.input_video_playing_sound);
+      }
       checkNotNull(outputPlayer).setVolume(0f);
       checkNotNull(outputVideoTextView).setText(R.string.output_video_no_sound);
     } else {
-      checkNotNull(inputPlayer).setVolume(0f);
-      checkNotNull(inputTextView).setText(getString(R.string.input_video_no_sound));
+      if (inputPlayer != null && inputTextView != null) {
+        inputPlayer.setVolume(0f);
+        inputTextView.setText(getString(R.string.input_video_no_sound));
+      }
       checkNotNull(outputPlayer).setVolume(1f);
       checkNotNull(outputVideoTextView).setText(R.string.output_video_playing_sound);
     }
