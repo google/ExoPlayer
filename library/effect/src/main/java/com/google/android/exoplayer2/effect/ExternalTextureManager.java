@@ -56,6 +56,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   // Read and written on the GL thread only.
   private boolean inputStreamEnded;
+
+  // TODO(b/278273122): Remove this flag and the signal end of input call after queueing a frame if
+  // all frames notify that they've been processed.
+
+  // Read and written on the GL thread only.
+  private boolean hasSignaledEndOfInput;
   // The frame that is sent downstream and is not done processing yet.
   // Set to null on any thread. Read and set to non-null on the GL thread only.
   @Nullable private volatile FrameInfo currentFrame;
@@ -128,7 +134,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           currentFrame = null;
-          maybeQueueFrameToExternalShaderProgram();
+          if (inputStreamEnded && pendingFrames.isEmpty()) {
+            maybeSignalEndOfInput();
+          } else {
+            maybeQueueFrameToExternalShaderProgram();
+          }
         });
   }
 
@@ -173,7 +183,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         () -> {
           inputStreamEnded = true;
           if (pendingFrames.isEmpty() && currentFrame == null) {
-            externalShaderProgram.signalEndOfCurrentInputStream();
+            maybeSignalEndOfInput();
           }
         });
   }
@@ -235,6 +245,13 @@ import java.util.concurrent.atomic.AtomicInteger;
     checkStateNotNull(pendingFrames.remove());
 
     if (inputStreamEnded && pendingFrames.isEmpty()) {
+      maybeSignalEndOfInput();
+    }
+  }
+
+  private void maybeSignalEndOfInput() {
+    if (!hasSignaledEndOfInput) {
+      hasSignaledEndOfInput = true;
       externalShaderProgram.signalEndOfCurrentInputStream();
     }
   }
