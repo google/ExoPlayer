@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.source.rtsp;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.usToMs;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -312,7 +313,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     pendingSeekPositionUs = positionUs;
-    rtspClient.seekToUs(positionUs);
+
+    if (loadingFinished) {
+      for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
+        rtspLoaderWrappers.get(i).resumeLoad();
+      }
+
+      if (isUsingRtpTcp) {
+        rtspClient.startPlayback(/* offsetMs= */ usToMs(positionUs));
+      } else {
+        rtspClient.seekToUs(positionUs);
+      }
+
+    } else {
+      rtspClient.seekToUs(positionUs);
+    }
+
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
       rtspLoaderWrappers.get(i).seekTo(positionUs);
     }
@@ -528,6 +544,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           break;
         }
       }
+
+      rtspClient.signalPlaybackEnded();
     }
 
     @Override
@@ -813,6 +831,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         // Update loadingFinished every time loading is canceled.
         updateLoadingFinished();
       }
+    }
+
+    /** Resumes loading after {@linkplain #cancelLoad() loading is canceled}. */
+    public void resumeLoad() {
+      checkState(canceled);
+      canceled = false;
+      updateLoadingFinished();
+      startLoading();
     }
 
     /** Resets the {@link Loadable} and {@link SampleQueue} to prepare for an RTSP seek. */
