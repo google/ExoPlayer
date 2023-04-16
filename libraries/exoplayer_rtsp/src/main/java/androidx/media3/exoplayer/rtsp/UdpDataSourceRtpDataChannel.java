@@ -64,6 +64,11 @@ import java.io.IOException;
     return port == UdpDataSource.UDP_PORT_UNSET ? C.INDEX_UNSET : port;
   }
 
+  @Override
+  public boolean needsClosingOnLoadCompletion() {
+    return true;
+  }
+
   @Nullable
   @Override
   public RtspMessageChannel.InterleavedBinaryDataListener getInterleavedBinaryDataListener() {

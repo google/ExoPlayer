@@ -230,6 +230,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     messageSender.sendPlayRequest(uri, offsetMs, checkNotNull(sessionId));
   }
 
+  public void signalPlaybackEnded() {
+    rtspState = RTSP_STATE_READY;
+  }
+
   /**
    * Seeks to a specific time using RTSP.
    *
@@ -723,7 +727,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void onPlayResponseReceived(RtspPlayResponse response) {
-      checkState(rtspState == RTSP_STATE_READY);
+      checkState(rtspState == RTSP_STATE_READY || rtspState == RTSP_STATE_PLAYING);
 
       rtspState = RTSP_STATE_PLAYING;
       if (keepAliveMonitor == null) {

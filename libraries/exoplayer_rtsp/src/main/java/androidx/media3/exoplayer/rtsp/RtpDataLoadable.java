@@ -27,7 +27,6 @@ import androidx.media3.datasource.DataSourceUtil;
 import androidx.media3.exoplayer.upstream.Loader;
 import androidx.media3.extractor.DefaultExtractorInput;
 import androidx.media3.extractor.Extractor;
-import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
 import java.io.IOException;
@@ -77,7 +76,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Handler playbackThreadHandler;
   private final RtpDataChannel.Factory rtpDataChannelFactory;
 
+  @Nullable private RtpDataChannel dataChannel;
   private @MonotonicNonNull RtpExtractor extractor;
+  private @MonotonicNonNull DefaultExtractorInput extractorInput;
 
   private volatile boolean loadCancelled;
   private volatile long pendingSeekPositionUs;
@@ -142,36 +143,49 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void load() throws IOException {
-    @Nullable RtpDataChannel dataChannel = null;
+    // Allows to resume loading after canceling load.
+    if (loadCancelled) {
+      loadCancelled = false;
+    }
+
     try {
-      dataChannel = rtpDataChannelFactory.createAndOpenDataChannel(trackId);
-      String transport = dataChannel.getTransport();
+      if (dataChannel == null) {
+        dataChannel = rtpDataChannelFactory.createAndOpenDataChannel(trackId);
+        String transport = dataChannel.getTransport();
 
-      RtpDataChannel finalDataChannel = dataChannel;
-      playbackThreadHandler.post(() -> eventListener.onTransportReady(transport, finalDataChannel));
+        RtpDataChannel finalDataChannel = dataChannel;
+        playbackThreadHandler.post(
+            () -> eventListener.onTransportReady(transport, finalDataChannel));
 
-      // Sets up the extractor.
-      ExtractorInput extractorInput =
-          new DefaultExtractorInput(
-              checkNotNull(dataChannel), /* position= */ 0, /* length= */ C.LENGTH_UNSET);
-      extractor = new RtpExtractor(rtspMediaTrack.payloadFormat, trackId);
-      extractor.init(output);
+        extractorInput =
+            new DefaultExtractorInput(
+                checkNotNull(dataChannel), /* position= */ 0, /* length= */ C.LENGTH_UNSET);
+        extractor = new RtpExtractor(rtspMediaTrack.payloadFormat, trackId);
+        extractor.init(output);
+      }
 
       while (!loadCancelled) {
         if (pendingSeekPositionUs != C.TIME_UNSET) {
-          extractor.seek(nextRtpTimestamp, pendingSeekPositionUs);
+          checkNotNull(extractor).seek(nextRtpTimestamp, pendingSeekPositionUs);
           pendingSeekPositionUs = C.TIME_UNSET;
         }
 
         @Extractor.ReadResult
-        int readResult = extractor.read(extractorInput, /* seekPosition= */ new PositionHolder());
+        int readResult =
+            checkNotNull(extractor)
+                .read(checkNotNull(extractorInput), /* seekPosition= */ new PositionHolder());
         if (readResult == Extractor.RESULT_END_OF_INPUT) {
           // Loading is finished.
           break;
         }
       }
+      // Resets the flag if user cancels loading.
+      loadCancelled = false;
     } finally {
-      DataSourceUtil.closeQuietly(dataChannel);
+      if (checkNotNull(dataChannel).needsClosingOnLoadCompletion()) {
+        DataSourceUtil.closeQuietly(dataChannel);
+        dataChannel = null;
+      }
     }
   }
 

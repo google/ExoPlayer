@@ -53,6 +53,9 @@ import java.io.IOException;
    */
   int getLocalPort();
 
+  /** Returns whether the {@code RtpDataChannel} needs to be closed when loading completes. */
+  boolean needsClosingOnLoadCompletion();
+
   /**
    * Returns a {@link InterleavedBinaryDataListener} if the implementation supports receiving RTP
    * packets on a side-band protocol, for example RTP-over-RTSP; otherwise {@code null}.

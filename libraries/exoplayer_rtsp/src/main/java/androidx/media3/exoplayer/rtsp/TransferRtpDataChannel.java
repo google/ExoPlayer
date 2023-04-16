@@ -70,6 +70,12 @@ import java.util.concurrent.LinkedBlockingQueue;
   }
 
   @Override
+  public boolean needsClosingOnLoadCompletion() {
+    // TCP channel is managed by the RTSP mesasge channel and does not need closing from here.
+    return false;
+  }
+
+  @Override
   public InterleavedBinaryDataListener getInterleavedBinaryDataListener() {
     return this;
   }
