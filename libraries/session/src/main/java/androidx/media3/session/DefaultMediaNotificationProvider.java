@@ -33,8 +33,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
@@ -245,7 +243,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private final String channelId;
   @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
-  private final Handler mainHandler;
 
   private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
   @DrawableRes private int smallIconResourceId;
@@ -278,7 +275,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
-    mainHandler = new Handler(Looper.getMainLooper());
     smallIconResourceId = R.drawable.media3_notification_small_icon;
   }
 
@@ -346,7 +342,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
               pendingOnBitmapLoadedFutureCallback,
               // This callback must be executed on the next looper iteration, after this method has
               // returned a media notification.
-              mainHandler::post);
+              mediaSession.getImpl().getApplicationHandler()::post);
         }
       }
     }

@@ -36,6 +36,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -785,6 +786,7 @@ public class DefaultMediaNotificationProviderTest {
     when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
     MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
     when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
+    when(mockMediaSessionImpl.getApplicationHandler()).thenReturn(new Handler(Looper.myLooper()));
     when(mockMediaSessionImpl.getUri()).thenReturn(Uri.parse("https://example.test"));
     return mockMediaSession;
   }

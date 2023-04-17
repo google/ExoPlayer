@@ -899,12 +899,20 @@ public class MediaSession {
     impl.setSessionPositionUpdateDelayMsOnHandler(updateDelayMs);
   }
 
-  /** Sets the {@linkplain Listener listener}. */
+  /**
+   * Sets the {@linkplain Listener listener}.
+   *
+   * <p>This method must be called on the main thread.
+   */
   /* package */ void setListener(Listener listener) {
     impl.setMediaSessionListener(listener);
   }
 
-  /** Clears the {@linkplain Listener listener}. */
+  /**
+   * Clears the {@linkplain Listener listener}.
+   *
+   * <p>This method must be called on the main thread.
+   */
   /* package */ void clearListener() {
     impl.clearMediaSessionListener();
   }
@@ -1435,7 +1443,11 @@ public class MediaSession {
     default void onRenderedFirstFrame(int seq) throws RemoteException {}
   }
 
-  /** Listener for media session events */
+  /**
+   * Listener for media session events.
+   *
+   * <p>All methods must be called on the main thread.
+   */
   /* package */ interface Listener {
 
     /**

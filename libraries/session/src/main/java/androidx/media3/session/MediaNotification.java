@@ -35,6 +35,10 @@ public final class MediaNotification {
   /**
    * Creates {@linkplain NotificationCompat.Action actions} and {@linkplain PendingIntent pending
    * intents} for notifications.
+   *
+   * <p>All methods will be called on the {@link Player#getApplicationLooper() application thread}
+   * of the {@link Player} associated with the {@link MediaSession} the notification is provided
+   * for.
    */
   @UnstableApi
   public interface ActionFactory {
@@ -109,10 +113,20 @@ public final class MediaNotification {
    *
    * <p>The provider is required to create a {@linkplain androidx.core.app.NotificationChannelCompat
    * notification channel}, which is required to show notification for {@code SDK_INT >= 26}.
+   *
+   * <p>All methods will be called on the {@link Player#getApplicationLooper() application thread}
+   * of the {@link Player} associated with the {@link MediaSession} the notification is provided
+   * for.
    */
   @UnstableApi
   public interface Provider {
-    /** Receives updates for a notification. */
+    /**
+     * Receives updates for a notification.
+     *
+     * <p>All methods will be called on the {@link Player#getApplicationLooper() application thread}
+     * of the {@link Player} associated with the {@link MediaSession} the notification is provided
+     * for.
+     */
     interface Callback {
       /**
        * Called when a {@link MediaNotification} is changed.

@@ -50,6 +50,8 @@ import java.util.concurrent.TimeoutException;
 /**
  * Manages media notifications for a {@link MediaSessionService} and sets the service as
  * foreground/background according to the player state.
+ *
+ * <p>All methods must be called on the main thread.
  */
 /* package */ final class MediaNotificationManager {
 
@@ -96,11 +98,12 @@ import java.util.concurrent.TimeoutException;
             .setListener(listener)
             .setApplicationLooper(Looper.getMainLooper())
             .buildAsync();
+    controllerMap.put(session, controllerFuture);
     controllerFuture.addListener(
         () -> {
           try {
             MediaController controller = controllerFuture.get(/* time= */ 0, TimeUnit.MILLISECONDS);
-            listener.onConnected();
+            listener.onConnected(shouldShowNotification(session));
             controller.addListener(listener);
           } catch (CancellationException
               | ExecutionException
@@ -111,7 +114,6 @@ import java.util.concurrent.TimeoutException;
           }
         },
         mainExecutor);
-    controllerMap.put(session, controllerFuture);
   }
 
   public void removeSession(MediaSession session) {
@@ -123,46 +125,19 @@ import java.util.concurrent.TimeoutException;
   }
 
   public void onCustomAction(MediaSession session, String action, Bundle extras) {
-    @Nullable ListenableFuture<MediaController> controllerFuture = controllerMap.get(session);
-    if (controllerFuture == null) {
+    @Nullable MediaController mediaController = getConnectedControllerForSession(session);
+    if (mediaController == null) {
       return;
     }
-    try {
-      MediaController mediaController = checkStateNotNull(Futures.getDone(controllerFuture));
-      if (!mediaNotificationProvider.handleCustomCommand(session, action, extras)) {
-        @Nullable SessionCommand customCommand = null;
-        for (SessionCommand command : mediaController.getAvailableSessionCommands().commands) {
-          if (command.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
-              && command.customAction.equals(action)) {
-            customCommand = command;
-            break;
+    // Let the notification provider handle the command first before forwarding it directly.
+    Util.postOrRun(
+        new Handler(session.getPlayer().getApplicationLooper()),
+        () -> {
+          if (!mediaNotificationProvider.handleCustomCommand(session, action, extras)) {
+            mainExecutor.execute(
+                () -> sendCustomCommandIfCommandIsAvailable(mediaController, action));
           }
-        }
-        if (customCommand != null
-            && mediaController.getAvailableSessionCommands().contains(customCommand)) {
-          ListenableFuture<SessionResult> future =
-              mediaController.sendCustomCommand(customCommand, Bundle.EMPTY);
-          Futures.addCallback(
-              future,
-              new FutureCallback<SessionResult>() {
-                @Override
-                public void onSuccess(SessionResult result) {
-                  // Do nothing.
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                  Log.w(
-                      TAG, "custom command " + action + " produced an error: " + t.getMessage(), t);
-                }
-              },
-              MoreExecutors.directExecutor());
-        }
-      }
-    } catch (ExecutionException e) {
-      // We should never reach this.
-      throw new IllegalStateException(e);
-    }
+        });
   }
 
   /**
@@ -178,27 +153,42 @@ import java.util.concurrent.TimeoutException;
     }
 
     int notificationSequence = ++totalNotificationCount;
+    ImmutableList<CommandButton> customLayout = checkStateNotNull(customLayoutMap.get(session));
     MediaNotification.Provider.Callback callback =
         notification ->
             mainExecutor.execute(
                 () -> onNotificationUpdated(notificationSequence, session, notification));
-
-    MediaNotification mediaNotification =
-        this.mediaNotificationProvider.createNotification(
-            session, checkStateNotNull(customLayoutMap.get(session)), actionFactory, callback);
-    updateNotificationInternal(session, mediaNotification, startInForegroundRequired);
+    Util.postOrRun(
+        new Handler(session.getPlayer().getApplicationLooper()),
+        () -> {
+          MediaNotification mediaNotification =
+              this.mediaNotificationProvider.createNotification(
+                  session, customLayout, actionFactory, callback);
+          mainExecutor.execute(
+              () ->
+                  updateNotificationInternal(
+                      session, mediaNotification, startInForegroundRequired));
+        });
   }
 
   public boolean isStartedInForeground() {
     return startedInForeground;
   }
 
+  /* package */ boolean shouldRunInForeground(
+      MediaSession session, boolean startInForegroundWhenPaused) {
+    @Nullable MediaController controller = getConnectedControllerForSession(session);
+    return controller != null
+        && (controller.getPlayWhenReady() || startInForegroundWhenPaused)
+        && (controller.getPlaybackState() == Player.STATE_READY
+            || controller.getPlaybackState() == Player.STATE_BUFFERING);
+  }
+
   private void onNotificationUpdated(
       int notificationSequence, MediaSession session, MediaNotification mediaNotification) {
     if (notificationSequence == totalNotificationCount) {
       boolean startInForegroundRequired =
-          MediaSessionService.shouldRunInForeground(
-              session, /* startInForegroundWhenPaused= */ false);
+          shouldRunInForeground(session, /* startInForegroundWhenPaused= */ false);
       updateNotificationInternal(session, mediaNotification, startInForegroundRequired);
     }
   }
@@ -236,8 +226,7 @@ import java.util.concurrent.TimeoutException;
   private void maybeStopForegroundService(boolean removeNotifications) {
     List<MediaSession> sessions = mediaSessionService.getSessions();
     for (int i = 0; i < sessions.size(); i++) {
-      if (MediaSessionService.shouldRunInForeground(
-          sessions.get(i), /* startInForegroundWhenPaused= */ false)) {
+      if (shouldRunInForeground(sessions.get(i), /* startInForegroundWhenPaused= */ false)) {
         return;
       }
     }
@@ -251,9 +240,56 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
-  private static boolean shouldShowNotification(MediaSession session) {
-    Player player = session.getPlayer();
-    return !player.getCurrentTimeline().isEmpty() && player.getPlaybackState() != Player.STATE_IDLE;
+  private boolean shouldShowNotification(MediaSession session) {
+    MediaController controller = getConnectedControllerForSession(session);
+    return controller != null
+        && !controller.getCurrentTimeline().isEmpty()
+        && controller.getPlaybackState() != Player.STATE_IDLE;
+  }
+
+  @Nullable
+  private MediaController getConnectedControllerForSession(MediaSession session) {
+    @Nullable ListenableFuture<MediaController> controllerFuture = controllerMap.get(session);
+    if (controllerFuture == null) {
+      return null;
+    }
+    try {
+      return Futures.getDone(controllerFuture);
+    } catch (ExecutionException exception) {
+      // We should never reach this.
+      throw new IllegalStateException(exception);
+    }
+  }
+
+  private void sendCustomCommandIfCommandIsAvailable(
+      MediaController mediaController, String action) {
+    @Nullable SessionCommand customCommand = null;
+    for (SessionCommand command : mediaController.getAvailableSessionCommands().commands) {
+      if (command.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
+          && command.customAction.equals(action)) {
+        customCommand = command;
+        break;
+      }
+    }
+    if (customCommand != null
+        && mediaController.getAvailableSessionCommands().contains(customCommand)) {
+      ListenableFuture<SessionResult> future =
+          mediaController.sendCustomCommand(customCommand, Bundle.EMPTY);
+      Futures.addCallback(
+          future,
+          new FutureCallback<SessionResult>() {
+            @Override
+            public void onSuccess(SessionResult result) {
+              // Do nothing.
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+              Log.w(TAG, "custom command " + action + " produced an error: " + t.getMessage(), t);
+            }
+          },
+          MoreExecutors.directExecutor());
+    }
   }
 
   private static final class MediaControllerListener
@@ -271,8 +307,8 @@ import java.util.concurrent.TimeoutException;
       this.customLayoutMap = customLayoutMap;
     }
 
-    public void onConnected() {
-      if (shouldShowNotification(session)) {
+    public void onConnected(boolean shouldShowNotification) {
+      if (shouldShowNotification) {
         mediaSessionService.onUpdateNotificationInternal(
             session, /* startInForegroundWhenPaused= */ false);
       }
