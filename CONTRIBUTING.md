@@ -23,6 +23,21 @@ We will also consider high quality pull requests. These should merge
 into the `main` branch. Before a pull request can be accepted you must submit
 a Contributor License Agreement, as described below.
 
+### Code style
+
+We follow the
+[Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+and use [`google-java-format`](https://github.com/google/google-java-format) to
+automatically reformat the code. Please consider auto-formatting your changes
+before opening a PR (we will otherwise do this ourselves before merging). You
+can use the various IDE integrations available, or bulk-reformat all the changes
+you made on top of `main` using
+[`google-java-format-diff.py`](https://github.com/google/google-java-format/blob/master/scripts/google-java-format-diff.py):
+
+```shell
+$ git diff -U0 main... | google-java-format-diff.py -p1 -i
+```
+
 ## Contributor license agreement
 
 Contributions to any Google project must be accompanied by a Contributor
