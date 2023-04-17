@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
       }
 
     onBackPressedDispatcher.addCallback(
-      object : OnBackPressedCallback(/* enabled= */ true) {
+      object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
           popPathStack()
         }
