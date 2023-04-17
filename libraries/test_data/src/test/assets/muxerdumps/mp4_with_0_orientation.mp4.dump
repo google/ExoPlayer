@@ -12,13 +12,13 @@ track 0:
   format 0:
     id = 1
     sampleMimeType = video/avc
-    codecs = avc1.9B2BF3
+    codecs = avc1.F4000A
     maxInputSize = 85
     width = 12
     height = 10
     initializationData:
-      data = length 24, hash 7F12E259
-      data = length 5, hash 1B4D906
+      data = length 28, hash 410B510
+      data = length 9, hash FBADD682
   sample 0:
     time = 0
     flags = 536870913
