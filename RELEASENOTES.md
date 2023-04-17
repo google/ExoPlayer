@@ -54,6 +54,9 @@
         ([#296](https://github.com/androidx/media/issues/296)).
     *   Fix issue where `Player.COMMAND_GET_CURRENT_MEDIA_ITEM` needs to be
         available to access metadata via the legacy `MediaSessionCompat`.
+    *   Fix issue where `MediaSession` instances on a background thread cause
+        crashes when used in `MediaSessionService`
+        ([#318](https://github.com/androidx/media/issues/318)).
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

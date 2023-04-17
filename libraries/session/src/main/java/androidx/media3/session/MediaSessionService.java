@@ -40,7 +40,6 @@ import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
-import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -183,7 +182,6 @@ public abstract class MediaSessionService extends Service {
   @Nullable
   private Listener listener;
 
-  @GuardedBy("lock")
   private boolean defaultMethodCalled;
 
   /** Creates a service. */
@@ -198,6 +196,8 @@ public abstract class MediaSessionService extends Service {
    * Called when the service is created.
    *
    * <p>Override this method if you need your own initialization.
+   *
+   * <p>This method will be called on the main thread.
    */
   @CallSuper
   @Override
@@ -234,7 +234,7 @@ public abstract class MediaSessionService extends Service {
    * <p>For those special cases, the values returned by {@link ControllerInfo#getUid()} and {@link
    * ControllerInfo#getConnectionHints()} have no meaning.
    *
-   * <p>This method is always called on the main thread.
+   * <p>This method will be called on the main thread.
    *
    * @param controllerInfo The information of the controller that is trying to connect.
    * @return A {@link MediaSession} for the controller, or {@code null} to reject the connection.
@@ -250,6 +250,8 @@ public abstract class MediaSessionService extends Service {
    *
    * <p>The added session will be removed automatically {@linkplain MediaSession#release() when the
    * session is released}.
+   *
+   * <p>This method can be called from any thread.
    *
    * @param session A session to be added.
    * @see #removeSession(MediaSession)
@@ -268,14 +270,20 @@ public abstract class MediaSessionService extends Service {
       // Session has returned for the first time. Register callbacks.
       // TODO(b/191644474): Check whether the session is registered to multiple services.
       MediaNotificationManager notificationManager = getMediaNotificationManager();
-      postOrRun(mainHandler, () -> notificationManager.addSession(session));
-      session.setListener(new MediaSessionListener());
+      postOrRun(
+          mainHandler,
+          () -> {
+            notificationManager.addSession(session);
+            session.setListener(new MediaSessionListener());
+          });
     }
   }
 
   /**
    * Removes a {@link MediaSession} from this service. This is not necessary for most media apps.
    * See <a href="#MultipleSessions">Supporting Multiple Sessions</a> for details.
+   *
+   * <p>This method can be called from any thread.
    *
    * @param session A session to be removed.
    * @see #addSession(MediaSession)
@@ -288,13 +296,19 @@ public abstract class MediaSessionService extends Service {
       sessions.remove(session.getId());
     }
     MediaNotificationManager notificationManager = getMediaNotificationManager();
-    postOrRun(mainHandler, () -> notificationManager.removeSession(session));
-    session.clearListener();
+    postOrRun(
+        mainHandler,
+        () -> {
+          notificationManager.removeSession(session);
+          session.clearListener();
+        });
   }
 
   /**
    * Returns the list of {@linkplain MediaSession sessions} that you've added to this service via
    * {@link #addSession} or {@link #onGetSession(ControllerInfo)}.
+   *
+   * <p>This method can be called from any thread.
    */
   public final List<MediaSession> getSessions() {
     synchronized (lock) {
@@ -305,6 +319,8 @@ public abstract class MediaSessionService extends Service {
   /**
    * Returns whether {@code session} has been added to this service via {@link #addSession} or
    * {@link #onGetSession(ControllerInfo)}.
+   *
+   * <p>This method can be called from any thread.
    */
   public final boolean isSessionAdded(MediaSession session) {
     synchronized (lock) {
@@ -312,7 +328,11 @@ public abstract class MediaSessionService extends Service {
     }
   }
 
-  /** Sets the {@linkplain Listener listener}. */
+  /**
+   * Sets the {@linkplain Listener listener}.
+   *
+   * <p>This method can be called from any thread.
+   */
   @UnstableApi
   public final void setListener(Listener listener) {
     synchronized (lock) {
@@ -320,7 +340,11 @@ public abstract class MediaSessionService extends Service {
     }
   }
 
-  /** Clears the {@linkplain Listener listener}. */
+  /**
+   * Clears the {@linkplain Listener listener}.
+   *
+   * <p>This method can be called from any thread.
+   */
   @UnstableApi
   public final void clearListener() {
     synchronized (lock) {
@@ -335,6 +359,8 @@ public abstract class MediaSessionService extends Service {
    * controllers}. In this case, the intent will have the action {@link #SERVICE_INTERFACE}.
    * Override this method if this service also needs to handle actions other than {@link
    * #SERVICE_INTERFACE}.
+   *
+   * <p>This method will be called on the main thread.
    */
   @CallSuper
   @Override
@@ -378,6 +404,8 @@ public abstract class MediaSessionService extends Service {
    * <p>The default implementation handles the incoming media button events. In this case, the
    * intent will have the action {@link Intent#ACTION_MEDIA_BUTTON}. Override this method if this
    * service also needs to handle actions other than {@link Intent#ACTION_MEDIA_BUTTON}.
+   *
+   * <p>This method will be called on the main thread.
    */
   @CallSuper
   @Override
@@ -417,6 +445,8 @@ public abstract class MediaSessionService extends Service {
    * Called when the service is no longer used and is being removed.
    *
    * <p>Override this method if you need your own clean up.
+   *
+   * <p>This method will be called on the main thread.
    */
   @CallSuper
   @Override
@@ -435,7 +465,7 @@ public abstract class MediaSessionService extends Service {
    */
   @Deprecated
   public void onUpdateNotification(MediaSession session) {
-    setDefaultMethodCalled(true);
+    defaultMethodCalled = true;
   }
 
   /**
@@ -460,13 +490,15 @@ public abstract class MediaSessionService extends Service {
    * <p>Apps targeting {@code SDK_INT >= 28} must request the permission, {@link
    * android.Manifest.permission#FOREGROUND_SERVICE}.
    *
+   * <p>This method will be called on the main thread.
+   *
    * @param session A session that needs notification update.
    * @param startInForegroundRequired Whether the service is required to start in the foreground.
    */
   @SuppressWarnings("deprecation") // Calling deprecated method.
   public void onUpdateNotification(MediaSession session, boolean startInForegroundRequired) {
     onUpdateNotification(session);
-    if (isDefaultMethodCalled()) {
+    if (defaultMethodCalled) {
       getMediaNotificationManager().updateNotification(session, startInForegroundRequired);
     }
   }
@@ -475,6 +507,8 @@ public abstract class MediaSessionService extends Service {
    * Sets the {@link MediaNotification.Provider} to customize notifications.
    *
    * <p>This should be called before {@link #onCreate()} returns.
+   *
+   * <p>This method can be called from any thread.
    */
   @UnstableApi
   protected final void setMediaNotificationProvider(
@@ -491,11 +525,16 @@ public abstract class MediaSessionService extends Service {
     }
   }
 
+  /**
+   * Triggers notification update and handles {@code ForegroundServiceStartNotAllowedException}.
+   *
+   * <p>This method will be called on the main thread.
+   */
   /* package */ boolean onUpdateNotificationInternal(
       MediaSession session, boolean startInForegroundWhenPaused) {
     try {
       boolean startInForegroundRequired =
-          shouldRunInForeground(session, startInForegroundWhenPaused);
+          getMediaNotificationManager().shouldRunInForeground(session, startInForegroundWhenPaused);
       onUpdateNotification(session, startInForegroundRequired);
     } catch (/* ForegroundServiceStartNotAllowedException */ IllegalStateException e) {
       if ((Util.SDK_INT >= 31) && Api31.instanceOfForegroundServiceStartNotAllowedException(e)) {
@@ -506,14 +545,6 @@ public abstract class MediaSessionService extends Service {
       throw e;
     }
     return true;
-  }
-
-  /* package */ static boolean shouldRunInForeground(
-      MediaSession session, boolean startInForegroundWhenPaused) {
-    Player player = session.getPlayer();
-    return (player.getPlayWhenReady() || startInForegroundWhenPaused)
-        && (player.getPlaybackState() == Player.STATE_READY
-            || player.getPlaybackState() == Player.STATE_BUFFERING);
   }
 
   private MediaNotificationManager getMediaNotificationManager() {
@@ -544,18 +575,6 @@ public abstract class MediaSessionService extends Service {
   private Listener getListener() {
     synchronized (lock) {
       return this.listener;
-    }
-  }
-
-  private boolean isDefaultMethodCalled() {
-    synchronized (lock) {
-      return this.defaultMethodCalled;
-    }
-  }
-
-  private void setDefaultMethodCalled(boolean defaultMethodCalled) {
-    synchronized (lock) {
-      this.defaultMethodCalled = defaultMethodCalled;
     }
   }
 

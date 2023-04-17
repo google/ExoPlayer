@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     testImplementation project(modulePrefix + 'test-utils')
+    testImplementation project(modulePrefix + 'test-utils-robolectric')
     testImplementation project(modulePrefix + 'lib-exoplayer')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

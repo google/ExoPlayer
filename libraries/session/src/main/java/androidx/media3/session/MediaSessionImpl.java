@@ -69,9 +69,11 @@ import androidx.media3.session.SequencedFutureManager.SequencedFuture;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.initialization.qual.Initialized;
 
 /* package */ class MediaSessionImpl {
@@ -113,8 +115,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final Handler applicationHandler;
   private final BitmapLoader bitmapLoader;
   private final Runnable periodicSessionPositionInfoUpdateRunnable;
+  private final Handler mainHandler;
 
   @Nullable private PlayerListener playerListener;
+
   @Nullable private MediaSession.Listener mediaSessionListener;
 
   private PlayerInfo playerInfo;
@@ -149,6 +153,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     sessionStub = new MediaSessionStub(thisRef);
     this.sessionActivity = sessionActivity;
 
+    mainHandler = new Handler(Looper.getMainLooper());
     applicationHandler = new Handler(player.getApplicationLooper());
     this.callback = callback;
     this.bitmapLoader = bitmapLoader;
@@ -546,12 +551,25 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   /* package */ void onNotificationRefreshRequired() {
-    if (this.mediaSessionListener != null) {
-      this.mediaSessionListener.onNotificationRefreshRequired(instance);
-    }
+    postOrRun(
+        mainHandler,
+        () -> {
+          if (this.mediaSessionListener != null) {
+            this.mediaSessionListener.onNotificationRefreshRequired(instance);
+          }
+        });
   }
 
   /* package */ boolean onPlayRequested() {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+      SettableFuture<Boolean> playRequested = SettableFuture.create();
+      mainHandler.post(() -> playRequested.set(onPlayRequested()));
+      try {
+        return playRequested.get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new IllegalStateException(e);
+      }
+    }
     if (this.mediaSessionListener != null) {
       return this.mediaSessionListener.onPlayRequested(instance);
     }
