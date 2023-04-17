@@ -1322,11 +1322,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       lastMediaMetadata = newMediaMetadata;
       lastDurationMs = newDurationMs;
 
-      if (currentMediaItem == null) {
-        setMetadata(sessionCompat, /* metadataCompat= */ null);
-        return;
-      }
-
       @Nullable Bitmap artworkBitmap = null;
       ListenableFuture<Bitmap> bitmapFuture =
           sessionImpl.getBitmapLoader().loadBitmapFromMetadata(newMediaMetadata);
