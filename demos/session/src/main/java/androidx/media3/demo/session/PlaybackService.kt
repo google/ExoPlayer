@@ -27,6 +27,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.Util
+import androidx.media3.datasource.DataSourceBitmapLoader
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.*
 import androidx.media3.session.MediaSession.ControllerInfo
@@ -238,6 +239,7 @@ class PlaybackService : MediaLibraryService() {
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, librarySessionCallback)
         .setSessionActivity(sessionActivityPendingIntent)
+        .setBitmapLoader(CacheBitmapLoader(DataSourceBitmapLoader(/* context= */ this)))
         .build()
     if (!customLayout.isEmpty()) {
       // Send custom layout to legacy session.
