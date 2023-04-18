@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -48,25 +47,15 @@ public final class Effects {
    * applying the {@code videoEffects} to the video frames.
    */
   public final VideoFrameProcessor.Factory videoFrameProcessorFactory;
-  /**
-   * The {@link GlObjectsProvider} used to create and maintain certain GL Objects in the {@link
-   * VideoFrameProcessor}.
-   */
-  public final GlObjectsProvider glObjectsProvider;
 
   /**
    * Creates an instance using a {@link DefaultVideoFrameProcessor.Factory}.
    *
    * <p>This is equivalent to calling {@link Effects#Effects(List, List,
-   * VideoFrameProcessor.Factory, GlObjectsProvider)} with a {@link
-   * DefaultVideoFrameProcessor.Factory} and {@link GlObjectsProvider#DEFAULT}.
+   * VideoFrameProcessor.Factory)} with a {@link DefaultVideoFrameProcessor.Factory}.
    */
   public Effects(List<AudioProcessor> audioProcessors, List<Effect> videoEffects) {
-    this(
-        audioProcessors,
-        videoEffects,
-        new DefaultVideoFrameProcessor.Factory(),
-        GlObjectsProvider.DEFAULT);
+    this(audioProcessors, videoEffects, new DefaultVideoFrameProcessor.Factory.Builder().build());
   }
 
   /**
@@ -75,16 +64,13 @@ public final class Effects {
    * @param audioProcessors The {@link #audioProcessors}.
    * @param videoEffects The {@link #videoEffects}.
    * @param videoFrameProcessorFactory The {@link #videoFrameProcessorFactory}.
-   * @param glObjectsProvider The {@link GlObjectsProvider}.
    */
   public Effects(
       List<AudioProcessor> audioProcessors,
       List<Effect> videoEffects,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      GlObjectsProvider glObjectsProvider) {
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
     this.audioProcessors = ImmutableList.copyOf(audioProcessors);
     this.videoEffects = ImmutableList.copyOf(videoEffects);
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
-    this.glObjectsProvider = glObjectsProvider;
   }
 }
