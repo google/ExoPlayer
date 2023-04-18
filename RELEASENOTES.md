@@ -11,8 +11,6 @@
     *   Update `SampleQueue` to store `sourceId` as a `long` rather than an
         `int`. This changes the signatures of public methods
         `SampleQueue.sourceId` and `SampleQueue.peekSourceId`.
-    *   Reset target live stream override when seeking to default position
-        ([#11051](https://github.com/google/ExoPlayer/pull/11051)).
     *   Add parameters to `LoadControl` methods `shouldStartPlayback` and
         `onTracksSelected` that allow associating these methods with the
         relevant `MediaPeriod`.
@@ -34,29 +32,12 @@
         `COMMAND_SET_MEDIA_ITEMS_METADATA`. Use `COMMAND_GET_METADATA` and
         `COMMAND_SET_PLAYLIST_METADATA` instead.
 *   Session:
-    *   Fix bug where multiple identical queue items published by a legacy
-        `MediaSessionCompat` result in an exception in `MediaController`
-        ([#290](https://github.com/androidx/media/issues/290)).
-    *   Add missing forwarding of `MediaSession.broadcastCustomCommand` to the
-        legacy `MediaControllerCompat.Callback.onSessionEvent`
-        ([#293](https://github.com/androidx/media/issues/293)).
-    *   Fix bug where calling `MediaSession.setPlayer` doesn't update the
-        available commands.
     *   Deprecate 4 volume-controlling methods in `Player` and add overloaded
         methods which allow users to specify volume flags:
         *   `void setDeviceVolume(int, int)`
         *   `void increaseDeviceVolume(int)`
         *   `void decreaseDeviceVolume(int)`
         *   `void setDeviceMuted(boolean, int)`
-    *   Fix issue that `TrackSelectionOverride` instances sent from a
-        `MediaController` are ignored if they reference a group with
-        `Format.metadata`
-        ([#296](https://github.com/androidx/media/issues/296)).
-    *   Fix issue where `Player.COMMAND_GET_CURRENT_MEDIA_ITEM` needs to be
-        available to access metadata via the legacy `MediaSessionCompat`.
-    *   Fix issue where `MediaSession` instances on a background thread cause
-        crashes when used in `MediaSessionService`
-        ([#318](https://github.com/androidx/media/issues/318)).
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
@@ -100,14 +81,9 @@
     *   Query codecs via `MediaCodecList` instead of using
         `findDecoder/EncoderForFormat` utilities, to expand support.
 *   DASH:
-    *   Fix handling of empty segment timelines
-        ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
     *   Remove the media time offset from `MediaLoadData.startTimeMs` and
         `MediaLoadData.endTimeMs` for multi period DASH streams.
 *   RTSP:
-    *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
-        UnsupportedTransport
-        ([#11069](https://github.com/google/ExoPlayer/issues/11069)).
     *   For MPEG4-LATM, use default profile-level-id value if absent in Describe
         Response SDP message
         ([#302](https://github.com/androidx/media/issues/302)).
@@ -120,9 +96,45 @@
     *   Remove `HlsMasterPlaylist`, use `HlsMultivariantPlaylist` instead.
     *   Remove `Player.stop(boolean)`. Use `Player.stop()` and
         `Player.clearMediaItems()` (if `reset` is `true`) instead.
-*   Migration script
-    *   Fix bug where backup files for each touched file were left in a migrated
-        project on OSX.
+
+### 1.0.1 (2023-04-18)
+
+This release corresponds to the
+[ExoPlayer 2.18.6 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.6).
+
+*   Core library:
+    *   Reset target live stream override when seeking to default position
+        ([#11051](https://github.com/google/ExoPlayer/pull/11051)).
+    *   Fix bug where empty sample streams in the media could cause playback to
+        be stuck.
+*   Session:
+    *   Fix bug where multiple identical queue items published by a legacy
+        `MediaSessionCompat` result in an exception in `MediaController`
+        ([#290](https://github.com/androidx/media/issues/290)).
+    *   Add missing forwarding of `MediaSession.broadcastCustomCommand` to the
+        legacy `MediaControllerCompat.Callback.onSessionEvent`
+        ([#293](https://github.com/androidx/media/issues/293)).
+    *   Fix bug where calling `MediaSession.setPlayer` doesn't update the
+        available commands.
+    *   Fix issue that `TrackSelectionOverride` instances sent from a
+        `MediaController` are ignored if they reference a group with
+        `Format.metadata`
+        ([#296](https://github.com/androidx/media/issues/296)).
+    *   Fix issue where `Player.COMMAND_GET_CURRENT_MEDIA_ITEM` needs to be
+        available to access metadata via the legacy `MediaSessionCompat`.
+    *   Fix issue where `MediaSession` instances on a background thread cause
+        crashes when used in `MediaSessionService`
+        ([#318](https://github.com/androidx/media/issues/318)).
+    *   Fix issue where a media button receiver was declared by the library
+        without the app having intended this
+        ([#314](https://github.com/androidx/media/issues/314)).
+*   DASH:
+    *   Fix handling of empty segment timelines
+        ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
+*   RTSP:
+    *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
+        UnsupportedTransport
+        ([#11069](https://github.com/google/ExoPlayer/issues/11069)).
 
 ### 1.0.0 (2023-03-22)
 
