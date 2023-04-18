@@ -82,7 +82,7 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   @Override
   public String toString() {
-    return "mdta: key=" + key;
+    return "mdta: key=" + key + ", value=" + Util.toHexString(value);
   }
 
   // Parcelable implementation.

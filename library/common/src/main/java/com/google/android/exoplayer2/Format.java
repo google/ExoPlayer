@@ -38,7 +38,8 @@ import java.util.UUID;
  *
  * <p>When building formats, populate all fields whose values are known and relevant to the type of
  * format being constructed. For information about different types of format, see ExoPlayer's <a
- * href="https://exoplayer.dev/supported-formats.html">Supported formats page</a>.
+ * href="https://developer.android.com/guide/topics/media/exoplayer/supported-formats">Supported
+ * formats page</a>.
  *
  * <h2>Fields commonly relevant to all formats</h2>
  *
@@ -1259,6 +1260,8 @@ public final class Format implements Bundleable {
         + height
         + ", "
         + frameRate
+        + ", "
+        + colorInfo
         + "]"
         + ", ["
         + channelCount
@@ -1422,6 +1425,9 @@ public final class Format implements Bundleable {
     }
     if (format.width != NO_VALUE && format.height != NO_VALUE) {
       builder.append(", res=").append(format.width).append("x").append(format.height);
+    }
+    if (format.colorInfo != null && format.colorInfo.isValid()) {
+      builder.append(", color=").append(format.colorInfo.toLogString());
     }
     if (format.frameRate != NO_VALUE) {
       builder.append(", fps=").append(format.frameRate);

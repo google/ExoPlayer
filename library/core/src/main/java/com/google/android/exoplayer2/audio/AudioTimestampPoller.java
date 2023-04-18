@@ -237,7 +237,7 @@ import java.lang.annotation.Target;
    */
   @TargetApi(19) // audioTimestamp will be null if Util.SDK_INT < 19.
   public long getTimestampPositionFrames() {
-    return audioTimestamp != null ? audioTimestamp.getTimestampPositionFrames() : C.POSITION_UNSET;
+    return audioTimestamp != null ? audioTimestamp.getTimestampPositionFrames() : C.INDEX_UNSET;
   }
 
   private void updateState(@State int state) {
@@ -246,7 +246,7 @@ import java.lang.annotation.Target;
       case STATE_INITIALIZING:
         // Force polling a timestamp immediately, and poll quickly.
         lastTimestampSampleTimeUs = 0;
-        initialTimestampPositionFrames = C.POSITION_UNSET;
+        initialTimestampPositionFrames = C.INDEX_UNSET;
         initializeSystemTimeUs = System.nanoTime() / 1000;
         sampleIntervalUs = FAST_POLL_INTERVAL_US;
         break;

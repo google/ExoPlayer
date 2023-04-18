@@ -17,9 +17,8 @@
 package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
-import androidx.annotation.WorkerThread;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
  * Specifies color transformations using color lookup tables to apply to each frame in the fragment
@@ -39,11 +38,9 @@ public interface ColorLut extends GlEffect {
   /** Releases the OpenGL texture of the LUT. */
   void release() throws GlUtil.GlException;
 
-  /** This method must be executed on the same thread as other GL commands. */
   @Override
-  @WorkerThread
-  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
-      throws FrameProcessingException {
-    return new ColorLutProcessor(context, /* colorLut= */ this, useHdr);
+  default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+      throws VideoFrameProcessingException {
+    return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);
   }
 }

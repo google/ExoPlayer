@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import android.os.ParcelFileDescriptor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 
@@ -28,7 +28,7 @@ public final class DefaultMuxer implements Muxer {
   public static final class Factory implements Muxer.Factory {
 
     /** The default value returned by {@link #getMaxDelayBetweenSamplesMs()}. */
-    public static final long DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS = 3000;
+    public static final long DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS = 10_000;
 
     private final Muxer.Factory muxerFactory;
 
@@ -37,26 +37,32 @@ public final class DefaultMuxer implements Muxer {
      * set to {@link #DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS}.
      */
     public Factory() {
-      this.muxerFactory = new FrameworkMuxer.Factory(DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
+      this(/* maxDelayBetweenSamplesMs= */ DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
     }
-
     /**
      * Creates an instance.
      *
      * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
      */
     public Factory(long maxDelayBetweenSamplesMs) {
-      this.muxerFactory = new FrameworkMuxer.Factory(maxDelayBetweenSamplesMs);
+      this(maxDelayBetweenSamplesMs, /* videoDurationMs= */ C.TIME_UNSET);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
+     * @param videoDurationMs The duration of the video track (in milliseconds) to enforce in the
+     *     output, or {@link C#TIME_UNSET} to not enforce. Only applicable when a video track is
+     *     {@linkplain #addTrack(Format) added}.
+     */
+    public Factory(long maxDelayBetweenSamplesMs, long videoDurationMs) {
+      this.muxerFactory = new FrameworkMuxer.Factory(maxDelayBetweenSamplesMs, videoDurationMs);
     }
 
     @Override
     public Muxer create(String path) throws MuxerException {
       return new DefaultMuxer(muxerFactory.create(path));
-    }
-
-    @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException {
-      return new DefaultMuxer(muxerFactory.create(parcelFileDescriptor));
     }
 
     @Override
@@ -78,9 +84,14 @@ public final class DefaultMuxer implements Muxer {
 
   @Override
   public void writeSampleData(
-      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
-    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
+    muxer.writeSampleData(trackIndex, data, presentationTimeUs, flags);
+  }
+
+  @Override
+  public void addMetadata(Metadata metadata) {
+    muxer.addMetadata(metadata);
   }
 
   @Override

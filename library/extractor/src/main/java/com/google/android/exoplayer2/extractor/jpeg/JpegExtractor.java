@@ -94,7 +94,7 @@ public final class JpegExtractor implements Extractor {
 
   public JpegExtractor() {
     scratch = new ParsableByteArray(EXIF_ID_CODE_LENGTH);
-    mp4StartPosition = C.POSITION_UNSET;
+    mp4StartPosition = C.INDEX_UNSET;
   }
 
   @Override
@@ -200,7 +200,7 @@ public final class JpegExtractor implements Extractor {
     input.readFully(scratch.getData(), /* offset= */ 0, /* length= */ 2);
     marker = scratch.readUnsignedShort();
     if (marker == MARKER_SOS) { // Start of scan.
-      if (mp4StartPosition != C.POSITION_UNSET) {
+      if (mp4StartPosition != C.INDEX_UNSET) {
         state = STATE_SNIFFING_MOTION_PHOTO_VIDEO;
       } else {
         endReadingWithImageTrack();

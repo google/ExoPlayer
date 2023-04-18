@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Size;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,27 +36,31 @@ public final class CropTest {
     int inputHeight = 150;
     Crop crop = new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1);
 
-    Pair<Integer, Integer> outputSize = crop.configure(inputWidth, inputHeight);
+    Size outputSize = crop.configure(inputWidth, inputHeight);
+    boolean isNoOp = crop.isNoOp(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(inputWidth);
-    assertThat(outputSize.second).isEqualTo(inputHeight);
+    assertThat(isNoOp).isTrue();
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
   public void configure_setCrop_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
-    float left = -.5f;
-    float right = .5f;
-    float bottom = .5f;
+    float left = -0.5f;
+    float right = 0.5f;
+    float bottom = 0.5f;
     float top = 1f;
     Crop crop = new Crop(left, right, bottom, top);
 
-    Pair<Integer, Integer> outputSize = crop.configure(inputWidth, inputHeight);
+    Size outputSize = crop.configure(inputWidth, inputHeight);
+    boolean isNoOp = crop.isNoOp(inputWidth, inputHeight);
 
+    assertThat(isNoOp).isFalse();
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
-    assertThat(outputSize.first).isEqualTo(expectedPostCropWidth);
-    assertThat(outputSize.second).isEqualTo(expectedPostCropHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(expectedPostCropWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(expectedPostCropHeight);
   }
 }

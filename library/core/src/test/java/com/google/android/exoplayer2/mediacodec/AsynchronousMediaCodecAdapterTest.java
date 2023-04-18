@@ -220,6 +220,7 @@ public class AsynchronousMediaCodecAdapterTest {
     Constructor<MediaCodec.CodecException> constructor =
         MediaCodec.CodecException.class.getDeclaredConstructor(
             Integer.TYPE, Integer.TYPE, String.class);
+    constructor.setAccessible(true);
     return constructor.newInstance(
         /* errorCode= */ 0, /* actionCode= */ 0, /* detailMessage= */ "error from codec");
   }

@@ -76,7 +76,7 @@ public final class VideoSize implements Bundleable {
   }
 
   /**
-   * Creates a VideoSize.
+   * Creates a new instance.
    *
    * @param width The video width in pixels.
    * @param height The video height in pixels.

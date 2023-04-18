@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
@@ -121,8 +122,9 @@ import java.util.List;
  *
  * <p>The figure below shows ExoPlayer's threading model.
  *
- * <p style="align:center"><img src="doc-files/exoplayer-threading-model.svg" alt="ExoPlayer's
- * threading model">
+ * <p style="align:center"><img
+ * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/exoplayer-threading-model.svg"
+ * alt="ExoPlayer's threading model">
  *
  * <ul>
  *   <li>ExoPlayer instances must be accessed from a single application thread unless indicated
@@ -151,6 +153,8 @@ import java.util.List;
  *       may use background threads to load data. These are implementation specific.
  * </ul>
  */
+// TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
+// developer.android.com.
 public interface ExoPlayer extends Player {
 
   /**
@@ -1106,7 +1110,7 @@ public interface ExoPlayer extends Player {
      * <p>The backing thread should run with priority {@link Process#THREAD_PRIORITY_AUDIO} and
      * should handle messages within 10ms.
      *
-     * @param playbackLooper A {@link looper}.
+     * @param playbackLooper A {@link Looper}.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
@@ -1455,6 +1459,24 @@ public interface ExoPlayer extends Player {
 
   /** Returns whether skipping silences in the audio stream is enabled. */
   boolean getSkipSilenceEnabled();
+
+  /**
+   * Sets a {@link List} of {@linkplain Effect video effects} that will be applied to each video
+   * frame.
+   *
+   * <p>The following limitations exist for using {@linkplain Effect video effects}:
+   *
+   * <ul>
+   *   <li>This feature works only with the default {@link MediaCodecVideoRenderer} and not custom
+   *       or extension {@linkplain Renderer video renderers}.
+   *   <li>This feature does not work with DRM-protected contents.
+   *   <li>This method should be called before calling {@link #prepare}.
+   * </ul>
+   *
+   * @param videoEffects The {@link List} of {@linkplain Effect video effects} to apply.
+   */
+  @RequiresApi(18)
+  void setVideoEffects(List<Effect> videoEffects);
 
   /**
    * Sets the {@link C.VideoScalingMode}.

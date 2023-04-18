@@ -61,6 +61,6 @@ manual steps.
     (this will only appear if the AAR is present), then build and run the demo
     app and select a MediaPipe-based effect.
 
-[Transformer]: https://exoplayer.dev/transforming-media.html
+[Transformer]: https://developer.android.com/guide/topics/media/transforming-media
 [MediaPipe]: https://google.github.io/mediapipe/
 [build an AAR]: https://google.github.io/mediapipe/getting_started/android_archive_library.html

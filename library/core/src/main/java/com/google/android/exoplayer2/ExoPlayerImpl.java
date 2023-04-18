@@ -26,8 +26,10 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_S
 import static com.google.android.exoplayer2.Renderer.MSG_SET_PREFERRED_AUDIO_DEVICE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT_RESOLUTION;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -85,6 +87,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
@@ -285,8 +288,8 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_SET_REPEAT_MODE,
                   COMMAND_GET_CURRENT_MEDIA_ITEM,
                   COMMAND_GET_TIMELINE,
-                  COMMAND_GET_MEDIA_ITEMS_METADATA,
-                  COMMAND_SET_MEDIA_ITEMS_METADATA,
+                  COMMAND_GET_METADATA,
+                  COMMAND_SET_PLAYLIST_METADATA,
                   COMMAND_SET_MEDIA_ITEM,
                   COMMAND_CHANGE_MEDIA_ITEMS,
                   COMMAND_GET_TRACKS,
@@ -295,9 +298,12 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_DEVICE_VOLUME,
                   COMMAND_SET_VOLUME,
                   COMMAND_SET_DEVICE_VOLUME,
+                  COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
                   COMMAND_ADJUST_DEVICE_VOLUME,
+                  COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
                   COMMAND_SET_VIDEO_SURFACE,
-                  COMMAND_GET_TEXT)
+                  COMMAND_GET_TEXT,
+                  COMMAND_RELEASE)
               .addIf(
                   COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
               .build();
@@ -941,7 +947,6 @@ import java.util.concurrent.TimeoutException;
       if (!internalPlayer.setForegroundMode(foregroundMode)) {
         // One of the renderers timed out releasing its resources.
         stopInternal(
-            /* reset= */ false,
             ExoPlaybackException.createForUnexpected(
                 new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE),
                 PlaybackException.ERROR_CODE_TIMEOUT));
@@ -952,14 +957,8 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void stop() {
     verifyApplicationThread();
-    stop(/* reset= */ false);
-  }
-
-  @Override
-  public void stop(boolean reset) {
-    verifyApplicationThread();
     audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
-    stopInternal(reset, /* error= */ null);
+    stopInternal(/* error= */ null);
     currentCueGroup = new CueGroup(ImmutableList.of(), playbackInfo.positionUs);
   }
 
@@ -999,6 +998,9 @@ import java.util.concurrent.TimeoutException;
     listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
     bandwidthMeter.removeEventListener(analyticsCollector);
+    if (playbackInfo.sleepingForOffload) {
+      playbackInfo = playbackInfo.copyWithEstimatedPosition();
+    }
     playbackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_IDLE);
     playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(playbackInfo.periodId);
     playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
@@ -1225,6 +1227,12 @@ import java.util.concurrent.TimeoutException;
   public Timeline getCurrentTimeline() {
     verifyApplicationThread();
     return playbackInfo.timeline;
+  }
+
+  @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
+    verifyApplicationThread();
+    sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_VIDEO_EFFECTS, videoEffects);
   }
 
   @Override
@@ -1686,28 +1694,68 @@ import java.util.concurrent.TimeoutException;
     return streamVolumeManager.isMuted();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     verifyApplicationThread();
-    streamVolumeManager.setVolume(volume);
+    streamVolumeManager.setVolume(volume, C.VOLUME_FLAG_SHOW_UI);
   }
 
+  @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.setVolume(volume, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void increaseDeviceVolume() {
     verifyApplicationThread();
-    streamVolumeManager.increaseVolume();
+    streamVolumeManager.increaseVolume(C.VOLUME_FLAG_SHOW_UI);
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.increaseVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     verifyApplicationThread();
-    streamVolumeManager.decreaseVolume();
+    streamVolumeManager.decreaseVolume(C.VOLUME_FLAG_SHOW_UI);
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.decreaseVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     verifyApplicationThread();
-    streamVolumeManager.setMuted(muted);
+    streamVolumeManager.setMuted(muted, C.VOLUME_FLAG_SHOW_UI);
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    verifyApplicationThread();
+    streamVolumeManager.setMuted(muted, flags);
   }
 
   @Override
@@ -1735,38 +1783,27 @@ import java.util.concurrent.TimeoutException;
   /**
    * Stops the player.
    *
-   * @param reset Whether the playlist should be cleared and whether the playback position and
-   *     playback error should be reset.
    * @param error An optional {@link ExoPlaybackException} to set.
    */
-  private void stopInternal(boolean reset, @Nullable ExoPlaybackException error) {
-    PlaybackInfo playbackInfo;
-    if (reset) {
-      playbackInfo =
-          removeMediaItemsInternal(
-              /* fromIndex= */ 0, /* toIndex= */ mediaSourceHolderSnapshots.size());
-      playbackInfo = playbackInfo.copyWithPlaybackError(null);
-    } else {
-      playbackInfo = this.playbackInfo.copyWithLoadingMediaPeriodId(this.playbackInfo.periodId);
-      playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
-      playbackInfo.totalBufferedDurationUs = 0;
-    }
+  private void stopInternal(@Nullable ExoPlaybackException error) {
+    PlaybackInfo playbackInfo =
+        this.playbackInfo.copyWithLoadingMediaPeriodId(this.playbackInfo.periodId);
+    playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
+    playbackInfo.totalBufferedDurationUs = 0;
     playbackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_IDLE);
     if (error != null) {
       playbackInfo = playbackInfo.copyWithPlaybackError(error);
     }
     pendingOperationAcks++;
     internalPlayer.stop();
-    boolean positionDiscontinuity =
-        playbackInfo.timeline.isEmpty() && !this.playbackInfo.timeline.isEmpty();
     updatePlaybackInfo(
         playbackInfo,
-        TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* seekProcessed= */ false,
-        positionDiscontinuity,
-        DISCONTINUITY_REASON_REMOVE,
-        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(playbackInfo),
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ C.TIME_UNSET,
         /* ignored */ C.INDEX_UNSET,
         /* repeatCurrentMediaItem= */ false);
   }
@@ -1783,11 +1820,18 @@ import java.util.concurrent.TimeoutException;
   private long getCurrentPositionUsInternal(PlaybackInfo playbackInfo) {
     if (playbackInfo.timeline.isEmpty()) {
       return Util.msToUs(maskingWindowPositionMs);
-    } else if (playbackInfo.periodId.isAd()) {
-      return playbackInfo.positionUs;
+    }
+
+    long positionUs =
+        playbackInfo.sleepingForOffload
+            ? playbackInfo.getEstimatedPositionUs()
+            : playbackInfo.positionUs;
+
+    if (playbackInfo.periodId.isAd()) {
+      return positionUs;
     } else {
       return periodPositionUsToWindowPositionUs(
-          playbackInfo.timeline, playbackInfo.periodId, playbackInfo.positionUs);
+          playbackInfo.timeline, playbackInfo.periodId, positionUs);
     }
   }
 
@@ -2000,10 +2044,10 @@ import java.util.concurrent.TimeoutException;
               listener.onPlaybackSuppressionReasonChanged(
                   newPlaybackInfo.playbackSuppressionReason));
     }
-    if (isPlaying(previousPlaybackInfo) != isPlaying(newPlaybackInfo)) {
+    if (previousPlaybackInfo.isPlaying() != newPlaybackInfo.isPlaying()) {
       listeners.queueEvent(
           Player.EVENT_IS_PLAYING_CHANGED,
-          listener -> listener.onIsPlayingChanged(isPlaying(newPlaybackInfo)));
+          listener -> listener.onIsPlayingChanged(newPlaybackInfo.isPlaying()));
     }
     if (!previousPlaybackInfo.playbackParameters.equals(newPlaybackInfo.playbackParameters)) {
       listeners.queueEvent(
@@ -2558,7 +2602,6 @@ import java.util.concurrent.TimeoutException;
     this.videoOutput = videoOutput;
     if (messageDeliveryTimedOut) {
       stopInternal(
-          /* reset= */ false,
           ExoPlaybackException.createForUnexpected(
               new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE),
               PlaybackException.ERROR_CODE_TIMEOUT));
@@ -2594,6 +2637,8 @@ import java.util.concurrent.TimeoutException;
       surfaceSize = new Size(width, height);
       listeners.sendEvent(
           EVENT_SURFACE_SIZE_CHANGED, listener -> listener.onSurfaceSizeChanged(width, height));
+      sendRendererMessage(
+          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_OUTPUT_RESOLUTION, new Size(width, height));
     }
   }
 
@@ -2617,8 +2662,14 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     pendingOperationAcks++;
+
+    // Position estimation and copy must occur before changing/masking playback state.
     PlaybackInfo playbackInfo =
-        this.playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
+        this.playbackInfo.sleepingForOffload
+            ? this.playbackInfo.copyWithEstimatedPosition()
+            : this.playbackInfo;
+    playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
+
     internalPlayer.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
     updatePlaybackInfo(
         playbackInfo,
@@ -2662,7 +2713,8 @@ import java.util.concurrent.TimeoutException;
               "Player is accessed on the wrong thread.\n"
                   + "Current thread: '%s'\n"
                   + "Expected thread: '%s'\n"
-                  + "See https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+                  + "See https://developer.android.com/guide/topics/media/issues/"
+                  + "player-accessed-on-wrong-thread",
               Thread.currentThread().getName(), getApplicationLooper().getThread().getName());
       if (throwsWhenUsingWrongThread) {
         throw new IllegalStateException(message);
@@ -2738,12 +2790,6 @@ import java.util.concurrent.TimeoutException;
     return playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
         ? PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
         : PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
-  }
-
-  private static boolean isPlaying(PlaybackInfo playbackInfo) {
-    return playbackInfo.playbackState == Player.STATE_READY
-        && playbackInfo.playWhenReady
-        && playbackInfo.playbackSuppressionReason == PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   private static final class MediaSourceHolderSnapshot implements MediaSourceInfoHolder {

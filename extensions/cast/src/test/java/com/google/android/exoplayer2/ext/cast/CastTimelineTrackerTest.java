@@ -311,7 +311,7 @@ public class CastTimelineTrackerTest {
   }
 
   private static MediaInfo getMediaInfo(long durationMs) {
-    return new MediaInfo.Builder(/*contentId= */ "")
+    return new MediaInfo.Builder(/* contentId= */ "")
         .setStreamDuration(durationMs)
         .setContentType(MimeTypes.APPLICATION_MP4)
         .setStreamType(MediaInfo.STREAM_TYPE_NONE)

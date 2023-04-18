@@ -10,11 +10,11 @@ To generate new "expected" assets:
 
 1.  Start an emulator with the same configuration as on presubmit. The emulator
     is given
-    [here](cs/target_device%20f:media/libraries/transformer/src/androidTest/BUILD)
+    [here](http://cs/f:transformer/src/androidTest/BUILD$%20test_e2e_)
     and can be run locally, using go/crow:
 
     ```shell
-    crow --device generic_phone --api_level 30 --arch x86
+    crow --device generic_phone --api_level 33 --arch x86
     ```
 
 2.  Run the test.
@@ -23,7 +23,7 @@ To generate new "expected" assets:
 
     ```shell
     adb pull \
-    /sdcard/Android/data/com.google.android.exoplayer2.effect.test/cache/drawFrame_rotate90_actual.png \
+    /sdcard/Android/data/com.google.android.exoplayer2.effect.test/cache/drawFrame_rotate90.png \
     third_party/java_src/android_libs/media/libraries/test_data/src/test/assets/media/bitmap/sample_mp4_first_frame/electrical_colors/rotate90.png
     ```
 

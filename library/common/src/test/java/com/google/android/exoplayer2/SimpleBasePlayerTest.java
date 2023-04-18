@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeMetadataEntry;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
@@ -61,7 +62,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -1442,7 +1442,7 @@ public class SimpleBasePlayerTest {
                     .build()));
     verifyNoMoreInteractions(listener);
     // Assert that we actually called all listeners.
-    for (Method method : Player.Listener.class.getDeclaredMethods()) {
+    for (Method method : TestUtil.getPublicMethods(Player.Listener.class)) {
       if (method.getName().equals("onAudioSessionIdChanged")
           || method.getName().equals("onSkipSilenceEnabledChanged")) {
         // Skip listeners for ExoPlayer-specific states
@@ -2480,14 +2480,12 @@ public class SimpleBasePlayerTest {
     verifyNoMoreInteractions(listener);
   }
 
-  @Ignore("b/261158047: Ignore test while Player.COMMAND_RELEASE doesn't exist.")
   @Test
   public void release_withoutAvailableCommand_isNotForwarded() {
     State state =
         new State.Builder()
-            // TODO(b/261158047): Uncomment once test is no longer ignored.
-            // .setAvailableCommands(
-            //    new Commands.Builder().addAllCommands().remove(Player.COMMAND_RELEASE).build())
+            .setAvailableCommands(
+                new Commands.Builder().addAllCommands().remove(Player.COMMAND_RELEASE).build())
             .build();
     AtomicBoolean callForwarded = new AtomicBoolean();
     SimpleBasePlayer player =
@@ -3069,7 +3067,7 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(
                 new Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)
+                    .remove(Player.COMMAND_SET_PLAYLIST_METADATA)
                     .build())
             .build();
     AtomicBoolean callForwarded = new AtomicBoolean();
@@ -3199,6 +3197,8 @@ public class SimpleBasePlayerTest {
             .build();
     // Set a different one to the one requested to ensure the updated state is used.
     State updatedState = state.buildUpon().setDeviceVolume(6).build();
+    AtomicInteger flagsFromHandlerRef = new AtomicInteger();
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
           private State playerState = state;
@@ -3209,18 +3209,20 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleSetDeviceVolume(int volume) {
+          protected ListenableFuture<?> handleSetDeviceVolume(int volume, int flags) {
             playerState = updatedState;
+            flagsFromHandlerRef.set(flags);
             return Futures.immediateVoidFuture();
           }
         };
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.setDeviceVolume(3);
+    player.setDeviceVolume(3, volumeFlags);
 
     assertThat(player.getDeviceVolume()).isEqualTo(6);
     verify(listener).onDeviceVolumeChanged(6, /* muted= */ false);
+    assertThat(flagsFromHandlerRef.get()).isEqualTo(volumeFlags);
     verifyNoMoreInteractions(listener);
   }
 
@@ -3231,6 +3233,8 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(new Commands.Builder().addAllCommands().build())
             .build();
     // Set a new volume to see a difference between the placeholder and new state.
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
+    AtomicInteger flagsFromHandlerRef = new AtomicInteger();
     State updatedState = state.buildUpon().setDeviceVolume(6).build();
     SettableFuture<?> future = SettableFuture.create();
     SimpleBasePlayer player =
@@ -3241,18 +3245,20 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleSetDeviceVolume(int volume) {
+          protected ListenableFuture<?> handleSetDeviceVolume(int volume, int flags) {
+            flagsFromHandlerRef.set(flags);
             return future;
           }
         };
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.setDeviceVolume(3);
+    player.setDeviceVolume(3, volumeFlags);
 
     // Verify placeholder state and listener calls.
     assertThat(player.getDeviceVolume()).isEqualTo(3);
     verify(listener).onDeviceVolumeChanged(3, /* muted= */ false);
+    assertThat(flagsFromHandlerRef.get()).isEqualTo(volumeFlags);
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -3270,9 +3276,11 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(
                 new Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_SET_DEVICE_VOLUME)
+                    .remove(Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)
                     .build())
             .build();
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE;
+    AtomicInteger flagsFromHandlerRef = new AtomicInteger();
     AtomicBoolean callForwarded = new AtomicBoolean();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3282,14 +3290,16 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleSetDeviceVolume(int volume) {
+          protected ListenableFuture<?> handleSetDeviceVolume(int volume, int flags) {
             callForwarded.set(true);
+            flagsFromHandlerRef.set(flags);
             return Futures.immediateVoidFuture();
           }
         };
 
-    player.setDeviceVolume(3);
+    player.setDeviceVolume(3, volumeFlags);
 
+    assertThat(flagsFromHandlerRef.get()).isEqualTo(0); // no flags have been passed
     assertThat(callForwarded.get()).isFalse();
   }
 
@@ -3301,6 +3311,7 @@ public class SimpleBasePlayerTest {
             .setDeviceVolume(3)
             .build();
     // Set a different one to the one requested to ensure the updated state is used.
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_PLAY_SOUND;
     State updatedState = state.buildUpon().setDeviceVolume(6).build();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3312,7 +3323,7 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+          protected ListenableFuture<?> handleIncreaseDeviceVolume(@C.VolumeFlags int flags) {
             playerState = updatedState;
             return Futures.immediateVoidFuture();
           }
@@ -3320,7 +3331,7 @@ public class SimpleBasePlayerTest {
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.increaseDeviceVolume();
+    player.increaseDeviceVolume(volumeFlags);
 
     assertThat(player.getDeviceVolume()).isEqualTo(6);
     verify(listener).onDeviceVolumeChanged(6, /* muted= */ false);
@@ -3335,6 +3346,7 @@ public class SimpleBasePlayerTest {
             .setDeviceVolume(3)
             .build();
     // Set a new volume to see a difference between the placeholder and new state.
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_PLAY_SOUND;
     State updatedState = state.buildUpon().setDeviceVolume(6).build();
     SettableFuture<?> future = SettableFuture.create();
     SimpleBasePlayer player =
@@ -3345,14 +3357,14 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+          protected ListenableFuture<?> handleIncreaseDeviceVolume(@C.VolumeFlags int flags) {
             return future;
           }
         };
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.increaseDeviceVolume();
+    player.increaseDeviceVolume(volumeFlags);
 
     // Verify placeholder state and listener calls.
     assertThat(player.getDeviceVolume()).isEqualTo(4);
@@ -3374,9 +3386,10 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(
                 new Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME)
+                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)
                     .build())
             .build();
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_PLAY_SOUND;
     AtomicBoolean callForwarded = new AtomicBoolean();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3386,13 +3399,13 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+          protected ListenableFuture<?> handleIncreaseDeviceVolume(@C.VolumeFlags int flags) {
             callForwarded.set(true);
             return Futures.immediateVoidFuture();
           }
         };
 
-    player.increaseDeviceVolume();
+    player.increaseDeviceVolume(volumeFlags);
 
     assertThat(callForwarded.get()).isFalse();
   }
@@ -3406,6 +3419,7 @@ public class SimpleBasePlayerTest {
             .build();
     // Set a different one to the one requested to ensure the updated state is used.
     State updatedState = state.buildUpon().setDeviceVolume(1).build();
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_PLAY_SOUND;
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
           private State playerState = state;
@@ -3416,7 +3430,7 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+          protected ListenableFuture<?> handleDecreaseDeviceVolume(@C.VolumeFlags int flags) {
             playerState = updatedState;
             return Futures.immediateVoidFuture();
           }
@@ -3424,7 +3438,7 @@ public class SimpleBasePlayerTest {
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.decreaseDeviceVolume();
+    player.decreaseDeviceVolume(volumeFlags);
 
     assertThat(player.getDeviceVolume()).isEqualTo(1);
     verify(listener).onDeviceVolumeChanged(1, /* muted= */ false);
@@ -3439,6 +3453,7 @@ public class SimpleBasePlayerTest {
             .setDeviceVolume(3)
             .build();
     // Set a new volume to see a difference between the placeholder and new state.
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
     State updatedState = state.buildUpon().setDeviceVolume(1).build();
     SettableFuture<?> future = SettableFuture.create();
     SimpleBasePlayer player =
@@ -3449,14 +3464,14 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+          protected ListenableFuture<?> handleDecreaseDeviceVolume(@C.VolumeFlags int flags) {
             return future;
           }
         };
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.decreaseDeviceVolume();
+    player.decreaseDeviceVolume(volumeFlags);
 
     // Verify placeholder state and listener calls.
     assertThat(player.getDeviceVolume()).isEqualTo(2);
@@ -3478,9 +3493,10 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(
                 new Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME)
+                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)
                     .build())
             .build();
+    int volumeFlags = C.VOLUME_FLAG_SHOW_UI | C.VOLUME_FLAG_VIBRATE;
     AtomicBoolean callForwarded = new AtomicBoolean();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3490,13 +3506,13 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+          protected ListenableFuture<?> handleDecreaseDeviceVolume(@C.VolumeFlags int flags) {
             callForwarded.set(true);
             return Futures.immediateVoidFuture();
           }
         };
 
-    player.decreaseDeviceVolume();
+    player.decreaseDeviceVolume(volumeFlags);
 
     assertThat(callForwarded.get()).isFalse();
   }
@@ -3508,6 +3524,7 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(new Commands.Builder().addAllCommands().build())
             .build();
     // Also change the volume to ensure the updated state is used.
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
     State updatedState = state.buildUpon().setIsDeviceMuted(true).setDeviceVolume(6).build();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3519,7 +3536,8 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+          protected ListenableFuture<?> handleSetDeviceMuted(
+              boolean muted, @C.VolumeFlags int flags) {
             playerState = updatedState;
             return Futures.immediateVoidFuture();
           }
@@ -3527,7 +3545,7 @@ public class SimpleBasePlayerTest {
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.setDeviceMuted(true);
+    player.setDeviceMuted(true, volumeFlags);
 
     assertThat(player.isDeviceMuted()).isTrue();
     assertThat(player.getDeviceVolume()).isEqualTo(6);
@@ -3541,6 +3559,7 @@ public class SimpleBasePlayerTest {
         new State.Builder()
             .setAvailableCommands(new Commands.Builder().addAllCommands().build())
             .build();
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
     SettableFuture<?> future = SettableFuture.create();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3552,14 +3571,15 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+          protected ListenableFuture<?> handleSetDeviceMuted(
+              boolean muted, @C.VolumeFlags int flags) {
             return future;
           }
         };
     Listener listener = mock(Listener.class);
     player.addListener(listener);
 
-    player.setDeviceMuted(true);
+    player.setDeviceMuted(true, volumeFlags);
 
     // Verify placeholder state and listener calls.
     assertThat(player.isDeviceMuted()).isTrue();
@@ -3581,9 +3601,10 @@ public class SimpleBasePlayerTest {
             .setAvailableCommands(
                 new Commands.Builder()
                     .addAllCommands()
-                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME)
+                    .remove(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)
                     .build())
             .build();
+    int volumeFlags = C.VOLUME_FLAG_VIBRATE;
     AtomicBoolean callForwarded = new AtomicBoolean();
     SimpleBasePlayer player =
         new SimpleBasePlayer(Looper.myLooper()) {
@@ -3593,13 +3614,14 @@ public class SimpleBasePlayerTest {
           }
 
           @Override
-          protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+          protected ListenableFuture<?> handleSetDeviceMuted(
+              boolean muted, @C.VolumeFlags int flags) {
             callForwarded.set(true);
             return Futures.immediateVoidFuture();
           }
         };
 
-    player.setDeviceMuted(true);
+    player.setDeviceMuted(true, volumeFlags);
 
     assertThat(callForwarded.get()).isFalse();
   }

@@ -17,7 +17,7 @@ track 0:
     width = 1280
     height = 720
     frameRate = 13.307984
-    metadata = entries=[mdta: key=com.android.capture.fps]
+    metadata = entries=[mdta: key=com.android.capture.fps, value=43700000]
     initializationData:
       data = length 22, hash 4CF81805
       data = length 9, hash FBAFBA1C

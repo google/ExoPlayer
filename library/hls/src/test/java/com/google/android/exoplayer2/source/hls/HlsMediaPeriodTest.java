@@ -89,7 +89,7 @@ public final class HlsMediaPeriodTest {
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(LoadErrorHandlingPolicy.class),
               new MediaSourceEventListener.EventDispatcher()
-                  .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(Allocator.class),
               mock(CompositeSequenceableLoaderFactory.class),
               /* allowChunklessPreparation= */ true,

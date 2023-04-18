@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaPeriod.RtpLoadInfo;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspUdpUnsupportedTransportException;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspSessionHeader;
@@ -227,6 +228,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void startPlayback(long offsetMs) {
     messageSender.sendPlayRequest(uri, offsetMs, checkNotNull(sessionId));
+  }
+
+  public void signalPlaybackEnded() {
+    rtspState = RTSP_STATE_READY;
   }
 
   /**
@@ -577,8 +582,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               receivedAuthorizationRequest = true;
               return;
             }
-            // fall through: if unauthorized and no userInfo present, or previous authentication
-            // unsuccessful.
+            // if unauthorized and no userInfo present, or previous authentication
+            // unsuccessful, then dispatch RtspPlaybackException
+            dispatchRtspError(
+                new RtspPlaybackException(
+                    RtspMessageUtil.toMethodString(requestMethod) + " " + response.status));
+            return;
+          case 461:
+            String exceptionMessage =
+                RtspMessageUtil.toMethodString(requestMethod) + " " + response.status;
+            // If request was SETUP with UDP transport protocol, then throw
+            // RtspUdpUnsupportedTransportException.
+            String transportHeaderValue =
+                checkNotNull(matchingRequest.headers.get(RtspHeaders.TRANSPORT));
+            dispatchRtspError(
+                requestMethod == METHOD_SETUP && !transportHeaderValue.contains("TCP")
+                    ? new RtspUdpUnsupportedTransportException(exceptionMessage)
+                    : new RtspPlaybackException(exceptionMessage));
+            return;
           default:
             dispatchRtspError(
                 new RtspPlaybackException(
@@ -706,7 +727,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void onPlayResponseReceived(RtspPlayResponse response) {
-      checkState(rtspState == RTSP_STATE_READY);
+      checkState(rtspState == RTSP_STATE_READY || rtspState == RTSP_STATE_PLAYING);
 
       rtspState = RTSP_STATE_PLAYING;
       if (keepAliveMonitor == null) {

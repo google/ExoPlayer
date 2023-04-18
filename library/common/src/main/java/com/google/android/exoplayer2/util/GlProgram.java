@@ -66,7 +66,7 @@ public final class GlProgram {
    * @return The content of the file to load.
    * @throws IOException If the file couldn't be read.
    */
-  public static String loadAsset(Context context, String assetPath) throws IOException {
+  private static String loadAsset(Context context, String assetPath) throws IOException {
     @Nullable InputStream inputStream = null;
     try {
       inputStream = context.getAssets().open(assetPath);
@@ -327,7 +327,7 @@ public final class GlProgram {
           /* unusedLength */ new int[1],
           /* lengthOffset= */ 0,
           /* unusedSize */ new int[1],
-          /*sizeOffset= */ 0,
+          /* sizeOffset= */ 0,
           type,
           /* typeOffset= */ 0,
           nameBytes,

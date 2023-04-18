@@ -448,7 +448,7 @@ public class MediaSourceListTest {
   @Test
   public void setMediaSources_expectTimelineUsesCustomShuffleOrder() {
     Timeline timeline =
-        mediaSourceList.setMediaSources(createFakeHolders(), new FakeShuffleOrder(/* length=*/ 4));
+        mediaSourceList.setMediaSources(createFakeHolders(), new FakeShuffleOrder(/* length= */ 4));
     assertTimelineUsesFakeShuffleOrder(timeline);
   }
 

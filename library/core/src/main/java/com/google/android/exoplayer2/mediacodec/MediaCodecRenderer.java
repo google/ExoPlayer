@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.audio.OggOpusAudioPacketizer;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -300,6 +301,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
   private final ArrayDeque<OutputStreamInfo> pendingOutputStreamChanges;
+  private final OggOpusAudioPacketizer oggOpusAudioPacketizer;
 
   @Nullable private Format inputFormat;
   @Nullable private Format outputFormat;
@@ -398,6 +400,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // endianness.
     bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
     bypassBatchBuffer.data.order(ByteOrder.nativeOrder());
+    oggOpusAudioPacketizer = new OggOpusAudioPacketizer();
 
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
@@ -640,14 +643,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
-    if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET
-        || (pendingOutputStreamChanges.isEmpty()
-            && lastProcessedOutputBufferTimeUs != C.TIME_UNSET
-            && lastProcessedOutputBufferTimeUs >= largestQueuedPresentationTimeUs)) {
-      // This is the first stream, or the previous has been fully output already.
+    if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET) {
+      // This is the first stream.
       setOutputStreamInfo(
           new OutputStreamInfo(
               /* previousStreamLastBufferTimeUs= */ C.TIME_UNSET, startPositionUs, offsetUs));
+    } else if (pendingOutputStreamChanges.isEmpty()
+        && (largestQueuedPresentationTimeUs == C.TIME_UNSET
+            || (lastProcessedOutputBufferTimeUs != C.TIME_UNSET
+                && lastProcessedOutputBufferTimeUs >= largestQueuedPresentationTimeUs))) {
+      // All previous streams have never queued any samples or have been fully output already.
+      setOutputStreamInfo(
+          new OutputStreamInfo(
+              /* previousStreamLastBufferTimeUs= */ C.TIME_UNSET, startPositionUs, offsetUs));
+      if (outputStreamInfo.streamOffsetUs != C.TIME_UNSET) {
+        onProcessedStreamChange();
+      }
     } else {
       pendingOutputStreamChanges.add(
           new OutputStreamInfo(largestQueuedPresentationTimeUs, startPositionUs, offsetUs));
@@ -708,6 +719,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     bypassSampleBuffer.clear();
     bypassSampleBufferPending = false;
     bypassEnabled = false;
+    oggOpusAudioPacketizer.reset();
   }
 
   protected void releaseCodec() {
@@ -1080,6 +1092,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
+    onReadyToInitializeCodec(inputFormat);
     codecInitializingTimestamp = SystemClock.elapsedRealtime();
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
@@ -1369,6 +1382,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Called when ready to initialize the {@link MediaCodecAdapter}.
+   *
+   * <p>This method is called just before the renderer obtains the {@linkplain
+   * #getMediaCodecConfiguration configuration} for the {@link MediaCodecAdapter} and creates the
+   * adapter via the passed in {@link MediaCodecAdapter.Factory}.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param format The {@link Format} for which the codec is being configured.
+   * @throws ExoPlaybackException If an error occurs preparing for initializing the codec.
+   */
+  protected void onReadyToInitializeCodec(Format format) throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
    * Called when a {@link MediaCodec} has been created and configured.
    *
    * <p>The default implementation is a no-op.
@@ -1579,7 +1608,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @CallSuper
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
     lastProcessedOutputBufferTimeUs = presentationTimeUs;
-    if (!pendingOutputStreamChanges.isEmpty()
+    while (!pendingOutputStreamChanges.isEmpty()
         && presentationTimeUs >= pendingOutputStreamChanges.peek().previousStreamLastBufferTimeUs) {
       setOutputStreamInfo(pendingOutputStreamChanges.poll());
       onProcessedStreamChange();
@@ -2263,6 +2292,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           }
           // Try to append the buffer to the batch buffer.
           bypassSampleBuffer.flip();
+
+          if (inputFormat != null
+              && inputFormat.sampleMimeType != null
+              && inputFormat.sampleMimeType.equals(MimeTypes.AUDIO_OPUS)) {
+            oggOpusAudioPacketizer.packetize(bypassSampleBuffer);
+          }
+
           if (!bypassBatchBuffer.append(bypassSampleBuffer)) {
             bypassSampleBufferPending = true;
             return;

@@ -394,7 +394,7 @@ public class MatroskaExtractor implements Extractor {
   private @MonotonicNonNull ByteBuffer encryptionSubsampleDataBuffer;
 
   private long segmentContentSize;
-  private long segmentContentPosition = C.POSITION_UNSET;
+  private long segmentContentPosition = C.INDEX_UNSET;
   private long timecodeScale = C.TIME_UNSET;
   private long durationTimecode = C.TIME_UNSET;
   private long durationUs = C.TIME_UNSET;
@@ -411,8 +411,8 @@ public class MatroskaExtractor implements Extractor {
 
   // Cue related elements.
   private boolean seekForCues;
-  private long cuesContentPosition = C.POSITION_UNSET;
-  private long seekPositionAfterBuildingCues = C.POSITION_UNSET;
+  private long cuesContentPosition = C.INDEX_UNSET;
+  private long seekPositionAfterBuildingCues = C.INDEX_UNSET;
   private long clusterTimecodeUs = C.TIME_UNSET;
   @Nullable private LongArray cueTimesUs;
   @Nullable private LongArray cueClusterPositions;
@@ -656,8 +656,7 @@ public class MatroskaExtractor implements Extractor {
     assertInitialized();
     switch (id) {
       case ID_SEGMENT:
-        if (segmentContentPosition != C.POSITION_UNSET
-            && segmentContentPosition != contentPosition) {
+        if (segmentContentPosition != C.INDEX_UNSET && segmentContentPosition != contentPosition) {
           throw ParserException.createForMalformedContainer(
               "Multiple Segment elements not supported", /* cause= */ null);
         }
@@ -666,7 +665,7 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_SEEK:
         seekEntryId = UNSET_ENTRY_ID;
-        seekEntryPosition = C.POSITION_UNSET;
+        seekEntryPosition = C.INDEX_UNSET;
         break;
       case ID_CUES:
         cueTimesUs = new LongArray();
@@ -678,7 +677,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
-          if (seekForCuesEnabled && cuesContentPosition != C.POSITION_UNSET) {
+          if (seekForCuesEnabled && cuesContentPosition != C.INDEX_UNSET) {
             // We know where the Cues element is located. Seek to request it.
             seekForCues = true;
           } else {
@@ -729,7 +728,7 @@ public class MatroskaExtractor implements Extractor {
         }
         break;
       case ID_SEEK:
-        if (seekEntryId == UNSET_ENTRY_ID || seekEntryPosition == C.POSITION_UNSET) {
+        if (seekEntryId == UNSET_ENTRY_ID || seekEntryPosition == C.INDEX_UNSET) {
           throw ParserException.createForMalformedContainer(
               "Mandatory element SeekID or SeekPosition not found", /* cause= */ null);
         }
@@ -1790,7 +1789,7 @@ public class MatroskaExtractor implements Extractor {
    */
   private SeekMap buildSeekMap(
       @Nullable LongArray cueTimesUs, @Nullable LongArray cueClusterPositions) {
-    if (segmentContentPosition == C.POSITION_UNSET
+    if (segmentContentPosition == C.INDEX_UNSET
         || durationUs == C.TIME_UNSET
         || cueTimesUs == null
         || cueTimesUs.size() == 0
@@ -1846,9 +1845,9 @@ public class MatroskaExtractor implements Extractor {
     }
     // After parsing Cues, seek back to original position if available. We will not do this unless
     // we seeked to get to the Cues in the first place.
-    if (sentSeekMap && seekPositionAfterBuildingCues != C.POSITION_UNSET) {
+    if (sentSeekMap && seekPositionAfterBuildingCues != C.INDEX_UNSET) {
       seekPosition.position = seekPositionAfterBuildingCues;
-      seekPositionAfterBuildingCues = C.POSITION_UNSET;
+      seekPositionAfterBuildingCues = C.INDEX_UNSET;
       return true;
     }
     return false;

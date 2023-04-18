@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_METADATA;
 
 import android.app.PendingIntent;
 import android.graphics.Bitmap;
@@ -48,7 +48,7 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
 
   @Override
   public CharSequence getCurrentContentTitle(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return "";
     }
     @Nullable CharSequence displayTitle = player.getMediaMetadata().displayTitle;
@@ -69,7 +69,7 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
   @Nullable
   @Override
   public CharSequence getCurrentContentText(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return null;
     }
     @Nullable CharSequence artist = player.getMediaMetadata().artist;
@@ -83,7 +83,7 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
   @Nullable
   @Override
   public Bitmap getCurrentLargeIcon(Player player, BitmapCallback callback) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return null;
     }
     @Nullable byte[] data = player.getMediaMetadata().artworkData;

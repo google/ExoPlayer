@@ -78,7 +78,7 @@ com.google.android.exoplayer2.text androidx.media3.common.text CueGroup Cue
 com.google.android.exoplayer2.text com.google.android.exoplayer2.text ExoplayerCuesDecoder SubtitleDecoderFactory TextOutput TextRenderer
 com.google.android.exoplayer2.upstream.crypto com.google.android.exoplayer2.upstream AesCipherDataSource AesCipherDataSink AesFlushingCipher
 com.google.android.exoplayer2.util com.google.android.exoplayer2.util AtomicFile Assertions BundleableUtil BundleUtil Clock ClosedSource CodecSpecificDataUtil ColorParser ConditionVariable Consumer CopyOnWriteMultiset EGLSurfaceTexture GlProgram GlUtil HandlerWrapper LibraryLoader ListenerSet Log LongArray MediaFormatUtil NetworkTypeObserver NonNullApi NotificationUtil ParsableBitArray ParsableByteArray RepeatModeUtil RunnableFutureTask Size SystemClock SystemHandlerWrapper TimedValueQueue TimestampAdjuster TraceUtil UnknownNull UnstableApi UriUtil Util XmlPullParserUtil
-com.google.android.exoplayer2.util androidx.media3.common DebugViewProvider Effect ErrorMessageProvider FlagSet FileTypes FrameInfo FrameProcessingException FrameProcessor MimeTypes PriorityTaskManager SurfaceInfo
+com.google.android.exoplayer2.util androidx.media3.common DebugViewProvider Effect ErrorMessageProvider FlagSet FileTypes FrameInfo VideoFrameProcessingException VideoFrameProcessor MimeTypes PriorityTaskManager SurfaceInfo
 com.google.android.exoplayer2.metadata androidx.media3.common Metadata
 com.google.android.exoplayer2.metadata com.google.android.exoplayer2.metadata MetadataDecoderFactory MetadataOutput MetadataRenderer
 com.google.android.exoplayer2.audio androidx.media3.common AudioAttributes AuxEffectInfo
@@ -128,8 +128,8 @@ extension-workmanager media3-exoplayer-workmanager'
 # Rewrites classes, packages and dependencies from the legacy ExoPlayer package structure
 # to androidx.media3 structure.
 
-MEDIA3_VERSION="1.0.0"
-LEGACY_PEER_VERSION="2.18.5"
+MEDIA3_VERSION="1.0.1"
+LEGACY_PEER_VERSION="2.18.6"
 
 function usage() {
   echo "usage: $0 [-p|-c|-d|-v]|[-m|-l [-x <path>] [-f] PROJECT_ROOT]"

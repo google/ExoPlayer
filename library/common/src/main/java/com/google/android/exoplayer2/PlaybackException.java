@@ -151,8 +151,9 @@ public class PlaybackException extends Exception implements Bundleable {
    * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
    * https://) when the app's Network Security Configuration does not permit it.
    *
-   * <p>See <a href="https://exoplayer.dev/issues/cleartext-not-permitted">this corresponding
-   * troubleshooting topic</a>.
+   * <p>See <a
+   * href="https://developer.android.com/guide/topics/media/issues/cleartext-not-permitted">this
+   * corresponding troubleshooting topic</a>.
    */
   public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2007;
   /** Caused by reading data out of the data bound. */
@@ -226,6 +227,13 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_DRM_DEVICE_REVOKED = 6007;
   /** Caused by an expired DRM license being loaded into an open DRM session. */
   public static final int ERROR_CODE_DRM_LICENSE_EXPIRED = 6008;
+
+  // Frame processing errors (7xxx).
+
+  /** Caused by a failure when initializing a {@link VideoFrameProcessor}. */
+  public static final int ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED = 7000;
+  /** Caused by a failure when processing a video frame. */
+  public static final int ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED = 7001;
 
   /**
    * Player implementations that want to surface custom errors can use error codes greater than this
@@ -304,6 +312,10 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_DRM_DEVICE_REVOKED";
       case ERROR_CODE_DRM_LICENSE_EXPIRED:
         return "ERROR_CODE_DRM_LICENSE_EXPIRED";
+      case ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED:
+        return "ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED";
+      case ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED:
+        return "ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED";
       default:
         if (errorCode >= CUSTOM_ERROR_CODE_BASE) {
           return "custom error code";

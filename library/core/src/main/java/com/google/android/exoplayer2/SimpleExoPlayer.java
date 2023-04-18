@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -654,6 +655,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
+    blockUntilConstructorFinished();
+    player.setVideoEffects(videoEffects);
+  }
+
+  @Override
   public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
     blockUntilConstructorFinished();
     player.setSkipSilenceEnabled(skipSilenceEnabled);
@@ -1061,18 +1068,6 @@ public class SimpleExoPlayer extends BasePlayer
     player.stop();
   }
 
-  /**
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @Deprecated
-  @Override
-  public void stop(boolean reset) {
-    blockUntilConstructorFinished();
-    player.stop(reset);
-  }
-
   @Override
   public void release() {
     blockUntilConstructorFinished();
@@ -1271,6 +1266,10 @@ public class SimpleExoPlayer extends BasePlayer
     return player.isDeviceMuted();
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
     blockUntilConstructorFinished();
@@ -1278,11 +1277,31 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.setDeviceVolume(volume, flags);
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  @Override
   public void increaseDeviceVolume() {
     blockUntilConstructorFinished();
     player.increaseDeviceVolume();
   }
 
+  @Override
+  public void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.increaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public void decreaseDeviceVolume() {
     blockUntilConstructorFinished();
@@ -1290,9 +1309,25 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.decreaseDeviceVolume(flags);
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  @Override
   public void setDeviceMuted(boolean muted) {
     blockUntilConstructorFinished();
     player.setDeviceMuted(muted);
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    blockUntilConstructorFinished();
+    player.setDeviceMuted(muted, flags);
   }
 
   @Override

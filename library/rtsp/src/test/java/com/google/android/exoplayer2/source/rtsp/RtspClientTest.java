@@ -453,4 +453,77 @@ public final class RtspClientTest {
     RobolectricUtil.runMainLooperUntil(timelineRequestFailed::get);
     assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
+
+  @Test
+  public void connectServerAndClient_describeResponseRequiresAuthentication_doesNotUpdateTimeline()
+      throws Exception {
+    class ResponseProvider implements RtspServer.ResponseProvider {
+      @Override
+      public RtspResponse getOptionsResponse() {
+        return new RtspResponse(
+            /* status= */ 200,
+            new RtspHeaders.Builder().add(RtspHeaders.PUBLIC, "OPTIONS, DESCRIBE").build());
+      }
+
+      @Override
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
+        String authorizationHeader = headers.get(RtspHeaders.AUTHORIZATION);
+        if (authorizationHeader == null) {
+          return new RtspResponse(
+              /* status= */ 401,
+              new RtspHeaders.Builder()
+                  .add(RtspHeaders.CSEQ, headers.get(RtspHeaders.CSEQ))
+                  .add(
+                      RtspHeaders.WWW_AUTHENTICATE,
+                      "Digest realm=\"RTSP server\","
+                          + " nonce=\"0cdfe9719e7373b7d5bb2913e2115f3f\","
+                          + " opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"")
+                  .add(RtspHeaders.WWW_AUTHENTICATE, "BASIC realm=\"WallyWorld\"")
+                  .build());
+        }
+        if (!authorizationHeader.contains("Digest")) {
+          return new RtspResponse(
+              401,
+              new RtspHeaders.Builder()
+                  .add(RtspHeaders.CSEQ, headers.get(RtspHeaders.CSEQ))
+                  .build());
+        }
+
+        return RtspTestUtils.newDescribeResponseWithSdpMessage(
+            "v=0\r\n"
+                + "o=- 1606776316530225 1 IN IP4 127.0.0.1\r\n"
+                + "s=Exoplayer test\r\n"
+                + "t=0 0\r\n"
+                // The session is 50.46s long.
+                + "a=range:npt=0-50.46\r\n",
+            rtpPacketStreamDumps,
+            requestedUri);
+      }
+    }
+    rtspServer = new RtspServer(new ResponseProvider());
+
+    AtomicBoolean timelineRequestFailed = new AtomicBoolean();
+    rtspClient =
+        new RtspClient(
+            new SessionInfoListener() {
+              @Override
+              public void onSessionTimelineUpdated(
+                  RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {}
+
+              @Override
+              public void onSessionTimelineRequestFailed(
+                  String message, @Nullable Throwable cause) {
+                timelineRequestFailed.set(true);
+              }
+            },
+            EMPTY_PLAYBACK_LISTENER,
+            /* userAgent= */ "ExoPlayer:RtspClientTest",
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            SocketFactory.getDefault(),
+            /* debugLoggingEnabled= */ false);
+    rtspClient.start();
+
+    RobolectricUtil.runMainLooperUntil(timelineRequestFailed::get);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
+  }
 }

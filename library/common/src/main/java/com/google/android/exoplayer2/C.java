@@ -60,11 +60,13 @@ public final class C {
    */
   public static final long TIME_UNSET = Long.MIN_VALUE + 1;
 
-  /** Represents an unset or unknown index. */
+  /** Represents an unset or unknown index or byte position. */
   public static final int INDEX_UNSET = -1;
 
-  /** Represents an unset or unknown position. */
-  public static final int POSITION_UNSET = -1;
+  /**
+   * @deprecated Use {@link #INDEX_UNSET}.
+   */
+  @Deprecated public static final int POSITION_UNSET = INDEX_UNSET;
 
   /** Represents an unset or unknown rate. */
   public static final float RATE_UNSET = -Float.MAX_VALUE;
@@ -401,6 +403,37 @@ public final class C {
   public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
   /** The default stream type used by audio renderers. Equal to {@link #STREAM_TYPE_MUSIC}. */
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
+
+  /**
+   * Volume flags to be used when setting or adjusting device volume. The value can be either 0 or a
+   * combination of the following flags: {@link #VOLUME_FLAG_SHOW_UI}, {@link
+   * #VOLUME_FLAG_ALLOW_RINGER_MODES}, {@link #VOLUME_FLAG_PLAY_SOUND}, {@link
+   * #VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE}, {@link #VOLUME_FLAG_VIBRATE}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({TYPE_USE})
+  @IntDef(
+      flag = true,
+      value = {
+        VOLUME_FLAG_SHOW_UI,
+        VOLUME_FLAG_ALLOW_RINGER_MODES,
+        VOLUME_FLAG_PLAY_SOUND,
+        VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE,
+        VOLUME_FLAG_VIBRATE,
+      })
+  public @interface VolumeFlags {}
+  /** See {@link AudioManager#FLAG_SHOW_UI}. */
+  public static final int VOLUME_FLAG_SHOW_UI = AudioManager.FLAG_SHOW_UI;
+  /** See {@link AudioManager#FLAG_ALLOW_RINGER_MODES}. */
+  public static final int VOLUME_FLAG_ALLOW_RINGER_MODES = AudioManager.FLAG_ALLOW_RINGER_MODES;
+  /** See {@link AudioManager#FLAG_PLAY_SOUND}. */
+  public static final int VOLUME_FLAG_PLAY_SOUND = AudioManager.FLAG_PLAY_SOUND;
+  /** See {@link AudioManager#FLAG_REMOVE_SOUND_AND_VIBRATE}. */
+  public static final int VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE =
+      AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+  /** See {@link AudioManager#FLAG_VIBRATE}. */
+  public static final int VOLUME_FLAG_VIBRATE = AudioManager.FLAG_VIBRATE;
 
   /**
    * Content types for audio attributes. One of:
@@ -1056,24 +1089,33 @@ public final class C {
   // LINT.IfChange(color_transfer)
   /**
    * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
-   * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
+   * #COLOR_TRANSFER_LINEAR}, {@link #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_GAMMA_2_2} {@link
+   * #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
+  @IntDef({
+    Format.NO_VALUE,
+    COLOR_TRANSFER_LINEAR,
+    COLOR_TRANSFER_SDR,
+    COLOR_TRANSFER_GAMMA_2_2,
+    COLOR_TRANSFER_ST2084,
+    COLOR_TRANSFER_HLG
+  })
   public @interface ColorTransfer {}
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_LINEAR}. */
+  public static final int COLOR_TRANSFER_LINEAR = MediaFormat.COLOR_TRANSFER_LINEAR;
+  /** See {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO}. The SMPTE 170M transfer function. */
   public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
   /**
-   * @see MediaFormat#COLOR_TRANSFER_ST2084
+   * See {@link android.hardware.DataSpace#TRANSFER_GAMMA2_2}. The Gamma 2.2 transfer function, used
+   * for some SDR use-cases like tone-mapping.
    */
+  public static final int COLOR_TRANSFER_GAMMA_2_2 = 10;
+  /** See {@link MediaFormat#COLOR_TRANSFER_ST2084}. */
   public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_HLG
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_HLG}. */
   public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
   // LINT.IfChange(color_range)
@@ -1094,6 +1136,12 @@ public final class C {
    * @see MediaFormat#COLOR_RANGE_FULL
    */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+
+  /**
+   * Represents applying no limit to the number of input frames a {@link MediaCodec} encoder
+   * accepts.
+   */
+  public static final int UNLIMITED_PENDING_FRAME_COUNT = Integer.MAX_VALUE;
 
   /** Video projection types. */
   @Documented

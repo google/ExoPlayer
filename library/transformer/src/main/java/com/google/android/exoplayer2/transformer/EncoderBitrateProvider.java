@@ -19,7 +19,7 @@ package com.google.android.exoplayer2.transformer;
 import android.media.MediaCodecInfo;
 
 /** Provides bitrates for encoders to use as a target. */
-public interface EncoderBitrateProvider {
+/* package */ interface EncoderBitrateProvider {
 
   /**
    * Returns a recommended bitrate that the encoder should target.

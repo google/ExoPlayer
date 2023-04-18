@@ -195,18 +195,24 @@ public final class MediaFormatUtil {
   /**
    * Creates and returns a {@code ColorInfo}, if a valid instance is described in the {@link
    * MediaFormat}.
+   *
+   * <p>Under API 24, {@code null} will always be returned, because {@link MediaFormat} color keys
+   * like {@link MediaFormat#KEY_COLOR_STANDARD} were only added in API 24.
    */
   @Nullable
   public static ColorInfo getColorInfo(MediaFormat mediaFormat) {
-    if (SDK_INT < 29) {
+    if (SDK_INT < 24) {
+      // MediaFormat KEY_COLOR_TRANSFER and other KEY_COLOR values available from API 24.
       return null;
     }
     int colorSpace =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD, /* defaultValue= */ Format.NO_VALUE);
+        getInteger(
+            mediaFormat, MediaFormat.KEY_COLOR_STANDARD, /* defaultValue= */ Format.NO_VALUE);
     int colorRange =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE, /* defaultValue= */ Format.NO_VALUE);
+        getInteger(mediaFormat, MediaFormat.KEY_COLOR_RANGE, /* defaultValue= */ Format.NO_VALUE);
     int colorTransfer =
-        mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER, /* defaultValue= */ Format.NO_VALUE);
+        getInteger(
+            mediaFormat, MediaFormat.KEY_COLOR_TRANSFER, /* defaultValue= */ Format.NO_VALUE);
     @Nullable
     ByteBuffer hdrStaticInfoByteBuffer = mediaFormat.getByteBuffer(MediaFormat.KEY_HDR_STATIC_INFO);
     @Nullable
@@ -228,15 +234,52 @@ public final class MediaFormatUtil {
         || colorRange != Format.NO_VALUE
         || colorTransfer != Format.NO_VALUE
         || hdrStaticInfo != null) {
-      return new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+      return new ColorInfo.Builder()
+          .setColorSpace(colorSpace)
+          .setColorRange(colorRange)
+          .setColorTransfer(colorTransfer)
+          .setHdrStaticInfo(hdrStaticInfo)
+          .build();
     }
     return null;
+  }
+
+  /**
+   * Provides the same functionality as {@link MediaFormat#getInteger(String, int)}.
+   *
+   * <p>{@link MediaFormat#getInteger(String, int)} is only available from API 29. This convenience
+   * method provides support on lower API versions.
+   */
+  public static int getInteger(MediaFormat mediaFormat, String name, int defaultValue) {
+    return mediaFormat.containsKey(name) ? mediaFormat.getInteger(name) : defaultValue;
   }
 
   public static byte[] getArray(ByteBuffer byteBuffer) {
     byte[] array = new byte[byteBuffer.remaining()];
     byteBuffer.get(array);
     return array;
+  }
+
+  /** Returns whether a {@link MediaFormat} is a video format. */
+  public static boolean isVideoFormat(MediaFormat mediaFormat) {
+    return MimeTypes.isVideo(mediaFormat.getString(MediaFormat.KEY_MIME));
+  }
+
+  /** Returns whether a {@link MediaFormat} is an audio format. */
+  public static boolean isAudioFormat(MediaFormat mediaFormat) {
+    return MimeTypes.isAudio(mediaFormat.getString(MediaFormat.KEY_MIME));
+  }
+
+  /** Returns the time lapse capture FPS from the given {@link MediaFormat} if it was set. */
+  @Nullable
+  public static Integer getTimeLapseFrameRate(MediaFormat format) {
+    if (format.containsKey("time-lapse-enable")
+        && format.getInteger("time-lapse-enable") > 0
+        && format.containsKey("time-lapse-fps")) {
+      return format.getInteger("time-lapse-fps");
+    } else {
+      return null;
+    }
   }
 
   // Internal methods.
@@ -321,7 +364,10 @@ public final class MediaFormatUtil {
   /** Whether this is a valid {@link C.ColorTransfer} instance. */
   private static boolean isValidColorTransfer(int colorTransfer) {
     // LINT.IfChange(color_transfer)
-    return colorTransfer == C.COLOR_TRANSFER_SDR
+    // C.COLOR_TRANSFER_GAMMA_2_2 isn't valid because MediaCodec, and hence MediaFormat, does not
+    // support it.
+    return colorTransfer == C.COLOR_TRANSFER_LINEAR
+        || colorTransfer == C.COLOR_TRANSFER_SDR
         || colorTransfer == C.COLOR_TRANSFER_ST2084
         || colorTransfer == C.COLOR_TRANSFER_HLG
         || colorTransfer == Format.NO_VALUE;

@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.source.mediaparser.InputReaderAdapterV30;
 import com.google.android.exoplayer2.source.mediaparser.MediaParserUtil;
 import com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -67,8 +66,7 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
           return new MediaParserChunkExtractor(
               primaryTrackType, format, closedCaptionFormats, playerId);
         } else {
-          // This is either RAWCC (unsupported) or a text track that does not require an extractor.
-          Log.w(TAG, "Ignoring an unsupported text track.");
+          // This is a text track that does not require an extractor.
           return null;
         }
       };

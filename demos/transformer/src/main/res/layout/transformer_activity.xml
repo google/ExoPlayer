@@ -69,15 +69,21 @@
       android:layout_height="wrap_content" >
 
       <TextView
+        android:id="@+id/input_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:padding="8dp"
-        android:text="@string/input_video" />
+        android:text="@string/input_video_no_sound" />
 
     <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content" >
+
+      <ImageView
+        android:id="@+id/input_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
       <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/input_player_view"
@@ -108,10 +114,11 @@
       android:layout_height="wrap_content" >
 
       <TextView
+        android:id="@+id/output_video_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="@string/output_video" />
+        android:text="@string/output_video_playing_sound" />
 
       <TextView
         android:id="@+id/debug_text_view"

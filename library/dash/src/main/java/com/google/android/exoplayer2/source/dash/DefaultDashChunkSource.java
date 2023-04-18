@@ -234,9 +234,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     // Segments are aligned across representations, so any segment index will do.
     for (RepresentationHolder representationHolder : representationHolders) {
       if (representationHolder.segmentIndex != null) {
+        long segmentCount = representationHolder.getSegmentCount();
+        if (segmentCount == 0) {
+          continue;
+        }
         long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
-        long segmentCount = representationHolder.getSegmentCount();
         long secondSyncUs =
             firstSyncUs < positionUs
                     && (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED
@@ -527,7 +530,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     boolean cancelLoad = false;
     if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
       cancelLoad =
-          trackSelection.blacklist(
+          trackSelection.excludeTrack(
               trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
     } else if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION) {
       baseUrlExclusionList.exclude(
@@ -555,7 +558,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     int numberOfTracks = trackSelection.length();
     int numberOfExcludedTracks = 0;
     for (int i = 0; i < numberOfTracks; i++) {
-      if (trackSelection.isBlacklisted(i, nowMs)) {
+      if (trackSelection.isTrackExcluded(i, nowMs)) {
         numberOfExcludedTracks++;
       }
     }
@@ -592,7 +595,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private long getAvailableLiveDurationUs(long nowUnixTimeUs, long playbackPositionUs) {
-    if (!manifest.dynamic) {
+    if (!manifest.dynamic || representationHolders[0].getSegmentCount() == 0) {
       return C.TIME_UNSET;
     }
     long lastSegmentNum = representationHolders[0].getLastAvailableSegmentNum(nowUnixTimeUs);

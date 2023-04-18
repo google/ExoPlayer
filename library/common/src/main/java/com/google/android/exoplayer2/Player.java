@@ -369,8 +369,8 @@ public interface Player {
         COMMAND_SET_REPEAT_MODE,
         COMMAND_GET_CURRENT_MEDIA_ITEM,
         COMMAND_GET_TIMELINE,
-        COMMAND_GET_MEDIA_ITEMS_METADATA,
-        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_GET_METADATA,
+        COMMAND_SET_PLAYLIST_METADATA,
         COMMAND_SET_MEDIA_ITEM,
         COMMAND_CHANGE_MEDIA_ITEMS,
         COMMAND_GET_AUDIO_ATTRIBUTES,
@@ -378,11 +378,14 @@ public interface Player {
         COMMAND_GET_DEVICE_VOLUME,
         COMMAND_SET_VOLUME,
         COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         COMMAND_GET_TRACKS,
+        COMMAND_RELEASE
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -1080,8 +1083,9 @@ public interface Player {
    * #PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST}, {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS}, {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY}, {@link
-   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE} or {@link
-   * #PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM}.
+   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE}, {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} or {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1093,7 +1097,8 @@ public interface Player {
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS,
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY,
     PLAY_WHEN_READY_CHANGE_REASON_REMOTE,
-    PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
+    PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM,
+    PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG
   })
   @interface PlayWhenReadyChangeReason {}
   /** Playback has been started or paused by a call to {@link #setPlayWhenReady(boolean)}. */
@@ -1106,11 +1111,17 @@ public interface Player {
   int PLAY_WHEN_READY_CHANGE_REASON_REMOTE = 4;
   /** Playback has been paused at the end of a media item. */
   int PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM = 5;
+  /**
+   * Playback has been paused because playback has been {@linkplain #getPlaybackSuppressionReason()
+   * suppressed} too long.
+   */
+  int PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG = 6;
 
   /**
    * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
-   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
-   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
+   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE}, {@link
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1119,13 +1130,19 @@ public interface Player {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     PLAYBACK_SUPPRESSION_REASON_NONE,
-    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS,
+    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE
   })
   @interface PlaybackSuppressionReason {}
   /** Playback is not suppressed. */
   int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
   /** Playback is suppressed due to transient audio focus loss. */
   int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
+  /**
+   * Playback is suppressed due to no suitable audio route, such as an attempt to use an internal
+   * speaker instead of bluetooth headphones on Wear OS.
+   */
+  int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2;
 
   /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
@@ -1402,8 +1419,8 @@ public interface Player {
    *   <li>{@link #COMMAND_SET_REPEAT_MODE}
    *   <li>{@link #COMMAND_GET_CURRENT_MEDIA_ITEM}
    *   <li>{@link #COMMAND_GET_TIMELINE}
-   *   <li>{@link #COMMAND_GET_MEDIA_ITEMS_METADATA}
-   *   <li>{@link #COMMAND_SET_MEDIA_ITEMS_METADATA}
+   *   <li>{@link #COMMAND_GET_METADATA}
+   *   <li>{@link #COMMAND_SET_PLAYLIST_METADATA}
    *   <li>{@link #COMMAND_SET_MEDIA_ITEM}
    *   <li>{@link #COMMAND_CHANGE_MEDIA_ITEMS}
    *   <li>{@link #COMMAND_GET_AUDIO_ATTRIBUTES}
@@ -1411,15 +1428,19 @@ public interface Player {
    *   <li>{@link #COMMAND_GET_DEVICE_VOLUME}
    *   <li>{@link #COMMAND_SET_VOLUME}
    *   <li>{@link #COMMAND_SET_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS}
    *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME}
+   *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS}
    *   <li>{@link #COMMAND_SET_VIDEO_SURFACE}
    *   <li>{@link #COMMAND_GET_TEXT}
    *   <li>{@link #COMMAND_SET_TRACK_SELECTION_PARAMETERS}
    *   <li>{@link #COMMAND_GET_TRACKS}
+   *   <li>{@link #COMMAND_RELEASE}
    * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
+  @SuppressWarnings("deprecation") // Listing deprecated constants.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1443,7 +1464,9 @@ public interface Player {
     COMMAND_GET_CURRENT_MEDIA_ITEM,
     COMMAND_GET_TIMELINE,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_GET_METADATA,
     COMMAND_SET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_PLAYLIST_METADATA,
     COMMAND_SET_MEDIA_ITEM,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
@@ -1451,11 +1474,14 @@ public interface Player {
     COMMAND_GET_DEVICE_VOLUME,
     COMMAND_SET_VOLUME,
     COMMAND_SET_DEVICE_VOLUME,
+    COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
     COMMAND_ADJUST_DEVICE_VOLUME,
+    COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
     COMMAND_GET_TRACKS,
+    COMMAND_RELEASE,
   })
   @interface Command {}
   /**
@@ -1654,6 +1680,11 @@ public interface Player {
   int COMMAND_GET_TIMELINE = 17;
 
   /**
+   * @deprecated Use {@link #COMMAND_GET_METADATA} instead.
+   */
+  @Deprecated int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
+
+  /**
    * Command to get metadata related to the playlist and current {@link MediaItem}.
    *
    * <p>The following methods must only be called if this command is {@linkplain
@@ -1664,8 +1695,12 @@ public interface Player {
    *   <li>{@link #getPlaylistMetadata()}
    * </ul>
    */
-  // TODO(b/263132691): Rename this to COMMAND_GET_METADATA
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
+  int COMMAND_GET_METADATA = 18;
+
+  /**
+   * @deprecated Use {@link #COMMAND_SET_PLAYLIST_METADATA} instead.
+   */
+  @Deprecated int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
 
   /**
    * Command to set the playlist metadata.
@@ -1673,8 +1708,7 @@ public interface Player {
    * <p>The {@link #setPlaylistMetadata(MediaMetadata)} method must only be called if this command
    * is {@linkplain #isCommandAvailable(int) available}.
    */
-  // TODO(b/263132691): Rename this to COMMAND_SET_PLAYLIST_METADATA
-  int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
+  int COMMAND_SET_PLAYLIST_METADATA = 19;
 
   /**
    * Command to set a {@link MediaItem}.
@@ -1748,27 +1782,36 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_SET_VOLUME = 24;
-  /**
-   * Command to set the device volume.
-   *
-   * <p>The {@link #setDeviceVolume(int)} method must only be called if this command is {@linkplain
-   * #isCommandAvailable(int) available}.
-   */
-  int COMMAND_SET_DEVICE_VOLUME = 25;
 
   /**
-   * Command to increase and decrease the device volume and mute it.
+   * @deprecated Use {@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} instead.
+   */
+  @Deprecated int COMMAND_SET_DEVICE_VOLUME = 25;
+  /**
+   * Command to set the device volume with volume flags.
+   *
+   * <p>The {@link #setDeviceVolume(int, int)} method must only be called if this command is
+   * {@linkplain #isCommandAvailable(int) available}.
+   */
+  int COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS = 33;
+
+  /**
+   * @deprecated Use {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} instead.
+   */
+  @Deprecated int COMMAND_ADJUST_DEVICE_VOLUME = 26;
+  /**
+   * Command to increase and decrease the device volume and mute it with volume flags.
    *
    * <p>The following methods must only be called if this command is {@linkplain
    * #isCommandAvailable(int) available}:
    *
    * <ul>
-   *   <li>{@link #increaseDeviceVolume()}
-   *   <li>{@link #decreaseDeviceVolume()}
-   *   <li>{@link #setDeviceMuted(boolean)}
+   *   <li>{@link #increaseDeviceVolume(int)}
+   *   <li>{@link #decreaseDeviceVolume(int)}
+   *   <li>{@link #setDeviceMuted(boolean, int)}
    * </ul>
    */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 26;
+  int COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS = 34;
 
   /**
    * Command to set and clear the surface on which to render the video.
@@ -1811,6 +1854,13 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_GET_TRACKS = 30;
+  /**
+   * Command to release the player.
+   *
+   * <p>The {@link #release()} method must only be called if this command is {@linkplain
+   * #isCommandAvailable(int) available}.
+   */
+  int COMMAND_RELEASE = 32;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -2481,18 +2531,12 @@ public interface Player {
   void stop();
 
   /**
-   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
-   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
-   *     {@link #prepare() re-preparing} the player.
-   */
-  @Deprecated
-  void stop(boolean reset);
-
-  /**
    * Releases the player. This method must be called when the player is no longer required. The
    * player must not be used after calling this method.
+   *
+   * <p>This method must only be called if {@link #COMMAND_RELEASE} is {@linkplain
+   * #getAvailableCommands() available}.
    */
-  // TODO(b/261158047): Document that COMMAND_RELEASE must be available once it exists.
   void release();
 
   /**
@@ -2544,7 +2588,7 @@ public interface Player {
    * Listener#onMetadata(Metadata)}. If a field is populated in the {@link MediaItem#mediaMetadata},
    * it will be prioritised above the same field coming from static or timed metadata.
    *
-   * <p>This method must only be called if {@link #COMMAND_GET_MEDIA_ITEMS_METADATA} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_GET_METADATA} is {@linkplain
    * #getAvailableCommands() available}.
    */
   MediaMetadata getMediaMetadata();
@@ -2553,7 +2597,7 @@ public interface Player {
    * Returns the playlist {@link MediaMetadata}, as set by {@link
    * #setPlaylistMetadata(MediaMetadata)}, or {@link MediaMetadata#EMPTY} if not supported.
    *
-   * <p>This method must only be called if {@link #COMMAND_GET_MEDIA_ITEMS_METADATA} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_GET_METADATA} is {@linkplain
    * #getAvailableCommands() available}.
    */
   MediaMetadata getPlaylistMetadata();
@@ -2561,7 +2605,7 @@ public interface Player {
   /**
    * Sets the playlist {@link MediaMetadata}.
    *
-   * <p>This method must only be called if {@link #COMMAND_SET_MEDIA_ITEMS_METADATA} is {@linkplain
+   * <p>This method must only be called if {@link #COMMAND_SET_PLAYLIST_METADATA} is {@linkplain
    * #getAvailableCommands() available}.
    */
   void setPlaylistMetadata(MediaMetadata mediaMetadata);
@@ -3038,36 +3082,68 @@ public interface Player {
   boolean isDeviceMuted();
 
   /**
-   * Sets the volume of the device.
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
+  void setDeviceVolume(@IntRange(from = 0) int volume);
+
+  /**
+   * Sets the volume of the device with volume flags.
    *
-   * <p>This method must only be called if {@link #COMMAND_SET_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
    *
    * @param volume The volume to set.
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void setDeviceVolume(@IntRange(from = 0) int volume);
+  void setDeviceVolume(@IntRange(from = 0) int volume, int flags);
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  void increaseDeviceVolume();
 
   /**
    * Increases the volume of the device.
    *
-   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void increaseDeviceVolume();
+  void increaseDeviceVolume(@C.VolumeFlags int flags);
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
+  void decreaseDeviceVolume();
 
   /**
    * Decreases the volume of the device.
    *
-   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void decreaseDeviceVolume();
+  void decreaseDeviceVolume(@C.VolumeFlags int flags);
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
+  void setDeviceMuted(boolean muted);
 
   /**
    * Sets the mute state of the device.
    *
-   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME} is {@linkplain
-   * #getAvailableCommands() available}.
+   * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
+   * {@linkplain #getAvailableCommands() available}.
+   *
+   * @param muted Whether to set the device to be muted or not
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void setDeviceMuted(boolean muted);
+  void setDeviceMuted(boolean muted, @C.VolumeFlags int flags);
 }

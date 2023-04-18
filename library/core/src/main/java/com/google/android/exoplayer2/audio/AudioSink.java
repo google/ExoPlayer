@@ -130,6 +130,9 @@ public interface AudioSink {
      *     a {@link WriteException}, or an {@link UnexpectedDiscontinuityException}.
      */
     default void onAudioSinkError(Exception audioSinkError) {}
+
+    /** Called when audio capabilities changed. */
+    default void onAudioCapabilitiesChanged() {}
   }
 
   /** Thrown when a failure occurs configuring the sink. */
@@ -185,6 +188,8 @@ public interface AudioSink {
               + audioTrackState
               + " "
               + ("Config(" + sampleRate + ", " + channelConfig + ", " + bufferSize + ")")
+              + " "
+              + format
               + (isRecoverable ? " (recoverable)" : ""),
           audioTrackException);
       this.audioTrackState = audioTrackState;
@@ -481,4 +486,7 @@ public interface AudioSink {
 
   /** Resets the sink, releasing any resources that it currently holds. */
   void reset();
+
+  /** Releases the audio sink. */
+  default void release() {}
 }

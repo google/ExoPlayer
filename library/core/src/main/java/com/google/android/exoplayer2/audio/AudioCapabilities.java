@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -37,6 +38,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import java.util.Arrays;
 
@@ -94,6 +96,11 @@ public final class AudioCapabilities {
 
   @SuppressLint("InlinedApi")
   /* package */ static AudioCapabilities getCapabilities(Context context, @Nullable Intent intent) {
+    // If a connection to Bluetooth device is detected, we only return the minimum capabilities that
+    // is supported by all the devices.
+    if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
+      return DEFAULT_AUDIO_CAPABILITIES;
+    }
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
@@ -296,6 +303,49 @@ public final class AudioCapabilities {
     }
 
     return Util.getAudioTrackChannelConfig(channelCount);
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    @DoNotInline
+    public static final boolean isBluetoothConnected(Context context) {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+      AudioDeviceInfo[] audioDeviceInfos =
+          checkNotNull(audioManager).getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+      ImmutableSet<Integer> allBluetoothDeviceTypesSet = getAllBluetoothDeviceTypes();
+      for (int i = 0; i < audioDeviceInfos.length; i++) {
+        if (allBluetoothDeviceTypesSet.contains(audioDeviceInfos[i].getType())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /**
+     * Returns all the possible bluetooth device types that can be returned by {@link
+     * AudioDeviceInfo#getType()}.
+     *
+     * <p>The types {@link AudioDeviceInfo#TYPE_BLUETOOTH_A2DP} and {@link
+     * AudioDeviceInfo#TYPE_BLUETOOTH_SCO} are included from API 23. And the types {@link
+     * AudioDeviceInfo#TYPE_BLE_HEADSET} and {@link AudioDeviceInfo#TYPE_BLE_SPEAKER} are added from
+     * API 31. And the type {@link AudioDeviceInfo#TYPE_BLE_BROADCAST} is added from API 33.
+     */
+    @DoNotInline
+    private static final ImmutableSet<Integer> getAllBluetoothDeviceTypes() {
+      ImmutableSet.Builder<Integer> allBluetoothDeviceTypes =
+          new ImmutableSet.Builder<Integer>()
+              .add(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, AudioDeviceInfo.TYPE_BLUETOOTH_SCO);
+      if (Util.SDK_INT >= 31) {
+        allBluetoothDeviceTypes.add(
+            AudioDeviceInfo.TYPE_BLE_HEADSET, AudioDeviceInfo.TYPE_BLE_SPEAKER);
+      }
+      if (Util.SDK_INT >= 33) {
+        allBluetoothDeviceTypes.add(AudioDeviceInfo.TYPE_BLE_BROADCAST);
+      }
+      return allBluetoothDeviceTypes.build();
+    }
   }
 
   @RequiresApi(29)

@@ -41,7 +41,7 @@
         <com.google.android.material.slider.RangeSlider
           android:id="@+id/trim_bounds_range_slider"
           android:valueFrom="0.0"
-          android:valueTo="60.0"
+          android:valueTo="10.0"
           android:layout_gravity="right"/>
       </TableRow>
     </TableLayout>

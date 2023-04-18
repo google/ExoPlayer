@@ -1157,7 +1157,7 @@ public final class CronetDataSourceTest {
   @Test
   public void redirectParseAndAttachCookie_dataSourceDoesNotHandleSetCookie_followsRedirect()
       throws HttpDataSourceException {
-    mockSingleRedirectSuccess(/*responseCode=*/ 300);
+    mockSingleRedirectSuccess(/* responseCode= */ 300);
     mockFollowRedirectSuccess();
 
     testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
@@ -1182,7 +1182,7 @@ public final class CronetDataSourceTest {
     dataSourceUnderTest.addTransferListener(mockTransferListener);
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
 
-    mockSingleRedirectSuccess(/*responseCode=*/ 300);
+    mockSingleRedirectSuccess(/* responseCode= */ 300);
 
     testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
 
@@ -1210,7 +1210,7 @@ public final class CronetDataSourceTest {
     dataSourceUnderTest.addTransferListener(mockTransferListener);
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
 
-    mockSingleRedirectSuccess(/*responseCode=*/ 300);
+    mockSingleRedirectSuccess(/* responseCode= */ 300);
     mockReadSuccess(0, 1000);
 
     testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
@@ -1225,7 +1225,7 @@ public final class CronetDataSourceTest {
 
   @Test
   public void redirectNoSetCookieFollowsRedirect() throws HttpDataSourceException {
-    mockSingleRedirectSuccess(/*responseCode=*/ 300);
+    mockSingleRedirectSuccess(/* responseCode= */ 300);
     mockFollowRedirectSuccess();
 
     dataSourceUnderTest.open(testDataSpec);
@@ -1245,7 +1245,7 @@ public final class CronetDataSourceTest {
                 .setHandleSetCookieRequests(true)
                 .createDataSource();
     dataSourceUnderTest.addTransferListener(mockTransferListener);
-    mockSingleRedirectSuccess(/*responseCode=*/ 300);
+    mockSingleRedirectSuccess(/* responseCode= */ 300);
     mockFollowRedirectSuccess();
 
     dataSourceUnderTest.open(testDataSpec);
@@ -1255,7 +1255,7 @@ public final class CronetDataSourceTest {
 
   @Test
   public void redirectPostFollowRedirect() throws HttpDataSourceException {
-    mockSingleRedirectSuccess(/*responseCode=*/ 302);
+    mockSingleRedirectSuccess(/* responseCode= */ 302);
     mockFollowRedirectSuccess();
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
 
@@ -1275,7 +1275,7 @@ public final class CronetDataSourceTest {
                 .setKeepPostFor302Redirects(false)
                 .setHandleSetCookieRequests(true)
                 .createDataSource();
-    mockSingleRedirectSuccess(/*responseCode=*/ 302);
+    mockSingleRedirectSuccess(/* responseCode= */ 302);
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
     testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
 
@@ -1297,7 +1297,7 @@ public final class CronetDataSourceTest {
                 .setResetTimeoutOnRedirects(true)
                 .setKeepPostFor302Redirects(true)
                 .createDataSource();
-    mockSingleRedirectSuccess(/*responseCode=*/ 302);
+    mockSingleRedirectSuccess(/* responseCode= */ 302);
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
 
     dataSourceUnderTest.open(testPostDataSpec);

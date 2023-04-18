@@ -1047,7 +1047,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } finally {
           if (result == Extractor.RESULT_SEEK) {
             result = Extractor.RESULT_CONTINUE;
-          } else if (progressiveMediaExtractor.getCurrentInputPosition() != C.POSITION_UNSET) {
+          } else if (progressiveMediaExtractor.getCurrentInputPosition() != C.INDEX_UNSET) {
             positionHolder.position = progressiveMediaExtractor.getCurrentInputPosition();
           }
           DataSourceUtil.closeQuietly(dataSource);
