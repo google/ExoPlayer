@@ -566,7 +566,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               firstEditedMediaItem.effects.videoEffects,
               compositionPresentation,
               firstEditedMediaItem.effects.videoFrameProcessorFactory,
-              firstEditedMediaItem.effects.glObjectsProvider,
               encoderFactory,
               muxerWrapper,
               /* errorConsumer= */ this::onError,

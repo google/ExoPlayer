@@ -78,11 +78,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     /** A builder for {@link DefaultVideoFrameProcessor.Factory} instances. */
     public static final class Builder {
       private boolean enableColorTransfers;
+      private GlObjectsProvider glObjectsProvider;
       @Nullable private TextureOutputListener textureOutputListener;
 
       /** Creates an instance. */
       public Builder() {
         enableColorTransfers = true;
+        glObjectsProvider = GlObjectsProvider.DEFAULT;
       }
 
       /**
@@ -93,6 +95,17 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       @CanIgnoreReturnValue
       public Builder setEnableColorTransfers(boolean enableColorTransfers) {
         this.enableColorTransfers = enableColorTransfers;
+        return this;
+      }
+
+      /**
+       * Sets the {@link GlObjectsProvider}.
+       *
+       * <p>The default value is {@link GlObjectsProvider#DEFAULT}.
+       */
+      @CanIgnoreReturnValue
+      public Builder setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
+        this.glObjectsProvider = glObjectsProvider;
         return this;
       }
 
@@ -111,20 +124,23 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
       /** Builds an {@link DefaultVideoFrameProcessor.Factory} instance. */
       public DefaultVideoFrameProcessor.Factory build() {
-        return new DefaultVideoFrameProcessor.Factory(enableColorTransfers, textureOutputListener);
+        return new DefaultVideoFrameProcessor.Factory(
+            enableColorTransfers, glObjectsProvider, textureOutputListener);
       }
     }
 
     private final boolean enableColorTransfers;
 
+    private final GlObjectsProvider glObjectsProvider;
     @Nullable private final TextureOutputListener textureOutputListener;
 
-    private GlObjectsProvider glObjectsProvider = GlObjectsProvider.DEFAULT;
-
     private Factory(
-        boolean enableColorTransfers, @Nullable TextureOutputListener textureOutputListener) {
-      this.textureOutputListener = textureOutputListener;
+        boolean enableColorTransfers,
+        GlObjectsProvider glObjectsProvider,
+        @Nullable TextureOutputListener textureOutputListener) {
       this.enableColorTransfers = enableColorTransfers;
+      this.glObjectsProvider = glObjectsProvider;
+      this.textureOutputListener = textureOutputListener;
     }
 
     // TODO(276913828): Remove and change all calls to a builder.
@@ -133,19 +149,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
      */
     @Deprecated
     public Factory() {
-      this(/* enableColorTransfers= */ true, /* textureOutputListener= */ null);
-    }
-
-    // TODO(276913828): Move this setter to the DefaultVideoFrameProcessor.Factory.Builder.
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default value is {@link GlObjectsProvider#DEFAULT}.
-     */
-    @Override
-    public Factory setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
-      this.glObjectsProvider = glObjectsProvider;
-      return this;
+      this(
+          /* enableColorTransfers= */ true,
+          GlObjectsProvider.DEFAULT,
+          /* textureOutputListener= */ null);
     }
 
     /**
