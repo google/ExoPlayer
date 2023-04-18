@@ -28,15 +28,20 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.DecoderFactory}. */
 /* package */ final class DefaultDecoderFactory implements Codec.DecoderFactory {
+
+  private static final String TAG = "DefaultDecoderFactory";
 
   private final Context context;
 
@@ -55,12 +60,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
-    @Nullable
-    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
-    if (mediaCodecName == null) {
-      throw createExportException(
-          format, /* reason= */ "The requested decoding format is not supported.");
+    String mediaCodecName;
+    try {
+      mediaCodecName = getMediaCodecNameForDecoding(format);
+    } catch (MediaCodecUtil.DecoderQueryException e) {
+      Log.e(TAG, "Error querying decoders", e);
+      throw createExportException(format, /* reason= */ "Querying codecs failed.");
     }
+
     return new DefaultCodec(
         context,
         format,
@@ -89,7 +96,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
-
     if (decoderSupportsKeyAllowFrameDrop) {
       // This key ensures no frame dropping when the decoder's output surface is full. This allows
       // transformer to decode as many frames as possible in one render cycle.
@@ -98,6 +104,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (SDK_INT >= 31 && requestSdrToneMapping) {
       mediaFormat.setInteger(
           MediaFormat.KEY_COLOR_TRANSFER_REQUEST, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
+    }
+
+    String mediaCodecName;
+    try {
+      mediaCodecName = getMediaCodecNameForDecoding(format);
+    } catch (MediaCodecUtil.DecoderQueryException e) {
+      Log.e(TAG, "Error querying decoders", e);
+      throw createExportException(format, /* reason= */ "Querying codecs failed");
     }
 
     @Nullable
@@ -109,12 +123,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
     }
 
-    @Nullable
-    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
-    if (mediaCodecName == null) {
-      throw createExportException(
-          format, /* reason= */ "The requested video decoding format is not supported.");
-    }
     return new DefaultCodec(
         context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
   }
@@ -133,5 +141,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ true,
         format);
+  }
+
+  private static String getMediaCodecNameForDecoding(Format format)
+      throws MediaCodecUtil.DecoderQueryException, ExportException {
+    List<MediaCodecInfo> decoderInfos =
+        MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
+            MediaCodecUtil.getDecoderInfos(
+                checkNotNull(format.sampleMimeType), /* secure= */ false, /* tunneling= */ false),
+            format);
+    if (decoderInfos.isEmpty()) {
+      throw createExportException(format, /* reason= */ "No decoders for format");
+    }
+    return decoderInfos.get(0).name;
   }
 }
