@@ -1,11 +1,31 @@
 # Release notes
 
+### 2.18.6 (2023-04-18)
+
+This release corresponds to the
+[AndroidX Media3 1.0.1 release](https://github.com/androidx/media/releases/tag/1.0.1).
+
+*   Core library:
+    *   Reset target live stream override when seeking to default position
+        ([#11051](https://github.com/google/ExoPlayer/pull/11051)).
+    *   Fix bug where empty sample streams in the media could cause playback to
+        be stuck.
+*   DASH:
+    *   Fix handling of empty segment timelines
+        ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
+*   RTSP:
+    *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
+        UnsupportedTransport
+        ([#11069](https://github.com/google/ExoPlayer/issues/11069)).
+
 ### 2.18.5 (2023-03-22)
 
 This release corresponds to the
 [AndroidX Media3 1.0.0 release](https://github.com/androidx/media/releases/tag/1.0.0).
 
-There are no changes since 2.18.4.
+*   Migration script
+    *   Fix bug where backup files for each touched file were left in a migrated
+        project on OSX.
 
 ### 2.18.4 (2023-03-02)
 
