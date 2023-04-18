@@ -252,7 +252,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
-  private @MonotonicNonNull InternalTextureManager inputInternalTextureManager;
+  private @MonotonicNonNull BitmapTextureManager inputBitmapTextureManager;
   private @MonotonicNonNull ExternalTextureManager inputExternalTextureManager;
   private final boolean releaseFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
@@ -287,9 +287,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
               (ExternalShaderProgram) inputShaderProgram, videoFrameProcessingTaskExecutor);
       inputShaderProgram.setInputListener(inputExternalTextureManager);
     } else {
-      inputInternalTextureManager =
-          new InternalTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
-      inputShaderProgram.setInputListener(inputInternalTextureManager);
+      inputBitmapTextureManager =
+          new BitmapTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
+      inputShaderProgram.setInputListener(inputBitmapTextureManager);
     }
 
     finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
@@ -323,7 +323,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
-    checkNotNull(inputInternalTextureManager)
+    checkNotNull(inputBitmapTextureManager)
         .queueInputBitmap(inputBitmap, durationUs, frameRate, /* useHdr= */ false);
   }
 
@@ -369,8 +369,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    if (inputInternalTextureManager != null) {
-      videoFrameProcessingTaskExecutor.submit(inputInternalTextureManager::signalEndOfInput);
+    if (inputBitmapTextureManager != null) {
+      videoFrameProcessingTaskExecutor.submit(inputBitmapTextureManager::signalEndOfInput);
     }
     if (inputExternalTextureManager != null) {
       videoFrameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);

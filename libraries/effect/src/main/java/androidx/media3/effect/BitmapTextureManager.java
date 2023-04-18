@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>Public methods in this class can be called from any thread.
  */
 @UnstableApi
-/* package */ final class InternalTextureManager implements GlShaderProgram.InputListener {
+/* package */ final class BitmapTextureManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram shaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
@@ -55,12 +55,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Creates a new instance.
    *
-   * @param shaderProgram The {@link GlShaderProgram} for which this {@code InternalTextureManager}
+   * @param shaderProgram The {@link GlShaderProgram} for which this {@code BitmapTextureManager}
    *     will be set as the {@link GlShaderProgram.InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor} that the
    *     methods of this class run on.
    */
-  public InternalTextureManager(
+  public BitmapTextureManager(
       GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     this.shaderProgram = shaderProgram;
