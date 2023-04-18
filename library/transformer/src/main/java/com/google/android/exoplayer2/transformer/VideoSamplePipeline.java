@@ -67,6 +67,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
+  private volatile boolean encoderExpectsTimestampZero;
   /**
    * The timestamp of the last buffer processed before {@linkplain
    * VideoFrameProcessor.Listener#onEnded() frame processing has ended}.
@@ -158,6 +159,9 @@ import org.checkerframework.dataflow.qual.Pure;
                     @Override
                     public void onOutputFrameAvailable(long presentationTimeUs) {
                       // Frames are released automatically.
+                      if (presentationTimeUs == 0) {
+                        encoderExpectsTimestampZero = true;
+                      }
                       lastProcessedFramePresentationTimeUs = presentationTimeUs;
                     }
 
@@ -254,15 +258,15 @@ import org.checkerframework.dataflow.qual.Pure;
       return null;
     }
     MediaCodec.BufferInfo bufferInfo = checkNotNull(encoderWrapper.getOutputBufferInfo());
-    if (finalFramePresentationTimeUs != C.TIME_UNSET
-        && bufferInfo.size > 0
-        && bufferInfo.presentationTimeUs == 0) {
+    if (bufferInfo.presentationTimeUs == 0) {
       // Internal ref b/235045165: Some encoder incorrectly set a zero presentation time on the
       // penultimate buffer (before EOS), and sets the actual timestamp on the EOS buffer. Use the
       // last processed frame presentation time instead.
-      // bufferInfo.presentationTimeUs should never be 0 because we apply streamOffsetUs to the
-      // buffer presentationTimeUs.
-      bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
+      if (encoderExpectsTimestampZero) {
+        encoderExpectsTimestampZero = false;
+      } else if (finalFramePresentationTimeUs != C.TIME_UNSET && bufferInfo.size > 0) {
+        bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
+      }
     }
     encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
