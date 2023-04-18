@@ -417,7 +417,7 @@ public final class H265Reader implements ElementaryStreamReader {
 
   /**
    * Reads the number of short term reference picture sets in a SPS as ue(v), then skips all of
-   * them. See H.265/HEVC (2014) 7.3.7.
+   * them. See H.265/HEVC (2014) 7.3.7 and 7.4.8.
    */
   private static void skipShortTermRefPicSets(ParsableNalUnitBitArray bitArray) {
     int numShortTermRefPicSets = bitArray.readUnsignedExpGolombCodedInt();
@@ -433,21 +433,27 @@ public final class H265Reader implements ElementaryStreamReader {
         interRefPicSetPredictionFlag = bitArray.readBit();
       }
       if (interRefPicSetPredictionFlag) {
-        bitArray.skipBit(); // delta_rps_sign
+        boolean deltaRpsSign = bitArray.readBit(); // delta_rps_sign
         bitArray.readUnsignedExpGolombCodedInt(); // abs_delta_rps_minus1
-        int numDeltaPocs = 0;
+        numNegativePics = 0;
+        numPositivePics = 0;
         for (int j = 0; j <= previousNumDeltaPocs; j++) {
           if (!bitArray.readBit()) { // used_by_curr_pic_flag[j]
-            if(!bitArray.readBit())  // use_delta_flag[j]
-              continue; // if not use_delta_flag, skip increase numDeltaPocs
+            if (bitArray.readBit()) { // use_delta_flag[j]
+              if (deltaRpsSign) {
+                // See H.265/HEVC (2014) section 7.4.8 equation 7-61
+                numNegativePics++;
+              } else {
+                // See H.265/HEVC (2014) section 7.4.8 equation 7-62
+                numPositivePics++;
+              }
+            }
           }
-          numDeltaPocs++;
         }
-        previousNumDeltaPocs = numDeltaPocs;
+
       } else {
         numNegativePics = bitArray.readUnsignedExpGolombCodedInt();
         numPositivePics = bitArray.readUnsignedExpGolombCodedInt();
-        previousNumDeltaPocs = numNegativePics + numPositivePics;
         for (int i = 0; i < numNegativePics; i++) {
           bitArray.readUnsignedExpGolombCodedInt(); // delta_poc_s0_minus1[i]
           bitArray.skipBit(); // used_by_curr_pic_s0_flag[i]
@@ -457,6 +463,8 @@ public final class H265Reader implements ElementaryStreamReader {
           bitArray.skipBit(); // used_by_curr_pic_s1_flag[i]
         }
       }
+      // See H.265/HEVC (2014) section 7.4.8 equation 7-71
+      previousNumDeltaPocs = numNegativePics + numPositivePics;
     }
   }
 
