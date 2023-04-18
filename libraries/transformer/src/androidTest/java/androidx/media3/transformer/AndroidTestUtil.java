@@ -642,6 +642,7 @@ public final class AndroidTestUtil {
   public static boolean skipAndLogIfFormatsUnsupported(
       Context context, String testId, Format inputFormat, @Nullable Format outputFormat)
       throws IOException, JSONException {
+    // TODO(b/278657595): Make this capability check match the default codec factory selection code.
     boolean canDecode = canDecode(inputFormat);
 
     boolean canEncode = outputFormat == null || canEncode(outputFormat);

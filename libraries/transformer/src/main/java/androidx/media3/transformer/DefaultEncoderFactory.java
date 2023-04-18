@@ -175,18 +175,17 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   public DefaultCodec createForAudioEncoding(Format format) throws ExportException {
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
-
     @Nullable
-    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ false);
-    if (mediaCodecName == null) {
-      throw createExportException(
-          format, /* errorString= */ "The requested audio encoding format is not supported.");
+    ImmutableList<MediaCodecInfo> mediaCodecInfos =
+        EncoderUtil.getSupportedEncoders(format.sampleMimeType);
+    if (mediaCodecInfos.isEmpty()) {
+      throw createExportException(format, "No audio media codec found");
     }
     return new DefaultCodec(
         context,
         format,
         mediaFormat,
-        mediaCodecName,
+        mediaCodecInfos.get(0).getName(),
         /* isDecoder= */ false,
         /* outputSurface= */ null);
   }
