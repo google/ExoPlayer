@@ -743,11 +743,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
             contentMediaSourceFactory.createMediaSource(contentMediaItem), componentListener);
     this.serverSideAdInsertionMediaSource = serverSideAdInsertionMediaSource;
     if (isLiveStream) {
-      AdPlaybackState liveAdPlaybackState =
-          new AdPlaybackState(adsId)
-              .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
-              .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
-      mainHandler.post(() -> setAdPlaybackState(liveAdPlaybackState));
+      mainHandler.post(
+          () ->
+              setAdPlaybackState(new AdPlaybackState(adsId).withLivePostrollPlaceholderAppended()));
     }
     prepareChildSource(/* id= */ null, serverSideAdInsertionMediaSource);
   }
