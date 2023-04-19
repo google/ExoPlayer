@@ -143,18 +143,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       this.textureOutputListener = textureOutputListener;
     }
 
-    // TODO(276913828): Remove and change all calls to a builder.
-    /**
-     * @deprecated Use {@link DefaultVideoFrameProcessor.Factory.Builder} instead.
-     */
-    @Deprecated
-    public Factory() {
-      this(
-          /* enableColorTransfers= */ true,
-          GlObjectsProvider.DEFAULT,
-          /* textureOutputListener= */ null);
-    }
-
     /**
      * {@inheritDoc}
      *
