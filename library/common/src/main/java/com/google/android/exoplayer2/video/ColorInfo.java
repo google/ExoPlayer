@@ -132,6 +132,17 @@ public final class ColorInfo implements Bundleable {
           /* hdrStaticInfo= */ null);
 
   /**
+   * Color info representing SDR sRGB in accordance with {@link
+   * android.hardware.DataSpace#DATASPACE_SRGB}, which is a common SDR image color format.
+   */
+  public static final ColorInfo SRGB_FULL =
+      new ColorInfo.Builder()
+          .setColorSpace(C.COLOR_SPACE_BT709)
+          .setColorRange(C.COLOR_RANGE_FULL)
+          .setColorTransfer(C.COLOR_TRANSFER_SRGB)
+          .build();
+
+  /**
    * Returns the {@link C.ColorSpace} corresponding to the given ISO color primary code, as per
    * table A.7.21.1 in Rec. ITU-T T.832 (03/2009), or {@link Format#NO_VALUE} if no mapping can be
    * made.
@@ -166,6 +177,10 @@ public final class ColorInfo implements Bundleable {
       case 6: // SMPTE 170M.
       case 7: // SMPTE 240M.
         return C.COLOR_TRANSFER_SDR;
+      case 4:
+        return C.COLOR_TRANSFER_GAMMA_2_2;
+      case 13:
+        return C.COLOR_TRANSFER_SRGB;
       case 16:
         return C.COLOR_TRANSFER_ST2084;
       case 18:
@@ -309,6 +324,8 @@ public final class ColorInfo implements Bundleable {
         return "Linear";
       case C.COLOR_TRANSFER_SDR:
         return "SDR SMPTE 170M";
+      case C.COLOR_TRANSFER_SRGB:
+        return "sRGB";
       case C.COLOR_TRANSFER_GAMMA_2_2:
         return "Gamma 2.2";
       case C.COLOR_TRANSFER_ST2084:

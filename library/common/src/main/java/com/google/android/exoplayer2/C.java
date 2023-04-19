@@ -1088,9 +1088,9 @@ public final class C {
 
   // LINT.IfChange(color_transfer)
   /**
-   * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
-   * #COLOR_TRANSFER_LINEAR}, {@link #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_GAMMA_2_2} {@link
-   * #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
+   * Video/image color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
+   * #COLOR_TRANSFER_LINEAR}, {@link #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_SRGB}, {@link
+   * #COLOR_TRANSFER_GAMMA_2_2}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1099,6 +1099,7 @@ public final class C {
     Format.NO_VALUE,
     COLOR_TRANSFER_LINEAR,
     COLOR_TRANSFER_SDR,
+    COLOR_TRANSFER_SRGB,
     COLOR_TRANSFER_GAMMA_2_2,
     COLOR_TRANSFER_ST2084,
     COLOR_TRANSFER_HLG
@@ -1108,6 +1109,13 @@ public final class C {
   public static final int COLOR_TRANSFER_LINEAR = MediaFormat.COLOR_TRANSFER_LINEAR;
   /** See {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO}. The SMPTE 170M transfer function. */
   public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+  /**
+   * See {@link android.hardware.DataSpace#TRANSFER_SRGB}. The standard RGB transfer function, used
+   * for some SDR use-cases like image input.
+   */
+  // Value sourced from ordering here:
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/native/headers/media_plugin/media/hardware/VideoAPI.h;drc=55e9bd7c487ee235631f302ab8626776547ac913;l=138.
+  public static final int COLOR_TRANSFER_SRGB = 2;
   /**
    * See {@link android.hardware.DataSpace#TRANSFER_GAMMA2_2}. The Gamma 2.2 transfer function, used
    * for some SDR use-cases like tone-mapping.
