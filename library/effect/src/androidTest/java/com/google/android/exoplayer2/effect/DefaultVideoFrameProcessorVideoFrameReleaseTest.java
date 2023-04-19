@@ -292,7 +292,8 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
     CountDownLatch videoFrameProcessingEndedCountDownLatch = new CountDownLatch(1);
     defaultVideoFrameProcessor =
         checkNotNull(
-            new DefaultVideoFrameProcessor.Factory()
+            new DefaultVideoFrameProcessor.Factory.Builder()
+                .build()
                 .create(
                     getApplicationContext(),
                     ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer),

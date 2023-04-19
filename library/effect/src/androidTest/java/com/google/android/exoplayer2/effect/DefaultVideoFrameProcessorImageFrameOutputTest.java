@@ -123,7 +123,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
       String testId) {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
-        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory())
+        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
         .setIsInputTextureExternal(false)
         .setOnOutputFrameAvailableListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());

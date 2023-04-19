@@ -506,7 +506,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
       String testId) {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
-        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory())
+        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
         .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING);
   }
 

@@ -213,6 +213,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
       String testId) {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
-        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory());
+        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build());
   }
 }
