@@ -214,6 +214,115 @@ public class MediaCodecRendererTest {
     inOrder.verify(renderer).onProcessedOutputBuffer(600);
   }
 
+  @Test
+  public void
+      render_withReplaceStreamAfterInitialEmptySampleStream_triggersOutputCallbacksInCorrectOrder()
+          throws Exception {
+    Format format1 =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1000).build();
+    Format format2 =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1500).build();
+    FakeSampleStream fakeSampleStream1 = createFakeSampleStream(format1 /* no samples */);
+    FakeSampleStream fakeSampleStream2 =
+        createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
+    MediaCodecRenderer renderer = spy(new TestRenderer());
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {format1},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0);
+    renderer.start();
+    long positionUs = 0;
+    while (!renderer.hasReadStreamToEnd()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+    renderer.replaceStream(
+        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 0, /* offsetUs= */ 0);
+    renderer.setCurrentStreamFinal();
+    while (!renderer.isEnded()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+
+    InOrder inOrder = inOrder(renderer);
+    inOrder.verify(renderer).onOutputStreamOffsetUsChanged(0);
+    inOrder.verify(renderer).onOutputStreamOffsetUsChanged(0);
+    inOrder.verify(renderer).onProcessedStreamChange();
+    inOrder.verify(renderer).onOutputFormatChanged(eq(format2), any());
+    inOrder.verify(renderer).onProcessedOutputBuffer(0);
+    inOrder.verify(renderer).onProcessedOutputBuffer(100);
+    inOrder.verify(renderer).onProcessedOutputBuffer(200);
+  }
+
+  @Test
+  public void
+      render_withReplaceStreamAfterIntermittentEmptySampleStream_triggersOutputCallbacksInCorrectOrder()
+          throws Exception {
+    Format format1 =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1000).build();
+    Format format2 =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1500).build();
+    Format format3 =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(2000).build();
+    FakeSampleStream fakeSampleStream1 =
+        createFakeSampleStream(format1, /* sampleTimesUs...= */ 0, 100);
+    FakeSampleStream fakeSampleStream2 = createFakeSampleStream(format2 /* no samples */);
+    FakeSampleStream fakeSampleStream3 =
+        createFakeSampleStream(format3, /* sampleTimesUs...= */ 0, 100, 200);
+    MediaCodecRenderer renderer = spy(new TestRenderer());
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {format1},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0);
+    renderer.start();
+    long positionUs = 0;
+    while (!renderer.hasReadStreamToEnd()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+    renderer.replaceStream(
+        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 200, /* offsetUs= */ 200);
+    while (!renderer.hasReadStreamToEnd()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+    renderer.replaceStream(
+        new Format[] {format3}, fakeSampleStream3, /* startPositionUs= */ 200, /* offsetUs= */ 200);
+    renderer.setCurrentStreamFinal();
+    while (!renderer.isEnded()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+
+    InOrder inOrder = inOrder(renderer);
+    inOrder.verify(renderer).onOutputStreamOffsetUsChanged(0);
+    inOrder.verify(renderer).onOutputFormatChanged(eq(format1), any());
+    inOrder.verify(renderer).onProcessedOutputBuffer(0);
+    inOrder.verify(renderer).onProcessedOutputBuffer(100);
+    inOrder.verify(renderer).onOutputStreamOffsetUsChanged(200);
+    inOrder.verify(renderer).onProcessedStreamChange();
+    inOrder.verify(renderer).onOutputStreamOffsetUsChanged(200);
+    inOrder.verify(renderer).onProcessedStreamChange();
+    inOrder.verify(renderer).onOutputFormatChanged(eq(format3), any());
+    inOrder.verify(renderer).onProcessedOutputBuffer(200);
+    inOrder.verify(renderer).onProcessedOutputBuffer(300);
+    inOrder.verify(renderer).onProcessedOutputBuffer(400);
+  }
+
   private FakeSampleStream createFakeSampleStream(Format format, long... sampleTimesUs) {
     ImmutableList.Builder<FakeSampleStream.FakeSampleStreamItem> sampleListBuilder =
         ImmutableList.builder();

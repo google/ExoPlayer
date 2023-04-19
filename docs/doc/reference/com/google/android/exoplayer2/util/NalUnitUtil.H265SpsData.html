@@ -151,51 +151,66 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorRange int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorRange">colorRange</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorSpace int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorSpace">colorSpace</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorTransfer int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorTransfer">colorTransfer</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#constraintBytes">constraintBytes</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#generalLevelIdc">generalLevelIdc</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#generalProfileCompatibilityFlags">generalProfileCompatibilityFlags</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#generalProfileIdc">generalProfileIdc</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#generalProfileSpace">generalProfileSpace</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#generalTierFlag">generalTierFlag</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seqParameterSetId">seqParameterSetId</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
 <td class="colLast">&nbsp;</td>
@@ -218,7 +233,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,boolean,int,int,int%5B%5D,int,int,int,int,float)">H265SpsData</a></span>&#8203;(int&nbsp;generalProfileSpace,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,boolean,int,int,int%5B%5D,int,int,int,int,float,@com.google.android.exoplayer2.C.ColorSpaceint,@com.google.android.exoplayer2.C.ColorRangeint,@com.google.android.exoplayer2.C.ColorTransferint)">H265SpsData</a></span>&#8203;(int&nbsp;generalProfileSpace,
            boolean&nbsp;generalTierFlag,
            int&nbsp;generalProfileIdc,
            int&nbsp;generalProfileCompatibilityFlags,
@@ -227,7 +242,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
            int&nbsp;seqParameterSetId,
            int&nbsp;width,
            int&nbsp;height,
-           float&nbsp;pixelWidthHeightRatio)</code></th>
+           float&nbsp;pixelWidthHeightRatio,
+           @com.google.android.exoplayer2.C.ColorSpace int&nbsp;colorSpace,
+           @com.google.android.exoplayer2.C.ColorRange int&nbsp;colorRange,
+           @com.google.android.exoplayer2.C.ColorTransfer int&nbsp;colorTransfer)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -348,10 +366,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="pixelWidthHeightRatio">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>pixelWidthHeightRatio</h4>
 <pre>public final&nbsp;float pixelWidthHeightRatio</pre>
+</li>
+</ul>
+<a id="colorSpace">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorSpace</h4>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.ColorSpace int colorSpace</pre>
+</li>
+</ul>
+<a id="colorRange">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorRange</h4>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.ColorRange int colorRange</pre>
+</li>
+</ul>
+<a id="colorTransfer">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>colorTransfer</h4>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.ColorTransfer int colorTransfer</pre>
 </li>
 </ul>
 </li>
@@ -364,7 +409,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,boolean,int,int,int[],int,int,int,int,float)">
+<a id="&lt;init&gt;(int,boolean,int,int,int[],int,int,int,int,float,@com.google.android.exoplayer2.C.ColorSpaceint,@com.google.android.exoplayer2.C.ColorRangeint,@com.google.android.exoplayer2.C.ColorTransferint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -379,7 +424,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    int&nbsp;seqParameterSetId,
                    int&nbsp;width,
                    int&nbsp;height,
-                   float&nbsp;pixelWidthHeightRatio)</pre>
+                   float&nbsp;pixelWidthHeightRatio,
+                   @com.google.android.exoplayer2.C.ColorSpace int&nbsp;colorSpace,
+                   @com.google.android.exoplayer2.C.ColorRange int&nbsp;colorRange,
+                   @com.google.android.exoplayer2.C.ColorTransfer int&nbsp;colorTransfer)</pre>
 </li>
 </ul>
 </li>

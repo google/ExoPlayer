@@ -190,7 +190,7 @@ public final class RtspMediaSource extends BaseMediaSource {
   }
 
   /** Thrown when an exception or error is encountered during loading an RTSP stream. */
-  public static final class RtspPlaybackException extends IOException {
+  public static class RtspPlaybackException extends IOException {
     public RtspPlaybackException(String message) {
       super(message);
     }
@@ -201,6 +201,13 @@ public final class RtspMediaSource extends BaseMediaSource {
 
     public RtspPlaybackException(String message, Throwable e) {
       super(message, e);
+    }
+  }
+
+  /** Thrown when an RTSP Unsupported Transport error (461) is encountered during RTSP Setup. */
+  public static final class RtspUdpUnsupportedTransportException extends RtspPlaybackException {
+    public RtspUdpUnsupportedTransportException(String message) {
+      super(message);
     }
   }
 

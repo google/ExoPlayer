@@ -19,6 +19,7 @@ import android.media.MediaDrm;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -29,8 +30,11 @@ import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Helper class to download, renew and release offline licenses. */
 @RequiresApi(18)
@@ -39,9 +43,10 @@ public final class OfflineLicenseHelper {
   private static final Format FORMAT_WITH_EMPTY_DRM_INIT_DATA =
       new Format.Builder().setDrmInitData(new DrmInitData()).build();
 
-  private final ConditionVariable conditionVariable;
+  private final ConditionVariable drmListenerConditionVariable;
   private final DefaultDrmSessionManager drmSessionManager;
   private final HandlerThread handlerThread;
+  private final Handler handler;
   private final DrmSessionEventListener.EventDispatcher eventDispatcher;
 
   /**
@@ -153,28 +158,29 @@ public final class OfflineLicenseHelper {
     this.eventDispatcher = eventDispatcher;
     handlerThread = new HandlerThread("ExoPlayer:OfflineLicenseHelper");
     handlerThread.start();
-    conditionVariable = new ConditionVariable();
+    handler = new Handler(handlerThread.getLooper());
+    drmListenerConditionVariable = new ConditionVariable();
     DrmSessionEventListener eventListener =
         new DrmSessionEventListener() {
           @Override
           public void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
-            conditionVariable.open();
+            drmListenerConditionVariable.open();
           }
 
           @Override
           public void onDrmSessionManagerError(
               int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception e) {
-            conditionVariable.open();
+            drmListenerConditionVariable.open();
           }
 
           @Override
           public void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
-            conditionVariable.open();
+            drmListenerConditionVariable.open();
           }
 
           @Override
           public void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
-            conditionVariable.open();
+            drmListenerConditionVariable.open();
           }
         };
     eventDispatcher.addEventListener(new Handler(handlerThread.getLooper()), eventListener);
@@ -190,7 +196,8 @@ public final class OfflineLicenseHelper {
    */
   public synchronized byte[] downloadLicense(Format format) throws DrmSessionException {
     Assertions.checkArgument(format.drmInitData != null);
-    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, format);
+    return acquireSessionAndGetOfflineLicenseKeySetIdOnHandlerThread(
+        DefaultDrmSessionManager.MODE_DOWNLOAD, /* offlineLicenseKeySetId= */ null, format);
   }
 
   /**
@@ -203,7 +210,7 @@ public final class OfflineLicenseHelper {
   public synchronized byte[] renewLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    return blockingKeyRequest(
+    return acquireSessionAndGetOfflineLicenseKeySetIdOnHandlerThread(
         DefaultDrmSessionManager.MODE_DOWNLOAD,
         offlineLicenseKeySetId,
         FORMAT_WITH_EMPTY_DRM_INIT_DATA);
@@ -218,7 +225,7 @@ public final class OfflineLicenseHelper {
   public synchronized void releaseLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    blockingKeyRequest(
+    acquireSessionAndGetOfflineLicenseKeySetIdOnHandlerThread(
         DefaultDrmSessionManager.MODE_RELEASE,
         offlineLicenseKeySetId,
         FORMAT_WITH_EMPTY_DRM_INIT_DATA);
@@ -234,25 +241,39 @@ public final class OfflineLicenseHelper {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    drmSessionManager.setPlayer(handlerThread.getLooper(), PlayerId.UNSET);
-    drmSessionManager.prepare();
-    DrmSession drmSession =
-        openBlockingKeyRequest(
-            DefaultDrmSessionManager.MODE_QUERY,
-            offlineLicenseKeySetId,
-            FORMAT_WITH_EMPTY_DRM_INIT_DATA);
-    DrmSessionException error = drmSession.getError();
-    Pair<Long, Long> licenseDurationRemainingSec =
-        WidevineUtil.getLicenseDurationRemainingSec(drmSession);
-    drmSession.release(eventDispatcher);
-    drmSessionManager.release();
-    if (error != null) {
-      if (error.getCause() instanceof KeysExpiredException) {
+    DrmSession drmSession;
+    try {
+      drmSession =
+          acquireFirstSessionOnHandlerThread(
+              DefaultDrmSessionManager.MODE_QUERY,
+              offlineLicenseKeySetId,
+              FORMAT_WITH_EMPTY_DRM_INIT_DATA);
+    } catch (DrmSessionException e) {
+      if (e.getCause() instanceof KeysExpiredException) {
         return Pair.create(0L, 0L);
       }
-      throw error;
+      throw e;
     }
-    return Assertions.checkNotNull(licenseDurationRemainingSec);
+
+    SettableFuture<Pair<Long, Long>> licenseDurationRemainingSec = SettableFuture.create();
+    handler.post(
+        () -> {
+          try {
+            licenseDurationRemainingSec.set(
+                Assertions.checkNotNull(WidevineUtil.getLicenseDurationRemainingSec(drmSession)));
+          } catch (Throwable e) {
+            licenseDurationRemainingSec.setException(e);
+          } finally {
+            drmSession.release(eventDispatcher);
+          }
+        });
+    try {
+      return licenseDurationRemainingSec.get();
+    } catch (ExecutionException | InterruptedException e) {
+      throw new IllegalStateException(e);
+    } finally {
+      releaseManagerOnHandlerThread();
+    }
   }
 
   /** Releases the helper. Should be called when the helper is no longer required. */
@@ -260,30 +281,146 @@ public final class OfflineLicenseHelper {
     handlerThread.quit();
   }
 
-  private byte[] blockingKeyRequest(
+  /**
+   * Returns the result of {@link DrmSession#getOfflineLicenseKeySetId()}, or throws {@link
+   * NullPointerException} if it's null.
+   *
+   * <p>This method takes care of acquiring and releasing the {@link DrmSessionManager} and {@link
+   * DrmSession} instances needed.
+   */
+  private byte[] acquireSessionAndGetOfflineLicenseKeySetIdOnHandlerThread(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format)
       throws DrmSessionException {
-    drmSessionManager.setPlayer(handlerThread.getLooper(), PlayerId.UNSET);
-    drmSessionManager.prepare();
-    DrmSession drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId, format);
-    DrmSessionException error = drmSession.getError();
-    byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
-    drmSession.release(eventDispatcher);
-    drmSessionManager.release();
-    if (error != null) {
-      throw error;
+    DrmSession drmSession =
+        acquireFirstSessionOnHandlerThread(licenseMode, offlineLicenseKeySetId, format);
+
+    SettableFuture<byte @NullableType []> keySetId = SettableFuture.create();
+    handler.post(
+        () -> {
+          try {
+            keySetId.set(drmSession.getOfflineLicenseKeySetId());
+          } catch (Throwable e) {
+            keySetId.setException(e);
+          } finally {
+            drmSession.release(eventDispatcher);
+          }
+        });
+
+    try {
+      return Assertions.checkNotNull(keySetId.get());
+    } catch (ExecutionException | InterruptedException e) {
+      throw new IllegalStateException(e);
+    } finally {
+      releaseManagerOnHandlerThread();
     }
-    return Assertions.checkNotNull(keySetId);
   }
 
-  private DrmSession openBlockingKeyRequest(
-      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format) {
+  /**
+   * Calls {@link DrmSessionManager#acquireSession(DrmSessionEventListener.EventDispatcher, Format)}
+   * on {@link #handlerThread} and blocks until a callback is received via {@link
+   * DrmSessionEventListener}.
+   *
+   * <p>If key loading failed and {@link DrmSession#getState()} returns {@link
+   * DrmSession#STATE_ERROR} then this method releases the session and throws {@link
+   * DrmSession#getError()}.
+   *
+   * <p>Callers are responsible for the following:
+   *
+   * <ul>
+   *   <li>Ensuring the {@link
+   *       DrmSessionManager#acquireSession(DrmSessionEventListener.EventDispatcher, Format)} call
+   *       will trigger a callback to {@link DrmSessionEventListener} (e.g. it will load new keys).
+   *       If not, this method will block forever.
+   *   <li>Releasing the returned {@link DrmSession} instance (on {@link #handlerThread}).
+   *   <li>Releasing {@link #drmSessionManager} if a {@link DrmSession} instance is returned (the
+   *       manager will be released before an exception is thrown).
+   * </ul>
+   */
+  private DrmSession acquireFirstSessionOnHandlerThread(
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format)
+      throws DrmSessionException {
     Assertions.checkNotNull(format.drmInitData);
-    drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
-    conditionVariable.close();
-    DrmSession drmSession = drmSessionManager.acquireSession(eventDispatcher, format);
-    // Block current thread until key loading is finished
-    conditionVariable.block();
-    return Assertions.checkNotNull(drmSession);
+    SettableFuture<DrmSession> drmSessionFuture = SettableFuture.create();
+    drmListenerConditionVariable.close();
+    handler.post(
+        () -> {
+          try {
+            drmSessionManager.setPlayer(Assertions.checkNotNull(Looper.myLooper()), PlayerId.UNSET);
+            drmSessionManager.prepare();
+            try {
+              drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
+              drmSessionFuture.set(
+                  Assertions.checkNotNull(
+                      drmSessionManager.acquireSession(eventDispatcher, format)));
+            } catch (Throwable e) {
+              drmSessionManager.release();
+              throw e;
+            }
+          } catch (Throwable e) {
+            drmSessionFuture.setException(e);
+          }
+        });
+
+    DrmSession drmSession;
+    try {
+      drmSession = drmSessionFuture.get();
+    } catch (ExecutionException | InterruptedException e) {
+      throw new IllegalStateException(e);
+    }
+
+    // drmListenerConditionVariable will be opened by a callback to this.eventDispatcher when key
+    // loading is complete (drmSession.state == STATE_OPENED_WITH_KEYS) or has failed
+    // (drmSession.state == STATE_ERROR).
+    drmListenerConditionVariable.block();
+
+    SettableFuture<@NullableType DrmSessionException> drmSessionErrorFuture =
+        SettableFuture.create();
+    handler.post(
+        () -> {
+          try {
+            DrmSessionException drmSessionError = drmSession.getError();
+            if (drmSession.getState() == DrmSession.STATE_ERROR) {
+              drmSession.release(eventDispatcher);
+              drmSessionManager.release();
+            }
+            drmSessionErrorFuture.set(drmSessionError);
+          } catch (Throwable e) {
+            drmSessionErrorFuture.setException(e);
+            drmSession.release(eventDispatcher);
+            drmSessionManager.release();
+          }
+        });
+    try {
+      DrmSessionException drmSessionError = drmSessionErrorFuture.get();
+      if (drmSessionError != null) {
+        throw drmSessionError;
+      } else {
+        return drmSession;
+      }
+    } catch (InterruptedException | ExecutionException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  /**
+   * Calls {@link DrmSessionManager#release()} on {@link #handlerThread} and blocks until it's
+   * complete.
+   */
+  private void releaseManagerOnHandlerThread() {
+    SettableFuture<Void> result = SettableFuture.create();
+    handler.post(
+        () -> {
+          try {
+            drmSessionManager.release();
+            result.set(null);
+          } catch (Throwable e) {
+            result.setException(e);
+          }
+        });
+    try {
+      result.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

@@ -6432,8 +6432,18 @@ memberSearchIndex =
         'l': 'colorRange'
       },
       {
+        'p': 'com.google.android.exoplayer2.util',
+        'c': 'NalUnitUtil.H265SpsData',
+        'l': 'colorRange'
+      },
+      {
         'p': 'com.google.android.exoplayer2.video',
         'c': 'ColorInfo',
+        'l': 'colorRange'
+      },
+      {
+        'p': 'com.google.android.exoplayer2.video',
+        'c': 'HevcConfig',
         'l': 'colorRange'
       },
       {
@@ -6452,8 +6462,18 @@ memberSearchIndex =
         'l': 'colorSpace'
       },
       {
+        'p': 'com.google.android.exoplayer2.util',
+        'c': 'NalUnitUtil.H265SpsData',
+        'l': 'colorSpace'
+      },
+      {
         'p': 'com.google.android.exoplayer2.video',
         'c': 'ColorInfo',
+        'l': 'colorSpace'
+      },
+      {
+        'p': 'com.google.android.exoplayer2.video',
+        'c': 'HevcConfig',
         'l': 'colorSpace'
       },
       {
@@ -6482,8 +6502,18 @@ memberSearchIndex =
         'l': 'colorTransfer'
       },
       {
+        'p': 'com.google.android.exoplayer2.util',
+        'c': 'NalUnitUtil.H265SpsData',
+        'l': 'colorTransfer'
+      },
+      {
         'p': 'com.google.android.exoplayer2.video',
         'c': 'ColorInfo',
+        'l': 'colorTransfer'
+      },
+      {
+        'p': 'com.google.android.exoplayer2.video',
+        'c': 'HevcConfig',
         'l': 'colorTransfer'
       },
       {
@@ -7639,6 +7669,12 @@ memberSearchIndex =
         'c': 'Format',
         'l': 'copyWithGaplessInfo(int, int)',
         'url': 'copyWithGaplessInfo(int,int)'
+      },
+      {
+        'p': 'com.google.android.exoplayer2',
+        'c': 'Tracks.Group',
+        'l': 'copyWithId(String)',
+        'url': 'copyWithId(java.lang.String)'
       },
       {
         'p': 'com.google.android.exoplayer2.offline',
@@ -27820,8 +27856,9 @@ memberSearchIndex =
         'p': 'com.google.android.exoplayer2.util',
         'c': 'NalUnitUtil.H265SpsData',
         'l':
-            'H265SpsData(int, boolean, int, int, int[], int, int, int, int, float)',
-        'url': '%3Cinit%3E(int,boolean,int,int,int[],int,int,int,int,float)'
+            'H265SpsData(int, boolean, int, int, int[], int, int, int, int, float, @com.google.android.exoplayer2.C.ColorSpace int, @com.google.android.exoplayer2.C.ColorRange int, @com.google.android.exoplayer2.C.ColorTransfer int)',
+        'url':
+            '%3Cinit%3E(int,boolean,int,int,int[],int,int,int,int,float,@com.google.android.exoplayer2.C.ColorSpaceint,@com.google.android.exoplayer2.C.ColorRangeint,@com.google.android.exoplayer2.C.ColorTransferint)'
       },
       {
         'p': 'com.google.android.exoplayer2',
@@ -38881,8 +38918,7 @@ memberSearchIndex =
         'p': 'com.google.android.exoplayer2.source.hls',
         'c': 'HlsMediaSource',
         'l': 'onPrimaryPlaylistRefreshed(HlsMediaPlaylist)',
-        'url':
-            'onPrimaryPlaylistRefreshed(com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)'
+        'url': 'onPrimaryPlaylistRefreshed(com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)'
       },
       {
         'p': 'com.google.android.exoplayer2.source.hls.playlist',
@@ -48124,6 +48160,12 @@ memberSearchIndex =
         'c': 'RtspMediaSource.RtspPlaybackException',
         'l': 'RtspPlaybackException(Throwable)',
         'url': '%3Cinit%3E(java.lang.Throwable)'
+      },
+      {
+        'p': 'com.google.android.exoplayer2.source.rtsp',
+        'c': 'RtspMediaSource.RtspUdpUnsupportedTransportException',
+        'l': 'RtspUdpUnsupportedTransportException(String)',
+        'url': '%3Cinit%3E(java.lang.String)'
       },
       {
         'p': 'com.google.android.exoplayer2.text.span',
@@ -58297,8 +58339,7 @@ memberSearchIndex =
         'p': 'com.google.android.exoplayer2.source.dash',
         'c': 'DefaultDashChunkSource',
         'l': 'shouldCancelLoad(long, Chunk, List<? extends MediaChunk>)',
-        'url':
-            'shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)'
+        'url': 'shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)'
       },
       {
         'p': 'com.google.android.exoplayer2.source.smoothstreaming',

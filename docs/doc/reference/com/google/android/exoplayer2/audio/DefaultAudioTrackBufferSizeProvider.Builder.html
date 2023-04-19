@@ -282,7 +282,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioTrackBufferSizeProvider.Builder</a>&nbsp;setMinPcmBufferDurationUs&#8203;(int&nbsp;minPcmBufferDurationUs)</pre>
 <div class="block">Sets the minimum length for PCM <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> buffers, in microseconds. Default is
- <a href="DefaultAudioTrackBufferSizeProvider.html#MIN_PCM_BUFFER_DURATION_US">250000</a>.</div>
+ <a href="DefaultAudioTrackBufferSizeProvider.html#MIN_PCM_BUFFER_DURATION_US"><code>DefaultAudioTrackBufferSizeProvider.MIN_PCM_BUFFER_DURATION_US</code></a>.</div>
 </li>
 </ul>
 <a id="setMaxPcmBufferDurationUs(int)">
@@ -294,7 +294,7 @@ public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="cl
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioTrackBufferSizeProvider.Builder</a>&nbsp;setMaxPcmBufferDurationUs&#8203;(int&nbsp;maxPcmBufferDurationUs)</pre>
 <div class="block">Sets the maximum length for PCM <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> buffers, in microseconds. Default is
- <a href="DefaultAudioTrackBufferSizeProvider.html#MAX_PCM_BUFFER_DURATION_US">750000</a>.</div>
+ <a href="DefaultAudioTrackBufferSizeProvider.html#MAX_PCM_BUFFER_DURATION_US"><code>DefaultAudioTrackBufferSizeProvider.MAX_PCM_BUFFER_DURATION_US</code></a>.</div>
 </li>
 </ul>
 <a id="setPcmBufferMultiplicationFactor(int)">
@@ -306,7 +306,7 @@ public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="cl
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioTrackBufferSizeProvider.Builder</a>&nbsp;setPcmBufferMultiplicationFactor&#8203;(int&nbsp;pcmBufferMultiplicationFactor)</pre>
 <div class="block">Sets the multiplication factor to apply to the minimum buffer size requested. Default is
- <a href="DefaultAudioTrackBufferSizeProvider.html#PCM_BUFFER_MULTIPLICATION_FACTOR">4</a>.</div>
+ <a href="DefaultAudioTrackBufferSizeProvider.html#PCM_BUFFER_MULTIPLICATION_FACTOR"><code>DefaultAudioTrackBufferSizeProvider.PCM_BUFFER_MULTIPLICATION_FACTOR</code></a>.</div>
 </li>
 </ul>
 <a id="setPassthroughBufferDurationUs(int)">
@@ -318,7 +318,7 @@ public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="cl
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioTrackBufferSizeProvider.Builder</a>&nbsp;setPassthroughBufferDurationUs&#8203;(int&nbsp;passthroughBufferDurationUs)</pre>
 <div class="block">Sets the length for passthrough <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> buffers, in microseconds. Default is
- <a href="DefaultAudioTrackBufferSizeProvider.html#PASSTHROUGH_BUFFER_DURATION_US">250000</a>.</div>
+ <a href="DefaultAudioTrackBufferSizeProvider.html#PASSTHROUGH_BUFFER_DURATION_US"><code>DefaultAudioTrackBufferSizeProvider.PASSTHROUGH_BUFFER_DURATION_US</code></a>.</div>
 </li>
 </ul>
 <a id="setOffloadBufferDurationUs(int)">
@@ -329,7 +329,7 @@ public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="cl
 <h4>setOffloadBufferDurationUs</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioTrackBufferSizeProvider.Builder</a>&nbsp;setOffloadBufferDurationUs&#8203;(int&nbsp;offloadBufferDurationUs)</pre>
-<div class="block">The length for offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink"><code>AudioTrack</code></a> buffers, in microseconds. Default is <a href="DefaultAudioTrackBufferSizeProvider.html#OFFLOAD_BUFFER_DURATION_US" target="_top">50000000</a>.</div>
+<div class="block">The length for offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink"><code>AudioTrack</code></a> buffers, in microseconds. Default is <a href="DefaultAudioTrackBufferSizeProvider.html#OFFLOAD_BUFFER_DURATION_US" target="_top"><code>DefaultAudioTrackBufferSizeProvider.OFFLOAD_BUFFER_DURATION_US</code></a>.</div>
 </li>
 </ul>
 <a id="setAc3BufferMultiplicationFactor(int)">
@@ -341,7 +341,7 @@ public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="cl
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioTrackBufferSizeProvider.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioTrackBufferSizeProvider.Builder</a>&nbsp;setAc3BufferMultiplicationFactor&#8203;(int&nbsp;ac3BufferMultiplicationFactor)</pre>
 <div class="block">Sets the multiplication factor to apply to the passthrough buffer for AC3 to avoid underruns
- on some devices (e.g., Broadcom 7271). Default is <a href="DefaultAudioTrackBufferSizeProvider.html#AC3_BUFFER_MULTIPLICATION_FACTOR">2</a>.</div>
+ on some devices (e.g., Broadcom 7271). Default is <a href="DefaultAudioTrackBufferSizeProvider.html#AC3_BUFFER_MULTIPLICATION_FACTOR"><code>DefaultAudioTrackBufferSizeProvider.AC3_BUFFER_MULTIPLICATION_FACTOR</code></a>.</div>
 </li>
 </ul>
 <a id="build()">

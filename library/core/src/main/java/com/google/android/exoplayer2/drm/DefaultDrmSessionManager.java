@@ -468,6 +468,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   public final void prepare() {
+    verifyPlaybackThread(/* allowBeforeSetPlayer= */ true);
     if (prepareCallsCount++ != 0) {
       return;
     }
@@ -484,6 +485,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   public final void release() {
+    verifyPlaybackThread(/* allowBeforeSetPlayer= */ true);
     if (--prepareCallsCount != 0) {
       return;
     }
@@ -510,6 +512,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Override
   public DrmSessionReference preacquireSession(
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
+    // Don't verify the playback thread, preacquireSession can be called from any thread.
     checkState(prepareCallsCount > 0);
     checkStateNotNull(playbackLooper);
     PreacquiredSessionReference preacquiredSessionReference =
@@ -522,6 +525,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Nullable
   public DrmSession acquireSession(
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
+    verifyPlaybackThread(/* allowBeforeSetPlayer= */ false);
     checkState(prepareCallsCount > 0);
     checkStateNotNull(playbackLooper);
     return acquireSession(
@@ -596,6 +600,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   public @C.CryptoType int getCryptoType(Format format) {
+    verifyPlaybackThread(/* allowBeforeSetPlayer= */ false);
     @C.CryptoType int cryptoType = checkNotNull(exoMediaDrm).getCryptoType();
     if (format.drmInitData == null) {
       int trackType = MimeTypes.getTrackType(format.sampleMimeType);
@@ -811,6 +816,23 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       // This manager and all its sessions are fully released so we can release exoMediaDrm.
       checkNotNull(exoMediaDrm).release();
       exoMediaDrm = null;
+    }
+  }
+
+  private void verifyPlaybackThread(boolean allowBeforeSetPlayer) {
+    if (allowBeforeSetPlayer && playbackLooper == null) {
+      Log.w(
+          TAG,
+          "DefaultDrmSessionManager accessed before setPlayer(), possibly on the wrong thread.",
+          new IllegalStateException());
+    } else if (Thread.currentThread() != checkNotNull(playbackLooper).getThread()) {
+      Log.w(
+          TAG,
+          "DefaultDrmSessionManager accessed on the wrong thread.\nCurrent thread: "
+              + Thread.currentThread().getName()
+              + "\nExpected thread: "
+              + playbackLooper.getThread().getName(),
+          new IllegalStateException());
     }
   }
 

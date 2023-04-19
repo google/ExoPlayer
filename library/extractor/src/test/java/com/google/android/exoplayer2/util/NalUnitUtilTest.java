@@ -192,6 +192,9 @@ public final class NalUnitUtilTest {
     assertThat(spsData.pixelWidthHeightRatio).isEqualTo(1);
     assertThat(spsData.seqParameterSetId).isEqualTo(0);
     assertThat(spsData.width).isEqualTo(3840);
+    assertThat(spsData.colorSpace).isEqualTo(6);
+    assertThat(spsData.colorRange).isEqualTo(2);
+    assertThat(spsData.colorTransfer).isEqualTo(6);
   }
 
   private static byte[] buildTestData() {

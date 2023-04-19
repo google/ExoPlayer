@@ -141,7 +141,7 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.
+   * Returns whether creating a GL context with {@link #EXTENSION_PROTECTED_CONTENT} is possible.
    *
    * <p>If {@code true}, the device supports a protected output path for DRM content when using GL.
    */
@@ -170,7 +170,7 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether the {@value #EXTENSION_SURFACELESS_CONTEXT} extension is supported.
+   * Returns whether the {@link #EXTENSION_SURFACELESS_CONTEXT} extension is supported.
    *
    * <p>This extension allows passing {@link EGL14#EGL_NO_SURFACE} for both the write and read
    * surfaces in a call to {@link EGL14#eglMakeCurrent(EGLDisplay, EGLSurface, EGLSurface,
@@ -186,7 +186,7 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether the {@value #EXTENSION_YUV_TARGET} extension is supported.
+   * Returns whether the {@link #EXTENSION_YUV_TARGET} extension is supported.
    *
    * <p>This extension allows sampling raw YUV values from an external texture, which is required
    * for HDR.
