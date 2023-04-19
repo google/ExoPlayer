@@ -144,14 +144,14 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
  <ul>
    <li><code>DashMediaSource.Factory</code> if the item's <a href="../MediaItem.LocalConfiguration.html#uri"><code>uri</code></a>
        ends in '.mpd' or if its <a href="../MediaItem.LocalConfiguration.html#mimeType"><code>mimeType field</code></a> is
-       explicitly set to <a href="../util/MimeTypes.html#APPLICATION_MPD"><code>MimeTypes.APPLICATION_MPD</code></a> (Requires the <a href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-dash module
-       to be added</a> to the app).
+       explicitly set to <a href="../util/MimeTypes.html#APPLICATION_MPD"><code>MimeTypes.APPLICATION_MPD</code></a> (Requires the <a href="https://developer.android.com/guide/topics/media/exoplayer/hello-world#add-exoplayer-modules">exoplayer-dash
+       module to be added</a> to the app).
    <li><code>HlsMediaSource.Factory</code> if the item's <a href="../MediaItem.LocalConfiguration.html#uri"><code>uri</code></a>
        ends in '.m3u8' or if its <a href="../MediaItem.LocalConfiguration.html#mimeType"><code>mimeType field</code></a> is
-       explicitly set to <a href="../util/MimeTypes.html#APPLICATION_M3U8"><code>MimeTypes.APPLICATION_M3U8</code></a> (Requires the <a href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-hls module to
-       be added</a> to the app).
+       explicitly set to <a href="../util/MimeTypes.html#APPLICATION_M3U8"><code>MimeTypes.APPLICATION_M3U8</code></a> (Requires the <a href="https://developer.android.com/guide/topics/media/exoplayer/hello-world#add-exoplayer-modules">exoplayer-hls
+       module to be added</a> to the app).
    <li><code>SsMediaSource.Factory</code> if the item's <a href="../MediaItem.LocalConfiguration.html#uri"><code>uri</code></a>
-       ends in '.ism', '.ism/Manifest' or if its <a href="../MediaItem.LocalConfiguration.html#mimeType"><code>mimeType field</code></a> is explicitly set to <a href="../util/MimeTypes.html#APPLICATION_SS"><code>MimeTypes.APPLICATION_SS</code></a> (Requires the <a href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">
+       ends in '.ism', '.ism/Manifest' or if its <a href="../MediaItem.LocalConfiguration.html#mimeType"><code>mimeType field</code></a> is explicitly set to <a href="../util/MimeTypes.html#APPLICATION_SS"><code>MimeTypes.APPLICATION_SS</code></a> (Requires the <a href="https://developer.android.com/guide/topics/media/exoplayer/hello-world#add-exoplayer-modules">
        exoplayer-smoothstreaming module to be added</a> to the app).
    <li><a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource.Factory</code></a> serves as a fallback if the item's <a href="../MediaItem.LocalConfiguration.html#uri"><code>uri</code></a> doesn't match one of the above. It tries to infer the
        required extractor by using the <a href="../extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a> or the <a href="../extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> provided in the constructor. An <a href="UnrecognizedInputFormatException.html" title="class in com.google.android.exoplayer2.source"><code>UnrecognizedInputFormatException</code></a>
