@@ -26,7 +26,7 @@ locally. Instructions for doing this can be found in the [top level README][].
 ## Using the module
 
 To use the module, follow the instructions on the
-[Ad insertion page](https://exoplayer.dev/ad-insertion.html#declarative-ad-support)
+[Ad insertion page](https://developer.android.com/guide/topics/media/exoplayer/ad-insertion#declarative-ad-support)
 of the developer guide. The `AdsLoaderProvider` passed to the player's
 `DefaultMediaSourceFactory` should return an `ImaAdsLoader`. Note that the IMA
 module only supports players that are accessed on the application's main thread.

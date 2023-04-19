@@ -1795,7 +1795,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     currentTimeline =
         isQueueChanged
             ? QueueTimeline.create(newLegacyPlayerInfo.queue)
-            : new QueueTimeline((QueueTimeline) oldControllerInfo.playerInfo.timeline);
+            : ((QueueTimeline) oldControllerInfo.playerInfo.timeline).copy();
 
     boolean isMetadataCompatChanged =
         oldLegacyPlayerInfo.mediaMetadataCompat != newLegacyPlayerInfo.mediaMetadataCompat
@@ -1987,8 +1987,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     Integer mediaItemTransitionReason;
     boolean isOldTimelineEmpty = oldControllerInfo.playerInfo.timeline.isEmpty();
     boolean isNewTimelineEmpty = newControllerInfo.playerInfo.timeline.isEmpty();
-    int newCurrentMediaItemIndex =
-        newControllerInfo.playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex;
     if (isOldTimelineEmpty && isNewTimelineEmpty) {
       // Still empty Timelines.
       discontinuityReason = null;
@@ -2000,13 +1998,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else {
       MediaItem oldCurrentMediaItem =
           checkStateNotNull(oldControllerInfo.playerInfo.getCurrentMediaItem());
-      int oldCurrentMediaItemIndexInNewTimeline =
-          ((QueueTimeline) newControllerInfo.playerInfo.timeline).indexOf(oldCurrentMediaItem);
-      if (oldCurrentMediaItemIndexInNewTimeline == C.INDEX_UNSET) {
+      boolean oldCurrentMediaItemExistsInNewTimeline =
+          ((QueueTimeline) newControllerInfo.playerInfo.timeline).contains(oldCurrentMediaItem);
+      if (!oldCurrentMediaItemExistsInNewTimeline) {
         // Old current item is removed.
         discontinuityReason = Player.DISCONTINUITY_REASON_REMOVE;
         mediaItemTransitionReason = Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
-      } else if (oldCurrentMediaItemIndexInNewTimeline == newCurrentMediaItemIndex) {
+      } else if (oldCurrentMediaItem.equals(newControllerInfo.playerInfo.getCurrentMediaItem())) {
         // Current item is the same.
         long oldCurrentPosition =
             MediaUtils.convertToCurrentPositionMs(

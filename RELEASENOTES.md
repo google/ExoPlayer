@@ -1,5 +1,44 @@
 # Release notes
 
+### 1.0.1 (2023-04-18)
+
+This release corresponds to the
+[ExoPlayer 2.18.6 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.6).
+
+*   Core library:
+    *   Reset target live stream override when seeking to default position
+        ([#11051](https://github.com/google/ExoPlayer/pull/11051)).
+    *   Fix bug where empty sample streams in the media could cause playback to
+        be stuck.
+*   Session:
+    *   Fix bug where multiple identical queue items published by a legacy
+        `MediaSessionCompat` result in an exception in `MediaController`
+        ([#290](https://github.com/androidx/media/issues/290)).
+    *   Add missing forwarding of `MediaSession.broadcastCustomCommand` to the
+        legacy `MediaControllerCompat.Callback.onSessionEvent`
+        ([#293](https://github.com/androidx/media/issues/293)).
+    *   Fix bug where calling `MediaSession.setPlayer` doesn't update the
+        available commands.
+    *   Fix issue that `TrackSelectionOverride` instances sent from a
+        `MediaController` are ignored if they reference a group with
+        `Format.metadata`
+        ([#296](https://github.com/androidx/media/issues/296)).
+    *   Fix issue where `Player.COMMAND_GET_CURRENT_MEDIA_ITEM` needs to be
+        available to access metadata via the legacy `MediaSessionCompat`.
+    *   Fix issue where `MediaSession` instances on a background thread cause
+        crashes when used in `MediaSessionService`
+        ([#318](https://github.com/androidx/media/issues/318)).
+    *   Fix issue where a media button receiver was declared by the library
+        without the app having intended this
+        ([#314](https://github.com/androidx/media/issues/314)).
+*   DASH:
+    *   Fix handling of empty segment timelines
+        ([#11014](https://github.com/google/ExoPlayer/issues/11014)).
+*   RTSP:
+    *   Retry with TCP if RTSP Setup with UDP fails with RTSP Error 461
+        UnsupportedTransport
+        ([#11069](https://github.com/google/ExoPlayer/issues/11069)).
+
 ### 1.0.0 (2023-03-22)
 
 This release corresponds to the

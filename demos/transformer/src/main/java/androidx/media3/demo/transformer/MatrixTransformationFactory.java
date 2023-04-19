@@ -28,7 +28,7 @@ import androidx.media3.effect.MatrixTransformation;
  */
 /* package */ final class MatrixTransformationFactory {
   /**
-   * Returns a {@link MatrixTransformation} that rescales the frames over the first {@value
+   * Returns a {@link MatrixTransformation} that rescales the frames over the first {@link
    * #ZOOM_DURATION_SECONDS} seconds, such that the rectangle filled with the input frame increases
    * linearly in size from a single point to filling the full output frame.
    */

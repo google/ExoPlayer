@@ -19,6 +19,8 @@ import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
+import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
@@ -110,6 +112,9 @@ public final class NalUnitUtil {
     public final int width;
     public final int height;
     public final float pixelWidthHeightRatio;
+    public final @C.ColorSpace int colorSpace;
+    public final @C.ColorRange int colorRange;
+    public final @C.ColorTransfer int colorTransfer;
 
     public H265SpsData(
         int generalProfileSpace,
@@ -121,7 +126,10 @@ public final class NalUnitUtil {
         int seqParameterSetId,
         int width,
         int height,
-        float pixelWidthHeightRatio) {
+        float pixelWidthHeightRatio,
+        @C.ColorSpace int colorSpace,
+        @C.ColorRange int colorRange,
+        @C.ColorTransfer int colorTransfer) {
       this.generalProfileSpace = generalProfileSpace;
       this.generalTierFlag = generalTierFlag;
       this.generalProfileIdc = generalProfileIdc;
@@ -132,6 +140,9 @@ public final class NalUnitUtil {
       this.width = width;
       this.height = height;
       this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+      this.colorSpace = colorSpace;
+      this.colorRange = colorRange;
+      this.colorTransfer = colorTransfer;
     }
   }
 
@@ -488,6 +499,10 @@ public final class NalUnitUtil {
   public static H265SpsData parseH265SpsNalUnitPayload(
       byte[] nalData, int nalOffset, int nalLimit) {
     ParsableNalUnitBitArray data = new ParsableNalUnitBitArray(nalData, nalOffset, nalLimit);
+    // HDR related metadata.
+    @C.ColorSpace int colorSpace = Format.NO_VALUE;
+    @C.ColorRange int colorRange = Format.NO_VALUE;
+    @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
     data.skipBits(4); // sps_video_parameter_set_id
     int maxSubLayersMinus1 = data.readBits(3);
     data.skipBit(); // sps_temporal_id_nesting_flag
@@ -594,10 +609,17 @@ public final class NalUnitUtil {
         data.skipBit(); // overscan_appropriate_flag
       }
       if (data.readBit()) { // video_signal_type_present_flag
-        data.skipBits(4); // video_format, video_full_range_flag
+        data.skipBits(3); // video_format
+        boolean fullRangeFlag = data.readBit(); // video_full_range_flag
         if (data.readBit()) { // colour_description_present_flag
-          // colour_primaries, transfer_characteristics, matrix_coeffs
-          data.skipBits(24);
+          int colorPrimaries = data.readBits(8); // colour_primaries
+          int transferCharacteristics = data.readBits(8); // transfer_characteristics
+          data.skipBits(8); // matrix_coeffs
+
+          colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+          colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+          colorTransfer =
+              ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
         }
       }
       if (data.readBit()) { // chroma_loc_info_present_flag
@@ -622,7 +644,10 @@ public final class NalUnitUtil {
         seqParameterSetId,
         frameWidth,
         frameHeight,
-        pixelWidthHeightRatio);
+        pixelWidthHeightRatio,
+        colorSpace,
+        colorRange,
+        colorTransfer);
   }
 
   /**

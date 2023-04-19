@@ -326,6 +326,8 @@ public class MediaControllerListenerTest {
     @Player.RepeatMode int testRepeatMode = Player.REPEAT_MODE_ALL;
     int testCurrentAdGroupIndex = 33;
     int testCurrentAdIndexInAdGroup = 11;
+    Commands testCommands =
+        new Commands.Builder().addAllCommands().remove(Player.COMMAND_STOP).build();
     AtomicInteger stateRef = new AtomicInteger();
     AtomicReference<Timeline> timelineRef = new AtomicReference<>();
     AtomicReference<MediaMetadata> playlistMetadataRef = new AtomicReference<>();
@@ -335,7 +337,8 @@ public class MediaControllerListenerTest {
     AtomicInteger currentAdIndexInAdGroupRef = new AtomicInteger();
     AtomicBoolean shuffleModeEnabledRef = new AtomicBoolean();
     AtomicInteger repeatModeRef = new AtomicInteger();
-    CountDownLatch latch = new CountDownLatch(7);
+    AtomicReference<Commands> commandsRef = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(8);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     threadTestRule
         .getHandler()
@@ -343,6 +346,12 @@ public class MediaControllerListenerTest {
             () ->
                 controller.addListener(
                     new Player.Listener() {
+                      @Override
+                      public void onAvailableCommandsChanged(Commands availableCommands) {
+                        commandsRef.set(availableCommands);
+                        latch.countDown();
+                      }
+
                       @Override
                       public void onAudioAttributesChanged(AudioAttributes attributes) {
                         audioAttributesRef.set(attributes);
@@ -402,6 +411,7 @@ public class MediaControllerListenerTest {
             .setIsPlayingAd(true)
             .setCurrentAdGroupIndex(testCurrentAdGroupIndex)
             .setCurrentAdIndexInAdGroup(testCurrentAdIndexInAdGroup)
+            .setAvailableCommands(testCommands)
             .build();
 
     remoteSession.setPlayer(playerConfig);
@@ -415,6 +425,7 @@ public class MediaControllerListenerTest {
     assertThat(currentAdIndexInAdGroupRef.get()).isEqualTo(testCurrentAdIndexInAdGroup);
     assertThat(shuffleModeEnabledRef.get()).isEqualTo(testShuffleModeEnabled);
     assertThat(repeatModeRef.get()).isEqualTo(testRepeatMode);
+    assertThat(commandsRef.get()).isEqualTo(testCommands);
   }
 
   @Test
@@ -1084,15 +1095,16 @@ public class MediaControllerListenerTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(initialCurrentTracksRef.get()).isEqualTo(Tracks.EMPTY);
-    assertThat(changedCurrentTracksFromParamRef.get()).isEqualTo(currentTracks);
-    assertThat(changedCurrentTracksFromGetterRef.get()).isEqualTo(currentTracks);
+    assertThat(changedCurrentTracksFromParamRef.get().getGroups()).hasSize(2);
+    assertThat(changedCurrentTracksFromGetterRef.get())
+        .isEqualTo(changedCurrentTracksFromParamRef.get());
     assertThat(capturedEvents).hasSize(2);
     assertThat(getEventsAsList(capturedEvents.get(0))).containsExactly(Player.EVENT_TRACKS_CHANGED);
     assertThat(getEventsAsList(capturedEvents.get(1)))
         .containsExactly(Player.EVENT_IS_LOADING_CHANGED);
     assertThat(changedCurrentTracksFromOnEvents).hasSize(2);
-    assertThat(changedCurrentTracksFromOnEvents.get(0)).isEqualTo(currentTracks);
-    assertThat(changedCurrentTracksFromOnEvents.get(1)).isEqualTo(currentTracks);
+    assertThat(changedCurrentTracksFromOnEvents.get(0).getGroups()).hasSize(2);
+    assertThat(changedCurrentTracksFromOnEvents.get(1).getGroups()).hasSize(2);
     // Assert that an equal instance is not re-sent over the binder.
     assertThat(changedCurrentTracksFromOnEvents.get(0))
         .isSameInstanceAs(changedCurrentTracksFromOnEvents.get(1));

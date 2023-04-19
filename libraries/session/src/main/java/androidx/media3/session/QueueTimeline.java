@@ -16,7 +16,6 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -27,11 +26,8 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An immutable class to represent the current {@link Timeline} backed by {@linkplain QueueItem
@@ -45,42 +41,33 @@ import java.util.Map;
 /* package */ final class QueueTimeline extends Timeline {
 
   public static final QueueTimeline DEFAULT =
-      new QueueTimeline(ImmutableList.of(), ImmutableMap.of(), /* fakeMediaItem= */ null);
+      new QueueTimeline(ImmutableList.of(), /* fakeMediaItem= */ null);
 
   private static final Object FAKE_WINDOW_UID = new Object();
 
-  private final ImmutableList<MediaItem> mediaItems;
-  private final ImmutableMap<MediaItem, Long> mediaItemToQueueIdMap;
+  private final ImmutableList<QueuedMediaItem> queuedMediaItems;
   @Nullable private final MediaItem fakeMediaItem;
 
-  /** Creates a new instance. */
-  public QueueTimeline(QueueTimeline queueTimeline) {
-    this.mediaItems = queueTimeline.mediaItems;
-    this.mediaItemToQueueIdMap = queueTimeline.mediaItemToQueueIdMap;
-    this.fakeMediaItem = queueTimeline.fakeMediaItem;
-  }
-
   private QueueTimeline(
-      ImmutableList<MediaItem> mediaItems,
-      ImmutableMap<MediaItem, Long> mediaItemToQueueIdMap,
-      @Nullable MediaItem fakeMediaItem) {
-    this.mediaItems = mediaItems;
-    this.mediaItemToQueueIdMap = mediaItemToQueueIdMap;
+      ImmutableList<QueuedMediaItem> queuedMediaItems, @Nullable MediaItem fakeMediaItem) {
+    this.queuedMediaItems = queuedMediaItems;
     this.fakeMediaItem = fakeMediaItem;
   }
 
   /** Creates a {@link QueueTimeline} from a list of {@linkplain QueueItem queue items}. */
   public static QueueTimeline create(List<QueueItem> queue) {
-    ImmutableList.Builder<MediaItem> mediaItemsBuilder = new ImmutableList.Builder<>();
-    ImmutableMap.Builder<MediaItem, Long> mediaItemToQueueIdMap = new ImmutableMap.Builder<>();
+    ImmutableList.Builder<QueuedMediaItem> queuedMediaItemsBuilder = new ImmutableList.Builder<>();
     for (int i = 0; i < queue.size(); i++) {
       QueueItem queueItem = queue.get(i);
       MediaItem mediaItem = MediaUtils.convertToMediaItem(queueItem);
-      mediaItemsBuilder.add(mediaItem);
-      mediaItemToQueueIdMap.put(mediaItem, queueItem.getQueueId());
+      queuedMediaItemsBuilder.add(new QueuedMediaItem(mediaItem, queueItem.getQueueId()));
     }
-    return new QueueTimeline(
-        mediaItemsBuilder.build(), mediaItemToQueueIdMap.buildOrThrow(), /* fakeMediaItem= */ null);
+    return new QueueTimeline(queuedMediaItemsBuilder.build(), /* fakeMediaItem= */ null);
+  }
+
+  /** Returns a copy of the current queue timeline. */
+  public QueueTimeline copy() {
+    return new QueueTimeline(queuedMediaItems, fakeMediaItem);
   }
 
   /**
@@ -91,9 +78,9 @@ import java.util.Map;
    * @return The corresponding queue ID or {@link QueueItem#UNKNOWN_ID} if not known.
    */
   public long getQueueId(int mediaItemIndex) {
-    MediaItem mediaItem = getMediaItemAt(mediaItemIndex);
-    @Nullable Long queueId = mediaItemToQueueIdMap.get(mediaItem);
-    return queueId == null ? QueueItem.UNKNOWN_ID : queueId;
+    return mediaItemIndex >= 0 && mediaItemIndex < queuedMediaItems.size()
+        ? queuedMediaItems.get(mediaItemIndex).queueId
+        : QueueItem.UNKNOWN_ID;
   }
 
   /**
@@ -103,7 +90,7 @@ import java.util.Map;
    * @return A new {@link QueueTimeline} reflecting the update.
    */
   public QueueTimeline copyWithFakeMediaItem(@Nullable MediaItem fakeMediaItem) {
-    return new QueueTimeline(mediaItems, mediaItemToQueueIdMap, fakeMediaItem);
+    return new QueueTimeline(queuedMediaItems, fakeMediaItem);
   }
 
   /**
@@ -115,23 +102,17 @@ import java.util.Map;
    */
   public QueueTimeline copyWithNewMediaItem(int replaceIndex, MediaItem newMediaItem) {
     checkArgument(
-        replaceIndex < mediaItems.size()
-            || (replaceIndex == mediaItems.size() && fakeMediaItem != null));
-    if (replaceIndex == mediaItems.size()) {
-      return new QueueTimeline(mediaItems, mediaItemToQueueIdMap, newMediaItem);
+        replaceIndex < queuedMediaItems.size()
+            || (replaceIndex == queuedMediaItems.size() && fakeMediaItem != null));
+    if (replaceIndex == queuedMediaItems.size()) {
+      return new QueueTimeline(queuedMediaItems, newMediaItem);
     }
-    MediaItem oldMediaItem = mediaItems.get(replaceIndex);
-    // Create the new play list.
-    ImmutableList.Builder<MediaItem> newMediaItemsBuilder = new ImmutableList.Builder<>();
-    newMediaItemsBuilder.addAll(mediaItems.subList(0, replaceIndex));
-    newMediaItemsBuilder.add(newMediaItem);
-    newMediaItemsBuilder.addAll(mediaItems.subList(replaceIndex + 1, mediaItems.size()));
-    // Update the map of items to queue IDs accordingly.
-    Map<MediaItem, Long> newMediaItemToQueueIdMap = new HashMap<>(mediaItemToQueueIdMap);
-    Long queueId = checkNotNull(newMediaItemToQueueIdMap.remove(oldMediaItem));
-    newMediaItemToQueueIdMap.put(newMediaItem, queueId);
-    return new QueueTimeline(
-        newMediaItemsBuilder.build(), ImmutableMap.copyOf(newMediaItemToQueueIdMap), fakeMediaItem);
+    long queueId = queuedMediaItems.get(replaceIndex).queueId;
+    ImmutableList.Builder<QueuedMediaItem> queuedItemsBuilder = new ImmutableList.Builder<>();
+    queuedItemsBuilder.addAll(queuedMediaItems.subList(0, replaceIndex));
+    queuedItemsBuilder.add(new QueuedMediaItem(newMediaItem, queueId));
+    queuedItemsBuilder.addAll(queuedMediaItems.subList(replaceIndex + 1, queuedMediaItems.size()));
+    return new QueueTimeline(queuedItemsBuilder.build(), fakeMediaItem);
   }
 
   /**
@@ -143,11 +124,13 @@ import java.util.Map;
    * @return A new {@link QueueTimeline} reflecting the update.
    */
   public QueueTimeline copyWithNewMediaItems(int index, List<MediaItem> newMediaItems) {
-    ImmutableList.Builder<MediaItem> newMediaItemsBuilder = new ImmutableList.Builder<>();
-    newMediaItemsBuilder.addAll(mediaItems.subList(0, index));
-    newMediaItemsBuilder.addAll(newMediaItems);
-    newMediaItemsBuilder.addAll(mediaItems.subList(index, mediaItems.size()));
-    return new QueueTimeline(newMediaItemsBuilder.build(), mediaItemToQueueIdMap, fakeMediaItem);
+    ImmutableList.Builder<QueuedMediaItem> queuedItemsBuilder = new ImmutableList.Builder<>();
+    queuedItemsBuilder.addAll(queuedMediaItems.subList(0, index));
+    for (int i = 0; i < newMediaItems.size(); i++) {
+      queuedItemsBuilder.add(new QueuedMediaItem(newMediaItems.get(i), QueueItem.UNKNOWN_ID));
+    }
+    queuedItemsBuilder.addAll(queuedMediaItems.subList(index, queuedMediaItems.size()));
+    return new QueueTimeline(queuedItemsBuilder.build(), fakeMediaItem);
   }
 
   /**
@@ -158,10 +141,10 @@ import java.util.Map;
    * @return A new {@link QueueTimeline} reflecting the update.
    */
   public QueueTimeline copyWithRemovedMediaItems(int fromIndex, int toIndex) {
-    ImmutableList.Builder<MediaItem> newMediaItemsBuilder = new ImmutableList.Builder<>();
-    newMediaItemsBuilder.addAll(mediaItems.subList(0, fromIndex));
-    newMediaItemsBuilder.addAll(mediaItems.subList(toIndex, mediaItems.size()));
-    return new QueueTimeline(newMediaItemsBuilder.build(), mediaItemToQueueIdMap, fakeMediaItem);
+    ImmutableList.Builder<QueuedMediaItem> queuedItemsBuilder = new ImmutableList.Builder<>();
+    queuedItemsBuilder.addAll(queuedMediaItems.subList(0, fromIndex));
+    queuedItemsBuilder.addAll(queuedMediaItems.subList(toIndex, queuedMediaItems.size()));
+    return new QueueTimeline(queuedItemsBuilder.build(), fakeMediaItem);
   }
 
   /**
@@ -173,50 +156,45 @@ import java.util.Map;
    * @return A new {@link QueueTimeline} reflecting the update.
    */
   public QueueTimeline copyWithMovedMediaItems(int fromIndex, int toIndex, int newIndex) {
-    List<MediaItem> list = new ArrayList<>(mediaItems);
+    List<QueuedMediaItem> list = new ArrayList<>(queuedMediaItems);
     Util.moveItems(list, fromIndex, toIndex, newIndex);
-    return new QueueTimeline(
-        new ImmutableList.Builder<MediaItem>().addAll(list).build(),
-        mediaItemToQueueIdMap,
-        fakeMediaItem);
+    return new QueueTimeline(ImmutableList.copyOf(list), fakeMediaItem);
   }
 
-  /**
-   * Returns the media item index of the given media item in the timeline, or {@link C#INDEX_UNSET}
-   * if the item is not part of this timeline.
-   *
-   * @param mediaItem The media item of interest.
-   * @return The index of the item or {@link C#INDEX_UNSET} if the item is not part of the timeline.
-   */
-  public int indexOf(MediaItem mediaItem) {
+  /** Returns whether the timeline contains the given {@link MediaItem}. */
+  public boolean contains(MediaItem mediaItem) {
     if (mediaItem.equals(fakeMediaItem)) {
-      return mediaItems.size();
+      return true;
     }
-    int mediaItemIndex = mediaItems.indexOf(mediaItem);
-    return mediaItemIndex == -1 ? C.INDEX_UNSET : mediaItemIndex;
+    for (int i = 0; i < queuedMediaItems.size(); i++) {
+      if (mediaItem.equals(queuedMediaItems.get(i).mediaItem)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Nullable
   public MediaItem getMediaItemAt(int mediaItemIndex) {
-    if (mediaItemIndex >= 0 && mediaItemIndex < mediaItems.size()) {
-      return mediaItems.get(mediaItemIndex);
+    if (mediaItemIndex >= 0 && mediaItemIndex < queuedMediaItems.size()) {
+      return queuedMediaItems.get(mediaItemIndex).mediaItem;
     }
-    return (mediaItemIndex == mediaItems.size()) ? fakeMediaItem : null;
+    return (mediaItemIndex == queuedMediaItems.size()) ? fakeMediaItem : null;
   }
 
   @Override
   public int getWindowCount() {
-    return mediaItems.size() + ((fakeMediaItem == null) ? 0 : 1);
+    return queuedMediaItems.size() + ((fakeMediaItem == null) ? 0 : 1);
   }
 
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     // TODO(b/149713425): Set duration if it's available from MediaMetadataCompat.
     MediaItem mediaItem;
-    if (windowIndex == mediaItems.size() && fakeMediaItem != null) {
+    if (windowIndex == queuedMediaItems.size() && fakeMediaItem != null) {
       mediaItem = fakeMediaItem;
     } else {
-      mediaItem = mediaItems.get(windowIndex);
+      mediaItem = queuedMediaItems.get(windowIndex).mediaItem;
     }
     return getWindow(window, mediaItem, windowIndex);
   }
@@ -257,14 +235,13 @@ import java.util.Map;
       return false;
     }
     QueueTimeline other = (QueueTimeline) obj;
-    return Objects.equal(mediaItems, other.mediaItems)
-        && Objects.equal(mediaItemToQueueIdMap, other.mediaItemToQueueIdMap)
+    return Objects.equal(queuedMediaItems, other.queuedMediaItems)
         && Objects.equal(fakeMediaItem, other.fakeMediaItem);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(mediaItems, mediaItemToQueueIdMap, fakeMediaItem);
+    return Objects.hashCode(queuedMediaItems, fakeMediaItem);
   }
 
   private static Window getWindow(Window window, MediaItem mediaItem, int windowIndex) {
@@ -284,5 +261,36 @@ import java.util.Map;
         /* lastPeriodIndex= */ windowIndex,
         /* positionInFirstPeriodUs= */ 0);
     return window;
+  }
+
+  private static final class QueuedMediaItem {
+
+    public final MediaItem mediaItem;
+    public final long queueId;
+
+    public QueuedMediaItem(MediaItem mediaItem, long queueId) {
+      this.mediaItem = mediaItem;
+      this.queueId = queueId;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof QueuedMediaItem)) {
+        return false;
+      }
+      QueuedMediaItem that = (QueuedMediaItem) o;
+      return queueId == that.queueId && mediaItem.equals(that.mediaItem);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 7;
+      result = 31 * result + (int) (queueId ^ (queueId >>> 32));
+      result = 31 * result + mediaItem.hashCode();
+      return result;
+    }
   }
 }

@@ -27,6 +27,7 @@ android {
         versionCode project.ext.releaseVersionCode
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.appTargetSdkVersion
+        multiDexEnabled true
     }
 
     buildTypes {

@@ -1164,6 +1164,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           pixelWidthHeightRatio = hevcConfig.pixelWidthHeightRatio;
         }
         codecs = hevcConfig.codecs;
+        colorSpace = hevcConfig.colorSpace;
+        colorRange = hevcConfig.colorRange;
+        colorTransfer = hevcConfig.colorTransfer;
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
         @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
         if (dolbyVisionConfig != null) {
@@ -1173,6 +1176,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
+        parent.setPosition(childStartPosition + Atom.FULL_HEADER_SIZE);
+        // See vpcC atom syntax: https://www.webmproject.org/vp9/mp4/#syntax_1
+        parent.skipBytes(2); // profile(8), level(8)
+        boolean fullRangeFlag = (parent.readUnsignedByte() & 1) != 0;
+        int colorPrimaries = parent.readUnsignedByte();
+        int transferCharacteristics = parent.readUnsignedByte();
+        colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+        colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+        colorTransfer =
+            ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
@@ -1252,26 +1265,33 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           }
         }
       } else if (childAtomType == Atom.TYPE_colr) {
-        int colorType = parent.readInt();
-        if (colorType == TYPE_nclx || colorType == TYPE_nclc) {
-          // For more info on syntax, see Section 8.5.2.2 in ISO/IEC 14496-12:2012(E) and
-          // https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap3/qtff3.html.
-          int colorPrimaries = parent.readUnsignedShort();
-          int transferCharacteristics = parent.readUnsignedShort();
-          parent.skipBytes(2); // matrix_coefficients.
+        // Only modify these values if they have not been previously established by the bitstream.
+        // If 'Atom.TYPE_hvcC' atom or 'Atom.TYPE_vpcC' is available, they will take precedence and
+        // overwrite any existing values.
+        if (colorSpace == Format.NO_VALUE
+            && colorRange == Format.NO_VALUE
+            && colorTransfer == Format.NO_VALUE) {
+          int colorType = parent.readInt();
+          if (colorType == TYPE_nclx || colorType == TYPE_nclc) {
+            // For more info on syntax, see Section 8.5.2.2 in ISO/IEC 14496-12:2012(E) and
+            // https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap3/qtff3.html.
+            int colorPrimaries = parent.readUnsignedShort();
+            int transferCharacteristics = parent.readUnsignedShort();
+            parent.skipBytes(2); // matrix_coefficients.
 
-          // Only try and read full_range_flag if the box is long enough. It should be present in
-          // all colr boxes with type=nclx (Section 8.5.2.2 in ISO/IEC 14496-12:2012(E)) but some
-          // device cameras record videos with type=nclx without this final flag (and therefore
-          // size=18): https://github.com/google/ExoPlayer/issues/9332
-          boolean fullRangeFlag =
-              childAtomSize == 19 && (parent.readUnsignedByte() & 0b10000000) != 0;
-          colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
-          colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
-          colorTransfer =
-              ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
-        } else {
-          Log.w(TAG, "Unsupported color type: " + Atom.getAtomTypeString(colorType));
+            // Only try and read full_range_flag if the box is long enough. It should be present in
+            // all colr boxes with type=nclx (Section 8.5.2.2 in ISO/IEC 14496-12:2012(E)) but some
+            // device cameras record videos with type=nclx without this final flag (and therefore
+            // size=18): https://github.com/google/ExoPlayer/issues/9332
+            boolean fullRangeFlag =
+                childAtomSize == 19 && (parent.readUnsignedByte() & 0b10000000) != 0;
+            colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+            colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+            colorTransfer =
+                ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
+          } else {
+            Log.w(TAG, "Unsupported color type: " + Atom.getAtomTypeString(colorType));
+          }
         }
       }
       childPosition += childAtomSize;
@@ -1560,7 +1580,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         // because these streams can carry simultaneously multiple representations of the same
         // audio. Use stereo by default.
         channelCount = 2;
-      } else if (childAtomType == Atom.TYPE_ddts) {
+      } else if (childAtomType == Atom.TYPE_ddts || childAtomType == Atom.TYPE_udts) {
         out.format =
             new Format.Builder()
                 .setId(trackId)

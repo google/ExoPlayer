@@ -701,6 +701,9 @@ public class MediaSession {
    * </tr>
    * </table>
    *
+   * <p>Interoperability: This call has no effect when called for a {@linkplain
+   * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
+   *
    * @param controller The controller to specify layout.
    * @param layout The ordered list of {@link CommandButton}.
    */
@@ -793,6 +796,9 @@ public class MediaSession {
    *
    * <p>This is a synchronous call and doesn't wait for results from the controller.
    *
+   * <p>Interoperability: This call has no effect when called for a {@linkplain
+   * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
+   *
    * @param controller The controller to send the extras to.
    * @param sessionExtras The session extras.
    */
@@ -815,6 +821,9 @@ public class MediaSession {
    * SessionCommand, Bundle)} will be returned.
    *
    * <p>A command is not accepted if it is not a custom command.
+   *
+   * <p>Interoperability: This call has no effect when called for a {@linkplain
+   * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
    *
    * @param controller The controller to send the custom command to.
    * @param command A custom command.
@@ -890,12 +899,20 @@ public class MediaSession {
     impl.setSessionPositionUpdateDelayMsOnHandler(updateDelayMs);
   }
 
-  /** Sets the {@linkplain Listener listener}. */
+  /**
+   * Sets the {@linkplain Listener listener}.
+   *
+   * <p>This method must be called on the main thread.
+   */
   /* package */ void setListener(Listener listener) {
     impl.setMediaSessionListener(listener);
   }
 
-  /** Clears the {@linkplain Listener listener}. */
+  /**
+   * Clears the {@linkplain Listener listener}.
+   *
+   * <p>This method must be called on the main thread.
+   */
   /* package */ void clearListener() {
     impl.clearMediaSessionListener();
   }
@@ -1426,7 +1443,11 @@ public class MediaSession {
     default void onRenderedFirstFrame(int seq) throws RemoteException {}
   }
 
-  /** Listener for media session events */
+  /**
+   * Listener for media session events.
+   *
+   * <p>All methods must be called on the main thread.
+   */
   /* package */ interface Listener {
 
     /**

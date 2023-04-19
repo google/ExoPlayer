@@ -375,8 +375,8 @@ public interface HttpDataSource extends DataSource {
   /**
    * Thrown when cleartext HTTP traffic is not permitted. For more information including how to
    * enable cleartext traffic, see the <a
-   * href="https://exoplayer.dev/issues/cleartext-not-permitted">corresponding troubleshooting
-   * topic</a>.
+   * href="https://developer.android.com/guide/topics/media/issues/cleartext-not-permitted">corresponding
+   * troubleshooting topic</a>.
    */
   final class CleartextNotPermittedException extends HttpDataSourceException {
 
@@ -384,7 +384,7 @@ public interface HttpDataSource extends DataSource {
     public CleartextNotPermittedException(IOException cause, DataSpec dataSpec) {
       super(
           "Cleartext HTTP traffic not permitted. See"
-              + " https://exoplayer.dev/issues/cleartext-not-permitted",
+              + " https://developer.android.com/guide/topics/media/issues/cleartext-not-permitted",
           cause,
           dataSpec,
           PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,

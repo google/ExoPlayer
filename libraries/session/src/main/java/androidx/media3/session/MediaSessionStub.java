@@ -70,7 +70,10 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Consumer;
@@ -82,6 +85,7 @@ import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.MediaSession.MediaItemsWithStartPosition;
 import androidx.media3.session.SessionCommand.CommandCode;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -113,6 +117,9 @@ import java.util.concurrent.ExecutionException;
   private final ConnectedControllersManager<IBinder> connectedControllersManager;
   private final Set<ControllerInfo> pendingControllers;
 
+  private ImmutableBiMap<TrackGroup, String> trackGroupIdMap;
+  private int nextUniqueTrackGroupIdPrefix;
+
   public MediaSessionStub(MediaSessionImpl sessionImpl) {
     // Initialize members with params.
     this.sessionImpl = new WeakReference<>(sessionImpl);
@@ -120,6 +127,7 @@ import java.util.concurrent.ExecutionException;
     connectedControllersManager = new ConnectedControllersManager<>(sessionImpl);
     // ConcurrentHashMap has a bug in APIs 21-22 that can result in lost updates.
     pendingControllers = Collections.synchronizedSet(new HashSet<>());
+    trackGroupIdMap = ImmutableBiMap.of();
   }
 
   public ConnectedControllersManager<IBinder> getConnectedControllersManager() {
@@ -493,6 +501,7 @@ import java.util.concurrent.ExecutionException;
             // session/controller.
             PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
             PlayerInfo playerInfo = playerWrapper.createPlayerInfoForBundling();
+            playerInfo = generateAndCacheUniqueTrackGroupIds(playerInfo);
             ConnectionState state =
                 new ConnectionState(
                     MediaLibraryInfo.VERSION_INT,
@@ -1435,7 +1444,11 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         sendSessionResultSuccess(
-            player -> player.setTrackSelectionParameters(trackSelectionParameters)));
+            player -> {
+              TrackSelectionParameters updatedParameters =
+                  updateOverridesUsingUniqueTrackGroupIds(trackSelectionParameters);
+              player.setTrackSelectionParameters(updatedParameters);
+            }));
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1620,6 +1633,65 @@ import java.util.concurrent.ExecutionException;
         sendLibraryResultWhenReady(
             (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onUnsubscribeOnHandler(controller, parentId)));
+  }
+
+  /* package */ PlayerInfo generateAndCacheUniqueTrackGroupIds(PlayerInfo playerInfo) {
+    ImmutableList<Tracks.Group> trackGroups = playerInfo.currentTracks.getGroups();
+    ImmutableList.Builder<Tracks.Group> updatedTrackGroups = ImmutableList.builder();
+    ImmutableBiMap.Builder<TrackGroup, String> updatedTrackGroupIdMap = ImmutableBiMap.builder();
+    for (int i = 0; i < trackGroups.size(); i++) {
+      Tracks.Group trackGroup = trackGroups.get(i);
+      TrackGroup mediaTrackGroup = trackGroup.getMediaTrackGroup();
+      @Nullable String uniqueId = trackGroupIdMap.get(mediaTrackGroup);
+      if (uniqueId == null) {
+        uniqueId = generateUniqueTrackGroupId(mediaTrackGroup);
+      }
+      updatedTrackGroupIdMap.put(mediaTrackGroup, uniqueId);
+      updatedTrackGroups.add(trackGroup.copyWithId(uniqueId));
+    }
+    trackGroupIdMap = updatedTrackGroupIdMap.buildOrThrow();
+    playerInfo = playerInfo.copyWithCurrentTracks(new Tracks(updatedTrackGroups.build()));
+    if (playerInfo.trackSelectionParameters.overrides.isEmpty()) {
+      return playerInfo;
+    }
+    TrackSelectionParameters.Builder updatedTrackSelectionParameters =
+        playerInfo.trackSelectionParameters.buildUpon().clearOverrides();
+    for (TrackSelectionOverride override : playerInfo.trackSelectionParameters.overrides.values()) {
+      TrackGroup trackGroup = override.mediaTrackGroup;
+      @Nullable String uniqueId = trackGroupIdMap.get(trackGroup);
+      if (uniqueId != null) {
+        updatedTrackSelectionParameters.addOverride(
+            new TrackSelectionOverride(trackGroup.copyWithId(uniqueId), override.trackIndices));
+      } else {
+        updatedTrackSelectionParameters.addOverride(override);
+      }
+    }
+    return playerInfo.copyWithTrackSelectionParameters(updatedTrackSelectionParameters.build());
+  }
+
+  private TrackSelectionParameters updateOverridesUsingUniqueTrackGroupIds(
+      TrackSelectionParameters trackSelectionParameters) {
+    if (trackSelectionParameters.overrides.isEmpty()) {
+      return trackSelectionParameters;
+    }
+    TrackSelectionParameters.Builder updateTrackSelectionParameters =
+        trackSelectionParameters.buildUpon().clearOverrides();
+    for (TrackSelectionOverride override : trackSelectionParameters.overrides.values()) {
+      TrackGroup trackGroup = override.mediaTrackGroup;
+      @Nullable TrackGroup originalTrackGroup = trackGroupIdMap.inverse().get(trackGroup.id);
+      if (originalTrackGroup != null
+          && override.mediaTrackGroup.length == originalTrackGroup.length) {
+        updateTrackSelectionParameters.addOverride(
+            new TrackSelectionOverride(originalTrackGroup, override.trackIndices));
+      } else {
+        updateTrackSelectionParameters.addOverride(override);
+      }
+    }
+    return updateTrackSelectionParameters.build();
+  }
+
+  private String generateUniqueTrackGroupId(TrackGroup trackGroup) {
+    return Util.intToStringMaxRadix(nextUniqueTrackGroupIdPrefix++) + "-" + trackGroup.id;
   }
 
   /** Common interface for code snippets to handle all incoming commands from the controller. */

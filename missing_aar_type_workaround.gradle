@@ -24,6 +24,7 @@ def addMissingAarTypeToXml(xml) {
         "com.google.ads.interactivemedia.v3:interactivemedia",
         "com.google.guava:guava",
         "com.google.truth:truth",
+        "com.google.truth.extensions:truth-java8-extension",
         "com.squareup.okhttp3:okhttp",
         "com.squareup.okhttp3:mockwebserver",
         "org.mockito:mockito-core",
@@ -77,6 +78,11 @@ def addMissingAarTypeToXml(xml) {
                         (isProjectLibrary
                             || aar_dependencies.contains(dependencyName))
                     if (!hasJar && !hasAar) {
+                        // To look for what kind of dependency it is i.e. aar or jar type,
+                        // please expand the External Libraries in Project view in Android Studio
+                        // and search for your dependency inside Gradle Script dependencies.
+                        // .aar files have @aar suffix at the end of their name,
+                        // while .jar files have nothing.
                         throw new IllegalStateException(
                             dependencyName + " is not on the JAR or AAR list in missing_aar_type_workaround.gradle")
                     }

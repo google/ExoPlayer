@@ -24,13 +24,21 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.media3.common.C;
+import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.common.TrackSelectionOverride;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
@@ -247,5 +255,59 @@ public class MediaSessionAndControllerTest {
     // Assert these methods are called without timing out.
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+  }
+
+  @Test
+  public void setTrackSelectionParameters_withOverrides_matchesExpectedTrackGroupInPlayer()
+      throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder().setApplicationLooper(Looper.getMainLooper()).build();
+    // Intentionally add metadata to the format as this can't be bundled.
+    Tracks.Group trackGroupInPlayer =
+        new Tracks.Group(
+            new TrackGroup(
+                new Format.Builder()
+                    .setId("0")
+                    .setSampleMimeType(MimeTypes.VIDEO_H264)
+                    .setMetadata(new Metadata())
+                    .build(),
+                new Format.Builder()
+                    .setId("1")
+                    .setSampleMimeType(MimeTypes.VIDEO_H264)
+                    .setMetadata(new Metadata())
+                    .build()),
+            /* adaptiveSupported= */ false,
+            /* trackSupport= */ new int[] {C.FORMAT_HANDLED, C.FORMAT_HANDLED},
+            /* trackSelected= */ new boolean[] {true, false});
+    player.currentTracks = new Tracks(ImmutableList.of(trackGroupInPlayer));
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setId(TAG).build());
+    MediaController controller = controllerTestRule.createController(session.getToken());
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () ->
+                controller.setTrackSelectionParameters(
+                    controller
+                        .getTrackSelectionParameters()
+                        .buildUpon()
+                        .setOverrideForType(
+                            new TrackSelectionOverride(
+                                controller
+                                    .getCurrentTracks()
+                                    .getGroups()
+                                    .get(0)
+                                    .getMediaTrackGroup(),
+                                /* trackIndex= */ 1))
+                        .build()));
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_TRACK_SELECTION_PARAMETERS, TIMEOUT_MS);
+
+    assertThat(player.trackSelectionParameters.overrides)
+        .containsExactly(
+            trackGroupInPlayer.getMediaTrackGroup(),
+            new TrackSelectionOverride(
+                trackGroupInPlayer.getMediaTrackGroup(), /* trackIndex= */ 1));
   }
 }
