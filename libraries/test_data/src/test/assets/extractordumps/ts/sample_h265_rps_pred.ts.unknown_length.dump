@@ -12,6 +12,7 @@ track 256:
     codecs = hvc1.1.6.L63.90
     width = 914
     height = 686
+    pixelWidthHeightRatio = 1.0003651
     initializationData:
       data = length 146, hash 61554FEF
   sample 0:

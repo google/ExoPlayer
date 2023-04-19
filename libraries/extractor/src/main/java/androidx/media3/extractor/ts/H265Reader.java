@@ -439,15 +439,16 @@ public final class H265Reader implements ElementaryStreamReader {
         numPositivePics = 0;
         for (int j = 0; j <= previousNumDeltaPocs; j++) {
           if (!bitArray.readBit()) { // used_by_curr_pic_flag[j]
-            if (bitArray.readBit()) { // use_delta_flag[j]
-              if (deltaRpsSign) {
-                // See H.265/HEVC (2014) section 7.4.8 equation 7-61
-                numNegativePics++;
-              } else {
-                // See H.265/HEVC (2014) section 7.4.8 equation 7-62
-                numPositivePics++;
-              }
+            if (!bitArray.readBit()) { // use_delta_flag[j]
+              continue; // if not use_delta_flag, skip increase numDeltaPocs
             }
+          }
+          if (deltaRpsSign) {
+            // See H.265/HEVC (2014) section 7.4.8 equation 7-61
+            numNegativePics++;
+          } else {
+            // See H.265/HEVC (2014) section 7.4.8 equation 7-62
+            numPositivePics++;
           }
         }
 
