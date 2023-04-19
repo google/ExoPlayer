@@ -408,6 +408,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     if (inputExternalTextureManager != null) {
       inputExternalTextureManager.release();
     }
+    if (inputBitmapTextureManager != null) {
+      inputBitmapTextureManager.release();
+    }
   }
 
   /**
