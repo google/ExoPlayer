@@ -188,6 +188,11 @@ import java.util.concurrent.atomic.AtomicInteger;
         });
   }
 
+  /**
+   * Releases all resources.
+   *
+   * @see VideoFrameProcessor#release()
+   */
   public void release() {
     surfaceTexture.release();
     surface.release();
