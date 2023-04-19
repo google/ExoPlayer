@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -239,58 +239,65 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="Tracks.Group.html" title="class in com.google.android.exoplayer2">Tracks.Group</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithId(java.lang.String)">copyWithId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;groupId)</code></th>
+<td class="colLast">
+<div class="block">Copies the <code>Group</code> with a new <a href="source/TrackGroup.html#id"><code>TrackGroup.id</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;other)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaTrackGroup()">getMediaTrackGroup</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the underlying <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> defined by the media.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackFormat(int)">getTrackFormat</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for a specified track.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.FormatSupport int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackSupport(int)">getTrackSupport</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
 <div class="block">Returns the level of support for a specified track.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getType()">getType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the group.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAdaptiveSupported()">isAdaptiveSupported</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether adaptive selections containing more than one track are supported.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSelected()">isSelected</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether at least one track in the group is selected for playback.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSupported()">isSupported</a></span>()</code></th>
 <td class="colLast">
@@ -298,21 +305,21 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  the advertised capabilities of the device.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSupported(boolean)">isSupported</a></span>&#8203;(boolean&nbsp;allowExceedsCapabilities)</code></th>
 <td class="colLast">
 <div class="block">Returns whether at least one track in the group is supported for playback.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSelected(int)">isTrackSelected</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
 <div class="block">Returns whether a specified track is selected for playback.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSupported(int)">isTrackSupported</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
@@ -320,7 +327,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  capabilities of the device.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSupported(int,boolean)">isTrackSupported</a></span>&#8203;(int&nbsp;trackIndex,
                 boolean&nbsp;allowExceedsCapabilities)</code></th>
@@ -328,7 +335,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Returns whether a specified track is supported for playback.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -589,6 +596,22 @@ public&nbsp;@com.google.android.exoplayer2.C.FormatSupport int&nbsp;getTrackSupp
 <h4>getType</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;getType()</pre>
 <div class="block">Returns the <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the group.</div>
+</li>
+</ul>
+<a id="copyWithId(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithId</h4>
+<pre class="methodSignature">public&nbsp;<a href="Tracks.Group.html" title="class in com.google.android.exoplayer2">Tracks.Group</a>&nbsp;copyWithId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;groupId)</pre>
+<div class="block">Copies the <code>Group</code> with a new <a href="source/TrackGroup.html#id"><code>TrackGroup.id</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>groupId</code> - The new <a href="source/TrackGroup.html#id"><code>TrackGroup.id</code></a></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The copied <code>Group</code>.</dd>
+</dl>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">

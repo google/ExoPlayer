@@ -561,7 +561,7 @@ public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.andro
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdPreloadTimeoutMs&#8203;(long&nbsp;adPreloadTimeoutMs)</pre>
 <div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
- group before that ad group is skipped and marked as having failed to load. Pass <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there should be no such timeout. The default value is <a href="#DEFAULT_AD_PRELOAD_TIMEOUT_MS">10000L</a> ms.
+ group before that ad group is skipped and marked as having failed to load. Pass <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there should be no such timeout. The default value is <a href="#DEFAULT_AD_PRELOAD_TIMEOUT_MS"><code>DEFAULT_AD_PRELOAD_TIMEOUT_MS</code></a> ms.
 
  <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case that
  the IMA SDK does not load an ad break based on the player's reported content position.</div>

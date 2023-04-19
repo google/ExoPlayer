@@ -318,12 +318,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Creates an instance with the given effect identifier and send level.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>effectId</code> - The effect identifier. This is the value returned by <a href="https://developer.android.com/reference/android/media/audiofx/AudioEffect.html#getId()" title="class or interface in android.media.audiofx" class="externalLink"><code>AudioEffect.getId()</code></a> on the effect, or <a href="#NO_AUX_EFFECT_ID" target="_top">0</a> which represents no
+<dd><code>effectId</code> - The effect identifier. This is the value returned by <a href="https://developer.android.com/reference/android/media/audiofx/AudioEffect.html#getId()" title="class or interface in android.media.audiofx" class="externalLink"><code>AudioEffect.getId()</code></a> on the effect, or <a href="#NO_AUX_EFFECT_ID" target="_top"><code>NO_AUX_EFFECT_ID</code></a> which represents no
      effect. This value is passed to <a href="https://developer.android.com/reference/android/media/AudioTrack.html#attachAuxEffect(int)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.attachAuxEffect(int)</code></a> on the underlying
      audio track.</dd>
 <dd><code>sendLevel</code> - The send level for the effect, where 0 represents no effect and a value of 1
-     is full send. If <code>effectId</code> is not <a href="#NO_AUX_EFFECT_ID">0</a>, this value is passed
-     to <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setAuxEffectSendLevel(float)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setAuxEffectSendLevel(float)</code></a> on the underlying audio track.</dd>
+     is full send. If <code>effectId</code> is not <a href="#NO_AUX_EFFECT_ID"><code>NO_AUX_EFFECT_ID</code></a>, this value is passed to
+     <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setAuxEffectSendLevel(float)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setAuxEffectSendLevel(float)</code></a> on the underlying audio track.</dd>
 </dl>
 </li>
 </ul>
