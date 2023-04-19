@@ -101,6 +101,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         });
   }
 
+  /**
+   * Releases all resources.
+   *
+   * @see VideoFrameProcessor#release()
+   */
+  public void release() {
+    videoFrameProcessingTaskExecutor.submit(
+        () -> {
+          if (currentGlTextureInfo != null) {
+            GlUtil.deleteTexture(currentGlTextureInfo.texId);
+          }
+        });
+  }
+
   // Methods that must be called on the GL thread.
 
   private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
