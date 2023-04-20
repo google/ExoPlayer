@@ -27,7 +27,7 @@ moov (772 bytes):
           Data = length 28, hash D535436B
         stbl (294 bytes):
           stsd (166 bytes):
-            Data = length 158, hash B2A35483
+            Data = length 158, hash 11532063
           stts (24 bytes):
             Data = length 16, hash E4FC6483
           stsz (24 bytes):
