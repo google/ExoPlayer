@@ -288,7 +288,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             new BitmapTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
         inputShaderProgram.setInputListener(inputBitmapTextureManager);
         break;
-      case VideoFrameProcessor.INPUT_TYPE_TEXID: // fall through
+      case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID: // fall through
       default:
         throw new VideoFrameProcessingException("Input type not supported yet");
     }

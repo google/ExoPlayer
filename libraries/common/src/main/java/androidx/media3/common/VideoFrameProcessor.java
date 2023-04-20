@@ -48,22 +48,22 @@ public interface VideoFrameProcessor {
   // TODO(b/243036513): Allow effects to be replaced.
   /**
    * Specifies how the input frames are made available to the {@link VideoFrameProcessor}. One of
-   * {@link #INPUT_TYPE_SURFACE}, {@link #INPUT_TYPE_BITMAP} or {@link #INPUT_TYPE_TEXID}.
+   * {@link #INPUT_TYPE_SURFACE}, {@link #INPUT_TYPE_BITMAP} or {@link #INPUT_TYPE_TEXTURE_ID}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({INPUT_TYPE_SURFACE, INPUT_TYPE_BITMAP, INPUT_TYPE_TEXID})
-  public @interface InputType {}
+  @IntDef({INPUT_TYPE_SURFACE, INPUT_TYPE_BITMAP, INPUT_TYPE_TEXTURE_ID})
+  @interface InputType {}
   /** Input frames come from a {@link #getInputSurface surface}. */
-  public static final int INPUT_TYPE_SURFACE = 1;
+  int INPUT_TYPE_SURFACE = 1;
   /** Input frames come from a {@link Bitmap}. */
-  public static final int INPUT_TYPE_BITMAP = 2;
+  int INPUT_TYPE_BITMAP = 2;
   /**
    * Input frames come from a {@linkplain android.opengl.GLES10#GL_TEXTURE_2D traditional GLES
    * texture}.
    */
-  public static final int INPUT_TYPE_TEXID = 3;
+  int INPUT_TYPE_TEXTURE_ID = 3;
 
   /** A factory for {@link VideoFrameProcessor} instances. */
   interface Factory {
