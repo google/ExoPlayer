@@ -15,12 +15,19 @@
  */
 package androidx.media3.common;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.EGLExt;
 import android.view.Surface;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -39,6 +46,24 @@ import java.util.concurrent.Executor;
 @UnstableApi
 public interface VideoFrameProcessor {
   // TODO(b/243036513): Allow effects to be replaced.
+  /**
+   * Specifies how the input frames are made available to the {@link VideoFrameProcessor}. One of
+   * {@link #INPUT_TYPE_SURFACE}, {@link #INPUT_TYPE_BITMAP} or {@link #INPUT_TYPE_TEXID}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({INPUT_TYPE_SURFACE, INPUT_TYPE_BITMAP, INPUT_TYPE_TEXID})
+  public @interface InputType {}
+  /** Input frames come from a {@link #getInputSurface surface}. */
+  public static final int INPUT_TYPE_SURFACE = 1;
+  /** Input frames come from a {@link Bitmap}. */
+  public static final int INPUT_TYPE_BITMAP = 2;
+  /**
+   * Input frames come from a {@linkplain android.opengl.GLES10#GL_TEXTURE_2D traditional GLES
+   * texture}.
+   */
+  public static final int INPUT_TYPE_TEXID = 3;
 
   /** A factory for {@link VideoFrameProcessor} instances. */
   interface Factory {
@@ -53,10 +78,7 @@ public interface VideoFrameProcessor {
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param inputColorInfo The {@link ColorInfo} for input frames.
      * @param outputColorInfo The {@link ColorInfo} for output frames.
-     * @param isInputTextureExternal Whether the input frames are produced externally (e.g. from a
-     *     video) or not (e.g. from a {@link Bitmap}). See <a
-     *     href="https://source.android.com/docs/core/graphics/arch-st#ext_texture">the
-     *     SurfaceTexture docs</a> for more information on external textures.
+     * @param inputType The {@link InputType}.
      * @param releaseFramesAutomatically If {@code true}, the instance will render output frames to
      *     the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface} automatically as
      *     {@link VideoFrameProcessor} is done processing them. If {@code false}, the {@link
@@ -74,7 +96,7 @@ public interface VideoFrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        boolean isInputTextureExternal,
+        @InputType int inputType,
         boolean releaseFramesAutomatically,
         Executor executor,
         Listener listener)
@@ -129,10 +151,10 @@ public interface VideoFrameProcessor {
   long DROP_OUTPUT_FRAME = -2;
 
   /**
-   * Provides an input {@link Bitmap} to the {@code VideoFrameProcessor}.
+   * Provides an input {@link Bitmap} to the {@link VideoFrameProcessor}.
    *
-   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
-   * isInputTextureExternal} parameter is set to {@code false}.
+   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
+   * Factory#create created} with {@link #INPUT_TYPE_BITMAP}.
    *
    * <p>Can be called on any thread.
    *
@@ -146,11 +168,11 @@ public interface VideoFrameProcessor {
   void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate);
 
   /**
-   * Returns the input {@link Surface}, where {@code VideoFrameProcessor} consumes input frames
+   * Returns the input {@link Surface}, where {@link VideoFrameProcessor} consumes input frames
    * from.
    *
-   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
-   * isInputTextureExternal} parameter is set to {@code true}.
+   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
+   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
    *
    * <p>Can be called on any thread.
    */
@@ -175,8 +197,8 @@ public interface VideoFrameProcessor {
    *
    * <p>Must be called before rendering a frame to the input surface.
    *
-   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
-   * isInputTextureExternal} parameter is set to {@code true}.
+   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
+   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
    *
    * <p>Can be called on any thread.
    *
@@ -189,8 +211,8 @@ public interface VideoFrameProcessor {
    * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
    *
-   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
-   * isInputTextureExternal} parameter is set to {@code true}.
+   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
+   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
    *
    * <p>Can be called on any thread.
    */
@@ -249,8 +271,8 @@ public interface VideoFrameProcessor {
    * <p>All the frames that are {@linkplain #registerInputFrame() registered} prior to calling this
    * method are no longer considered to be registered when this method returns.
    *
-   * <p>This method should only be used for when the {@code VideoFrameProcessor}'s {@code
-   * isInputTextureExternal} parameter is set to {@code true}.
+   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
+   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
    *
    * <p>{@link Listener} methods invoked prior to calling this method should be ignored.
    */

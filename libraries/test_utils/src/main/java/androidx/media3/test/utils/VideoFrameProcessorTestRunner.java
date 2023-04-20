@@ -15,6 +15,7 @@
  */
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
@@ -65,13 +66,13 @@ public final class VideoFrameProcessorTestRunner {
     private float pixelWidthHeightRatio;
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
-    private boolean isInputTextureExternal;
+    private @VideoFrameProcessor.InputType int inputType;
     private OnOutputFrameAvailableListener onOutputFrameAvailableListener;
 
     /** Creates a new instance with default values. */
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
-      isInputTextureExternal = true;
+      inputType = INPUT_TYPE_SURFACE;
       onOutputFrameAvailableListener = unused -> {};
     }
 
@@ -191,11 +192,11 @@ public final class VideoFrameProcessorTestRunner {
      * Sets whether input comes from an external texture. See {@link
      * VideoFrameProcessor.Factory#create}.
      *
-     * <p>The default value is {@code true}.
+     * <p>The default value is {@link VideoFrameProcessor#INPUT_TYPE_SURFACE}.
      */
     @CanIgnoreReturnValue
-    public Builder setIsInputTextureExternal(boolean isInputTextureExternal) {
-      this.isInputTextureExternal = isInputTextureExternal;
+    public Builder setInputType(@VideoFrameProcessor.InputType int inputType) {
+      this.inputType = inputType;
       return this;
     }
 
@@ -225,7 +226,7 @@ public final class VideoFrameProcessorTestRunner {
           pixelWidthHeightRatio,
           inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
           outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo,
-          isInputTextureExternal,
+          inputType,
           onOutputFrameAvailableListener);
     }
   }
@@ -257,7 +258,7 @@ public final class VideoFrameProcessorTestRunner {
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean isInputTextureExternal,
+      @VideoFrameProcessor.InputType int inputType,
       OnOutputFrameAvailableListener onOutputFrameAvailableListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
@@ -274,7 +275,7 @@ public final class VideoFrameProcessorTestRunner {
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
-            isInputTextureExternal,
+            inputType,
             /* releaseFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {

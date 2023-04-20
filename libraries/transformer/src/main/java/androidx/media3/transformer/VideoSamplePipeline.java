@@ -17,6 +17,8 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.ColorInfo.isTransferHdr;
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
 import static androidx.media3.transformer.TransformationRequest.HDR_MODE_KEEP_HDR;
@@ -128,6 +130,9 @@ import org.checkerframework.dataflow.qual.Pure;
     if (presentation != null) {
       effectsWithPresentation.add(presentation);
     }
+    @VideoFrameProcessor.InputType
+    int inputType =
+        MimeTypes.isVideo(firstInputFormat.sampleMimeType) ? INPUT_TYPE_SURFACE : INPUT_TYPE_BITMAP;
     try {
       videoFrameProcessor =
           videoFrameProcessorFactory.create(
@@ -136,7 +141,7 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
-              MimeTypes.isVideo(firstInputFormat.sampleMimeType),
+              inputType,
               /* releaseFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
               new VideoFrameProcessor.Listener() {

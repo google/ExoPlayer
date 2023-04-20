@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.video;
 
 import static android.view.Display.DEFAULT_DISPLAY;
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -2014,7 +2015,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     DebugViewProvider.NONE,
                     inputColorInfo,
                     outputColorInfo,
-                    /* isInputTextureExternal= */ true,
+                    INPUT_TYPE_SURFACE,
                     /* releaseFramesAutomatically= */ false,
                     /* executor= */ handler::post,
                     new VideoFrameProcessor.Listener() {

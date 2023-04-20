@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
@@ -110,7 +111,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
   public void noEffects_withImageInput_matchesGoldenFile() throws Exception {
     String testId = "noEffects_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId).setIsInputTextureExternal(false).build();
+        getDefaultFrameProcessorTestRunnerBuilder(testId).setInputType(INPUT_TYPE_BITMAP).build();
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
@@ -129,7 +130,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "wrappedCrop_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setIsInputTextureExternal(false)
+            .setInputType(INPUT_TYPE_BITMAP)
             .setEffects(
                 new GlEffectWrapper(
                     new Crop(

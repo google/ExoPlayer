@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -300,7 +301,7 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
                     DebugViewProvider.NONE,
                     /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
-                    /* isInputTextureExternal= */ true,
+                    INPUT_TYPE_SURFACE,
                     releaseFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new VideoFrameProcessor.Listener() {
