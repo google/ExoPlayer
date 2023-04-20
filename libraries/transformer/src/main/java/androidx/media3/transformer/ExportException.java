@@ -284,12 +284,14 @@ public final class ExportException extends Exception {
    * Creates an instance for a {@link VideoFrameProcessor} related exception.
    *
    * @param cause The cause of the failure.
-   * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
   /* package */ static ExportException createForVideoFrameProcessingException(
-      VideoFrameProcessingException cause, int errorCode) {
-    return new ExportException("Video frame processing error", cause, errorCode);
+      VideoFrameProcessingException cause) {
+    return new ExportException(
+        "Video frame processing error",
+        cause,
+        ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);
   }
 
   /**
