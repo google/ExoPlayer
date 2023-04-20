@@ -21,6 +21,8 @@ import static com.google.android.exoplayer2.transformer.TransformationRequest.HD
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
 import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static com.google.android.exoplayer2.video.ColorInfo.isTransferHdr;
 
 import android.content.Context;
@@ -128,6 +130,9 @@ import org.checkerframework.dataflow.qual.Pure;
     if (presentation != null) {
       effectsWithPresentation.add(presentation);
     }
+    @VideoFrameProcessor.InputType
+    int inputType =
+        MimeTypes.isVideo(firstInputFormat.sampleMimeType) ? INPUT_TYPE_SURFACE : INPUT_TYPE_BITMAP;
     try {
       videoFrameProcessor =
           videoFrameProcessorFactory.create(
@@ -136,7 +141,7 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
-              MimeTypes.isVideo(firstInputFormat.sampleMimeType),
+              inputType,
               /* releaseFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
               new VideoFrameProcessor.Listener() {

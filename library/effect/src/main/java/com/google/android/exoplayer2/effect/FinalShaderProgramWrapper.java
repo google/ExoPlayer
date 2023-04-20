@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 
 import android.content.Context;
 import android.opengl.EGL14;
@@ -72,7 +73,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
   private final boolean sampleFromInputTexture;
-  private final boolean isInputTextureExternal;
+  private final @VideoFrameProcessor.InputType int inputType;
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final boolean enableColorTransfers;
@@ -115,7 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean sampleFromInputTexture,
-      boolean isInputTextureExternal,
+      @VideoFrameProcessor.InputType int inputType,
       boolean releaseFramesAutomatically,
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
@@ -128,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
     this.sampleFromInputTexture = sampleFromInputTexture;
-    this.isInputTextureExternal = isInputTextureExternal;
+    this.inputType = inputType;
     this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.enableColorTransfers = enableColorTransfers;
@@ -456,7 +457,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
         matrixTransformationListBuilder.build();
     if (sampleFromInputTexture) {
-      if (isInputTextureExternal) {
+      if (inputType == INPUT_TYPE_SURFACE) {
         defaultShaderProgram =
             DefaultShaderProgram.createWithExternalSampler(
                 context,

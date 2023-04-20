@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitm
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -110,7 +111,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
   public void noEffects_withImageInput_matchesGoldenFile() throws Exception {
     String testId = "noEffects_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId).setIsInputTextureExternal(false).build();
+        getDefaultFrameProcessorTestRunnerBuilder(testId).setInputType(INPUT_TYPE_BITMAP).build();
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
@@ -129,7 +130,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "wrappedCrop_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setIsInputTextureExternal(false)
+            .setInputType(INPUT_TYPE_BITMAP)
             .setEffects(
                 new GlEffectWrapper(
                     new Crop(

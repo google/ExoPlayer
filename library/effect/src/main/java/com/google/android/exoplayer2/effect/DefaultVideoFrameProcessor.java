@@ -180,7 +180,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        boolean isInputTextureExternal,
+        @InputType int inputType,
         boolean releaseFramesAutomatically,
         Executor listenerExecutor,
         Listener listener)
@@ -219,7 +219,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       inputColorInfo,
                       outputColorInfo,
                       enableColorTransfers,
-                      isInputTextureExternal,
+                      inputType,
                       releaseFramesAutomatically,
                       singleThreadExecutorService,
                       listenerExecutor,
@@ -257,7 +257,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private DefaultVideoFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      boolean isInputTextureExternal,
+      @InputType int inputType,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       ImmutableList<GlShaderProgram> shaderPrograms,
       boolean releaseFramesAutomatically)
@@ -273,16 +273,22 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     GlShaderProgram inputShaderProgram = shaderPrograms.get(0);
 
-    if (isInputTextureExternal) {
-      checkState(inputShaderProgram instanceof ExternalShaderProgram);
-      inputExternalTextureManager =
-          new ExternalTextureManager(
-              (ExternalShaderProgram) inputShaderProgram, videoFrameProcessingTaskExecutor);
-      inputShaderProgram.setInputListener(inputExternalTextureManager);
-    } else {
-      inputBitmapTextureManager =
-          new BitmapTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
-      inputShaderProgram.setInputListener(inputBitmapTextureManager);
+    switch (inputType) {
+      case VideoFrameProcessor.INPUT_TYPE_SURFACE:
+        checkState(inputShaderProgram instanceof ExternalShaderProgram);
+        inputExternalTextureManager =
+            new ExternalTextureManager(
+                (ExternalShaderProgram) inputShaderProgram, videoFrameProcessingTaskExecutor);
+        inputShaderProgram.setInputListener(inputExternalTextureManager);
+        break;
+      case VideoFrameProcessor.INPUT_TYPE_BITMAP:
+        inputBitmapTextureManager =
+            new BitmapTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
+        inputShaderProgram.setInputListener(inputBitmapTextureManager);
+        break;
+      case VideoFrameProcessor.INPUT_TYPE_TEXID: // fall through
+      default:
+        throw new VideoFrameProcessingException("Input type not supported yet");
     }
 
     finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
@@ -304,8 +310,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * call this method after instantiation to ensure that buffers are handled at full resolution. See
    * {@link SurfaceTexture#setDefaultBufferSize(int, int)} for more information.
    *
-   * <p>This method should only be used for when the {@link VideoFrameProcessor}'s {@code
-   * isInputTextureExternal} parameter is set to {@code true}.
+   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
+   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
    *
    * @param width The default width for input buffers, in pixels.
    * @param height The default height for input buffers, in pixels.
@@ -441,7 +447,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
-      boolean isInputTextureExternal,
+      @InputType int inputType,
       boolean releaseFramesAutomatically,
       ExecutorService singleThreadExecutorService,
       Executor executor,
@@ -485,7 +491,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             inputColorInfo,
             outputColorInfo,
             enableColorTransfers,
-            isInputTextureExternal,
+            inputType,
             releaseFramesAutomatically,
             executor,
             listener,
@@ -500,7 +506,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     return new DefaultVideoFrameProcessor(
         eglDisplay,
         eglContext,
-        isInputTextureExternal,
+        inputType,
         videoFrameProcessingTaskExecutor,
         shaderPrograms,
         releaseFramesAutomatically);
@@ -526,7 +532,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
-      boolean isInputTextureExternal,
+      @InputType int inputType,
       boolean releaseFramesAutomatically,
       Executor executor,
       Listener listener,
@@ -568,7 +574,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
         DefaultShaderProgram defaultShaderProgram;
         if (sampleFromInputTexture) {
-          if (isInputTextureExternal) {
+          if (inputType == INPUT_TYPE_SURFACE) {
             defaultShaderProgram =
                 DefaultShaderProgram.createWithExternalSampler(
                     context,
@@ -612,7 +618,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             outputColorInfo,
             enableColorTransfers,
             sampleFromInputTexture,
-            isInputTextureExternal,
+            inputType,
             releaseFramesAutomatically,
             executor,
             listener,

@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -2010,7 +2011,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     DebugViewProvider.NONE,
                     inputColorInfo,
                     outputColorInfo,
-                    /* isInputTextureExternal= */ true,
+                    INPUT_TYPE_SURFACE,
                     /* releaseFramesAutomatically= */ false,
                     /* executor= */ handler::post,
                     new VideoFrameProcessor.Listener() {
