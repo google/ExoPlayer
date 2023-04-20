@@ -249,12 +249,14 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static EGLContext createEglContext(EGLDisplay eglDisplay) throws GlException {
-    return createEglContext(eglDisplay, /* openGlVersion= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+    return createEglContext(
+        EGL14.EGL_NO_CONTEXT, eglDisplay, /* openGlVersion= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
    * Creates a new {@link EGLContext} for the specified {@link EGLDisplay}.
    *
+   * @param sharedContext The {@link EGLContext} with which to share data.
    * @param eglDisplay The {@link EGLDisplay} to create an {@link EGLContext} for.
    * @param openGlVersion The version of OpenGL ES to configure. Accepts either {@code 2}, for
    *     OpenGL ES 2.0, or {@code 3}, for OpenGL ES 3.0.
@@ -263,13 +265,16 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static EGLContext createEglContext(
-      EGLDisplay eglDisplay, @IntRange(from = 2, to = 3) int openGlVersion, int[] configAttributes)
+      EGLContext sharedContext,
+      EGLDisplay eglDisplay,
+      @IntRange(from = 2, to = 3) int openGlVersion,
+      int[] configAttributes)
       throws GlException {
     checkArgument(
         Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_8888)
             || Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102));
     checkArgument(openGlVersion == 2 || openGlVersion == 3);
-    return Api17.createEglContext(eglDisplay, openGlVersion, configAttributes);
+    return Api17.createEglContext(sharedContext, eglDisplay, openGlVersion, configAttributes);
   }
 
   /**
@@ -691,13 +696,14 @@ public final class GlUtil {
 
     @DoNotInline
     public static EGLContext createEglContext(
-        EGLDisplay eglDisplay, int version, int[] configAttributes) throws GlException {
+        EGLContext sharedContext, EGLDisplay eglDisplay, int version, int[] configAttributes)
+        throws GlException {
       int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, version, EGL14.EGL_NONE};
       EGLContext eglContext =
           EGL14.eglCreateContext(
               eglDisplay,
               getEglConfig(eglDisplay, configAttributes),
-              EGL14.EGL_NO_CONTEXT,
+              sharedContext,
               contextAttributes,
               /* offset= */ 0);
       if (eglContext == null) {
