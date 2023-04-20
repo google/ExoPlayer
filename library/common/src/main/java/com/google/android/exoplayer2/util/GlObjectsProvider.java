@@ -29,16 +29,18 @@ import com.google.android.exoplayer2.util.GlUtil.GlException;
 /** Provider to customize the creation and maintenance of GL objects. */
 public interface GlObjectsProvider {
   /**
-   * Provider for GL objects that configures a GL context with 8-bit RGB or 10-bit RGB attributes,
-   * and no depth buffer or render buffers.
+   * @deprecated Please use {@code DefaultGlObjectsProvider} in {@code
+   *     com.google.android.exoplayer2.effect}.
    */
+  @Deprecated
   GlObjectsProvider DEFAULT =
       new GlObjectsProvider() {
         @Override
         @RequiresApi(17)
         public EGLContext createEglContext(
             EGLDisplay eglDisplay, int openGlVersion, int[] configAttributes) throws GlException {
-          return GlUtil.createEglContext(eglDisplay, openGlVersion, configAttributes);
+          return GlUtil.createEglContext(
+              EGL14.EGL_NO_CONTEXT, eglDisplay, openGlVersion, configAttributes);
         }
 
         @Override
