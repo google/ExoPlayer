@@ -164,8 +164,7 @@ import org.checkerframework.dataflow.qual.Pure;
                 @Override
                 public void onError(VideoFrameProcessingException exception) {
                   errorConsumer.accept(
-                      ExportException.createForVideoFrameProcessingException(
-                          exception, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
+                      ExportException.createForVideoFrameProcessingException(exception));
                 }
 
                 @Override
@@ -180,8 +179,7 @@ import org.checkerframework.dataflow.qual.Pure;
                 }
               });
     } catch (VideoFrameProcessingException e) {
-      throw ExportException.createForVideoFrameProcessingException(
-          e, ExportException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED);
+      throw ExportException.createForVideoFrameProcessingException(e);
     }
   }
 
