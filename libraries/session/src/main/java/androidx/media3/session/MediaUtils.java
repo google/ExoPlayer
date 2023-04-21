@@ -1335,13 +1335,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (playbackInfoCompat == null) {
       return DeviceInfo.UNKNOWN;
     }
-    return new DeviceInfo(
-        playbackInfoCompat.getPlaybackType()
-                == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE
-            ? DeviceInfo.PLAYBACK_TYPE_REMOTE
-            : DeviceInfo.PLAYBACK_TYPE_LOCAL,
-        /* minVolume= */ 0,
-        playbackInfoCompat.getMaxVolume());
+    return new DeviceInfo.Builder(
+            playbackInfoCompat.getPlaybackType()
+                    == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE
+                ? DeviceInfo.PLAYBACK_TYPE_REMOTE
+                : DeviceInfo.PLAYBACK_TYPE_LOCAL)
+        .setMaxVolume(playbackInfoCompat.getMaxVolume())
+        .build();
   }
 
   /** Converts {@link MediaControllerCompat.PlaybackInfo} to device volume. */

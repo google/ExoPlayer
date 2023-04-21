@@ -178,9 +178,16 @@ package androidx.media3.common {
     field public static final int PLAYBACK_TYPE_LOCAL = 0; // 0x0
     field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
     field public static final androidx.media3.common.DeviceInfo UNKNOWN;
-    field public final int maxVolume;
-    field public final int minVolume;
+    field @IntRange(from=0) public final int maxVolume;
+    field @IntRange(from=0) public final int minVolume;
     field @androidx.media3.common.DeviceInfo.PlaybackType public final int playbackType;
+  }
+
+  public static final class DeviceInfo.Builder {
+    ctor public DeviceInfo.Builder(@androidx.media3.common.DeviceInfo.PlaybackType int);
+    method public androidx.media3.common.DeviceInfo build();
+    method public androidx.media3.common.DeviceInfo.Builder setMaxVolume(@IntRange(from=0) int);
+    method public androidx.media3.common.DeviceInfo.Builder setMinVolume(@IntRange(from=0) int);
   }
 
   @IntDef({androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_LOCAL, androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_REMOTE}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) public static @interface DeviceInfo.PlaybackType {

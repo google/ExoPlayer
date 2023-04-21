@@ -136,8 +136,7 @@ public class PlayerInfoTest {
                             new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
                             /* trackSelected= */ new boolean[] {true}))))
             .setDeviceInfo(
-                new DeviceInfo(
-                    DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 4, /* maxVolume= */ 10))
+                new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).setMaxVolume(10).build())
             .setDiscontinuityReason(Player.DISCONTINUITY_REASON_REMOVE)
             .setIsLoading(true)
             .setIsPlaying(true)

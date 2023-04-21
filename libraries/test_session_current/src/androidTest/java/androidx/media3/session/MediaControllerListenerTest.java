@@ -2767,7 +2767,7 @@ public class MediaControllerListenerTest {
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
     DeviceInfo deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 100);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).setMaxVolume(100).build();
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder().setDeviceInfo(deviceInfo).build();
     remoteSession.setPlayer(playerConfig);
@@ -2806,7 +2806,7 @@ public class MediaControllerListenerTest {
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
     DeviceInfo deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 1, /* maxVolume= */ 23);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).setMaxVolume(23).build();
     remoteSession.getMockPlayer().notifyDeviceInfoChanged(deviceInfo);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -2819,7 +2819,7 @@ public class MediaControllerListenerTest {
   @Test
   public void onDeviceVolumeChanged_isCalledByDeviceVolumeChange() throws Exception {
     DeviceInfo deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 100);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).setMaxVolume(100).build();
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setDeviceInfo(deviceInfo)

@@ -1399,7 +1399,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     dispatchRemoteSessionTaskWithPlayerCommand(
         (iSession, seq) -> iSession.setDeviceVolume(controllerStub, seq, volume));
 
-    if (playerInfo.deviceVolume != volume) {
+    DeviceInfo deviceInfo = getDeviceInfo();
+    if (playerInfo.deviceVolume != volume
+        && deviceInfo.minVolume <= volume
+        && (deviceInfo.maxVolume == 0 || volume <= deviceInfo.maxVolume)) {
       playerInfo = playerInfo.copyWithDeviceVolume(volume, playerInfo.deviceMuted);
 
       listeners.queueEvent(
@@ -1418,7 +1421,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     dispatchRemoteSessionTaskWithPlayerCommand(
         (iSession, seq) -> iSession.setDeviceVolumeWithFlags(controllerStub, seq, volume, flags));
 
-    if (playerInfo.deviceVolume != volume) {
+    DeviceInfo deviceInfo = getDeviceInfo();
+    if (playerInfo.deviceVolume != volume
+        && deviceInfo.minVolume <= volume
+        && (deviceInfo.maxVolume == 0 || volume <= deviceInfo.maxVolume)) {
       playerInfo = playerInfo.copyWithDeviceVolume(volume, playerInfo.deviceMuted);
 
       listeners.queueEvent(
@@ -1442,7 +1448,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         (iSession, seq) -> iSession.increaseDeviceVolume(controllerStub, seq));
 
     int newDeviceVolume = playerInfo.deviceVolume + 1;
-    if (newDeviceVolume <= getDeviceInfo().maxVolume) {
+    int maxVolume = getDeviceInfo().maxVolume;
+    if (maxVolume == 0 || newDeviceVolume <= maxVolume) {
       playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
@@ -1461,7 +1468,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         (iSession, seq) -> iSession.increaseDeviceVolumeWithFlags(controllerStub, seq, flags));
 
     int newDeviceVolume = playerInfo.deviceVolume + 1;
-    if (newDeviceVolume <= getDeviceInfo().maxVolume) {
+    int maxVolume = getDeviceInfo().maxVolume;
+    if (maxVolume == 0 || newDeviceVolume <= maxVolume) {
       playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,

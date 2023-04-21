@@ -842,8 +842,7 @@ public class MediaSessionPlayerTest {
         .postAndSync(
             () -> {
               player.deviceInfo =
-                  new DeviceInfo(
-                      DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 100);
+                  new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).setMaxVolume(100).build();
               player.notifyDeviceInfoChanged();
             });
   }

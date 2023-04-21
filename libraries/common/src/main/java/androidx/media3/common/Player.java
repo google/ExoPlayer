@@ -3135,6 +3135,9 @@ public interface Player {
   /**
    * Increases the volume of the device.
    *
+   * <p>The {@link #getDeviceVolume()} device volume cannot be increased above {@link
+   * DeviceInfo#maxVolume}, if defined.
+   *
    * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
    * {@linkplain #getAvailableCommands() available}.
    *
@@ -3150,6 +3153,9 @@ public interface Player {
 
   /**
    * Decreases the volume of the device.
+   *
+   * <p>The {@link #getDeviceVolume()} device volume cannot be decreased below {@link
+   * DeviceInfo#minVolume}.
    *
    * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
    * {@linkplain #getAvailableCommands() available}.

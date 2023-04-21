@@ -109,8 +109,7 @@ public class SimpleBasePlayerTest {
                     ImmutableList.of(new Cue.Builder().setText("text").build()),
                     /* presentationTimeUs= */ 123))
             .setDeviceInfo(
-                new DeviceInfo(
-                    DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 3, /* maxVolume= */ 7))
+                new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL).setMaxVolume(7).build())
             .setIsDeviceMuted(true)
             .setSurfaceSize(new Size(480, 360))
             .setNewlyRenderedFirstFrame(true)
@@ -225,7 +224,7 @@ public class SimpleBasePlayerTest {
     Metadata timedMetadata = new Metadata(new FakeMetadataEntry("data"));
     Size surfaceSize = new Size(480, 360);
     DeviceInfo deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 3, /* maxVolume= */ 7);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL).setMaxVolume(7).build();
     ImmutableList<SimpleBasePlayer.MediaItemData> playlist =
         ImmutableList.of(
             new SimpleBasePlayer.MediaItemData.Builder(/* uid= */ new Object()).build(),
@@ -811,7 +810,7 @@ public class SimpleBasePlayerTest {
             ImmutableList.of(new Cue.Builder().setText("text").build()),
             /* presentationTimeUs= */ 123);
     DeviceInfo deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 3, /* maxVolume= */ 7);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL).setMaxVolume(7).build();
     MediaMetadata playlistMetadata = new MediaMetadata.Builder().setArtist("artist").build();
     SimpleBasePlayer.PositionSupplier contentPositionSupplier = () -> 456;
     SimpleBasePlayer.PositionSupplier contentBufferedPositionSupplier = () -> 499;
@@ -1276,7 +1275,7 @@ public class SimpleBasePlayerTest {
         new Metadata(/* presentationTimeUs= */ 42, new FakeMetadataEntry("data"));
     Size surfaceSize = new Size(480, 360);
     DeviceInfo deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 3, /* maxVolume= */ 7);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL).setMaxVolume(7).build();
     MediaMetadata playlistMetadata = new MediaMetadata.Builder().setArtist("artist").build();
     State state2 =
         new State.Builder()

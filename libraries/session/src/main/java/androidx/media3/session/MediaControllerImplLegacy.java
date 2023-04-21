@@ -1063,7 +1063,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     DeviceInfo deviceInfo = getDeviceInfo();
     int minVolume = deviceInfo.minVolume;
     int maxVolume = deviceInfo.maxVolume;
-    if (minVolume <= volume && volume <= maxVolume) {
+    if (minVolume <= volume && (maxVolume == 0 || volume <= maxVolume)) {
       boolean isDeviceMuted = isDeviceMuted();
       ControllerInfo maskedControllerInfo =
           new ControllerInfo(
@@ -1093,7 +1093,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public void increaseDeviceVolume(@C.VolumeFlags int flags) {
     int volume = getDeviceVolume();
     int maxVolume = getDeviceInfo().maxVolume;
-    if (volume + 1 <= maxVolume) {
+    if (maxVolume == 0 || volume + 1 <= maxVolume) {
       boolean isDeviceMuted = isDeviceMuted();
 
       ControllerInfo maskedControllerInfo =

@@ -486,8 +486,7 @@ public class MediaControllerStateMaskingTest {
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setDeviceVolume(1)
             .setDeviceInfo(
-                new DeviceInfo(
-                    DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 0, /* maxVolume= */ 2))
+                new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL).setMaxVolume(2).build())
             .build();
     remoteSession.setPlayer(playerConfig);
 

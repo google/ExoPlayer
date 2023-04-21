@@ -279,7 +279,7 @@ public class MediaSessionPermissionTest {
             .build();
     // Set remote device info to ensure we also cover the volume provider compat setup.
     mockPlayer.deviceInfo =
-        new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 100);
+        new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).setMaxVolume(100).build();
     Player player =
         new ForwardingPlayer(mockPlayer) {
           @Override
