@@ -1197,6 +1197,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           pixelWidthHeightRatio = avcConfig.pixelWidthHeightRatio;
         }
         codecs = avcConfig.codecs;
+        colorSpace = avcConfig.colorSpace;
+        colorRange = avcConfig.colorRange;
+        colorTransfer = avcConfig.colorTransfer;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -1309,12 +1312,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           }
         }
       } else if (childAtomType == Atom.TYPE_colr) {
-        // Only modify these values if they have not been previously established by the bitstream.
-        // If 'Atom.TYPE_hvcC' atom or 'Atom.TYPE_vpcC' is available, they will take precedence and
-        // overwrite any existing values.
-        if (colorSpace == Format.NO_VALUE
-            && colorRange == Format.NO_VALUE
-            && colorTransfer == Format.NO_VALUE) {
+        // Only modify these values if 'colorSpace' and 'colorTransfer' have not been previously
+        // established by the bitstream. The absence of color descriptors ('colorSpace' and
+        // 'colorTransfer') does not necessarily mean that 'colorRange' has default values, hence it
+        // is not being verified here.
+        // If 'Atom.TYPE_avcC', 'Atom.TYPE_hvcC' or 'Atom.TYPE_vpcC' is available, they will take
+        // precedence and overwrite any existing values.
+        if (colorSpace == Format.NO_VALUE && colorTransfer == Format.NO_VALUE) {
           int colorType = parent.readInt();
           if (colorType == TYPE_nclx || colorType == TYPE_nclc) {
             // For more info on syntax, see Section 8.5.2.2 in ISO/IEC 14496-12:2012(E) and

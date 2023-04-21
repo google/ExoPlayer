@@ -112,11 +112,11 @@ public final class HevcConfig {
           lengthSizeMinusOne + 1,
           width,
           height,
-          pixelWidthHeightRatio,
-          codecs,
           colorSpace,
           colorRange,
-          colorTransfer);
+          colorTransfer,
+          pixelWidthHeightRatio,
+          codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw ParserException.createForMalformedContainer("Error parsing HEVC config", e);
     }
@@ -140,9 +140,6 @@ public final class HevcConfig {
   /** The height of each decoded frame, or {@link Format#NO_VALUE} if unknown. */
   public final int height;
 
-  /** The pixel width to height ratio. */
-  public final float pixelWidthHeightRatio;
-
   /**
    * The {@link C.ColorSpace} of the video or {@link Format#NO_VALUE} if unknown or not applicable.
    */
@@ -159,6 +156,9 @@ public final class HevcConfig {
    */
   public final @C.ColorTransfer int colorTransfer;
 
+  /** The pixel width to height ratio. */
+  public final float pixelWidthHeightRatio;
+
   /**
    * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
    *
@@ -171,19 +171,19 @@ public final class HevcConfig {
       int nalUnitLengthFieldLength,
       int width,
       int height,
-      float pixelWidthHeightRatio,
-      @Nullable String codecs,
       @C.ColorSpace int colorSpace,
       @C.ColorRange int colorRange,
-      @C.ColorTransfer int colorTransfer) {
+      @C.ColorTransfer int colorTransfer,
+      float pixelWidthHeightRatio,
+      @Nullable String codecs) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.width = width;
     this.height = height;
-    this.pixelWidthHeightRatio = pixelWidthHeightRatio;
-    this.codecs = codecs;
     this.colorSpace = colorSpace;
     this.colorRange = colorRange;
     this.colorTransfer = colorTransfer;
+    this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+    this.codecs = codecs;
   }
 }

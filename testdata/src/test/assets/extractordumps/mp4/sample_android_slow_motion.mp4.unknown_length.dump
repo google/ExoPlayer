@@ -17,6 +17,11 @@ track 0:
     width = 1280
     height = 720
     frameRate = 13.307984
+    colorInfo:
+      colorSpace = 2
+      colorRange = 1
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
     metadata = entries=[mdta: key=com.android.capture.fps, value=43700000]
     initializationData:
       data = length 22, hash 4CF81805
