@@ -516,16 +516,19 @@ public class MediaController implements Player {
   /**
    * Releases the future controller returned by {@link Builder#buildAsync()}. It makes sure that the
    * controller is released by canceling the future if the future is not yet done.
+   *
+   * <p>Must be called on the {@linkplain #getApplicationLooper() application thread} of the media
+   * controller.
    */
   public static void releaseFuture(Future<? extends MediaController> controllerFuture) {
-    if (!controllerFuture.isDone()) {
-      controllerFuture.cancel(/* mayInterruptIfRunning= */ true);
+    if (controllerFuture.cancel(/* mayInterruptIfRunning= */ true)) {
+      // Successfully canceled the Future. The controller will be released by MediaControllerHolder.
       return;
     }
     MediaController controller;
     try {
-      controller = controllerFuture.get();
-    } catch (CancellationException | ExecutionException | InterruptedException e) {
+      controller = Futures.getDone(controllerFuture);
+    } catch (CancellationException | ExecutionException e) {
       return;
     }
     controller.release();
