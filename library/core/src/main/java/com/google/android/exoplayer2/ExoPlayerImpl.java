@@ -2780,10 +2780,10 @@ import java.util.concurrent.TimeoutException;
   }
 
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {
-    return new DeviceInfo(
-        DeviceInfo.PLAYBACK_TYPE_LOCAL,
-        streamVolumeManager.getMinVolume(),
-        streamVolumeManager.getMaxVolume());
+    return new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL)
+        .setMinVolume(streamVolumeManager.getMinVolume())
+        .setMaxVolume(streamVolumeManager.getMaxVolume())
+        .build();
   }
 
   private static int getPlayWhenReadyChangeReason(boolean playWhenReady, int playerCommand) {

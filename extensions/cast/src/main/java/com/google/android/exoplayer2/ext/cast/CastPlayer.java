@@ -83,7 +83,7 @@ public final class CastPlayer extends BasePlayer {
 
   /** The {@link DeviceInfo} returned by {@link #getDeviceInfo() this player}. */
   public static final DeviceInfo DEVICE_INFO =
-      new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 0);
+      new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE).build();
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.cast");
