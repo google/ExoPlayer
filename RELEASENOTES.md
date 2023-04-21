@@ -43,6 +43,9 @@
         *   `void increaseDeviceVolume(int)`
         *   `void decreaseDeviceVolume(int)`
         *   `void setDeviceMuted(boolean, int)`
+    *   Fix issue where `MediaController` doesn't update its available commands
+        when connected to a legacy `MediaSessionCompat` that updates its
+        actions.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming

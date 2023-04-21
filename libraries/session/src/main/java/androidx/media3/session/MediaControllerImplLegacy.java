@@ -1920,13 +1920,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             ? newLegacyPlayerInfo.playbackInfoCompat.getVolumeControl()
             : VolumeProviderCompat.VOLUME_CONTROL_FIXED;
     availablePlayerCommands =
-        (oldControllerInfo.availablePlayerCommands == Commands.EMPTY)
-            ? MediaUtils.convertToPlayerCommands(
-                newLegacyPlayerInfo.playbackStateCompat,
-                volumeControlType,
-                sessionFlags,
-                isSessionReady)
-            : oldControllerInfo.availablePlayerCommands;
+        MediaUtils.convertToPlayerCommands(
+            newLegacyPlayerInfo.playbackStateCompat,
+            volumeControlType,
+            sessionFlags,
+            isSessionReady);
 
     PlaybackException playerError =
         MediaUtils.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
