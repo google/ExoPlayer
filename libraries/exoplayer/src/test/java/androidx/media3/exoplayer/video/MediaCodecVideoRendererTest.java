@@ -31,11 +31,14 @@ import static org.robolectric.Shadows.shadowOf;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
+import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.view.Display;
 import android.view.Surface;
@@ -44,6 +47,8 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.VideoSize;
+import androidx.media3.decoder.CryptoInfo;
+import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
@@ -51,13 +56,17 @@ import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
+import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
+import androidx.media3.exoplayer.mediacodec.SynchronousMediaCodecAdapter;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.FakeSampleStream;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -117,6 +126,7 @@ public class MediaCodecVideoRendererTest {
   private Looper testMainLooper;
   private Surface surface;
   private MediaCodecVideoRenderer mediaCodecVideoRenderer;
+  private MediaCodecSelector mediaCodecSelector;
   @Nullable private Format currentOutputFormat;
 
   @Mock private VideoRendererEventListener eventListener;
@@ -124,7 +134,7 @@ public class MediaCodecVideoRendererTest {
   @Before
   public void setUp() throws Exception {
     testMainLooper = Looper.getMainLooper();
-    MediaCodecSelector mediaCodecSelector =
+    mediaCodecSelector =
         (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
             Collections.singletonList(
                 MediaCodecInfo.newInstance(
@@ -205,6 +215,65 @@ public class MediaCodecVideoRendererTest {
     shadowOf(testMainLooper).idle();
 
     verify(eventListener).onDroppedFrames(eq(1), anyLong());
+  }
+
+  @Test
+  public void render_withBufferLimitEqualToNumberOfSamples_rendersLastFrameAfterEndOfStream()
+      throws Exception {
+    ArgumentCaptor<DecoderCounters> argumentDecoderCounters =
+        ArgumentCaptor.forClass(DecoderCounters.class);
+    FakeSampleStream fakeSampleStream =
+        new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ VIDEO_H264,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), // First buffer.
+                oneByteSample(/* timeUs= */ 10_000),
+                oneByteSample(/* timeUs= */ 20_000), // Last buffer.
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    // Seek to time after samples.
+    fakeSampleStream.seekToUs(30_000, /* allowTimeBeyondBuffer= */ true);
+    mediaCodecVideoRenderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            new ForwardingSynchronousMediaCodecAdapterWithBufferLimit.Factory(/* bufferLimit= */ 3),
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* enableDecoderFallback= */ false,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1);
+    mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
+    mediaCodecVideoRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {VIDEO_H264},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0);
+
+    mediaCodecVideoRenderer.start();
+    mediaCodecVideoRenderer.setCurrentStreamFinal();
+    mediaCodecVideoRenderer.render(0, SystemClock.elapsedRealtime() * 1000);
+    // Call to render should have read all samples up to but not including the END_OF_STREAM_ITEM.
+    assertThat(mediaCodecVideoRenderer.hasReadStreamToEnd()).isFalse();
+    int posUs = 30_000;
+    while (!mediaCodecVideoRenderer.isEnded()) {
+      mediaCodecVideoRenderer.render(posUs, SystemClock.elapsedRealtime() * 1000);
+      posUs += 40_000;
+    }
+    shadowOf(testMainLooper).idle();
+
+    verify(eventListener).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
+    verify(eventListener).onVideoEnabled(argumentDecoderCounters.capture());
+    assertThat(argumentDecoderCounters.getValue().renderedOutputBufferCount).isEqualTo(1);
+    assertThat(argumentDecoderCounters.getValue().skippedOutputBufferCount).isEqualTo(2);
   }
 
   @Test
@@ -1193,5 +1262,147 @@ public class MediaCodecVideoRendererTest {
         .setWidth(width)
         .setHeight(height)
         .build();
+  }
+
+  private static final class ForwardingSynchronousMediaCodecAdapterWithBufferLimit
+      extends ForwardingSynchronousMediaCodecAdapter {
+    /** A factory for {@link ForwardingSynchronousMediaCodecAdapterWithBufferLimit} instances. */
+    public static final class Factory implements MediaCodecAdapter.Factory {
+      private final int bufferLimit;
+
+      Factory(int bufferLimit) {
+        this.bufferLimit = bufferLimit;
+      }
+
+      @Override
+      public MediaCodecAdapter createAdapter(Configuration configuration) throws IOException {
+        return new ForwardingSynchronousMediaCodecAdapterWithBufferLimit(
+            bufferLimit, new SynchronousMediaCodecAdapter.Factory().createAdapter(configuration));
+      }
+    }
+
+    private int bufferCounter;
+
+    ForwardingSynchronousMediaCodecAdapterWithBufferLimit(
+        int bufferCounter, MediaCodecAdapter adapter) {
+      super(adapter);
+      this.bufferCounter = bufferCounter;
+    }
+
+    @Override
+    public int dequeueInputBufferIndex() {
+      if (bufferCounter > 0) {
+        bufferCounter--;
+        return super.dequeueInputBufferIndex();
+      }
+      return -1;
+    }
+
+    @Override
+    public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
+      int outputIndex = super.dequeueOutputBufferIndex(bufferInfo);
+      if (outputIndex > 0) {
+        bufferCounter++;
+      }
+      return outputIndex;
+    }
+  }
+
+  private abstract static class ForwardingSynchronousMediaCodecAdapter
+      implements MediaCodecAdapter {
+    private final MediaCodecAdapter adapter;
+
+    ForwardingSynchronousMediaCodecAdapter(MediaCodecAdapter adapter) {
+      this.adapter = adapter;
+    }
+
+    @Override
+    public int dequeueInputBufferIndex() {
+      return adapter.dequeueInputBufferIndex();
+    }
+
+    @Override
+    public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
+      return adapter.dequeueOutputBufferIndex(bufferInfo);
+    }
+
+    @Override
+    public MediaFormat getOutputFormat() {
+      return adapter.getOutputFormat();
+    }
+
+    @Nullable
+    @Override
+    public ByteBuffer getInputBuffer(int index) {
+      return adapter.getInputBuffer(index);
+    }
+
+    @Nullable
+    @Override
+    public ByteBuffer getOutputBuffer(int index) {
+      return adapter.getOutputBuffer(index);
+    }
+
+    @Override
+    public void queueInputBuffer(
+        int index, int offset, int size, long presentationTimeUs, int flags) {
+      adapter.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
+    }
+
+    @Override
+    public void queueSecureInputBuffer(
+        int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
+      adapter.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+    }
+
+    @Override
+    public void releaseOutputBuffer(int index, boolean render) {
+      adapter.releaseOutputBuffer(index, render);
+    }
+
+    @Override
+    public void releaseOutputBuffer(int index, long renderTimeStampNs) {
+      adapter.releaseOutputBuffer(index, renderTimeStampNs);
+    }
+
+    @Override
+    public void flush() {
+      adapter.flush();
+    }
+
+    @Override
+    public void release() {
+      adapter.release();
+    }
+
+    @Override
+    public void setOnFrameRenderedListener(OnFrameRenderedListener listener, Handler handler) {
+      adapter.setOnFrameRenderedListener(listener, handler);
+    }
+
+    @Override
+    public void setOutputSurface(Surface surface) {
+      adapter.setOutputSurface(surface);
+    }
+
+    @Override
+    public void setParameters(Bundle params) {
+      adapter.setParameters(params);
+    }
+
+    @Override
+    public void setVideoScalingMode(int scalingMode) {
+      adapter.setVideoScalingMode(scalingMode);
+    }
+
+    @Override
+    public boolean needsReconfiguration() {
+      return adapter.needsReconfiguration();
+    }
+
+    @Override
+    public PersistableBundle getMetrics() {
+      return adapter.getMetrics();
+    }
   }
 }

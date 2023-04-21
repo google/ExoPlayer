@@ -31,6 +31,11 @@
     *   Deprecate `Player.COMMAND_GET_MEDIA_ITEMS_METADATA` and
         `COMMAND_SET_MEDIA_ITEMS_METADATA`. Use `COMMAND_GET_METADATA` and
         `COMMAND_SET_PLAYLIST_METADATA` instead.
+    *   Add `Buffer.isLastSample()` that denotes if `Buffer` contains flag
+        `C.BUFFER_FLAG_LAST_SAMPLE`.
+    *   Fix issue where last frame may not be rendered if the last sample with
+        frames is dequeued without reading the 'end of stream' sample.
+        ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
 *   Session:
     *   Deprecate 4 volume-controlling methods in `Player` and add overloaded
         methods which allow users to specify volume flags:

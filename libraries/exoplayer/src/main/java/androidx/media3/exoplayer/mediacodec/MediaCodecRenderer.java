@@ -1249,7 +1249,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
 
-    if (hasReadStreamToEnd()) {
+    if (hasReadStreamToEnd() || buffer.isLastSample()) {
       // Notify output queue of the last buffer's timestamp.
       lastBufferInStreamPresentationTimeUs = largestQueuedPresentationTimeUs;
     }

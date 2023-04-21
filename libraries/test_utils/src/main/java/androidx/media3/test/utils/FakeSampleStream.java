@@ -204,10 +204,12 @@ public class FakeSampleStream implements SampleStream {
    * Seeks the stream to a new position using already available data in the queue.
    *
    * @param positionUs The new position, in microseconds.
+   * @param allowTimeBeyondBuffer Whether the operation can succeed if timeUs is beyond the end of
+   *     the queue, by seeking to the last sample (or keyframe).
    * @return Whether seeking inside the available data was possible.
    */
-  public boolean seekToUs(long positionUs) {
-    return sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
+  public boolean seekToUs(long positionUs, boolean allowTimeBeyondBuffer) {
+    return sampleQueue.seekTo(positionUs, allowTimeBeyondBuffer);
   }
 
   /**

@@ -338,7 +338,8 @@ public class FakeMediaPeriod implements MediaPeriod {
     lastSeekPositionUs = seekPositionUs;
     boolean seekedInsideStreams = true;
     for (FakeSampleStream sampleStream : sampleStreams) {
-      seekedInsideStreams &= sampleStream.seekToUs(seekPositionUs);
+      seekedInsideStreams &=
+          sampleStream.seekToUs(seekPositionUs, /* allowTimeBeyondBuffer= */ false);
     }
     if (!seekedInsideStreams) {
       for (FakeSampleStream sampleStream : sampleStreams) {
