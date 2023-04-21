@@ -88,16 +88,6 @@ class PlayerActivity : AppCompatActivity() {
     initializeController()
   }
 
-  override fun onResume() {
-    super.onResume()
-    playerView.onResume()
-  }
-
-  override fun onPause() {
-    super.onPause()
-    playerView.onPause()
-  }
-
   override fun onStop() {
     super.onStop()
     playerView.player = null
