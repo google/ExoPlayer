@@ -2315,12 +2315,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     private static final class VideoFrameProcessorAccessor {
-
       private static @MonotonicNonNull Constructor<?>
           scaleAndRotateTransformationBuilderConstructor;
       private static @MonotonicNonNull Method setRotationMethod;
       private static @MonotonicNonNull Method buildScaleAndRotateTransformationMethod;
-      private static @MonotonicNonNull Constructor<?> videoFrameProcessorFactoryConstructor;
+      private static @MonotonicNonNull Constructor<?> videoFrameProcessorFactoryBuilderConstructor;
+      private static @MonotonicNonNull Method buildVideoFrameProcessorFactoryMethod;
 
       public static Effect createRotationEffect(float rotationDegrees) throws Exception {
         prepare();
@@ -2331,14 +2331,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
       public static VideoFrameProcessor.Factory getFrameProcessorFactory() throws Exception {
         prepare();
-        return (VideoFrameProcessor.Factory) videoFrameProcessorFactoryConstructor.newInstance();
+        Object builder = videoFrameProcessorFactoryBuilderConstructor.newInstance();
+        return (VideoFrameProcessor.Factory)
+            checkNotNull(buildVideoFrameProcessorFactoryMethod.invoke(builder));
       }
 
       @EnsuresNonNull({
-        "ScaleAndRotateEffectBuilder",
-        "SetRotationMethod",
-        "SetRotationMethod",
-        "VideoFrameProcessorFactoryClass"
+        "scaleAndRotateTransformationBuilderConstructor",
+        "setRotationMethod",
+        "buildScaleAndRotateTransformationMethod",
+        "videoFrameProcessorFactoryBuilderConstructor",
+        "buildVideoFrameProcessorFactoryMethod"
       })
       private static void prepare() throws Exception {
         if (scaleAndRotateTransformationBuilderConstructor == null
@@ -2353,10 +2356,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           buildScaleAndRotateTransformationMethod =
               scaleAndRotateTransformationBuilderClass.getMethod("build");
         }
-        if (videoFrameProcessorFactoryConstructor == null) {
-          videoFrameProcessorFactoryConstructor =
-              Class.forName("androidx.media3.effect.DefaultVideoFrameProcessor$Factory")
-                  .getConstructor();
+        if (videoFrameProcessorFactoryBuilderConstructor == null
+            || buildVideoFrameProcessorFactoryMethod == null) {
+          Class<?> videoFrameProcessorFactoryBuilderClass =
+              Class.forName("androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder");
+          videoFrameProcessorFactoryBuilderConstructor =
+              videoFrameProcessorFactoryBuilderClass.getConstructor();
+          buildVideoFrameProcessorFactoryMethod =
+              videoFrameProcessorFactoryBuilderClass.getMethod("build");
         }
       }
     }
