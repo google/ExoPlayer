@@ -1548,6 +1548,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
     int maxVolume = 100;
     int currentVolume = 45;
+    String routingSessionId = Util.SDK_INT >= 30 ? "route" : null;
 
     AtomicReference<DeviceInfo> deviceInfoRef = new AtomicReference<>();
     CountDownLatch latchForDeviceInfo = new CountDownLatch(1);
@@ -1572,11 +1573,12 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    session.setPlaybackToRemote(volumeControlType, maxVolume, currentVolume);
+    session.setPlaybackToRemote(volumeControlType, maxVolume, currentVolume, routingSessionId);
 
     assertThat(latchForDeviceInfo.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(latchForDeviceVolume.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceInfoRef.get().maxVolume).isEqualTo(maxVolume);
+    assertThat(deviceInfoRef.get().routingControllerId).isEqualTo(routingSessionId);
   }
 
   @Test
@@ -1588,7 +1590,8 @@ public class MediaControllerWithMediaSessionCompatTest {
     session.setPlaybackToRemote(
         VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
         /* maxVolume= */ 100,
-        /* currentVolume= */ 45);
+        /* currentVolume= */ 45,
+        /* routingSessionId= */ "route");
 
     int testLocalStreamType = AudioManager.STREAM_ALARM;
     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);

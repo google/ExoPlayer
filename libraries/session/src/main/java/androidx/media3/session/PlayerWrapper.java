@@ -1028,7 +1028,9 @@ import java.util.List;
     Handler handler = new Handler(getApplicationLooper());
     int currentVolume = getDeviceVolumeWithCommandCheck();
     int legacyVolumeFlag = C.VOLUME_FLAG_SHOW_UI;
-    return new VolumeProviderCompat(volumeControlType, getDeviceInfo().maxVolume, currentVolume) {
+    DeviceInfo deviceInfo = getDeviceInfo();
+    return new VolumeProviderCompat(
+        volumeControlType, deviceInfo.maxVolume, currentVolume, deviceInfo.routingControllerId) {
       @Override
       public void onSetVolumeTo(int volume) {
         postOrRun(

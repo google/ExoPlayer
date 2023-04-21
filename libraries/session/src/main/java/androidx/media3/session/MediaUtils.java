@@ -1331,7 +1331,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Converts {@link MediaControllerCompat.PlaybackInfo} to {@link DeviceInfo}. */
   public static DeviceInfo convertToDeviceInfo(
-      @Nullable MediaControllerCompat.PlaybackInfo playbackInfoCompat) {
+      @Nullable MediaControllerCompat.PlaybackInfo playbackInfoCompat,
+      @Nullable String routingControllerId) {
     if (playbackInfoCompat == null) {
       return DeviceInfo.UNKNOWN;
     }
@@ -1341,6 +1342,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 ? DeviceInfo.PLAYBACK_TYPE_REMOTE
                 : DeviceInfo.PLAYBACK_TYPE_LOCAL)
         .setMaxVolume(playbackInfoCompat.getMaxVolume())
+        .setRoutingControllerId(routingControllerId)
         .build();
   }
 

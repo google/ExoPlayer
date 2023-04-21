@@ -29,7 +29,7 @@ interface IRemoteMediaSessionCompat {
   Bundle getSessionToken(String sessionTag);
   void release(String sessionTag);
   void setPlaybackToLocal(String sessionTag, int stream);
-  void setPlaybackToRemote(String sessionTag, int volumeControl, int maxVolume, int currentVolume);
+  void setPlaybackToRemote(String sessionTag, int volumeControl, int maxVolume, int currentVolume, @nullable String routingControllerId);
   void setPlaybackState(String sessionTag, in Bundle stateBundle);
   void setMetadata(String sessionTag, in Bundle metadataBundle);
   void setQueue(String sessionTag, in Bundle queueBundle);

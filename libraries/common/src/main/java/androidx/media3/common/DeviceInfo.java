@@ -17,6 +17,7 @@ package androidx.media3.common;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.MediaRouter2;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -57,6 +58,7 @@ public final class DeviceInfo implements Bundleable {
 
     private int minVolume;
     private int maxVolume;
+    @Nullable private String routingControllerId;
 
     /**
      * Creates the builder.
@@ -93,6 +95,28 @@ public final class DeviceInfo implements Bundleable {
       return this;
     }
 
+    /**
+     * Sets the {@linkplain MediaRouter2.RoutingController#getId() routing controller id} of the
+     * associated {@link MediaRouter2.RoutingController}.
+     *
+     * <p>This id allows mapping this device information to a routing controller, which provides
+     * information about the media route and allows controlling its volume.
+     *
+     * <p>The set value must be null if {@link DeviceInfo#playbackType} is {@link
+     * #PLAYBACK_TYPE_LOCAL}.
+     *
+     * @param routingControllerId The {@linkplain MediaRouter2.RoutingController#getId() routing
+     *     controller id} of the associated {@link MediaRouter2.RoutingController}, or null to leave
+     *     it unspecified.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setRoutingControllerId(@Nullable String routingControllerId) {
+      Assertions.checkArgument(playbackType != PLAYBACK_TYPE_LOCAL || routingControllerId == null);
+      this.routingControllerId = routingControllerId;
+      return this;
+    }
+
     /** Builds the {@link DeviceInfo}. */
     public DeviceInfo build() {
       Assertions.checkArgument(minVolume <= maxVolume);
@@ -108,6 +132,15 @@ public final class DeviceInfo implements Bundleable {
   /** The maximum volume that the device supports, or {@code 0} if unspecified. */
   @IntRange(from = 0)
   public final int maxVolume;
+  /**
+   * The {@linkplain MediaRouter2.RoutingController#getId() routing controller id} of the associated
+   * {@link MediaRouter2.RoutingController}, or null if unset or {@link #playbackType} is {@link
+   * #PLAYBACK_TYPE_LOCAL}.
+   *
+   * <p>This id allows mapping this device information to a routing controller, which provides
+   * information about the media route and allows controlling its volume.
+   */
+  @Nullable public final String routingControllerId;
 
   /**
    * @deprecated Use {@link Builder} instead.
@@ -125,6 +158,7 @@ public final class DeviceInfo implements Bundleable {
     this.playbackType = builder.playbackType;
     this.minVolume = builder.minVolume;
     this.maxVolume = builder.maxVolume;
+    this.routingControllerId = builder.routingControllerId;
   }
 
   @Override
@@ -138,7 +172,8 @@ public final class DeviceInfo implements Bundleable {
     DeviceInfo other = (DeviceInfo) obj;
     return playbackType == other.playbackType
         && minVolume == other.minVolume
-        && maxVolume == other.maxVolume;
+        && maxVolume == other.maxVolume
+        && Util.areEqual(routingControllerId, other.routingControllerId);
   }
 
   @Override
@@ -147,6 +182,7 @@ public final class DeviceInfo implements Bundleable {
     result = 31 * result + playbackType;
     result = 31 * result + minVolume;
     result = 31 * result + maxVolume;
+    result = 31 * result + (routingControllerId == null ? 0 : routingControllerId.hashCode());
     return result;
   }
 
@@ -155,6 +191,7 @@ public final class DeviceInfo implements Bundleable {
   private static final String FIELD_PLAYBACK_TYPE = Util.intToStringMaxRadix(0);
   private static final String FIELD_MIN_VOLUME = Util.intToStringMaxRadix(1);
   private static final String FIELD_MAX_VOLUME = Util.intToStringMaxRadix(2);
+  private static final String FIELD_ROUTING_CONTROLLER_ID = Util.intToStringMaxRadix(3);
 
   @UnstableApi
   @Override
@@ -169,6 +206,9 @@ public final class DeviceInfo implements Bundleable {
     if (maxVolume != 0) {
       bundle.putInt(FIELD_MAX_VOLUME, maxVolume);
     }
+    if (routingControllerId != null) {
+      bundle.putString(FIELD_ROUTING_CONTROLLER_ID, routingControllerId);
+    }
     return bundle;
   }
 
@@ -180,9 +220,11 @@ public final class DeviceInfo implements Bundleable {
             bundle.getInt(FIELD_PLAYBACK_TYPE, /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
         int minVolume = bundle.getInt(FIELD_MIN_VOLUME, /* defaultValue= */ 0);
         int maxVolume = bundle.getInt(FIELD_MAX_VOLUME, /* defaultValue= */ 0);
+        @Nullable String routingControllerId = bundle.getString(FIELD_ROUTING_CONTROLLER_ID);
         return new DeviceInfo.Builder(playbackType)
             .setMinVolume(minVolume)
             .setMaxVolume(maxVolume)
+            .setRoutingControllerId(routingControllerId)
             .build();
       };
 }

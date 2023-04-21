@@ -120,11 +120,15 @@ public class MediaSessionCompatProviderService extends Service {
 
     @Override
     public void setPlaybackToRemote(
-        String sessionTag, int volumeControl, int maxVolume, int currentVolume)
+        String sessionTag,
+        int volumeControl,
+        int maxVolume,
+        int currentVolume,
+        @Nullable String routingControllerId)
         throws RemoteException {
       MediaSessionCompat session = sessionMap.get(sessionTag);
       session.setPlaybackToRemote(
-          new VolumeProviderCompat(volumeControl, maxVolume, currentVolume) {
+          new VolumeProviderCompat(volumeControl, maxVolume, currentVolume, routingControllerId) {
             @Override
             public void onSetVolumeTo(int volume) {
               setCurrentVolume(volume);

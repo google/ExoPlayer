@@ -1453,7 +1453,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerCompat.getFlags(),
             controllerCompat.isSessionReady(),
             controllerCompat.getRatingType(),
-            getInstance().getTimeDiffMs());
+            getInstance().getTimeDiffMs(),
+            getRoutingControllerId(controllerCompat));
     Pair<@NullableType Integer, @NullableType Integer> reasons =
         calculateDiscontinuityAndTransitionReason(
             legacyPlayerInfo,
@@ -1642,6 +1643,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     listeners.flushEvents();
   }
 
+  @Nullable
+  private static String getRoutingControllerId(MediaControllerCompat controllerCompat) {
+    if (Util.SDK_INT < 30) {
+      return null;
+    }
+    android.media.session.MediaController fwkController =
+        (android.media.session.MediaController) controllerCompat.getMediaController();
+    @Nullable
+    android.media.session.MediaController.PlaybackInfo playbackInfo =
+        fwkController.getPlaybackInfo();
+    if (playbackInfo == null) {
+      return null;
+    }
+    return playbackInfo.getVolumeControlId();
+  }
+
   private static <T> void ignoreFuture(Future<T> unused) {
     // Ignore return value of the future because legacy session cannot get result back.
   }
@@ -1816,7 +1833,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       long sessionFlags,
       boolean isSessionReady,
       @RatingCompat.Style int ratingType,
-      long timeDiffMs) {
+      long timeDiffMs,
+      @Nullable String routingControllerId) {
     QueueTimeline currentTimeline;
     MediaMetadata mediaMetadata;
     int currentMediaItemIndex;
@@ -1963,7 +1981,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             newLegacyPlayerInfo.mediaMetadataCompat,
             timeDiffMs);
     boolean isPlaying = MediaUtils.convertToIsPlaying(newLegacyPlayerInfo.playbackStateCompat);
-    DeviceInfo deviceInfo = MediaUtils.convertToDeviceInfo(newLegacyPlayerInfo.playbackInfoCompat);
+    DeviceInfo deviceInfo =
+        MediaUtils.convertToDeviceInfo(newLegacyPlayerInfo.playbackInfoCompat, routingControllerId);
     int deviceVolume = MediaUtils.convertToDeviceVolume(newLegacyPlayerInfo.playbackInfoCompat);
     boolean deviceMuted = MediaUtils.convertToIsDeviceMuted(newLegacyPlayerInfo.playbackInfoCompat);
     long seekBackIncrementMs = oldControllerInfo.playerInfo.seekBackIncrementMs;

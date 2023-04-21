@@ -114,12 +114,13 @@ public class RemoteMediaSessionCompat {
   }
 
   /**
-   * Since we cannot pass VolumeProviderCompat directly, we pass volumeControl, maxVolume,
-   * currentVolume instead.
+   * Since we cannot pass VolumeProviderCompat directly, we pass the individual parameters instead.
    */
-  public void setPlaybackToRemote(int volumeControl, int maxVolume, int currentVolume)
+  public void setPlaybackToRemote(
+      int volumeControl, int maxVolume, int currentVolume, @Nullable String routingControllerId)
       throws RemoteException {
-    binder.setPlaybackToRemote(sessionTag, volumeControl, maxVolume, currentVolume);
+    binder.setPlaybackToRemote(
+        sessionTag, volumeControl, maxVolume, currentVolume, routingControllerId);
   }
 
   public void setPlaybackState(PlaybackStateCompat state) throws RemoteException {

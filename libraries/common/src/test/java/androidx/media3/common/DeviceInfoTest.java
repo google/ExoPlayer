@@ -31,6 +31,7 @@ public class DeviceInfoTest {
         new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_REMOTE)
             .setMinVolume(1)
             .setMaxVolume(9)
+            .setRoutingControllerId("route")
             .build();
 
     assertThat(DeviceInfo.CREATOR.fromBundle(deviceInfo.toBundle())).isEqualTo(deviceInfo);

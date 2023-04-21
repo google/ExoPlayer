@@ -246,7 +246,8 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     session.setPlaybackToRemote(
         /* volumeControl= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
         /* maxVolume= */ 100,
-        /* currentVolume= */ 50);
+        /* currentVolume= */ 50,
+        /* routingSessionId= */ "route");
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<AudioAttributes> audioAttributesParamRef = new AtomicReference<>();
@@ -305,15 +306,18 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
           }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    String testRoutingSessionId = Util.SDK_INT >= 30 ? "route" : null;
 
     session.setPlaybackToRemote(
         /* volumeControl= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
         /* maxVolume= */ 100,
-        /* currentVolume= */ 50);
+        /* currentVolume= */ 50,
+        testRoutingSessionId);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceInfoParamRef.get().playbackType).isEqualTo(DeviceInfo.PLAYBACK_TYPE_REMOTE);
     assertThat(deviceInfoParamRef.get().maxVolume).isEqualTo(100);
+    assertThat(deviceInfoParamRef.get().routingControllerId).isEqualTo(testRoutingSessionId);
     assertThat(deviceInfoGetterRef.get()).isEqualTo(deviceInfoParamRef.get());
     assertThat(deviceInfoOnEventsRef.get()).isEqualTo(deviceInfoGetterRef.get());
     assertThat(getEventsAsList(onEvents.get())).contains(Player.EVENT_DEVICE_VOLUME_CHANGED);
@@ -348,7 +352,8 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     session.setPlaybackToRemote(
         /* volumeControl= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
         /* maxVolume= */ 100,
-        /* currentVolume= */ 50);
+        /* currentVolume= */ 50,
+        /* routingSessionId= */ "route");
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeParam.get()).isEqualTo(50);

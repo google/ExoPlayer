@@ -37,6 +37,8 @@
         frames is dequeued without reading the 'end of stream' sample.
         ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
     *   Add `Builder` for `DeviceInfo` and deprecate existing constructor.
+    *   Add `DeviceInfo.routingControllerId` to specify the routing controller
+        ID for remote playbacks.
 *   Session:
     *   Deprecate 4 volume-controlling methods in `Player` and add overloaded
         methods which allow users to specify volume flags:
