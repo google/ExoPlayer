@@ -1,5 +1,14 @@
 # Release notes
 
+### Unreleased changes
+
+*   Core library:
+    *   Add `Buffer.isLastSample()` that denotes if `Buffer` contains flag
+        `C.BUFFER_FLAG_LAST_SAMPLE`.
+    *   Fix issue where last frame may not be rendered if the last sample with
+        frames is dequeued without reading the 'end of stream' sample.
+        ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
+
 ### 1.0.1 (2023-04-18)
 
 This release corresponds to the

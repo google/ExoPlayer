@@ -716,6 +716,9 @@ public class SampleQueue implements TrackOutput {
     }
 
     buffer.setFlags(flags[relativeReadIndex]);
+    if (readPosition == (length - 1) && (loadingFinished || isLastSampleQueued)) {
+      buffer.addFlag(C.BUFFER_FLAG_LAST_SAMPLE);
+    }
     buffer.timeUs = timesUs[relativeReadIndex];
     if (buffer.timeUs < startTimeUs) {
       buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
