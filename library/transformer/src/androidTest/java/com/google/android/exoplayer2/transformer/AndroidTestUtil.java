@@ -131,8 +131,6 @@ public final class AndroidTestUtil {
                   .build())
           .setCodecs("hvc1.2.4.L153")
           .build();
-  public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
-      "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
 
   public static final String MP4_ASSET_4K60_PORTRAIT_URI_STRING =
       "asset:///media/mp4/portrait_4k60.mp4";

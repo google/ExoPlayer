@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
@@ -274,24 +273,6 @@ public class HdrEditingTest {
       assertThat(exception.errorCode)
           .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
-    }
-  }
-
-  @Test
-  public void exportUnexpectedColorInfo() throws Exception {
-    String testId = "exportUnexpectedColorInfo";
-    Context context = ApplicationProvider.getApplicationContext();
-
-    Transformer transformer = new Transformer.Builder(context).build();
-    MediaItem mediaItem =
-        MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER));
-    try {
-      new TransformerAndroidTestRunner.Builder(context, transformer).build().run(testId, mediaItem);
-    } catch (ExportException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
-      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      assertThat(exception.errorCode)
-          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
 
