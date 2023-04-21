@@ -63,6 +63,9 @@ public final class NalUnitUtil {
     public final int picOrderCountType;
     public final int picOrderCntLsbLength;
     public final boolean deltaPicOrderAlwaysZeroFlag;
+    public final @C.ColorSpace int colorSpace;
+    public final @C.ColorRange int colorRange;
+    public final @C.ColorTransfer int colorTransfer;
 
     public SpsData(
         int profileIdc,
@@ -78,7 +81,10 @@ public final class NalUnitUtil {
         int frameNumLength,
         int picOrderCountType,
         int picOrderCntLsbLength,
-        boolean deltaPicOrderAlwaysZeroFlag) {
+        boolean deltaPicOrderAlwaysZeroFlag,
+        @C.ColorSpace int colorSpace,
+        @C.ColorRange int colorRange,
+        @C.ColorTransfer int colorTransfer) {
       this.profileIdc = profileIdc;
       this.constraintsFlagsAndReservedZero2Bits = constraintsFlagsAndReservedZero2Bits;
       this.levelIdc = levelIdc;
@@ -93,6 +99,9 @@ public final class NalUnitUtil {
       this.picOrderCountType = picOrderCountType;
       this.picOrderCntLsbLength = picOrderCntLsbLength;
       this.deltaPicOrderAlwaysZeroFlag = deltaPicOrderAlwaysZeroFlag;
+      this.colorSpace = colorSpace;
+      this.colorRange = colorRange;
+      this.colorTransfer = colorTransfer;
     }
   }
 
@@ -443,6 +452,9 @@ public final class NalUnitUtil {
       frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
     }
 
+    @C.ColorSpace int colorSpace = Format.NO_VALUE;
+    @C.ColorRange int colorRange = Format.NO_VALUE;
+    @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
     float pixelWidthHeightRatio = 1;
     boolean vuiParametersPresentFlag = data.readBit();
     if (vuiParametersPresentFlag) {
@@ -461,6 +473,23 @@ public final class NalUnitUtil {
           Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
         }
       }
+      if (data.readBit()) { // overscan_info_present_flag
+        data.skipBit(); // overscan_appropriate_flag
+      }
+      if (data.readBit()) { // video_signal_type_present_flag
+        data.skipBits(3); // video_format
+        colorRange =
+            data.readBit() ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED; // video_full_range_flag
+        if (data.readBit()) { // colour_description_present_flag
+          int colorPrimaries = data.readBits(8); // colour_primaries
+          int transferCharacteristics = data.readBits(8); // transfer_characteristics
+          data.skipBits(8); // matrix_coeffs
+
+          colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+          colorTransfer =
+              ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
+        }
+      }
     }
 
     return new SpsData(
@@ -477,7 +506,10 @@ public final class NalUnitUtil {
         frameNumLength,
         picOrderCntType,
         picOrderCntLsbLength,
-        deltaPicOrderAlwaysZeroFlag);
+        deltaPicOrderAlwaysZeroFlag,
+        colorSpace,
+        colorRange,
+        colorTransfer);
   }
 
   /**
@@ -505,10 +537,6 @@ public final class NalUnitUtil {
   public static H265SpsData parseH265SpsNalUnitPayload(
       byte[] nalData, int nalOffset, int nalLimit) {
     ParsableNalUnitBitArray data = new ParsableNalUnitBitArray(nalData, nalOffset, nalLimit);
-    // HDR related metadata.
-    @C.ColorSpace int colorSpace = Format.NO_VALUE;
-    @C.ColorRange int colorRange = Format.NO_VALUE;
-    @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
     data.skipBits(4); // sps_video_parameter_set_id
     int maxSubLayersMinus1 = data.readBits(3);
     data.skipBit(); // sps_temporal_id_nesting_flag
@@ -595,6 +623,9 @@ public final class NalUnitUtil {
       }
     }
     data.skipBits(2); // sps_temporal_mvp_enabled_flag, strong_intra_smoothing_enabled_flag
+    @C.ColorSpace int colorSpace = Format.NO_VALUE;
+    @C.ColorRange int colorRange = Format.NO_VALUE;
+    @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
     float pixelWidthHeightRatio = 1;
     if (data.readBit()) { // vui_parameters_present_flag
       if (data.readBit()) { // aspect_ratio_info_present_flag
@@ -616,14 +647,14 @@ public final class NalUnitUtil {
       }
       if (data.readBit()) { // video_signal_type_present_flag
         data.skipBits(3); // video_format
-        boolean fullRangeFlag = data.readBit(); // video_full_range_flag
+        colorRange =
+            data.readBit() ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED; // video_full_range_flag
         if (data.readBit()) { // colour_description_present_flag
           int colorPrimaries = data.readBits(8); // colour_primaries
           int transferCharacteristics = data.readBits(8); // transfer_characteristics
           data.skipBits(8); // matrix_coeffs
 
           colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
-          colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
           colorTransfer =
               ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
         }
