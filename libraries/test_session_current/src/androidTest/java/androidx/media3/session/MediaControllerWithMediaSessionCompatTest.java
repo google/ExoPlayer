@@ -1503,6 +1503,36 @@ public class MediaControllerWithMediaSessionCompatTest {
   }
 
   @Test
+  public void setPlaybackState_withActions_updatesAndNotifiesAvailableCommands() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<Player.Commands> commandsFromParamRef = new AtomicReference<>();
+    AtomicReference<Player.Commands> commandsFromGetterRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onAvailableCommandsChanged(Player.Commands commands) {
+            commandsFromParamRef.set(commands);
+            commandsFromGetterRef.set(controller.getAvailableCommands());
+            latch.countDown();
+          }
+        };
+    controller.addListener(listener);
+
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_FAST_FORWARD)
+            .build());
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(commandsFromParamRef.get().contains(Player.COMMAND_PLAY_PAUSE)).isTrue();
+    assertThat(commandsFromParamRef.get().contains(Player.COMMAND_SEEK_FORWARD)).isTrue();
+    assertThat(commandsFromGetterRef.get().contains(Player.COMMAND_PLAY_PAUSE)).isTrue();
+    assertThat(commandsFromGetterRef.get().contains(Player.COMMAND_SEEK_FORWARD)).isTrue();
+  }
+
+  @Test
   public void setPlaybackToRemote_notifiesDeviceInfoAndVolume() throws Exception {
     int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
     int maxVolume = 100;

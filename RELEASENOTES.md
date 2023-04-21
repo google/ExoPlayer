@@ -8,6 +8,10 @@
     *   Fix issue where last frame may not be rendered if the last sample with
         frames is dequeued without reading the 'end of stream' sample.
         ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
+*   Session:
+    *   Fix issue where `MediaController` doesn't update its available commands
+        when connected to a legacy `MediaSessionCompat` that updates its
+        actions.
 
 ### 1.0.1 (2023-04-18)
 
