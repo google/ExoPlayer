@@ -1510,6 +1510,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
+   * Returns a {@link Pair} of {@linkplain ColorInfo input color} and {@linkplain ColorInfo output
+   * color} to configure the {@code VideoFrameProcessor}.
+   */
+  protected Pair<ColorInfo, ColorInfo> experimentalGetVideoFrameProcessorColorConfiguration(
+      @Nullable ColorInfo inputColorInfo) {
+    // TODO(b/279163661) Remove this method after VideoFrameProcessor supports texture ID
+    //  input/output.
+    if (!ColorInfo.isTransferHdr(inputColorInfo)) {
+      return Pair.create(ColorInfo.SDR_BT709_LIMITED, ColorInfo.SDR_BT709_LIMITED);
+    }
+
+    if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG) {
+      // SurfaceView only supports BT2020 PQ input, converting HLG to PQ.
+      return Pair.create(
+          inputColorInfo,
+          inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build());
+    }
+
+    return Pair.create(inputColorInfo, inputColorInfo);
+  }
+
+  /**
    * Renders the output buffer with the specified index now.
    *
    * @param codec The codec that owns the output buffer.
@@ -1982,22 +2004,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         return false;
       }
 
-      ColorInfo inputColorInfo;
-      ColorInfo outputColorInfo;
-      if (inputFormat.colorInfo != null) {
-        inputColorInfo = inputFormat.colorInfo;
-        outputColorInfo =
-            inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG
-                // SurfaceView only supports BT2020 PQ input, converting HLG to PQ.
-                ? inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build()
-                : inputColorInfo;
-      } else {
-        inputColorInfo = ColorInfo.SDR_BT709_LIMITED;
-        outputColorInfo = ColorInfo.SDR_BT709_LIMITED;
-      }
-
       // Playback thread handler.
       handler = Util.createHandlerForCurrentLooper();
+
+      Pair<ColorInfo, ColorInfo> inputAndOutputColorInfos =
+          renderer.experimentalGetVideoFrameProcessorColorConfiguration(inputFormat.colorInfo);
       try {
         // TODO(b/243036513): Set rotation in setInputFormat() after supporting changing effects.
         if (!codecAppliesRotation() && inputFormat.rotationDegrees != 0) {
@@ -2013,8 +2024,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     renderer.context,
                     checkNotNull(videoEffects),
                     DebugViewProvider.NONE,
-                    inputColorInfo,
-                    outputColorInfo,
+                    inputAndOutputColorInfos.first,
+                    inputAndOutputColorInfos.second,
                     INPUT_TYPE_SURFACE,
                     /* releaseFramesAutomatically= */ false,
                     /* executor= */ handler::post,
