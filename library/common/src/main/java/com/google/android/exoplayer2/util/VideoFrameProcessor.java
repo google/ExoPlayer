@@ -207,11 +207,8 @@ public interface VideoFrameProcessor {
   void registerInputFrame();
 
   /**
-   * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
-   * but not processed off the {@linkplain #getInputSurface() input surface} yet.
-   *
-   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
-   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
+   * returns the number of input frames that have been made available to the {@code
+   * VideoFrameProcessor} but have not been processed yet.
    *
    * <p>Can be called on any thread.
    */

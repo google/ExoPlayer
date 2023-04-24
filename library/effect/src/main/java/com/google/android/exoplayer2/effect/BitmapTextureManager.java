@@ -21,11 +21,13 @@ import static java.lang.Math.round;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -36,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>Public methods in this class can be called from any thread.
  */
-/* package */ final class BitmapTextureManager implements GlShaderProgram.InputListener {
+/* package */ final class BitmapTextureManager implements InputHandler {
   private final GlShaderProgram shaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
@@ -75,22 +77,35 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         });
   }
 
-  /**
-   * Provides an input {@link Bitmap} to put into the video frames.
-   *
-   * @see VideoFrameProcessor#queueInputBitmap
-   */
+  @Override
+  public void setDefaultBufferSize(int width, int height) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
     videoFrameProcessingTaskExecutor.submit(
         () -> setupBitmap(inputBitmap, durationUs, frameRate, useHdr));
   }
 
-  /**
-   * Signals the end of the input.
-   *
-   * @see VideoFrameProcessor#signalEndOfInput()
-   */
+  @Override
+  public Surface getInputSurface() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void registerInputFrame(FrameInfo frameInfo) {
+    // Do nothing.
+  }
+
+  @Override
+  public int getPendingFrameCount() {
+    // Always treat all queued bitmaps as immediately processed.
+    return 0;
+  }
+
+  @Override
   public void signalEndOfInput() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
@@ -99,11 +114,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         });
   }
 
-  /**
-   * Releases all resources.
-   *
-   * @see VideoFrameProcessor#release()
-   */
+  @Override
+  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTask task) {
+    // Do nothing.
+  }
+
+  @Override
   public void release() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
