@@ -53,6 +53,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation project(modulePrefix + 'testutils')
+    androidTestCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
 }
 
 ext {
