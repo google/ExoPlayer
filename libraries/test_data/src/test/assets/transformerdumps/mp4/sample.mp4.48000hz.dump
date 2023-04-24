@@ -12,6 +12,7 @@ format 0:
     data = length 10, hash 7A0D0F2B
 container metadata = entries=[xyz: latitude=40.68, longitude=-74.5]
 format 1:
+  averageBitrate = 131072
   sampleMimeType = audio/mp4a-latm
   channelCount = 1
   sampleRate = 48000

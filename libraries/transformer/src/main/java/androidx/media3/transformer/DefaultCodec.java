@@ -41,7 +41,6 @@ import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -392,43 +391,17 @@ public final class DefaultCodec implements Codec {
   }
 
   private static Format convertToFormat(MediaFormat mediaFormat, boolean isDecoder) {
-    ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
-    int csdIndex = 0;
-    while (true) {
-      @Nullable ByteBuffer csdByteBuffer = mediaFormat.getByteBuffer("csd-" + csdIndex);
-      if (csdByteBuffer == null) {
-        break;
-      }
-      byte[] csdBufferData = new byte[csdByteBuffer.remaining()];
-      csdByteBuffer.get(csdBufferData);
-      csdBuffers.add(csdBufferData);
-      csdIndex++;
-    }
-    String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
     Format.Builder formatBuilder =
-        new Format.Builder().setSampleMimeType(mimeType).setInitializationData(csdBuffers.build());
-    if (MimeTypes.isVideo(mimeType)) {
-      formatBuilder
-          .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
-          .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
-          .setColorInfo(MediaFormatUtil.getColorInfo(mediaFormat));
-    } else if (MimeTypes.isAudio(mimeType)) {
-      formatBuilder
-          .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
-          .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE));
+        MediaFormatUtil.createFormatFromMediaFormat(mediaFormat).buildUpon();
+    if (isDecoder) {
+      // TODO(b/178685617): Restrict this to only set the PCM encoding for audio/raw once we have
+      // a way to simulate more realistic codec input/output formats in tests.
 
-      if (SDK_INT >= 24 && mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
-        formatBuilder.setPcmEncoding(mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING));
-      } else if (isDecoder) {
-        // TODO(b/178685617): Restrict this to only set the PCM encoding for audio/raw once we have
-        // a way to simulate more realistic codec input/output formats in tests.
-
-        // With Robolectric, codecs do not actually encode/decode. The format of buffers is passed
-        // through. However downstream components need to know the PCM encoding of the data being
-        // output, so if a decoder is not outputting raw audio, we need to set the PCM
-        // encoding to the default.
-        formatBuilder.setPcmEncoding(DEFAULT_PCM_ENCODING);
-      }
+      // With Robolectric, codecs do not actually encode/decode. The format of buffers is passed
+      // through. However downstream components need to know the PCM encoding of the data being
+      // output, so if a decoder is not outputting raw audio, we need to set the PCM
+      // encoding to the default.
+      formatBuilder.setPcmEncoding(DEFAULT_PCM_ENCODING);
     }
     return formatBuilder.build();
   }
