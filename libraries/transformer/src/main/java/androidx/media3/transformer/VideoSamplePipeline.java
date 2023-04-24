@@ -391,8 +391,8 @@ import org.checkerframework.dataflow.qual.Pure;
         // populate default color info, which depends on the resolution.
         return ColorInfo.SDR_BT709_LIMITED;
       }
-      if (inputFormat.colorInfo == null) {
-        Log.d(TAG, "colorInfo is null. Defaulting to SDR_BT709_LIMITED.");
+      if (inputFormat.colorInfo == null || !inputFormat.colorInfo.isValid()) {
+        Log.d(TAG, "colorInfo is null or invalid. Defaulting to SDR_BT709_LIMITED.");
         return ColorInfo.SDR_BT709_LIMITED;
       }
       return inputFormat.colorInfo;
