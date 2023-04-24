@@ -21,10 +21,8 @@ import static java.lang.Math.round;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -78,25 +76,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setDefaultBufferSize(int width, int height) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
     videoFrameProcessingTaskExecutor.submit(
         () -> setupBitmap(inputBitmap, durationUs, frameRate, useHdr));
-  }
-
-  @Override
-  public Surface getInputSurface() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void registerInputFrame(FrameInfo frameInfo) {
-    // Do nothing.
   }
 
   @Override

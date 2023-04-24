@@ -32,24 +32,33 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
    *
    * <p>Only works when the input is received on a {@link SurfaceTexture}.
    */
-  void setDefaultBufferSize(int width, int height);
+  default void setDefaultBufferSize(int width, int height) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Provides an input {@link Bitmap} to put into the video frames.
    *
    * @see VideoFrameProcessor#queueInputBitmap
    */
-  void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr);
+  default void queueInputBitmap(
+      Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * See {@link VideoFrameProcessor#getInputSurface}.
    *
    * <p>Only works when the input is received on a {@link SurfaceTexture}.
    */
-  Surface getInputSurface();
+  default Surface getInputSurface() {
+    throw new UnsupportedOperationException();
+  }
 
   /** Informs the {@code InputHandler} that a frame will be queued. */
-  void registerInputFrame(FrameInfo frameInfo);
+  default void registerInputFrame(FrameInfo frameInfo) {
+    throw new UnsupportedOperationException();
+  }
 
   /** See {@link VideoFrameProcessor#getPendingInputFrameCount}. */
   int getPendingFrameCount();
