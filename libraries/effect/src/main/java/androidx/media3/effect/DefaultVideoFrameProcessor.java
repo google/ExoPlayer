@@ -17,7 +17,6 @@ package androidx.media3.effect;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
@@ -247,8 +246,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
-  private @MonotonicNonNull BitmapTextureManager inputBitmapTextureManager;
-  private @MonotonicNonNull ExternalTextureManager inputExternalTextureManager;
+  private final InputHandler inputHandler;
   private final boolean releaseFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
@@ -278,20 +276,19 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     switch (inputType) {
       case VideoFrameProcessor.INPUT_TYPE_SURFACE:
         checkState(inputShaderProgram instanceof ExternalShaderProgram);
-        inputExternalTextureManager =
+        inputHandler =
             new ExternalTextureManager(
                 (ExternalShaderProgram) inputShaderProgram, videoFrameProcessingTaskExecutor);
-        inputShaderProgram.setInputListener(inputExternalTextureManager);
         break;
       case VideoFrameProcessor.INPUT_TYPE_BITMAP:
-        inputBitmapTextureManager =
+        inputHandler =
             new BitmapTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
-        inputShaderProgram.setInputListener(inputBitmapTextureManager);
         break;
       case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID: // fall through
       default:
         throw new VideoFrameProcessingException("Input type not supported yet");
     }
+    inputShaderProgram.setInputListener(inputHandler);
 
     finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
     allShaderPrograms = shaderPrograms;
@@ -319,18 +316,17 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    checkNotNull(inputExternalTextureManager).setDefaultBufferSize(width, height);
+    inputHandler.setDefaultBufferSize(width, height);
   }
 
   @Override
   public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
-    checkNotNull(inputBitmapTextureManager)
-        .queueInputBitmap(inputBitmap, durationUs, frameRate, /* useHdr= */ false);
+    inputHandler.queueInputBitmap(inputBitmap, durationUs, frameRate, /* useHdr= */ false);
   }
 
   @Override
   public Surface getInputSurface() {
-    return checkNotNull(inputExternalTextureManager).getInputSurface();
+    return inputHandler.getInputSurface();
   }
 
   @Override
@@ -344,12 +340,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkStateNotNull(
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
-    checkNotNull(inputExternalTextureManager).registerInputFrame(nextInputFrameInfo);
+    inputHandler.registerInputFrame(nextInputFrameInfo);
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return checkNotNull(inputExternalTextureManager).getPendingFrameCount();
+    return inputHandler.getPendingFrameCount();
   }
 
   @Override
@@ -370,12 +366,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    if (inputBitmapTextureManager != null) {
-      videoFrameProcessingTaskExecutor.submit(inputBitmapTextureManager::signalEndOfInput);
-    }
-    if (inputExternalTextureManager != null) {
-      videoFrameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
-    }
+    videoFrameProcessingTaskExecutor.submit(inputHandler::signalEndOfInput);
   }
 
   @Override
@@ -383,10 +374,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     try {
       videoFrameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
-      checkNotNull(inputExternalTextureManager).setOnFlushCompleteListener(latch::countDown);
+      inputHandler.setOnFlushCompleteListener(latch::countDown);
       videoFrameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
-      inputExternalTextureManager.setOnFlushCompleteListener(null);
+      inputHandler.setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -401,12 +392,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
     }
-    if (inputExternalTextureManager != null) {
-      inputExternalTextureManager.release();
-    }
-    if (inputBitmapTextureManager != null) {
-      inputBitmapTextureManager.release();
-    }
+    inputHandler.release();
   }
 
   /**

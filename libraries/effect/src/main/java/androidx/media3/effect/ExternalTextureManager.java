@@ -17,6 +17,7 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -24,7 +25,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.effect.GlShaderProgram.InputListener;
 import java.util.Queue;
@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Forwards externally produced frames that become available via a {@link SurfaceTexture} to an
  * {@link ExternalShaderProgram} for consumption.
  */
-/* package */ final class ExternalTextureManager implements InputListener {
+/* package */ final class ExternalTextureManager implements InputHandler {
 
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
@@ -105,12 +105,18 @@ import java.util.concurrent.atomic.AtomicInteger;
     surface = new Surface(surfaceTexture);
   }
 
-  /** See {@link DefaultVideoFrameProcessor#setInputDefaultBufferSize}. */
+  @Override
   public void setDefaultBufferSize(int width, int height) {
     surfaceTexture.setDefaultBufferSize(width, height);
   }
 
-  /** Returns the {@linkplain Surface input surface} that wraps the external texture. */
+  @Override
+  public void queueInputBitmap(
+      Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Surface getInputSurface() {
     return surface;
   }
@@ -137,7 +143,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         });
   }
 
-  /** Sets the task to run on completing flushing, or {@code null} to clear any task. */
+  @Override
   public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTask task) {
     onFlushCompleteTask = task;
   }
@@ -154,6 +160,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * <p>Can be called on any thread. The caller must ensure that frames are registered in the
    * correct order.
    */
+  @Override
   public void registerInputFrame(FrameInfo frame) {
     pendingFrames.add(frame);
   }
@@ -164,15 +171,12 @@ import java.util.concurrent.atomic.AtomicInteger;
    *
    * <p>Can be called on any thread.
    */
+  @Override
   public int getPendingFrameCount() {
     return pendingFrames.size();
   }
 
-  /**
-   * Signals the end of the input.
-   *
-   * @see VideoFrameProcessor#signalEndOfInput()
-   */
+  @Override
   public void signalEndOfInput() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
@@ -183,11 +187,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         });
   }
 
-  /**
-   * Releases all resources.
-   *
-   * @see VideoFrameProcessor#release()
-   */
+  @Override
   public void release() {
     surfaceTexture.release();
     surface.release();
