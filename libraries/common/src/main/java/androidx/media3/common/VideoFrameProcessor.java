@@ -208,7 +208,7 @@ public interface VideoFrameProcessor {
   void registerInputFrame();
 
   /**
-   * returns the number of input frames that have been made available to the {@code
+   * Returns the number of input frames that have been made available to the {@code
    * VideoFrameProcessor} but have not been processed yet.
    *
    * <p>Can be called on any thread.
