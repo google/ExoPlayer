@@ -56,6 +56,7 @@ dependencies {
         exclude module: modulePrefix.substring(1) + 'library-core'
     }
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'test-utils')

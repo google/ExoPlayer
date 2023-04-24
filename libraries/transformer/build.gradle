@@ -49,6 +49,7 @@ dependencies {
     testImplementation project(modulePrefix + 'test-data')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
+    testCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     androidTestImplementation 'junit:junit:' + junitVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
