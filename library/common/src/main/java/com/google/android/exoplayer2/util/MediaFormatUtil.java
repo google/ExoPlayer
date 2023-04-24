@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -62,6 +63,70 @@ public final class MediaFormatUtil {
   public static final String KEY_MAX_BIT_RATE = "max-bitrate";
 
   private static final int MAX_POWER_OF_TWO_INT = 1 << 30;
+
+  /** Returns a {@link Format} representing the given {@link MediaFormat}. */
+  @SuppressLint("InlinedApi") // Inlined MediaFormat keys.
+  public static Format createFormatFromMediaFormat(MediaFormat mediaFormat) {
+    Format.Builder formatBuilder =
+        new Format.Builder()
+            .setSampleMimeType(mediaFormat.getString(MediaFormat.KEY_MIME))
+            .setLanguage(mediaFormat.getString(MediaFormat.KEY_LANGUAGE))
+            .setPeakBitrate(
+                getInteger(mediaFormat, KEY_MAX_BIT_RATE, /* defaultValue= */ Format.NO_VALUE))
+            .setAverageBitrate(
+                getInteger(
+                    mediaFormat, MediaFormat.KEY_BIT_RATE, /* defaultValue= */ Format.NO_VALUE))
+            .setCodecs(mediaFormat.getString(MediaFormat.KEY_CODECS_STRING))
+            .setFrameRate(getFrameRate(mediaFormat, /* defaultValue= */ Format.NO_VALUE))
+            .setWidth(
+                getInteger(mediaFormat, MediaFormat.KEY_WIDTH, /* defaultValue= */ Format.NO_VALUE))
+            .setHeight(
+                getInteger(
+                    mediaFormat, MediaFormat.KEY_HEIGHT, /* defaultValue= */ Format.NO_VALUE))
+            .setPixelWidthHeightRatio(
+                getPixelWidthHeightRatio(mediaFormat, /* defaultValue= */ 1.0f))
+            .setMaxInputSize(
+                getInteger(
+                    mediaFormat,
+                    MediaFormat.KEY_MAX_INPUT_SIZE,
+                    /* defaultValue= */ Format.NO_VALUE))
+            .setRotationDegrees(
+                getInteger(mediaFormat, MediaFormat.KEY_ROTATION, /* defaultValue= */ 0))
+            // TODO(b/278101856): Disallow invalid values after confirming.
+            .setColorInfo(getColorInfo(mediaFormat, /* allowInvalidValues= */ true))
+            .setSampleRate(
+                getInteger(
+                    mediaFormat, MediaFormat.KEY_SAMPLE_RATE, /* defaultValue= */ Format.NO_VALUE))
+            .setChannelCount(
+                getInteger(
+                    mediaFormat,
+                    MediaFormat.KEY_CHANNEL_COUNT,
+                    /* defaultValue= */ Format.NO_VALUE))
+            .setPcmEncoding(
+                getInteger(
+                    mediaFormat,
+                    MediaFormat.KEY_PCM_ENCODING,
+                    /* defaultValue= */ Format.NO_VALUE));
+
+    ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
+    int csdIndex = 0;
+    while (true) {
+      @Nullable ByteBuffer csdByteBuffer = mediaFormat.getByteBuffer("csd-" + csdIndex);
+      if (csdByteBuffer == null) {
+        break;
+      }
+      byte[] csdBufferData = new byte[csdByteBuffer.remaining()];
+      csdByteBuffer.get(csdBufferData);
+      csdByteBuffer.rewind();
+
+      csdBuffers.add(csdBufferData);
+      csdIndex++;
+    }
+
+    formatBuilder.setInitializationData(csdBuffers.build());
+
+    return formatBuilder.build();
+  }
 
   /**
    * Returns a {@link MediaFormat} representing the given ExoPlayer {@link Format}.
@@ -201,6 +266,13 @@ public final class MediaFormatUtil {
    */
   @Nullable
   public static ColorInfo getColorInfo(MediaFormat mediaFormat) {
+    return getColorInfo(mediaFormat, /* allowInvalidValues= */ false);
+  }
+
+  // Internal methods.
+
+  @Nullable
+  private static ColorInfo getColorInfo(MediaFormat mediaFormat, boolean allowInvalidValues) {
     if (SDK_INT < 24) {
       // MediaFormat KEY_COLOR_TRANSFER and other KEY_COLOR values available from API 24.
       return null;
@@ -218,16 +290,19 @@ public final class MediaFormatUtil {
     @Nullable
     byte[] hdrStaticInfo =
         hdrStaticInfoByteBuffer != null ? getArray(hdrStaticInfoByteBuffer) : null;
-    // Some devices may produce invalid values from MediaFormat#getInteger.
-    // See b/239435670 for more information.
-    if (!isValidColorSpace(colorSpace)) {
-      colorSpace = Format.NO_VALUE;
-    }
-    if (!isValidColorRange(colorRange)) {
-      colorRange = Format.NO_VALUE;
-    }
-    if (!isValidColorTransfer(colorTransfer)) {
-      colorTransfer = Format.NO_VALUE;
+
+    if (!allowInvalidValues) {
+      // Some devices may produce invalid values from MediaFormat#getInteger.
+      // See b/239435670 for more information.
+      if (!isValidColorSpace(colorSpace)) {
+        colorSpace = Format.NO_VALUE;
+      }
+      if (!isValidColorRange(colorRange)) {
+        colorRange = Format.NO_VALUE;
+      }
+      if (!isValidColorTransfer(colorTransfer)) {
+        colorTransfer = Format.NO_VALUE;
+      }
     }
 
     if (colorSpace != Format.NO_VALUE
@@ -244,14 +319,45 @@ public final class MediaFormatUtil {
     return null;
   }
 
-  /**
-   * Provides the same functionality as {@link MediaFormat#getInteger(String, int)}.
-   *
-   * <p>{@link MediaFormat#getInteger(String, int)} is only available from API 29. This convenience
-   * method provides support on lower API versions.
-   */
+  /** Supports {@link MediaFormat#getInteger(String, int)} for {@code API < 29}. */
   public static int getInteger(MediaFormat mediaFormat, String name, int defaultValue) {
     return mediaFormat.containsKey(name) ? mediaFormat.getInteger(name) : defaultValue;
+  }
+
+  /** Supports {@link MediaFormat#getFloat(String, float)} for {@code API < 29}. */
+  public static float getFloat(MediaFormat mediaFormat, String name, float defaultValue) {
+    return mediaFormat.containsKey(name) ? mediaFormat.getFloat(name) : defaultValue;
+  }
+
+  /**
+   * Returns the frame rate from a {@link MediaFormat}.
+   *
+   * <p>The {@link MediaFormat#KEY_FRAME_RATE} can have both integer and float value so it returns
+   * which ever value is set.
+   */
+  private static float getFrameRate(MediaFormat mediaFormat, float defaultValue) {
+    float frameRate = defaultValue;
+    if (mediaFormat.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+      try {
+        frameRate = mediaFormat.getFloat(MediaFormat.KEY_FRAME_RATE);
+      } catch (ClassCastException ex) {
+        frameRate = mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
+      }
+    }
+    return frameRate;
+  }
+
+  /** Returns the ratio between a pixel's width and height for a {@link MediaFormat}. */
+  // Inlined MediaFormat.KEY_PIXEL_ASPECT_RATIO_WIDTH and MediaFormat.KEY_PIXEL_ASPECT_RATIO_HEIGHT.
+  @SuppressLint("InlinedApi")
+  private static float getPixelWidthHeightRatio(MediaFormat mediaFormat, float defaultValue) {
+    if (mediaFormat.containsKey(MediaFormat.KEY_PIXEL_ASPECT_RATIO_WIDTH)
+        && mediaFormat.containsKey(MediaFormat.KEY_PIXEL_ASPECT_RATIO_HEIGHT)) {
+      return (float) mediaFormat.getInteger(MediaFormat.KEY_PIXEL_ASPECT_RATIO_WIDTH)
+          / (float) mediaFormat.getInteger(MediaFormat.KEY_PIXEL_ASPECT_RATIO_HEIGHT);
+    }
+
+    return defaultValue;
   }
 
   public static byte[] getArray(ByteBuffer byteBuffer) {
