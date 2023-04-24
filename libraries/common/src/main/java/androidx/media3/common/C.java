@@ -1087,8 +1087,8 @@ public final class C {
 
   // LINT.IfChange(color_space)
   /**
-   * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT601}, {@link
-   * #COLOR_SPACE_BT709} or {@link #COLOR_SPACE_BT2020}.
+   * Video color spaces, also referred to as color standards. One of {@link Format#NO_VALUE}, {@link
+   * #COLOR_SPACE_BT601}, {@link #COLOR_SPACE_BT709} or {@link #COLOR_SPACE_BT2020}.
    */
   @UnstableApi
   @Documented
