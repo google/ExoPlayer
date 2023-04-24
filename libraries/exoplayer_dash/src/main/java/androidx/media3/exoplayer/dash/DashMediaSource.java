@@ -449,8 +449,8 @@ public final class DashMediaSource extends BaseMediaSource {
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), getPlayerId());
+    drmSessionManager.prepare();
     if (sideloadedManifest) {
       processManifest(false);
     } else {
