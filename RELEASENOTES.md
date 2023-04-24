@@ -91,6 +91,9 @@
         an input frame was pending processing.
     *   Query codecs via `MediaCodecList` instead of using
         `findDecoder/EncoderForFormat` utilities, to expand support.
+*   Muxer:
+    *   Add a new muxer library which can be used to create an MP4 container
+        file.
 *   DASH:
     *   Remove the media time offset from `MediaLoadData.startTimeMs` and
         `MediaLoadData.endTimeMs` for multi period DASH streams.

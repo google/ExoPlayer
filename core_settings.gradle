@@ -81,6 +81,9 @@ project(modulePrefix + 'lib-cast').projectDir = new File(rootDir, 'libraries/cas
 include modulePrefix + 'lib-effect'
 project(modulePrefix + 'lib-effect').projectDir = new File(rootDir, 'libraries/effect')
 
+include modulePrefix + 'lib-muxer'
+project(modulePrefix + 'lib-muxer').projectDir = new File(rootDir, 'libraries/muxer')
+
 include modulePrefix + 'lib-transformer'
 project(modulePrefix + 'lib-transformer').projectDir = new File(rootDir, 'libraries/transformer')
 
