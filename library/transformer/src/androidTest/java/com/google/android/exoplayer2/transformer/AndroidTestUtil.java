@@ -101,6 +101,22 @@ public final class AndroidTestUtil {
           .setCodecs("avc1.64000D")
           .build();
 
+  public static final String MP4_ASSET_BT2020_SDR = "asset:///media/mp4/bt2020-sdr.mp4";
+  public static final Format MP4_ASSET_BT2020_SDR_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setFrameRate(29.822f)
+          .setColorInfo(
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorTransfer(C.COLOR_TRANSFER_SDR)
+                  .build())
+          .setCodecs("avc1.640033")
+          .build();
+
   public static final String MP4_ASSET_1080P_5_SECOND_HLG10 = "asset:///media/mp4/hlg-1080p.mp4";
   public static final Format MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT =
       new Format.Builder()

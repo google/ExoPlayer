@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_BT2020_SDR;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_BT2020_SDR_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
@@ -243,6 +245,31 @@ public class ExportTest {
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(testId, editedMediaItem);
+  }
+
+  @Test
+  public void exportTranscodeBt2020Sdr() throws Exception {
+    String testId = TAG + "exportBt2020Sdr";
+    Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_BT2020_SDR_FORMAT,
+        /* outputFormat= */ null)) {
+      return;
+    }
+
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_BT2020_SDR));
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);

@@ -365,9 +365,6 @@ import java.util.List;
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
       glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
-      checkArgument(
-          outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020,
-          "Converting from SDR to HDR is not supported.");
       checkArgument(inputColorInfo.colorSpace == outputColorInfo.colorSpace);
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_SDR
