@@ -24,6 +24,7 @@ import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Looper;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
@@ -63,7 +64,10 @@ public final class VideoEncoderWrapperTest {
   private final VideoSamplePipeline.EncoderWrapper encoderWrapper =
       new VideoSamplePipeline.EncoderWrapper(
           fakeEncoderFactory,
-          /* inputFormat= */ new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build(),
+          /* inputFormat= */ new Format.Builder()
+              .setSampleMimeType(MimeTypes.VIDEO_H264)
+              .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+              .build(),
           /* muxerSupportedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264),
           emptyTransformationRequest,
           fallbackListener);
