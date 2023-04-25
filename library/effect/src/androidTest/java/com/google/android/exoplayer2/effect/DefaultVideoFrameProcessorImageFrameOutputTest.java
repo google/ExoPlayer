@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -126,6 +127,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         .setTestId(testId)
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
         .setInputType(INPUT_TYPE_BITMAP)
+        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setOnOutputFrameAvailableListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());
   }

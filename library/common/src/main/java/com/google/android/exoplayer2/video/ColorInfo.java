@@ -135,7 +135,7 @@ public final class ColorInfo implements Bundleable {
    * Color info representing SDR sRGB in accordance with {@link
    * android.hardware.DataSpace#DATASPACE_SRGB}, which is a common SDR image color format.
    */
-  public static final ColorInfo SRGB_FULL =
+  public static final ColorInfo SRGB_BT709_FULL =
       new ColorInfo.Builder()
           .setColorSpace(C.COLOR_SPACE_BT709)
           .setColorRange(C.COLOR_RANGE_FULL)

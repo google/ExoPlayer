@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -113,6 +114,7 @@ public final class ImageAssetLoader implements AssetLoader {
                       .setHeight(bitmap.getHeight())
                       .setWidth(bitmap.getWidth())
                       .setSampleMimeType(MIME_TYPE_IMAGE_ALL)
+                      .setColorInfo(ColorInfo.SRGB_BT709_FULL)
                       .build();
               listener.onTrackAdded(format, SUPPORTED_OUTPUT_TYPE_DECODED);
               scheduledExecutorService.submit(() -> queueBitmapInternal(bitmap, format));
