@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.ColorInfo.SDR_BT709_LIMITED;
+import static androidx.media3.common.ColorInfo.SRGB_BT709_FULL;
 import static androidx.media3.common.ColorInfo.isTransferHdr;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
@@ -123,17 +124,25 @@ import org.checkerframework.dataflow.qual.Pure;
     boolean isGlToneMapping =
         ColorInfo.isTransferHdr(decoderInputColor)
             && transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
-    // For consistency with the Android platform, OpenGL tone mapping outputs colors with
-    // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
-    // C.COLOR_TRANSFER_SDR to the encoder.
-    ColorInfo videoFrameProcessorOutputColor =
-        isGlToneMapping
-            ? new ColorInfo.Builder()
-                .setColorSpace(C.COLOR_SPACE_BT709)
-                .setColorRange(C.COLOR_RANGE_LIMITED)
-                .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
-                .build()
-            : videoFrameProcessorInputColor;
+    ColorInfo videoFrameProcessorOutputColor;
+    if (videoFrameProcessorInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
+      // The sRGB color transfer is only used for images, so when an image gets transcoded into a
+      // video, we use the SMPTE 170M transfer function for the resulting video.
+      videoFrameProcessorOutputColor = SDR_BT709_LIMITED;
+    } else if (isGlToneMapping) {
+      // For consistency with the Android platform, OpenGL tone mapping outputs colors with
+      // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
+      // C.COLOR_TRANSFER_SDR to the encoder.
+      videoFrameProcessorOutputColor =
+          new ColorInfo.Builder()
+              .setColorSpace(C.COLOR_SPACE_BT709)
+              .setColorRange(C.COLOR_RANGE_LIMITED)
+              .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
+              .build();
+    } else {
+      videoFrameProcessorOutputColor = videoFrameProcessorInputColor;
+    }
+
     List<Effect> effectsWithPresentation = new ArrayList<>(effects);
     if (presentation != null) {
       effectsWithPresentation.add(presentation);
@@ -407,6 +416,9 @@ import org.checkerframework.dataflow.qual.Pure;
       if (isInputToneMapped) {
         // When tone-mapping HDR to SDR is enabled, assume we get BT.709 to avoid having the encoder
         // populate default color info, which depends on the resolution.
+        return ColorInfo.SDR_BT709_LIMITED;
+      }
+      if (SRGB_BT709_FULL.equals(inputFormat.colorInfo)) {
         return ColorInfo.SDR_BT709_LIMITED;
       }
       return checkNotNull(inputFormat.colorInfo);

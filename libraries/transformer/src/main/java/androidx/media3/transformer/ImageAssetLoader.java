@@ -29,6 +29,7 @@ import android.graphics.Bitmap;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
@@ -115,6 +116,7 @@ public final class ImageAssetLoader implements AssetLoader {
                       .setHeight(bitmap.getHeight())
                       .setWidth(bitmap.getWidth())
                       .setSampleMimeType(MIME_TYPE_IMAGE_ALL)
+                      .setColorInfo(ColorInfo.SRGB_BT709_FULL)
                       .build();
               listener.onTrackAdded(format, SUPPORTED_OUTPUT_TYPE_DECODED);
               scheduledExecutorService.submit(() -> queueBitmapInternal(bitmap, format));

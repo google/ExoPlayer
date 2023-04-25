@@ -21,6 +21,7 @@ import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.Queue;
@@ -126,6 +127,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         .setTestId(testId)
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
         .setInputType(INPUT_TYPE_BITMAP)
+        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setOnOutputFrameAvailableListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());
   }
