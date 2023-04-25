@@ -243,8 +243,9 @@ public final class H265Reader implements ElementaryStreamReader {
     System.arraycopy(sps.nalData, 0, csdData, vps.nalLength, sps.nalLength);
     System.arraycopy(pps.nalData, 0, csdData, vps.nalLength + sps.nalLength, pps.nalLength);
 
+    // Skip the 3-byte NAL unit start code synthesised by the NalUnitTargetBuffer constructor.
     NalUnitUtil.H265SpsData spsData =
-        NalUnitUtil.parseH265SpsNalUnit(sps.nalData, 3, sps.nalLength); // 3bytes start code
+        NalUnitUtil.parseH265SpsNalUnit(sps.nalData, /* nalOffset= */ 3, sps.nalLength);
 
     String codecs =
         CodecSpecificDataUtil.buildHevcCodecString(
