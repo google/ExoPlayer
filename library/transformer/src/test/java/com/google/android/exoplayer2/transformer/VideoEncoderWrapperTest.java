@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SurfaceInfo;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +64,10 @@ public final class VideoEncoderWrapperTest {
   private final VideoSamplePipeline.EncoderWrapper encoderWrapper =
       new VideoSamplePipeline.EncoderWrapper(
           fakeEncoderFactory,
-          /* inputFormat= */ new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build(),
+          /* inputFormat= */ new Format.Builder()
+              .setSampleMimeType(MimeTypes.VIDEO_H264)
+              .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+              .build(),
           /* muxerSupportedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264),
           emptyTransformationRequest,
           fallbackListener);
