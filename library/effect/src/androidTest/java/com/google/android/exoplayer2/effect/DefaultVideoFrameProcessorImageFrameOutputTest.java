@@ -66,11 +66,20 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
 
     videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH), C.MICROS_PER_SECOND, /* frameRate= */ 2);
+        readBitmap(ORIGINAL_PNG_ASSET_PATH),
+        C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
+        /* frameRate= */ 2);
     videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(SCALE_WIDE_PNG_ASSET_PATH), 2 * C.MICROS_PER_SECOND, /* frameRate= */ 3);
+        readBitmap(SCALE_WIDE_PNG_ASSET_PATH),
+        2 * C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
+        /* frameRate= */ 3);
     videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH), 3 * C.MICROS_PER_SECOND, /* frameRate= */ 4);
+        readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH),
+        3 * C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
+        /* frameRate= */ 4);
     videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     int actualFrameCount = framesProduced.get();
@@ -87,12 +96,70 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
       videoFrameProcessorTestRunner.queueInputBitmap(
           readBitmap(ORIGINAL_PNG_ASSET_PATH),
           /* durationUs= */ C.MICROS_PER_SECOND,
+          /* offsetToAddUs= */ 0L,
           /* frameRate= */ 1);
     }
     videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     int actualFrameCount = framesProduced.get();
     assertThat(actualFrameCount).isEqualTo(/* expected= */ 20);
+  }
+
+  @RequiresNonNull("framesProduced")
+  @Test
+  public void imageInput_queueOneWithStartOffset_outputsFramesAtTheCorrectPresentationTimesUs()
+      throws Exception {
+    String testId =
+        "imageInput_queueOneWithStartOffset_outputsFramesAtTheCorrectPresentationTimesUs";
+    Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setOnOutputFrameAvailableListener(actualPresentationTimesUs::add)
+            .build();
+
+    long offsetUs = 1_000_000L;
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        readBitmap(ORIGINAL_PNG_ASSET_PATH),
+        /* durationUs= */ C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ offsetUs,
+        /* frameRate= */ 2);
+    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    assertThat(actualPresentationTimesUs)
+        .containsExactly(offsetUs, offsetUs + C.MICROS_PER_SECOND / 2)
+        .inOrder();
+  }
+
+  @RequiresNonNull("framesProduced")
+  @Test
+  public void imageInput_queueWithStartOffsets_outputsFramesAtTheCorrectPresentationTimesUs()
+      throws Exception {
+    String testId = "imageInput_queueWithStartOffsets_outputsFramesAtTheCorrectPresentationTimesUs";
+    Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setOnOutputFrameAvailableListener(actualPresentationTimesUs::add)
+            .build();
+
+    long offsetUs1 = 1_000_000L;
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        readBitmap(ORIGINAL_PNG_ASSET_PATH),
+        /* durationUs= */ C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ offsetUs1,
+        /* frameRate= */ 2);
+    long offsetUs2 = 2_000_000L;
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        readBitmap(SCALE_WIDE_PNG_ASSET_PATH),
+        /* durationUs= */ C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ offsetUs2,
+        /* frameRate= */ 2);
+    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    assertThat(actualPresentationTimesUs)
+        .containsExactly(
+            offsetUs1,
+            offsetUs1 + C.MICROS_PER_SECOND / 2,
+            offsetUs2,
+            offsetUs2 + C.MICROS_PER_SECOND / 2)
+        .inOrder();
   }
 
   @RequiresNonNull("framesProduced")
@@ -111,11 +178,13 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
         /* frameRate= */ 2);
     videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
     videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ 2 * C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
         /* frameRate= */ 3);
 
     assertThat(actualPresentationTimesUs).containsExactly(0L, C.MICROS_PER_SECOND / 2).inOrder();
