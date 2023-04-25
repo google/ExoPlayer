@@ -120,7 +120,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
-        originalBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+        originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
     Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
@@ -148,7 +148,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
-        originalBitmap, C.MICROS_PER_SECOND, /* frameRate= */ 1);
+        originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
     Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.

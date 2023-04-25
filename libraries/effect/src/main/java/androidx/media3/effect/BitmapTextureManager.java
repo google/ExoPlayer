@@ -79,9 +79,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
+      Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
     videoFrameProcessingTaskExecutor.submit(
-        () -> setupBitmap(inputBitmap, durationUs, frameRate, useHdr));
+        () -> setupBitmap(inputBitmap, durationUs, offsetUs, frameRate, useHdr));
   }
 
   @Override
@@ -116,7 +116,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Methods that must be called on the GL thread.
 
-  private void setupBitmap(Bitmap bitmap, long durationUs, float frameRate, boolean useHdr)
+  private void setupBitmap(
+      Bitmap bitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
     this.useHdr = useHdr;
     if (inputEnded) {
@@ -124,7 +125,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
-    pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, frameDurationUs, framesToAdd));
+    pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, offsetUs, frameDurationUs, framesToAdd));
 
     maybeQueueToShaderProgram();
   }
@@ -138,6 +139,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (framesToQueueForCurrentBitmap == 0) {
       Bitmap bitmap = currentBitmapInfo.bitmap;
       framesToQueueForCurrentBitmap = currentBitmapInfo.numberOfFrames;
+      currentPresentationTimeUs = currentBitmapInfo.offsetUs;
       int currentTexId;
       try {
         if (currentGlTextureInfo != null) {
@@ -189,11 +191,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
     public final Bitmap bitmap;
+    public final long offsetUs;
     public final double frameDurationUs;
     public final int numberOfFrames;
 
-    public BitmapFrameSequenceInfo(Bitmap bitmap, double frameDurationUs, int numberOfFrames) {
+    public BitmapFrameSequenceInfo(
+        Bitmap bitmap, long offsetUs, double frameDurationUs, int numberOfFrames) {
       this.bitmap = bitmap;
+      this.offsetUs = offsetUs;
       this.frameDurationUs = frameDurationUs;
       this.numberOfFrames = numberOfFrames;
     }

@@ -39,10 +39,16 @@ import androidx.media3.common.VideoFrameProcessor;
   /**
    * Provides an input {@link Bitmap} to put into the video frames.
    *
-   * @see VideoFrameProcessor#queueInputBitmap
+   * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
+   * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
+   * @param offsetUs The offset, from the start of the input stream, to apply for the {@code
+   *     inputBitmap} in microseconds.
+   * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
+   *     second.
+   * @param useHdr Whether input and/or output colors are HDR.
    */
   default void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, float frameRate, boolean useHdr) {
+      Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
     throw new UnsupportedOperationException();
   }
 

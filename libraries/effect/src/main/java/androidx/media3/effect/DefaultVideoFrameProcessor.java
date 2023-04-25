@@ -17,6 +17,7 @@ package androidx.media3.effect;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
@@ -253,6 +254,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
+  private volatile boolean hasRefreshedNextInputFrameInfo;
 
   private DefaultVideoFrameProcessor(
       EGLDisplay eglDisplay,
@@ -321,7 +323,16 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
-    inputHandler.queueInputBitmap(inputBitmap, durationUs, frameRate, /* useHdr= */ false);
+    checkState(
+        hasRefreshedNextInputFrameInfo,
+        "setInputFrameInfo must be called before queueing another bitmap");
+    inputHandler.queueInputBitmap(
+        inputBitmap,
+        durationUs,
+        checkNotNull(nextInputFrameInfo).offsetToAddUs,
+        frameRate,
+        /* useHdr= */ false);
+    hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override
@@ -332,6 +343,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void setInputFrameInfo(FrameInfo inputFrameInfo) {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
+    hasRefreshedNextInputFrameInfo = true;
   }
 
   @Override
@@ -341,6 +353,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
     inputHandler.registerInputFrame(nextInputFrameInfo);
+    hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override

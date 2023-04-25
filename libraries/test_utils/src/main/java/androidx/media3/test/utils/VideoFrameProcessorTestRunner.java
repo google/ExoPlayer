@@ -333,10 +333,12 @@ public final class VideoFrameProcessorTestRunner {
     return endFrameProcessingAndGetImage();
   }
 
-  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
+  public void queueInputBitmap(
+      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
     videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .setOffsetToAddUs(offsetToAddUs)
             .build());
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
