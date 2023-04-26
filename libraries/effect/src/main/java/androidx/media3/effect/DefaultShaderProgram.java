@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 
@@ -25,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.VideoFrameProcessor.InputType;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -199,16 +201,20 @@ import java.util.List;
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean enableColorTransfers)
+      boolean enableColorTransfers,
+      @InputType int inputType)
       throws VideoFrameProcessingException {
     checkState(
         !ColorInfo.isTransferHdr(inputColorInfo),
         "DefaultShaderProgram doesn't support HDR internal sampler input yet.");
+    checkState(
+        inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB || inputType == INPUT_TYPE_BITMAP);
     GlProgram glProgram =
         createGlProgram(
             context,
             VERTEX_SHADER_TRANSFORMATION_PATH,
             FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH);
+    glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
     return createWithSampler(
         glProgram,
         matrixTransformations,
