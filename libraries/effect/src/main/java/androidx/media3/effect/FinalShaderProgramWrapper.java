@@ -48,12 +48,13 @@ import com.google.common.collect.ImmutableList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Wrapper around a {@link DefaultShaderProgram} that writes to the provided output surface and if
- * provided, the optional debug surface view or output texture.
+ * Wrapper around a {@link DefaultShaderProgram} that renders to the provided output surface or
+ * texture.
+ *
+ * <p>Also renders to a debug surface, if provided.
  *
  * <p>The wrapped {@link DefaultShaderProgram} applies the {@link GlMatrixTransformation} and {@link
  * RgbMatrix} instances passed to the constructor, followed by any transformations needed to convert
@@ -92,15 +93,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private InputListener inputListener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
-  private @MonotonicNonNull GlTextureInfo outputTexture;
+  @Nullable private GlTextureInfo outputTexture;
   private boolean frameProcessingStarted;
 
-  private volatile boolean outputChanged;
+  private volatile boolean outputSurfaceInfoChanged;
 
   @GuardedBy("this")
   @Nullable
   private SurfaceInfo outputSurfaceInfo;
 
+  /** Wraps the {@link Surface} in {@link #outputSurfaceInfo}. */
   @GuardedBy("this")
   @Nullable
   private EGLSurface outputEglSurface;
@@ -240,6 +242,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     try {
       if (outputTexture != null) {
+        GlTextureInfo outputTexture = checkNotNull(this.outputTexture);
         GlUtil.deleteTexture(outputTexture.texId);
         GlUtil.deleteFbo(outputTexture.fboId);
       }
@@ -270,7 +273,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       this.outputEglSurface = null;
     }
-    outputChanged =
+    outputSurfaceInfoChanged =
         this.outputSurfaceInfo == null
             || outputSurfaceInfo == null
             || this.outputSurfaceInfo.width != outputSurfaceInfo.width
@@ -279,14 +282,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.outputSurfaceInfo = outputSurfaceInfo;
   }
 
-  private void renderFrame(
+  private synchronized void renderFrame(
       GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
     try {
-      maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
-      if (textureOutputListener != null && defaultShaderProgram != null) {
+      if (releaseTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
+          || !ensureConfigured(inputTexture.width, inputTexture.height)) {
+        inputListener.onInputFrameProcessed(inputTexture);
+        return; // Drop frames when requested, or there is no output surface.
+      }
+      if (outputSurfaceInfo != null) {
+        renderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
+      }
+      if (textureOutputListener != null) {
         renderFrameToOutputTexture(inputTexture, presentationTimeUs);
       }
-
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       videoFrameProcessorListenerExecutor.execute(
           () ->
@@ -300,17 +309,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputListener.onInputFrameProcessed(inputTexture);
   }
 
-  private synchronized void maybeRenderFrameToOutputSurface(
+  private synchronized void renderFrameToOutputSurface(
       GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs)
       throws VideoFrameProcessingException, GlUtil.GlException {
-    if (releaseTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
-        || !ensureConfigured(inputTexture.width, inputTexture.height)) {
-      return; // Drop frames when requested, or there is no output surface.
-    }
-
-    EGLSurface outputEglSurface = this.outputEglSurface;
-    SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-    DefaultShaderProgram defaultShaderProgram = this.defaultShaderProgram;
+    EGLSurface outputEglSurface = checkNotNull(this.outputEglSurface);
+    SurfaceInfo outputSurfaceInfo = checkNotNull(this.outputSurfaceInfo);
+    DefaultShaderProgram defaultShaderProgram = checkNotNull(this.defaultShaderProgram);
 
     GlUtil.focusEglSurface(
         eglDisplay,
@@ -332,7 +336,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void renderFrameToOutputTexture(GlTextureInfo inputTexture, long presentationTimeUs)
       throws GlUtil.GlException, VideoFrameProcessingException {
-    checkNotNull(outputTexture);
+    GlTextureInfo outputTexture = checkNotNull(this.outputTexture);
     GlUtil.focusFramebufferUsingCurrentContext(
         outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearOutputFrame();
@@ -345,12 +349,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>Returns {@code false} if {@code outputSurfaceInfo} is unset.
    */
-  @EnsuresNonNullIf(
-      expression = {"outputSurfaceInfo", "outputEglSurface", "defaultShaderProgram"},
-      result = true)
   private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws VideoFrameProcessingException, GlUtil.GlException {
-
+    // Clear extra or outdated resources.
     boolean inputSizeChanged =
         this.inputWidth != inputWidth
             || this.inputHeight != inputHeight
@@ -370,20 +371,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     outputSizeBeforeSurfaceTransformation.getHeight()));
       }
     }
+    checkNotNull(outputSizeBeforeSurfaceTransformation);
 
     if (outputSurfaceInfo == null) {
+      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+      outputEglSurface = null;
+    }
+    if (outputSurfaceInfo == null && textureOutputListener == null) {
       if (defaultShaderProgram != null) {
         defaultShaderProgram.release();
         defaultShaderProgram = null;
       }
-      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
-      outputEglSurface = null;
       return false;
     }
 
-    SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-    @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
-    if (outputEglSurface == null) {
+    int outputWidth =
+        outputSurfaceInfo == null
+            ? outputSizeBeforeSurfaceTransformation.getWidth()
+            : outputSurfaceInfo.width;
+    int outputHeight =
+        outputSurfaceInfo == null
+            ? outputSizeBeforeSurfaceTransformation.getHeight()
+            : outputSurfaceInfo.height;
+
+    // Allocate or update resources.
+    if (outputSurfaceInfo != null && outputEglSurface == null) {
       outputEglSurface =
           glObjectsProvider.createEglSurface(
               eglDisplay,
@@ -391,67 +403,58 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputColorInfo.colorTransfer,
               // Frames are only released automatically when outputting to an encoder.
               /* isEncoderInputSurface= */ releaseFramesAutomatically);
-
-      @Nullable
-      SurfaceView debugSurfaceView =
-          debugViewProvider.getDebugPreviewSurfaceView(
-              outputSurfaceInfo.width, outputSurfaceInfo.height);
-      if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
-        debugSurfaceViewWrapper =
-            new SurfaceViewWrapper(
-                eglDisplay, eglContext, debugSurfaceView, outputColorInfo.colorTransfer);
-      }
-      this.debugSurfaceView = debugSurfaceView;
     }
 
-    if (defaultShaderProgram != null && (outputChanged || inputSizeChanged)) {
+    @Nullable
+    SurfaceView debugSurfaceView =
+        debugViewProvider.getDebugPreviewSurfaceView(outputWidth, outputHeight);
+    if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
+      debugSurfaceViewWrapper =
+          new SurfaceViewWrapper(
+              eglDisplay, eglContext, debugSurfaceView, outputColorInfo.colorTransfer);
+    }
+    this.debugSurfaceView = debugSurfaceView;
+
+    if (textureOutputListener != null) {
+      int outputTexId =
+          GlUtil.createTexture(
+              outputWidth,
+              outputHeight,
+              /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(outputColorInfo));
+      outputTexture =
+          glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
+    }
+
+    if (defaultShaderProgram != null && (outputSurfaceInfoChanged || inputSizeChanged)) {
       defaultShaderProgram.release();
       defaultShaderProgram = null;
-      outputChanged = false;
+      outputSurfaceInfoChanged = false;
     }
     if (defaultShaderProgram == null) {
-      DefaultShaderProgram defaultShaderProgram =
-          createDefaultShaderProgramForOutputSurface(outputSurfaceInfo);
-      if (textureOutputListener != null) {
-        configureOutputTexture(
-            checkNotNull(outputSizeBeforeSurfaceTransformation).getWidth(),
-            checkNotNull(outputSizeBeforeSurfaceTransformation).getHeight());
-      }
-      this.defaultShaderProgram = defaultShaderProgram;
+      defaultShaderProgram =
+          createDefaultShaderProgram(
+              outputSurfaceInfo == null ? 0 : outputSurfaceInfo.orientationDegrees,
+              outputWidth,
+              outputHeight);
     }
 
-    this.outputSurfaceInfo = outputSurfaceInfo;
-    this.outputEglSurface = outputEglSurface;
     return true;
   }
 
-  private void configureOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
-    if (outputTexture != null) {
-      GlUtil.deleteTexture(outputTexture.texId);
-      GlUtil.deleteFbo(outputTexture.fboId);
-    }
-    int outputTexId =
-        GlUtil.createTexture(
-            outputWidth,
-            outputHeight,
-            /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(outputColorInfo));
-    outputTexture =
-        glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
-  }
-
-  private DefaultShaderProgram createDefaultShaderProgramForOutputSurface(
-      SurfaceInfo outputSurfaceInfo) throws VideoFrameProcessingException {
+  private synchronized DefaultShaderProgram createDefaultShaderProgram(
+      int outputOrientationDegrees, int outputWidth, int outputHeight)
+      throws VideoFrameProcessingException {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<GlMatrixTransformation>().addAll(matrixTransformations);
-    if (outputSurfaceInfo.orientationDegrees != 0) {
+    if (outputOrientationDegrees != 0) {
       matrixTransformationListBuilder.add(
           new ScaleAndRotateTransformation.Builder()
-              .setRotationDegrees(outputSurfaceInfo.orientationDegrees)
+              .setRotationDegrees(outputOrientationDegrees)
               .build());
     }
     matrixTransformationListBuilder.add(
         Presentation.createForWidthAndHeight(
-            outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
+            outputWidth, outputHeight, Presentation.LAYOUT_SCALE_TO_FIT));
 
     DefaultShaderProgram defaultShaderProgram;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
@@ -488,8 +491,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     defaultShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
-    checkState(outputSize.getWidth() == outputSurfaceInfo.width);
-    checkState(outputSize.getHeight() == outputSurfaceInfo.height);
+    if (outputSurfaceInfo != null) {
+      SurfaceInfo outputSurfaceInfo = checkNotNull(this.outputSurfaceInfo);
+      checkState(outputSize.getWidth() == outputSurfaceInfo.width);
+      checkState(outputSize.getHeight() == outputSurfaceInfo.height);
+    }
     return defaultShaderProgram;
   }
 

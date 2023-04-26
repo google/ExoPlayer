@@ -31,7 +31,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
@@ -52,6 +51,7 @@ import androidx.media3.transformer.EncoderUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -306,16 +306,10 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     private @MonotonicNonNull Bitmap outputBitmap;
 
     @Override
+    @Nullable
     public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
       this.useHighPrecisionColorComponents = useHighPrecisionColorComponents;
-      int texId;
-      try {
-        texId = GlUtil.createExternalTexture();
-      } catch (GlUtil.GlException e) {
-        throw new RuntimeException(e);
-      }
-      SurfaceTexture surfaceTexture = new SurfaceTexture(texId);
-      return new Surface(surfaceTexture);
+      return null;
     }
 
     @Override

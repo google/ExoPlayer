@@ -281,14 +281,17 @@ public final class VideoFrameProcessorTestRunner {
             new VideoFrameProcessor.Listener() {
               @Override
               public void onOutputSizeChanged(int width, int height) {
+                @Nullable
                 Surface outputSurface =
                     bitmapReader.getSurface(
                         width,
                         height,
                         /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(
                             outputColorInfo));
-                checkNotNull(videoFrameProcessor)
-                    .setOutputSurfaceInfo(new SurfaceInfo(outputSurface, width, height));
+                if (outputSurface != null) {
+                  checkNotNull(videoFrameProcessor)
+                      .setOutputSurfaceInfo(new SurfaceInfo(outputSurface, width, height));
+                }
               }
 
               @Override
@@ -368,7 +371,8 @@ public final class VideoFrameProcessorTestRunner {
   /** Reads a {@link Bitmap} from {@link VideoFrameProcessor} output. */
   public interface BitmapReader {
 
-    /** Returns the {@link VideoFrameProcessor} output {@link Surface}. */
+    /** Returns the {@link VideoFrameProcessor} output {@link Surface}, if one is needed. */
+    @Nullable
     Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents);
 
     /** Returns the output {@link Bitmap}. */
@@ -388,6 +392,7 @@ public final class VideoFrameProcessorTestRunner {
 
     @Override
     @SuppressLint("WrongConstant")
+    @Nullable
     public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
       imageReader =
           ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
