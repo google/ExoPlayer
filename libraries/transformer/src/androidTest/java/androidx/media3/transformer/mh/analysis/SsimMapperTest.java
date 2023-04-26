@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -79,6 +80,9 @@ import org.junit.runners.Parameterized.Parameters;
  * <p>SSIM increases monotonically with bitrate.
  */
 @RunWith(Parameterized.class)
+@Ignore(
+    "Analysis tests are not used for confirming Transformer is running properly, and not configured"
+        + " for this use as they're missing skip checks for unsupported devices.")
 public class SsimMapperTest {
 
   private static final Splitter FORWARD_SLASH_SPLITTER = Splitter.on('/');
