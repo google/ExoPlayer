@@ -56,6 +56,10 @@
     *   Add helper method `MediaSession.getControllerForCurrentRequest` to
         obtain information about the controller that is currently calling
         a`Player` method.
+    *   Fix bug that prevented the `MediaLibraryService` from returning null for
+        a call from System UI to `Callback.onGetLibraryRoot` with
+        `params.isRecent == true` on API 30
+        ([#355](https://github.com/androidx/media/issues/355)).
 *   UI:
 
     *   Add Util methods `shouldShowPlayButton` and

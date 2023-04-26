@@ -126,8 +126,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           .putBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED, isSearchSessionCommandAvailable);
       return new BrowserRoot(result.value.mediaId, extras);
     }
-    // No library root, but keep browser compat connected to allow getting session.
-    return MediaUtils.defaultBrowserRoot;
+    // No library root, but keep browser compat connected to allow getting session unless the
+    // `Callback` implementation has not returned a `RESULT_SUCCESS`.
+    return result != null && result.resultCode != RESULT_SUCCESS
+        ? null
+        : MediaUtils.defaultBrowserRoot;
   }
 
   // TODO(b/192455639): Optimize potential multiple calls of
