@@ -57,6 +57,9 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Read and written on the GL thread only.
   private boolean inputStreamEnded;
 
+  // Read and written on the GL thread only.
+  private boolean currentInputStreamEnded;
+
   // The frame that is sent downstream and is not done processing yet.
   // Set to null on any thread. Read and set to non-null on the GL thread only.
   @Nullable private volatile FrameInfo currentFrame;
@@ -135,7 +138,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           currentFrame = null;
-          if (inputStreamEnded && pendingFrames.isEmpty()) {
+          if (currentInputStreamEnded && pendingFrames.isEmpty()) {
+            // Reset because there could be further input streams after the current one ends.
+            currentInputStreamEnded = false;
             externalShaderProgram.signalEndOfCurrentInputStream();
           } else {
             maybeQueueFrameToExternalShaderProgram();
@@ -177,14 +182,21 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public void signalEndOfInput() {
+  public void signalEndOfCurrentInputStream() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
-          inputStreamEnded = true;
           if (pendingFrames.isEmpty() && currentFrame == null) {
             externalShaderProgram.signalEndOfCurrentInputStream();
+          } else {
+            currentInputStreamEnded = true;
           }
         });
+  }
+
+  @Override
+  public void signalEndOfInput() {
+    // TODO(b/274109008) Consider remove inputStreamEnded boolean.
+    videoFrameProcessingTaskExecutor.submit(() -> inputStreamEnded = true);
   }
 
   @Override

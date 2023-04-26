@@ -218,6 +218,8 @@ import org.checkerframework.dataflow.qual.Pure;
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(mediaItemOffsetUs.get())
               .build());
+      videoFrameProcessor.registerInputStream(
+          MimeTypes.isVideo(trackFormat.sampleMimeType) ? INPUT_TYPE_SURFACE : INPUT_TYPE_BITMAP);
     }
     mediaItemOffsetUs.addAndGet(durationUs);
   }

@@ -48,9 +48,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int downstreamShaderProgramCapacity;
   private int framesToQueueForCurrentBitmap;
   private double currentPresentationTimeUs;
-  private boolean inputEnded;
   private boolean useHdr;
-  private boolean outputEnded;
+  private volatile boolean inputEnded;
 
   /**
    * Creates a new instance.
@@ -91,11 +90,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  public void signalEndOfCurrentInputStream() {
+    // Do nothing here. End of current input signaling is handled in maybeQueueToShaderProgram().
+  }
+
+  @Override
   public void signalEndOfInput() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
-          inputEnded = true;
-          maybeSignalEndOfOutput();
+          if (framesToQueueForCurrentBitmap == 0 && pendingBitmaps.isEmpty()) {
+            shaderProgram.signalEndOfCurrentInputStream();
+          } else {
+            inputEnded = true;
+          }
         });
   }
 
@@ -120,9 +127,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Bitmap bitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
     this.useHdr = useHdr;
-    if (inputEnded) {
-      return;
-    }
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
     pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, offsetUs, frameDurationUs, framesToAdd));
@@ -174,17 +178,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
     if (framesToQueueForCurrentBitmap == 0) {
       pendingBitmaps.remove();
-      maybeSignalEndOfOutput();
-    }
-  }
-
-  private void maybeSignalEndOfOutput() {
-    if (framesToQueueForCurrentBitmap == 0
-        && pendingBitmaps.isEmpty()
-        && inputEnded
-        && !outputEnded) {
-      shaderProgram.signalEndOfCurrentInputStream();
-      outputEnded = true;
+      if (pendingBitmaps.isEmpty() && inputEnded) {
+        // Only signal end of stream after all pending bitmaps are processed.
+        // TODO(b/269424561): Call signalEndOfCurrentInputStream on every bitmap
+        shaderProgram.signalEndOfCurrentInputStream();
+      }
     }
   }
 

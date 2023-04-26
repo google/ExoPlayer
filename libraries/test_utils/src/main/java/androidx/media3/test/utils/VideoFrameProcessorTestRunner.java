@@ -15,6 +15,7 @@
  */
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -324,6 +325,7 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
+            videoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
             videoFrameProcessor.registerInputFrame();
           }
 
@@ -343,6 +345,7 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
+    videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 

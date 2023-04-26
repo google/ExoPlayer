@@ -350,10 +350,11 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
               checkNotNull(defaultVideoFrameProcessor)
                   .setInputFrameInfo(new FrameInfo.Builder(WIDTH, HEIGHT).build());
               // A frame needs to be registered despite not queuing any external input to ensure
-              // that
-              // the video frame processor knows about the stream offset.
+              // that the video frame processor knows about the stream offset.
+              defaultVideoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
               defaultVideoFrameProcessor.registerInputFrame();
               blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
+              defaultVideoFrameProcessor.signalEndOfInput();
             });
     videoFrameProcessingEndedCountDownLatch.await();
     @Nullable

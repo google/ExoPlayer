@@ -50,6 +50,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -254,6 +256,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final boolean releaseFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
+  // A queue of input streams that have not been fully processed identified by their input types.
+  private final Queue<@InputType Integer> unprocessedInputStreams;
+
+  @Nullable private volatile CountDownLatch latch;
 
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
@@ -272,6 +278,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.eglContext = eglContext;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
+    this.unprocessedInputStreams = new ConcurrentLinkedQueue<>();
 
     checkState(!shaderPrograms.isEmpty());
     checkState(getLast(shaderPrograms) instanceof FinalShaderProgramWrapper);
@@ -296,6 +303,22 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     inputShaderProgram.setInputListener(inputHandler);
 
     finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
+    finalShaderProgramWrapper.setOnInputStreamProcessedListener(
+        () -> {
+          @InputType int currentInputType = unprocessedInputStreams.remove();
+          if (latch != null) {
+            latch.countDown();
+          }
+          if (currentInputType == INPUT_TYPE_BITMAP) {
+            // Remove all pending bitmap input, because BitmapTextureManager signals end of input
+            // after all queued bitmaps are processed.
+            while (!unprocessedInputStreams.isEmpty()
+                && checkNotNull(unprocessedInputStreams.peek()) == INPUT_TYPE_BITMAP) {
+              unprocessedInputStreams.remove();
+            }
+          }
+          return inputStreamEnded && unprocessedInputStreams.isEmpty();
+        });
     allShaderPrograms = shaderPrograms;
   }
 
@@ -344,6 +367,24 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
+  public void registerInputStream(@InputType int inputType) {
+    if (!unprocessedInputStreams.isEmpty()) {
+      inputHandler.signalEndOfCurrentInputStream();
+      // Wait until the current video is processed before continuing to the next input.
+      if (checkNotNull(unprocessedInputStreams.peek()) == INPUT_TYPE_SURFACE) {
+        latch = new CountDownLatch(1);
+        try {
+          latch.await();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          Log.e(TAG, "Error waiting for end of stream  " + e);
+        }
+      }
+    }
+    unprocessedInputStreams.add(inputType);
+  }
+
+  @Override
   public void setInputFrameInfo(FrameInfo inputFrameInfo) {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
     hasRefreshedNextInputFrameInfo = true;
@@ -382,7 +423,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    videoFrameProcessingTaskExecutor.submit(inputHandler::signalEndOfInput);
+    inputHandler.signalEndOfCurrentInputStream();
+    inputHandler.signalEndOfInput();
   }
 
   @Override

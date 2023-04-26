@@ -180,6 +180,15 @@ public interface VideoFrameProcessor {
   Surface getInputSurface();
 
   /**
+   * Informs the {@code VideoFrameProcessor} that a new input stream will be queued.
+   *
+   * <p>Call {@link #setInputFrameInfo} before this method if the {@link FrameInfo} of the new input
+   * stream differs from that of the current input stream.
+   */
+  // TODO(b/274109008) Merge this and setInputFrameInfo.
+  void registerInputStream(@InputType int inputType);
+
+  /**
    * Sets information about the input frames.
    *
    * <p>The new input information is applied from the next frame {@linkplain #registerInputFrame()

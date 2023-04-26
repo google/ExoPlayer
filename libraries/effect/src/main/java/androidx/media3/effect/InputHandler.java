@@ -70,6 +70,14 @@ import androidx.media3.common.VideoFrameProcessor;
   int getPendingFrameCount();
 
   /**
+   * Signals the end of the current input stream.
+   *
+   * <p>This method must be called on the last input stream, before calling {@link
+   * #signalEndOfInput}.
+   */
+  void signalEndOfCurrentInputStream();
+
+  /**
    * Signals the end of the input.
    *
    * @see VideoFrameProcessor#signalEndOfInput()
