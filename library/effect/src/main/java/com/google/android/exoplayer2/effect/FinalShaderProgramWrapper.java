@@ -477,7 +477,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 rgbMatrices,
                 inputColorInfo,
                 outputColorInfo,
-                enableColorTransfers);
+                enableColorTransfers,
+                inputType);
       }
     } else {
       defaultShaderProgram =

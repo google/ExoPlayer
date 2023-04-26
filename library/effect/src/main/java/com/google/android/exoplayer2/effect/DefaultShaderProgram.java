@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -27,6 +28,7 @@ import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor.InputType;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -197,16 +199,20 @@ import java.util.List;
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean enableColorTransfers)
+      boolean enableColorTransfers,
+      @InputType int inputType)
       throws VideoFrameProcessingException {
     checkState(
         !ColorInfo.isTransferHdr(inputColorInfo),
         "DefaultShaderProgram doesn't support HDR internal sampler input yet.");
+    checkState(
+        inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB || inputType == INPUT_TYPE_BITMAP);
     GlProgram glProgram =
         createGlProgram(
             context,
             VERTEX_SHADER_TRANSFORMATION_PATH,
             FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH);
+    glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
     return createWithSampler(
         glProgram,
         matrixTransformations,

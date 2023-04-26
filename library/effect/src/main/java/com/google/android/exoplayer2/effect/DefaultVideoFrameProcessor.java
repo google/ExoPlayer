@@ -593,7 +593,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                     rgbMatrices,
                     inputColorInfo,
                     linearColorInfo,
-                    enableColorTransfers);
+                    enableColorTransfers,
+                    inputType);
           }
         } else {
           defaultShaderProgram =
