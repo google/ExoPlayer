@@ -63,6 +63,7 @@ public class TsPlaybackTest {
         "sample_h264_mpeg_audio.ts",
         "sample_h264_no_access_unit_delimiters.ts",
         "sample_h265.ts",
+        "sample_h265_rps_pred.ts",
         "sample_latm.ts",
         "sample_scte35.ts",
         "sample_with_id3.adts",
