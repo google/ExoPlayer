@@ -29,6 +29,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.*
+import androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
@@ -142,6 +143,12 @@ class PlaybackService : MediaLibraryService() {
       browser: ControllerInfo,
       params: LibraryParams?
     ): ListenableFuture<LibraryResult<MediaItem>> {
+      if (params != null && params.isRecent) {
+        // The service currently does not support playback resumption. Tell System UI by returning
+        // an error of type 'RESULT_ERROR_NOT_SUPPORTED' for a `params.isRecent` request. See
+        // https://github.com/androidx/media/issues/355
+        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED))
+      }
       return Futures.immediateFuture(LibraryResult.ofItem(MediaItemTree.getRootItem(), params))
     }
 

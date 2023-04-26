@@ -16,6 +16,10 @@
     *   Fix issue where `MediaController` doesn't update its available commands
         when connected to a legacy `MediaSessionCompat` that updates its
         actions.
+    *   Fix bug that prevented the `MediaLibraryService` from returning null for
+        a call from System UI to `Callback.onGetLibraryRoot` with
+        `params.isRecent == true` on API 30
+        ([#355](https://github.com/androidx/media/issues/355)).
 
 ### 1.0.1 (2023-04-18)
 
