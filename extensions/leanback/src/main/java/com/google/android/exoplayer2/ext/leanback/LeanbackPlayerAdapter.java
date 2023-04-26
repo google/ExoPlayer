@@ -119,10 +119,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
 
   @Override
   public boolean isPlaying() {
-    int playbackState = player.getPlaybackState();
-    return playbackState != Player.STATE_IDLE
-        && playbackState != Player.STATE_ENDED
-        && player.getPlayWhenReady();
+    return !Util.shouldShowPlayButton(player);
   }
 
   @Override
@@ -140,13 +137,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   @SuppressWarnings("nullness:dereference.of.nullable")
   @Override
   public void play() {
-    if (player.getPlaybackState() == Player.STATE_IDLE) {
-      player.prepare();
-    } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-      player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
-    }
-    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
-      player.play();
+    if (Util.handlePlayButtonAction(player)) {
       getCallback().onPlayStateChanged(this);
     }
   }
@@ -155,8 +146,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   @SuppressWarnings("nullness:dereference.of.nullable")
   @Override
   public void pause() {
-    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
-      player.pause();
+    if (Util.handlePauseButtonAction(player)) {
       getCallback().onPlayStateChanged(this);
     }
   }

@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
 import static com.google.android.exoplayer2.C.UNLIMITED_PENDING_FRAME_COUNT;
+import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
+import static com.google.android.exoplayer2.Player.COMMAND_PREPARE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
@@ -123,6 +125,7 @@ import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /** Miscellaneous utility methods. */
@@ -2808,6 +2811,87 @@ public final class Util {
    */
   public static String intToStringMaxRadix(int i) {
     return Integer.toString(i, Character.MAX_RADIX);
+  }
+
+  /**
+   * Returns whether a play button should be presented on a UI element for playback control. If
+   * {@code false}, a pause button should be shown instead.
+   *
+   * <p>Use {@link #handlePlayPauseButtonAction}, {@link #handlePlayButtonAction} or {@link
+   * #handlePauseButtonAction} to handle the interaction with the play or pause button UI element.
+   *
+   * @param player The {@link Player}. May be null.
+   */
+  @EnsuresNonNullIf(result = false, expression = "#1")
+  public static boolean shouldShowPlayButton(@Nullable Player player) {
+    return player == null
+        || !player.getPlayWhenReady()
+        || player.getPlaybackState() == Player.STATE_IDLE
+        || player.getPlaybackState() == Player.STATE_ENDED;
+  }
+
+  /**
+   * Updates the player to handle an interaction with a play button.
+   *
+   * <p>This method assumes the play button is enabled if {@link #shouldShowPlayButton} returns
+   * true.
+   *
+   * @param player The {@link Player}. May be null.
+   * @return Whether a player method was triggered to handle this action.
+   */
+  public static boolean handlePlayButtonAction(@Nullable Player player) {
+    if (player == null) {
+      return false;
+    }
+    @Player.State int state = player.getPlaybackState();
+    boolean methodTriggered = false;
+    if (state == Player.STATE_IDLE && player.isCommandAvailable(COMMAND_PREPARE)) {
+      player.prepare();
+      methodTriggered = true;
+    } else if (state == Player.STATE_ENDED
+        && player.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)) {
+      player.seekToDefaultPosition();
+      methodTriggered = true;
+    }
+    if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+      player.play();
+      methodTriggered = true;
+    }
+    return methodTriggered;
+  }
+
+  /**
+   * Updates the player to handle an interaction with a pause button.
+   *
+   * <p>This method assumes the pause button is enabled if {@link #shouldShowPlayButton} returns
+   * false.
+   *
+   * @param player The {@link Player}. May be null.
+   * @return Whether a player method was triggered to handle this action.
+   */
+  public static boolean handlePauseButtonAction(@Nullable Player player) {
+    if (player != null && player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
+      player.pause();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Updates the player to handle an interaction with a play or pause button.
+   *
+   * <p>This method assumes that the UI element enables a play button if {@link
+   * #shouldShowPlayButton} returns true and a pause button otherwise.
+   *
+   * @param player The {@link Player}. May be null.
+   * @return Whether a player method was triggered to handle this action.
+   */
+  public static boolean handlePlayPauseButtonAction(@Nullable Player player) {
+    if (shouldShowPlayButton(player)) {
+      return handlePlayButtonAction(player);
+    } else {
+      return handlePauseButtonAction(player);
+    }
   }
 
   @Nullable
