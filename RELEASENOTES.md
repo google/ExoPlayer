@@ -8,6 +8,10 @@
     *   Fix issue where last frame may not be rendered if the last sample with
         frames is dequeued without reading the 'end of stream' sample.
         ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
+*   Extractors:
+    *   Fix parsing of H.265 SPS in MPEG-TS files by re-using the parsing logic
+        already used by RTSP and MP4 extractors
+        ([#303](https://github.com/androidx/media/issues/303)).
 *   Session:
     *   Fix issue where `MediaController` doesn't update its available commands
         when connected to a legacy `MediaSessionCompat` that updates its
