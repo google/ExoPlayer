@@ -341,6 +341,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearOutputFrame();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.texId, presentationTimeUs);
+    GLES20.glFinish();
     checkNotNull(textureOutputListener).onTextureRendered(outputTexture, presentationTimeUs);
   }
 
