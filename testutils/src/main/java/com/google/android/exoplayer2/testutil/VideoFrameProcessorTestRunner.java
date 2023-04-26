@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.createA
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -322,6 +323,7 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
+            videoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
             videoFrameProcessor.registerInputFrame();
           }
 
@@ -341,6 +343,7 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
+    videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 

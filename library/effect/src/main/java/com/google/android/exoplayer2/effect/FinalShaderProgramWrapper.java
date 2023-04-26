@@ -65,6 +65,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 /* package */ final class FinalShaderProgramWrapper implements ExternalShaderProgram {
 
+  /** Listener interface for the current input stream ending. */
+  interface OnInputStreamProcessedListener {
+    /**
+     * Returns whether {@link FinalShaderProgramWrapper} should invoke {@link
+     * VideoFrameProcessor.Listener#signalEndOfInput}.
+     */
+    boolean onInputStreamProcessed();
+  }
+
   private static final String TAG = "FinalShaderWrapper";
 
   private final Context context;
@@ -94,6 +103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
   @Nullable private GlTextureInfo outputTexture;
+  @Nullable private OnInputStreamProcessedListener onInputStreamProcessedListener;
   private boolean frameProcessingStarted;
 
   private volatile boolean outputSurfaceInfoChanged;
@@ -172,10 +182,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     throw new UnsupportedOperationException();
   }
 
+  public void setOnInputStreamProcessedListener(
+      @Nullable OnInputStreamProcessedListener onInputStreamProcessedListener) {
+    this.onInputStreamProcessedListener = onInputStreamProcessedListener;
+  }
+
   @Override
   public void signalEndOfCurrentInputStream() {
     frameProcessingStarted = true;
-    videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
+    boolean frameProcessingEnded =
+        checkNotNull(onInputStreamProcessedListener).onInputStreamProcessed();
+    if (frameProcessingEnded) {
+      videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
+    }
   }
 
   // Methods that must be called on the GL thread.
