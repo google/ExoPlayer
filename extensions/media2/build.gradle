@@ -23,7 +23,6 @@ dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation project(modulePrefix + 'library-core')
-    androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     androidTestImplementation 'androidx.test:core:' + androidxTestCoreVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
