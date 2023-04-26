@@ -41,11 +41,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** An analysis test to log encoder capabilities on a device. */
 @RunWith(AndroidJUnit4.class)
+@Ignore(
+    "Analysis tests are not used for confirming Transformer is running properly, and not configured"
+        + " for this use as they're missing skip checks for unsupported devices.")
 public class EncoderCapabilityAnalysisTest {
 
   private static final String CAMCORDER_FORMAT_STRING = "%dx%d@%dfps:%dkbps";

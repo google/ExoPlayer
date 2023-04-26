@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -63,6 +64,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 /** Instrumentation tests for analysing output bitrate and quality for a given input bitrate. */
 @RunWith(Parameterized.class)
+@Ignore(
+    "Analysis tests are not used for confirming Transformer is running properly, and not configured"
+        + " for this use as they're missing skip checks for unsupported devices.")
 public class BitrateAnalysisTest {
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(

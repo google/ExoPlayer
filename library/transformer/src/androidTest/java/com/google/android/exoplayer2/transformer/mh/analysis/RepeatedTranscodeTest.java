@@ -35,11 +35,15 @@ import com.google.android.exoplayer2.util.Effect;
 import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests repeated transcoding operations (as a stress test and to help reproduce flakiness). */
 @RunWith(AndroidJUnit4.class)
+@Ignore(
+    "Analysis tests are not used for confirming Transformer is running properly, and not configured"
+        + " for this use as they're missing skip checks for unsupported devices.")
 public final class RepeatedTranscodeTest {
   private static final int TRANSCODE_COUNT = 10;
 
