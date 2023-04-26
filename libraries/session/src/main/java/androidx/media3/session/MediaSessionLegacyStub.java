@@ -31,8 +31,6 @@ import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static androidx.media3.common.Player.COMMAND_STOP;
-import static androidx.media3.common.Player.STATE_ENDED;
-import static androidx.media3.common.Player.STATE_IDLE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
@@ -342,22 +340,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
-        (controller) -> {
-          PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
-          @Player.State int playbackState = playerWrapper.getPlaybackState();
-          if (!playerWrapper.getPlayWhenReady()
-              || playbackState == STATE_ENDED
-              || playbackState == STATE_IDLE) {
-            if (playbackState == STATE_IDLE) {
-              playerWrapper.prepareIfCommandAvailable();
-            } else if (playbackState == STATE_ENDED) {
-              playerWrapper.seekToDefaultPositionIfCommandAvailable();
-            }
-            playerWrapper.play();
-          } else {
-            playerWrapper.pause();
-          }
-        },
+        controller -> Util.handlePlayPauseButtonAction(sessionImpl.getPlayerWrapper()),
         remoteUserInfo);
   }
 
@@ -397,15 +380,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
         controller -> {
-          PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
-          @Player.State int playbackState = playerWrapper.getPlaybackState();
-          if (playbackState == Player.STATE_IDLE) {
-            playerWrapper.prepareIfCommandAvailable();
-          } else if (playbackState == Player.STATE_ENDED) {
-            playerWrapper.seekToDefaultPositionIfCommandAvailable();
-          }
           if (sessionImpl.onPlayRequested()) {
-            playerWrapper.play();
+            Util.handlePlayButtonAction(sessionImpl.getPlayerWrapper());
           }
         },
         sessionCompat.getCurrentControllerInfo());
@@ -438,7 +414,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public void onPause() {
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
-        controller -> sessionImpl.getPlayerWrapper().pause(),
+        controller -> Util.handlePauseButtonAction(sessionImpl.getPlayerWrapper()),
         sessionCompat.getCurrentControllerInfo());
   }
 

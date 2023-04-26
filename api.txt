@@ -1233,11 +1233,15 @@ package androidx.media3.common.util {
     method public static boolean checkCleartextTrafficPermitted(androidx.media3.common.MediaItem...);
     method @Nullable public static String getAdaptiveMimeTypeForContentType(@androidx.media3.common.C.ContentType int);
     method @Nullable public static java.util.UUID getDrmUuid(String);
+    method public static boolean handlePauseButtonAction(@Nullable androidx.media3.common.Player);
+    method public static boolean handlePlayButtonAction(@Nullable androidx.media3.common.Player);
+    method public static boolean handlePlayPauseButtonAction(@Nullable androidx.media3.common.Player);
     method @androidx.media3.common.C.ContentType public static int inferContentType(android.net.Uri);
     method @androidx.media3.common.C.ContentType public static int inferContentTypeForExtension(String);
     method @androidx.media3.common.C.ContentType public static int inferContentTypeForUriAndMimeType(android.net.Uri, @Nullable String);
     method public static boolean maybeRequestReadExternalStoragePermission(android.app.Activity, android.net.Uri...);
     method public static boolean maybeRequestReadExternalStoragePermission(android.app.Activity, androidx.media3.common.MediaItem...);
+    method @org.checkerframework.checker.nullness.qual.EnsuresNonNullIf(result=false, expression="#1") public static boolean shouldShowPlayButton(@Nullable androidx.media3.common.Player);
   }
 
 }

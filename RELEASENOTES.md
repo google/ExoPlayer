@@ -49,6 +49,10 @@
     *   Fix issue where `MediaController` doesn't update its available commands
         when connected to a legacy `MediaSessionCompat` that updates its
         actions.
+*   UI:
+    *   Add Util methods `shouldShowPlayButton` and
+        `handlePlayPauseButtonAction` to write custom UI elements with a
+        play/pause button.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
