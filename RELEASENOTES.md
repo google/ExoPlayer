@@ -39,6 +39,10 @@
     *   Add `Builder` for `DeviceInfo` and deprecate existing constructor.
     *   Add `DeviceInfo.routingControllerId` to specify the routing controller
         ID for remote playbacks.
+*   Extractors:
+    *   Fix parsing of H.265 SPS in MPEG-TS files by re-using the parsing logic
+        already used by RTSP and MP4 extractors
+        ([#303](https://github.com/androidx/media/issues/303)).
 *   Session:
     *   Deprecate 4 volume-controlling methods in `Player` and add overloaded
         methods which allow users to specify volume flags:
