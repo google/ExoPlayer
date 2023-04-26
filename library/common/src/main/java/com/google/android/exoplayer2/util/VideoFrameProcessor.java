@@ -122,7 +122,8 @@ public interface VideoFrameProcessor {
     void onOutputSizeChanged(int width, int height);
 
     /**
-     * Called when an output frame with the given {@code presentationTimeUs} becomes available.
+     * Called when an output frame with the given {@code presentationTimeUs} becomes available for
+     * rendering.
      *
      * @param presentationTimeUs The presentation time of the frame, in microseconds.
      */
