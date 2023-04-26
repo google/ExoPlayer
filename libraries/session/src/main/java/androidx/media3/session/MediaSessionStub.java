@@ -204,12 +204,14 @@ import java.util.concurrent.ExecutionException;
           mediaItems ->
               postOrRunWithCompletion(
                   sessionImpl.getApplicationHandler(),
-                  () -> {
-                    if (!sessionImpl.isReleased()) {
-                      mediaItemPlayerTask.run(
-                          sessionImpl.getPlayerWrapper(), controller, mediaItems);
-                    }
-                  },
+                  sessionImpl.callWithControllerForCurrentRequestSet(
+                      controller,
+                      () -> {
+                        if (!sessionImpl.isReleased()) {
+                          mediaItemPlayerTask.run(
+                              sessionImpl.getPlayerWrapper(), controller, mediaItems);
+                        }
+                      }),
                   new SessionResult(SessionResult.RESULT_SUCCESS)));
     };
   }
@@ -228,12 +230,14 @@ import java.util.concurrent.ExecutionException;
           mediaItemsWithStartPosition ->
               postOrRunWithCompletion(
                   sessionImpl.getApplicationHandler(),
-                  () -> {
-                    if (!sessionImpl.isReleased()) {
-                      mediaItemPlayerTask.run(
-                          sessionImpl.getPlayerWrapper(), mediaItemsWithStartPosition);
-                    }
-                  },
+                  sessionImpl.callWithControllerForCurrentRequestSet(
+                      controller,
+                      () -> {
+                        if (!sessionImpl.isReleased()) {
+                          mediaItemPlayerTask.run(
+                              sessionImpl.getPlayerWrapper(), mediaItemsWithStartPosition);
+                        }
+                      }),
                   new SessionResult(SessionResult.RESULT_SUCCESS)));
     };
   }
@@ -305,7 +309,10 @@ import java.util.concurrent.ExecutionException;
               return;
             }
             if (command == COMMAND_SET_VIDEO_SURFACE) {
-              task.run(sessionImpl, controller, sequenceNumber);
+              sessionImpl
+                  .callWithControllerForCurrentRequestSet(
+                      controller, () -> task.run(sessionImpl, controller, sequenceNumber))
+                  .run();
             } else {
               connectedControllersManager.addToCommandQueue(
                   controller, () -> task.run(sessionImpl, controller, sequenceNumber));

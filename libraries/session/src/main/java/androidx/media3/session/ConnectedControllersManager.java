@@ -259,20 +259,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       AtomicBoolean commandExecuting = new AtomicBoolean(true);
       postOrRun(
           sessionImpl.getApplicationHandler(),
-          () ->
-              asyncCommand
-                  .run()
-                  .addListener(
-                      () -> {
-                        synchronized (lock) {
-                          if (!commandExecuting.get()) {
-                            flushCommandQueue(info);
-                          } else {
-                            continueRunning.set(true);
-                          }
-                        }
-                      },
-                      MoreExecutors.directExecutor()));
+          sessionImpl.callWithControllerForCurrentRequestSet(
+              getController(info.controllerKey),
+              () ->
+                  asyncCommand
+                      .run()
+                      .addListener(
+                          () -> {
+                            synchronized (lock) {
+                              if (!commandExecuting.get()) {
+                                flushCommandQueue(info);
+                              } else {
+                                continueRunning.set(true);
+                              }
+                            }
+                          },
+                          MoreExecutors.directExecutor())));
       commandExecuting.set(false);
     }
   }

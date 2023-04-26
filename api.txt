@@ -1704,6 +1704,7 @@ package androidx.media3.session {
   @com.google.errorprone.annotations.DoNotMock public class MediaSession {
     method public final void broadcastCustomCommand(androidx.media3.session.SessionCommand, android.os.Bundle);
     method public final java.util.List<androidx.media3.session.MediaSession.ControllerInfo> getConnectedControllers();
+    method @Nullable public final androidx.media3.session.MediaSession.ControllerInfo getControllerForCurrentRequest();
     method public final String getId();
     method public final androidx.media3.common.Player getPlayer();
     method @Nullable public final android.app.PendingIntent getSessionActivity();

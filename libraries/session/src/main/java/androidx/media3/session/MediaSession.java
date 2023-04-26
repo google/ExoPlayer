@@ -661,6 +661,28 @@ public class MediaSession {
   }
 
   /**
+   * Returns the {@link ControllerInfo} for the controller that sent the current request for a
+   * {@link Player} method.
+   *
+   * <p>This method will return a non-null value while {@link Player} methods triggered by a
+   * controller are executed.
+   *
+   * <p>Note: If you want to prevent a controller from calling a method, specify the {@link
+   * ConnectionResult#availablePlayerCommands available commands} in {@link Callback#onConnect} or
+   * set them via {@link #setAvailableCommands}.
+   *
+   * <p>This method must be called on the {@linkplain Player#getApplicationLooper() application
+   * thread} of the underlying player.
+   *
+   * @return The {@link ControllerInfo} of the controller that sent the current request, or {@code
+   *     null} if not applicable.
+   */
+  @Nullable
+  public final ControllerInfo getControllerForCurrentRequest() {
+    return impl.getControllerForCurrentRequest();
+  }
+
+  /**
    * Requests that controllers set the ordered list of {@link CommandButton} to build UI with it.
    *
    * <p>It's up to controller's decision how to represent the layout in its own UI. Here are some

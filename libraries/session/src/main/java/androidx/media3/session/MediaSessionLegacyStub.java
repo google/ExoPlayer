@@ -655,16 +655,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             return;
           }
 
-          try {
-            task.run(controller);
-          } catch (RemoteException e) {
-            // Currently it's TransactionTooLargeException or DeadSystemException.
-            // We'd better to leave log for those cases because
-            //   - TransactionTooLargeException means that we may need to fix our code.
-            //     (e.g. add pagination or special way to deliver Bitmap)
-            //   - DeadSystemException means that errors around it can be ignored.
-            Log.w(TAG, "Exception in " + controller, e);
-          }
+          sessionImpl
+              .callWithControllerForCurrentRequestSet(
+                  controller,
+                  () -> {
+                    try {
+                      task.run(controller);
+                    } catch (RemoteException e) {
+                      // Currently it's TransactionTooLargeException or DeadSystemException.
+                      // We'd better to leave log for those cases because
+                      //   - TransactionTooLargeException means that we may need to fix our code.
+                      //     (e.g. add pagination or special way to deliver Bitmap)
+                      //   - DeadSystemException means that errors around it can be ignored.
+                      Log.w(TAG, "Exception in " + controller, e);
+                    }
+                  })
+              .run();
         });
   }
 
@@ -788,20 +794,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 public void onSuccess(MediaItemsWithStartPosition mediaItemsWithStartPosition) {
                   postOrRun(
                       sessionImpl.getApplicationHandler(),
-                      () -> {
-                        PlayerWrapper player = sessionImpl.getPlayerWrapper();
-                        MediaUtils.setMediaItemsWithStartIndexAndPosition(
-                            player, mediaItemsWithStartPosition);
-                        @Player.State int playbackState = player.getPlaybackState();
-                        if (playbackState == Player.STATE_IDLE) {
-                          player.prepareIfCommandAvailable();
-                        } else if (playbackState == Player.STATE_ENDED) {
-                          player.seekToDefaultPositionIfCommandAvailable();
-                        }
-                        if (play) {
-                          player.playIfCommandAvailable();
-                        }
-                      });
+                      sessionImpl.callWithControllerForCurrentRequestSet(
+                          controller,
+                          () -> {
+                            PlayerWrapper player = sessionImpl.getPlayerWrapper();
+                            MediaUtils.setMediaItemsWithStartIndexAndPosition(
+                                player, mediaItemsWithStartPosition);
+                            @Player.State int playbackState = player.getPlaybackState();
+                            if (playbackState == Player.STATE_IDLE) {
+                              player.prepareIfCommandAvailable();
+                            } else if (playbackState == Player.STATE_ENDED) {
+                              player.seekToDefaultPositionIfCommandAvailable();
+                            }
+                            if (play) {
+                              player.playIfCommandAvailable();
+                            }
+                          }));
                 }
 
                 @Override
@@ -836,13 +844,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 public void onSuccess(List<MediaItem> mediaItems) {
                   postOrRun(
                       sessionImpl.getApplicationHandler(),
-                      () -> {
-                        if (index == C.INDEX_UNSET) {
-                          sessionImpl.getPlayerWrapper().addMediaItems(mediaItems);
-                        } else {
-                          sessionImpl.getPlayerWrapper().addMediaItems(index, mediaItems);
-                        }
-                      });
+                      sessionImpl.callWithControllerForCurrentRequestSet(
+                          controller,
+                          () -> {
+                            if (index == C.INDEX_UNSET) {
+                              sessionImpl.getPlayerWrapper().addMediaItems(mediaItems);
+                            } else {
+                              sessionImpl.getPlayerWrapper().addMediaItems(index, mediaItems);
+                            }
+                          }));
                 }
 
                 @Override

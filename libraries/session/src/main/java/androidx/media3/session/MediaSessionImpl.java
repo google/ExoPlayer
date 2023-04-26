@@ -39,6 +39,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
+import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -123,6 +124,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private PlayerInfo playerInfo;
   private PlayerWrapper playerWrapper;
+  @Nullable private ControllerInfo controllerForCurrentRequest;
 
   @GuardedBy("lock")
   @Nullable
@@ -278,6 +280,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return playerWrapper;
   }
 
+  @CheckResult
+  public Runnable callWithControllerForCurrentRequestSet(
+      @Nullable ControllerInfo controllerForCurrentRequest, Runnable runnable) {
+    return () -> {
+      this.controllerForCurrentRequest = controllerForCurrentRequest;
+      runnable.run();
+      this.controllerForCurrentRequest = null;
+    };
+  }
+
   public String getId() {
     return sessionId;
   }
@@ -296,6 +308,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     controllers.addAll(
         sessionLegacyStub.getConnectedControllersManager().getConnectedControllers());
     return controllers;
+  }
+
+  @Nullable
+  public ControllerInfo getControllerForCurrentRequest() {
+    return controllerForCurrentRequest;
   }
 
   public boolean isConnected(ControllerInfo controller) {
