@@ -1733,7 +1733,7 @@ package androidx.media3.session {
     method public default androidx.media3.session.MediaSession.ConnectionResult onConnect(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo);
     method public default com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> onCustomCommand(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.session.SessionCommand, android.os.Bundle);
     method public default void onDisconnected(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo);
-    method @androidx.media3.session.SessionResult.Code public default int onPlayerCommandRequest(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, @androidx.media3.common.Player.Command int);
+    method @Deprecated @androidx.media3.session.SessionResult.Code public default int onPlayerCommandRequest(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, @androidx.media3.common.Player.Command int);
     method public default void onPostConnect(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo);
     method public default com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> onSetRating(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, String, androidx.media3.common.Rating);
     method public default com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> onSetRating(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.common.Rating);

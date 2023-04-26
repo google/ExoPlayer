@@ -1019,18 +1019,11 @@ public class MediaSession {
     default void onDisconnected(MediaSession session, ControllerInfo controller) {}
 
     /**
-     * Called when a controller sent a command which will be sent directly to the underlying {@link
-     * Player}.
-     *
-     * <p>Return {@link SessionResult#RESULT_SUCCESS} to proceed the command. Otherwise, the command
-     * won't be sent and the controller will receive the code. This method will be called for every
-     * single command.
-     *
-     * @param session The session for this event.
-     * @param controller The controller information.
-     * @param playerCommand A {@link Player.Command command}.
-     * @return {@link SessionResult#RESULT_SUCCESS} to proceed, or another code to ignore.
+     * @deprecated Modify the {@link Player#getAvailableCommands() available commands} of the player
+     *     or use {@link MediaSession#setAvailableCommands} instead. The controller triggering a
+     *     {@link Player} method can be obtained via {@link #getControllerForCurrentRequest()}.
      */
+    @Deprecated
     default @SessionResult.Code int onPlayerCommandRequest(
         MediaSession session, ControllerInfo controller, @Player.Command int playerCommand) {
       return RESULT_SUCCESS;

@@ -437,6 +437,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     callback.onDisconnected(instance, controller);
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated callback method.
   public @SessionResult.Code int onPlayerCommandRequestOnHandler(
       ControllerInfo controller, @Player.Command int playerCommand) {
     return callback.onPlayerCommandRequest(instance, controller, playerCommand);
