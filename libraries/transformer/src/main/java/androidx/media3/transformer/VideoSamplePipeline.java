@@ -299,47 +299,6 @@ import org.checkerframework.dataflow.qual.Pure;
     return encoderWrapper.isEnded();
   }
 
-  /**
-   * Creates a {@link TransformationRequest}, based on an original {@code TransformationRequest} and
-   * parameters specifying alterations to it that indicate device support.
-   *
-   * @param transformationRequest The requested transformation.
-   * @param hasOutputFormatRotation Whether the input video will be rotated to landscape during
-   *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
-   * @param requestedFormat The requested format.
-   * @param supportedFormat A format supported by the device.
-   * @param supportedHdrMode A {@link TransformationRequest.HdrMode} supported by the device.
-   * @return The created instance.
-   */
-  @Pure
-  private static TransformationRequest createSupportedTransformationRequest(
-      TransformationRequest transformationRequest,
-      boolean hasOutputFormatRotation,
-      Format requestedFormat,
-      Format supportedFormat,
-      @TransformationRequest.HdrMode int supportedHdrMode) {
-    // TODO(b/259570024): Consider including bitrate in the revised fallback design.
-
-    TransformationRequest.Builder supportedRequestBuilder = transformationRequest.buildUpon();
-    if (transformationRequest.hdrMode != supportedHdrMode) {
-      supportedRequestBuilder.setHdrMode(supportedHdrMode);
-    }
-
-    if (!Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)) {
-      supportedRequestBuilder.setVideoMimeType(supportedFormat.sampleMimeType);
-    }
-
-    if (hasOutputFormatRotation) {
-      if (requestedFormat.width != supportedFormat.width) {
-        supportedRequestBuilder.setResolution(/* outputHeight= */ supportedFormat.width);
-      }
-    } else if (requestedFormat.height != supportedFormat.height) {
-      supportedRequestBuilder.setResolution(supportedFormat.height);
-    }
-
-    return supportedRequestBuilder.build();
-  }
-
   private static Size getDecodedSize(Format format) {
     // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
     int decodedWidth = (format.rotationDegrees % 180 == 0) ? format.width : format.height;
@@ -489,6 +448,47 @@ import org.checkerframework.dataflow.qual.Pure;
         encoder.release();
       }
       return encoderSurfaceInfo;
+    }
+
+    /**
+     * Creates a {@link TransformationRequest}, based on an original {@code TransformationRequest}
+     * and parameters specifying alterations to it that indicate device support.
+     *
+     * @param transformationRequest The requested transformation.
+     * @param hasOutputFormatRotation Whether the input video will be rotated to landscape during
+     *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
+     * @param requestedFormat The requested format.
+     * @param supportedFormat A format supported by the device.
+     * @param supportedHdrMode A {@link TransformationRequest.HdrMode} supported by the device.
+     * @return The created instance.
+     */
+    @Pure
+    private static TransformationRequest createSupportedTransformationRequest(
+        TransformationRequest transformationRequest,
+        boolean hasOutputFormatRotation,
+        Format requestedFormat,
+        Format supportedFormat,
+        @TransformationRequest.HdrMode int supportedHdrMode) {
+      // TODO(b/259570024): Consider including bitrate in the revised fallback design.
+
+      TransformationRequest.Builder supportedRequestBuilder = transformationRequest.buildUpon();
+      if (transformationRequest.hdrMode != supportedHdrMode) {
+        supportedRequestBuilder.setHdrMode(supportedHdrMode);
+      }
+
+      if (!Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)) {
+        supportedRequestBuilder.setVideoMimeType(supportedFormat.sampleMimeType);
+      }
+
+      if (hasOutputFormatRotation) {
+        if (requestedFormat.width != supportedFormat.width) {
+          supportedRequestBuilder.setResolution(/* outputHeight= */ supportedFormat.width);
+        }
+      } else if (requestedFormat.height != supportedFormat.height) {
+        supportedRequestBuilder.setResolution(supportedFormat.height);
+      }
+
+      return supportedRequestBuilder.build();
     }
 
     public void signalEndOfInputStream() throws ExportException {
