@@ -124,7 +124,8 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
     Bitmap actualBitmap;
     try {
-      actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+      videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+      actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
     } catch (UnsupportedOperationException e) {
       if (e.getMessage() != null
           && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
@@ -187,7 +188,8 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
     Bitmap actualBitmap;
     try {
-      actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+      videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+      actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
     } catch (UnsupportedOperationException e) {
       if (e.getMessage() != null
           && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {

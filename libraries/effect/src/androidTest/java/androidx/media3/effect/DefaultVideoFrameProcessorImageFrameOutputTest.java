@@ -80,7 +80,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         3 * C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ 0L,
         /* frameRate= */ 4);
-    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
 
     int actualFrameCount = framesProduced.get();
     assertThat(actualFrameCount).isEqualTo(/* expected= */ 20);
@@ -99,7 +99,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
           /* offsetToAddUs= */ 0L,
           /* frameRate= */ 1);
     }
-    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
 
     int actualFrameCount = framesProduced.get();
     assertThat(actualFrameCount).isEqualTo(/* expected= */ 20);
@@ -123,7 +123,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ offsetUs,
         /* frameRate= */ 2);
-    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
     assertThat(actualPresentationTimesUs)
         .containsExactly(offsetUs, offsetUs + C.MICROS_PER_SECOND / 2)
         .inOrder();
@@ -152,7 +152,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ offsetUs2,
         /* frameRate= */ 2);
-    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
     assertThat(actualPresentationTimesUs)
         .containsExactly(
             offsetUs1,
@@ -180,7 +180,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ 0L,
         /* frameRate= */ 2);
-    videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
     videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ 2 * C.MICROS_PER_SECOND,
