@@ -32,7 +32,7 @@ import com.google.common.base.Objects;
 
   private final int uid;
 
-  @SessionToken.TokenType private final int type;
+  private final @SessionToken.TokenType int type;
 
   private final int libraryVersion;
 

@@ -814,8 +814,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Converts a {@link PlaybackStateCompat} to {@link Player.State} */
-  @Player.State
-  public static int convertToPlaybackState(
+  public static @Player.State int convertToPlaybackState(
       @Nullable PlaybackStateCompat playbackStateCompat,
       @Nullable MediaMetadataCompat currentMediaMetadata,
       long timeDiffMs) {
@@ -960,8 +959,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Converts {@link PlaybackStateCompat.RepeatMode} to {@link Player.RepeatMode}. */
-  @Player.RepeatMode
-  public static int convertToRepeatMode(
+  public static @Player.RepeatMode int convertToRepeatMode(
       @PlaybackStateCompat.RepeatMode int playbackStateCompatRepeatMode) {
     switch (playbackStateCompatRepeatMode) {
       case PlaybackStateCompat.REPEAT_MODE_INVALID:

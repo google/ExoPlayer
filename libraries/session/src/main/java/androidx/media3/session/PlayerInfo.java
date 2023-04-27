@@ -119,13 +119,13 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   public static class Builder {
 
     @Nullable private PlaybackException playerError;
-    @Player.MediaItemTransitionReason private int mediaItemTransitionReason;
+    private @Player.MediaItemTransitionReason int mediaItemTransitionReason;
     private SessionPositionInfo sessionPositionInfo;
     private PositionInfo oldPositionInfo;
     private PositionInfo newPositionInfo;
-    @Player.DiscontinuityReason private int discontinuityReason;
+    private @Player.DiscontinuityReason int discontinuityReason;
     private PlaybackParameters playbackParameters;
-    @Player.RepeatMode private int repeatMode;
+    private @Player.RepeatMode int repeatMode;
     private boolean shuffleModeEnabled;
     private Timeline timeline;
     private VideoSize videoSize;
@@ -137,11 +137,11 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     private int deviceVolume;
     private boolean deviceMuted;
     private boolean playWhenReady;
-    @Player.PlayWhenReadyChangeReason private int playWhenReadyChangedReason;
+    private @Player.PlayWhenReadyChangeReason int playWhenReadyChangedReason;
     private boolean isPlaying;
     private boolean isLoading;
-    @PlaybackSuppressionReason private int playbackSuppressionReason;
-    @State private int playbackState;
+    private @PlaybackSuppressionReason int playbackSuppressionReason;
+    private @State int playbackState;
     private MediaMetadata mediaMetadata;
     private long seekBackIncrementMs;
     private long seekForwardIncrementMs;
@@ -449,7 +449,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
   @Nullable public final PlaybackException playerError;
 
-  @Player.MediaItemTransitionReason public final int mediaItemTransitionReason;
+  public final @Player.MediaItemTransitionReason int mediaItemTransitionReason;
 
   public final SessionPositionInfo sessionPositionInfo;
 
@@ -457,11 +457,11 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
   public final PositionInfo newPositionInfo;
 
-  @Player.DiscontinuityReason public final int discontinuityReason;
+  public final @Player.DiscontinuityReason int discontinuityReason;
 
   public final PlaybackParameters playbackParameters;
 
-  @Player.RepeatMode public final int repeatMode;
+  public final @Player.RepeatMode int repeatMode;
 
   public final boolean shuffleModeEnabled;
 
@@ -491,9 +491,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
   public final boolean isLoading;
 
-  @Player.PlaybackSuppressionReason public final int playbackSuppressionReason;
+  public final @Player.PlaybackSuppressionReason int playbackSuppressionReason;
 
-  @Player.State public final int playbackState;
+  public final @Player.State int playbackState;
 
   public final MediaMetadata mediaMetadata;
 
