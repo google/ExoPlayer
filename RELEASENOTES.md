@@ -66,6 +66,9 @@
         `handlePlayPauseButtonAction` to write custom UI elements with a
         play/pause button.
 
+    *   Fix memory leak of `MediaSessionService` or `MediaLibraryService`
+        ([#346](https://github.com/androidx/media/issues/346)).
+
 *   Audio:
 
     *   Fix bug where some playbacks fail when tunneling is enabled and

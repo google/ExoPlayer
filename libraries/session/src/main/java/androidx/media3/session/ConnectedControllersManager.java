@@ -26,6 +26,7 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,14 +63,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private final ArrayMap<ControllerInfo, ConnectedControllerRecord<T>> controllerRecords =
       new ArrayMap<>();
 
-  private final MediaSessionImpl sessionImpl;
+  private final WeakReference<MediaSessionImpl> sessionImpl;
 
   public ConnectedControllersManager(MediaSessionImpl session) {
     // Initialize default values.
     lock = new Object();
 
     // Initialize members with params.
-    sessionImpl = session;
+    sessionImpl = new WeakReference<>(session);
   }
 
   public void addController(
@@ -136,6 +137,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     record.sequencedFutureManager.release();
+    @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
+    if (sessionImpl == null || sessionImpl.isReleased()) {
+      return;
+    }
     postOrRun(
         sessionImpl.getApplicationHandler(),
         () -> {
@@ -214,8 +219,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     synchronized (lock) {
       info = controllerRecords.get(controllerInfo);
     }
+    @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
     return info != null
         && info.playerCommands.contains(commandCode)
+        && sessionImpl != null
         && sessionImpl.getPlayerWrapper().getAvailableCommands().contains(commandCode);
   }
 
@@ -248,6 +255,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @GuardedBy("lock")
   private void flushCommandQueue(ConnectedControllerRecord<T> info) {
+    @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
+    if (sessionImpl == null) {
+      return;
+    }
     AtomicBoolean continueRunning = new AtomicBoolean(true);
     while (continueRunning.get()) {
       continueRunning.set(false);
