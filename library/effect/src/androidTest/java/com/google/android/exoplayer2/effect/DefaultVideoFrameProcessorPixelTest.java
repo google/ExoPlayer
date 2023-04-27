@@ -100,7 +100,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -121,7 +122,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
 
     videoFrameProcessorTestRunner.queueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -149,7 +151,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
 
     videoFrameProcessorTestRunner.queueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.endFrameProcessingAndGetImage();
+    videoFrameProcessorTestRunner.endFrameProcessing();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -166,7 +169,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -181,7 +185,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
         getDefaultFrameProcessorTestRunnerBuilder(testId).setPixelWidthHeightRatio(2f).build();
     Bitmap expectedBitmap = readBitmap(SCALE_WIDE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -200,7 +205,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -221,7 +227,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -240,7 +247,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -261,7 +269,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -278,7 +287,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -299,7 +309,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -316,7 +327,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -339,7 +351,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(ROTATE_THEN_SCALE_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -363,15 +376,16 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .setOutputFileLabel("centerCrop")
             .setEffects(centerCrop)
             .build();
-    Bitmap centerCropResultBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap centerCropResultBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
     videoFrameProcessorTestRunner.release();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("full10StepRotationAndCenterCrop")
             .setEffects(full10StepRotationAndCenterCrop.build())
             .build();
-    Bitmap fullRotationAndCenterCropResultBitmap =
-        videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap fullRotationAndCenterCropResultBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -387,7 +401,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
         getDefaultFrameProcessorTestRunnerBuilder(testId).setEffects(new Brightness(0.5f)).build();
     Bitmap expectedBitmap = readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -418,8 +433,9 @@ public final class DefaultVideoFrameProcessorPixelTest {
                 new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
                 centerCrop)
             .build();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
     Bitmap centerCropAndBrightnessIncreaseResultBitmap =
-        videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+        videoFrameProcessorTestRunner.getOutputBitmap();
 
     videoFrameProcessorTestRunner.release();
     videoFrameProcessorTestRunner =
@@ -427,8 +443,9 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .setOutputFileLabel("full4StepRotationBrightnessIncreaseAndCenterCrop")
             .setEffects(increaseBrightnessFullRotationCenterCrop)
             .build();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap =
-        videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+        videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -465,17 +482,18 @@ public final class DefaultVideoFrameProcessorPixelTest {
                 new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
                 centerCrop)
             .build();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
     Bitmap centerCropAndBrightnessIncreaseResultBitmap =
-        videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+        videoFrameProcessorTestRunner.getOutputBitmap();
     videoFrameProcessorTestRunner.release();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setOutputFileLabel("full4StepRotationBrightnessIncreaseAndCenterCrop")
             .setEffects(increaseBrightnessFullRotationCenterCrop)
             .build();
-
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
     Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap =
-        videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+        videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -497,7 +515,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap expectedBitmap = readBitmap(GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
 
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =

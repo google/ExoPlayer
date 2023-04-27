@@ -234,7 +234,7 @@ public final class VideoFrameProcessorTestRunner {
    * Time to wait for the decoded frame to populate the {@link VideoFrameProcessor} instance's input
    * surface and the {@link VideoFrameProcessor} to finish processing the frame, in milliseconds.
    */
-  private static final int VIDEO_FRAME_PROCESSING_WAIT_MS = 5000;
+  public static final int VIDEO_FRAME_PROCESSING_WAIT_MS = 5000;
 
   private final String testId;
   private final @MonotonicNonNull String videoAssetPath;
@@ -311,7 +311,7 @@ public final class VideoFrameProcessorTestRunner {
             });
   }
 
-  public Bitmap processFirstFrameAndEnd() throws Exception {
+  public void processFirstFrameAndEnd() throws Exception {
     DecodeOneFrameUtil.decodeOneAssetFileFrame(
         checkNotNull(videoAssetPath),
         new DecodeOneFrameUtil.Listener() {
@@ -333,7 +333,7 @@ public final class VideoFrameProcessorTestRunner {
           }
         },
         videoFrameProcessor.getInputSurface());
-    return endFrameProcessingAndGetImage();
+    endFrameProcessing();
   }
 
   public void queueInputBitmap(
@@ -347,13 +347,24 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
-  public Bitmap endFrameProcessingAndGetImage() throws Exception {
+  public void endFrameProcessing() throws InterruptedException {
+    endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS);
+  }
+
+  public void endFrameProcessing(long videoFrameProcessingWaitTime) throws InterruptedException {
     videoFrameProcessor.signalEndOfInput();
-    Thread.sleep(VIDEO_FRAME_PROCESSING_WAIT_MS);
+    Thread.sleep(videoFrameProcessingWaitTime);
 
     assertThat(videoFrameProcessingException.get()).isNull();
     assertThat(videoFrameProcessingEnded).isTrue();
+  }
 
+  /**
+   * Returns the {@link Bitmap} from the provided {@link BitmapReader}.
+   *
+   * <p>Also saves the bitmap to the cache directory.
+   */
+  public Bitmap getOutputBitmap() {
     Bitmap outputBitmap = checkNotNull(bitmapReader).getBitmap();
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ outputFileLabel, outputBitmap, /* path= */ null);
     return outputBitmap;
