@@ -20,6 +20,8 @@
         a call from System UI to `Callback.onGetLibraryRoot` with
         `params.isRecent == true` on API 30
         ([#355](https://github.com/androidx/media/issues/355)).
+    *   Fix memory leak of `MediaSessionService` or `MediaLibraryService`
+        ([#346](https://github.com/androidx/media/issues/346)).
 
 ### 1.0.1 (2023-04-18)
 
