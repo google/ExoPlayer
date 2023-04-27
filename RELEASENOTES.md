@@ -60,17 +60,13 @@
         a call from System UI to `Callback.onGetLibraryRoot` with
         `params.isRecent == true` on API 30
         ([#355](https://github.com/androidx/media/issues/355)).
+    *   Fix memory leak of `MediaSessionService` or `MediaLibraryService`
+        ([#346](https://github.com/androidx/media/issues/346)).
 *   UI:
-
     *   Add Util methods `shouldShowPlayButton` and
         `handlePlayPauseButtonAction` to write custom UI elements with a
         play/pause button.
-
-    *   Fix memory leak of `MediaSessionService` or `MediaLibraryService`
-        ([#346](https://github.com/androidx/media/issues/346)).
-
 *   Audio:
-
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
         ([#10847](https://github.com/google/ExoPlayer/issues/10847)).
@@ -89,14 +85,10 @@
         `onRendererCapabilitiesChanged` events.
     *   Add `ChannelMixingAudioProcessor` for applying scaling/mixing to audio
         channels.
-
 *   Metadata:
-
     *   Deprecate `MediaMetadata.folderType` in favor of `isBrowsable` and
         `mediaType`.
-
 *   DRM:
-
     *   Reduce the visibility of several internal-only methods on
         `DefaultDrmSession` that aren't expected to be called from outside the
         DRM package:
@@ -104,9 +96,7 @@
         *   `void provision()`
         *   `void onProvisionCompleted()`
         *   `onProvisionError(Exception, boolean)`
-
 *   Transformer:
-
     *   Remove `Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)`.
         Use `ExoPlayerAssetLoader.Factory(MediaSource.Factory)` and
         `Transformer.Builder.setAssetLoaderFactory(AssetLoader.Factory)`
@@ -118,30 +108,20 @@
         an input frame was pending processing.
     *   Query codecs via `MediaCodecList` instead of using
         `findDecoder/EncoderForFormat` utilities, to expand support.
-
 *   Muxer:
-
     *   Add a new muxer library which can be used to create an MP4 container
         file.
-
 *   DASH:
-
     *   Remove the media time offset from `MediaLoadData.startTimeMs` and
         `MediaLoadData.endTimeMs` for multi period DASH streams.
-
 *   RTSP:
-
     *   For MPEG4-LATM, use default profile-level-id value if absent in Describe
         Response SDP message
         ([#302](https://github.com/androidx/media/issues/302)).
-
 *   IMA DAI extension:
-
     *   Fix a bug where a new ad group is inserted in live streams because the
         calculated content position in consecutive timelines varies slightly.
-
 *   Remove deprecated symbols:
-
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
     *   Remove `HlsMasterPlaylist`, use `HlsMultivariantPlaylist` instead.
