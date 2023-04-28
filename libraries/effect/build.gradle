@@ -29,7 +29,7 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDir '../test_data/src/test/assets/' //copybara:media3-only
+        androidTest.assets.srcDir '../test_data/src/test/assets/'
         test.assets.srcDir '../test_data/src/test/assets/'
     }
 }
