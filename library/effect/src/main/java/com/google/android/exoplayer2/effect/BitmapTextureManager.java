@@ -47,7 +47,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int framesToQueueForCurrentBitmap;
   private double currentPresentationTimeUs;
   private boolean useHdr;
-  private volatile boolean inputEnded;
+  private boolean inputEnded;
 
   /**
    * Creates a new instance.
