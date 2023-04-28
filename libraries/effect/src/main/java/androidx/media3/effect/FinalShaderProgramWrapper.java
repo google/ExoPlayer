@@ -360,13 +360,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearOutputFrame();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.texId, presentationTimeUs);
-
-    // glFlush is used here instead of glFinish due to the performance regression that blocking this
-    // thread would do when calling glFinish. As glFlush is non-blocking, it's possible that non-GL
-    // access to the output texture may read stale data (ex. from the prior frame). If we see issues
-    // (ex. flakiness) from glFlush, consider requiring apps reading the texture to call glFinish,
-    // or reconsider using glFinish here.
-    GLES20.glFlush();
+    GLES20.glFinish();
     checkNotNull(textureOutputListener).onTextureRendered(outputTexture, presentationTimeUs);
   }
 
