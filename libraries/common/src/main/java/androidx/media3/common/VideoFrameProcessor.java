@@ -79,10 +79,10 @@ public interface VideoFrameProcessor {
      * @param inputColorInfo The {@link ColorInfo} for input frames.
      * @param outputColorInfo The {@link ColorInfo} for output frames.
      * @param inputType The {@link InputType}.
-     * @param releaseFramesAutomatically If {@code true}, the instance will render output frames to
+     * @param renderFramesAutomatically If {@code true}, the instance will render output frames to
      *     the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface} automatically as
      *     {@link VideoFrameProcessor} is done processing them. If {@code false}, the {@link
-     *     VideoFrameProcessor} will block until {@link #releaseOutputFrame(long)} is called, to
+     *     VideoFrameProcessor} will block until {@link #renderOutputFrame(long)} is called, to
      *     render or drop the frame.
      * @param executor The {@link Executor} on which the {@code listener} is invoked.
      * @param listener A {@link Listener}.
@@ -97,7 +97,7 @@ public interface VideoFrameProcessor {
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         @InputType int inputType,
-        boolean releaseFramesAutomatically,
+        boolean renderFramesAutomatically,
         Executor executor,
         Listener listener)
         throws VideoFrameProcessingException;
@@ -128,7 +128,7 @@ public interface VideoFrameProcessor {
      *
      * @param presentationTimeUs The presentation time of the frame, in microseconds.
      */
-    void onOutputFrameAvailable(long presentationTimeUs);
+    void onOutputFrameAvailableForRendering(long presentationTimeUs);
 
     /**
      * Called when an exception occurs during asynchronous video frame processing.
@@ -143,12 +143,12 @@ public interface VideoFrameProcessor {
   }
 
   /**
-   * Indicates the frame should be released immediately after {@link #releaseOutputFrame(long)} is
+   * Indicates the frame should be rendered immediately after {@link #renderOutputFrame(long)} is
    * invoked.
    */
-  long RELEASE_OUTPUT_FRAME_IMMEDIATELY = -1;
+  long RENDER_OUTPUT_FRAME_IMMEDIATELY = -1;
 
-  /** Indicates the frame should be dropped after {@link #releaseOutputFrame(long)} is invoked. */
+  /** Indicates the frame should be dropped after {@link #renderOutputFrame(long)} is invoked. */
   long DROP_OUTPUT_FRAME = -2;
 
   /**
@@ -226,7 +226,7 @@ public interface VideoFrameProcessor {
   int getPendingInputFrameCount();
 
   /**
-   * Sets the output surface and supporting information. When output frames are released and not
+   * Sets the output surface and supporting information. When output frames are rendered and not
    * dropped, they will be rendered to this output {@link SurfaceInfo}.
    *
    * <p>The new output {@link SurfaceInfo} is applied from the next output frame rendered onwards.
@@ -244,24 +244,25 @@ public interface VideoFrameProcessor {
   void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo);
 
   /**
-   * Releases the oldest unreleased output frame that has become {@linkplain
-   * Listener#onOutputFrameAvailable(long) available} at the given {@code releaseTimeNs}.
+   * Renders the oldest unrendered output frame that has become {@linkplain
+   * Listener#onOutputFrameAvailableForRendering(long) available for rendering} at the given {@code
+   * renderTimeNs}.
    *
    * <p>This will either render the output frame to the {@linkplain #setOutputSurfaceInfo output
-   * surface}, or drop the frame, per {@code releaseTimeNs}.
+   * surface}, or drop the frame, per {@code renderTimeNs}.
    *
-   * <p>This method must only be called if {@code releaseFramesAutomatically} was set to {@code
+   * <p>This method must only be called if {@code renderFramesAutomatically} was set to {@code
    * false} using the {@link Factory} and should be called exactly once for each frame that becomes
-   * {@linkplain Listener#onOutputFrameAvailable(long) available}.
+   * {@linkplain Listener#onOutputFrameAvailableForRendering(long) available for rendering}.
    *
-   * <p>The {@code releaseTimeNs} may be passed to {@link EGLExt#eglPresentationTimeANDROID}
+   * <p>The {@code renderTimeNs} may be passed to {@link EGLExt#eglPresentationTimeANDROID}
    * depending on the implementation.
    *
-   * @param releaseTimeNs The release time to use for the frame, in nanoseconds. The release time
-   *     can be before of after the current system time. Use {@link #DROP_OUTPUT_FRAME} to drop the
-   *     frame, or {@link #RELEASE_OUTPUT_FRAME_IMMEDIATELY} to release the frame immediately.
+   * @param renderTimeNs The render time to use for the frame, in nanoseconds. The render time can
+   *     be before or after the current system time. Use {@link #DROP_OUTPUT_FRAME} to drop the
+   *     frame, or {@link #RENDER_OUTPUT_FRAME_IMMEDIATELY} to render the frame immediately.
    */
-  void releaseOutputFrame(long releaseTimeNs);
+  void renderOutputFrame(long renderTimeNs);
 
   /**
    * Informs the {@code VideoFrameProcessor} that no further input frames should be accepted.

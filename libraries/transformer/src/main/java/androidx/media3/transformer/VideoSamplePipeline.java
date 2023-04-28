@@ -159,7 +159,7 @@ import org.checkerframework.dataflow.qual.Pure;
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
               inputType,
-              /* releaseFramesAutomatically= */ true,
+              /* renderFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
               new VideoFrameProcessor.Listener() {
                 private long lastProcessedFramePresentationTimeUs;
@@ -175,8 +175,8 @@ import org.checkerframework.dataflow.qual.Pure;
                 }
 
                 @Override
-                public void onOutputFrameAvailable(long presentationTimeUs) {
-                  // Frames are released automatically.
+                public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                  // Frames are rendered automatically.
                   if (presentationTimeUs == 0) {
                     encoderExpectsTimestampZero = true;
                   }

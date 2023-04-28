@@ -188,7 +188,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         @InputType int inputType,
-        boolean releaseFramesAutomatically,
+        boolean renderFramesAutomatically,
         Executor listenerExecutor,
         Listener listener)
         throws VideoFrameProcessingException {
@@ -227,7 +227,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       outputColorInfo,
                       enableColorTransfers,
                       inputType,
-                      releaseFramesAutomatically,
+                      renderFramesAutomatically,
                       singleThreadExecutorService,
                       listenerExecutor,
                       listener,
@@ -253,7 +253,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final EGLContext eglContext;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final InputHandler inputHandler;
-  private final boolean releaseFramesAutomatically;
+  private final boolean renderFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
   private final ImmutableList<GlShaderProgram> allShaderPrograms;
   // A queue of input streams that have not been fully processed identified by their input types.
@@ -271,13 +271,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       @InputType int inputType,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       ImmutableList<GlShaderProgram> shaderPrograms,
-      boolean releaseFramesAutomatically)
+      boolean renderFramesAutomatically)
       throws VideoFrameProcessingException {
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
-    this.releaseFramesAutomatically = releaseFramesAutomatically;
+    this.renderFramesAutomatically = renderFramesAutomatically;
     this.unprocessedInputStreams = new ConcurrentLinkedQueue<>();
 
     checkState(!shaderPrograms.isEmpty());
@@ -411,12 +411,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
-  public void releaseOutputFrame(long releaseTimeNs) {
+  public void renderOutputFrame(long renderTimeNs) {
     checkState(
-        !releaseFramesAutomatically,
-        "Calling this method is not allowed when releaseFramesAutomatically is enabled");
+        !renderFramesAutomatically,
+        "Calling this method is not allowed when renderFramesAutomatically is enabled");
     videoFrameProcessingTaskExecutor.submitWithHighPriority(
-        () -> finalShaderProgramWrapper.releaseOutputFrame(releaseTimeNs));
+        () -> finalShaderProgramWrapper.renderOutputFrame(renderTimeNs));
   }
 
   @Override
@@ -494,7 +494,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       @InputType int inputType,
-      boolean releaseFramesAutomatically,
+      boolean renderFramesAutomatically,
       ExecutorService singleThreadExecutorService,
       Executor executor,
       Listener listener,
@@ -514,9 +514,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         glObjectsProvider.createEglContext(eglDisplay, openGlVersion, configAttributes);
     glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
 
-    // Not releaseFramesAutomatically means outputting to a display surface. HDR display surfaces
+    // Not renderFramesAutomatically means outputting to a display surface. HDR display surfaces
     // require the BT2020 PQ GL extension.
-    if (!releaseFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
+    if (!renderFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
       // Display hardware supports PQ only.
       checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
       if (Util.SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
@@ -538,7 +538,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             outputColorInfo,
             enableColorTransfers,
             inputType,
-            releaseFramesAutomatically,
+            renderFramesAutomatically,
             executor,
             listener,
             glObjectsProvider,
@@ -555,7 +555,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         inputType,
         videoFrameProcessingTaskExecutor,
         shaderPrograms,
-        releaseFramesAutomatically);
+        renderFramesAutomatically);
   }
 
   /**
@@ -579,7 +579,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       @InputType int inputType,
-      boolean releaseFramesAutomatically,
+      boolean renderFramesAutomatically,
       Executor executor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
@@ -666,7 +666,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             enableColorTransfers,
             sampleFromInputTexture,
             inputType,
-            releaseFramesAutomatically,
+            renderFramesAutomatically,
             executor,
             listener,
             glObjectsProvider,

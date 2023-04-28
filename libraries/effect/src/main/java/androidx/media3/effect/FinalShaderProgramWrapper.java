@@ -87,7 +87,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final boolean enableColorTransfers;
-  private final boolean releaseFramesAutomatically;
+  private final boolean renderFramesAutomatically;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final float[] textureTransformMatrix;
@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean enableColorTransfers,
       boolean sampleFromInputTexture,
       @VideoFrameProcessor.InputType int inputType,
-      boolean releaseFramesAutomatically,
+      boolean renderFramesAutomatically,
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
       GlObjectsProvider glObjectsProvider,
@@ -145,7 +145,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.enableColorTransfers = enableColorTransfers;
-    this.releaseFramesAutomatically = releaseFramesAutomatically;
+    this.renderFramesAutomatically = renderFramesAutomatically;
     this.videoFrameProcessorListenerExecutor = videoFrameProcessorListenerExecutor;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
     this.glObjectsProvider = glObjectsProvider;
@@ -203,9 +203,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     frameProcessingStarted = true;
     videoFrameProcessorListenerExecutor.execute(
-        () -> videoFrameProcessorListener.onOutputFrameAvailable(presentationTimeUs));
-    if (releaseFramesAutomatically) {
-      renderFrame(inputTexture, presentationTimeUs, /* releaseTimeNs= */ presentationTimeUs * 1000);
+        () -> videoFrameProcessorListener.onOutputFrameAvailableForRendering(presentationTimeUs));
+    if (renderFramesAutomatically) {
+      renderFrame(inputTexture, presentationTimeUs, /* renderTimeNs= */ presentationTimeUs * 1000);
     } else {
       availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
     }
@@ -218,20 +218,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     throw new UnsupportedOperationException();
   }
 
-  public void releaseOutputFrame(long releaseTimeNs) {
+  public void renderOutputFrame(long renderTimeNs) {
     frameProcessingStarted = true;
-    checkState(!releaseFramesAutomatically);
+    checkState(!renderFramesAutomatically);
     Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
     renderFrame(
         /* inputTexture= */ oldestAvailableFrame.first,
         /* presentationTimeUs= */ oldestAvailableFrame.second,
-        releaseTimeNs);
+        renderTimeNs);
   }
 
   @Override
   public void flush() {
     frameProcessingStarted = true;
-    // Drops all frames that aren't released yet.
+    // Drops all frames that aren't rendered yet.
     availableFrames.clear();
     if (defaultShaderProgram != null) {
       defaultShaderProgram.flush();
@@ -302,15 +302,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private synchronized void renderFrame(
-      GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
+      GlTextureInfo inputTexture, long presentationTimeUs, long renderTimeNs) {
     try {
-      if (releaseTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
+      if (renderTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
           || !ensureConfigured(inputTexture.width, inputTexture.height)) {
         inputListener.onInputFrameProcessed(inputTexture);
         return; // Drop frames when requested, or there is no output surface.
       }
       if (outputSurfaceInfo != null) {
-        renderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
+        renderFrameToOutputSurface(inputTexture, presentationTimeUs, renderTimeNs);
       }
       if (textureOutputListener != null) {
         renderFrameToOutputTexture(inputTexture, presentationTimeUs);
@@ -329,7 +329,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private synchronized void renderFrameToOutputSurface(
-      GlTextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs)
+      GlTextureInfo inputTexture, long presentationTimeUs, long renderTimeNs)
       throws VideoFrameProcessingException, GlUtil.GlException {
     EGLSurface outputEglSurface = checkNotNull(this.outputEglSurface);
     SurfaceInfo outputSurfaceInfo = checkNotNull(this.outputSurfaceInfo);
@@ -347,9 +347,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     EGLExt.eglPresentationTimeANDROID(
         eglDisplay,
         outputEglSurface,
-        releaseTimeNs == VideoFrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY
+        renderTimeNs == VideoFrameProcessor.RENDER_OUTPUT_FRAME_IMMEDIATELY
             ? System.nanoTime()
-            : releaseTimeNs);
+            : renderTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
   }
 
@@ -427,8 +427,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               eglDisplay,
               outputSurfaceInfo.surface,
               outputColorInfo.colorTransfer,
-              // Frames are only released automatically when outputting to an encoder.
-              /* isEncoderInputSurface= */ releaseFramesAutomatically);
+              // Frames are only rendered automatically when outputting to an encoder.
+              /* isEncoderInputSurface= */ renderFramesAutomatically);
     }
 
     @Nullable
