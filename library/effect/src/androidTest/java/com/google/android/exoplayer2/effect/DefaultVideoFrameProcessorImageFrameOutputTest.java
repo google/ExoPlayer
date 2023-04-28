@@ -114,7 +114,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setOnOutputFrameAvailableListener(actualPresentationTimesUs::add)
+            .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
             .build();
 
     long offsetUs = 1_000_000L;
@@ -137,7 +137,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setOnOutputFrameAvailableListener(actualPresentationTimesUs::add)
+            .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
             .build();
 
     long offsetUs1 = 1_000_000L;
@@ -172,7 +172,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setOnOutputFrameAvailableListener(actualPresentationTimesUs::add)
+            .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
             .build();
 
     videoFrameProcessorTestRunner.queueInputBitmap(
@@ -197,7 +197,7 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
         .setInputType(INPUT_TYPE_BITMAP)
         .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
-        .setOnOutputFrameAvailableListener(
+        .setOnOutputFrameAvailableForRenderingListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());
   }
 }

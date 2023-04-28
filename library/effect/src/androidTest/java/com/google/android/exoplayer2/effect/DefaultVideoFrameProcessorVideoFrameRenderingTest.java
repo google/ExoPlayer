@@ -54,23 +54,23 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for frame release in {@link DefaultVideoFrameProcessor}. */
+/** Tests for frame rendering in {@link DefaultVideoFrameProcessor}. */
 @RunWith(AndroidJUnit4.class)
-public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
+public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
 
   private static final int WIDTH = 200;
   private static final int HEIGHT = 100;
   /**
-   * Time to wait between releasing frames to avoid frame drops between GL and the {@link
+   * Time to wait between rendering frames to avoid frame drops between GL and the {@link
    * ImageReader}.
    */
-  private static final long PER_FRAME_RELEASE_WAIT_TIME_MS = 1000L;
-  /** Maximum time to wait for each released frame to be notified. */
+  private static final long PER_FRAME_RENDERING_WAIT_TIME_MS = 1000L;
+  /** Maximum time to wait for each rendered frame to be notified. */
   private static final long PER_FRAME_TIMEOUT_MS = 5000L;
 
   private static final long MICROS_TO_NANOS = 1000L;
 
-  private final LinkedBlockingQueue<Long> outputReleaseTimesNs = new LinkedBlockingQueue<>();
+  private final LinkedBlockingQueue<Long> outputRenderTimesNs = new LinkedBlockingQueue<>();
 
   private @MonotonicNonNull DefaultVideoFrameProcessor defaultVideoFrameProcessor;
 
@@ -82,22 +82,22 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
   }
 
   @Test
-  public void automaticFrameRelease_withOneFrame_reusesInputTimestamp() throws Exception {
+  public void automaticFrameRendering_withOneFrame_reusesInputTimestamp() throws Exception {
     long originalPresentationTimeUs = 1234;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     processFramesToEndOfStream(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ actualPresentationTimeUs::set,
-        /* releaseFramesAutomatically= */ true);
+        /* renderFramesAutomatically= */ true);
 
     assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
-    ImmutableList<Long> actualReleaseTimesNs =
-        waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 1);
-    assertThat(actualReleaseTimesNs).containsExactly(MICROS_TO_NANOS * originalPresentationTimeUs);
+    ImmutableList<Long> actualRenderTimesNs =
+        waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 1);
+    assertThat(actualRenderTimesNs).containsExactly(MICROS_TO_NANOS * originalPresentationTimeUs);
   }
 
   @Test
-  public void automaticFrameRelease_withThreeFrames_reusesInputTimestamps() throws Exception {
+  public void automaticFrameRendering_withThreeFrames_reusesInputTimestamps() throws Exception {
     long[] originalPresentationTimesUs = new long[] {1234, 3456, 4567};
     ArrayList<Long> actualPresentationTimesUs = new ArrayList<>();
     processFramesToEndOfStream(
@@ -108,12 +108,12 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
             // TODO(b/264252759): Investigate output frames being dropped and remove sleep.
             // Frames can be dropped silently between EGL and the ImageReader. Sleep after each call
             // to swap buffers, to avoid this behavior.
-            Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
+            Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
           } catch (InterruptedException e) {
             throw new IllegalStateException(e);
           }
         },
-        /* releaseFramesAutomatically= */ true);
+        /* renderFramesAutomatically= */ true);
 
     assertThat(actualPresentationTimesUs)
         .containsExactly(
@@ -121,9 +121,9 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
             originalPresentationTimesUs[1],
             originalPresentationTimesUs[2])
         .inOrder();
-    ImmutableList<Long> actualReleaseTimesNs =
-        waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 3);
-    assertThat(actualReleaseTimesNs)
+    ImmutableList<Long> actualRenderTimesNs =
+        waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 3);
+    assertThat(actualRenderTimesNs)
         .containsExactly(
             MICROS_TO_NANOS * originalPresentationTimesUs[0],
             MICROS_TO_NANOS * originalPresentationTimesUs[1],
@@ -132,67 +132,66 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
   }
 
   @Test
-  public void controlledFrameRelease_withOneFrame_usesGivenTimestamp() throws Exception {
+  public void controlledFrameRendering_withOneFrame_usesGivenTimestamp() throws Exception {
     long originalPresentationTimeUs = 1234;
-    long releaseTimesNs = System.nanoTime() + 345678;
+    long renderTimesNs = System.nanoTime() + 345678;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     processFramesToEndOfStream(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimeUs.set(presentationTimeUs);
-          checkNotNull(defaultVideoFrameProcessor).releaseOutputFrame(releaseTimesNs);
+          checkNotNull(defaultVideoFrameProcessor).renderOutputFrame(renderTimesNs);
         },
-        /* releaseFramesAutomatically= */ false);
+        /* renderFramesAutomatically= */ false);
 
-    ImmutableList<Long> actualReleaseTimesNs =
-        waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 1);
-    assertThat(actualReleaseTimesNs).containsExactly(releaseTimesNs);
+    ImmutableList<Long> actualRenderTimesNs =
+        waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 1);
+    assertThat(actualRenderTimesNs).containsExactly(renderTimesNs);
   }
 
   @Test
-  public void controlledFrameRelease_withOneFrameRequestImmediateRelease_releasesFrame()
+  public void controlledFrameRendering_withOneFrameRequestImmediateRender_rendersframe()
       throws Exception {
     long originalPresentationTimeUs = 1234;
-    long releaseTimesNs = VideoFrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY;
+    long renderTimesNs = VideoFrameProcessor.RENDER_OUTPUT_FRAME_IMMEDIATELY;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     processFramesToEndOfStream(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimeUs.set(presentationTimeUs);
-          checkNotNull(defaultVideoFrameProcessor).releaseOutputFrame(releaseTimesNs);
+          checkNotNull(defaultVideoFrameProcessor).renderOutputFrame(renderTimesNs);
         },
-        /* releaseFramesAutomatically= */ false);
+        /* renderFramesAutomatically= */ false);
 
     assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
-    // The actual release time is determined by the VideoFrameProcessor when releasing the frame.
-    ImmutableList<Long> actualReleaseTimesNs =
-        waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 1);
-    assertThat(actualReleaseTimesNs).hasSize(1);
+    // The actual render time is determined by the VideoFrameProcessor when rendering the frame.
+    ImmutableList<Long> actualRenderTimesNs =
+        waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 1);
+    assertThat(actualRenderTimesNs).hasSize(1);
   }
 
   @Test
-  public void controlledFrameRelease_withLateFrame_releasesFrame() throws Exception {
+  public void controlledFrameRendering_withLateFrame_rendersframe() throws Exception {
     long originalPresentationTimeUs = 1234;
-    long releaseTimeBeforeCurrentTimeNs = System.nanoTime() - 345678;
+    long renderTimeBeforeCurrentTimeNs = System.nanoTime() - 345678;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     processFramesToEndOfStream(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimeUs.set(presentationTimeUs);
-          checkNotNull(defaultVideoFrameProcessor)
-              .releaseOutputFrame(releaseTimeBeforeCurrentTimeNs);
+          checkNotNull(defaultVideoFrameProcessor).renderOutputFrame(renderTimeBeforeCurrentTimeNs);
         },
-        /* releaseFramesAutomatically= */ false);
+        /* renderFramesAutomatically= */ false);
 
-    ImmutableList<Long> actualReleaseTimesNs =
-        waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 1);
-    assertThat(actualReleaseTimesNs).hasSize(1);
-    // The actual release time is determined by the VideoFrameProcessor when releasing the frame.
-    assertThat(actualReleaseTimesNs.get(0)).isAtLeast(releaseTimeBeforeCurrentTimeNs);
+    ImmutableList<Long> actualRenderTimesNs =
+        waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 1);
+    assertThat(actualRenderTimesNs).hasSize(1);
+    // The actual render time is determined by the VideoFrameProcessor when rendering the frame.
+    assertThat(actualRenderTimesNs.get(0)).isAtLeast(renderTimeBeforeCurrentTimeNs);
   }
 
   @Test
-  public void controlledFrameRelease_requestsFrameDropping_dropsFrame() throws Exception {
+  public void controlledFrameRendering_requestsFrameDropping_dropsFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     processFramesToEndOfStream(
@@ -200,19 +199,19 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
         /* onFrameAvailableListener= */ presentationTimeNs -> {
           actualPresentationTimeUs.set(presentationTimeNs);
           checkNotNull(defaultVideoFrameProcessor)
-              .releaseOutputFrame(VideoFrameProcessor.DROP_OUTPUT_FRAME);
+              .renderOutputFrame(VideoFrameProcessor.DROP_OUTPUT_FRAME);
         },
-        /* releaseFramesAutomatically= */ false);
+        /* renderFramesAutomatically= */ false);
 
-    waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 0);
+    waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 0);
   }
 
   @Test
-  public void controlledFrameRelease_withThreeIndividualFrames_usesGivenTimestamps()
+  public void controlledFrameRendering_withThreeIndividualFrames_usesGivenTimestamps()
       throws Exception {
     long[] originalPresentationTimesUs = new long[] {1234, 3456, 4567};
     long offsetNs = System.nanoTime();
-    long[] releaseTimesNs = new long[] {offsetNs + 123456, offsetNs + 234567, offsetNs + 345678};
+    long[] renderTimesNs = new long[] {offsetNs + 123456, offsetNs + 234567, offsetNs + 345678};
     ArrayList<Long> actualPresentationTimesUs = new ArrayList<>();
     AtomicInteger frameIndex = new AtomicInteger();
     processFramesToEndOfStream(
@@ -220,17 +219,17 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
         /* onFrameAvailableListener= */ presentationTimeUs -> {
           actualPresentationTimesUs.add(presentationTimeUs);
           checkNotNull(defaultVideoFrameProcessor)
-              .releaseOutputFrame(releaseTimesNs[frameIndex.getAndIncrement()]);
+              .renderOutputFrame(renderTimesNs[frameIndex.getAndIncrement()]);
           try {
             // TODO(b/264252759): Investigate output frames being dropped and remove sleep.
             // Frames can be dropped silently between EGL and the ImageReader. Sleep after each call
             // to swap buffers, to avoid this behavior.
-            Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
+            Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
           } catch (InterruptedException e) {
             throw new IllegalStateException(e);
           }
         },
-        /* releaseFramesAutomatically= */ false);
+        /* renderFramesAutomatically= */ false);
 
     assertThat(actualPresentationTimesUs)
         .containsExactly(
@@ -240,31 +239,32 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
         .inOrder();
     int actualFrameCount = frameIndex.get();
     assertThat(actualFrameCount).isEqualTo(originalPresentationTimesUs.length);
-    long[] actualReleaseTimesNs =
-        Longs.toArray(waitForFrameReleaseAndGetReleaseTimesNs(actualFrameCount));
-    assertThat(actualReleaseTimesNs).isEqualTo(releaseTimesNs);
+    long[] actualRenderTimesNs =
+        Longs.toArray(waitForFrameRenderingAndGetRenderTimesNs(actualFrameCount));
+    assertThat(actualRenderTimesNs).isEqualTo(renderTimesNs);
   }
 
   @Test
-  public void controlledFrameRelease_withThreeFramesAtOnce_usesGivenTimestamps() throws Exception {
+  public void controlledFrameRendering_withThreeFramesAtOnce_usesGivenTimestamps()
+      throws Exception {
     long[] originalPresentationTimesUs = new long[] {1234, 3456, 4567};
     long offsetNs = System.nanoTime();
-    long[] releaseTimesNs = new long[] {offsetNs + 123456, offsetNs + 234567, offsetNs + 345678};
+    long[] renderTimesNs = new long[] {offsetNs + 123456, offsetNs + 234567, offsetNs + 345678};
     ArrayList<Long> actualPresentationTimesUs = new ArrayList<>();
     processFramesToEndOfStream(
         /* inputPresentationTimesUs= */ originalPresentationTimesUs,
         /* onFrameAvailableListener= */ actualPresentationTimesUs::add,
-        /* releaseFramesAutomatically= */ false);
+        /* renderFramesAutomatically= */ false);
 
     // TODO(b/264252759): Investigate output frames being dropped and remove sleep.
     // Frames can be dropped silently between EGL and the ImageReader. Sleep after each call
     // to swap buffers, to avoid this behavior.
-    defaultVideoFrameProcessor.releaseOutputFrame(releaseTimesNs[0]);
-    Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
-    defaultVideoFrameProcessor.releaseOutputFrame(releaseTimesNs[1]);
-    Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
-    defaultVideoFrameProcessor.releaseOutputFrame(releaseTimesNs[2]);
-    Thread.sleep(PER_FRAME_RELEASE_WAIT_TIME_MS);
+    defaultVideoFrameProcessor.renderOutputFrame(renderTimesNs[0]);
+    Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
+    defaultVideoFrameProcessor.renderOutputFrame(renderTimesNs[1]);
+    Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
+    defaultVideoFrameProcessor.renderOutputFrame(renderTimesNs[2]);
+    Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
 
     assertThat(actualPresentationTimesUs)
         .containsExactly(
@@ -272,20 +272,20 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
             originalPresentationTimesUs[1],
             originalPresentationTimesUs[2])
         .inOrder();
-    long[] actualReleaseTimesNs =
-        Longs.toArray(waitForFrameReleaseAndGetReleaseTimesNs(/* expectedFrameCount= */ 3));
-    assertThat(actualReleaseTimesNs).isEqualTo(releaseTimesNs);
+    long[] actualRenderTimesNs =
+        Longs.toArray(waitForFrameRenderingAndGetRenderTimesNs(/* expectedFrameCount= */ 3));
+    assertThat(actualRenderTimesNs).isEqualTo(renderTimesNs);
   }
 
-  private interface OnOutputFrameAvailableListener {
-    void onFrameAvailable(long presentationTimeUs);
+  private interface OnOutputFrameAvailableForRenderingListener {
+    void onFrameAvailableForRendering(long presentationTimeUs);
   }
 
   @EnsuresNonNull("defaultVideoFrameProcessor")
   private void processFramesToEndOfStream(
       long[] inputPresentationTimesUs,
-      OnOutputFrameAvailableListener onFrameAvailableListener,
-      boolean releaseFramesAutomatically)
+      OnOutputFrameAvailableForRenderingListener onFrameAvailableListener,
+      boolean renderFramesAutomatically)
       throws Exception {
     AtomicReference<@NullableType VideoFrameProcessingException>
         videoFrameProcessingExceptionReference = new AtomicReference<>();
@@ -302,7 +302,7 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
                     /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     INPUT_TYPE_SURFACE,
-                    releaseFramesAutomatically,
+                    renderFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new VideoFrameProcessor.Listener() {
                       @Override
@@ -319,15 +319,15 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
                         outputImageReader.setOnImageAvailableListener(
                             imageReader -> {
                               try (Image image = imageReader.acquireNextImage()) {
-                                outputReleaseTimesNs.add(image.getTimestamp());
+                                outputRenderTimesNs.add(image.getTimestamp());
                               }
                             },
                             Util.createHandlerForCurrentOrMainLooper());
                       }
 
                       @Override
-                      public void onOutputFrameAvailable(long presentationTimeUs) {
-                        onFrameAvailableListener.onFrameAvailable(presentationTimeUs);
+                      public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                        onFrameAvailableListener.onFrameAvailableForRendering(presentationTimeUs);
                       }
 
                       @Override
@@ -364,15 +364,15 @@ public final class DefaultVideoFrameProcessorVideoFrameReleaseTest {
     }
   }
 
-  private ImmutableList<Long> waitForFrameReleaseAndGetReleaseTimesNs(int expectedFrameCount)
+  private ImmutableList<Long> waitForFrameRenderingAndGetRenderTimesNs(int expectedFrameCount)
       throws Exception {
     ImmutableList.Builder<Long> listBuilder = new ImmutableList.Builder<>();
     for (int i = 0; i < expectedFrameCount; i++) {
-      listBuilder.add(checkNotNull(outputReleaseTimesNs.poll(PER_FRAME_TIMEOUT_MS, MILLISECONDS)));
+      listBuilder.add(checkNotNull(outputRenderTimesNs.poll(PER_FRAME_TIMEOUT_MS, MILLISECONDS)));
     }
     // This is a best-effort check because there's no guarantee that frames aren't added to the
-    // release times after this method has been called.
-    assertThat(outputReleaseTimesNs).isEmpty();
+    // render times after this method has been called.
+    assertThat(outputRenderTimesNs).isEmpty();
     return listBuilder.build();
   }
 

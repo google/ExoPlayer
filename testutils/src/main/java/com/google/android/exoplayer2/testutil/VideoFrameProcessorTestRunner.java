@@ -66,7 +66,7 @@ public final class VideoFrameProcessorTestRunner {
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
     private @VideoFrameProcessor.InputType int inputType;
-    private OnOutputFrameAvailableListener onOutputFrameAvailableListener;
+    private OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableListener;
 
     /** Creates a new instance with default values. */
     public Builder() {
@@ -200,13 +200,14 @@ public final class VideoFrameProcessorTestRunner {
     }
 
     /**
-     * Sets the method to be called in {@link VideoFrameProcessor.Listener#onOutputFrameAvailable}.
+     * Sets the method to be called in {@link
+     * VideoFrameProcessor.Listener#onOutputFrameAvailableForRendering}.
      *
      * <p>The default value is a no-op.
      */
     @CanIgnoreReturnValue
-    public Builder setOnOutputFrameAvailableListener(
-        OnOutputFrameAvailableListener onOutputFrameAvailableListener) {
+    public Builder setOnOutputFrameAvailableForRenderingListener(
+        OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableListener) {
       this.onOutputFrameAvailableListener = onOutputFrameAvailableListener;
       return this;
     }
@@ -258,7 +259,7 @@ public final class VideoFrameProcessorTestRunner {
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       @VideoFrameProcessor.InputType int inputType,
-      OnOutputFrameAvailableListener onOutputFrameAvailableListener)
+      OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
     this.bitmapReader = bitmapReader;
@@ -275,7 +276,7 @@ public final class VideoFrameProcessorTestRunner {
             inputColorInfo,
             outputColorInfo,
             inputType,
-            /* releaseFramesAutomatically= */ true,
+            /* renderFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
               @Override
@@ -294,9 +295,10 @@ public final class VideoFrameProcessorTestRunner {
               }
 
               @Override
-              public void onOutputFrameAvailable(long presentationTimeUs) {
-                // Do nothing as frames are released automatically.
-                onOutputFrameAvailableListener.onFrameAvailable(presentationTimeUs);
+              public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                // Do nothing as frames are rendered automatically.
+                onOutputFrameAvailableForRenderingListener.onFrameAvailableForRendering(
+                    presentationTimeUs);
               }
 
               @Override
@@ -376,8 +378,8 @@ public final class VideoFrameProcessorTestRunner {
     }
   }
 
-  public interface OnOutputFrameAvailableListener {
-    void onFrameAvailable(long presentationTimeUs);
+  public interface OnOutputFrameAvailableForRenderingListener {
+    void onFrameAvailableForRendering(long presentationTimeUs);
   }
 
   /** Reads a {@link Bitmap} from {@link VideoFrameProcessor} output. */

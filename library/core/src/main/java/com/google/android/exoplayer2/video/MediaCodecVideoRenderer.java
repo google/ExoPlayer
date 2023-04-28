@@ -2023,7 +2023,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     inputAndOutputColorInfos.first,
                     inputAndOutputColorInfos.second,
                     INPUT_TYPE_SURFACE,
-                    /* releaseFramesAutomatically= */ false,
+                    /* renderFramesAutomatically= */ false,
                     /* executor= */ handler::post,
                     new VideoFrameProcessor.Listener() {
                       @Override
@@ -2044,7 +2044,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                       }
 
                       @Override
-                      public void onOutputFrameAvailable(long presentationTimeUs) {
+                      public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
                         if (registeredLastFrame) {
                           checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
                         }
@@ -2250,7 +2250,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         boolean shouldReleaseFrameImmediately = renderer.shouldForceRender(positionUs, earlyUs);
         if (shouldReleaseFrameImmediately) {
           releaseProcessedFrameInternal(
-              VideoFrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY, isLastFrame);
+              VideoFrameProcessor.RENDER_OUTPUT_FRAME_IMMEDIATELY, isLastFrame);
           break;
         } else if (!isStarted || positionUs == renderer.initialPositionUs) {
           return;
@@ -2309,8 +2309,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     private void releaseProcessedFrameInternal(long releaseTimeNs, boolean isLastFrame) {
+      // VideoFrameProcessor renders to its output surface using
+      // VideoFrameProcessor.renderOutputFrame, to release the MediaCodecVideoRenderer frame.
       checkStateNotNull(videoFrameProcessor);
-      videoFrameProcessor.releaseOutputFrame(releaseTimeNs);
+      videoFrameProcessor.renderOutputFrame(releaseTimeNs);
       processedFramesTimestampsUs.remove();
       renderer.lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
       if (releaseTimeNs != VideoFrameProcessor.DROP_OUTPUT_FRAME) {
