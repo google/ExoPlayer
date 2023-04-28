@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 
 import android.content.Context;
 import android.opengl.EGL14;
@@ -63,7 +62,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>This wrapper is used for the final {@link DefaultShaderProgram} instance in the chain of
  * {@link DefaultShaderProgram} instances used by {@link VideoFrameProcessor}.
  */
-/* package */ final class FinalShaderProgramWrapper implements ExternalShaderProgram {
+/* package */ final class FinalShaderProgramWrapper implements GlShaderProgram {
 
   /** Listener interface for the current input stream ending. */
   interface OnInputStreamProcessedListener {
@@ -82,15 +81,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
-  private final boolean sampleFromInputTexture;
-  private final @VideoFrameProcessor.InputType int inputType;
-  private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final boolean enableColorTransfers;
   private final boolean renderFramesAutomatically;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
-  private final float[] textureTransformMatrix;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
   @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
 
@@ -127,8 +122,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
-      boolean sampleFromInputTexture,
-      @VideoFrameProcessor.InputType int inputType,
       boolean renderFramesAutomatically,
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
@@ -140,9 +133,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
-    this.sampleFromInputTexture = sampleFromInputTexture;
-    this.inputType = inputType;
-    this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.enableColorTransfers = enableColorTransfers;
     this.renderFramesAutomatically = renderFramesAutomatically;
@@ -151,7 +141,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.glObjectsProvider = glObjectsProvider;
     this.textureOutputListener = textureOutputListener;
 
-    textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
   }
@@ -238,20 +227,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     inputListener.onFlush();
     inputListener.onReadyToAcceptInputFrame();
-  }
-
-  @Override
-  public void setTextureTransformMatrix(float[] textureTransformMatrix) {
-    System.arraycopy(
-        /* src= */ textureTransformMatrix,
-        /* srcPos= */ 0,
-        /* dest= */ this.textureTransformMatrix,
-        /* destPost= */ 0,
-        /* length= */ textureTransformMatrix.length);
-
-    if (defaultShaderProgram != null) {
-      defaultShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
-    }
   }
 
   @Override
@@ -479,38 +454,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     DefaultShaderProgram defaultShaderProgram;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
         matrixTransformationListBuilder.build();
-    if (sampleFromInputTexture) {
-      if (inputType == INPUT_TYPE_SURFACE) {
-        defaultShaderProgram =
-            DefaultShaderProgram.createWithExternalSampler(
-                context,
-                expandedMatrixTransformations,
-                rgbMatrices,
-                inputColorInfo,
-                outputColorInfo,
-                enableColorTransfers);
-      } else {
-        defaultShaderProgram =
-            DefaultShaderProgram.createWithInternalSampler(
-                context,
-                expandedMatrixTransformations,
-                rgbMatrices,
-                inputColorInfo,
-                outputColorInfo,
-                enableColorTransfers,
-                inputType);
-      }
-    } else {
-      defaultShaderProgram =
-          DefaultShaderProgram.createApplyingOetf(
-              context,
-              expandedMatrixTransformations,
-              rgbMatrices,
-              outputColorInfo,
-              enableColorTransfers);
-    }
+    defaultShaderProgram =
+        DefaultShaderProgram.createApplyingOetf(
+            context,
+            expandedMatrixTransformations,
+            rgbMatrices,
+            outputColorInfo,
+            enableColorTransfers);
 
-    defaultShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
     if (outputSurfaceInfo != null) {
       SurfaceInfo outputSurfaceInfo = checkNotNull(this.outputSurfaceInfo);

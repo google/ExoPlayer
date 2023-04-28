@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 
 /** A component that handles {@code DefaultVideoFrameProcessor}'s input. */
-/* package */ interface InputHandler extends GlShaderProgram.InputListener {
+/* package */ interface TextureManager extends GlShaderProgram.InputListener {
 
   /**
    * See {@link DefaultVideoFrameProcessor#setInputDefaultBufferSize}.
@@ -61,7 +61,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
     throw new UnsupportedOperationException();
   }
 
-  /** Informs the {@code InputHandler} that a frame will be queued. */
+  /** Informs the {@code TextureManager} that a frame will be queued. */
   default void registerInputFrame(FrameInfo frameInfo) {
     throw new UnsupportedOperationException();
   }

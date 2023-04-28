@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>Public methods in this class can be called from any thread.
  */
-/* package */ final class BitmapTextureManager implements InputHandler {
+/* package */ final class BitmapTextureManager implements TextureManager {
   private final GlShaderProgram shaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
