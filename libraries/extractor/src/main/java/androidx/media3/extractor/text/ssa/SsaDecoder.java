@@ -37,6 +37,8 @@ import androidx.media3.common.util.Util;
 import androidx.media3.extractor.text.SimpleSubtitleDecoder;
 import androidx.media3.extractor.text.Subtitle;
 import com.google.common.base.Ascii;
+import com.google.common.base.Charsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -98,11 +100,14 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
 
     if (initializationData != null && !initializationData.isEmpty()) {
       haveInitializationData = true;
+      // Currently, construction with initialization data is only relevant to SSA subtitles muxed
+      // in a MKV. According to https://www.matroska.org/technical/subtitles.html, these muxed
+      // subtitles are always encoded in UTF-8.
       String formatLine = Util.fromUtf8Bytes(initializationData.get(0));
       Assertions.checkArgument(formatLine.startsWith(FORMAT_LINE_PREFIX));
       dialogueFormatFromInitializationData =
           Assertions.checkNotNull(SsaDialogueFormat.fromFormatLine(formatLine));
-      parseHeader(new ParsableByteArray(initializationData.get(1)));
+      parseHeader(new ParsableByteArray(initializationData.get(1)), Charsets.UTF_8);
     } else {
       haveInitializationData = false;
       dialogueFormatFromInitializationData = null;
@@ -115,25 +120,37 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     List<Long> cueTimesUs = new ArrayList<>();
 
     ParsableByteArray parsableData = new ParsableByteArray(data, length);
+    Charset charset = detectUtfCharset(parsableData);
+
     if (!haveInitializationData) {
-      parseHeader(parsableData);
+      parseHeader(parsableData, charset);
     }
-    parseEventBody(parsableData, cues, cueTimesUs);
+    parseEventBody(parsableData, cues, cueTimesUs, charset);
     return new SsaSubtitle(cues, cueTimesUs);
+  }
+
+  /**
+   * Determine UTF encoding of the byte array from a byte order mark (BOM), defaulting to UTF-8 if
+   * no BOM is found.
+   */
+  private Charset detectUtfCharset(ParsableByteArray data) {
+    @Nullable Charset charset = data.readUtfCharsetFromBom();
+    return charset != null ? charset : Charsets.UTF_8;
   }
 
   /**
    * Parses the header of the subtitle.
    *
    * @param data A {@link ParsableByteArray} from which the header should be read.
+   * @param charset The {@code Charset} of the encoding of {@code data}.
    */
-  private void parseHeader(ParsableByteArray data) {
+  private void parseHeader(ParsableByteArray data, Charset charset) {
     @Nullable String currentLine;
-    while ((currentLine = data.readLine()) != null) {
+    while ((currentLine = data.readLine(charset)) != null) {
       if ("[Script Info]".equalsIgnoreCase(currentLine)) {
-        parseScriptInfo(data);
+        parseScriptInfo(data, charset);
       } else if ("[V4+ Styles]".equalsIgnoreCase(currentLine)) {
-        styles = parseStyles(data);
+        styles = parseStyles(data, charset);
       } else if ("[V4 Styles]".equalsIgnoreCase(currentLine)) {
         Log.i(TAG, "[V4 Styles] are not supported");
       } else if ("[Events]".equalsIgnoreCase(currentLine)) {
@@ -151,11 +168,12 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    *
    * @param data A {@link ParsableByteArray} with {@link ParsableByteArray#getPosition() position}
    *     set to the beginning of the first line after {@code [Script Info]}.
+   * @param charset The {@code Charset} of the encoding of {@code data}.
    */
-  private void parseScriptInfo(ParsableByteArray data) {
+  private void parseScriptInfo(ParsableByteArray data, Charset charset) {
     @Nullable String currentLine;
-    while ((currentLine = data.readLine()) != null
-        && (data.bytesLeft() == 0 || data.peekUnsignedByte() != '[')) {
+    while ((currentLine = data.readLine(charset)) != null
+        && (data.bytesLeft() == 0 || data.peekChar(charset) != '[')) {
       String[] infoNameAndValue = currentLine.split(":");
       if (infoNameAndValue.length != 2) {
         continue;
@@ -187,13 +205,14 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    *
    * @param data A {@link ParsableByteArray} with {@link ParsableByteArray#getPosition()} pointing
    *     at the beginning of the first line after {@code [V4+ Styles]}.
+   * @param charset The {@code Charset} of the encoding of {@code data}.
    */
-  private static Map<String, SsaStyle> parseStyles(ParsableByteArray data) {
+  private static Map<String, SsaStyle> parseStyles(ParsableByteArray data, Charset charset) {
     Map<String, SsaStyle> styles = new LinkedHashMap<>();
     @Nullable SsaStyle.Format formatInfo = null;
     @Nullable String currentLine;
-    while ((currentLine = data.readLine()) != null
-        && (data.bytesLeft() == 0 || data.peekUnsignedByte() != '[')) {
+    while ((currentLine = data.readLine(charset)) != null
+        && (data.bytesLeft() == 0 || data.peekChar(charset) != '[')) {
       if (currentLine.startsWith(FORMAT_LINE_PREFIX)) {
         formatInfo = SsaStyle.Format.fromFormatLine(currentLine);
       } else if (currentLine.startsWith(STYLE_LINE_PREFIX)) {
@@ -216,12 +235,14 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * @param data A {@link ParsableByteArray} from which the body should be read.
    * @param cues A list to which parsed cues will be added.
    * @param cueTimesUs A sorted list to which parsed cue timestamps will be added.
+   * @param charset The {@code Charset} of the encoding of {@code data}.
    */
-  private void parseEventBody(ParsableByteArray data, List<List<Cue>> cues, List<Long> cueTimesUs) {
+  private void parseEventBody(
+      ParsableByteArray data, List<List<Cue>> cues, List<Long> cueTimesUs, Charset charset) {
     @Nullable
     SsaDialogueFormat format = haveInitializationData ? dialogueFormatFromInitializationData : null;
     @Nullable String currentLine;
-    while ((currentLine = data.readLine()) != null) {
+    while ((currentLine = data.readLine(charset)) != null) {
       if (currentLine.startsWith(FORMAT_LINE_PREFIX)) {
         format = SsaDialogueFormat.fromFormatLine(currentLine);
       } else if (currentLine.startsWith(DIALOGUE_LINE_PREFIX)) {

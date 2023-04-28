@@ -12,6 +12,9 @@
     *   Fix parsing of H.265 SPS in MPEG-TS files by re-using the parsing logic
         already used by RTSP and MP4 extractors
         ([#303](https://github.com/androidx/media/issues/303)).
+*   Text:
+    *   SSA: Add support for UTF-16 files if they start with a byte order mark
+        ([#319](https://github.com/androidx/media/issues/319)).
 *   Session:
     *   Fix issue where `MediaController` doesn't update its available commands
         when connected to a legacy `MediaSessionCompat` that updates its
