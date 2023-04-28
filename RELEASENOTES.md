@@ -121,6 +121,9 @@
 *   IMA DAI extension:
     *   Fix a bug where a new ad group is inserted in live streams because the
         calculated content position in consecutive timelines varies slightly.
+*   Text:
+    *   SSA: Add support for UTF-16 files if they start with a byte order mark
+        ([#319](https://github.com/androidx/media/issues/319)).
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
