@@ -25,7 +25,7 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.VideoFrameProcessor;
 
 /** A component that handles {@code DefaultVideoFrameProcessor}'s input. */
-/* package */ interface InputHandler extends GlShaderProgram.InputListener {
+/* package */ interface TextureManager extends GlShaderProgram.InputListener {
 
   /**
    * See {@link DefaultVideoFrameProcessor#setInputDefaultBufferSize}.
@@ -61,7 +61,7 @@ import androidx.media3.common.VideoFrameProcessor;
     throw new UnsupportedOperationException();
   }
 
-  /** Informs the {@code InputHandler} that a frame will be queued. */
+  /** Informs the {@code TextureManager} that a frame will be queued. */
   default void registerInputFrame(FrameInfo frameInfo) {
     throw new UnsupportedOperationException();
   }

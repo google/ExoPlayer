@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Forwards externally produced frames that become available via a {@link SurfaceTexture} to an
  * {@link ExternalShaderProgram} for consumption.
  */
-/* package */ final class ExternalTextureManager implements InputHandler {
+/* package */ final class ExternalTextureManager implements TextureManager {
 
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
@@ -167,6 +168,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   @Override
   public void registerInputFrame(FrameInfo frame) {
+    checkState(!inputStreamEnded);
     pendingFrames.add(frame);
   }
 

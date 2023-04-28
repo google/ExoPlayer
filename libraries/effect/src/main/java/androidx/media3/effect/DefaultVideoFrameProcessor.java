@@ -251,11 +251,15 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
+  private final InputSwitcher inputSwitcher;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
-  private final InputHandler inputHandler;
+  // TODO(b/274109008) Use InputSwither to interact with texture manager.
+  // Owned and released by inputSwitcher.
+  private final TextureManager textureManager;
   private final boolean renderFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
-  private final ImmutableList<GlShaderProgram> allShaderPrograms;
+  // Shader programs that apply Effects.
+  private final ImmutableList<GlShaderProgram> effectsShaderPrograms;
   // A queue of input streams that have not been fully processed identified by their input types.
   private final Queue<@InputType Integer> unprocessedInputStreams;
 
@@ -268,41 +272,23 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private DefaultVideoFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
+      InputSwitcher inputSwitcher,
       @InputType int inputType,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
-      ImmutableList<GlShaderProgram> shaderPrograms,
-      boolean renderFramesAutomatically)
-      throws VideoFrameProcessingException {
-
+      ImmutableList<GlShaderProgram> effectsShaderPrograms,
+      boolean renderFramesAutomatically) {
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
+    this.inputSwitcher = inputSwitcher;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     this.renderFramesAutomatically = renderFramesAutomatically;
     this.unprocessedInputStreams = new ConcurrentLinkedQueue<>();
 
-    checkState(!shaderPrograms.isEmpty());
-    checkState(getLast(shaderPrograms) instanceof FinalShaderProgramWrapper);
+    checkState(!effectsShaderPrograms.isEmpty());
+    checkState(getLast(effectsShaderPrograms) instanceof FinalShaderProgramWrapper);
 
-    GlShaderProgram inputShaderProgram = shaderPrograms.get(0);
-
-    switch (inputType) {
-      case VideoFrameProcessor.INPUT_TYPE_SURFACE:
-        checkState(inputShaderProgram instanceof ExternalShaderProgram);
-        inputHandler =
-            new ExternalTextureManager(
-                (ExternalShaderProgram) inputShaderProgram, videoFrameProcessingTaskExecutor);
-        break;
-      case VideoFrameProcessor.INPUT_TYPE_BITMAP:
-        inputHandler =
-            new BitmapTextureManager(inputShaderProgram, videoFrameProcessingTaskExecutor);
-        break;
-      case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID: // fall through
-      default:
-        throw new VideoFrameProcessingException("Input type not supported yet");
-    }
-    inputShaderProgram.setInputListener(inputHandler);
-
-    finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(shaderPrograms);
+    textureManager = inputSwitcher.switchToInput(inputType);
+    finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(effectsShaderPrograms);
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
           @InputType int currentInputType = unprocessedInputStreams.remove();
@@ -319,7 +305,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           }
           return inputStreamEnded && unprocessedInputStreams.isEmpty();
         });
-    allShaderPrograms = shaderPrograms;
+    this.effectsShaderPrograms = effectsShaderPrograms;
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
@@ -344,7 +330,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    inputHandler.setDefaultBufferSize(width, height);
+    textureManager.setDefaultBufferSize(width, height);
   }
 
   @Override
@@ -352,7 +338,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkState(
         hasRefreshedNextInputFrameInfo,
         "setInputFrameInfo must be called before queueing another bitmap");
-    inputHandler.queueInputBitmap(
+    textureManager.queueInputBitmap(
         inputBitmap,
         durationUs,
         checkNotNull(nextInputFrameInfo).offsetToAddUs,
@@ -363,13 +349,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public Surface getInputSurface() {
-    return inputHandler.getInputSurface();
+    return textureManager.getInputSurface();
   }
 
   @Override
   public void registerInputStream(@InputType int inputType) {
     if (!unprocessedInputStreams.isEmpty()) {
-      inputHandler.signalEndOfCurrentInputStream();
+      textureManager.signalEndOfCurrentInputStream();
       // Wait until the current video is processed before continuing to the next input.
       if (checkNotNull(unprocessedInputStreams.peek()) == INPUT_TYPE_SURFACE) {
         latch = new CountDownLatch(1);
@@ -396,13 +382,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkStateNotNull(
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
-    inputHandler.registerInputFrame(nextInputFrameInfo);
+    textureManager.registerInputFrame(nextInputFrameInfo);
     hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return inputHandler.getPendingFrameCount();
+    return textureManager.getPendingFrameCount();
   }
 
   @Override
@@ -423,8 +409,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    inputHandler.signalEndOfCurrentInputStream();
-    inputHandler.signalEndOfInput();
+    textureManager.signalEndOfCurrentInputStream();
+    inputSwitcher.signalEndOfInput();
   }
 
   @Override
@@ -432,10 +418,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     try {
       videoFrameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
-      inputHandler.setOnFlushCompleteListener(latch::countDown);
+      textureManager.setOnFlushCompleteListener(latch::countDown);
       videoFrameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
-      inputHandler.setOnFlushCompleteListener(null);
+      textureManager.setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -450,7 +436,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
     }
-    inputHandler.release();
   }
 
   /**
@@ -526,35 +511,54 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         throw new VideoFrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
       }
     }
+    VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
+        new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
+    ColorInfo linearColorInfo =
+        outputColorInfo
+            .buildUpon()
+            .setColorTransfer(C.COLOR_TRANSFER_LINEAR)
+            .setHdrStaticInfo(null)
+            .build();
+    InputSwitcher inputSwitcher =
+        new InputSwitcher(
+            context,
+            inputColorInfo,
+            /* outputColorInfo= */ linearColorInfo,
+            glObjectsProvider,
+            videoFrameProcessingTaskExecutor,
+            enableColorTransfers);
 
-    ImmutableList<GlShaderProgram> shaderPrograms =
+    ImmutableList<GlShaderProgram> effectsShaderPrograms =
         getGlShaderProgramsForGlEffects(
             context,
             effects,
             eglDisplay,
             eglContext,
             debugViewProvider,
-            inputColorInfo,
+            /* inputColorInfo= */ linearColorInfo,
             outputColorInfo,
             enableColorTransfers,
-            inputType,
             renderFramesAutomatically,
             executor,
             listener,
             glObjectsProvider,
             textureOutputListener);
-    setGlObjectProviderOnShaderPrograms(shaderPrograms, glObjectsProvider);
-    VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
-        new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
+
+    // TODO(b/274109008): Register both image and video input.
+    inputSwitcher.registerInput(inputType);
+    inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
+
+    setGlObjectProviderOnShaderPrograms(effectsShaderPrograms, glObjectsProvider);
     chainShaderProgramsWithListeners(
-        shaderPrograms, videoFrameProcessingTaskExecutor, listener, executor);
+        effectsShaderPrograms, videoFrameProcessingTaskExecutor, listener, executor);
 
     return new DefaultVideoFrameProcessor(
         eglDisplay,
         eglContext,
+        inputSwitcher,
         inputType,
         videoFrameProcessingTaskExecutor,
-        shaderPrograms,
+        effectsShaderPrograms,
         renderFramesAutomatically);
   }
 
@@ -566,8 +570,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
    * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order. The
-   *     first is an {@link ExternalShaderProgram} and the last is a {@link
-   *     FinalShaderProgramWrapper}.
+   *     last is a {@link FinalShaderProgramWrapper}.
    */
   private static ImmutableList<GlShaderProgram> getGlShaderProgramsForGlEffects(
       Context context,
@@ -578,7 +581,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
-      @InputType int inputType,
       boolean renderFramesAutomatically,
       Executor executor,
       Listener listener,
@@ -589,13 +591,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
     ImmutableList.Builder<RgbMatrix> rgbMatrixListBuilder = new ImmutableList.Builder<>();
-    boolean sampleFromInputTexture = true;
-    ColorInfo linearColorInfo =
-        outputColorInfo
-            .buildUpon()
-            .setColorTransfer(C.COLOR_TRANSFER_LINEAR)
-            .setHdrStaticInfo(null)
-            .build();
     for (int i = 0; i < effects.size(); i++) {
       Effect effect = effects.get(i);
       checkArgument(
@@ -617,38 +612,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           matrixTransformationListBuilder.build();
       ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
       boolean isOutputTransferHdr = ColorInfo.isTransferHdr(outputColorInfo);
-      if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromInputTexture) {
-        DefaultShaderProgram defaultShaderProgram;
-        if (sampleFromInputTexture) {
-          if (inputType == INPUT_TYPE_SURFACE) {
-            defaultShaderProgram =
-                DefaultShaderProgram.createWithExternalSampler(
-                    context,
-                    matrixTransformations,
-                    rgbMatrices,
-                    inputColorInfo,
-                    linearColorInfo,
-                    enableColorTransfers);
-          } else {
-            defaultShaderProgram =
-                DefaultShaderProgram.createWithInternalSampler(
-                    context,
-                    matrixTransformations,
-                    rgbMatrices,
-                    inputColorInfo,
-                    linearColorInfo,
-                    enableColorTransfers,
-                    inputType);
-          }
-        } else {
-          defaultShaderProgram =
-              DefaultShaderProgram.create(
-                  context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
-        }
+      if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty()) {
+        DefaultShaderProgram defaultShaderProgram =
+            DefaultShaderProgram.create(
+                context, matrixTransformations, rgbMatrices, isOutputTransferHdr);
         shaderProgramListBuilder.add(defaultShaderProgram);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         rgbMatrixListBuilder = new ImmutableList.Builder<>();
-        sampleFromInputTexture = false;
       }
       shaderProgramListBuilder.add(glEffect.toGlShaderProgram(context, isOutputTransferHdr));
     }
@@ -661,11 +631,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             matrixTransformationListBuilder.build(),
             rgbMatrixListBuilder.build(),
             debugViewProvider,
-            /* inputColorInfo= */ sampleFromInputTexture ? inputColorInfo : linearColorInfo,
+            inputColorInfo,
             outputColorInfo,
             enableColorTransfers,
-            sampleFromInputTexture,
-            inputType,
             renderFramesAutomatically,
             executor,
             listener,
@@ -712,12 +680,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    */
   private void releaseShaderProgramsAndDestroyGlContext() {
     try {
-      for (int i = 0; i < allShaderPrograms.size(); i++) {
-        try {
-          allShaderPrograms.get(i).release();
-        } catch (Exception e) {
-          Log.e(TAG, "Error releasing shader program", e);
+      try {
+        inputSwitcher.release();
+        for (int i = 0; i < effectsShaderPrograms.size(); i++) {
+          effectsShaderPrograms.get(i).release();
         }
+      } catch (Exception e) {
+        Log.e(TAG, "Error releasing shader program", e);
       }
     } finally {
       try {
