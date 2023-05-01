@@ -372,8 +372,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       frameSize = removeUnsynchronization(id3Data, frameSize);
     }
 
+    String error = "";
+    Id3Frame frame = null;
     try {
-      Id3Frame frame;
       if (frameId0 == 'T'
           && frameId1 == 'X'
           && frameId2 == 'X'
@@ -430,18 +431,24 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
         String id = getFrameId(majorVersion, frameId0, frameId1, frameId2, frameId3);
         frame = decodeBinaryFrame(id3Data, frameSize, id);
       }
-      if (frame == null) {
-        Log.w(
-            TAG,
-            "Failed to decode frame: id="
-                + getFrameId(majorVersion, frameId0, frameId1, frameId2, frameId3)
-                + ", frameSize="
-                + frameSize);
-      }
-      return frame;
-    } finally {
+    } catch (Exception e) {
+      error = ",error=" + e.getMessage();
+    } catch (OutOfMemoryError e) {
+      error = ",error=" + e.getMessage();
+    }
+    finally {
       id3Data.setPosition(nextFramePosition);
     }
+    if (frame == null) {
+      Log.w(
+          TAG,
+          "Failed to decode frame: id="
+              + getFrameId(majorVersion, frameId0, frameId1, frameId2, frameId3)
+              + ", frameSize="
+              + frameSize
+              + error);
+    }
+    return frame;
   }
 
   @Nullable
