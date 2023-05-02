@@ -274,8 +274,8 @@ public class TransformerAndroidTestRunner {
     for (EditedMediaItemSequence sequence : composition.sequences) {
       for (EditedMediaItem editedMediaItem : sequence.editedMediaItems) {
         Uri mediaItemUri = checkNotNull(editedMediaItem.mediaItem.localConfiguration).uri;
-        String scheme = checkNotNull(mediaItemUri.getScheme());
-        if ((scheme.equals("http") || scheme.equals("https"))) {
+        String scheme = mediaItemUri.getScheme();
+        if (scheme != null && (scheme.equals("http") || scheme.equals("https"))) {
           assumeTrue(
               "Input network file requested on device with no network connection. Input file"
                   + " name: "
