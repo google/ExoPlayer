@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import androidx.annotation.CallSuper;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -186,6 +187,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
+  @CallSuper
   public void flush() {
     frameProcessingStarted = true;
     freeOutputTextures.addAll(inUseOutputTextures);
@@ -197,6 +199,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
+  @CallSuper
   public void release() throws VideoFrameProcessingException {
     frameProcessingStarted = true;
     try {
