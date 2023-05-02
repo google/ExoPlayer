@@ -51,11 +51,11 @@ public final class FakeDataSetTest {
             .setData(uris[2], testData[3]);
 
     assertThat(fakeDataSet.getAllData().size()).isEqualTo(4);
-    assertThat(fakeDataSet.getData("unseen_uri")).isEqualTo(fakeDataSet.getData((Uri) null));
+    assertThat(fakeDataSet.getData("unseen_uri")).isEqualTo(fakeDataSet.getData("not a real key"));
     for (int i = 0; i < 3; i++) {
       assertThat(fakeDataSet.getData(uris[i]).uri).isEqualTo(uris[i]);
     }
-    assertThat(fakeDataSet.getData((Uri) null).getData()).isEqualTo(testData[0]);
+    assertThat(fakeDataSet.getData("not a real key").getData()).isEqualTo(testData[0]);
     for (int i = 1; i < 4; i++) {
       assertThat(fakeDataSet.getData(uris[i - 1]).getData()).isEqualTo(testData[i]);
     }
@@ -79,7 +79,7 @@ public final class FakeDataSetTest {
             .appendReadError(exception)
             .endData();
 
-    List<Segment> segments = fakeDataSet.getData((Uri) null).getSegments();
+    List<Segment> segments = fakeDataSet.getData("not a real key").getSegments();
     assertThat(segments.size()).isEqualTo(5);
     assertSegment(segments.get(0), testData, 3, 0, null, null);
     assertSegment(segments.get(1), testData, 3, 3, null, null);
@@ -90,7 +90,15 @@ public final class FakeDataSetTest {
     byte[] allData = new byte[6];
     System.arraycopy(testData, 0, allData, 0, 3);
     System.arraycopy(testData, 0, allData, 3, 3);
-    assertThat(fakeDataSet.getData((Uri) null).getData()).isEqualTo(allData);
+    assertThat(fakeDataSet.getData("not a real key").getData()).isEqualTo(allData);
+  }
+
+  @Test
+  public void uriSchemesAreCaseInsensitive() {
+    byte[] data = TestUtil.buildTestData(3);
+    FakeDataSet fakeDataSet = new FakeDataSet().setData("HtTp://example.test/path/to/data", data);
+
+    assertThat(fakeDataSet.getData("hTtP://example.test/path/to/data").getData()).isEqualTo(data);
   }
 
   private static void assertSegment(

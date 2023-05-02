@@ -124,6 +124,8 @@
 *   Text:
     *   SSA: Add support for UTF-16 files if they start with a byte order mark
         ([#319](https://github.com/androidx/media/issues/319)).
+*   Test Utilities:
+    *   Check for URI scheme case insensitivity in `DataSourceContractTest`.
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.

@@ -68,7 +68,7 @@ public class ResolvingDataSourceContractTest extends DataSourceContractTest {
         new Resolver() {
           @Override
           public DataSpec resolveDataSpec(DataSpec dataSpec) throws IOException {
-            return URI.equals(dataSpec.uri.toString())
+            return URI.equals(dataSpec.uri.normalizeScheme().toString())
                 ? dataSpec.buildUpon().setUri(RESOLVED_URI).build()
                 : dataSpec;
           }

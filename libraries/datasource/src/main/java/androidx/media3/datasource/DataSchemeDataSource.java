@@ -50,7 +50,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
   public long open(DataSpec dataSpec) throws IOException {
     transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
-    Uri uri = dataSpec.uri;
+    Uri uri = dataSpec.uri.normalizeScheme();
     String scheme = uri.getScheme();
     Assertions.checkArgument(SCHEME_DATA.equals(scheme), "Unsupported scheme: " + scheme);
     String[] uriParts = Util.split(uri.getSchemeSpecificPart(), ",");

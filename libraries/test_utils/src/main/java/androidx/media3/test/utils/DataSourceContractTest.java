@@ -387,6 +387,44 @@ public abstract class DataSourceContractTest {
   }
 
   @Test
+  public void uriSchemeIsCaseInsensitive() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      @Nullable String scheme = resource.getUri().getScheme();
+      if (scheme == null) {
+        // No scheme for which to check case-insensitivity.
+        continue;
+      }
+      DataSource dataSource = createDataSource();
+      Uri uri =
+          resource
+              .getUri()
+              .buildUpon()
+              .scheme(invertAsciiCaseOfEveryOtherCharacter(scheme))
+              .build();
+      try {
+        long length = dataSource.open(new DataSpec.Builder().setUri(uri).build());
+        byte[] data =
+            unboundedReadsAreIndefinite()
+                ? DataSourceUtil.readExactly(dataSource, resource.getExpectedBytes().length)
+                : DataSourceUtil.readToEnd(dataSource);
+
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length);
+        }
+        assertThat(data).isEqualTo(resource.getExpectedBytes());
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
   public void resourceNotFound() throws Exception {
     DataSource dataSource = createDataSource();
     assertThrows(IOException.class, () -> dataSource.open(new DataSpec(getNotFoundUri())));

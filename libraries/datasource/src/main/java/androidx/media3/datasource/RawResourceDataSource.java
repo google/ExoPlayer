@@ -116,7 +116,7 @@ public final class RawResourceDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws RawResourceDataSourceException {
-    Uri uri = dataSpec.uri;
+    Uri uri = dataSpec.uri.normalizeScheme();
     this.uri = uri;
 
     int resourceId;
@@ -150,10 +150,13 @@ public final class RawResourceDataSource extends BaseDataSource {
       }
     } else {
       throw new RawResourceDataSourceException(
-          "URI must either use scheme "
+          "Unsupported URI scheme ("
+              + uri.getScheme()
+              + "). Only "
               + RAW_RESOURCE_SCHEME
-              + " or "
-              + ContentResolver.SCHEME_ANDROID_RESOURCE,
+              + " and "
+              + ContentResolver.SCHEME_ANDROID_RESOURCE
+              + " are supported.",
           /* cause= */ null,
           PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
     }

@@ -75,13 +75,13 @@ public final class ContentDataSource extends BaseDataSource {
   @SuppressWarnings("InlinedApi") // We are inlining EXTRA_ACCEPT_ORIGINAL_MEDIA_FORMAT.
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
-      Uri uri = dataSpec.uri;
+      Uri uri = dataSpec.uri.normalizeScheme();
       this.uri = uri;
 
       transferInitializing(dataSpec);
 
       AssetFileDescriptor assetFileDescriptor;
-      if ("content".equals(dataSpec.uri.getScheme())) {
+      if ("content".equals(uri.getScheme())) {
         Bundle providerOptions = new Bundle();
         // We don't want compatible media transcoding.
         providerOptions.putBoolean(MediaStore.EXTRA_ACCEPT_ORIGINAL_MEDIA_FORMAT, true);
