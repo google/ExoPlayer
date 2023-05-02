@@ -270,11 +270,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Calculate the additional space required.
     long bytesNeededInMdat = 0L;
     for (Pair<BufferInfo, ByteBuffer> sample : track.pendingSamples) {
-      bytesNeededInMdat += sample.second.limit();
+      bytesNeededInMdat += sample.second.remaining();
     }
-
-    // Drop all zero-length samples.
-    checkState(bytesNeededInMdat > 0);
 
     // If the required number of bytes doesn't fit in the gap between the actual data and the moov
     // box, extend the file and write out the moov box to the end again.
@@ -366,7 +363,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       pendingSamples = new ArrayDeque<>();
     }
 
-    public void writeSampleData(ByteBuffer byteBuf, BufferInfo bufferInfo) throws IOException {
+    public void writeSampleData(ByteBuffer byteBuffer, BufferInfo bufferInfo) throws IOException {
       if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) > 0) {
         hadKeyframe = true;
       }
@@ -379,8 +376,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
         return;
       }
 
-      pendingSamples.addLast(Pair.create(bufferInfo, byteBuf));
-      doInterleave();
+      // Skip empty samples.
+      // TODO(b/279931840): Confirm whether muxer should throw when writing empty samples.
+      if (byteBuffer.remaining() > 0) {
+        pendingSamples.addLast(Pair.create(bufferInfo, byteBuffer));
+        doInterleave();
+      }
     }
 
     @Override
