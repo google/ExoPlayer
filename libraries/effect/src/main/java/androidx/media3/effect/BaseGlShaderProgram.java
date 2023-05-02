@@ -17,6 +17,7 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkState;
 
+import androidx.annotation.CallSuper;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -188,6 +189,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
+  @CallSuper
   public void flush() {
     frameProcessingStarted = true;
     freeOutputTextures.addAll(inUseOutputTextures);
@@ -199,6 +201,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
+  @CallSuper
   public void release() throws VideoFrameProcessingException {
     frameProcessingStarted = true;
     try {
