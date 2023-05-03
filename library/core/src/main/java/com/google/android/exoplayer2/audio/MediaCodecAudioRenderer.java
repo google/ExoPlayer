@@ -439,6 +439,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     DecoderReuseEvaluation evaluation = codecInfo.canReuseCodec(oldFormat, newFormat);
 
     @DecoderDiscardReasons int discardReasons = evaluation.discardReasons;
+    if (isBypassPossible(newFormat)) {
+      // We prefer direct audio playback so that for multi-channel tracks the audio is not downmixed
+      // to stereo.
+      discardReasons |= DecoderReuseEvaluation.DISCARD_REASON_AUDIO_BYPASS_POSSIBLE;
+    }
     if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize) {
       discardReasons |= DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
     }

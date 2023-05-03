@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.RendererCapabilities.HARDWARE_ACCELE
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,20 +42,24 @@ import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -2452,6 +2457,36 @@ public final class DefaultTrackSelectorTest {
     }
   }
 
+  @Test
+  public void onRendererCapabilitiesChangedWithDefaultParameters_notNotifyInvalidateListener() {
+    Renderer renderer =
+        new FakeAudioRenderer(
+            /* handler= */ mock(HandlerWrapper.class),
+            /* eventListener= */ mock(AudioRendererEventListener.class));
+
+    trackSelector.onRendererCapabilitiesChanged(renderer);
+
+    verify(invalidationListener, never()).onRendererCapabilitiesChanged(renderer);
+  }
+
+  @Test
+  public void
+      onRendererCapabilitiesChangedWithInvalidateSelectionsForRendererCapabilitiesChangeEnabled_notifyInvalidateListener() {
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setAllowInvalidateSelectionsOnRendererCapabilitiesChange(true)
+            .build());
+    Renderer renderer =
+        new FakeAudioRenderer(
+            /* handler= */ mock(HandlerWrapper.class),
+            /* eventListener= */ mock(AudioRendererEventListener.class));
+
+    trackSelector.onRendererCapabilitiesChanged(renderer);
+
+    verify(invalidationListener).onRendererCapabilitiesChanged(renderer);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
@@ -2572,6 +2607,7 @@ public final class DefaultTrackSelectorTest {
         .setExceedRendererCapabilitiesIfNecessary(false)
         .setTunnelingEnabled(true)
         .setAllowMultipleAdaptiveSelections(true)
+        .setAllowInvalidateSelectionsOnRendererCapabilitiesChange(false)
         .setSelectionOverride(
             /* rendererIndex= */ 2,
             new TrackGroupArray(VIDEO_TRACK_GROUP),
