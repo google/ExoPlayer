@@ -165,6 +165,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_PAUSE_AT_END_OF_WINDOW = 23;
   private static final int MSG_SET_OFFLOAD_SCHEDULING_ENABLED = 24;
   private static final int MSG_ATTEMPT_RENDERER_ERROR_RECOVERY = 25;
+  private static final int MSG_RENDERER_CAPABILITIES_CHANGED = 26;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
@@ -481,6 +482,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handler.sendEmptyMessage(MSG_TRACK_SELECTION_INVALIDATED);
   }
 
+  @Override
+  public void onRendererCapabilitiesChanged(Renderer renderer) {
+    handler.sendEmptyMessage(MSG_RENDERER_CAPABILITIES_CHANGED);
+  }
+
   // DefaultMediaClock.PlaybackParametersListener implementation.
 
   @Override
@@ -575,6 +581,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
           break;
         case MSG_ATTEMPT_RENDERER_ERROR_RECOVERY:
           attemptRendererErrorRecovery();
+          break;
+        case MSG_RENDERER_CAPABILITIES_CHANGED:
+          reselectTracksInternalAndSeek();
           break;
         case MSG_RELEASE:
           releaseInternal();

@@ -491,7 +491,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
-    if (sourceDrmSession == null && shouldUseBypass(inputFormat)) {
+    if (isBypassPossible(inputFormat)) {
       initBypass(inputFormat);
       return;
     }
@@ -544,6 +544,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throw createRendererException(
           e, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     }
+  }
+
+  /**
+   * Returns whether buffers in the input format can be processed without a codec.
+   *
+   * <p>This method returns the possibility of bypass mode with checking both the renderer
+   * capabilities and DRM protection.
+   *
+   * @param format The input {@link Format}.
+   * @return Whether playback bypassing {@link MediaCodec} is possible.
+   */
+  protected final boolean isBypassPossible(Format format) {
+    return sourceDrmSession == null && shouldUseBypass(inputFormat);
   }
 
   /**

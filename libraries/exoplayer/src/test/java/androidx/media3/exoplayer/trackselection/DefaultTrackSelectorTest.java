@@ -28,6 +28,7 @@ import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATI
 import static androidx.media3.exoplayer.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static androidx.media3.exoplayer.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,17 +45,21 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
+import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.Parameters;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.SelectionOverride;
 import androidx.media3.exoplayer.trackselection.TrackSelector.InvalidationListener;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
+import androidx.media3.test.utils.FakeAudioRenderer;
 import androidx.media3.test.utils.FakeTimeline;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -2454,6 +2459,36 @@ public final class DefaultTrackSelectorTest {
     }
   }
 
+  @Test
+  public void onRendererCapabilitiesChangedWithDefaultParameters_notNotifyInvalidateListener() {
+    Renderer renderer =
+        new FakeAudioRenderer(
+            /* handler= */ mock(HandlerWrapper.class),
+            /* eventListener= */ mock(AudioRendererEventListener.class));
+
+    trackSelector.onRendererCapabilitiesChanged(renderer);
+
+    verify(invalidationListener, never()).onRendererCapabilitiesChanged(renderer);
+  }
+
+  @Test
+  public void
+      onRendererCapabilitiesChangedWithInvalidateSelectionsForRendererCapabilitiesChangeEnabled_notifyInvalidateListener() {
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setAllowInvalidateSelectionsOnRendererCapabilitiesChange(true)
+            .build());
+    Renderer renderer =
+        new FakeAudioRenderer(
+            /* handler= */ mock(HandlerWrapper.class),
+            /* eventListener= */ mock(AudioRendererEventListener.class));
+
+    trackSelector.onRendererCapabilitiesChanged(renderer);
+
+    verify(invalidationListener).onRendererCapabilitiesChanged(renderer);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
@@ -2574,6 +2609,7 @@ public final class DefaultTrackSelectorTest {
         .setExceedRendererCapabilitiesIfNecessary(false)
         .setTunnelingEnabled(true)
         .setAllowMultipleAdaptiveSelections(true)
+        .setAllowInvalidateSelectionsOnRendererCapabilitiesChange(false)
         .setSelectionOverride(
             /* rendererIndex= */ 2,
             new TrackGroupArray(VIDEO_TRACK_GROUP),

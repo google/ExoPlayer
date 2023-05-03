@@ -66,6 +66,12 @@
     *   Add Util methods `shouldShowPlayButton` and
         `handlePlayPauseButtonAction` to write custom UI elements with a
         play/pause button.
+*   Track selection:
+    *   Add
+        `DefaultTrackSelector.Parameters.allowInvalidateSelectionsForRendererCapabilitiesChange`
+        which is disabled by default. When enabled, the `DefaultTrackSelector`
+        will trigger a new track selection when the renderer capabilities
+        changed.
 *   Audio:
     *   Fix bug where some playbacks fail when tunneling is enabled and
         `AudioProcessors` are active, e.g. for gapless trimming
@@ -85,6 +91,9 @@
         `onRendererCapabilitiesChanged` events.
     *   Add `ChannelMixingAudioProcessor` for applying scaling/mixing to audio
         channels.
+    *   Add new int value `DISCARD_REASON_AUDIO_BYPASS_POSSIBLE` to
+        `DecoderDiscardReasons` to discard audio decoder when bypass mode is
+        possible after audio capabilities change.
 *   Metadata:
     *   Deprecate `MediaMetadata.folderType` in favor of `isBrowsable` and
         `mediaType`.
