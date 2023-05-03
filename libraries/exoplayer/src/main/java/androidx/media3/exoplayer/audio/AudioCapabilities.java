@@ -73,7 +73,7 @@ public final class AudioCapabilities {
       new ImmutableMap.Builder<Integer, Integer>()
           .put(C.ENCODING_AC3, 6)
           .put(C.ENCODING_AC4, 6)
-          .put(C.ENCODING_DTS, 6)
+          .put(C.ENCODING_DTS, 10)
           .put(C.ENCODING_E_AC3_JOC, 6)
           .put(C.ENCODING_E_AC3, 8)
           .put(C.ENCODING_DTS_HD, 8)
@@ -212,7 +212,8 @@ public final class AudioCapabilities {
       return null;
     }
     int channelCount;
-    if (format.channelCount == Format.NO_VALUE || encoding == C.ENCODING_E_AC3_JOC) {
+    if (format.channelCount == Format.NO_VALUE || encoding == C.ENCODING_E_AC3_JOC
+        || encoding == C.ENCODING_DTS) {
       // In HLS chunkless preparation, the format channel count and sample rate may be unset. See
       // https://github.com/google/ExoPlayer/issues/10204 and b/222127949 for more details.
       // For E-AC3 JOC, the format is object based so the format channel count is arbitrary.
@@ -221,13 +222,7 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
-        if (channelCount > 10) {
-          // To fix wrong reporting from device. ChannelCount is reported as 8 for DTS:X P2
-          // on some devices.
-          return null;
-        }
-      } else if (channelCount > maxChannelCount) {
+      if (channelCount > maxChannelCount) {
         return null;
       }
     }
