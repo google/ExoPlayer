@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="exo_controls_show">Прикажи ги контролите на плеерот</string>
-  <string name="exo_controls_hide">Сокриј ги контролите на плеерот</string>
+  <string name="exo_controls_hide">Скриј ги контролите на плеерот</string>
   <string name="exo_controls_seek_bar_description">Напредок на репродукцијата</string>
   <string name="exo_controls_settings_description">Поставки</string>
   <string name="exo_controls_overflow_hide_description">Сокријте ги дополнителните поставки</string>
