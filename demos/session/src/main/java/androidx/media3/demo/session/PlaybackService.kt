@@ -97,7 +97,7 @@ class PlaybackService : MediaLibraryService() {
     ): MediaSession.ConnectionResult {
       val connectionResult = super.onConnect(session, controller)
       val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
-      customCommands.forEach { commandButton ->
+      for (commandButton in customCommands) {
         // Add custom command to available session commands.
         commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
       }
