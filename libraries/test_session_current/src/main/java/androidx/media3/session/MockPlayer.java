@@ -347,7 +347,7 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_PLAY)).open();
     if (changePlayerStateWithTransportControl) {
       notifyPlayWhenReadyChanged(
-          /* playWhenReady= */ true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+          /* playWhenReady= */ true, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
     }
   }
 
@@ -356,7 +356,7 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_PAUSE)).open();
     if (changePlayerStateWithTransportControl) {
       notifyPlayWhenReadyChanged(
-          /* playWhenReady= */ false, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+          /* playWhenReady= */ false, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
     }
   }
 
@@ -526,16 +526,17 @@ public class MockPlayer implements Player {
    * Player.Listener#onIsPlayingChanged} as appropriate.
    */
   public void notifyPlayWhenReadyChanged(
-      boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+      boolean playWhenReady, @PlaybackSuppressionReason int playbackSuppressionReason) {
     boolean playWhenReadyChanged = (this.playWhenReady != playWhenReady);
-    boolean playbackSuppressionReasonChanged = (this.playbackSuppressionReason != reason);
+    boolean playbackSuppressionReasonChanged =
+        (this.playbackSuppressionReason != playbackSuppressionReason);
     if (!playWhenReadyChanged && !playbackSuppressionReasonChanged) {
       return;
     }
 
     boolean wasPlaying = isPlaying();
     this.playWhenReady = playWhenReady;
-    this.playbackSuppressionReason = reason;
+    this.playbackSuppressionReason = playbackSuppressionReason;
     boolean isPlaying = isPlaying();
     for (Listener listener : listeners) {
       if (playWhenReadyChanged) {
@@ -543,7 +544,7 @@ public class MockPlayer implements Player {
             playWhenReady, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
       }
       if (playbackSuppressionReasonChanged) {
-        listener.onPlaybackSuppressionReasonChanged(reason);
+        listener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);
       }
       if (isPlaying != wasPlaying) {
         listener.onIsPlayingChanged(isPlaying);
