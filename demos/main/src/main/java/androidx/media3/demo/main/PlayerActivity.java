@@ -514,6 +514,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private class PlayerErrorMessageProvider implements ErrorMessageProvider<PlaybackException> {
 
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
     @Override
     public Pair<Integer, String> getErrorMessage(PlaybackException e) {
       String errorString = getString(R.string.error_generic);

@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.JsonReader;
@@ -273,7 +274,7 @@ public class SampleChooserActivity extends AppCompatActivity
       Toast.makeText(getApplicationContext(), downloadUnsupportedStringId, Toast.LENGTH_LONG)
           .show();
     } else if (!notificationPermissionToastShown
-        && Util.SDK_INT >= 33
+        && Build.VERSION.SDK_INT >= 33
         && checkSelfPermission(Api33.getPostNotificationPermissionString())
             != PackageManager.PERMISSION_GRANTED) {
       downloadMediaItemWaitingForNotificationPermission = playlistHolder.mediaItems.get(0);
