@@ -261,7 +261,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   // A queue of input streams that have not been fully processed identified by their input types.
   private final Queue<@InputType Integer> unprocessedInputStreams;
 
-  @Nullable private volatile CountDownLatch latch;
+  private volatile @MonotonicNonNull CountDownLatch latch;
 
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
@@ -353,16 +353,18 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void registerInputStream(@InputType int inputType) {
     if (!unprocessedInputStreams.isEmpty()) {
-      textureManager.signalEndOfCurrentInputStream();
       // Wait until the current video is processed before continuing to the next input.
       if (checkNotNull(unprocessedInputStreams.peek()) == INPUT_TYPE_SURFACE) {
         latch = new CountDownLatch(1);
+        textureManager.signalEndOfCurrentInputStream();
         try {
           latch.await();
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           Log.e(TAG, "Error waiting for end of stream  " + e);
         }
+      } else {
+        textureManager.signalEndOfCurrentInputStream();
       }
     }
     unprocessedInputStreams.add(inputType);
