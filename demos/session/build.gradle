@@ -57,6 +57,8 @@ android {
 }
 
 dependencies {
+    // For detecting and debugging leaks only. LeakCanary is not needed for demo app to work.
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
     implementation 'androidx.core:core-ktx:' + androidxCoreVersion
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
