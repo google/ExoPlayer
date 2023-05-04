@@ -596,9 +596,9 @@ public final class MimeTypes {
       case MimeTypes.AUDIO_DTS_HD:
         return C.ENCODING_DTS_HD;
       case MimeTypes.AUDIO_DTS_EXPRESS:
-        return C.ENCODING_DTS; // This should be ENCODING_DTS_HD when IC platforms support it.
+        return C.ENCODING_DTS_HD;
       case MimeTypes.AUDIO_DTS_X:
-        return C.ENCODING_DTS; // This should be ENCODING_DTS_UHD_P2 when IC platforms support it.
+        return C.ENCODING_DTS_UHD_P2;
       case MimeTypes.AUDIO_TRUEHD:
         return C.ENCODING_DOLBY_TRUEHD;
       case MimeTypes.AUDIO_OPUS:

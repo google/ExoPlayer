@@ -73,7 +73,8 @@ public final class AudioCapabilities {
       new ImmutableMap.Builder<Integer, Integer>()
           .put(C.ENCODING_AC3, 6)
           .put(C.ENCODING_AC4, 6)
-          .put(C.ENCODING_DTS, 10)
+          .put(C.ENCODING_DTS, 6)
+          .put(C.ENCODING_DTS_UHD_P2, 10)
           .put(C.ENCODING_E_AC3_JOC, 6)
           .put(C.ENCODING_E_AC3, 8)
           .put(C.ENCODING_DTS_HD, 8)
@@ -204,7 +205,8 @@ public final class AudioCapabilities {
     if (encoding == C.ENCODING_E_AC3_JOC && !supportsEncoding(C.ENCODING_E_AC3_JOC)) {
       // E-AC3 receivers support E-AC3 JOC streams (but decode only the base layer).
       encoding = C.ENCODING_E_AC3;
-    } else if (encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD)) {
+    } else if ((encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD)) ||
+        (encoding == C.ENCODING_DTS_UHD_P2 && !supportsEncoding(C.ENCODING_DTS_UHD_P2))) {
       // DTS receivers support DTS-HD streams (but decode only the core layer).
       encoding = C.ENCODING_DTS;
     }
@@ -222,7 +224,12 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (channelCount > maxChannelCount) {
+      if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
+        if (channelCount > 10) {
+          // To fix wrong reporting from device. ChannelCount is reported as 8 for DTS:X P2 on some devices
+          return null;
+        }
+      } else if (channelCount > maxChannelCount) {
         return null;
       }
     }
@@ -360,6 +367,10 @@ public final class AudioCapabilities {
     public static int[] getDirectPlaybackSupportedEncodings() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
+        // Skip ENCODING_DTS_UHD_P2 if API < 34. Otherwise setEncoding will crash.
+        if ((Util.SDK_INT < 34) && (encoding == C.ENCODING_DTS_UHD_P2)) {
+          continue;
+        }
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
