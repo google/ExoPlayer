@@ -15,6 +15,7 @@
  */
 package androidx.media3.demo.session
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent.*
@@ -279,6 +280,7 @@ class PlaybackService : MediaLibraryService() {
      * by a media controller to resume playback when the {@link MediaSessionService} is in the
      * background.
      */
+    @SuppressLint("MissingPermission") // TODO: b/280766358 - Request this permission at runtime.
     override fun onForegroundServiceStartNotAllowedException() {
       val notificationManagerCompat = NotificationManagerCompat.from(this@PlaybackService)
       ensureNotificationChannel(notificationManagerCompat)
