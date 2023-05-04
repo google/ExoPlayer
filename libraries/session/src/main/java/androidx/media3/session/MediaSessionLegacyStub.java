@@ -135,6 +135,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Nullable private FutureCallback<Bitmap> pendingBitmapLoadCallback;
   private int sessionFlags;
 
+  @SuppressWarnings("PendingIntentMutability") // We can't use SaferPendingIntent
   public MediaSessionLegacyStub(
       MediaSessionImpl session,
       Uri sessionUri,
@@ -215,6 +216,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Nullable
+  @SuppressWarnings("QueryPermissionsNeeded") // Needs to be provided in the app manifest.
   private static ComponentName queryPackageManagerForMediaButtonReceiver(Context context) {
     PackageManager pm = context.getPackageManager();
     Intent queryIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
@@ -382,7 +384,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         COMMAND_PLAY_PAUSE,
         controller -> {
           if (sessionImpl.onPlayRequested()) {
-            Util.handlePlayButtonAction(sessionImpl.getPlayerWrapper());
+            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+            if (playerWrapper.getMediaItemCount() == 0) {
+              // The player is in IDLE or ENDED state and has no media items in the playlist yet.
+              // Handle the play command as a playback resumption command to try resume playback.
+              sessionImpl.prepareAndPlayForPlaybackResumption(controller, playerWrapper);
+            } else {
+              Util.handlePlayButtonAction(playerWrapper);
+            }
           }
         },
         sessionCompat.getCurrentControllerInfo());

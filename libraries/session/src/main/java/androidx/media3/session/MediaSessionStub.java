@@ -674,6 +674,10 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
+    ControllerInfo controller = connectedControllersManager.getController(caller.asBinder());
+    if (controller == null) {
+      return;
+    }
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
@@ -684,9 +688,16 @@ import java.util.concurrent.ExecutionException;
               if (sessionImpl == null || sessionImpl.isReleased()) {
                 return;
               }
-
               if (sessionImpl.onPlayRequested()) {
-                player.play();
+                if (player.getMediaItemCount() == 0) {
+                  // The player is in IDLE or ENDED state and has no media items in the playlist
+                  // yet.
+                  // Handle the play command as a playback resumption command to try resume
+                  // playback.
+                  sessionImpl.prepareAndPlayForPlaybackResumption(controller, player);
+                } else {
+                  Util.handlePlayButtonAction(player);
+                }
               }
             }));
   }

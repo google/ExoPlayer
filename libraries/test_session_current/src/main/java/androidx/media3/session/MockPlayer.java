@@ -871,7 +871,7 @@ public class MockPlayer implements Player {
 
   @Override
   public int getMediaItemCount() {
-    throw new UnsupportedOperationException();
+    return timeline.getWindowCount();
   }
 
   @Override

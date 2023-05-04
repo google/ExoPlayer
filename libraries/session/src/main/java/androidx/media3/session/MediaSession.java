@@ -1234,6 +1234,21 @@ public class MediaSession {
               Futures.immediateFuture(
                   new MediaItemsWithStartPosition(mediaItemList, startIndex, startPositionMs)));
     }
+
+    /**
+     * Returns the last recent playlist of the player with which the player should be prepared when
+     * playback resumption from a media button receiver or the System UI notification is requested.
+     *
+     * @param mediaSession The media session for which playback resumption is requested.
+     * @param controller The controller that requests the playback resumption. This is a short
+     *     living controller created only for issuing a play command for resuming playback.
+     * @return The {@linkplain MediaItemsWithStartPosition playlist} to resume playback with.
+     */
+    @UnstableApi
+    default ListenableFuture<MediaItemsWithStartPosition> onPlaybackResumption(
+        MediaSession mediaSession, ControllerInfo controller) {
+      return Futures.immediateFailedFuture(new UnsupportedOperationException());
+    }
   }
 
   /** Representation of list of media items and where to start playing */
