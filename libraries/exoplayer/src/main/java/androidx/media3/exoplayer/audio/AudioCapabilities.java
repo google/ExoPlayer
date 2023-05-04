@@ -214,8 +214,7 @@ public final class AudioCapabilities {
       return null;
     }
     int channelCount;
-    if (format.channelCount == Format.NO_VALUE || encoding == C.ENCODING_E_AC3_JOC
-        || encoding == C.ENCODING_DTS) {
+    if (format.channelCount == Format.NO_VALUE || encoding == C.ENCODING_E_AC3_JOC) {
       // In HLS chunkless preparation, the format channel count and sample rate may be unset. See
       // https://github.com/google/ExoPlayer/issues/10204 and b/222127949 for more details.
       // For E-AC3 JOC, the format is object based so the format channel count is arbitrary.
