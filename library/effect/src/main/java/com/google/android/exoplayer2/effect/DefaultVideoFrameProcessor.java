@@ -558,7 +558,11 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             textureOutputListener);
 
     inputSwitcher.registerInput(INPUT_TYPE_SURFACE);
-    inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
+    if (!ColorInfo.isTransferHdr(inputColorInfo)) {
+      // HDR bitmaps are not supported.
+      inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
+    }
+
     inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 
     setGlObjectProviderOnShaderPrograms(effectsShaderPrograms, glObjectsProvider);
