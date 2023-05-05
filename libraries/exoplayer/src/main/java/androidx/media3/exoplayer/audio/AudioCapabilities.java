@@ -42,6 +42,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /** Represents the set of audio formats that a device is capable of playing. */
@@ -365,11 +366,7 @@ public final class AudioCapabilities {
     @DoNotInline
     public static int[] getDirectPlaybackSupportedEncodings() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
-      for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
-        // Skip ENCODING_DTS_UHD_P2 if API < 34. Otherwise setEncoding will crash.
-        if ((Util.SDK_INT < 34) && (encoding == C.ENCODING_DTS_UHD_P2)) {
-          continue;
-        }
+      for (int encoding : getAllSurroundEncodingsMaybeSupported()) {
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
@@ -405,6 +402,21 @@ public final class AudioCapabilities {
         }
       }
       return 0;
+    }
+
+    /**
+     * Returns an array list of surround encodings that maybe supported.
+     */
+    private static ArrayList<Integer> getAllSurroundEncodingsMaybeSupported() {
+      ArrayList<Integer> encodings = new ArrayList<>();
+      for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
+        // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
+        if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
+          continue;
+        }
+        encodings.add(encoding);
+      }
+      return encodings;
     }
   }
 }
