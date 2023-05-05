@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -2022,9 +2021,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     DebugViewProvider.NONE,
                     inputAndOutputColorInfos.first,
                     inputAndOutputColorInfos.second,
-                    INPUT_TYPE_SURFACE,
                     /* renderFramesAutomatically= */ false,
-                    /* executor= */ handler::post,
+                    /* listenerExecutor= */ handler::post,
                     new VideoFrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
@@ -2075,6 +2073,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                         throw new IllegalStateException();
                       }
                     });
+        videoFrameProcessor.registerInputStream(VideoFrameProcessor.INPUT_TYPE_SURFACE);
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
         throw renderer.createRendererException(

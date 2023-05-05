@@ -301,7 +301,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
                     DebugViewProvider.NONE,
                     /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
-                    INPUT_TYPE_SURFACE,
                     renderFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new VideoFrameProcessor.Listener() {
@@ -341,7 +340,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
                         videoFrameProcessingEndedCountDownLatch.countDown();
                       }
                     }));
-
     defaultVideoFrameProcessor
         .getTaskExecutor()
         .submit(

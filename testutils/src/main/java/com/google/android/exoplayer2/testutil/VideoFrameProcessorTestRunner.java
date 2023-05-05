@@ -275,7 +275,6 @@ public final class VideoFrameProcessorTestRunner {
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
-            inputType,
             /* renderFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
@@ -311,6 +310,7 @@ public final class VideoFrameProcessorTestRunner {
                 videoFrameProcessingEnded = true;
               }
             });
+    videoFrameProcessor.registerInputStream(inputType);
   }
 
   public void processFirstFrameAndEnd() throws Exception {

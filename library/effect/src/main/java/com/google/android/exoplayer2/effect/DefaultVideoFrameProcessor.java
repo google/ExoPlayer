@@ -30,6 +30,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.view.Surface;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -185,7 +186,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        @InputType int inputType,
         boolean renderFramesAutomatically,
         Executor listenerExecutor,
         Listener listener)
@@ -224,7 +224,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       inputColorInfo,
                       outputColorInfo,
                       enableColorTransfers,
-                      inputType,
                       renderFramesAutomatically,
                       singleThreadExecutorService,
                       listenerExecutor,
@@ -251,18 +250,23 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final EGLContext eglContext;
   private final InputSwitcher inputSwitcher;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
-  // TODO(b/274109008) Use InputSwither to interact with texture manager.
-  // Owned and released by inputSwitcher.
-  private final TextureManager textureManager;
+  private final VideoFrameProcessor.Listener listener;
+  private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
   // Shader programs that apply Effects.
   private final ImmutableList<GlShaderProgram> effectsShaderPrograms;
   // A queue of input streams that have not been fully processed identified by their input types.
+  @GuardedBy("lock")
   private final Queue<@InputType Integer> unprocessedInputStreams;
 
-  private volatile @MonotonicNonNull CountDownLatch latch;
+  private final Object lock;
 
+  // CountDownLatch to wait for the current input stream to finish processing.
+  private volatile @MonotonicNonNull CountDownLatch latch;
+  // TODO(b/274109008) Use InputSwither to interact with texture manager.
+  // Owned and released by inputSwitcher.
+  private @MonotonicNonNull TextureManager textureManager;
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
   private volatile boolean hasRefreshedNextInputFrameInfo;
@@ -271,37 +275,34 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       InputSwitcher inputSwitcher,
-      @InputType int inputType,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
+      VideoFrameProcessor.Listener listener,
+      Executor listenerExecutor,
       ImmutableList<GlShaderProgram> effectsShaderPrograms,
       boolean renderFramesAutomatically) {
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.inputSwitcher = inputSwitcher;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
+    this.listener = listener;
+    this.listenerExecutor = listenerExecutor;
     this.renderFramesAutomatically = renderFramesAutomatically;
     this.unprocessedInputStreams = new ConcurrentLinkedQueue<>();
+    this.lock = new Object();
 
     checkState(!effectsShaderPrograms.isEmpty());
     checkState(getLast(effectsShaderPrograms) instanceof FinalShaderProgramWrapper);
 
-    textureManager = inputSwitcher.switchToInput(inputType);
     finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(effectsShaderPrograms);
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
-          @InputType int currentInputType = unprocessedInputStreams.remove();
-          if (latch != null) {
-            latch.countDown();
-          }
-          if (currentInputType == INPUT_TYPE_BITMAP) {
-            // Remove all pending bitmap input, because BitmapTextureManager signals end of input
-            // after all queued bitmaps are processed.
-            while (!unprocessedInputStreams.isEmpty()
-                && checkNotNull(unprocessedInputStreams.peek()) == INPUT_TYPE_BITMAP) {
-              unprocessedInputStreams.remove();
+          synchronized (lock) {
+            @InputType int currentInputType = unprocessedInputStreams.remove();
+            if (latch != null) {
+              latch.countDown();
             }
+            return inputStreamEnded && unprocessedInputStreams.isEmpty();
           }
-          return inputStreamEnded && unprocessedInputStreams.isEmpty();
         });
     this.effectsShaderPrograms = effectsShaderPrograms;
   }
@@ -328,7 +329,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    textureManager.setDefaultBufferSize(width, height);
+    checkNotNull(textureManager).setDefaultBufferSize(width, height);
   }
 
   @Override
@@ -336,38 +337,47 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkState(
         hasRefreshedNextInputFrameInfo,
         "setInputFrameInfo must be called before queueing another bitmap");
-    textureManager.queueInputBitmap(
-        inputBitmap,
-        durationUs,
-        checkNotNull(nextInputFrameInfo).offsetToAddUs,
-        frameRate,
-        /* useHdr= */ false);
+    checkNotNull(textureManager)
+        .queueInputBitmap(
+            inputBitmap,
+            durationUs,
+            checkNotNull(nextInputFrameInfo).offsetToAddUs,
+            frameRate,
+            /* useHdr= */ false);
     hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override
   public Surface getInputSurface() {
-    return textureManager.getInputSurface();
+    return checkNotNull(textureManager).getInputSurface();
   }
 
   @Override
   public void registerInputStream(@InputType int inputType) {
-    if (!unprocessedInputStreams.isEmpty()) {
-      // Wait until the current video is processed before continuing to the next input.
-      if (checkNotNull(unprocessedInputStreams.peek()) == INPUT_TYPE_SURFACE) {
-        latch = new CountDownLatch(1);
-        textureManager.signalEndOfCurrentInputStream();
-        try {
-          latch.await();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          Log.e(TAG, "Error waiting for end of stream  " + e);
-        }
-      } else {
-        textureManager.signalEndOfCurrentInputStream();
+    @InputType int currentInputType;
+    synchronized (lock) {
+      if (unprocessedInputStreams.isEmpty()) {
+        textureManager = inputSwitcher.switchToInput(inputType);
+        unprocessedInputStreams.add(inputType);
+        return;
       }
+
+      currentInputType = checkNotNull(unprocessedInputStreams.peek());
     }
-    unprocessedInputStreams.add(inputType);
+
+    checkNotNull(textureManager).signalEndOfCurrentInputStream();
+    // Wait until the current input stream is processed before continuing to the next input.
+    latch = new CountDownLatch(1);
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      listenerExecutor.execute(() -> listener.onError(VideoFrameProcessingException.from(e)));
+    }
+    textureManager = inputSwitcher.switchToInput(inputType);
+    synchronized (lock) {
+      unprocessedInputStreams.add(inputType);
+    }
   }
 
   @Override
@@ -382,13 +392,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkStateNotNull(
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
-    textureManager.registerInputFrame(nextInputFrameInfo);
+    checkNotNull(textureManager).registerInputFrame(nextInputFrameInfo);
     hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return textureManager.getPendingFrameCount();
+    return checkNotNull(textureManager).getPendingFrameCount();
   }
 
   @Override
@@ -409,8 +419,15 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    textureManager.signalEndOfCurrentInputStream();
-    inputSwitcher.signalEndOfInput();
+    boolean allInputStreamsProcessed;
+    synchronized (lock) {
+      allInputStreamsProcessed = unprocessedInputStreams.isEmpty();
+    }
+    if (allInputStreamsProcessed) {
+      inputSwitcher.signalEndOfInput();
+    } else {
+      checkNotNull(textureManager).signalEndOfCurrentInputStream();
+    }
   }
 
   @Override
@@ -418,10 +435,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     try {
       videoFrameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
-      textureManager.setOnFlushCompleteListener(latch::countDown);
+      checkNotNull(textureManager).setOnFlushCompleteListener(latch::countDown);
       videoFrameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
-      textureManager.setOnFlushCompleteListener(null);
+      checkNotNull(textureManager).setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -478,7 +495,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
-      @InputType int inputType,
       boolean renderFramesAutomatically,
       ExecutorService singleThreadExecutorService,
       Executor executor,
@@ -535,7 +551,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             eglDisplay,
             eglContext,
             debugViewProvider,
-            /* inputColorInfo= */ linearColorInfo,
             outputColorInfo,
             enableColorTransfers,
             renderFramesAutomatically,
@@ -544,8 +559,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             glObjectsProvider,
             textureOutputListener);
 
-    // TODO(b/274109008): Register both image and video input.
-    inputSwitcher.registerInput(inputType);
+    inputSwitcher.registerInput(INPUT_TYPE_SURFACE);
+    inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
     inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 
     setGlObjectProviderOnShaderPrograms(effectsShaderPrograms, glObjectsProvider);
@@ -556,8 +571,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         eglDisplay,
         eglContext,
         inputSwitcher,
-        inputType,
         videoFrameProcessingTaskExecutor,
+        listener,
+        executor,
         effectsShaderPrograms,
         renderFramesAutomatically);
   }
@@ -578,7 +594,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       DebugViewProvider debugViewProvider,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,
@@ -631,7 +646,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             matrixTransformationListBuilder.build(),
             rgbMatrixListBuilder.build(),
             debugViewProvider,
-            inputColorInfo,
             outputColorInfo,
             enableColorTransfers,
             renderFramesAutomatically,

@@ -41,14 +41,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
-
   private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
   private int framesToQueueForCurrentBitmap;
   private double currentPresentationTimeUs;
   private boolean useHdr;
-  private boolean inputEnded;
-
+  private boolean currentInputStreamEnded;
   /**
    * Creates a new instance.
    *
@@ -78,7 +76,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
     videoFrameProcessingTaskExecutor.submit(
-        () -> setupBitmap(inputBitmap, durationUs, offsetUs, frameRate, useHdr));
+        () -> {
+          setupBitmap(inputBitmap, durationUs, offsetUs, frameRate, useHdr);
+          currentInputStreamEnded = false;
+        });
   }
 
   @Override
@@ -89,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void signalEndOfCurrentInputStream() {
-    // Do nothing here. End of current input signaling is handled in maybeQueueToShaderProgram().
+    signalEndOfInput();
   }
 
   @Override
@@ -99,7 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           if (framesToQueueForCurrentBitmap == 0 && pendingBitmaps.isEmpty()) {
             shaderProgram.signalEndOfCurrentInputStream();
           } else {
-            inputEnded = true;
+            currentInputStreamEnded = true;
           }
         });
   }
@@ -118,9 +119,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           }
         });
   }
-
   // Methods that must be called on the GL thread.
-
   private void setupBitmap(
       Bitmap bitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
@@ -128,7 +127,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
     pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, offsetUs, frameDurationUs, framesToAdd));
-
     maybeQueueToShaderProgram();
   }
 
@@ -136,7 +134,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (pendingBitmaps.isEmpty() || downstreamShaderProgramCapacity == 0) {
       return;
     }
-
     BitmapFrameSequenceInfo currentBitmapInfo = checkNotNull(pendingBitmaps.peek());
     if (framesToQueueForCurrentBitmap == 0) {
       Bitmap bitmap = currentBitmapInfo.bitmap;
@@ -166,24 +163,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               bitmap.getWidth(),
               bitmap.getHeight());
     }
-
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
-
     shaderProgram.queueInputFrame(
         checkNotNull(currentGlTextureInfo), round(currentPresentationTimeUs));
-
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
     if (framesToQueueForCurrentBitmap == 0) {
       pendingBitmaps.remove();
-      if (pendingBitmaps.isEmpty() && inputEnded) {
+      if (pendingBitmaps.isEmpty() && currentInputStreamEnded) {
         // Only signal end of stream after all pending bitmaps are processed.
         // TODO(b/269424561): Call signalEndOfCurrentInputStream on every bitmap
         shaderProgram.signalEndOfCurrentInputStream();
+        currentInputStreamEnded = false;
       }
     }
   }
-
   /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
     public final Bitmap bitmap;

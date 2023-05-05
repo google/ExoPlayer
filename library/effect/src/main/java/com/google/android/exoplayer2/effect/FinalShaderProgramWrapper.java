@@ -119,7 +119,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
       DebugViewProvider debugViewProvider,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,

@@ -147,9 +147,6 @@ import org.checkerframework.dataflow.qual.Pure;
     if (presentation != null) {
       effectsWithPresentation.add(presentation);
     }
-    @VideoFrameProcessor.InputType
-    int inputType =
-        MimeTypes.isVideo(firstInputFormat.sampleMimeType) ? INPUT_TYPE_SURFACE : INPUT_TYPE_BITMAP;
     try {
       videoFrameProcessor =
           videoFrameProcessorFactory.create(
@@ -158,7 +155,6 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
-              inputType,
               /* renderFramesAutomatically= */ true,
               MoreExecutors.directExecutor(),
               new VideoFrameProcessor.Listener() {
@@ -218,8 +214,15 @@ import org.checkerframework.dataflow.qual.Pure;
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(mediaItemOffsetUs.get())
               .build());
-      videoFrameProcessor.registerInputStream(
-          MimeTypes.isVideo(trackFormat.sampleMimeType) ? INPUT_TYPE_SURFACE : INPUT_TYPE_BITMAP);
+
+      String mimeType = checkNotNull(trackFormat.sampleMimeType);
+      if (MimeTypes.isVideo(mimeType)) {
+        videoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
+      } else if (MimeTypes.isImage(mimeType)) {
+        videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
+      } else {
+        throw new IllegalArgumentException("MIME type not supported " + mimeType);
+      }
     }
     mediaItemOffsetUs.addAndGet(durationUs);
   }
