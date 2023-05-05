@@ -121,6 +121,8 @@
         an input frame was pending processing.
     *   Query codecs via `MediaCodecList` instead of using
         `findDecoder/EncoderForFormat` utilities, to expand support.
+    *   Remove B-frame configuration in `DefaultEncoderFactory` because it
+        doesn't work on some devices.
 *   Muxer:
     *   Add a new muxer library which can be used to create an MP4 container
         file.

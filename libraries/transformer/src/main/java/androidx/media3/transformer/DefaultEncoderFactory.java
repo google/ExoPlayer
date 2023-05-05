@@ -549,10 +549,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           EncoderUtil.findHighestSupportedEncodingLevel(
               encoderInfo, mimeType, expectedEncodingProfile);
       if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
-        // Use the highest supported profile and use B-frames.
+        // Use the highest supported profile. Don't configure B-frames, because it doesn't work on
+        // some devices.
         mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
         mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
-        mediaFormat.setInteger(MediaFormat.KEY_MAX_B_FRAMES, 1);
       }
     } else if (Util.SDK_INT >= 26) {
       int expectedEncodingProfile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh;
