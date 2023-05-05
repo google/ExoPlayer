@@ -49,7 +49,7 @@ import java.util.Arrays;
 @UnstableApi
 public final class AudioCapabilities {
 
-  private static final int DEFAULT_MAX_CHANNEL_COUNT = 8;
+  private static final int DEFAULT_MAX_CHANNEL_COUNT = 10;
   @VisibleForTesting /* package */ static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
   /** The minimum audio capabilities supported by all devices. */
@@ -224,12 +224,7 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
-        if (channelCount > 10) {
-          // To fix wrong reporting from device. ChannelCount is reported as 8 for DTS:X P2 on some devices
-          return null;
-        }
-      } else if (channelCount > maxChannelCount) {
+      if (channelCount > maxChannelCount) {
         return null;
       }
     }
