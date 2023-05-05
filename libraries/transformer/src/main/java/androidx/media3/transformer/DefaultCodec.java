@@ -41,6 +41,7 @@ import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.effect.DebugTraceUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -214,6 +215,9 @@ public final class DefaultCodec implements Codec {
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+      if (isVideo && isDecoder) {
+        DebugTraceUtil.recordDecoderReceiveEos();
+      }
     }
     try {
       mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
@@ -227,6 +231,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public void signalEndOfInputStream() throws ExportException {
+    DebugTraceUtil.recordEncoderReceiveEos();
     try {
       mediaCodec.signalEndOfInputStream();
     } catch (RuntimeException e) {

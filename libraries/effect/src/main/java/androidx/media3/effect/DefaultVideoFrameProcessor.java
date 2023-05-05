@@ -419,6 +419,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void signalEndOfInput() {
+    DebugTraceUtil.recordVideoFrameProcessorReceiveDecoderEos();
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     boolean allInputStreamsProcessed;

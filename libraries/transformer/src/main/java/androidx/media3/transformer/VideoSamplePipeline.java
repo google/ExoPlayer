@@ -49,6 +49,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.effect.DebugTraceUtil;
 import androidx.media3.effect.Presentation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -289,6 +290,7 @@ import org.checkerframework.dataflow.qual.Pure;
         bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
       }
     }
+    DebugTraceUtil.recordEncodedFrame();
     encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;

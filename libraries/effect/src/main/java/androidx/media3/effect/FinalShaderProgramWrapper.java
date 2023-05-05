@@ -181,6 +181,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean frameProcessingEnded =
         checkNotNull(onInputStreamProcessedListener).onInputStreamProcessed();
     if (frameProcessingEnded) {
+      DebugTraceUtil.recordVideoFrameProcessorSignalEos();
       videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
     }
   }
@@ -325,6 +326,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? System.nanoTime()
             : renderTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
+    DebugTraceUtil.recordFrameRenderedToVideoFrameProcessorOutput();
   }
 
   private void renderFrameToOutputTexture(GlTextureInfo inputTexture, long presentationTimeUs)
