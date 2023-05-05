@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -127,6 +128,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @RequiresNonNull({"sampleConsumer", "decoder"})
   protected boolean feedConsumerFromDecoder() throws ExportException {
     if (decoder.isEnded()) {
+      DebugTraceUtil.recordDecoderSignalEos();
       sampleConsumer.signalEndOfVideoInput();
       isEnded = true;
       return false;
@@ -154,6 +156,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     decoder.releaseOutputBuffer(presentationTimeUs);
+    DebugTraceUtil.recordDecodedFrame();
     return true;
   }
 

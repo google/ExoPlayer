@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -710,6 +711,7 @@ public final class Transformer {
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
     FallbackListener fallbackListener =
         new FallbackListener(composition, listeners, applicationHandler, transformationRequest);
+    DebugTraceUtil.reset();
     transformerInternal =
         new TransformerInternal(
             context,

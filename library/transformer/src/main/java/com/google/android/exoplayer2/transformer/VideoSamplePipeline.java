@@ -37,6 +37,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -289,6 +290,7 @@ import org.checkerframework.dataflow.qual.Pure;
         bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
       }
     }
+    DebugTraceUtil.recordEncodedFrame();
     encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;

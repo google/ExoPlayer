@@ -22,11 +22,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -46,6 +48,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>This wrapper can contain at most one video track and one audio track.
  */
 /* package */ final class MuxerWrapper {
+
+  private static final String MUXER_TIMEOUT_ERROR_FORMAT_STRING =
+      "Abort: no output sample written in the last %d milliseconds. DebugTrace: %s";
 
   public interface Listener {
     void onTrackEnded(
@@ -191,8 +196,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // SparseArray.get() returns null by default if the value is not found.
     checkArgument(
         trackInfo != null, "Could not write sample because there is no track of type " + trackType);
-
-    if (!canWriteSample(trackType, presentationTimeUs)) {
+    boolean canWriteSample = canWriteSample(trackType, presentationTimeUs);
+    DebugTraceUtil.recordMuxerCanAddSample(trackType, canWriteSample);
+    if (!canWriteSample) {
       return false;
     }
 
@@ -204,6 +210,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     resetAbortTimer();
     muxer.writeSampleData(
         trackInfo.index, data, presentationTimeUs, isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0);
+    DebugTraceUtil.recordMuxerInput(trackType);
     previousTrackType = trackType;
     return true;
   }
@@ -225,12 +232,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     listener.onTrackEnded(
         trackType, trackInfo.format, trackInfo.getAverageBitrate(), trackInfo.sampleCount);
 
+    DebugTraceUtil.recordMuxerTrackEnded(trackType);
+
     trackTypeToInfo.delete(trackType);
     if (trackTypeToInfo.size() == 0) {
       abortScheduledExecutorService.shutdownNow();
       if (!isEnded) {
         isEnded = true;
         listener.onEnded(Util.usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
+        Log.e("LYC", DebugTraceUtil.generateTrace());
       }
     }
   }
@@ -298,9 +308,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               listener.onError(
                   ExportException.createForMuxer(
                       new IllegalStateException(
-                          "No output sample written in the last "
-                              + maxDelayBetweenSamplesMs
-                              + " milliseconds. Aborting transformation."),
+                          Util.formatInvariant(
+                              MUXER_TIMEOUT_ERROR_FORMAT_STRING,
+                              maxDelayBetweenSamplesMs,
+                              DebugTraceUtil.generateTrace())),
                       ExportException.ERROR_CODE_MUXING_TIMEOUT));
             },
             maxDelayBetweenSamplesMs,

@@ -35,6 +35,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -212,6 +213,9 @@ public final class DefaultCodec implements Codec {
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+      if (isVideo && isDecoder) {
+        DebugTraceUtil.recordDecoderReceiveEos();
+      }
     }
     try {
       mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
@@ -225,6 +229,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public void signalEndOfInputStream() throws ExportException {
+    DebugTraceUtil.recordEncoderReceiveEos();
     try {
       mediaCodec.signalEndOfInputStream();
     } catch (RuntimeException e) {

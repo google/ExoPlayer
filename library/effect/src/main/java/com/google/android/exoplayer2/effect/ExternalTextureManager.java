@@ -97,6 +97,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         unused ->
             videoFrameProcessingTaskExecutor.submit(
                 () -> {
+                  DebugTraceUtil.recordFrameRenderedToVideoFrameProcessorInput();
                   if (numberOfFramesToDropOnBecomingAvailable > 0) {
                     numberOfFramesToDropOnBecomingAvailable--;
                     surfaceTexture.updateTexImage();
