@@ -41,7 +41,15 @@ public final class DtsUtil {
   private static final int SYNC_VALUE_14B_BE = 0x1FFFE800;
   private static final int SYNC_VALUE_LE = 0xFE7F0180;
   private static final int SYNC_VALUE_14B_LE = 0xFF1F00E8;
+  /**
+   * DTS Extension Substream Syncword (in different Endianness) is defined in Section 7.4.1 of:
+   * https://www.etsi.org/deliver/etsi_ts/102100_102199/102114/01.06.01_60/ts_102114v010601p.pdf
+   */
   private static final int SYNC_EXT_SUB_LE = 0x25205864;
+  /**
+   * The two DTS FTOC Sync words below (in different Endianness) is defined in Section 6.4.4.1 of
+   * https://www.etsi.org/deliver/etsi_ts/103400_103499/103491/01.02.01_60/ts_103491v010201p.pdf
+   */
   private static final int SYNC_FTOC_LE = 0xF21B4140;
   private static final int SYNC_FTOC_NON_SYNC_LE = 0xE842C471;
   private static final byte FIRST_BYTE_BE = (byte) (SYNC_VALUE_BE >>> 24);
@@ -153,14 +161,15 @@ public final class DtsUtil {
    */
   public static int parseDtsAudioSampleCount(ByteBuffer buffer) {
 
-    // Check for sync or non sync word for DTS:X Profile 2.
-    // DTS:X Profile 2's FrameSize = 1024.
+    // Check for DTS:X Profile 2 sync or non sync word and return
+    // 1024 if found. This is the only audio sample count that is used by DTS:X Streaming Encoder.
     if ((buffer.getInt(0) == SYNC_FTOC_LE) ||
         (buffer.getInt(0) == SYNC_FTOC_NON_SYNC_LE)) {
       return 1024;
     }
-    // Check for sync word for DTS Express.
-    // DTS Express's FrameSize = 4096.
+
+    // Check for DTS Express sync word and return 4096 if found. This is the only audio
+    // sample count that is used by DTS Streaming Encoder.
     else if (buffer.getInt(0) == SYNC_EXT_SUB_LE) {
       return 4096;
     }
