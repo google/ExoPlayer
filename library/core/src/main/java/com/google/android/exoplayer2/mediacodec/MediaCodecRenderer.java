@@ -554,7 +554,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return Whether playback bypassing {@link MediaCodec} is possible.
    */
   protected final boolean isBypassPossible(Format format) {
-    return sourceDrmSession == null && shouldUseBypass(inputFormat);
+    return sourceDrmSession == null && shouldUseBypass(format);
   }
 
   /**
