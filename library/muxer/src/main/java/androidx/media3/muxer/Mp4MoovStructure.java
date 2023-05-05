@@ -99,7 +99,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
                     ? Boxes.videoSampleEntry(format)
                     : (isAudio
                         ? Boxes.audioSampleEntry(format)
-                        : Boxes.metadataSampleEntry(format)));
+                        : Boxes.textMetaDataSampleEntry(format)));
         ByteBuffer stts = Boxes.stts(sampleDurationsVu);
         ByteBuffer stsz = Boxes.stsz(track.writtenSamples());
         ByteBuffer stsc = Boxes.stsc(track.writtenChunkSampleCounts());

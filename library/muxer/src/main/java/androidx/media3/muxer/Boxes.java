@@ -226,20 +226,18 @@ import java.util.Locale;
   }
 
   /**
-   * Returns a metadata sample entry box.
+   * Returns a text metadata sample entry box as per ISO/IEC 14496-12: 8.5.2.2.
    *
-   * <p>This contains the sample entry (to be placed within the sample description box) for metadata
-   * tracks.
-   *
-   * <p>The mett box corresponds to text metadata sample entry.
+   * <p>This contains the sample entry (to be placed within the sample description box) for the text
+   * metadata tracks.
    */
-  public static ByteBuffer metadataSampleEntry(Format format) {
+  public static ByteBuffer textMetaDataSampleEntry(Format format) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     String mimeType = checkNotNull(format.sampleMimeType);
     byte[] mimeBytes = Util.getUtf8Bytes(mimeType);
-    contents.put(mimeBytes);
+    contents.put(mimeBytes); // content_encoding
     contents.put((byte) 0x00);
-    contents.put(mimeBytes);
+    contents.put(mimeBytes); // mime_format
     contents.put((byte) 0x00);
 
     contents.flip();
