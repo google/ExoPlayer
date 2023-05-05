@@ -299,7 +299,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
           synchronized (lock) {
-            @InputType int currentInputType = unprocessedInputStreams.remove();
+            unprocessedInputStreams.remove();
             if (latch != null) {
               latch.countDown();
             }
@@ -356,15 +356,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void registerInputStream(@InputType int inputType) {
-    @InputType int currentInputType;
     synchronized (lock) {
       if (unprocessedInputStreams.isEmpty()) {
         textureManager = inputSwitcher.switchToInput(inputType);
         unprocessedInputStreams.add(inputType);
         return;
       }
-
-      currentInputType = checkNotNull(unprocessedInputStreams.peek());
     }
 
     checkNotNull(textureManager).signalEndOfCurrentInputStream();
