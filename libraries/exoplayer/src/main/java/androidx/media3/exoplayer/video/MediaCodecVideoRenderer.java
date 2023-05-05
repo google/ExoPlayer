@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.video;
 
 import static android.view.Display.DEFAULT_DISPLAY;
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -2026,9 +2025,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     DebugViewProvider.NONE,
                     inputAndOutputColorInfos.first,
                     inputAndOutputColorInfos.second,
-                    INPUT_TYPE_SURFACE,
                     /* renderFramesAutomatically= */ false,
-                    /* executor= */ handler::post,
+                    /* listenerExecutor= */ handler::post,
                     new VideoFrameProcessor.Listener() {
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
@@ -2079,6 +2077,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                         throw new IllegalStateException();
                       }
                     });
+        videoFrameProcessor.registerInputStream(VideoFrameProcessor.INPUT_TYPE_SURFACE);
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
         throw renderer.createRendererException(

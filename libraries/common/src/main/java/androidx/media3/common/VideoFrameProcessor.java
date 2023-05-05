@@ -78,13 +78,12 @@ public interface VideoFrameProcessor {
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param inputColorInfo The {@link ColorInfo} for input frames.
      * @param outputColorInfo The {@link ColorInfo} for output frames.
-     * @param inputType The {@link InputType}.
      * @param renderFramesAutomatically If {@code true}, the instance will render output frames to
      *     the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface} automatically as
      *     {@link VideoFrameProcessor} is done processing them. If {@code false}, the {@link
      *     VideoFrameProcessor} will block until {@link #renderOutputFrame(long)} is called, to
      *     render or drop the frame.
-     * @param executor The {@link Executor} on which the {@code listener} is invoked.
+     * @param listenerExecutor The {@link Executor} on which the {@code listener} is invoked.
      * @param listener A {@link Listener}.
      * @return A new instance.
      * @throws VideoFrameProcessingException If a problem occurs while creating the {@link
@@ -96,9 +95,8 @@ public interface VideoFrameProcessor {
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        @InputType int inputType,
         boolean renderFramesAutomatically,
-        Executor executor,
+        Executor listenerExecutor,
         Listener listener)
         throws VideoFrameProcessingException;
   }
@@ -154,15 +152,14 @@ public interface VideoFrameProcessor {
   /**
    * Provides an input {@link Bitmap} to the {@link VideoFrameProcessor}.
    *
-   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
-   * Factory#create created} with {@link #INPUT_TYPE_BITMAP}.
-   *
    * <p>Can be called on any thread.
    *
    * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
    * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
    * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
    *     second.
+   * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
+   *     {@linkplain #INPUT_TYPE_BITMAP bitmap input}.
    */
   // TODO(b/262693274): Remove duration and frameRate parameters when EditedMediaItem can be
   //  signalled down to the processors.
@@ -172,10 +169,10 @@ public interface VideoFrameProcessor {
    * Returns the input {@link Surface}, where {@link VideoFrameProcessor} consumes input frames
    * from.
    *
-   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
-   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
-   *
    * <p>Can be called on any thread.
+   *
+   * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
+   *     {@linkplain #INPUT_TYPE_SURFACE surface input}.
    */
   Surface getInputSurface();
 
@@ -207,11 +204,10 @@ public interface VideoFrameProcessor {
    *
    * <p>Must be called before rendering a frame to the input surface.
    *
-   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
-   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
-   *
    * <p>Can be called on any thread.
    *
+   * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
+   *     {@linkplain #INPUT_TYPE_SURFACE surface input}.
    * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
    *     #setInputFrameInfo(FrameInfo)}.
    */
@@ -279,10 +275,10 @@ public interface VideoFrameProcessor {
    * <p>All the frames that are {@linkplain #registerInputFrame() registered} prior to calling this
    * method are no longer considered to be registered when this method returns.
    *
-   * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
-   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
-   *
    * <p>{@link Listener} methods invoked prior to calling this method should be ignored.
+   *
+   * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
+   *     {@linkplain #INPUT_TYPE_SURFACE surface input}.
    */
   void flush();
 
