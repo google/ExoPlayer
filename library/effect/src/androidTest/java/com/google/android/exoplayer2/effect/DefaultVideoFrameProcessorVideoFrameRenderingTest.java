@@ -345,11 +345,11 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
         .submit(
             () -> {
               blankFrameProducer.configureGlObjects();
-              checkNotNull(defaultVideoFrameProcessor)
-                  .setInputFrameInfo(new FrameInfo.Builder(WIDTH, HEIGHT).build());
               // A frame needs to be registered despite not queuing any external input to ensure
               // that the video frame processor knows about the stream offset.
-              defaultVideoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
+              checkNotNull(defaultVideoFrameProcessor).registerInputStream(INPUT_TYPE_SURFACE);
+              defaultVideoFrameProcessor.setInputFrameInfo(
+                  new FrameInfo.Builder(WIDTH, HEIGHT).build());
               defaultVideoFrameProcessor.registerInputFrame();
               blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
               defaultVideoFrameProcessor.signalEndOfInput();
