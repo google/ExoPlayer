@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
@@ -240,7 +239,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (!isEnded) {
         isEnded = true;
         listener.onEnded(Util.usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
-        Log.e("LYC", DebugTraceUtil.generateTrace());
       }
     }
   }
