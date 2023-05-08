@@ -517,6 +517,26 @@ public final class Util {
   }
 
   /**
+   * Creates a new Integer array containing the concatenation of two non-null Integer arrays.
+   *
+   * @param first  The first array.
+   * @param second The second array.
+   * @return The concatenated result.
+   */
+  @UnstableApi
+  @SuppressWarnings("nullness:assignment")
+  public static int[] nullSafeIntegerArrayConcatenation(int[] first, int[] second) {
+    int[] concatenation = Arrays.copyOf(first, first.length + second.length);
+    System.arraycopy(
+        /* src= */ second,
+        +        /* srcPos= */ 0,
+        /* dest= */ concatenation,
+        /* destPos= */ first.length,
+        /* length= */ second.length);
+    return concatenation;
+  }
+
+  /**
    * Copies the contents of {@code list} into {@code array}.
    *
    * <p>{@code list.size()} must be the same as {@code array.length} to ensure the contents can be

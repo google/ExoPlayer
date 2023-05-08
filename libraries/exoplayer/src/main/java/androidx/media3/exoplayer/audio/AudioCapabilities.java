@@ -58,15 +58,11 @@ public final class AudioCapabilities {
   public static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
-  /** Audio capabilities when the device specifies external surround sound. */
-  @SuppressWarnings("InlinedApi")
-  private static final AudioCapabilities EXTERNAL_SURROUND_SOUND_CAPABILITIES =
-      new AudioCapabilities(
-          new int[]{
-              AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3,
-              AudioFormat.ENCODING_DTS, AudioFormat.ENCODING_DTS_HD
-          },
-          DEFAULT_MAX_CHANNEL_COUNT);
+  /** Encodings supported when the device specifies external surround sound. */
+  private static final int[] EXTERNAL_SURROUND_SOUND_CAPABILITIES =
+      new int[]{
+          AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
+      };
 
   /**
    * All surround sound encodings that a device may be capable of playing mapped to a maximum
@@ -101,6 +97,19 @@ public final class AudioCapabilities {
     return getCapabilities(context, intent);
   }
 
+  private static AudioCapabilities getExternalSurroundCapabilities(@Nullable Intent intent) {
+    int[] supportedEncodings = EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+
+    if (Util.SDK_INT >= 29) {
+      // Check if DTS Encodings are supported via Direct Playback.
+      int[] dtsTypes = {AudioFormat.ENCODING_DTS, AudioFormat.ENCODING_DTS_HD};
+      supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
+          Api29.getDirectPlaybackSupportedEncodings(dtsTypes));
+    }
+    supportedEncodings = Arrays.stream(supportedEncodings).distinct().toArray();
+    return new AudioCapabilities(supportedEncodings,/* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
+  }
+
   @SuppressLint("InlinedApi")
   /* package */ static AudioCapabilities getCapabilities(Context context, @Nullable Intent intent) {
     // If a connection to Bluetooth device is detected, we only return the minimum capabilities that
@@ -110,7 +119,7 @@ public final class AudioCapabilities {
     }
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+      return getExternalSurroundCapabilities(intent);
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
@@ -118,7 +127,9 @@ public final class AudioCapabilities {
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
       return new AudioCapabilities(
-          Api29.getDirectPlaybackSupportedEncodings(), DEFAULT_MAX_CHANNEL_COUNT);
+          Api29.getDirectPlaybackSupportedEncodings(
+              Api29.getAllSurroundEncodingsMaybeSupported().stream().mapToInt(Integer::intValue)
+                  .toArray()), DEFAULT_MAX_CHANNEL_COUNT);
     }
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
@@ -361,9 +372,9 @@ public final class AudioCapabilities {
     private Api29() {}
 
     @DoNotInline
-    public static int[] getDirectPlaybackSupportedEncodings() {
+    public static int[] getDirectPlaybackSupportedEncodings(int[] encodings) {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
-      for (int encoding : getAllSurroundEncodingsMaybeSupported()) {
+      for (int encoding : encodings) {
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
