@@ -42,13 +42,13 @@ public final class DtsUtil {
   private static final int SYNC_VALUE_LE = 0xFE7F0180;
   private static final int SYNC_VALUE_14B_LE = 0xFF1F00E8;
   /**
-   * DTS Extension Substream Syncword (in different Endianness) is defined in Section 7.4.1 of:
-   * https://www.etsi.org/deliver/etsi_ts/102100_102199/102114/01.06.01_60/ts_102114v010601p.pdf
+   * DTS Extension Substream Syncword (in different Endianness). See ETSI TS 102 114 (V1.6.1)
+   * Section 7.4.1.
    */
   private static final int SYNC_EXT_SUB_LE = 0x25205864;
   /**
-   * The two DTS FTOC Sync words below (in different Endianness) is defined in Section 6.4.4.1 of
-   * https://www.etsi.org/deliver/etsi_ts/103400_103499/103491/01.02.01_60/ts_103491v010201p.pdf
+   * DTS FTOC Sync words (in different Endianness). See ETSI TS 103 491 (V1.2.1)
+   * Section 6.4.4.1.
    */
   private static final int SYNC_FTOC_LE = 0xF21B4140;
   private static final int SYNC_FTOC_NON_SYNC_LE = 0xE842C471;
