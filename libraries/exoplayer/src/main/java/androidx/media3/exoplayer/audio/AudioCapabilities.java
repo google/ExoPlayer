@@ -44,6 +44,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /** Represents the set of audio formats that a device is capable of playing. */
 @UnstableApi
@@ -402,7 +404,7 @@ public final class AudioCapabilities {
     /**
      * Returns an array list of surround encodings that maybe supported.
      */
-    private static ArrayList<Integer> getAllSurroundEncodingsMaybeSupported() {
+    private static List<Integer> getAllSurroundEncodingsMaybeSupported() {
       ArrayList<Integer> encodings = new ArrayList<>();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
         // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
@@ -411,7 +413,7 @@ public final class AudioCapabilities {
         }
         encodings.add(encoding);
       }
-      return encodings;
+      return Collections.unmodifiableList(encodings);
     }
   }
 }
