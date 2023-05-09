@@ -55,6 +55,7 @@ import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCR
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 
+import android.app.PendingIntent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -1844,6 +1845,12 @@ import java.util.concurrent.ExecutionException;
     public void setCustomLayout(int sequenceNumber, List<CommandButton> layout)
         throws RemoteException {
       iController.onSetCustomLayout(sequenceNumber, BundleableUtil.toBundleList(layout));
+    }
+
+    @Override
+    public void onSessionActivityChanged(int sequenceNumber, PendingIntent sessionActivity)
+        throws RemoteException {
+      iController.onSessionActivityChanged(sequenceNumber, sessionActivity);
     }
 
     @Override

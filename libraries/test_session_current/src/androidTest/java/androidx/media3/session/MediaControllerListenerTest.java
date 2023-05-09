@@ -34,7 +34,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.assertThrows;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -63,6 +65,7 @@ import androidx.media3.common.text.CueGroup;
 import androidx.media3.session.RemoteMediaSession.RemoteMockPlayer;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
+import androidx.media3.test.session.common.SurfaceActivity;
 import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -2509,6 +2512,35 @@ public class MediaControllerListenerTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(receivedSessionExtras).hasSize(1);
     assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+  }
+
+  @Test
+  public void setSessionActivity_onSessionActivityChangedCalled() throws Exception {
+    Intent intent = new Intent(context, SurfaceActivity.class);
+    PendingIntent sessionActivity =
+        PendingIntent.getActivity(
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    CountDownLatch latch = new CountDownLatch(1);
+    List<PendingIntent> receivedSessionActivities = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onSessionActivityChanged(
+              MediaController controller, PendingIntent sessionActivity) {
+            latch.countDown();
+            receivedSessionActivities.add(sessionActivity);
+          }
+        };
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(), /* connectionHints= */ null, listener);
+    assertThat(controller.getSessionActivity()).isNull();
+
+    remoteSession.setSessionActivity(sessionActivity);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.getSessionActivity()).isEqualTo(sessionActivity);
+    assertThat(receivedSessionActivities).containsExactly(sessionActivity);
   }
 
   @Test

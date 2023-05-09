@@ -34,6 +34,7 @@ interface IRemoteMediaSession {
   void setCustomLayout(String sessionId, in List<Bundle> layout);
   void setSessionExtras(String sessionId, in Bundle extras);
   void setSessionExtrasForController(String sessionId, in String controllerKey, in Bundle extras);
+  void setSessionActivity(String sessionId, in PendingIntent sessionActivity);
 
   // Player Methods
   void setPlayWhenReady(String sessionId, boolean playWhenReady, int reason);

@@ -17,9 +17,11 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Util.postOrRun;
 
+import android.app.PendingIntent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Player.Commands;
@@ -36,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private static final String TAG = "MediaControllerStub";
 
   /** The version of the IMediaController interface. */
-  public static final int VERSION_INT = 2;
+  public static final int VERSION_INT = 3;
 
   private final WeakReference<MediaControllerImplBase> controller;
 
@@ -155,6 +157,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     dispatchControllerTaskOnHandler(controller -> controller.onCustomCommand(seq, command, args));
+  }
+
+  @Override
+  public void onSessionActivityChanged(int seq, PendingIntent sessionActivity)
+      throws RemoteException {
+    dispatchControllerTaskOnHandler(
+        controller -> controller.onSetSessionActivity(seq, sessionActivity));
   }
 
   @Override

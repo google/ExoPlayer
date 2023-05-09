@@ -59,6 +59,7 @@ import static androidx.media3.test.session.common.TestUtils.SERVICE_CONNECTION_T
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -205,6 +206,10 @@ public class RemoteMediaSession {
 
   public void setSessionExtras(String controllerKey, Bundle extras) throws RemoteException {
     binder.setSessionExtrasForController(sessionId, controllerKey, extras);
+  }
+
+  public void setSessionActivity(PendingIntent sessionActivity) throws RemoteException {
+    binder.setSessionActivity(sessionId, sessionActivity);
   }
 
   ////////////////////////////////////////////////////////////////////////////////

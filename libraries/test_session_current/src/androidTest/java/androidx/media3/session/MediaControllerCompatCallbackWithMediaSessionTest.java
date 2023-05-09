@@ -25,7 +25,9 @@ import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -51,6 +53,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.PollingCheck;
+import androidx.media3.test.session.common.SurfaceActivity;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
@@ -978,6 +981,32 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
     assertThat(TestUtils.equals(receivedSessionExtras.get(1), sessionExtras)).isTrue();
+  }
+
+  @Test
+  public void setSessionActivity_changedWhenReceivedWithSetter() throws Exception {
+    Intent intent = new Intent(context, SurfaceActivity.class);
+    PendingIntent sessionActivity =
+        PendingIntent.getActivity(
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+    assertThat(controllerCompat.getSessionActivity()).isNull();
+
+    session.setSessionActivity(sessionActivity);
+    // The legacy API has no change listener for the session activity. Changing the state to
+    // trigger a callback.
+    session.getMockPlayer().notifyPlaybackStateChanged(STATE_READY);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controllerCompat.getSessionActivity()).isEqualTo(sessionActivity);
   }
 
   @Test

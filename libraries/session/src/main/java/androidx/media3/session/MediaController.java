@@ -396,6 +396,17 @@ public class MediaController implements Player {
      * @param extras The session extras that have changed.
      */
     default void onExtrasChanged(MediaController controller, Bundle extras) {}
+
+    /**
+     * Called when the {@link PendingIntent} to launch the session activity {@link
+     * MediaSession#setSessionActivity(PendingIntent) has been changed} on the session side.
+     *
+     * @param controller The controller.
+     * @param sessionActivity The pending intent to launch the session activity.
+     */
+    @UnstableApi
+    default void onSessionActivityChanged(
+        MediaController controller, PendingIntent sessionActivity) {}
   }
 
   /* package */ interface ConnectionCallback {

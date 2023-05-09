@@ -66,6 +66,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
@@ -80,9 +81,11 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ class MediaSessionImpl {
 
@@ -119,18 +122,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final String sessionId;
   private final SessionToken sessionToken;
   private final MediaSession instance;
-  @Nullable private final PendingIntent sessionActivity;
   private final Handler applicationHandler;
   private final BitmapLoader bitmapLoader;
   private final Runnable periodicSessionPositionInfoUpdateRunnable;
   private final Handler mainHandler;
 
-  @Nullable private PlayerListener playerListener;
-
-  @Nullable private MediaSession.Listener mediaSessionListener;
-
   private PlayerInfo playerInfo;
   private PlayerWrapper playerWrapper;
+  private @MonotonicNonNull PendingIntent sessionActivity;
+  @Nullable private PlayerListener playerListener;
+  @Nullable private MediaSession.Listener mediaSessionListener;
   @Nullable private ControllerInfo controllerForCurrentRequest;
 
   @GuardedBy("lock")
@@ -529,6 +530,25 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   @Nullable
   protected PendingIntent getSessionActivity() {
     return sessionActivity;
+  }
+
+  @UnstableApi
+  protected void setSessionActivity(PendingIntent sessionActivity) {
+    if (Objects.equals(this.sessionActivity, sessionActivity)) {
+      return;
+    }
+    this.sessionActivity = sessionActivity;
+    sessionLegacyStub.getSessionCompat().setSessionActivity(sessionActivity);
+    ImmutableList<ControllerInfo> connectedControllers =
+        sessionStub.getConnectedControllersManager().getConnectedControllers();
+    for (int i = 0; i < connectedControllers.size(); i++) {
+      ControllerInfo controllerInfo = connectedControllers.get(i);
+      if (controllerInfo.getControllerVersion() >= 3) {
+        dispatchRemoteControllerTaskWithoutReturn(
+            controllerInfo,
+            (controller, seq) -> controller.onSessionActivityChanged(seq, sessionActivity));
+      }
+    }
   }
 
   /**

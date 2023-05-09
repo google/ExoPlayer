@@ -2595,6 +2595,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
   }
 
+  void onSetSessionActivity(int seq, PendingIntent sessionActivity) {
+    if (!isConnected()) {
+      return;
+    }
+    this.sessionActivity = sessionActivity;
+    getInstance()
+        .notifyControllerListener(
+            listener -> listener.onSessionActivityChanged(getInstance(), sessionActivity));
+  }
+
   public void onRenderedFirstFrame() {
     listeners.sendEvent(
         /* eventFlag= */ Player.EVENT_RENDERED_FIRST_FRAME, Listener::onRenderedFirstFrame);

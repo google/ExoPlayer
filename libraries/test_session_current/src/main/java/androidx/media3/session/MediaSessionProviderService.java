@@ -492,6 +492,12 @@ public class MediaSessionProviderService extends Service {
           });
     }
 
+    @Override
+    public void setSessionActivity(String sessionId, PendingIntent sessionActivity)
+        throws RemoteException {
+      runOnHandler(() -> sessionMap.get(sessionId).setSessionActivity(sessionActivity));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     // MockPlayer methods
     ////////////////////////////////////////////////////////////////////////////////

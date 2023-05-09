@@ -600,6 +600,17 @@ public class MediaSession {
   }
 
   /**
+   * Updates the session activity that was set when {@linkplain
+   * Builder#setSessionActivity(PendingIntent) building the session}.
+   *
+   * @param activityPendingIntent The pending intent to start the session activity.
+   */
+  @UnstableApi
+  public final void setSessionActivity(PendingIntent activityPendingIntent) {
+    impl.setSessionActivity(activityPendingIntent);
+  }
+
+  /**
    * Sets the underlying {@link Player} for this session to dispatch incoming events to.
    *
    * @param player A player that handles actual media playback in your app.
@@ -1381,6 +1392,9 @@ public class MediaSession {
     default void onDisconnected(int seq) throws RemoteException {}
 
     default void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {}
+
+    default void onSessionActivityChanged(int seq, PendingIntent sessionActivity)
+        throws RemoteException {}
 
     default void onSessionExtrasChanged(int seq, Bundle sessionExtras) throws RemoteException {}
 

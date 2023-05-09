@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import android.app.PendingIntent;
 import android.os.Bundle;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -59,6 +60,11 @@ public final class TestMediaBrowserListener implements MediaBrowser.Listener {
   @Override
   public void onExtrasChanged(MediaController controller, Bundle extras) {
     delegate.onExtrasChanged(controller, extras);
+  }
+
+  @Override
+  public void onSessionActivityChanged(MediaController controller, PendingIntent sessionActivity) {
+    delegate.onSessionActivityChanged(controller, sessionActivity);
   }
 
   @Override
