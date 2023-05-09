@@ -22,6 +22,7 @@ import android.content.Context;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -114,6 +115,16 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   private static boolean isImage(@Nullable MediaItem.LocalConfiguration localConfiguration) {
     if (localConfiguration == null) {
       return false;
+    }
+    if (localConfiguration.mimeType != null) {
+      ImmutableList<String> supportedMimeTypes =
+          ImmutableList.of(
+              MimeTypes.IMAGE_PNG,
+              MimeTypes.IMAGE_WEBP,
+              MimeTypes.IMAGE_JPEG,
+              MimeTypes.IMAGE_HEIC,
+              MimeTypes.IMAGE_HEIF);
+      return supportedMimeTypes.contains(localConfiguration.mimeType);
     }
     ImmutableList<String> supportedImageTypes =
         ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif");

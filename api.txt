@@ -584,7 +584,11 @@ package androidx.media3.common {
     field public static final String AUDIO_VORBIS = "audio/vorbis";
     field public static final String AUDIO_WAV = "audio/wav";
     field public static final String AUDIO_WEBM = "audio/webm";
+    field public static final String IMAGE_HEIC = "image/heic";
+    field public static final String IMAGE_HEIF = "image/heif";
     field public static final String IMAGE_JPEG = "image/jpeg";
+    field public static final String IMAGE_PNG = "image/png";
+    field public static final String IMAGE_WEBP = "image/webp";
     field public static final String TEXT_SSA = "text/x-ssa";
     field public static final String TEXT_VTT = "text/vtt";
     field public static final String VIDEO_AV1 = "video/av01";
