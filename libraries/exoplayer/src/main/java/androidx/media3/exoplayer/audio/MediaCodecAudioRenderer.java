@@ -398,20 +398,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         return ImmutableList.of(codecInfo);
       }
     }
-    List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
-    if (alternativeMimeType == null) {
-      return ImmutableList.copyOf(decoderInfos);
-    }
-    List<MediaCodecInfo> alternativeDecoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            alternativeMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    return ImmutableList.<MediaCodecInfo>builder()
-        .addAll(decoderInfos)
-        .addAll(alternativeDecoderInfos)
-        .build();
+    return MediaCodecUtil.getDecoderInfosSoftMatch(
+        mediaCodecSelector, format, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
   }
 
   @Override

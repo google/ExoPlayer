@@ -499,30 +499,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       boolean requiresSecureDecoder,
       boolean requiresTunnelingDecoder)
       throws DecoderQueryException {
-    @Nullable String mimeType = format.sampleMimeType;
-    if (mimeType == null) {
+    if (format.sampleMimeType == null) {
       return ImmutableList.of();
     }
-    List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
-    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
-    if (alternativeMimeType == null) {
-      return ImmutableList.copyOf(decoderInfos);
-    }
-    List<MediaCodecInfo> alternativeDecoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            alternativeMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     if (Util.SDK_INT >= 26
         && MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)
-        && !alternativeDecoderInfos.isEmpty()
         && !Api26.doesDisplaySupportDolbyVision(context)) {
-      return ImmutableList.copyOf(alternativeDecoderInfos);
+      List<MediaCodecInfo> alternativeDecoderInfos =
+          MediaCodecUtil.getAlternativeDecoderInfos(
+              mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder);
+      if (!alternativeDecoderInfos.isEmpty()) {
+        return alternativeDecoderInfos;
+      }
     }
-    return ImmutableList.<MediaCodecInfo>builder()
-        .addAll(decoderInfos)
-        .addAll(alternativeDecoderInfos)
-        .build();
+    return MediaCodecUtil.getDecoderInfosSoftMatch(
+        mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder);
   }
 
   @RequiresApi(26)

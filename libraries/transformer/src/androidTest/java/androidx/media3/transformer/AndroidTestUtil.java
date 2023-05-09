@@ -148,6 +148,8 @@ public final class AndroidTestUtil {
           .setCodecs("hvc1.2.4.L153")
           .build();
 
+  public static final String MP4_ASSET_DOLBY_VISION_HDR = "asset:///media/mp4/dolbyVision-hdr.MOV";
+
   public static final String MP4_ASSET_4K60_PORTRAIT_URI_STRING =
       "asset:///media/mp4/portrait_4k60.mp4";
   public static final Format MP4_ASSET_4K60_PORTRAIT_FORMAT =

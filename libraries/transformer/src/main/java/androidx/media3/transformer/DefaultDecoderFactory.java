@@ -34,6 +34,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -145,10 +146,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static String getMediaCodecNameForDecoding(Format format)
       throws MediaCodecUtil.DecoderQueryException, ExportException {
+    checkNotNull(format.sampleMimeType);
     List<MediaCodecInfo> decoderInfos =
         MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
-            MediaCodecUtil.getDecoderInfos(
-                checkNotNull(format.sampleMimeType), /* secure= */ false, /* tunneling= */ false),
+            MediaCodecUtil.getDecoderInfosSoftMatch(
+                MediaCodecSelector.DEFAULT,
+                format,
+                /* requiresSecureDecoder= */ false,
+                /* requiresTunnelingDecoder= */ false),
             format);
     if (decoderInfos.isEmpty()) {
       throw createExportException(format, /* reason= */ "No decoders for format");

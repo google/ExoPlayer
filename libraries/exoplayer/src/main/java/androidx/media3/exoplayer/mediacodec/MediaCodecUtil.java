@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A utility class for querying the available codecs. */
 @SuppressLint("InlinedApi")
@@ -190,6 +191,77 @@ public final class MediaCodecUtil {
   }
 
   /**
+   * Returns a list of decoders that can decode media in the specified format, in the priority order
+   * specified by the {@link MediaCodecSelector}.
+   *
+   * <p>Since the {@link MediaCodecSelector} only has access to {@link Format#sampleMimeType}, the
+   * list is not ordered to account for whether each decoder supports the details of the format
+   * (e.g., taking into account the format's profile, level, resolution and so on). {@link
+   * #getDecoderInfosSortedByFormatSupport} can be used to further sort the list into an order where
+   * decoders that fully support the format come first.
+   *
+   * <p>This list is more complete than {@link #getDecoderInfos}, as it also considers alternative
+   * MIME types that are a close match using {@link #getAlternativeCodecMimeType}.
+   *
+   * @param mediaCodecSelector The decoder selector.
+   * @param format The {@link Format} for which a decoder is required.
+   * @param requiresSecureDecoder Whether a secure decoder is required.
+   * @param requiresTunnelingDecoder Whether a tunneling decoder is required.
+   * @return A list of {@link MediaCodecInfo}s corresponding to decoders. May be empty.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
+   */
+  @RequiresNonNull("#2.sampleMimeType")
+  public static List<MediaCodecInfo> getDecoderInfosSoftMatch(
+      MediaCodecSelector mediaCodecSelector,
+      Format format,
+      boolean requiresSecureDecoder,
+      boolean requiresTunnelingDecoder)
+      throws DecoderQueryException {
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(
+            format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+    List<MediaCodecInfo> alternativeDecoderInfos =
+        getAlternativeDecoderInfos(
+            mediaCodecSelector, format, requiresSecureDecoder, requiresTunnelingDecoder);
+    return ImmutableList.<MediaCodecInfo>builder()
+        .addAll(decoderInfos)
+        .addAll(alternativeDecoderInfos)
+        .build();
+  }
+
+  /**
+   * Returns a list of decoders for {@linkplain #getAlternativeCodecMimeType alternative MIME types}
+   * that can decode samples of the provided {@link Format}, in the priority order specified by the
+   * {@link MediaCodecSelector}.
+   *
+   * <p>Since the {@link MediaCodecSelector} only has access to {@link Format#sampleMimeType}, the
+   * list is not ordered to account for whether each decoder supports the details of the format
+   * (e.g., taking into account the format's profile, level, resolution and so on). {@link
+   * #getDecoderInfosSortedByFormatSupport} can be used to further sort the list into an order where
+   * decoders that fully support the format come first.
+   *
+   * @param mediaCodecSelector The decoder selector.
+   * @param format The {@link Format} for which an alternative decoder is required.
+   * @param requiresSecureDecoder Whether a secure decoder is required.
+   * @param requiresTunnelingDecoder Whether a tunneling decoder is required.
+   * @return A list of {@link MediaCodecInfo}s corresponding to alternative decoders. May be empty.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
+   */
+  public static List<MediaCodecInfo> getAlternativeDecoderInfos(
+      MediaCodecSelector mediaCodecSelector,
+      Format format,
+      boolean requiresSecureDecoder,
+      boolean requiresTunnelingDecoder)
+      throws DecoderQueryException {
+    @Nullable String alternativeMimeType = getAlternativeCodecMimeType(format);
+    if (alternativeMimeType == null) {
+      return ImmutableList.of();
+    }
+    return mediaCodecSelector.getDecoderInfos(
+        alternativeMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+  }
+
+  /**
    * Returns a copy of the provided decoder list sorted such that decoders with functional format
    * support are listed first. The returned list is modifiable for convenience.
    */
@@ -282,8 +354,7 @@ public final class MediaCodecUtil {
       // be done for profile CodecProfileLevel.DolbyVisionProfileDvheStn and profile
       // CodecProfileLevel.DolbyVisionProfileDvheDtb because the first one is not backward
       // compatible and the second one is deprecated and is not always backward compatible.
-      @Nullable
-      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+      @Nullable Pair<Integer, Integer> codecProfileAndLevel = getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
         int profile = codecProfileAndLevel.first;
         if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
