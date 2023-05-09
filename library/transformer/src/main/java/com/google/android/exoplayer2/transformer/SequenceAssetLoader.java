@@ -470,22 +470,27 @@ import java.util.concurrent.atomic.AtomicInteger;
     private void switchAssetLoader() {
       handler.post(
           () -> {
-            addCurrentProcessedInput();
-            totalDurationUs += currentAssetDurationUs;
-            currentAssetLoader.release();
-            isCurrentAssetFirstAsset = false;
-            currentMediaItemIndex++;
-            if (currentMediaItemIndex == editedMediaItems.size()) {
-              currentMediaItemIndex = 0;
-              sequenceLoopCount++;
+            try {
+              addCurrentProcessedInput();
+              totalDurationUs += currentAssetDurationUs;
+              currentAssetLoader.release();
+              isCurrentAssetFirstAsset = false;
+              currentMediaItemIndex++;
+              if (currentMediaItemIndex == editedMediaItems.size()) {
+                currentMediaItemIndex = 0;
+                sequenceLoopCount++;
+              }
+              EditedMediaItem editedMediaItem = editedMediaItems.get(currentMediaItemIndex);
+              currentAssetLoader =
+                  assetLoaderFactory.createAssetLoader(
+                      editedMediaItem,
+                      checkNotNull(Looper.myLooper()),
+                      /* listener= */ SequenceAssetLoader.this);
+              currentAssetLoader.start();
+            } catch (RuntimeException e) {
+              onError(
+                  ExportException.createForAssetLoader(e, ExportException.ERROR_CODE_UNSPECIFIED));
             }
-            EditedMediaItem editedMediaItem = editedMediaItems.get(currentMediaItemIndex);
-            currentAssetLoader =
-                assetLoaderFactory.createAssetLoader(
-                    editedMediaItem,
-                    checkNotNull(Looper.myLooper()),
-                    /* listener= */ SequenceAssetLoader.this);
-            currentAssetLoader.start();
           });
     }
 
