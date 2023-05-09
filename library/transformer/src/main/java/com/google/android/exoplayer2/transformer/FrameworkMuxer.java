@@ -162,7 +162,7 @@ import java.nio.ByteBuffer;
     int offset = data.position();
     int size = data.limit() - offset;
 
-    bufferInfo.set(offset, size, presentationTimeUs, getMediaMuxerFlags(flags));
+    bufferInfo.set(offset, size, presentationTimeUs, TransformerUtil.getMediaCodecFlags(flags));
     long lastSamplePresentationTimeUs = trackIndexToLastPresentationTimeUs.get(trackIndex);
     // writeSampleData blocks on old API versions, so check here to avoid calling the method.
     checkState(
@@ -229,17 +229,6 @@ import java.nio.ByteBuffer;
   @Override
   public long getMaxDelayBetweenSamplesMs() {
     return maxDelayBetweenSamplesMs;
-  }
-
-  private static int getMediaMuxerFlags(@C.BufferFlags int flags) {
-    int mediaMuxerFlags = 0;
-    if ((flags & C.BUFFER_FLAG_KEY_FRAME) == C.BUFFER_FLAG_KEY_FRAME) {
-      mediaMuxerFlags |= MediaCodec.BUFFER_FLAG_KEY_FRAME;
-    }
-    if ((flags & C.BUFFER_FLAG_END_OF_STREAM) == C.BUFFER_FLAG_END_OF_STREAM) {
-      mediaMuxerFlags |= MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-    }
-    return mediaMuxerFlags;
   }
 
   // Accesses MediaMuxer state via reflection to ensure that muxer resources can be released even
