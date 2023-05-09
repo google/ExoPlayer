@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.round;
 
 import android.graphics.Bitmap;
@@ -27,6 +28,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -39,6 +41,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @UnstableApi
 /* package */ final class BitmapTextureManager implements TextureManager {
+  private static final String UNSUPPORTED_IMAGE_CONFIGURATION =
+      "Unsupported Image Configuration: No more than 8 bits of precision should be used for each"
+          + " RGB channel.";
   private final GlShaderProgram shaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
@@ -125,6 +130,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void setupBitmap(
       Bitmap bitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
+    if (Util.SDK_INT >= 26) {
+      checkState(
+          !bitmap.getConfig().equals(Bitmap.Config.RGBA_F16), UNSUPPORTED_IMAGE_CONFIGURATION);
+    }
+    if (Util.SDK_INT >= 33) {
+      checkState(
+          !bitmap.getConfig().equals(Bitmap.Config.RGBA_1010102), UNSUPPORTED_IMAGE_CONFIGURATION);
+    }
     this.useHdr = useHdr;
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;

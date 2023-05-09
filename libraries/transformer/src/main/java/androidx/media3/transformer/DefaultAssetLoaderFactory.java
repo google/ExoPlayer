@@ -26,6 +26,7 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The default {@link AssetLoader.Factory} implementation. */
@@ -114,13 +115,14 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     if (localConfiguration == null) {
       return false;
     }
-    ImmutableList<String> supportedImageTypes = ImmutableList.of(".png", ".webp", ".jpg", ".jpeg");
+    ImmutableList<String> supportedImageTypes =
+        ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif");
     String uriPath = checkNotNull(localConfiguration.uri.getPath());
     int fileExtensionStart = uriPath.lastIndexOf(".");
     if (fileExtensionStart < 0) {
       return false;
     }
-    String extension = uriPath.substring(fileExtensionStart);
+    String extension = uriPath.substring(fileExtensionStart).toLowerCase(Locale.ENGLISH);
     return supportedImageTypes.contains(extension);
   }
 }
