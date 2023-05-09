@@ -386,6 +386,11 @@ public final class GlUtil {
     return eglSurface;
   }
 
+  /** Gets the current {@link EGLContext context}. */
+  public static EGLContext getCurrentContext() {
+    return EGL14.eglGetCurrentContext();
+  }
+
   /**
    * Collects all OpenGL errors that occurred since this method was last called and throws a {@link
    * GlException} with the combined error message.

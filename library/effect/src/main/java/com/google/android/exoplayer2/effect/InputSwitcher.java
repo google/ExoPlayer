@@ -115,7 +115,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             new BitmapTextureManager(samplingShaderProgram, videoFrameProcessingTaskExecutor);
         inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
-      case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID: // fall through
+      case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID:
+        samplingShaderProgram =
+            DefaultShaderProgram.createWithInternalSampler(
+                context,
+                /* matrixTransformations= */ ImmutableList.of(),
+                /* rgbMatrices= */ ImmutableList.of(),
+                inputColorInfo,
+                outputColorInfo,
+                enableColorTransfers,
+                inputType);
+        samplingShaderProgram.setGlObjectsProvider(glObjectsProvider);
+        textureManager =
+            new TexIdTextureManager(samplingShaderProgram, videoFrameProcessingTaskExecutor);
+        inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
+        break;
       default:
         throw new VideoFrameProcessingException("Unsupported input type " + inputType);
     }

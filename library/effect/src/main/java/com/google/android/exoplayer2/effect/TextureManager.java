@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
 
 /** A component that handles {@code DefaultVideoFrameProcessor}'s input. */
 /* package */ interface TextureManager extends GlShaderProgram.InputListener {
@@ -50,6 +51,33 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
   default void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Provides an input texture ID to the {@code VideoFrameProcessor}.
+   *
+   * @see VideoFrameProcessor#queueInputTexture
+   */
+  default void queueInputTexture(int inputTexId, long presentationTimeUs) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Sets the {@link OnInputFrameProcessedListener}.
+   *
+   * @see VideoFrameProcessor#setOnInputFrameProcessedListener
+   */
+  default void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Sets information about the input frames.
+   *
+   * @see VideoFrameProcessor#setInputFrameInfo
+   */
+  default void setInputFrameInfo(FrameInfo inputFrameInfo) {
+    // Do nothing.
   }
 
   /**

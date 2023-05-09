@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.annotation.SuppressLint;
@@ -36,6 +37,8 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.GlTextureInfo;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -347,6 +350,23 @@ public final class VideoFrameProcessorTestRunner {
             .build());
     videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+  }
+
+  public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
+    videoFrameProcessor.setInputFrameInfo(
+        new FrameInfo.Builder(inputTexture.width, inputTexture.height)
+            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .build());
+    videoFrameProcessor.registerInputStream(INPUT_TYPE_TEXTURE_ID);
+    videoFrameProcessor.setOnInputFrameProcessedListener(
+        texId -> {
+          try {
+            GlUtil.deleteTexture(texId);
+          } catch (GlUtil.GlException e) {
+            throw new VideoFrameProcessingException(e);
+          }
+        });
+    videoFrameProcessor.queueInputTexture(inputTexture.texId, pts);
   }
 
   public void endFrameProcessing() throws InterruptedException {

@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -70,7 +71,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public interface TextureOutputListener {
     /** Called when a texture has been rendered to. */
     void onTextureRendered(GlTextureInfo outputTexture, long presentationTimeUs)
-        throws GlUtil.GlException;
+        throws GlUtil.GlException, VideoFrameProcessingException;
   }
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
@@ -134,7 +135,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
 
     private final boolean enableColorTransfers;
-
     private final GlObjectsProvider glObjectsProvider;
     @Nullable private final TextureOutputListener textureOutputListener;
 
@@ -348,6 +348,16 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
+  public void queueInputTexture(int textureId, long presentationTimeUs) {
+    checkNotNull(textureManager).queueInputTexture(textureId, presentationTimeUs);
+  }
+
+  @Override
+  public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+    checkNotNull(textureManager).setOnInputFrameProcessedListener(listener);
+  }
+
+  @Override
   public Surface getInputSurface() {
     return checkNotNull(textureManager).getInputSurface();
   }
@@ -380,6 +390,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void setInputFrameInfo(FrameInfo inputFrameInfo) {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
+    checkNotNull(textureManager).setInputFrameInfo(nextInputFrameInfo);
     hasRefreshedNextInputFrameInfo = true;
   }
 
@@ -562,7 +573,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       // HDR bitmaps are not supported.
       inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
     }
-
+    if (inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB) {
+      // Image and textureId concatenation not supported.
+      inputSwitcher.registerInput(INPUT_TYPE_TEXTURE_ID);
+    }
     inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 
     setGlObjectProviderOnShaderPrograms(effectsShaderPrograms, glObjectsProvider);
