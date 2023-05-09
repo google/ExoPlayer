@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -112,6 +113,16 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   private static boolean isImage(@Nullable MediaItem.LocalConfiguration localConfiguration) {
     if (localConfiguration == null) {
       return false;
+    }
+    if (localConfiguration.mimeType != null) {
+      ImmutableList<String> supportedMimeTypes =
+          ImmutableList.of(
+              MimeTypes.IMAGE_PNG,
+              MimeTypes.IMAGE_WEBP,
+              MimeTypes.IMAGE_JPEG,
+              MimeTypes.IMAGE_HEIC,
+              MimeTypes.IMAGE_HEIF);
+      return supportedMimeTypes.contains(localConfiguration.mimeType);
     }
     ImmutableList<String> supportedImageTypes =
         ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif");
