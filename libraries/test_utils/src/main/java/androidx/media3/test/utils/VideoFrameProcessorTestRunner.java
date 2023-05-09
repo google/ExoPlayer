@@ -17,6 +17,7 @@ package androidx.media3.test.utils;
 
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
@@ -37,9 +38,11 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -349,6 +352,23 @@ public final class VideoFrameProcessorTestRunner {
             .build());
     videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+  }
+
+  public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
+    videoFrameProcessor.setInputFrameInfo(
+        new FrameInfo.Builder(inputTexture.width, inputTexture.height)
+            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .build());
+    videoFrameProcessor.registerInputStream(INPUT_TYPE_TEXTURE_ID);
+    videoFrameProcessor.setOnInputFrameProcessedListener(
+        texId -> {
+          try {
+            GlUtil.deleteTexture(texId);
+          } catch (GlUtil.GlException e) {
+            throw new VideoFrameProcessingException(e);
+          }
+        });
+    videoFrameProcessor.queueInputTexture(inputTexture.texId, pts);
   }
 
   public void endFrameProcessing() throws InterruptedException {

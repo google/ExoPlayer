@@ -46,6 +46,15 @@ import java.util.concurrent.Executor;
 @UnstableApi
 public interface VideoFrameProcessor {
   // TODO(b/243036513): Allow effects to be replaced.
+
+  /** A listener for frame processing events. */
+  @UnstableApi
+  public interface OnInputFrameProcessedListener {
+
+    /** Called when the given input frame has been processed. */
+    void onInputFrameProcessed(int textureId) throws VideoFrameProcessingException;
+  }
+
   /**
    * Specifies how the input frames are made available to the {@link VideoFrameProcessor}. One of
    * {@link #INPUT_TYPE_SURFACE}, {@link #INPUT_TYPE_BITMAP} or {@link #INPUT_TYPE_TEXTURE_ID}.
@@ -166,6 +175,28 @@ public interface VideoFrameProcessor {
   void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate);
 
   /**
+   * Provides an input texture ID to the {@code VideoFrameProcessor}.
+   *
+   * <p>It must be called after the {@link #setOnInputFrameProcessedListener
+   * onInputFrameProcessedListener} and the {@link #setInputFrameInfo frameInfo} have been set.
+   *
+   * <p>Can be called on any thread.
+   *
+   * @param textureId The ID of the texture queued to the {@code VideoFrameProcessor}.
+   * @param presentationTimeUs The presentation time of the queued texture, in microseconds.
+   */
+  void queueInputTexture(int textureId, long presentationTimeUs);
+
+  /**
+   * Sets the {@link OnInputFrameProcessedListener}.
+   *
+   * <p>Can be called on any thread.
+   *
+   * @param listener The {@link OnInputFrameProcessedListener}.
+   */
+  void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener);
+
+  /**
    * Returns the input {@link Surface}, where {@link VideoFrameProcessor} consumes input frames
    * from.
    *
@@ -189,7 +220,7 @@ public interface VideoFrameProcessor {
    * Sets information about the input frames.
    *
    * <p>The new input information is applied from the next frame {@linkplain #registerInputFrame()
-   * registered} onwards.
+   * registered} or {@linkplain #queueInputTexture} queued} onwards.
    *
    * <p>Pixels are expanded using the {@link FrameInfo#pixelWidthHeightRatio} so that the output
    * frames' pixels have a ratio of 1.
