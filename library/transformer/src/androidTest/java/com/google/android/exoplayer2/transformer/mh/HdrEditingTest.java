@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -152,6 +153,33 @@ public class HdrEditingTest {
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
+  }
+
+  @Test
+  public void exportAndTranscode_dolbyVisionFile_whenHdrEditingIsSupported_exports()
+      throws Exception {
+    String testId = "exportAndTranscode_dolbyVisionFile_whenHdrEditingIsSupported_exports";
+    Context context = ApplicationProvider.getApplicationContext();
+    // This dolby vision file has a ColorInfo identical to HLG10.
+    if (!deviceSupportsHdrEditing(VIDEO_H265, HLG10_DEFAULT_COLOR_INFO)) {
+      recordTestSkipped(context, testId, /* reason= */ "Device lacks HLG10 editing support.");
+      return;
+    }
+
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_DOLBY_VISION_HDR));
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(
             new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
