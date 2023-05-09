@@ -2675,10 +2675,10 @@ public final class Util {
   }
 
   /**
-   * Returns the number of maximum pending input frames that are allowed on a {@link MediaCodec}
-   * encoder.
+   * Returns the number of maximum pending output frames that are allowed on a {@link MediaCodec}
+   * decoder.
    */
-  public static int getMaxPendingFramesCountForMediaCodecEncoders(
+  public static int getMaxPendingFramesCountForMediaCodecDecoders(
       Context context, String codecName, boolean requestedHdrToneMapping) {
     if (SDK_INT < 29
         || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29) {
@@ -2700,11 +2700,9 @@ public final class Util {
       // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
       return 5;
     }
-    if (requestedHdrToneMapping
-        && codecName.equals("c2.qti.hevc.decoder")
-        && MODEL.equals("SM-F936B")) {
-      // This decoder gets stuck if too many frames are rendered without being processed when
-      // tone-mapping HDR10. This value is experimentally determined. See also b/260408846.
+    if (requestedHdrToneMapping && codecName.equals("c2.qti.hevc.decoder")) {
+      // This decoder drops frames if too many frames are rendered without being processed when
+      // tone-mapping HDR. This value is experimentally determined. See also b/260408846.
       // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
       return 12;
     }
