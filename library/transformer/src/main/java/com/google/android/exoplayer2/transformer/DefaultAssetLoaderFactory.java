@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The default {@link AssetLoader.Factory} implementation. */
@@ -112,13 +113,14 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     if (localConfiguration == null) {
       return false;
     }
-    ImmutableList<String> supportedImageTypes = ImmutableList.of(".png", ".webp", ".jpg", ".jpeg");
+    ImmutableList<String> supportedImageTypes =
+        ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif");
     String uriPath = checkNotNull(localConfiguration.uri.getPath());
     int fileExtensionStart = uriPath.lastIndexOf(".");
     if (fileExtensionStart < 0) {
       return false;
     }
-    String extension = uriPath.substring(fileExtensionStart);
+    String extension = uriPath.substring(fileExtensionStart).toLowerCase(Locale.ENGLISH);
     return supportedImageTypes.contains(extension);
   }
 }
