@@ -47,6 +47,8 @@
     *   Add `Builder` for `DeviceInfo` and deprecate existing constructor.
     *   Add `DeviceInfo.routingControllerId` to specify the routing controller
         ID for remote playbacks.
+    *   Fix inconsistent behavior between `ExoPlayer.setMediaItem(s)` and
+        `addMediaItem(s)` when called on an empty playlist.
 *   Extractors:
     *   Fix parsing of H.265 SPS in MPEG-TS files by re-using the parsing logic
         already used by RTSP and MP4 extractors

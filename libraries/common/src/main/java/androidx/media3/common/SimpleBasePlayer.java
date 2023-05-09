@@ -2101,7 +2101,16 @@ public abstract class SimpleBasePlayer extends BasePlayer {
             placeholderPlaylist.add(
                 i + correctedIndex, getPlaceholderMediaItemData(mediaItems.get(i)));
           }
-          return getStateWithNewPlaylist(state, placeholderPlaylist, period);
+          if (!state.playlist.isEmpty()) {
+            return getStateWithNewPlaylist(state, placeholderPlaylist, period);
+          } else {
+            // Handle initial position update when these are the first items added to the playlist.
+            return getStateWithNewPlaylistAndPosition(
+                state,
+                placeholderPlaylist,
+                state.currentMediaItemIndex,
+                state.contentPositionMsSupplier.get());
+          }
         });
   }
 
@@ -3798,7 +3807,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     State.Builder stateBuilder = oldState.buildUpon();
     stateBuilder.setPlaylist(newPlaylist);
     if (oldState.playbackState != Player.STATE_IDLE) {
-      if (newPlaylist.isEmpty()) {
+      if (newPlaylist.isEmpty() || (newIndex != C.INDEX_UNSET && newIndex >= newPlaylist.size())) {
         stateBuilder.setPlaybackState(Player.STATE_ENDED).setIsLoading(false);
       } else {
         stateBuilder.setPlaybackState(Player.STATE_BUFFERING);
