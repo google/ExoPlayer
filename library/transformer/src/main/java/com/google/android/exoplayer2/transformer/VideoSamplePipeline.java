@@ -210,12 +210,6 @@ import org.checkerframework.dataflow.qual.Pure;
       boolean isLast) {
     if (trackFormat != null) {
       Size decodedSize = getDecodedSize(trackFormat);
-      videoFrameProcessor.setInputFrameInfo(
-          new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
-              .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
-              .setOffsetToAddUs(mediaItemOffsetUs.get())
-              .build());
-
       String mimeType = checkNotNull(trackFormat.sampleMimeType);
       if (MimeTypes.isVideo(mimeType)) {
         videoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
@@ -224,6 +218,11 @@ import org.checkerframework.dataflow.qual.Pure;
       } else {
         throw new IllegalArgumentException("MIME type not supported " + mimeType);
       }
+      videoFrameProcessor.setInputFrameInfo(
+          new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
+              .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
+              .setOffsetToAddUs(mediaItemOffsetUs.get())
+              .build());
     }
     mediaItemOffsetUs.addAndGet(durationUs);
   }
