@@ -118,7 +118,7 @@ import org.checkerframework.dataflow.qual.Pure;
             fallbackListener);
 
     boolean isMediaCodecToneMapping =
-        encoderWrapper.getSupportedInputHdrMode() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
+        encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
             && ColorInfo.isTransferHdr(decoderInputColor);
     videoFrameProcessorInputColor = isMediaCodecToneMapping ? SDR_BT709_LIMITED : decoderInputColor;
 
@@ -330,8 +330,7 @@ import org.checkerframework.dataflow.qual.Pure;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
     private final String requestedOutputMimeType;
-    private final boolean isInputToneMapped;
-    private final @TransformationRequest.HdrMode int supportedFallbackHdrMode;
+    private final @TransformationRequest.HdrMode int hdrModeAfterFallback;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
@@ -361,16 +360,14 @@ import org.checkerframework.dataflow.qual.Pure;
         requestedOutputMimeType = inputSampleMimeType;
       }
 
-      isInputToneMapped =
-          isTransferHdr(inputFormat.colorInfo)
-              && getSupportedEncodersForHdrEditing(requestedOutputMimeType, inputFormat.colorInfo)
-                  .isEmpty();
-
       // HdrMode fallback is only supported from HDR_MODE_KEEP_HDR to
       // HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC.
       boolean fallbackToMediaCodec =
-          isInputToneMapped && transformationRequest.hdrMode == HDR_MODE_KEEP_HDR;
-      supportedFallbackHdrMode =
+          isTransferHdr(inputFormat.colorInfo)
+              && transformationRequest.hdrMode == HDR_MODE_KEEP_HDR
+              && getSupportedEncodersForHdrEditing(requestedOutputMimeType, inputFormat.colorInfo)
+                  .isEmpty();
+      hdrModeAfterFallback =
           fallbackToMediaCodec
               ? HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
               : transformationRequest.hdrMode;
@@ -378,6 +375,11 @@ import org.checkerframework.dataflow.qual.Pure;
 
     /** Returns the {@link ColorInfo} expected from the input surface. */
     public ColorInfo getSupportedInputColor() {
+      boolean isHdrEditingEnabled =
+          transformationRequest.hdrMode == HDR_MODE_KEEP_HDR
+              && !getSupportedEncodersForHdrEditing(requestedOutputMimeType, inputFormat.colorInfo)
+                  .isEmpty();
+      boolean isInputToneMapped = !isHdrEditingEnabled && isTransferHdr(inputFormat.colorInfo);
       if (isInputToneMapped) {
         // When tone-mapping HDR to SDR is enabled, assume we get BT.709 to avoid having the encoder
         // populate default color info, which depends on the resolution.
@@ -389,8 +391,8 @@ import org.checkerframework.dataflow.qual.Pure;
       return checkNotNull(inputFormat.colorInfo);
     }
 
-    public @TransformationRequest.HdrMode int getSupportedInputHdrMode() {
-      return supportedFallbackHdrMode;
+    public @TransformationRequest.HdrMode int getHdrModeAfterFallback() {
+      return hdrModeAfterFallback;
     }
 
     @Nullable
@@ -441,7 +443,7 @@ import org.checkerframework.dataflow.qual.Pure;
               /* hasOutputFormatRotation= */ outputRotationDegrees != 0,
               requestedEncoderFormat,
               actualEncoderFormat,
-              supportedFallbackHdrMode));
+              hdrModeAfterFallback));
 
       encoderSurfaceInfo =
           new SurfaceInfo(
