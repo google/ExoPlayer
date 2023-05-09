@@ -6095,61 +6095,137 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void modifyPlaylistPrepared_remainsInEnded_needsSeekForBuffering() throws Exception {
-    Timeline timeline = new FakeTimeline();
-    FakeMediaSource secondMediaSource = new FakeMediaSource(timeline);
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .waitForPlaybackState(Player.STATE_BUFFERING)
-            .waitForPlaybackState(Player.STATE_READY)
-            .clearMediaItems()
-            .waitForPlaybackState(Player.STATE_ENDED)
-            .addMediaSources(secondMediaSource) // add must not transition to buffering
-            .waitForTimelineChanged()
-            .clearMediaItems() // clear must remain in ended
-            .addMediaSources(secondMediaSource) // add again to be able to test the seek
-            .waitForTimelineChanged()
-            .seek(/* positionMs= */ 2_000) // seek must transition to buffering
-            .waitForPlaybackState(Player.STATE_BUFFERING)
-            .waitForPlaybackState(Player.STATE_READY)
-            .waitForPlaybackState(Player.STATE_ENDED)
-            .build();
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setExpectedPlayerEndedCount(/* expectedPlayerEndedCount= */ 2)
-            .setTimeline(timeline)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+  public void addMediaSource_toEndedPlaylist_remainsInEndedAndNeedsSeekForBuffering()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(new FakeMediaSource());
+    player.prepare();
+    player.play();
 
-    exoPlayerTestRunner.assertPlaybackStatesEqual(
-        Player.STATE_BUFFERING, // first buffering
-        Player.STATE_READY,
-        Player.STATE_ENDED, // clear playlist
-        Player.STATE_BUFFERING, // second buffering after seek
-        Player.STATE_READY,
-        Player.STATE_ENDED);
-    exoPlayerTestRunner.assertTimelinesSame(
-        placeholderTimeline,
-        timeline,
-        Timeline.EMPTY,
-        placeholderTimeline,
-        timeline,
-        Timeline.EMPTY,
-        placeholderTimeline,
-        timeline);
-    exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED /* media item set (masked timeline) */,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE /* source prepared */,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED /* playlist cleared */,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED /* media items added */,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE /* source prepared */,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED /* playlist cleared */,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED /* media items added */,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE /* source prepared */);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.addMediaSource(new FakeMediaSource());
+    int stateAfterAdd = player.getPlaybackState();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterAddHandled = player.getPlaybackState();
+    player.seekTo(100);
+    int stateAfterSeek = player.getPlaybackState();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterSeekHandled = player.getPlaybackState();
+    player.release();
+
+    assertThat(stateAfterAdd).isEqualTo(Player.STATE_ENDED);
+    assertThat(stateAfterAddHandled).isEqualTo(Player.STATE_ENDED);
+    assertThat(stateAfterSeek).isEqualTo(Player.STATE_BUFFERING);
+    assertThat(stateAfterSeekHandled).isAnyOf(Player.STATE_BUFFERING, Player.STATE_READY);
+  }
+
+  @Test
+  public void addMediaSource_toEmptyPreparedPlaylist_startsBuffering() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.prepare();
+    player.play();
+
+    int stateAfterPrepare = player.getPlaybackState();
+    player.addMediaSource(new FakeMediaSource());
+    int stateAfterAdd = player.getPlaybackState();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterAddHandled = player.getPlaybackState();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    assertThat(stateAfterPrepare).isEqualTo(Player.STATE_ENDED);
+    assertThat(stateAfterAdd).isEqualTo(Player.STATE_BUFFERING);
+    assertThat(stateAfterAddHandled).isAnyOf(Player.STATE_BUFFERING, Player.STATE_READY);
+  }
+
+  @Test
+  public void addMediaSources_afterSeekOnEmptyPreparedPlaylist_startsBufferingAtRequestedPosition()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.prepare();
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 5000);
+    int stateAfterSeek = player.getPlaybackState();
+    int mediaItemIndexAfterSeek = player.getCurrentMediaItemIndex();
+    long positionAfterSeek = player.getCurrentPosition();
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
+    int stateAfterAdd = player.getPlaybackState();
+    int mediaItemIndexAfterAdd = player.getCurrentMediaItemIndex();
+    long positionAfterAdd = player.getCurrentPosition();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterAddHandled = player.getPlaybackState();
+    int mediaItemIndexAfterAddHandled = player.getCurrentMediaItemIndex();
+    long positionAfterAddHandled = player.getCurrentPosition();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    assertThat(stateAfterSeek).isEqualTo(Player.STATE_ENDED);
+    assertThat(mediaItemIndexAfterSeek).isEqualTo(1);
+    assertThat(positionAfterSeek).isEqualTo(5000);
+    assertThat(stateAfterAdd).isEqualTo(Player.STATE_BUFFERING);
+    assertThat(mediaItemIndexAfterAdd).isEqualTo(1);
+    assertThat(positionAfterAdd).isEqualTo(5000);
+    assertThat(stateAfterAddHandled).isAnyOf(Player.STATE_BUFFERING, Player.STATE_READY);
+    assertThat(mediaItemIndexAfterAddHandled).isEqualTo(1);
+    assertThat(positionAfterAddHandled).isEqualTo(5000);
+  }
+
+  @Test
+  public void addMediaSources_afterInvalidSeekOnEmptyPreparedPlaylist_remainsInEndedState()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.prepare();
+
+    player.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 5000);
+    int stateAfterSeek = player.getPlaybackState();
+    int mediaItemIndexAfterSeek = player.getCurrentMediaItemIndex();
+    long positionAfterSeek = player.getCurrentPosition();
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource()));
+    int stateAfterAdd = player.getPlaybackState();
+    int mediaItemIndexAfterAdd = player.getCurrentMediaItemIndex();
+    long positionAfterAdd = player.getCurrentPosition();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterAddHandled = player.getPlaybackState();
+    int mediaItemIndexAfterAddHandled = player.getCurrentMediaItemIndex();
+    long positionAfterAddHandled = player.getCurrentPosition();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    assertThat(stateAfterSeek).isEqualTo(Player.STATE_ENDED);
+    assertThat(mediaItemIndexAfterSeek).isEqualTo(1);
+    assertThat(positionAfterSeek).isEqualTo(5000);
+    assertThat(stateAfterAdd).isEqualTo(Player.STATE_ENDED);
+    assertThat(mediaItemIndexAfterAdd).isEqualTo(0);
+    assertThat(positionAfterAdd).isEqualTo(0);
+    assertThat(stateAfterAddHandled).isEqualTo(Player.STATE_ENDED);
+    assertThat(mediaItemIndexAfterAddHandled).isEqualTo(0);
+    assertThat(positionAfterAddHandled).isEqualTo(0);
+  }
+
+  @Test
+  public void clearMediaItemsAndSeek_inStateEnded_remainsInEnded() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(new FakeMediaSource());
+    player.prepare();
+    player.play();
+
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.clearMediaItems();
+    int stateAfterClear = player.getPlaybackState();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterClearHandled = player.getPlaybackState();
+    player.seekTo(100);
+    int stateAfterSeek = player.getPlaybackState();
+    runUntilPendingCommandsAreFullyHandled(player);
+    int stateAfterSeekHandled = player.getPlaybackState();
+    player.release();
+
+    assertThat(stateAfterClear).isEqualTo(Player.STATE_ENDED);
+    assertThat(stateAfterClearHandled).isEqualTo(Player.STATE_ENDED);
+    assertThat(stateAfterSeek).isEqualTo(Player.STATE_ENDED);
+    assertThat(stateAfterSeekHandled).isEqualTo(Player.STATE_ENDED);
   }
 
   @Test

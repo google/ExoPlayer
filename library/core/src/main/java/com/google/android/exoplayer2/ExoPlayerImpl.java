@@ -644,6 +644,12 @@ import java.util.concurrent.TimeoutException;
     verifyApplicationThread();
     checkArgument(index >= 0);
     index = min(index, mediaSourceHolderSnapshots.size());
+    if (mediaSourceHolderSnapshots.isEmpty()) {
+      // Handle initial items in a playlist as a set operation to ensure state changes and initial
+      // position are updated correctly.
+      setMediaSources(mediaSources, /* resetPosition= */ maskingWindowIndex == C.INDEX_UNSET);
+      return;
+    }
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
     List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
@@ -850,11 +856,12 @@ import java.util.concurrent.TimeoutException;
       playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
       return;
     }
-    @Player.State
-    int newPlaybackState =
-        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
+    PlaybackInfo newPlaybackInfo = playbackInfo;
+    if (playbackInfo.playbackState == Player.STATE_READY
+        || (playbackInfo.playbackState == Player.STATE_ENDED && !timeline.isEmpty())) {
+      newPlaybackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_BUFFERING);
+    }
     int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
-    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
     newPlaybackInfo =
         maskTimelineAndPosition(
             newPlaybackInfo,
