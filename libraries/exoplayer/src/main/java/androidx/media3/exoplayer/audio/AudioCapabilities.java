@@ -112,9 +112,8 @@ public final class AudioCapabilities {
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
-      supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
-          Api29.getDirectPlaybackSupportedEncodings(
-              Util.nullSafeIntegerListToArray(Api29.getAllSurroundEncodingsMaybeSupported())));
+      supportedEncodings = Ints.concat(supportedEncodings,
+          Api29.getDirectPlaybackSupportedEncodings(Api29.getAllSurroundEncodingsMaybeSupported()));
     }
 
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
@@ -127,7 +126,7 @@ public final class AudioCapabilities {
       }
     }
 
-    supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
+    supportedEncodings = Ints.concat(supportedEncodings,
         intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS));
     supportedEncodings = Util.nullSafeIntegerArrayDistinct(supportedEncodings);
     return new AudioCapabilities(
@@ -409,7 +408,7 @@ public final class AudioCapabilities {
     /**
      * Returns an array list of surround encodings that maybe supported.
      */
-    private static ImmutableList<Integer> getAllSurroundEncodingsMaybeSupported() {
+    private static int[] getAllSurroundEncodingsMaybeSupported() {
       ImmutableList.Builder<Integer> encodings = new ImmutableList.Builder<>();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
         // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
@@ -418,7 +417,7 @@ public final class AudioCapabilities {
         }
         encodings.add(encoding);
       }
-      return encodings.build();
+      return Ints.toArray(encodings.build());
     }
   }
 }

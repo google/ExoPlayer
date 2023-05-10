@@ -517,26 +517,6 @@ public final class Util {
   }
 
   /**
-   * Creates a new Integer array containing the concatenation of two non-null Integer arrays.
-   *
-   * @param first  The first array.
-   * @param second The second array.
-   * @return The concatenated result.
-   */
-  @UnstableApi
-  @SuppressWarnings("nullness:assignment")
-  public static int[] nullSafeIntegerArrayConcatenation(int[] first, int[] second) {
-    int[] concatenation = Arrays.copyOf(first, first.length + second.length);
-    System.arraycopy(
-        /* src= */ second,
-        +        /* srcPos= */ 0,
-        /* dest= */ concatenation,
-        /* destPos= */ first.length,
-        /* length= */ second.length);
-    return concatenation;
-  }
-
-  /**
    * Remove duplicates from an Integer array.
    *
    * @param inputs The input integer array.
@@ -574,23 +554,6 @@ public final class Util {
   public static <T> void nullSafeListToArray(List<T> list, T[] array) {
     Assertions.checkState(list.size() == array.length);
     list.toArray(array);
-  }
-
-  /**
-   * Creates a new Integer array from a List of Integers.
-   *
-   * @param list The list of integers to convert.
-   * @return Created array of integers.
-   */
-  @UnstableApi
-  @SuppressWarnings("nullness:assignment")
-  public static int[] nullSafeIntegerListToArray(List<Integer> list) {
-    int[] intList = new int[list.size()];
-
-    for (int i = 0; i < list.size(); i++) {
-      intList[i] = list.get(i);
-    }
-    return intList;
   }
 
   /**
