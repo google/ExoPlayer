@@ -94,19 +94,6 @@ public final class AudioCapabilities {
     return getCapabilities(context, intent);
   }
 
-  private static AudioCapabilities getExternalSurroundCapabilities(@Nullable Intent intent) {
-    int[] supportedEncodings = EXTERNAL_SURROUND_SOUND_ENCODINGS;
-
-    if (Util.SDK_INT >= 29) {
-      // Check if DTS Encodings are supported via Direct Playback.
-      int[] dtsEncodings = {AudioFormat.ENCODING_DTS, AudioFormat.ENCODING_DTS_HD};
-      supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
-          Api29.getDirectPlaybackSupportedEncodings(dtsEncodings));
-    }
-    supportedEncodings = Arrays.stream(supportedEncodings).distinct().toArray();
-    return new AudioCapabilities(supportedEncodings,/* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
-  }
-
   @SuppressLint("InlinedApi")
   /* package */ static AudioCapabilities getCapabilities(Context context, @Nullable Intent intent) {
     // If a connection to Bluetooth device is detected, we only return the minimum capabilities that
@@ -114,27 +101,36 @@ public final class AudioCapabilities {
     if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
+    int[] supportedEncodings = {};
+
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      return getExternalSurroundCapabilities(intent);
+      supportedEncodings = EXTERNAL_SURROUND_SOUND_ENCODINGS;
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
-      return new AudioCapabilities(
+      supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
           Api29.getDirectPlaybackSupportedEncodings(
-              Api29.getAllSurroundEncodingsMaybeSupported().stream().mapToInt(Integer::intValue)
-                  .toArray()), DEFAULT_MAX_CHANNEL_COUNT);
+              Util.nullSafeIntegerListToArray(Api29.getAllSurroundEncodingsMaybeSupported())));
     }
+
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
-      return DEFAULT_AUDIO_CAPABILITIES;
+      if (supportedEncodings.length == 0) {
+        return DEFAULT_AUDIO_CAPABILITIES;
+      } else {
+        return new AudioCapabilities(supportedEncodings, /* defaultValue= */
+            DEFAULT_MAX_CHANNEL_COUNT);
+      }
     }
+
+    supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
+        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS));
+    supportedEncodings = Util.nullSafeIntegerArrayDistinct(supportedEncodings);
     return new AudioCapabilities(
-        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
-        intent.getIntExtra(
-            AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
+        supportedEncodings, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
   }
 
   /**
