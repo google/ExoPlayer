@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
+ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
     buildTypes {
@@ -20,7 +20,7 @@ android {
         }
     }
 
-    sourceSets.test.assets.srcDir '../../testdata/src/test/assets/'
+ sourceSets.test.assets.srcDir '../../testdata/src/test/assets/'
 }
 
 dependencies {
@@ -44,7 +44,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifactId = 'exoplayer-extractor'
-    releaseDescription = 'The ExoPlayer library extractor module.'
+ releaseArtifactId = 'exoplayer-extractor'
+ releaseDescription = 'The ExoPlayer library extractor module.'
 }
 apply from: '../../publish.gradle'

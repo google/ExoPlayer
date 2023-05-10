@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
+ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
     defaultConfig {
@@ -22,7 +22,7 @@ android {
             jniLibs.srcDir 'src/main/libs'
             jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
         }
-        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+ androidTest.assets.srcDir '../../testdata/src/test/assets/'
     }
 }
 
