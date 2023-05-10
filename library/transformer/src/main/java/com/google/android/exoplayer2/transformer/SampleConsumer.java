@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.video.ColorInfo;
 
 /** Consumer of encoded media samples, raw audio or raw video frames. */
@@ -79,6 +80,31 @@ public interface SampleConsumer {
   }
 
   // Methods to pass raw video input.
+
+  /**
+   * Provides a {@link OnInputFrameProcessedListener} to the consumer.
+   *
+   * <p>Should only be used for raw video data when input is provided by texture ID.
+   *
+   * @param listener The {@link OnInputFrameProcessedListener}.
+   */
+  default void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Attempts to provide an input texture to the consumer.
+   *
+   * <p>Should only be used for raw video data.
+   *
+   * @param texId The ID of the texture to queue to the consumer.
+   * @param presentationTimeUs The presentation time for the texture, in microseconds.
+   * @return Whether the texture was successfully queued. If {@code false}, the caller should try
+   *     again later.
+   */
+  default boolean queueInputTexture(int texId, long presentationTimeUs) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns the input {@link Surface}, where the consumer reads input frames from.

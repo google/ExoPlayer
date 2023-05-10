@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -420,6 +421,24 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
 
       return sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    }
+
+    @Override
+    public boolean queueInputTexture(int texId, long presentationTimeUs) {
+      long globalTimestampUs = totalDurationUs + presentationTimeUs;
+      if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
+        if (isMaxSequenceDurationUsFinal && !videoLoopingEnded) {
+          videoLoopingEnded = true;
+          signalEndOfVideoInput();
+        }
+        return false;
+      }
+      return sampleConsumer.queueInputTexture(texId, presentationTimeUs);
+    }
+
+    @Override
+    public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+      sampleConsumer.setOnInputFrameProcessedListener(listener);
     }
 
     @Override
