@@ -121,6 +121,7 @@ public final class AudioCapabilities {
       if (supportedEncodings.length == 0) {
         return DEFAULT_AUDIO_CAPABILITIES;
       } else {
+        supportedEncodings = Util.nullSafeIntegerArrayDistinct(supportedEncodings);
         return new AudioCapabilities(supportedEncodings, /* defaultValue= */
             DEFAULT_MAX_CHANNEL_COUNT);
       }
