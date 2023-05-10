@@ -19,6 +19,7 @@ import static androidx.media3.muxer.Mp4Utils.MVHD_TIMEBASE;
 import static java.lang.Math.max;
 
 import android.media.MediaCodec.BufferInfo;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -71,9 +72,6 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
         Format format = track.format();
         String languageCode = bcp47LanguageTagToIso3(format.language);
 
-        boolean isVideo = MimeTypes.isVideo(format.sampleMimeType);
-        boolean isAudio = MimeTypes.isAudio(format.sampleMimeType);
-
         // Generate the sample durations to calculate the total duration for tkhd box.
         List<Long> sampleDurationsVu =
             Boxes.durationsVuForStts(
@@ -90,20 +88,51 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
         long trackDurationUs =
             Mp4Utils.usFromVu(trackDurationInTrackUnitsVu, track.videoUnitTimebase());
 
-        String handlerType = isVideo ? "vide" : (isAudio ? "soun" : "meta");
-        String handlerName = isVideo ? "VideoHandle" : (isAudio ? "SoundHandle" : "MetaHandle");
-
-        ByteBuffer stsd =
-            Boxes.stsd(
-                isVideo
-                    ? Boxes.videoSampleEntry(format)
-                    : (isAudio
-                        ? Boxes.audioSampleEntry(format)
-                        : Boxes.textMetaDataSampleEntry(format)));
+        @C.TrackType int trackType = MimeTypes.getTrackType(format.sampleMimeType);
         ByteBuffer stts = Boxes.stts(sampleDurationsVu);
         ByteBuffer stsz = Boxes.stsz(track.writtenSamples());
         ByteBuffer stsc = Boxes.stsc(track.writtenChunkSampleCounts());
         ByteBuffer co64 = Boxes.co64(track.writtenChunkOffsets());
+
+        String handlerType;
+        String handlerName;
+        ByteBuffer mhdBox;
+        ByteBuffer sampleEntryBox;
+        ByteBuffer stsdBox;
+        ByteBuffer stblBox;
+
+        switch (trackType) {
+          case C.TRACK_TYPE_VIDEO:
+            handlerType = "vide";
+            handlerName = "VideoHandle";
+            mhdBox = Boxes.vmhd();
+            sampleEntryBox = Boxes.videoSampleEntry(format);
+            stsdBox = Boxes.stsd(sampleEntryBox);
+            stblBox =
+                Boxes.stbl(stsdBox, stts, stsz, stsc, co64, Boxes.stss(track.writtenSamples()));
+            break;
+          case C.TRACK_TYPE_AUDIO:
+            handlerType = "soun";
+            handlerName = "SoundHandle";
+            mhdBox = Boxes.smhd();
+            sampleEntryBox = Boxes.audioSampleEntry(format);
+            stsdBox = Boxes.stsd(sampleEntryBox);
+            stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64);
+            break;
+          case C.TRACK_TYPE_METADATA:
+            // TODO: (b/280443593) - Check if we can identify a metadata track type from a custom
+            //  mime type.
+          case C.TRACK_TYPE_UNKNOWN:
+            handlerType = "meta";
+            handlerName = "MetaHandle";
+            mhdBox = Boxes.nmhd();
+            sampleEntryBox = Boxes.textMetaDataSampleEntry(format);
+            stsdBox = Boxes.stsd(sampleEntryBox);
+            stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64);
+            break;
+          default:
+            throw new IllegalArgumentException("Unsupported track type");
+        }
 
         // The below statement is also a description of how a mdat box looks like, with all the
         // inner boxes and what they actually store. Although they're technically instance methods,
@@ -125,13 +154,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
                         metadataCollector.modificationDateUnixMs,
                         languageCode),
                     Boxes.hdlr(handlerType, handlerName),
-                    Boxes.minf(
-                        isVideo ? Boxes.vmhd() : (isAudio ? Boxes.smhd() : Boxes.nmhd()),
-                        Boxes.dinf(Boxes.dref(Boxes.localUrl())),
-                        isVideo
-                            ? Boxes.stbl(
-                                stsd, stts, stsz, stsc, co64, Boxes.stss(track.writtenSamples()))
-                            : Boxes.stbl(stsd, stts, stsz, stsc, co64))));
+                    Boxes.minf(mhdBox, Boxes.dinf(Boxes.dref(Boxes.localUrl())), stblBox)));
 
         trakBoxes.add(trakBox);
         videoDurationUs = max(videoDurationUs, trackDurationUs);
