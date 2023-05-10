@@ -21,6 +21,7 @@ import static androidx.media3.common.ColorInfo.SRGB_BT709_FULL;
 import static androidx.media3.common.ColorInfo.isTransferHdr;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
@@ -46,6 +47,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;
@@ -213,14 +215,8 @@ import org.checkerframework.dataflow.qual.Pure;
       boolean isLast) {
     if (trackFormat != null) {
       Size decodedSize = getDecodedSize(trackFormat);
-      String mimeType = checkNotNull(trackFormat.sampleMimeType);
-      if (MimeTypes.isVideo(mimeType)) {
-        videoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
-      } else if (MimeTypes.isImage(mimeType)) {
-        videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
-      } else {
-        throw new IllegalArgumentException("MIME type not supported " + mimeType);
-      }
+      videoFrameProcessor.registerInputStream(
+          getInputType(checkNotNull(trackFormat.sampleMimeType)));
       videoFrameProcessor.setInputFrameInfo(
           new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
@@ -233,6 +229,17 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    return true;
+  }
+
+  @Override
+  public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+    videoFrameProcessor.setOnInputFrameProcessedListener(listener);
+  }
+
+  @Override
+  public boolean queueInputTexture(int texId, long presentationTimeUs) {
+    videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
     return true;
   }
 
@@ -306,6 +313,19 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   protected boolean isMuxerInputEnded() {
     return encoderWrapper.isEnded();
+  }
+
+  private static @VideoFrameProcessor.InputType int getInputType(String sampleMimeType) {
+    if (MimeTypes.isImage(sampleMimeType)) {
+      return INPUT_TYPE_BITMAP;
+    }
+    if (sampleMimeType.equals(MimeTypes.VIDEO_RAW)) {
+      return INPUT_TYPE_TEXTURE_ID;
+    }
+    if (MimeTypes.isVideo(sampleMimeType)) {
+      return INPUT_TYPE_SURFACE;
+    }
+    throw new IllegalArgumentException("MIME type not supported " + sampleMimeType);
   }
 
   private static Size getDecodedSize(Format format) {

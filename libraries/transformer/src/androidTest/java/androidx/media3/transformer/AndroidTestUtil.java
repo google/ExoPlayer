@@ -22,18 +22,26 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.MediaFormat;
+import android.opengl.EGLContext;
+import android.opengl.EGLDisplay;
+import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.os.Build;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -506,6 +514,37 @@ public final class AndroidTestUtil {
           .build();
 
   public static final String MP3_ASSET_URI_STRING = "asset:///media/mp3/test.mp3";
+
+  /**
+   * Creates the GL objects needed to set up a GL environment including an {@link EGLDisplay} and an
+   * {@link EGLContext}.
+   */
+  public static EGLContext createOpenGlObjects() throws GlUtil.GlException {
+    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
+    int[] configAttributes = GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
+    GlObjectsProvider glObjectsProvider =
+        new DefaultGlObjectsProvider(/* sharedEglContext= */ null);
+    EGLContext eglContext =
+        glObjectsProvider.createEglContext(eglDisplay, /* openGlVersion= */ 2, configAttributes);
+    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+    return eglContext;
+  }
+
+  /**
+   * Generates a {@linkplain android.opengl.GLES10#GL_TEXTURE_2D traditional GLES texture} from the
+   * given bitmap.
+   *
+   * <p>Must have a GL context set up.
+   */
+  public static int generateTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
+    int texId =
+        GlUtil.createTexture(
+            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+    GlUtil.checkGlError();
+    return texId;
+  }
 
   /**
    * Log in logcat and in an analysis file that this test was skipped.

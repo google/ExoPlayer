@@ -15,23 +15,38 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.createOpenGlObjects;
+import static androidx.media3.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.opengl.EGLContext;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.SonicAudioProcessor;
+import androidx.media3.common.util.GlUtil;
+import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.effect.Contrast;
+import androidx.media3.effect.DefaultGlObjectsProvider;
+import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.FrameCache;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.RgbFilter;
@@ -39,6 +54,7 @@ import androidx.media3.effect.TimestampWrapper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,6 +66,7 @@ import org.junit.runner.RunWith;
 public class TransformerEndToEndTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
+  private volatile @MonotonicNonNull TextureAssetLoader textureAssetLoader;
 
   @Test
   public void videoEditing_withImageInput_completesWithCorrectFrameCountAndDuration()
@@ -96,6 +113,118 @@ public class TransformerEndToEndTest {
     // Expected timestamp of the last frame.
     assertThat(result.exportResult.durationMs)
         .isEqualTo((C.MILLIS_PER_SECOND / expectedFrameCount) * (expectedFrameCount - 1));
+  }
+
+  @Test
+  public void videoEditing_withTextureInput_completesWithCorrectFrameCountAndDuration()
+      throws Exception {
+    String testId = "videoEditing_withTextureInput_completesWithCorrectFrameCountAndDuration";
+    Bitmap bitmap =
+        new DataSourceBitmapLoader(context).loadBitmap(Uri.parse(PNG_ASSET_URI_STRING)).get();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setAssetLoaderFactory(
+                new TestTextureAssetLoaderFactory(bitmap.getWidth(), bitmap.getHeight()))
+            .build();
+    int expectedFrameCount = 2;
+    EGLContext currentContext = createOpenGlObjects();
+    DefaultVideoFrameProcessor.Factory videoFrameProcessorFactory =
+        new DefaultVideoFrameProcessor.Factory.Builder()
+            .setGlObjectsProvider(new DefaultGlObjectsProvider(currentContext))
+            .build();
+    ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY))
+            .setDurationUs(C.MICROS_PER_SECOND)
+            .setEffects(
+                new Effects(
+                    /* audioProcessors= */ ImmutableList.of(),
+                    videoEffects,
+                    videoFrameProcessorFactory))
+            .build();
+    int texId = generateTextureFromBitmap(bitmap);
+    HandlerThread textureQueuingThread = new HandlerThread("textureQueuingThread");
+    textureQueuingThread.start();
+    Looper looper = checkNotNull(textureQueuingThread.getLooper());
+    Handler textureHandler =
+        new Handler(looper) {
+          @Override
+          public void handleMessage(Message msg) {
+            if (textureAssetLoader != null
+                && textureAssetLoader.queueInputTexture(texId, /* presentationTimeUs= */ 0)) {
+              textureAssetLoader.queueInputTexture(
+                  texId, /* presentationTimeUs= */ C.MICROS_PER_SECOND / 2);
+              textureAssetLoader.signalEndOfVideoInput();
+              return;
+            }
+            sendEmptyMessage(0);
+          }
+        };
+
+    textureHandler.sendEmptyMessage(0);
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
+    // Expected timestamp of the last frame.
+    assertThat(result.exportResult.durationMs).isEqualTo(C.MILLIS_PER_SECOND / 2);
+  }
+
+  @Test
+  public void videoTranscoding_withTextureInput_completesWithCorrectFrameCountAndDuration()
+      throws Exception {
+    String testId = "videoTranscoding_withTextureInput_completesWithCorrectFrameCountAndDuration";
+    Bitmap bitmap =
+        new DataSourceBitmapLoader(context).loadBitmap(Uri.parse(PNG_ASSET_URI_STRING)).get();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setAssetLoaderFactory(
+                new TestTextureAssetLoaderFactory(bitmap.getWidth(), bitmap.getHeight()))
+            .build();
+    int expectedFrameCount = 2;
+    EGLContext currentContext = createOpenGlObjects();
+    DefaultVideoFrameProcessor.Factory videoFrameProcessorFactory =
+        new DefaultVideoFrameProcessor.Factory.Builder()
+            .setGlObjectsProvider(new DefaultGlObjectsProvider(currentContext))
+            .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY))
+            .setDurationUs(C.MICROS_PER_SECOND)
+            .setEffects(
+                new Effects(
+                    /* audioProcessors= */ ImmutableList.of(),
+                    /* videoEffects= */ ImmutableList.of(),
+                    videoFrameProcessorFactory))
+            .build();
+    int texId = generateTextureFromBitmap(bitmap);
+    HandlerThread textureQueuingThread = new HandlerThread("textureQueuingThread");
+    textureQueuingThread.start();
+    Looper looper = checkNotNull(textureQueuingThread.getLooper());
+    Handler textureHandler =
+        new Handler(looper) {
+          @Override
+          public void handleMessage(Message msg) {
+            if (textureAssetLoader != null
+                && textureAssetLoader.queueInputTexture(texId, /* presentationTimeUs= */ 0)) {
+              textureAssetLoader.queueInputTexture(
+                  texId, /* presentationTimeUs= */ C.MICROS_PER_SECOND / 2);
+              textureAssetLoader.signalEndOfVideoInput();
+              return;
+            }
+            sendEmptyMessage(0);
+          }
+        };
+    textureHandler.sendEmptyMessage(0);
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
+    // Expected timestamp of the last frame.
+    assertThat(result.exportResult.durationMs).isEqualTo(C.MILLIS_PER_SECOND / 2);
   }
 
   @Test
@@ -364,6 +493,34 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.channelCount).isEqualTo(1);
     assertThat(result.exportResult.videoFrameCount).isEqualTo(94);
     assertThat(result.exportResult.durationMs).isEqualTo(3100);
+  }
+
+  private final class TestTextureAssetLoaderFactory implements AssetLoader.Factory {
+
+    private final int width;
+    private final int height;
+
+    TestTextureAssetLoaderFactory(int width, int height) {
+      this.width = width;
+      this.height = height;
+    }
+
+    @Override
+    public TextureAssetLoader createAssetLoader(
+        EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
+      Format format = new Format.Builder().setWidth(width).setHeight(height).build();
+      OnInputFrameProcessedListener frameProcessedListener =
+          texId -> {
+            try {
+              GlUtil.deleteTexture(texId);
+            } catch (GlUtil.GlException e) {
+              throw new VideoFrameProcessingException(e);
+            }
+          };
+      textureAssetLoader =
+          new TextureAssetLoader(editedMediaItem, listener, format, frameProcessedListener);
+      return textureAssetLoader;
+    }
   }
 
   private static final class VideoUnsupportedEncoderFactory implements Codec.EncoderFactory {
