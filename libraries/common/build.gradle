@@ -23,7 +23,7 @@ rootProject.allprojects.forEach {
         evaluationDependsOn(':' + it.name)
     }
 }
-// copybara:media3-only
+
 android {
     buildTypes {
         debug {
