@@ -42,10 +42,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /** Represents the set of audio formats that a device is capable of playing. */
 @UnstableApi
@@ -59,7 +56,7 @@ public final class AudioCapabilities {
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
   /** Encodings supported when the device specifies external surround sound. */
-  private static final int[] EXTERNAL_SURROUND_SOUND_CAPABILITIES =
+  private static final int[] EXTERNAL_SURROUND_SOUND_ENCODINGS =
       new int[]{
           AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
       };
@@ -98,13 +95,13 @@ public final class AudioCapabilities {
   }
 
   private static AudioCapabilities getExternalSurroundCapabilities(@Nullable Intent intent) {
-    int[] supportedEncodings = EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+    int[] supportedEncodings = EXTERNAL_SURROUND_SOUND_ENCODINGS;
 
     if (Util.SDK_INT >= 29) {
       // Check if DTS Encodings are supported via Direct Playback.
-      int[] dtsTypes = {AudioFormat.ENCODING_DTS, AudioFormat.ENCODING_DTS_HD};
+      int[] dtsEncodings = {AudioFormat.ENCODING_DTS, AudioFormat.ENCODING_DTS_HD};
       supportedEncodings = Util.nullSafeIntegerArrayConcatenation(supportedEncodings,
-          Api29.getDirectPlaybackSupportedEncodings(dtsTypes));
+          Api29.getDirectPlaybackSupportedEncodings(dtsEncodings));
     }
     supportedEncodings = Arrays.stream(supportedEncodings).distinct().toArray();
     return new AudioCapabilities(supportedEncodings,/* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
@@ -415,8 +412,8 @@ public final class AudioCapabilities {
     /**
      * Returns an array list of surround encodings that maybe supported.
      */
-    private static List<Integer> getAllSurroundEncodingsMaybeSupported() {
-      ArrayList<Integer> encodings = new ArrayList<>();
+    private static ImmutableList<Integer> getAllSurroundEncodingsMaybeSupported() {
+      ImmutableList.Builder<Integer> encodings = new ImmutableList.Builder<>();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
         // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
         if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
@@ -424,7 +421,7 @@ public final class AudioCapabilities {
         }
         encodings.add(encoding);
       }
-      return Collections.unmodifiableList(encodings);
+      return encodings.build();
     }
   }
 }
