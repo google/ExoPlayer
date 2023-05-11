@@ -43,6 +43,7 @@ import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
@@ -131,6 +132,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       String outputPath,
       TransformationRequest transformationRequest,
       AssetLoader.Factory assetLoaderFactory,
+      VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
       Listener listener,
@@ -154,6 +156,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* sequenceIndex= */ i,
               composition,
               transformationRequest,
+              videoFrameProcessorFactory,
               fallbackListener,
               debugViewProvider);
       EditedMediaItemSequence sequence = composition.sequences.get(i);
@@ -444,6 +447,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final ImmutableList<EditedMediaItem> editedMediaItems;
     private final Composition composition;
     private final TransformationRequest transformationRequest;
+    private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
     private final FallbackListener fallbackListener;
     private final DebugViewProvider debugViewProvider;
     private final Map<Integer, AddedTrackInfo> addedTrackInfoByTrackType;
@@ -454,12 +458,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int sequenceIndex,
         Composition composition,
         TransformationRequest transformationRequest,
+        VideoFrameProcessor.Factory videoFrameProcessorFactory,
         FallbackListener fallbackListener,
         DebugViewProvider debugViewProvider) {
       this.sequenceIndex = sequenceIndex;
       editedMediaItems = composition.sequences.get(sequenceIndex).editedMediaItems;
       this.composition = composition;
       this.transformationRequest = transformationRequest;
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       this.fallbackListener = fallbackListener;
       this.debugViewProvider = debugViewProvider;
       addedTrackInfoByTrackType = new HashMap<>();
@@ -565,7 +571,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               transformationRequest,
               firstEditedMediaItem.effects.videoEffects,
               compositionPresentation,
-              firstEditedMediaItem.effects.videoFrameProcessorFactory,
+              videoFrameProcessorFactory,
               encoderFactory,
               muxerWrapper,
               /* errorConsumer= */ this::onError,

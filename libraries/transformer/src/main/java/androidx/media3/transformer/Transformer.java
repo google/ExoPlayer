@@ -274,12 +274,16 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Set the {@link VideoFrameProcessor.Factory} in an {@link EditedMediaItem}, and
-     *     pass it to {@link #start(EditedMediaItem, String)} instead.
+     * Sets the factory to be used to create {@link VideoFrameProcessor} instances.
+     *
+     * <p>The default value is a {@link DefaultVideoFrameProcessor.Factory} built with default
+     * values.
+     *
+     * @param videoFrameProcessorFactory A {@link VideoFrameProcessor.Factory}.
+     * @return This builder.
      */
     @CanIgnoreReturnValue
-    @Deprecated
-    public Builder setFrameProcessorFactory(
+    public Builder setVideoFrameProcessorFactory(
         VideoFrameProcessor.Factory videoFrameProcessorFactory) {
       this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       return this;
@@ -721,6 +725,7 @@ public final class Transformer {
             path,
             transformationRequest,
             assetLoaderFactory,
+            videoFrameProcessorFactory,
             encoderFactory,
             muxerFactory,
             transformerInternalListener,
@@ -799,7 +804,7 @@ public final class Transformer {
             .setRemoveAudio(removeAudio)
             .setRemoveVideo(removeVideo)
             .setFlattenForSlowMotion(flattenForSlowMotion)
-            .setEffects(new Effects(audioProcessors, videoEffects, videoFrameProcessorFactory))
+            .setEffects(new Effects(audioProcessors, videoEffects))
             .build();
     start(editedMediaItem, path);
   }

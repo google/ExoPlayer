@@ -135,12 +135,12 @@ public class TextureAssetLoaderTest {
   private static final class FakeSampleConsumer implements SampleConsumer {
 
     @Override
+    public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {}
+
+    @Override
     public boolean queueInputTexture(int texId, long presentationTimeUs) {
       return true;
     }
-
-    @Override
-    public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {}
 
     @Override
     public void signalEndOfVideoInput() {}
