@@ -29,6 +29,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableMap;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * An {@link AssetLoader} implementation that loads videos from {@linkplain
@@ -46,10 +47,12 @@ public final class TextureAssetLoader implements AssetLoader {
   private final Format format;
   private final OnInputFrameProcessedListener frameProcessedListener;
 
-  @Nullable private SampleConsumer sampleConsumer;
+  private @MonotonicNonNull SampleConsumer sampleConsumer;
   private @Transformer.ProgressState int progressState;
-  private long lastQueuedPresentationTimeUs;
   private boolean isTrackAdded;
+
+  private volatile boolean isStarted;
+  private volatile long lastQueuedPresentationTimeUs;
 
   /**
    * Creates an instance.
@@ -76,6 +79,7 @@ public final class TextureAssetLoader implements AssetLoader {
     progressState = PROGRESS_STATE_AVAILABLE;
     assetLoaderListener.onDurationUs(editedMediaItem.durationUs);
     assetLoaderListener.onTrackCount(1);
+    isStarted = true;
   }
 
   @Override
@@ -94,9 +98,7 @@ public final class TextureAssetLoader implements AssetLoader {
 
   @Override
   public void release() {
-    isTrackAdded = false;
     progressState = PROGRESS_STATE_NOT_STARTED;
-    sampleConsumer = null;
   }
 
   /**
@@ -112,14 +114,18 @@ public final class TextureAssetLoader implements AssetLoader {
   public boolean queueInputTexture(int texId, long presentationTimeUs) {
     try {
       if (!isTrackAdded) {
+        if (!isStarted) {
+          return false;
+        }
         assetLoaderListener.onTrackAdded(format, SUPPORTED_OUTPUT_TYPE_DECODED);
         isTrackAdded = true;
       }
       if (sampleConsumer == null) {
-        sampleConsumer = assetLoaderListener.onOutputFormat(format);
+        @Nullable SampleConsumer sampleConsumer = assetLoaderListener.onOutputFormat(format);
         if (sampleConsumer == null) {
           return false;
         } else {
+          this.sampleConsumer = sampleConsumer;
           sampleConsumer.setOnInputFrameProcessedListener(frameProcessedListener);
         }
       }
