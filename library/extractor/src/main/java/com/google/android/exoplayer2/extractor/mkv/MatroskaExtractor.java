@@ -2408,8 +2408,8 @@ public class MatroskaExtractor implements Extractor {
     /**
      * Builds initialization data for a {@link Format} from FourCC codec private data.
      *
-     * @return The codec mime type and initialization data. If the compression type is not supported
-     *     then the mime type is set to {@link MimeTypes#VIDEO_UNKNOWN} and the initialization data
+     * @return The codec MIME type and initialization data. If the compression type is not supported
+     *     then the MIME type is set to {@link MimeTypes#VIDEO_UNKNOWN} and the initialization data
      *     is {@code null}.
      * @throws ParserException If the initialization data could not be built.
      */

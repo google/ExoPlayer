@@ -1550,7 +1550,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       sampleMimeType = MimeTypes.getMediaMimeType(codecs);
     } else {
       // The variant assigns more than one codec string to this track. We choose whichever codec
-      // string matches the sample mime type. This can happen when different languages are encoded
+      // string matches the sample MIME type. This can happen when different languages are encoded
       // using different codecs.
       codecs =
           MimeTypes.getCodecsCorrespondingToMimeType(

@@ -137,10 +137,10 @@ import java.util.List;
    * <p>The {@linkplain Format requestedFormat} determines what support is checked.
    *
    * <ul>
-   *   <li>The {@link Format#sampleMimeType} determines whether audio or video mime types are
+   *   <li>The {@link Format#sampleMimeType} determines whether audio or video MIME types are
    *       considered. See {@link MimeTypes#isAudio} and {@link MimeTypes#isVideo} for more details.
    *   <li>The {@link Format#sampleMimeType} must be populated with the preferred {@linkplain
-   *       MimeTypes MIME type}. This mime type will be the first checked.
+   *       MimeTypes MIME type}. This MIME type will be the first checked.
    *   <li>When checking video support, if the HDR {@link Format#colorInfo} is set, only encoders
    *       that support that {@link ColorInfo} will be considered.
    * </ul>

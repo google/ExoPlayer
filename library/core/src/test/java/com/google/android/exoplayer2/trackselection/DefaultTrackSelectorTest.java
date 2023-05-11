@@ -1624,7 +1624,7 @@ public final class DefaultTrackSelectorTest {
     Format aacAudioFormat = formatBuilder.setSampleMimeType(MimeTypes.AUDIO_AAC).build();
     Format opusAudioFormat = formatBuilder.setSampleMimeType(MimeTypes.AUDIO_OPUS).build();
 
-    // Should not adapt between mixed mime types by default, so we expect a fixed selection
+    // Should not adapt between mixed MIME types by default, so we expect a fixed selection
     // containing the first stream.
     TrackGroupArray trackGroups = singleTrackGroup(aacAudioFormat, opusAudioFormat);
     TrackSelectorResult result =
@@ -1641,7 +1641,7 @@ public final class DefaultTrackSelectorTest {
     assertThat(result.length).isEqualTo(1);
     assertFixedSelection(result.selections[0], trackGroups, opusAudioFormat);
 
-    // If we explicitly enable mixed mime type adaptiveness, expect an adaptive selection.
+    // If we explicitly enable mixed MIME type adaptiveness, expect an adaptive selection.
     trackSelector.setParameters(
         defaultParameters.buildUpon().setAllowAudioMixedMimeTypeAdaptiveness(true));
     result =
@@ -1973,7 +1973,7 @@ public final class DefaultTrackSelectorTest {
     Format h264VideoFormat = formatBuilder.setSampleMimeType(MimeTypes.VIDEO_H264).build();
     Format h265VideoFormat = formatBuilder.setSampleMimeType(MimeTypes.VIDEO_H265).build();
 
-    // Should not adapt between mixed mime types by default, so we expect a fixed selection
+    // Should not adapt between mixed MIME types by default, so we expect a fixed selection
     // containing the first stream.
     TrackGroupArray trackGroups = singleTrackGroup(h264VideoFormat, h265VideoFormat);
     TrackSelectorResult result =
@@ -1990,7 +1990,7 @@ public final class DefaultTrackSelectorTest {
     assertThat(result.length).isEqualTo(1);
     assertFixedSelection(result.selections[0], trackGroups, h265VideoFormat);
 
-    // If we explicitly enable mixed mime type adaptiveness, expect an adaptive selection.
+    // If we explicitly enable mixed MIME type adaptiveness, expect an adaptive selection.
     trackSelector.setParameters(
         defaultParameters.buildUpon().setAllowVideoMixedMimeTypeAdaptiveness(true));
     result =

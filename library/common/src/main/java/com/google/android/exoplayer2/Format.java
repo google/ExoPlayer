@@ -750,12 +750,12 @@ public final class Format implements Bundleable {
 
   // Container specific.
 
-  /** The mime type of the container, or null if unknown or not applicable. */
+  /** The MIME type of the container, or null if unknown or not applicable. */
   @Nullable public final String containerMimeType;
 
   // Sample specific.
 
-  /** The sample mime type, or null if unknown or not applicable. */
+  /** The sample MIME type, or null if unknown or not applicable. */
   @Nullable public final String sampleMimeType;
   /**
    * The maximum size of a buffer of data (typically one sample), or {@link #NO_VALUE} if unknown or
