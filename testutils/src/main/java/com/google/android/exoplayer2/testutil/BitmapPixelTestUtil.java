@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class BitmapPixelTestUtil {
    * confirm failure, as it's possible this is caused by a difference in the codec or graphics
    * implementation as opposed to an issue in the tested component.
    */
-  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 1.f;
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 1f;
 
   /**
    * Maximum allowed average pixel difference between bitmaps generated using devices.
@@ -80,7 +81,9 @@ public class BitmapPixelTestUtil {
    * <p>This value is larger than {@link #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} to support the
    * larger variance in decoder outputs between different physical devices and emulators.
    */
-  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE = 5.f;
+  // TODO: b/279154364 - Stop allowing 15f threshold after bug is fixed.
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE =
+      !Util.MODEL.equals("H8266") && !Util.MODEL.equals("H8416") ? 5f : 15f;
 
   /**
    * Maximum allowed average pixel difference between bitmaps with 16-bit primaries generated using
