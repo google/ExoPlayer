@@ -159,7 +159,7 @@ public class ExportTest {
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING));
     // TODO: b/281824052 - have requestCalculateSsim always be true after linked bug is fixed.
-    boolean requestCalculateSsim = !Util.MANUFACTURER.equals("samsung");
+    boolean requestCalculateSsim = !Util.MODEL.equals("SM-G991B");
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setRequestCalculateSsim(requestCalculateSsim)
         .setTimeoutSeconds(180)
