@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
-import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -42,35 +40,15 @@ public final class Effects {
    * order of the list.
    */
   public final ImmutableList<Effect> videoEffects;
-  /**
-   * The {@link VideoFrameProcessor.Factory} for the {@link VideoFrameProcessor} to use when
-   * applying the {@code videoEffects} to the video frames.
-   */
-  public final VideoFrameProcessor.Factory videoFrameProcessorFactory;
-
-  /**
-   * Creates an instance using a {@link DefaultVideoFrameProcessor.Factory}.
-   *
-   * <p>This is equivalent to calling {@link Effects#Effects(List, List,
-   * VideoFrameProcessor.Factory)} with a {@link DefaultVideoFrameProcessor.Factory}.
-   */
-  public Effects(List<AudioProcessor> audioProcessors, List<Effect> videoEffects) {
-    this(audioProcessors, videoEffects, new DefaultVideoFrameProcessor.Factory.Builder().build());
-  }
 
   /**
    * Creates an instance.
    *
    * @param audioProcessors The {@link #audioProcessors}.
    * @param videoEffects The {@link #videoEffects}.
-   * @param videoFrameProcessorFactory The {@link #videoFrameProcessorFactory}.
    */
-  public Effects(
-      List<AudioProcessor> audioProcessors,
-      List<Effect> videoEffects,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+  public Effects(List<AudioProcessor> audioProcessors, List<Effect> videoEffects) {
     this.audioProcessors = ImmutableList.copyOf(audioProcessors);
     this.videoEffects = ImmutableList.copyOf(videoEffects);
-    this.videoFrameProcessorFactory = videoFrameProcessorFactory;
   }
 }

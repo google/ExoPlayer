@@ -424,6 +424,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
+    public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+      sampleConsumer.setOnInputFrameProcessedListener(listener);
+    }
+
+    @Override
     public boolean queueInputTexture(int texId, long presentationTimeUs) {
       long globalTimestampUs = totalDurationUs + presentationTimeUs;
       if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
@@ -434,11 +439,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         return false;
       }
       return sampleConsumer.queueInputTexture(texId, presentationTimeUs);
-    }
-
-    @Override
-    public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-      sampleConsumer.setOnInputFrameProcessedListener(listener);
     }
 
     @Override

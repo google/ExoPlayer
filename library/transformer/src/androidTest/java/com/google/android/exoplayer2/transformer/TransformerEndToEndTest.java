@@ -121,26 +121,23 @@ public class TransformerEndToEndTest {
     String testId = "videoEditing_withTextureInput_completesWithCorrectFrameCountAndDuration";
     Bitmap bitmap =
         new DataSourceBitmapLoader(context).loadBitmap(Uri.parse(PNG_ASSET_URI_STRING)).get();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setAssetLoaderFactory(
-                new TestTextureAssetLoaderFactory(bitmap.getWidth(), bitmap.getHeight()))
-            .build();
     int expectedFrameCount = 2;
     EGLContext currentContext = createOpenGlObjects();
     DefaultVideoFrameProcessor.Factory videoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setGlObjectsProvider(new DefaultGlObjectsProvider(currentContext))
             .build();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setAssetLoaderFactory(
+                new TestTextureAssetLoaderFactory(bitmap.getWidth(), bitmap.getHeight()))
+            .setVideoFrameProcessorFactory(videoFrameProcessorFactory)
+            .build();
     ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY))
             .setDurationUs(C.MICROS_PER_SECOND)
-            .setEffects(
-                new Effects(
-                    /* audioProcessors= */ ImmutableList.of(),
-                    videoEffects,
-                    videoFrameProcessorFactory))
+            .setEffects(new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects))
             .build();
     int texId = generateTextureFromBitmap(bitmap);
     HandlerThread textureQueuingThread = new HandlerThread("textureQueuingThread");
@@ -178,25 +175,21 @@ public class TransformerEndToEndTest {
     String testId = "videoTranscoding_withTextureInput_completesWithCorrectFrameCountAndDuration";
     Bitmap bitmap =
         new DataSourceBitmapLoader(context).loadBitmap(Uri.parse(PNG_ASSET_URI_STRING)).get();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setAssetLoaderFactory(
-                new TestTextureAssetLoaderFactory(bitmap.getWidth(), bitmap.getHeight()))
-            .build();
     int expectedFrameCount = 2;
     EGLContext currentContext = createOpenGlObjects();
     DefaultVideoFrameProcessor.Factory videoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setGlObjectsProvider(new DefaultGlObjectsProvider(currentContext))
             .build();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setAssetLoaderFactory(
+                new TestTextureAssetLoaderFactory(bitmap.getWidth(), bitmap.getHeight()))
+            .setVideoFrameProcessorFactory(videoFrameProcessorFactory)
+            .build();
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY))
             .setDurationUs(C.MICROS_PER_SECOND)
-            .setEffects(
-                new Effects(
-                    /* audioProcessors= */ ImmutableList.of(),
-                    /* videoEffects= */ ImmutableList.of(),
-                    videoFrameProcessorFactory))
             .build();
     int texId = generateTextureFromBitmap(bitmap);
     HandlerThread textureQueuingThread = new HandlerThread("textureQueuingThread");
