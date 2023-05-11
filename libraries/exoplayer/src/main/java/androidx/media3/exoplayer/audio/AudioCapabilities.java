@@ -101,8 +101,8 @@ public final class AudioCapabilities {
     if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
-    ImmutableSet.Builder supportedEncodings = new ImmutableSet.Builder<>();
 
+    ImmutableSet.Builder supportedEncodings = new ImmutableSet.Builder<>();
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       supportedEncodings.addAll(Ints.asList(EXTERNAL_SURROUND_SOUND_ENCODINGS));
