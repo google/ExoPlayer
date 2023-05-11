@@ -136,11 +136,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private int sessionFlags;
 
   @SuppressWarnings("PendingIntentMutability") // We can't use SaferPendingIntent
-  public MediaSessionLegacyStub(
-      MediaSessionImpl session,
-      Uri sessionUri,
-      @Nullable ComponentName serviceComponentName,
-      Handler handler) {
+  public MediaSessionLegacyStub(MediaSessionImpl session, Uri sessionUri, Handler handler) {
     sessionImpl = session;
     Context context = sessionImpl.getContext();
     appPackageName = context.getPackageName();
@@ -159,8 +155,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Assume an app that intentionally puts a `MediaButtonReceiver` into the manifest has
     // implemented some kind of resumption of the last recently played media item.
     canResumePlaybackOnStart = receiverComponentName != null;
+    boolean isReceiverComponentAService = false;
     if (receiverComponentName == null) {
-      receiverComponentName = serviceComponentName;
+      receiverComponentName =
+          getServiceComponentByAction(context, MediaLibraryService.SERVICE_INTERFACE);
+      if (receiverComponentName == null) {
+        receiverComponentName =
+            getServiceComponentByAction(context, MediaSessionService.SERVICE_INTERFACE);
+      }
+      isReceiverComponentAService = receiverComponentName != null;
     }
     Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, sessionUri);
     PendingIntent mediaButtonIntent;
@@ -181,7 +184,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else {
       intent.setComponent(receiverComponentName);
       mediaButtonIntent =
-          Objects.equals(serviceComponentName, receiverComponentName)
+          isReceiverComponentAService
               ? (Util.SDK_INT >= 26
                   ? PendingIntent.getForegroundService(
                       context, /* requestCode= */ 0, intent, PENDING_INTENT_FLAG_MUTABLE)
@@ -1432,6 +1435,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private static String getBitmapLoadErrorMessage(Throwable throwable) {
     return "Failed to load bitmap: " + throwable.getMessage();
+  }
+
+  @Nullable
+  @SuppressWarnings("QueryPermissionsNeeded") // Needs to be provided in the app manifest.
+  private static ComponentName getServiceComponentByAction(Context context, String action) {
+    PackageManager pm = context.getPackageManager();
+    Intent queryIntent = new Intent(action);
+    queryIntent.setPackage(context.getPackageName());
+    List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent, /* flags= */ 0);
+    if (resolveInfos == null || resolveInfos.isEmpty()) {
+      return null;
+    }
+    ResolveInfo resolveInfo = resolveInfos.get(0);
+    return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
   }
 
   // TODO(b/193193462): Replace this with androidx.media.session.MediaButtonReceiver

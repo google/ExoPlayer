@@ -24,11 +24,8 @@ import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static java.lang.Math.min;
 
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.DeadObjectException;
@@ -89,23 +86,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ class MediaSessionImpl {
 
-  // Create a static lock for synchronize methods below.
-  // We'd better not use MediaSessionImplBase.class for synchronized(), which indirectly exposes
-  // lock object to the outside of the class.
-  private static final Object STATIC_LOCK = new Object();
-
   private static final String WRONG_THREAD_ERROR_MESSAGE =
       "Player callback method is called from a wrong thread. "
           + "See javadoc of MediaSession for details.";
 
   private static final long DEFAULT_SESSION_POSITION_UPDATE_DELAY_MS = 3_000;
-
-  @GuardedBy("STATIC_LOCK")
-  private static boolean componentNamesInitialized = false;
-
-  @GuardedBy("STATIC_LOCK")
-  @Nullable
-  private static ComponentName serviceComponentName;
 
   public static final String TAG = "MSImplBase";
 
@@ -198,21 +183,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             sessionStub,
             tokenExtras);
 
-    synchronized (STATIC_LOCK) {
-      if (!componentNamesInitialized) {
-        MediaSessionImpl.serviceComponentName =
-            getServiceComponentByAction(context, MediaLibraryService.SERVICE_INTERFACE);
-        if (MediaSessionImpl.serviceComponentName == null) {
-          MediaSessionImpl.serviceComponentName =
-              getServiceComponentByAction(context, MediaSessionService.SERVICE_INTERFACE);
-        }
-        componentNamesInitialized = true;
-      }
-    }
-
     sessionLegacyStub =
-        new MediaSessionLegacyStub(
-            /* session= */ thisRef, sessionUri, serviceComponentName, applicationHandler);
+        new MediaSessionLegacyStub(/* session= */ thisRef, sessionUri, applicationHandler);
 
     PlayerWrapper playerWrapper = new PlayerWrapper(player);
     this.playerWrapper = playerWrapper;
@@ -816,20 +788,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Note: Only removing from MediaSessionStub and ignoring (legacy) stubs would be fine for
     //       now. Because calls to the legacy stubs doesn't throw DeadObjectException.
     sessionStub.getConnectedControllersManager().removeController(controller);
-  }
-
-  @Nullable
-  @SuppressWarnings("QueryPermissionsNeeded") // Needs to be provided in the app manifest.
-  private static ComponentName getServiceComponentByAction(Context context, String action) {
-    PackageManager pm = context.getPackageManager();
-    Intent queryIntent = new Intent(action);
-    queryIntent.setPackage(context.getPackageName());
-    List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent, /* flags= */ 0);
-    if (resolveInfos == null || resolveInfos.isEmpty()) {
-      return null;
-    }
-    ResolveInfo resolveInfo = resolveInfos.get(0);
-    return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
   }
 
   private void verifyApplicationThread() {
