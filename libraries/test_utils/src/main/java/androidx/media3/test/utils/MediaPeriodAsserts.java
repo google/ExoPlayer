@@ -88,7 +88,7 @@ public final class MediaPeriodAsserts {
    * @param mediaPeriodFactory A factory to create a {@link MediaPeriod} based on a manifest.
    * @param manifest The manifest which is to be tested.
    * @param periodIndex The index of period in the manifest.
-   * @param ignoredMimeType Optional mime type whose existence in the filtered track groups is not
+   * @param ignoredMimeType Optional MIME type whose existence in the filtered track groups is not
    *     asserted.
    */
   public static <T extends FilterableManifest<T>>

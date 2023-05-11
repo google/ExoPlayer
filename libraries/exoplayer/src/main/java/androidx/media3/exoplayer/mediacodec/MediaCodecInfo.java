@@ -58,7 +58,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-/** Information about a {@link MediaCodec} for a given mime type. */
+/** Information about a {@link MediaCodec} for a given MIME type. */
 @SuppressWarnings("InlinedApi")
 @UnstableApi
 public final class MediaCodecInfo {
@@ -151,10 +151,10 @@ public final class MediaCodecInfo {
    * Creates an instance.
    *
    * @param name The name of the {@link MediaCodec}.
-   * @param mimeType A mime type supported by the {@link MediaCodec}.
+   * @param mimeType A MIME type supported by the {@link MediaCodec}.
    * @param codecMimeType The MIME type that the codec uses for media of type {@code #mimeType}.
    *     Equal to {@code mimeType} unless the codec is known to use a non-standard MIME type alias.
-   * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type, or
+   * @param capabilities The capabilities of the {@link MediaCodec} for the specified MIME type, or
    *     {@code null} if not known.
    * @param hardwareAccelerated Whether the {@link MediaCodec} is hardware accelerated.
    * @param softwareOnly Whether the {@link MediaCodec} is software only.

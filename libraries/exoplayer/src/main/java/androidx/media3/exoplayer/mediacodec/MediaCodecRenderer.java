@@ -98,7 +98,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     private static final int NO_SUITABLE_DECODER_ERROR = CUSTOM_ERROR_CODE_BASE + 1;
     private static final int DECODER_QUERY_ERROR = CUSTOM_ERROR_CODE_BASE + 2;
 
-    /** The mime type for which a decoder was being initialized. */
+    /** The MIME type for which a decoder was being initialized. */
     public final String mimeType;
 
     /** Whether it was required that the decoder support a secure output path. */

@@ -29,7 +29,7 @@ public final class MpegAudioUtil {
 
     /** MPEG audio header version. */
     public int version;
-    /** The mime type. */
+    /** The MIME type. */
     @Nullable public String mimeType;
     /** Size of the frame associated with this header, in bytes. */
     public int frameSize;

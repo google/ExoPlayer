@@ -134,7 +134,7 @@ public final class FileTypes {
   /**
    * Returns the {@link Type} corresponding to the MIME type provided.
    *
-   * <p>Returns {@link #UNKNOWN} if the mime type is {@code null}.
+   * <p>Returns {@link #UNKNOWN} if the MIME type is {@code null}.
    */
   public static @FileTypes.Type int inferFileTypeFromMimeType(@Nullable String mimeType) {
     if (mimeType == null) {

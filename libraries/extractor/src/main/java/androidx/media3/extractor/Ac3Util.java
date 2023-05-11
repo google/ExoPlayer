@@ -63,7 +63,7 @@ public final class Ac3Util {
     public static final int STREAM_TYPE_TYPE2 = 2;
 
     /**
-     * The sample mime type of the bitstream. One of {@link MimeTypes#AUDIO_AC3} and {@link
+     * The sample MIME type of the bitstream. One of {@link MimeTypes#AUDIO_AC3} and {@link
      * MimeTypes#AUDIO_E_AC3}.
      */
     @Nullable public final String mimeType;
@@ -450,7 +450,7 @@ public final class Ac3Util {
       int fscod = data.readBits(2);
       if (fscod == 3) {
         // fscod '11' indicates that the decoder should not attempt to decode audio. We invalidate
-        // the mime type to prevent association with a renderer.
+        // the MIME type to prevent association with a renderer.
         mimeType = null;
       }
       int frmsizecod = data.readBits(6);

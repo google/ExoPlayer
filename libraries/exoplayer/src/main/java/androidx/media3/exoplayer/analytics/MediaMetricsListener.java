@@ -530,7 +530,7 @@ public final class MediaMetricsListener
       builder.setTrackState(TrackChangeEvent.TRACK_STATE_ON);
       builder.setTrackChangeReason(getTrackChangeReason(trackSelectionReason));
       if (format.containerMimeType != null) {
-        // TODO(b/181121074): Progressive container mime type is not filled in by MediaSource.
+        // TODO(b/181121074): Progressive container MIME type is not filled in by MediaSource.
         builder.setContainerMimeType(format.containerMimeType);
       }
       if (format.sampleMimeType != null) {

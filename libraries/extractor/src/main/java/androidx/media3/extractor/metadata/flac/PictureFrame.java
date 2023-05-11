@@ -33,7 +33,7 @@ public final class PictureFrame implements Metadata.Entry {
 
   /** The type of the picture. */
   public final int pictureType;
-  /** The mime type of the picture. */
+  /** The MIME type of the picture. */
   public final String mimeType;
   /** A description of the picture. */
   public final String description;

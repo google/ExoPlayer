@@ -90,12 +90,12 @@ public final class MediaCodecUtil {
   private MediaCodecUtil() {}
 
   /**
-   * Optional call to warm the codec cache for a given mime type.
+   * Optional call to warm the codec cache for a given MIME type.
    *
    * <p>Calling this method may speed up subsequent calls to {@link #getDecoderInfo(String, boolean,
    * boolean)} and {@link #getDecoderInfos(String, boolean, boolean)}.
    *
-   * @param mimeType The mime type.
+   * @param mimeType The MIME type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
    * @param tunneling Whether the decoder is required to support tunneling. Always pass false unless
@@ -128,7 +128,7 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns information about the preferred decoder for a given mime type.
+   * Returns information about the preferred decoder for a given MIME type.
    *
    * @param mimeType The MIME type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
@@ -146,7 +146,7 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by {@link
+   * Returns all {@link MediaCodecInfo}s for the given MIME type, in the order given by {@link
    * MediaCodecList}.
    *
    * @param mimeType The MIME type.
@@ -154,7 +154,7 @@ public final class MediaCodecUtil {
    *     unless secure decryption really is required.
    * @param tunneling Whether the decoder is required to support tunneling. Always pass false unless
    *     tunneling really is required.
-   * @return An unmodifiable list of all {@link MediaCodecInfo}s for the given mime type, in the
+   * @return An unmodifiable list of all {@link MediaCodecInfo}s for the given MIME type, in the
    *     order given by {@link MediaCodecList}.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */

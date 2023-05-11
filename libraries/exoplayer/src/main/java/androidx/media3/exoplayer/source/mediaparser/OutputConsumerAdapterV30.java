@@ -219,7 +219,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
   }
 
   /**
-   * Defines the container mime type to propagate through {@link TrackOutput#format}.
+   * Defines the container MIME type to propagate through {@link TrackOutput#format}.
    *
    * @param parserName The name of the selected parser.
    */
