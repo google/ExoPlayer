@@ -16,7 +16,6 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import android.media.MediaCodec;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -84,17 +83,5 @@ import com.google.common.collect.ImmutableList;
       }
     }
     return false;
-  }
-
-  /** Returns {@link MediaCodec} flags corresponding to {@link C.BufferFlags}. */
-  public static int getMediaCodecFlags(@C.BufferFlags int flags) {
-    int mediaCodecFlags = 0;
-    if ((flags & C.BUFFER_FLAG_KEY_FRAME) == C.BUFFER_FLAG_KEY_FRAME) {
-      mediaCodecFlags |= MediaCodec.BUFFER_FLAG_KEY_FRAME;
-    }
-    if ((flags & C.BUFFER_FLAG_END_OF_STREAM) == C.BUFFER_FLAG_END_OF_STREAM) {
-      mediaCodecFlags |= MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-    }
-    return mediaCodecFlags;
   }
 }
