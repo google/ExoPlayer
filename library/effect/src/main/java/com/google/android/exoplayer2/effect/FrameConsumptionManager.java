@@ -26,12 +26,11 @@ import java.util.Queue;
 
 /**
  * Manages queueing frames and sending them to a given {@link GlShaderProgram
- * consumingGLShaderProgram} at a consumable pace.
+ * consumingGlShaderProgram} at a consumable pace.
  *
  * <p>Frames are stored as a {@link GlTextureInfo} with a {@code presentationTimeUs}.
  */
 
-// TODO(b/261820382): Converge ChainingGlShaderProgramListener with this class.
 /* package */ final class FrameConsumptionManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram consumingGlShaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
@@ -45,8 +44,7 @@ import java.util.Queue;
   /**
    * Creates a new instance.
    *
-   * @param consumingGlShaderProgram The {@link GlShaderProgram} for which this {@code
-   *     texIdTextureManager} will be set as the {@link GlShaderProgram.InputListener}.
+   * @param consumingGlShaderProgram The {@link GlShaderProgram} that frames are queued to.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
    */
   public FrameConsumptionManager(

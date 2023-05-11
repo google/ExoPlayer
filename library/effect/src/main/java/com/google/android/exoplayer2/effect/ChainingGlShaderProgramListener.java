@@ -15,15 +15,9 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import android.util.Pair;
-import androidx.annotation.GuardedBy;
-import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener;
 import com.google.android.exoplayer2.util.GlTextureInfo;
-import java.util.ArrayDeque;
-import java.util.Queue;
 
 /**
  * Connects a producing and a consuming {@link GlShaderProgram} instance.
@@ -35,14 +29,8 @@ import java.util.Queue;
     implements GlShaderProgram.InputListener, GlShaderProgram.OutputListener {
 
   private final GlShaderProgram producingGlShaderProgram;
-  private final GlShaderProgram consumingGlShaderProgram;
+  private final FrameConsumptionManager frameConsumptionManager;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
-
-  @GuardedBy("this")
-  private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
-
-  @GuardedBy("this")
-  private int consumingGlShaderProgramInputCapacity;
 
   /**
    * Creates a new instance.
@@ -61,29 +49,14 @@ import java.util.Queue;
       GlShaderProgram consumingGlShaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     this.producingGlShaderProgram = producingGlShaderProgram;
-    this.consumingGlShaderProgram = consumingGlShaderProgram;
+    frameConsumptionManager =
+        new FrameConsumptionManager(consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
-    availableFrames = new ArrayDeque<>();
   }
 
   @Override
   public synchronized void onReadyToAcceptInputFrame() {
-    @Nullable Pair<GlTextureInfo, Long> pendingFrame = availableFrames.poll();
-    if (pendingFrame == null) {
-      consumingGlShaderProgramInputCapacity++;
-      return;
-    }
-
-    long presentationTimeUs = pendingFrame.second;
-    if (presentationTimeUs == C.TIME_END_OF_SOURCE) {
-      videoFrameProcessingTaskExecutor.submit(
-          consumingGlShaderProgram::signalEndOfCurrentInputStream);
-    } else {
-      videoFrameProcessingTaskExecutor.submit(
-          () ->
-              consumingGlShaderProgram.queueInputFrame(
-                  /* inputTexture= */ pendingFrame.first, presentationTimeUs));
-    }
+    frameConsumptionManager.onReadyToAcceptInputFrame();
   }
 
   @Override
@@ -94,32 +67,18 @@ import java.util.Queue;
 
   @Override
   public synchronized void onFlush() {
-    consumingGlShaderProgramInputCapacity = 0;
-    availableFrames.clear();
+    frameConsumptionManager.onFlush();
     videoFrameProcessingTaskExecutor.submit(producingGlShaderProgram::flush);
   }
 
   @Override
   public synchronized void onOutputFrameAvailable(
       GlTextureInfo outputTexture, long presentationTimeUs) {
-    if (consumingGlShaderProgramInputCapacity > 0) {
-      videoFrameProcessingTaskExecutor.submit(
-          () ->
-              consumingGlShaderProgram.queueInputFrame(
-                  /* inputTexture= */ outputTexture, presentationTimeUs));
-      consumingGlShaderProgramInputCapacity--;
-    } else {
-      availableFrames.add(new Pair<>(outputTexture, presentationTimeUs));
-    }
+    frameConsumptionManager.queueInputFrame(outputTexture, presentationTimeUs);
   }
 
   @Override
   public synchronized void onCurrentOutputStreamEnded() {
-    if (!availableFrames.isEmpty()) {
-      availableFrames.add(new Pair<>(GlTextureInfo.UNSET, C.TIME_END_OF_SOURCE));
-    } else {
-      videoFrameProcessingTaskExecutor.submit(
-          consumingGlShaderProgram::signalEndOfCurrentInputStream);
-    }
+    frameConsumptionManager.signalEndOfCurrentStream();
   }
 }
