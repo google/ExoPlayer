@@ -15,15 +15,24 @@
  */
 package androidx.media3.test.utils.robolectric;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
+
 import android.media.MediaCodecInfo;
+import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
+import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.rules.ExternalResource;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowMediaCodec;
@@ -37,98 +46,129 @@ import org.robolectric.shadows.ShadowMediaCodecList;
  */
 @UnstableApi
 public final class ShadowMediaCodecConfig extends ExternalResource {
+  private static final ImmutableMap<String, CodecImpl> ALL_SUPPORTED_CODECS =
+      createAllSupportedCodecs();
 
   public static ShadowMediaCodecConfig forAllSupportedMimeTypes() {
-    return new ShadowMediaCodecConfig();
+    return new ShadowMediaCodecConfig(ALL_SUPPORTED_CODECS.keySet());
+  }
+
+  public static ShadowMediaCodecConfig withNoDefaultSupportedMimeTypes() {
+    return new ShadowMediaCodecConfig(ImmutableSet.of());
+  }
+
+  private final Set<String> supportedMimeTypes;
+
+  private ShadowMediaCodecConfig(Set<String> mimeTypes) {
+    supportedMimeTypes = new HashSet<>(mimeTypes);
+  }
+
+  public void addSupportedMimeTypes(String... mimeTypes) {
+    for (String mimeType : mimeTypes) {
+      checkState(!supportedMimeTypes.contains(mimeType), "MIME type already added: " + mimeType);
+      checkArgument(
+          ALL_SUPPORTED_CODECS.containsKey(mimeType), "MIME type not supported: " + mimeType);
+    }
+    ImmutableSet<String> addedMimeTypes = ImmutableSet.copyOf(mimeTypes);
+    supportedMimeTypes.addAll(addedMimeTypes);
+    configureCodecs(addedMimeTypes);
   }
 
   @Override
   protected void before() throws Throwable {
-    // Video codecs
-    MediaCodecInfo.CodecProfileLevel avcProfileLevel =
-        createProfileLevel(
-            MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
-            MediaCodecInfo.CodecProfileLevel.AVCLevel62);
-    configureCodec(
-        /* codecName= */ "exotest.video.avc",
-        MimeTypes.VIDEO_H264,
-        ImmutableList.of(avcProfileLevel),
-        ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible));
-    MediaCodecInfo.CodecProfileLevel mpeg2ProfileLevel =
-        createProfileLevel(
-            MediaCodecInfo.CodecProfileLevel.MPEG2ProfileMain,
-            MediaCodecInfo.CodecProfileLevel.MPEG2LevelML);
-    configureCodec(
-        /* codecName= */ "exotest.video.mpeg2",
-        MimeTypes.VIDEO_MPEG2,
-        ImmutableList.of(mpeg2ProfileLevel),
-        ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible));
-    configureCodec(
-        /* codecName= */ "exotest.video.vp9",
-        MimeTypes.VIDEO_VP9,
-        ImmutableList.of(),
-        ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible));
-
-    // Audio codecs
-    configureCodec("exotest.audio.aac", MimeTypes.AUDIO_AAC);
-    configureCodec("exotest.audio.ac3", MimeTypes.AUDIO_AC3);
-    configureCodec("exotest.audio.ac4", MimeTypes.AUDIO_AC4);
-    configureCodec("exotest.audio.eac3", MimeTypes.AUDIO_E_AC3);
-    configureCodec("exotest.audio.eac3joc", MimeTypes.AUDIO_E_AC3_JOC);
-    configureCodec("exotest.audio.flac", MimeTypes.AUDIO_FLAC);
-    configureCodec("exotest.audio.mpeg", MimeTypes.AUDIO_MPEG);
-    configureCodec("exotest.audio.mpegl2", MimeTypes.AUDIO_MPEG_L2);
-    configureCodec("exotest.audio.opus", MimeTypes.AUDIO_OPUS);
-    configureCodec("exotest.audio.vorbis", MimeTypes.AUDIO_VORBIS);
-
-    // Raw audio should use a bypass mode and never need this codec. However, to easily assert
-    // failures of the bypass mode we want to detect when the raw audio is decoded by this class and
-    // thus we need a codec to output samples.
-    configureCodec("exotest.audio.raw", MimeTypes.AUDIO_RAW);
+    configureCodecs(supportedMimeTypes);
   }
 
   @Override
   protected void after() {
+    supportedMimeTypes.clear();
     MediaCodecUtil.clearDecoderInfoCache();
     ShadowMediaCodecList.reset();
     ShadowMediaCodec.clearCodecs();
   }
 
-  private void configureCodec(String codecName, String mimeType) {
-    configureCodec(
-        codecName,
-        mimeType,
-        /* profileLevels= */ ImmutableList.of(),
-        /* colorFormats= */ ImmutableList.of());
+  private void configureCodecs(Set<String> mimeTypes) {
+    for (String mimeType : mimeTypes) {
+      checkStateNotNull(ALL_SUPPORTED_CODECS.get(mimeType)).configure();
+    }
   }
 
-  private void configureCodec(
-      String codecName,
-      String mimeType,
-      List<MediaCodecInfo.CodecProfileLevel> profileLevels,
-      List<Integer> colorFormats) {
-    MediaFormat mediaFormat = new MediaFormat();
-    mediaFormat.setString(MediaFormat.KEY_MIME, mimeType);
-    MediaCodecInfoBuilder.CodecCapabilitiesBuilder capabilities =
-        MediaCodecInfoBuilder.CodecCapabilitiesBuilder.newBuilder().setMediaFormat(mediaFormat);
-    if (!profileLevels.isEmpty()) {
-      capabilities.setProfileLevels(profileLevels.toArray(new MediaCodecInfo.CodecProfileLevel[0]));
-    }
-    if (!colorFormats.isEmpty()) {
-      capabilities.setColorFormats(Ints.toArray(colorFormats));
-    }
-    ShadowMediaCodecList.addCodec(
-        MediaCodecInfoBuilder.newBuilder()
-            .setName(codecName)
-            .setCapabilities(capabilities.build())
-            .build());
-    // TODO: Update ShadowMediaCodec to consider the MediaFormat.KEY_MAX_INPUT_SIZE value passed
-    // to configure() so we don't have to specify large buffers here.
-    CodecImpl codec = new CodecImpl(mimeType);
-    ShadowMediaCodec.addDecoder(
-        codecName,
-        new ShadowMediaCodec.CodecConfig(
-            /* inputBufferSize= */ 100_000, /* outputBufferSize= */ 100_000, codec));
+  private static ImmutableMap<String, CodecImpl> createAllSupportedCodecs() {
+    ImmutableMap.Builder<String, CodecImpl> codecs = new ImmutableMap.Builder<>();
+    // Video codecs
+    codecs.put(
+        MimeTypes.VIDEO_H264,
+        new CodecImpl(
+            /* codecName= */ "exotest.video.avc",
+            /* mimeType= */ MimeTypes.VIDEO_H264,
+            /* profileLevels= */ ImmutableList.of(
+                createProfileLevel(
+                    MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
+                    MediaCodecInfo.CodecProfileLevel.AVCLevel62)),
+            /* colorFormats= */ ImmutableList.of(
+                MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)));
+    codecs.put(
+        MimeTypes.VIDEO_MPEG2,
+        new CodecImpl(
+            /* codecName= */ "exotest.video.mpeg2",
+            /* mimeType= */ MimeTypes.VIDEO_MPEG2,
+            /* profileLevels= */ ImmutableList.of(
+                createProfileLevel(
+                    MediaCodecInfo.CodecProfileLevel.MPEG2ProfileMain,
+                    MediaCodecInfo.CodecProfileLevel.MPEG2LevelML)),
+            /* colorFormats= */ ImmutableList.of(
+                MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)));
+    codecs.put(
+        MimeTypes.VIDEO_VP9,
+        new CodecImpl(
+            /* codecName= */ "exotest.video.vp9",
+            /* mimeType= */ MimeTypes.VIDEO_VP9,
+            /* profileLevels= */ ImmutableList.of(),
+            /* colorFormats= */ ImmutableList.of(
+                MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)));
+
+    // Audio codecs
+    codecs.put(
+        MimeTypes.AUDIO_AAC,
+        new CodecImpl(/* codecName= */ "exotest.audio.aac", /* mimeType= */ MimeTypes.AUDIO_AAC));
+    codecs.put(
+        MimeTypes.AUDIO_AC3,
+        new CodecImpl(/* codecName= */ "exotest.audio.ac3", /* mimeType= */ MimeTypes.AUDIO_AC3));
+    codecs.put(
+        MimeTypes.AUDIO_AC4,
+        new CodecImpl(/* codecName= */ "exotest.audio.ac4", /* mimeType= */ MimeTypes.AUDIO_AC4));
+    codecs.put(
+        MimeTypes.AUDIO_E_AC3,
+        new CodecImpl(
+            /* codecName= */ "exotest.audio.eac3", /* mimeType= */ MimeTypes.AUDIO_E_AC3));
+    codecs.put(
+        MimeTypes.AUDIO_E_AC3_JOC,
+        new CodecImpl(
+            /* codecName= */ "exotest.audio.eac3joc", /* mimeType= */ MimeTypes.AUDIO_E_AC3_JOC));
+    codecs.put(
+        MimeTypes.AUDIO_FLAC,
+        new CodecImpl(/* codecName= */ "exotest.audio.flac", /* mimeType= */ MimeTypes.AUDIO_FLAC));
+    codecs.put(
+        MimeTypes.AUDIO_MPEG,
+        new CodecImpl(/* codecName= */ "exotest.audio.mpeg", /* mimeType= */ MimeTypes.AUDIO_MPEG));
+    codecs.put(
+        MimeTypes.AUDIO_MPEG_L2,
+        new CodecImpl(
+            /* codecName= */ "exotest.audio.mpegl2", /* mimeType= */ MimeTypes.AUDIO_MPEG_L2));
+    codecs.put(
+        MimeTypes.AUDIO_OPUS,
+        new CodecImpl(/* codecName= */ "exotest.audio.opus", /* mimeType= */ MimeTypes.AUDIO_OPUS));
+    codecs.put(
+        MimeTypes.AUDIO_VORBIS,
+        new CodecImpl(
+            /* codecName= */ "exotest.audio.vorbis", /* mimeType= */ MimeTypes.AUDIO_VORBIS));
+    // Raw audio should use a bypass mode and never need this codec. However, to easily assert
+    // failures of the bypass mode we want to detect when the raw audio is decoded by this
+    codecs.put(
+        MimeTypes.AUDIO_RAW,
+        new CodecImpl(/* codecName= */ "exotest.audio.raw", /* mimeType= */ MimeTypes.AUDIO_RAW));
+
+    return codecs.buildOrThrow();
   }
 
   private static MediaCodecInfo.CodecProfileLevel createProfileLevel(int profile, int level) {
@@ -146,10 +186,55 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
    */
   private static final class CodecImpl implements ShadowMediaCodec.CodecConfig.Codec {
 
+    private final String codecName;
     private final String mimeType;
+    private final ImmutableList<MediaCodecInfo.CodecProfileLevel> profileLevels;
+    private final ImmutableList<Integer> colorFormats;
+    private final @C.TrackType int trackType;
 
-    public CodecImpl(String mimeType) {
+    public CodecImpl(String codecName, String mimeType) {
+      this(
+          codecName,
+          mimeType,
+          /* profileLevels= */ ImmutableList.of(),
+          /* colorFormats= */ ImmutableList.of());
+    }
+
+    public CodecImpl(
+        String codecName,
+        String mimeType,
+        ImmutableList<CodecProfileLevel> profileLevels,
+        ImmutableList<Integer> colorFormats) {
+      this.codecName = codecName;
       this.mimeType = mimeType;
+      this.profileLevels = profileLevels;
+      this.colorFormats = colorFormats;
+      trackType = MimeTypes.getTrackType(mimeType);
+    }
+
+    public void configure() {
+      MediaFormat mediaFormat = new MediaFormat();
+      mediaFormat.setString(MediaFormat.KEY_MIME, mimeType);
+      MediaCodecInfoBuilder.CodecCapabilitiesBuilder capabilities =
+          MediaCodecInfoBuilder.CodecCapabilitiesBuilder.newBuilder().setMediaFormat(mediaFormat);
+      if (!profileLevels.isEmpty()) {
+        capabilities.setProfileLevels(
+            profileLevels.toArray(new MediaCodecInfo.CodecProfileLevel[0]));
+      }
+      if (!colorFormats.isEmpty()) {
+        capabilities.setColorFormats(Ints.toArray(colorFormats));
+      }
+      ShadowMediaCodecList.addCodec(
+          MediaCodecInfoBuilder.newBuilder()
+              .setName(codecName)
+              .setCapabilities(capabilities.build())
+              .build());
+      // TODO: Update ShadowMediaCodec to consider the MediaFormat.KEY_MAX_INPUT_SIZE value passed
+      // to configure() so we don't have to specify large buffers here.
+      ShadowMediaCodec.addDecoder(
+          codecName,
+          new ShadowMediaCodec.CodecConfig(
+              /* inputBufferSize= */ 100_000, /* outputBufferSize= */ 100_000, this));
     }
 
     @Override
@@ -158,7 +243,7 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
       in.get(bytes);
 
       // TODO(internal b/174737370): Output audio bytes as well.
-      if (!MimeTypes.isAudio(mimeType)) {
+      if (trackType != C.TRACK_TYPE_AUDIO) {
         out.put(bytes);
       }
     }
