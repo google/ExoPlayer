@@ -517,30 +517,6 @@ public final class Util {
   }
 
   /**
-   * Remove duplicates from an Integer array.
-   *
-   * @param inputs The input integer array.
-   * @return The integer array without duplicates.
-   */
-  @UnstableApi
-  @SuppressWarnings("nullness:assignment")
-  public static int[] nullSafeIntegerArrayDistinct(int[] inputs) {
-    int end = inputs.length;
-    for (int i = 0; i < end; i++) {
-      for (int j = i + 1; j < end; j++) {
-        if (inputs[i] == inputs[j]) {
-          inputs[j] = inputs[end - 1];
-          end--;
-          j--;
-        }
-      }
-    }
-    int[] newlist = new int[end];
-    System.arraycopy(inputs, 0, newlist, 0, end);
-    return newlist;
-  }
-
-  /**
    * Copies the contents of {@code list} into {@code array}.
    *
    * <p>{@code list.size()} must be the same as {@code array.length} to ensure the contents can be

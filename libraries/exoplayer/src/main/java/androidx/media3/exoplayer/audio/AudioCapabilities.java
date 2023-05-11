@@ -101,36 +101,33 @@ public final class AudioCapabilities {
     if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
-    int[] supportedEncodings = {};
+    ImmutableSet.Builder supportedEncodings = new ImmutableSet.Builder<>();
 
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      supportedEncodings = EXTERNAL_SURROUND_SOUND_ENCODINGS;
+      supportedEncodings.addAll(Ints.asList(EXTERNAL_SURROUND_SOUND_ENCODINGS));
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
-      supportedEncodings = Ints.concat(supportedEncodings,
-          Api29.getDirectPlaybackSupportedEncodings(Api29.getAllSurroundEncodingsMaybeSupported()));
+      supportedEncodings.addAll(Ints.asList(Api29.getDirectPlaybackSupportedEncodings()));
     }
 
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
-      if (supportedEncodings.length == 0) {
+      if (supportedEncodings.build().isEmpty()) {
         return DEFAULT_AUDIO_CAPABILITIES;
       } else {
-        supportedEncodings = Util.nullSafeIntegerArrayDistinct(supportedEncodings);
-        return new AudioCapabilities(supportedEncodings, /* defaultValue= */
+        return new AudioCapabilities(Ints.toArray(supportedEncodings.build()), /* defaultValue= */
             DEFAULT_MAX_CHANNEL_COUNT);
       }
     }
 
-    supportedEncodings = Ints.concat(supportedEncodings,
-        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS));
-    supportedEncodings = Util.nullSafeIntegerArrayDistinct(supportedEncodings);
+    supportedEncodings.addAll(Ints.asList(
+        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
     return new AudioCapabilities(
-        supportedEncodings, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
+        Ints.toArray(supportedEncodings.build()), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
   }
 
   /**
@@ -365,7 +362,8 @@ public final class AudioCapabilities {
     private Api29() {}
 
     @DoNotInline
-    public static int[] getDirectPlaybackSupportedEncodings(int[] encodings) {
+    public static int[] getDirectPlaybackSupportedEncodings() {
+      int[] encodings = Api29.getAllSurroundEncodingsMaybeSupported();
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : encodings) {
         if (AudioTrack.isDirectPlaybackSupported(
@@ -408,6 +406,7 @@ public final class AudioCapabilities {
     /**
      * Returns an array list of surround encodings that maybe supported.
      */
+    @DoNotInline
     private static int[] getAllSurroundEncodingsMaybeSupported() {
       ImmutableList.Builder<Integer> encodings = new ImmutableList.Builder<>();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
