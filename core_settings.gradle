@@ -21,6 +21,8 @@ if (gradle.ext.has('androidxMediaModulePrefix')) {
     modulePrefix += gradle.ext.androidxMediaModulePrefix
 }
 
+rootProject.name = gradle.ext.androidxMediaProjectName
+
 include modulePrefix + 'lib-common'
 project(modulePrefix + 'lib-common').projectDir = new File(rootDir, 'libraries/common')
 
