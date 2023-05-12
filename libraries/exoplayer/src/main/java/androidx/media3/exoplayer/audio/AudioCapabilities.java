@@ -115,19 +115,19 @@ public final class AudioCapabilities {
       supportedEncodings.addAll(Ints.asList(Api29.getDirectPlaybackSupportedEncodings()));
     }
 
-    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
-      if (supportedEncodings.build().isEmpty()) {
-        return DEFAULT_AUDIO_CAPABILITIES;
-      } else {
-        return new AudioCapabilities(Ints.toArray(supportedEncodings.build()), /* defaultValue= */
-            DEFAULT_MAX_CHANNEL_COUNT);
-      }
+    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
+      supportedEncodings.addAll(Ints.asList(
+          intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodings.build()), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
     }
 
-    supportedEncodings.addAll(Ints.asList(
-        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
-    return new AudioCapabilities(
-        Ints.toArray(supportedEncodings.build()), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
+    if (supportedEncodings.build().isEmpty()) {
+      return DEFAULT_AUDIO_CAPABILITIES;
+    } else {
+      return new AudioCapabilities(Ints.toArray(supportedEncodings.build()), /* defaultValue= */
+          DEFAULT_MAX_CHANNEL_COUNT);
+    }
   }
 
   /**
