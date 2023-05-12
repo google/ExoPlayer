@@ -562,7 +562,7 @@ import java.util.Locale;
     contents.put(paspBox());
 
     // Put in a "colr" box if any of the three color format parameters has a non-default (0) value.
-    // TODO(b/278101856): Only null check should be enough once we disallow invalid values.
+    // TODO: b/278101856 - Only null check should be enough once we disallow invalid values.
     if (format.colorInfo != null
         && (format.colorInfo.colorSpace != 0
             || format.colorInfo.colorTransfer != 0
@@ -588,6 +588,7 @@ import java.util.Locale;
    * @param lastDurationBehavior The behaviour for the last sample duration.
    * @return A list of all the sample durations.
    */
+  // TODO: b/280084657 - Add support for setting last sample duration.
   public static List<Long> durationsVuForStts(
       List<MediaCodec.BufferInfo> writtenSamples,
       long minInputPresentationTimestampUs,
@@ -671,7 +672,7 @@ import java.util.Locale;
 
     contents.putInt(0x0); // version and flags.
 
-    // TODO(b/270583563): Consider optimizing for identically-sized samples.
+    // TODO: b/270583563 - Consider optimizing for identically-sized samples.
     //  sample_size; specifying the default sample size. Set to zero to indicate that the samples
     //  have different sizes and they are stored in the sample size table.
     contents.putInt(0);
@@ -697,7 +698,7 @@ import java.util.Locale;
 
     int currentChunk = 1;
 
-    // TODO(b/270583563): Consider optimizing for consecutive chunks having same number of samples.
+    // TODO: b/270583563 - Consider optimizing for consecutive chunks having same number of samples.
     for (int i = 0; i < writtenChunkSampleCounts.size(); i++) {
       int samplesInChunk = writtenChunkSampleCounts.get(i);
       contents.putInt(currentChunk); // first_chunk.
