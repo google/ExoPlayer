@@ -26,6 +26,9 @@ rootProject.name = gradle.ext.androidxMediaProjectName
 include modulePrefix + 'lib-common'
 project(modulePrefix + 'lib-common').projectDir = new File(rootDir, 'libraries/common')
 
+include modulePrefix + 'lib-container'
+project(modulePrefix + 'lib-container').projectDir = new File(rootDir, 'libraries/container')
+
 include modulePrefix + 'lib-session'
 project(modulePrefix + 'lib-session').projectDir = new File(rootDir, 'libraries/session')
 
