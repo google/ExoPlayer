@@ -115,7 +115,7 @@ public final class AudioCapabilities {
       supportedEncodings.addAll(Ints.asList(Api29.getDirectPlaybackSupportedEncodings()));
     }
 
-    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
+    if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
       supportedEncodings.addAll(Ints.asList(
           intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
       return new AudioCapabilities(
