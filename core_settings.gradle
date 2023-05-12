@@ -26,6 +26,9 @@ def modulePrefix = ':'
 include modulePrefix + 'library-common'
 project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
 
+include modulePrefix + 'library-container'
+project(modulePrefix + 'library-container').projectDir = new File(rootDir, 'library/container')
+
 include modulePrefix + 'extension-mediasession'
 project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
 include modulePrefix + 'extension-media2'
