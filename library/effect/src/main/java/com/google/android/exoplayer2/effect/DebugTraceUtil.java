@@ -17,7 +17,9 @@
 package com.google.android.exoplayer2.effect;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Joiner;
@@ -66,6 +68,10 @@ public final class DebugTraceUtil {
   @GuardedBy("DebugTraceUtil.class")
   private static final Queue<Long> MUXER_TRACK_END_TIMES_MS = new ArrayDeque<>();
 
+  /** The input {@link Format} of the latest media item. */
+  @GuardedBy("DebugTraceUtil.class")
+  private static @Nullable Format latestVideoInputFormat = null;
+
   /** The number of decoded frames. */
   @GuardedBy("DebugTraceUtil.class")
   private static int numberOfDecodedFrames = 0;
@@ -89,6 +95,7 @@ public final class DebugTraceUtil {
   private DebugTraceUtil() {}
 
   public static synchronized void reset() {
+    latestVideoInputFormat = null;
     numberOfDecodedFrames = 0;
     numberOfFramesRenderedToVideoFrameProcessorInput = 0;
     numberOfFramesRenderedToVideoFrameProcessorOutput = 0;
@@ -101,6 +108,10 @@ public final class DebugTraceUtil {
     ENCODER_RECEIVE_EOS_TIMES_MS.clear();
     MUXER_CAN_WRITE_VIDEO_SAMPLE.clear();
     MUXER_TRACK_END_TIMES_MS.clear();
+  }
+
+  public static synchronized void recordLatestVideoInputFormat(Format format) {
+    latestVideoInputFormat = format;
   }
 
   public static synchronized void recordDecodedFrame() {
@@ -162,7 +173,9 @@ public final class DebugTraceUtil {
   }
 
   public static synchronized String generateTrace() {
-    return "Decoded: "
+    return "Video input format: "
+        + latestVideoInputFormat
+        + ", Decoded: "
         + numberOfDecodedFrames
         + ", Rendered to VFP: "
         + numberOfFramesRenderedToVideoFrameProcessorInput
