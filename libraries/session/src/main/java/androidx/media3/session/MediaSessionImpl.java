@@ -560,6 +560,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  /* package */ boolean canResumePlaybackOnStart() {
+    return sessionLegacyStub.canResumePlaybackOnStart();
+  }
+
   /* package */ void setMediaSessionListener(MediaSession.Listener listener) {
     this.mediaSessionListener = listener;
   }

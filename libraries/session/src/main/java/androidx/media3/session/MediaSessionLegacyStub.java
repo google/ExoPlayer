@@ -630,6 +630,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return connectedControllersManager;
   }
 
+  /* package */ boolean canResumePlaybackOnStart() {
+    return canResumePlaybackOnStart;
+  }
+
   private void dispatchSessionTaskWithPlayerCommand(
       @Player.Command int command, SessionTask task, @Nullable RemoteUserInfo remoteUserInfo) {
     if (sessionImpl.isReleased()) {
