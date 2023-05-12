@@ -319,7 +319,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void doInterleave() throws IOException {
     for (int i = 0; i < tracks.size(); i++) {
       Track track = tracks.get(i);
-      // TODO(b/270583563): check if we need to consider the global timestamp instead.
+      // TODO: b/270583563 - check if we need to consider the global timestamp instead.
       if (track.pendingSamples.size() > 2) {
         BufferInfo firstSampleInfo = checkNotNull(track.pendingSamples.peekFirst()).first;
         BufferInfo lastSampleInfo = checkNotNull(track.pendingSamples.peekLast()).first;
@@ -377,9 +377,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
 
       // Skip empty samples.
-      // TODO(b/279931840): Confirm whether muxer should throw when writing empty samples.
+      // TODO: b/279931840 - Confirm whether muxer should throw when writing empty samples.
       if (byteBuffer.remaining() > 0) {
-        pendingSamples.addLast(Pair.create(bufferInfo, byteBuffer));
+        // Copy sample data and release the original buffer.
+        ByteBuffer byteBufferCopy = ByteBuffer.allocateDirect(byteBuffer.remaining());
+        byteBufferCopy.put(byteBuffer);
+        byteBufferCopy.rewind();
+
+        BufferInfo bufferInfoCopy = new BufferInfo();
+        bufferInfoCopy.set(
+            /* newOffset= */ byteBufferCopy.position(),
+            /* newSize= */ byteBufferCopy.remaining(),
+            bufferInfo.presentationTimeUs,
+            bufferInfo.flags);
+
+        pendingSamples.addLast(Pair.create(bufferInfoCopy, byteBufferCopy));
         doInterleave();
       }
     }
@@ -387,7 +399,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     @Override
     public int videoUnitTimebase() {
       return MimeTypes.isAudio(format.sampleMimeType)
-          ? 48_000 // TODO(b/270583563): Update these with actual values from mediaFormat.
+          ? 48_000 // TODO: b/270583563 - Update these with actual values from mediaFormat.
           : 90_000;
     }
 

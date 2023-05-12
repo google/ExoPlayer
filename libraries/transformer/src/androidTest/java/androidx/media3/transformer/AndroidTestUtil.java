@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.MimeTypes.VIDEO_AV1;
 import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkNotNull;
@@ -72,6 +73,15 @@ public final class AndroidTestUtil {
           .setHeight(720)
           .setFrameRate(29.97f)
           .setCodecs("avc1.64001F")
+          .build();
+
+  public static final String MP4_ASSET_AV1_VIDEO_URI_STRING = "asset:///media/mp4/sample_av1.mp4";
+  public static final Format MP4_ASSET_AV1_VIDEO_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_AV1)
+          .setWidth(1080)
+          .setHeight(720)
+          .setFrameRate(30.0f)
           .build();
 
   public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING =

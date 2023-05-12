@@ -23,7 +23,9 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -139,6 +141,14 @@ public final class Mp4Muxer {
       return new Mp4Muxer(mp4Writer, metadataCollector);
     }
   }
+
+  /** A list of supported video sample mime types. */
+  public static final ImmutableList<String> SUPPORTED_VIDEO_SAMPLE_MIME_TYPES =
+      ImmutableList.of(MimeTypes.VIDEO_H264, MimeTypes.VIDEO_H265, MimeTypes.VIDEO_AV1);
+
+  /** A list of supported audio sample mime types. */
+  public static final ImmutableList<String> SUPPORTED_AUDIO_SAMPLE_MIME_TYPES =
+      ImmutableList.of(MimeTypes.AUDIO_AAC);
 
   private final Mp4Writer mp4Writer;
   private final MetadataCollector metadataCollector;
