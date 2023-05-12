@@ -71,6 +71,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onInputFormatRead(Format inputFormat) {
+    DebugTraceUtil.recordLatestVideoInputFormat(inputFormat);
     if (flattenForSlowMotion) {
       sefVideoSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
