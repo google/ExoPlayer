@@ -26,10 +26,7 @@ import static androidx.media3.common.util.Util.getDrawable;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -56,7 +53,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Consumer;
 import androidx.media3.common.AdOverlayInfo;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
@@ -75,13 +71,6 @@ import androidx.media3.common.util.RepeatModeUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.ui.AspectRatioFrameLayout.ResizeMode;
-import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter;
-import androidx.window.layout.DisplayFeature;
-import androidx.window.layout.FoldingFeature;
-import androidx.window.layout.FoldingFeature.Orientation;
-import androidx.window.layout.FoldingFeature.State;
-import androidx.window.layout.WindowInfoTracker;
-import androidx.window.layout.WindowLayoutInfo;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -90,7 +79,6 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
@@ -279,9 +267,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
   private boolean isTouching;
-  private boolean isTabletop;
-  private final WindowInfoTrackerCallbackAdapter windowInfoTracker;
-  @MonotonicNonNull private Consumer<WindowLayoutInfo> layoutStateChangeCallback;
 
   public PlayerView(Context context) {
     this(context, /* attrs= */ null);
@@ -295,9 +280,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   public PlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
-    isTabletop = false;
-    windowInfoTracker =
-        new WindowInfoTrackerCallbackAdapter(WindowInfoTracker.getOrCreate(context));
     componentListener = new ComponentListener();
 
     if (isInEditMode()) {
@@ -592,25 +574,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     if (surfaceView instanceof SurfaceView) {
       // Work around https://github.com/google/ExoPlayer/issues/3160.
       surfaceView.setVisibility(visibility);
-    }
-  }
-
-  @Override
-  protected void onAttachedToWindow() {
-    super.onAttachedToWindow();
-    layoutStateChangeCallback = this::consumeWindowLayoutInfo;
-    @Nullable Activity activity = getActivity();
-    if (activity != null) {
-      windowInfoTracker.addWindowLayoutInfoListener(
-          activity, ContextCompat.getMainExecutor(getContext()), layoutStateChangeCallback);
-    }
-  }
-
-  @Override
-  protected void onDetachedFromWindow() {
-    super.onDetachedFromWindow();
-    if (layoutStateChangeCallback != null) {
-      windowInfoTracker.removeWindowLayoutInfoListener(layoutStateChangeCallback);
     }
   }
 
@@ -1558,53 +1521,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         || keyCode == KeyEvent.KEYCODE_DPAD_LEFT
         || keyCode == KeyEvent.KEYCODE_DPAD_UP_LEFT
         || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
-  }
-
-  @Nullable
-  private Activity getActivity() {
-    Context context = getContext();
-    while (context instanceof ContextWrapper) {
-      if (context instanceof Activity) {
-        return (Activity) context;
-      }
-      context = ((ContextWrapper) context).getBaseContext();
-    }
-    return null;
-  }
-
-  @Override
-  protected void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    isTabletop = false;
-  }
-
-  private void consumeWindowLayoutInfo(WindowLayoutInfo windowLayoutInfo) {
-    List<DisplayFeature> features = windowLayoutInfo.getDisplayFeatures();
-    int foldingFeatureIndex = C.INDEX_UNSET;
-
-    for (int i = 0; i < features.size(); i++) {
-      DisplayFeature feature = features.get(i);
-      if (feature instanceof FoldingFeature) {
-        if (foldingFeatureIndex != C.INDEX_UNSET) {
-          // For now, we are only handling single folding features like tabletop and book fold.
-          return;
-        }
-        foldingFeatureIndex = i;
-      }
-    }
-    if (foldingFeatureIndex != C.INDEX_UNSET) {
-      handleFoldingFeature((FoldingFeature) features.get(foldingFeatureIndex));
-    }
-  }
-
-  private void handleFoldingFeature(FoldingFeature feature) {
-    boolean isTabletopFeature =
-        feature.getOrientation() == Orientation.HORIZONTAL
-            && feature.getState() == State.HALF_OPENED;
-    // Only enter or exit tabletop if different than current orientation and state
-    if (isTabletopFeature != isTabletop) {
-      isTabletop = isTabletopFeature;
-    }
   }
 
   // Implementing the deprecated PlayerControlView.VisibilityListener and
