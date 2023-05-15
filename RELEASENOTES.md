@@ -11,6 +11,8 @@
     *   Remove two deprecated `SimpleCache` constructors, use a non-deprecated
         constructor that takes a `DatabaseProvider` instead for better
         performance.
+    *   Remove `DefaultBandwidthMeter` constructor, use
+        `DefaultBandwidthMeter.Builder` instead.
 
 ### 1.1.0-alpha01 (2023-05-10)
 

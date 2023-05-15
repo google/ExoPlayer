@@ -688,19 +688,13 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void defaultInitialBitrateEstimate_withoutContext_isReasonable() {
-    DefaultBandwidthMeter bandwidthMeterWithBuilder =
+    DefaultBandwidthMeter bandwidthMeter =
         new DefaultBandwidthMeter.Builder(/* context= */ null).build();
-    long initialEstimateWithBuilder = bandwidthMeterWithBuilder.getBitrateEstimate();
+    long initialEstimate = bandwidthMeter.getBitrateEstimate();
 
-    DefaultBandwidthMeter bandwidthMeterWithoutBuilder = new DefaultBandwidthMeter();
-    long initialEstimateWithoutBuilder = bandwidthMeterWithoutBuilder.getBitrateEstimate();
-
-    assertThat(initialEstimateWithBuilder).isGreaterThan(100_000L);
-    assertThat(initialEstimateWithBuilder).isLessThan(50_000_000L);
-    assertThat(initialEstimateWithoutBuilder).isGreaterThan(100_000L);
-    assertThat(initialEstimateWithoutBuilder).isLessThan(50_000_000L);
+    assertThat(initialEstimate).isGreaterThan(100_000L);
+    assertThat(initialEstimate).isLessThan(50_000_000L);
   }
 
   private void setActiveNetworkInfo(NetworkInfo networkInfo) {
