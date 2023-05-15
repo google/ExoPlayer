@@ -168,7 +168,7 @@ import java.util.concurrent.TimeoutException;
   private final FrameMetadataListener frameMetadataListener;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
-  private final StreamVolumeManager streamVolumeManager;
+  @Nullable private final StreamVolumeManager streamVolumeManager;
   private final WakeLockManager wakeLockManager;
   private final WifiLockManager wifiLockManager;
   private final long detachSurfaceTimeoutMs;
@@ -228,6 +228,7 @@ import java.util.concurrent.TimeoutException;
   private long maskingWindowPositionMs;
 
   @SuppressLint("HandlerLeak")
+  @SuppressWarnings("deprecation") // Control flow for old volume commands
   public ExoPlayerImpl(ExoPlayer.Builder builder, @Nullable Player wrappingPlayer) {
     constructorFinished = new ConditionVariable();
     try {
@@ -306,17 +307,17 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_TRACKS,
                   COMMAND_GET_AUDIO_ATTRIBUTES,
                   COMMAND_GET_VOLUME,
-                  COMMAND_GET_DEVICE_VOLUME,
                   COMMAND_SET_VOLUME,
-                  COMMAND_SET_DEVICE_VOLUME,
-                  COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
-                  COMMAND_ADJUST_DEVICE_VOLUME,
-                  COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
                   COMMAND_SET_VIDEO_SURFACE,
                   COMMAND_GET_TEXT,
                   COMMAND_RELEASE)
               .addIf(
                   COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
+              .addIf(COMMAND_GET_DEVICE_VOLUME, builder.deviceVolumeControlEnabled)
+              .addIf(COMMAND_SET_DEVICE_VOLUME, builder.deviceVolumeControlEnabled)
+              .addIf(COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS, builder.deviceVolumeControlEnabled)
+              .addIf(COMMAND_ADJUST_DEVICE_VOLUME, builder.deviceVolumeControlEnabled)
+              .addIf(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS, builder.deviceVolumeControlEnabled)
               .build();
       availableCommands =
           new Commands.Builder()
@@ -381,9 +382,13 @@ import java.util.concurrent.TimeoutException;
       audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
       audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
       audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
-      streamVolumeManager =
-          new StreamVolumeManager(builder.context, eventHandler, componentListener);
-      streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
+      if (builder.deviceVolumeControlEnabled) {
+        streamVolumeManager =
+            new StreamVolumeManager(builder.context, eventHandler, componentListener);
+        streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
+      } else {
+        streamVolumeManager = null;
+      }
       wakeLockManager = new WakeLockManager(builder.context);
       wakeLockManager.setEnabled(builder.wakeMode != C.WAKE_MODE_NONE);
       wifiLockManager = new WifiLockManager(builder.context);
@@ -999,7 +1004,9 @@ import java.util.concurrent.TimeoutException;
       keepSessionIdAudioTrack = null;
     }
     audioBecomingNoisyManager.setEnabled(false);
-    streamVolumeManager.release();
+    if (streamVolumeManager != null) {
+      streamVolumeManager.release();
+    }
     wakeLockManager.setStayAwake(false);
     wifiLockManager.setStayAwake(false);
     audioFocusManager.release();
@@ -1421,7 +1428,10 @@ import java.util.concurrent.TimeoutException;
     if (!Util.areEqual(this.audioAttributes, newAudioAttributes)) {
       this.audioAttributes = newAudioAttributes;
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, newAudioAttributes);
-      streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(newAudioAttributes.usage));
+      if (streamVolumeManager != null) {
+        streamVolumeManager.setStreamType(
+            Util.getStreamTypeForAudioUsage(newAudioAttributes.usage));
+      }
       // Queue event only and flush after updating playWhenReady in case both events are triggered.
       listeners.queueEvent(
           EVENT_AUDIO_ATTRIBUTES_CHANGED,
@@ -1703,13 +1713,21 @@ import java.util.concurrent.TimeoutException;
   @Override
   public int getDeviceVolume() {
     verifyApplicationThread();
-    return streamVolumeManager.getVolume();
+    if (streamVolumeManager != null) {
+      return streamVolumeManager.getVolume();
+    } else {
+      return 0;
+    }
   }
 
   @Override
   public boolean isDeviceMuted() {
     verifyApplicationThread();
-    return streamVolumeManager.isMuted();
+    if (streamVolumeManager != null) {
+      return streamVolumeManager.isMuted();
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -1719,13 +1737,17 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void setDeviceVolume(int volume) {
     verifyApplicationThread();
-    streamVolumeManager.setVolume(volume, C.VOLUME_FLAG_SHOW_UI);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.setVolume(volume, C.VOLUME_FLAG_SHOW_UI);
+    }
   }
 
   @Override
   public void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
     verifyApplicationThread();
-    streamVolumeManager.setVolume(volume, flags);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.setVolume(volume, flags);
+    }
   }
 
   /**
@@ -1735,13 +1757,17 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void increaseDeviceVolume() {
     verifyApplicationThread();
-    streamVolumeManager.increaseVolume(C.VOLUME_FLAG_SHOW_UI);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.increaseVolume(C.VOLUME_FLAG_SHOW_UI);
+    }
   }
 
   @Override
   public void increaseDeviceVolume(@C.VolumeFlags int flags) {
     verifyApplicationThread();
-    streamVolumeManager.increaseVolume(flags);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.increaseVolume(flags);
+    }
   }
 
   /**
@@ -1751,13 +1777,17 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void decreaseDeviceVolume() {
     verifyApplicationThread();
-    streamVolumeManager.decreaseVolume(C.VOLUME_FLAG_SHOW_UI);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.decreaseVolume(C.VOLUME_FLAG_SHOW_UI);
+    }
   }
 
   @Override
   public void decreaseDeviceVolume(@C.VolumeFlags int flags) {
     verifyApplicationThread();
-    streamVolumeManager.decreaseVolume(flags);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.decreaseVolume(flags);
+    }
   }
 
   /**
@@ -1767,13 +1797,17 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void setDeviceMuted(boolean muted) {
     verifyApplicationThread();
-    streamVolumeManager.setMuted(muted, C.VOLUME_FLAG_SHOW_UI);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.setMuted(muted, C.VOLUME_FLAG_SHOW_UI);
+    }
   }
 
   @Override
   public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
     verifyApplicationThread();
-    streamVolumeManager.setMuted(muted, flags);
+    if (streamVolumeManager != null) {
+      streamVolumeManager.setMuted(muted, flags);
+    }
   }
 
   @Override
@@ -2797,10 +2831,10 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
-  private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {
+  private static DeviceInfo createDeviceInfo(@Nullable StreamVolumeManager streamVolumeManager) {
     return new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL)
-        .setMinVolume(streamVolumeManager.getMinVolume())
-        .setMaxVolume(streamVolumeManager.getMaxVolume())
+        .setMinVolume(streamVolumeManager != null ? streamVolumeManager.getMinVolume() : 0)
+        .setMaxVolume(streamVolumeManager != null ? streamVolumeManager.getMaxVolume() : 0)
         .build();
   }
 

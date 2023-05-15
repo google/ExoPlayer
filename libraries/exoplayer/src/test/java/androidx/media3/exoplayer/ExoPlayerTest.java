@@ -100,6 +100,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -9155,6 +9156,7 @@ public final class ExoPlayerTest {
     player.release();
   }
 
+  @SuppressWarnings("deprecation") // Checking old volume commands
   @Test
   public void isCommandAvailable_isTrueForAvailableCommands() {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
@@ -9184,15 +9186,39 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SET_MEDIA_ITEM)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_AUDIO_ATTRIBUTES)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_VOLUME)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_GET_DEVICE_VOLUME)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_VOLUME)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_SET_DEVICE_VOLUME)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_TEXT)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_TRACKS)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_RELEASE)).isTrue();
+  }
+
+  @SuppressWarnings("deprecation") // Checking old volume commands
+  @Test
+  public void isCommandAvailable_withDeviceVolumeControlEnabled_isTrueForDeviceVolumeCommands() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context).setDeviceVolumeControlEnabled(true).build();
+
+    assertThat(player.isCommandAvailable(COMMAND_GET_DEVICE_VOLUME)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_DEVICE_VOLUME)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)).isTrue();
+  }
+
+  @SuppressWarnings("deprecation") // Checking old volume commands
+  @Test
+  public void
+      isCommandAvailable_withoutDeviceVolumeControlEnabled_isFalseForDeviceVolumeCommands() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context).setDeviceVolumeControlEnabled(false).build();
+
+    assertThat(player.isCommandAvailable(COMMAND_GET_DEVICE_VOLUME)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SET_DEVICE_VOLUME)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)).isFalse();
   }
 
   @Test
@@ -9529,7 +9555,9 @@ public final class ExoPlayerTest {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
-    Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
+    Player.Commands emptyTimelineCommands =
+        createWithDefaultCommands(
+            /* isTimelineEmpty= */ true, /* allowDeviceVolumeControl= */ false);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -9557,7 +9585,9 @@ public final class ExoPlayerTest {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
-    Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
+    Player.Commands emptyTimelineCommands =
+        createWithDefaultCommands(
+            /* isTimelineEmpty= */ true, /* allowDeviceVolumeControl= */ false);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -12323,7 +12353,9 @@ public final class ExoPlayerTest {
   @Test
   public void releaseAfterVolumeChanges_triggerPendingDeviceVolumeEventsInListener() {
     ExoPlayer player =
-        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(true)
+            .build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
 
@@ -12341,6 +12373,113 @@ public final class ExoPlayerTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener, atLeast(2)).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void setDeviceMutedWithoutDeviceVolumeControl_noEffectDeviceRemainsUnmuted() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(false)
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.setDeviceMuted(/* muted= */ true, /* flags= */ 0); // no volume control, no effect
+    boolean isActuallyMuted = player.isDeviceMuted();
+    player.release();
+
+    assertThat(isActuallyMuted).isFalse();
+    verify(listener, times(0)).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void setDeviceMutedWithDeviceVolumeControl_deviceGetsMuted() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(true)
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.setDeviceMuted(/* muted= */ true, /* flags= */ 0);
+    boolean isActuallyMuted = player.isDeviceMuted();
+    player.release();
+
+    assertThat(isActuallyMuted).isTrue();
+    verify(listener).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void increaseDeviceVolumeWithoutDeviceVolumeControl_deviceVolumeUnchanged() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(false)
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.increaseDeviceVolume(/* flags= */ 0); // no volume control, no effect
+    player.release();
+
+    verify(listener, times(0)).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void decreaseDeviceVolumeWithoutDeviceVolumeControl_deviceVolumeUnchanged() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(false)
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.decreaseDeviceVolume(/* flags= */ 0); // no volume control, no effect
+    player.release();
+
+    verify(listener, times(0)).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void getDeviceVolumeWithoutDeviceVolumeControl_returnsZero() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(false)
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    int initialDeviceVolume = player.getDeviceVolume();
+    player.setDeviceVolume(10, /* flags= */ 0);
+    int setDeviceVolumeAt10 = player.getDeviceVolume();
+    player.increaseDeviceVolume(/* flags= */ 0);
+    player.increaseDeviceVolume(/* flags= */ 0);
+    int setDeviceVolumeAt12 = player.getDeviceVolume();
+    player.decreaseDeviceVolume(/* flags= */ 0);
+    int setDeviceVolumeAt11 = player.getDeviceVolume();
+    player.release();
+
+    assertThat(initialDeviceVolume).isEqualTo(0);
+    assertThat(setDeviceVolumeAt10).isEqualTo(0);
+    assertThat(setDeviceVolumeAt12).isEqualTo(0);
+    assertThat(setDeviceVolumeAt11).isEqualTo(0);
+    verify(listener, times(0)).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void getDeviceInfoWithoutDeviceVolumeControl_returnsZeroForMinMaxVolume() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setDeviceVolumeControlEnabled(false)
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    DeviceInfo deviceInfo = player.getDeviceInfo();
+    int minVolume = deviceInfo.minVolume;
+    int maxVolume = deviceInfo.maxVolume;
+
+    assertThat(minVolume).isEqualTo(0);
+    assertThat(maxVolume).isEqualTo(0);
   }
 
   @Test
@@ -12482,8 +12621,11 @@ public final class ExoPlayerTest {
     return false;
   }
 
+  @SuppressWarnings("deprecation") // Control flow for the old volume commands
   private static Player.Commands createWithDefaultCommands(
-      boolean isTimelineEmpty, @Player.Command int... additionalCommands) {
+      boolean isTimelineEmpty,
+      boolean allowDeviceVolumeControl,
+      @Player.Command int... additionalCommands) {
     Player.Commands.Builder builder = new Player.Commands.Builder();
     builder.addAll(
         COMMAND_PLAY_PAUSE,
@@ -12502,12 +12644,7 @@ public final class ExoPlayerTest {
         COMMAND_SET_MEDIA_ITEM,
         COMMAND_GET_AUDIO_ATTRIBUTES,
         COMMAND_GET_VOLUME,
-        COMMAND_GET_DEVICE_VOLUME,
         COMMAND_SET_VOLUME,
-        COMMAND_SET_DEVICE_VOLUME,
-        COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
-        COMMAND_ADJUST_DEVICE_VOLUME,
-        COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
@@ -12516,13 +12653,22 @@ public final class ExoPlayerTest {
     if (!isTimelineEmpty) {
       builder.add(COMMAND_SEEK_TO_PREVIOUS);
     }
+    if (allowDeviceVolumeControl) {
+      builder.addAll(
+          COMMAND_GET_DEVICE_VOLUME,
+          COMMAND_SET_DEVICE_VOLUME,
+          COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
+          COMMAND_ADJUST_DEVICE_VOLUME,
+          COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS);
+    }
     builder.addAll(additionalCommands);
     return builder.build();
   }
 
   private static Player.Commands createWithDefaultCommands(
       @Player.Command int... additionalCommands) {
-    return createWithDefaultCommands(/* isTimelineEmpty= */ false, additionalCommands);
+    return createWithDefaultCommands(
+        /* isTimelineEmpty= */ false, /* allowDeviceVolumeControl= */ false, additionalCommands);
   }
 
   // Internal classes.
