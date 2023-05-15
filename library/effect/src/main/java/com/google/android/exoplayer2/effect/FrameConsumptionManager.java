@@ -65,6 +65,7 @@ import java.util.Queue;
 
     long presentationTimeUs = pendingFrame.second;
     if (presentationTimeUs == C.TIME_END_OF_SOURCE) {
+      consumingGlShaderProgramInputCapacity++;
       videoFrameProcessingTaskExecutor.submit(
           consumingGlShaderProgram::signalEndOfCurrentInputStream);
     } else {
