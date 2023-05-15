@@ -167,10 +167,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void release() {
-    if (!released) {
-      currentAssetLoader.release();
-      released = true;
-    }
+    currentAssetLoader.release();
+    released = true;
   }
 
   private void addCurrentProcessedInput() {
@@ -373,9 +371,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           // SampleConsumer so there is no need to handle the case where the sample wasn't queued.
           checkState(sampleConsumer.queueInputBuffer());
           audioLoopingEnded = true;
-          if (nonEndedTracks.decrementAndGet() == 0) {
-            release();
-          }
+          nonEndedTracks.decrementAndGet();
         }
         return false;
       }
@@ -388,13 +384,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           if (nonEndedTracks.get() == 0) {
             switchAssetLoader();
           }
-        } else {
-          checkState(sampleConsumer.queueInputBuffer());
-          if (nonEndedTracks.get() == 0) {
-            release();
-          }
+          return true;
         }
-        return true;
       }
 
       checkState(sampleConsumer.queueInputBuffer());
@@ -472,17 +463,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     @Override
     public void signalEndOfVideoInput() {
+      nonEndedTracks.decrementAndGet();
       boolean videoEnded =
           isLooping ? videoLoopingEnded : currentMediaItemIndex == editedMediaItems.size() - 1;
       if (videoEnded) {
         sampleConsumer.signalEndOfVideoInput();
-      }
-      if (nonEndedTracks.decrementAndGet() == 0) {
-        if (videoEnded) {
-          release();
-        } else {
-          switchAssetLoader();
-        }
+      } else if (nonEndedTracks.get() == 0) {
+        switchAssetLoader();
       }
     }
 
@@ -490,6 +477,9 @@ import java.util.concurrent.atomic.AtomicInteger;
       handler.post(
           () -> {
             try {
+              if (released) {
+                return;
+              }
               addCurrentProcessedInput();
               totalDurationUs += currentAssetDurationUs;
               currentAssetLoader.release();
@@ -511,12 +501,6 @@ import java.util.concurrent.atomic.AtomicInteger;
                   ExportException.createForAssetLoader(e, ExportException.ERROR_CODE_UNSPECIFIED));
             }
           });
-    }
-
-    private void release() {
-      // TODO(b/276415739): releasing the player earlier causes more release timeouts on emulator
-      //  tests. Figure out what the cause is and uncomment the line below once fixed.
-      // handler.post(SequenceAssetLoader.this::release);
     }
   }
 }
