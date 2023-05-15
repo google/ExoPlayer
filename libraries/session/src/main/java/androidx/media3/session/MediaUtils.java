@@ -1476,6 +1476,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
+  /**
+   * Returns whether the two provided {@link SessionPositionInfo} describe a position in the same
+   * period or ad.
+   */
+  public static boolean areSessionPositionInfosInSamePeriodOrAd(
+      SessionPositionInfo info1, SessionPositionInfo info2) {
+    // TODO: b/259220235 - Use UIDs instead of mediaItemIndex and periodIndex
+    return info1.positionInfo.mediaItemIndex == info2.positionInfo.mediaItemIndex
+        && info1.positionInfo.periodIndex == info2.positionInfo.periodIndex
+        && info1.positionInfo.adGroupIndex == info2.positionInfo.adGroupIndex
+        && info1.positionInfo.adIndexInAdGroup == info2.positionInfo.adIndexInAdGroup;
+  }
+
   private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {
     try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
       bitmap.compress(Bitmap.CompressFormat.PNG, /* ignored */ 0, stream);

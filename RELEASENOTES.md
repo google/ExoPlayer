@@ -7,6 +7,9 @@
         implement playback resumption with media button events sent by, for
         example, a Bluetooth headset
         ([#167](https://github.com/androidx/media/issues/167)).
+    *   Fix bug where a combined `Timeline` and position update in a
+        `MediaSession` may cause a `MediaController` to throw an
+        `IllegalStateException`.
 *   Remove deprecated symbols:
     *   Remove two deprecated `SimpleCache` constructors, use a non-deprecated
         constructor that takes a `DatabaseProvider` instead for better

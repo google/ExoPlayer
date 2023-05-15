@@ -807,7 +807,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     SessionPositionInfo sessionPositionInfo = playerWrapper.createSessionPositionInfoForBundling();
-    dispatchOnPeriodicSessionPositionInfoChanged(sessionPositionInfo);
+    if (!onPlayerInfoChangedHandler.hasPendingPlayerInfoChangedUpdate()
+        && MediaUtils.areSessionPositionInfosInSamePeriodOrAd(
+            sessionPositionInfo, playerInfo.sessionPositionInfo)) {
+      // Send a periodic position info only if a PlayerInfo update is not already already pending
+      // and the player state is still corresponding to the currently known PlayerInfo. Both
+      // conditions will soon trigger a new PlayerInfo update with the latest position info anyway
+      // and we also don't want to send a new position info early if the corresponding Timeline
+      // update hasn't been sent yet (see [internal b/277301159]).
+      dispatchOnPeriodicSessionPositionInfoChanged(sessionPositionInfo);
+    }
     schedulePeriodicSessionPositionInfoChanges();
   }
 
@@ -1362,11 +1371,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
+    public boolean hasPendingPlayerInfoChangedUpdate() {
+      return hasMessages(MSG_PLAYER_INFO_CHANGED);
+    }
+
     public void sendPlayerInfoChangedMessage(boolean excludeTimeline, boolean excludeTracks) {
       this.excludeTimeline = this.excludeTimeline && excludeTimeline;
       this.excludeTracks = this.excludeTracks && excludeTracks;
-      if (!onPlayerInfoChangedHandler.hasMessages(MSG_PLAYER_INFO_CHANGED)) {
-        onPlayerInfoChangedHandler.sendEmptyMessage(MSG_PLAYER_INFO_CHANGED);
+      if (!hasMessages(MSG_PLAYER_INFO_CHANGED)) {
+        sendEmptyMessage(MSG_PLAYER_INFO_CHANGED);
       }
     }
   }

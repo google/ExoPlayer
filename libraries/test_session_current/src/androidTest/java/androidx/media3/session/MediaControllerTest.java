@@ -34,6 +34,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
+import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -1062,6 +1063,51 @@ public class MediaControllerTest {
         .postAndSync(() -> bufferedPositionAfterDelay.set(controller.getBufferedPosition()));
 
     assertThat(bufferedPositionAfterDelay.get()).isNotEqualTo(testBufferedPosition);
+  }
+
+  @Test
+  public void
+      getCurrentMediaItemIndex_withPeriodicUpdateOverlappingTimelineChanges_updatesIndexCorrectly()
+          throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlayWhenReady(true)
+            .setPlaybackState(Player.STATE_READY)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    ArrayList<Integer> transitionMediaItemIndices = new ArrayList<>();
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            transitionMediaItemIndices.add(controller.getCurrentMediaItemIndex());
+          }
+        });
+
+    // Intentionally trigger update often to ensure there is a likely overlap with Timeline updates.
+    remoteSession.setSessionPositionUpdateDelayMs(1L);
+    // Trigger many timeline and position updates that are incompatible with any previous updates.
+    for (int i = 1; i <= 100; i++) {
+      remoteSession.getMockPlayer().createAndSetFakeTimeline(/* windowCount= */ i);
+      remoteSession.getMockPlayer().setCurrentMediaItemIndex(i - 1);
+      remoteSession
+          .getMockPlayer()
+          .notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+      remoteSession
+          .getMockPlayer()
+          .notifyMediaItemTransition(
+              /* index= */ i - 1, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    }
+    PollingCheck.waitFor(TIMEOUT_MS, () -> transitionMediaItemIndices.size() == 100);
+
+    ImmutableList.Builder<Integer> expectedMediaItemIndices = ImmutableList.builder();
+    for (int i = 0; i < 100; i++) {
+      expectedMediaItemIndices.add(i);
+    }
+    assertThat(transitionMediaItemIndices)
+        .containsExactlyElementsIn(expectedMediaItemIndices.build())
+        .inOrder();
   }
 
   @Test
