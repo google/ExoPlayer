@@ -129,7 +129,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Should be only accessed on the application looper
   private long sessionPositionUpdateDelayMs;
 
-  @SuppressWarnings("StaticAssignmentInConstructor") // TODO(b/277754694): Remove mutable constants
   public MediaSessionImpl(
       MediaSession instance,
       Context context,
