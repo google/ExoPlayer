@@ -25,6 +25,9 @@
         ([#355](https://github.com/androidx/media/issues/355)).
     *   Fix memory leak of `MediaSessionService` or `MediaLibraryService`
         ([#346](https://github.com/androidx/media/issues/346)).
+    *   Fix bug where a combined `Timeline` and position update in a
+        `MediaSession` may cause a `MediaController` to throw an
+        `IllegalStateException`.
 
 ### 1.0.1 (2023-04-18)
 
