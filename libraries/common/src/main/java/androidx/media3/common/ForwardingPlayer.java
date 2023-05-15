@@ -147,6 +147,18 @@ public class ForwardingPlayer implements Player {
     player.moveMediaItems(fromIndex, toIndex, newIndex);
   }
 
+  /** Calls {@link Player#replaceMediaItem(int, MediaItem)} on the delegate. */
+  @Override
+  public void replaceMediaItem(int index, MediaItem mediaItem) {
+    player.replaceMediaItem(index, mediaItem);
+  }
+
+  /** Calls {@link Player#replaceMediaItems(int, int, List)} on the delegate. */
+  @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    player.replaceMediaItems(fromIndex, toIndex, mediaItems);
+  }
+
   /** Calls {@link Player#removeMediaItem(int)} on the delegate. */
   @Override
   public void removeMediaItem(int index) {

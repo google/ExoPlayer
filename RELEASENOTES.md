@@ -2,6 +2,10 @@
 
 ### Unreleased changes
 
+*   Core library:
+    *   Add `Player.replaceMediaItem(s)` as a shortcut to adding and removing
+        items at the same position
+        ([#8046](https://github.com/google/ExoPlayer/issues/8046)).
 *   Session:
     *   Add `androidx.media3.session.MediaButtonReceiver` to enable apps to
         implement playback resumption with media button events sent by, for

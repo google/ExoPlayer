@@ -2142,6 +2142,18 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
+  public final void replaceMediaItem(int index, MediaItem mediaItem) {
+    replaceMediaItems(
+        /* fromIndex= */ index, /* toIndex= */ index + 1, ImmutableList.of(mediaItem));
+  }
+
+  @Override
+  public final void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    addMediaItems(toIndex, mediaItems);
+    removeMediaItems(fromIndex, toIndex);
+  }
+
+  @Override
   public final void removeMediaItems(int fromIndex, int toIndex) {
     verifyApplicationThreadAndInitState();
     checkArgument(fromIndex >= 0 && toIndex >= fromIndex);

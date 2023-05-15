@@ -751,6 +751,8 @@ package androidx.media3.common {
     method public void removeListener(androidx.media3.common.Player.Listener);
     method public void removeMediaItem(int);
     method public void removeMediaItems(int, int);
+    method public default void replaceMediaItem(int, androidx.media3.common.MediaItem);
+    method public default void replaceMediaItems(int, int, java.util.List<androidx.media3.common.MediaItem>);
     method public void seekBack();
     method public void seekForward();
     method public void seekTo(long);
