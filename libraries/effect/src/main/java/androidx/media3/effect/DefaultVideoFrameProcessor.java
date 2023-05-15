@@ -374,9 +374,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       }
     }
 
-    checkNotNull(textureManager).signalEndOfCurrentInputStream();
     // Wait until the current input stream is processed before continuing to the next input.
     latch = new CountDownLatch(1);
+    checkNotNull(textureManager).signalEndOfCurrentInputStream();
     try {
       latch.await();
     } catch (InterruptedException e) {
