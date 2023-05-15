@@ -119,7 +119,9 @@ public final class AudioCapabilities {
       supportedEncodings.addAll(Ints.asList(
           intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
       return new AudioCapabilities(
-          Ints.toArray(supportedEncodings.build()), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
+          Ints.toArray(supportedEncodings.build()),
+          intent.getIntExtra(AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */
+              DEFAULT_MAX_CHANNEL_COUNT));
     }
 
     if (supportedEncodings.build().isEmpty()) {
@@ -227,7 +229,13 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (channelCount > maxChannelCount) {
+      // To file a Bug: Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
+      // instead of 10.
+      if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
+        if (channelCount > 10) {
+          return null;
+        }
+      } else if (channelCount > maxChannelCount) {
         return null;
       }
     }
