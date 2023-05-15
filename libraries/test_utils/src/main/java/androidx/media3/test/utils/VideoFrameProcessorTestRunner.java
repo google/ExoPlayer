@@ -285,13 +285,14 @@ public final class VideoFrameProcessorTestRunner {
             new VideoFrameProcessor.Listener() {
               @Override
               public void onOutputSizeChanged(int width, int height) {
+                boolean useHighPrecisionColorComponents = ColorInfo.isTransferHdr(outputColorInfo);
                 @Nullable
                 Surface outputSurface =
                     bitmapReader.getSurface(
                         width,
                         height,
-                        /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(
-                            outputColorInfo));
+                        useHighPrecisionColorComponents,
+                        checkNotNull(videoFrameProcessor)::releaseOutputFrame);
                 if (outputSurface != null) {
                   checkNotNull(videoFrameProcessor)
                       .setOutputSurfaceInfo(new SurfaceInfo(outputSurface, width, height));
@@ -406,10 +407,18 @@ public final class VideoFrameProcessorTestRunner {
 
   /** Reads a {@link Bitmap} from {@link VideoFrameProcessor} output. */
   public interface BitmapReader {
+    /** Wraps a callback for {@link VideoFrameProcessor#releaseOutputFrame}. */
+    interface ReleaseOutputFrameListener {
+      void releaseOutputFrame(long releaseTimeUs);
+    }
 
     /** Returns the {@link VideoFrameProcessor} output {@link Surface}, if one is needed. */
     @Nullable
-    Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents);
+    Surface getSurface(
+        int width,
+        int height,
+        boolean useHighPrecisionColorComponents,
+        ReleaseOutputFrameListener listener);
 
     /** Returns the output {@link Bitmap}. */
     Bitmap getBitmap();
@@ -429,7 +438,11 @@ public final class VideoFrameProcessorTestRunner {
     @Override
     @SuppressLint("WrongConstant")
     @Nullable
-    public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
+    public Surface getSurface(
+        int width,
+        int height,
+        boolean useHighPrecisionColorComponents,
+        ReleaseOutputFrameListener listener) {
       imageReader =
           ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
       return imageReader.getSurface();

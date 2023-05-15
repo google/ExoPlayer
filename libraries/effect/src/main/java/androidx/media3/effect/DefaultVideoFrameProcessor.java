@@ -31,6 +31,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.view.Surface;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
@@ -73,7 +74,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public interface TextureOutputListener {
     /** Called when a texture has been rendered to. */
     void onTextureRendered(GlTextureInfo outputTexture, long presentationTimeUs)
-        throws GlUtil.GlException, VideoFrameProcessingException;
+        throws VideoFrameProcessingException;
   }
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
@@ -84,6 +85,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       private boolean enableColorTransfers;
       private GlObjectsProvider glObjectsProvider;
       @Nullable private TextureOutputListener textureOutputListener;
+      private int textureOutputCapacity;
 
       /** Creates an instance. */
       public Builder() {
@@ -114,39 +116,55 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       }
 
       /**
-       * Sets the {@link TextureOutputListener}.
+       * Sets texture output settings.
        *
-       * <p>If set, the {@link VideoFrameProcessor} will output to an OpenGL texture, accessible via
-       * {@link TextureOutputListener#onTextureRendered}. Otherwise, no texture will be rendered to.
+       * <p>If set, the {@link VideoFrameProcessor} will output to OpenGL textures, accessible via
+       * {@link TextureOutputListener#onTextureRendered}. Textures will stop being output when
+       * {@code textureOutputCapacity} is reached, until they're released via {@link
+       * #releaseOutputFrame}. Output textures must be released using {@link #releaseOutputFrame}.
        *
-       * <p>If an {@linkplain #setOutputSurfaceInfo output surface} is set, the texture output will
-       * be be adjusted as needed, to match the output surface's output.
+       * <p>If not set, there will be no texture output.
+       *
+       * <p>This must not be set if the {@linkplain #setOutputSurfaceInfo output surface info} is
+       * also set.
+       *
+       * @param textureOutputListener The {@link TextureOutputListener}.
+       * @param textureOutputCapacity The amount of output textures that may be allocated at a time
+       *     before texture output blocks. Must be greater than or equal to 1.
        */
       @VisibleForTesting
       @CanIgnoreReturnValue
-      public Builder setOnTextureRenderedListener(TextureOutputListener textureOutputListener) {
+      public Builder setTextureOutput(
+          TextureOutputListener textureOutputListener,
+          @IntRange(from = 1) int textureOutputCapacity) {
+        // TODO: http://b/262694346 - Add tests for multiple texture output.
         this.textureOutputListener = textureOutputListener;
+        checkArgument(textureOutputCapacity >= 1);
+        this.textureOutputCapacity = textureOutputCapacity;
         return this;
       }
 
       /** Builds an {@link DefaultVideoFrameProcessor.Factory} instance. */
       public DefaultVideoFrameProcessor.Factory build() {
         return new DefaultVideoFrameProcessor.Factory(
-            enableColorTransfers, glObjectsProvider, textureOutputListener);
+            enableColorTransfers, glObjectsProvider, textureOutputListener, textureOutputCapacity);
       }
     }
 
     private final boolean enableColorTransfers;
     private final GlObjectsProvider glObjectsProvider;
     @Nullable private final TextureOutputListener textureOutputListener;
+    private final int textureOutputCapacity;
 
     private Factory(
         boolean enableColorTransfers,
         GlObjectsProvider glObjectsProvider,
-        @Nullable TextureOutputListener textureOutputListener) {
+        @Nullable TextureOutputListener textureOutputListener,
+        int textureOutputCapacity) {
       this.enableColorTransfers = enableColorTransfers;
       this.glObjectsProvider = glObjectsProvider;
       this.textureOutputListener = textureOutputListener;
+      this.textureOutputCapacity = textureOutputCapacity;
     }
 
     /**
@@ -231,7 +249,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       listenerExecutor,
                       listener,
                       glObjectsProvider,
-                      textureOutputListener));
+                      textureOutputListener,
+                      textureOutputCapacity));
 
       try {
         return defaultVideoFrameProcessorFuture.get();
@@ -411,11 +430,23 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     return checkNotNull(textureManager).getPendingFrameCount();
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This must not be set on an instance where {@linkplain Factory.Builder#setTextureOutput
+   * texture output} is set.
+   */
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
     finalShaderProgramWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This may also be used for rendering from an output texture, if a {@link
+   * TextureOutputListener} {@linkplain Factory.Builder#setTextureOutput is set}
+   */
   @Override
   public void renderOutputFrame(long renderTimeNs) {
     checkState(
@@ -423,6 +454,21 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         "Calling this method is not allowed when renderFramesAutomatically is enabled");
     videoFrameProcessingTaskExecutor.submitWithHighPriority(
         () -> finalShaderProgramWrapper.renderOutputFrame(renderTimeNs));
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>If a {@link TextureOutputListener} {@linkplain Factory.Builder#setTextureOutput is set},
+   * this must be called to release the output information stored in the {@link GlTextureInfo}
+   * instances.
+   */
+  @Override
+  public void releaseOutputFrame(long presentationTimeUs) {
+    // TODO(b/262694346): Add Compositor system tests exercising this code path after GL texture
+    //  input is possible.
+    videoFrameProcessingTaskExecutor.submit(
+        () -> finalShaderProgramWrapper.releaseOutputFrame(presentationTimeUs));
   }
 
   @Override
@@ -511,7 +557,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Executor executor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
-      @Nullable TextureOutputListener textureOutputListener)
+      @Nullable TextureOutputListener textureOutputListener,
+      int textureOutputCapacity)
       throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
@@ -568,7 +615,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             executor,
             listener,
             glObjectsProvider,
-            textureOutputListener);
+            textureOutputListener,
+            textureOutputCapacity);
 
     inputSwitcher.registerInput(INPUT_TYPE_SURFACE);
     if (!ColorInfo.isTransferHdr(inputColorInfo)) {
@@ -618,7 +666,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Executor executor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
-      @Nullable TextureOutputListener textureOutputListener)
+      @Nullable TextureOutputListener textureOutputListener,
+      int textureOutputCapacity)
       throws VideoFrameProcessingException {
     ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
@@ -670,7 +719,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             executor,
             listener,
             glObjectsProvider,
-            textureOutputListener));
+            textureOutputListener,
+            textureOutputCapacity));
     return shaderProgramListBuilder.build();
   }
 

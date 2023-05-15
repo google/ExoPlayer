@@ -145,7 +145,7 @@ public interface VideoFrameProcessor {
      */
     void onError(VideoFrameProcessingException exception);
 
-    /** Called after the {@link VideoFrameProcessor} has produced its final output frame. */
+    /** Called after the {@link VideoFrameProcessor} has rendered its final output frame. */
     void onEnded();
   }
 
@@ -290,6 +290,18 @@ public interface VideoFrameProcessor {
    *     frame, or {@link #RENDER_OUTPUT_FRAME_IMMEDIATELY} to render the frame immediately.
    */
   void renderOutputFrame(long renderTimeNs);
+
+  /**
+   * Releases resources associated with all output frames with presentation time less than or equal
+   * to {@code presentationTimeUs}.
+   *
+   * <p>Not needed for outputting to an {@linkplain #setOutputSurfaceInfo output surface}, but may
+   * be required for other outputs.
+   *
+   * @param presentationTimeUs The presentation time where all frames before and at this time should
+   *     be released, in microseconds.
+   */
+  void releaseOutputFrame(long presentationTimeUs);
 
   /**
    * Informs the {@code VideoFrameProcessor} that no further input frames should be accepted.

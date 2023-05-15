@@ -50,8 +50,8 @@ import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Wrapper around a {@link DefaultShaderProgram} that renders to the provided output surface or
- * texture.
+ * Wrapper around a {@link DefaultShaderProgram} that renders to either the provided output surface
+ * or texture.
  *
  * <p>Also renders to a debug surface, if provided.
  *
@@ -87,17 +87,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
+  private final Queue<Pair<GlTextureInfo, Long>> outputTextures;
   @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
+  private final int textureOutputCapacity;
 
   private int inputWidth;
   private int inputHeight;
+  private int outputWidth;
+  private int outputHeight;
   @Nullable private DefaultShaderProgram defaultShaderProgram;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private GlObjectsProvider glObjectsProvider;
   private InputListener inputListener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
-  @Nullable private GlTextureInfo outputTexture;
   @Nullable private OnInputStreamProcessedListener onInputStreamProcessedListener;
   private boolean frameProcessingStarted;
 
@@ -125,7 +128,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
       GlObjectsProvider glObjectsProvider,
-      @Nullable DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener) {
+      @Nullable DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener,
+      int textureOutputCapacity) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.rgbMatrices = rgbMatrices;
@@ -139,9 +143,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
     this.glObjectsProvider = glObjectsProvider;
     this.textureOutputListener = textureOutputListener;
+    this.textureOutputCapacity = textureOutputCapacity;
 
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
+    outputTextures = new ConcurrentLinkedQueue<>();
   }
 
   @Override
@@ -155,7 +161,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void setInputListener(InputListener inputListener) {
     this.inputListener = inputListener;
-    inputListener.onReadyToAcceptInputFrame();
+    maybeOnReadyToAcceptInputFrame();
   }
 
   @Override
@@ -193,18 +199,38 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     frameProcessingStarted = true;
     videoFrameProcessorListenerExecutor.execute(
         () -> videoFrameProcessorListener.onOutputFrameAvailableForRendering(presentationTimeUs));
-    if (renderFramesAutomatically) {
-      renderFrame(inputTexture, presentationTimeUs, /* renderTimeNs= */ presentationTimeUs * 1000);
+    if (textureOutputListener == null) {
+      if (renderFramesAutomatically) {
+        renderFrame(
+            inputTexture, presentationTimeUs, /* renderTimeNs= */ presentationTimeUs * 1000);
+      } else {
+        availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
+      }
     } else {
-      availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
+      checkState(outputTextures.size() < textureOutputCapacity);
+      renderFrame(inputTexture, presentationTimeUs, /* renderTimeNs= */ presentationTimeUs * 1000);
     }
-    inputListener.onReadyToAcceptInputFrame();
+    maybeOnReadyToAcceptInputFrame();
   }
 
   @Override
   public void releaseOutputFrame(GlTextureInfo outputTexture) {
-    // The final shader program writes to a surface so there is no texture to release.
+    // FinalShaderProgramWrapper cannot release output textures using GlTextureInfo.
     throw new UnsupportedOperationException();
+  }
+
+  public void releaseOutputFrame(long presentationTimeUs) throws VideoFrameProcessingException {
+    while (!outputTextures.isEmpty()
+        && checkNotNull(outputTextures.peek()).second <= presentationTimeUs) {
+      GlTextureInfo outputTexture = outputTextures.remove().first;
+      try {
+        GlUtil.deleteTexture(outputTexture.texId);
+        GlUtil.deleteFbo(outputTexture.fboId);
+      } catch (GlUtil.GlException exception) {
+        throw new VideoFrameProcessingException(exception);
+      }
+      maybeOnReadyToAcceptInputFrame();
+    }
   }
 
   public void renderOutputFrame(long renderTimeNs) {
@@ -226,7 +252,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       defaultShaderProgram.flush();
     }
     inputListener.onFlush();
-    inputListener.onReadyToAcceptInputFrame();
+    maybeOnReadyToAcceptInputFrame();
   }
 
   @Override
@@ -235,8 +261,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       defaultShaderProgram.release();
     }
     try {
-      if (outputTexture != null) {
-        GlTextureInfo outputTexture = checkNotNull(this.outputTexture);
+      while (!outputTextures.isEmpty()) {
+        GlTextureInfo outputTexture = outputTextures.remove().first;
         GlUtil.deleteTexture(outputTexture.texId);
         GlUtil.deleteFbo(outputTexture.fboId);
       }
@@ -252,6 +278,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @see VideoFrameProcessor#setOutputSurfaceInfo(SurfaceInfo)
    */
   public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    checkState(textureOutputListener == null);
     if (Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
       return;
     }
@@ -276,18 +303,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.outputSurfaceInfo = outputSurfaceInfo;
   }
 
+  private void maybeOnReadyToAcceptInputFrame() {
+    if (textureOutputListener == null || outputTextures.size() < textureOutputCapacity) {
+      inputListener.onReadyToAcceptInputFrame();
+    }
+  }
+
   private synchronized void renderFrame(
       GlTextureInfo inputTexture, long presentationTimeUs, long renderTimeNs) {
     try {
       if (renderTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
           || !ensureConfigured(inputTexture.width, inputTexture.height)) {
         inputListener.onInputFrameProcessed(inputTexture);
-        return; // Drop frames when requested, or there is no output surface.
+        return; // Drop frames when requested, or there is no output surface and output texture.
       }
       if (outputSurfaceInfo != null) {
         renderFrameToOutputSurface(inputTexture, presentationTimeUs, renderTimeNs);
-      }
-      if (textureOutputListener != null) {
+      } else if (textureOutputListener != null) {
         renderFrameToOutputTexture(inputTexture, presentationTimeUs);
       }
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
@@ -331,12 +363,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void renderFrameToOutputTexture(GlTextureInfo inputTexture, long presentationTimeUs)
       throws GlUtil.GlException, VideoFrameProcessingException {
-    GlTextureInfo outputTexture = checkNotNull(this.outputTexture);
+    // TODO(b/262694346): Use a texture pool instead of creating a new texture on every frame.
+    int outputTexId =
+        GlUtil.createTexture(
+            outputWidth,
+            outputHeight,
+            /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(outputColorInfo));
+    GlTextureInfo outputTexture =
+        glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
+
     GlUtil.focusFramebufferUsingCurrentContext(
         outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearOutputFrame();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.texId, presentationTimeUs);
+    // TODO(b/262694346): If Compositor's VFPs all use the same context, media3 should be able to
+    //  avoid calling glFinish, and require the onTextureRendered listener to decide whether to
+    //  glFinish. Consider removing glFinish and requiring onTextureRendered to handle
+    //  synchronization.
     GLES20.glFinish();
+    outputTextures.add(Pair.create(outputTexture, presentationTimeUs));
     checkNotNull(textureOutputListener).onTextureRendered(outputTexture, presentationTimeUs);
   }
 
@@ -381,11 +426,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
 
-    int outputWidth =
+    outputWidth =
         outputSurfaceInfo == null
             ? outputSizeBeforeSurfaceTransformation.getWidth()
             : outputSurfaceInfo.width;
-    int outputHeight =
+    outputHeight =
         outputSurfaceInfo == null
             ? outputSizeBeforeSurfaceTransformation.getHeight()
             : outputSurfaceInfo.height;
@@ -410,16 +455,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               eglDisplay, eglContext, debugSurfaceView, outputColorInfo.colorTransfer);
     }
     this.debugSurfaceView = debugSurfaceView;
-
-    if (textureOutputListener != null) {
-      int outputTexId =
-          GlUtil.createTexture(
-              outputWidth,
-              outputHeight,
-              /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(outputColorInfo));
-      outputTexture =
-          glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
-    }
 
     if (defaultShaderProgram != null && (outputSurfaceInfoChanged || inputSizeChanged)) {
       defaultShaderProgram.release();
