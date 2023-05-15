@@ -138,48 +138,12 @@ public final class SimpleCache implements Cache {
   @Deprecated
   @SuppressWarnings("deprecation")
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
-    this(cacheDir, evictor, null, false);
-  }
-
-  /**
-   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
-   * the directory cannot be used to store other files.
-   *
-   * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used. For download use cases where cache eviction should not
-   *     occur, use {@link NoOpCacheEvictor}.
-   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
-   *     The key must be 16 bytes long.
-   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public SimpleCache(File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey) {
-    this(cacheDir, evictor, secretKey, secretKey != null);
-  }
-
-  /**
-   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
-   * the directory cannot be used to store other files.
-   *
-   * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used. For download use cases where cache eviction should not
-   *     occur, use {@link NoOpCacheEvictor}.
-   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
-   *     The key must be 16 bytes long.
-   * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
-   *     secretKey} is null.
-   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
-   */
-  @Deprecated
-  public SimpleCache(
-      File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey, boolean encrypt) {
     this(
         cacheDir,
         evictor,
         /* databaseProvider= */ null,
-        secretKey,
-        encrypt,
+        /* legacyIndexSecretKey= */ null,
+        /* legacyIndexEncrypt= */ false,
         /* preferLegacyIndex= */ true);
   }
 

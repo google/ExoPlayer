@@ -7,6 +7,10 @@
         implement playback resumption with media button events sent by, for
         example, a Bluetooth headset
         ([#167](https://github.com/androidx/media/issues/167)).
+*   Remove deprecated symbols:
+    *   Remove two deprecated `SimpleCache` constructors, use a non-deprecated
+        constructor that takes a `DatabaseProvider` instead for better
+        performance.
 
 ### 1.1.0-alpha01 (2023-05-10)
 

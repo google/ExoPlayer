@@ -44,7 +44,6 @@ import org.mockito.Mockito;
 @RunWith(AndroidJUnit4.class)
 public class SimpleCacheTest {
 
-  private static final byte[] ENCRYPTED_INDEX_KEY = Util.getUtf8Bytes("Bar12345Bar12345");
   private static final String KEY_1 = "key1";
   private static final String KEY_2 = "key2";
 
@@ -202,61 +201,6 @@ public class SimpleCacheTest {
 
     // The entry for KEY_1 should have been removed when the cache was reloaded.
     assertThat(simpleCache.getCachedSpans(KEY_1)).isEmpty();
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Encrypted index is deprecated
-  public void newInstance_withEncryptedIndex() throws Exception {
-    SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
-    addCache(simpleCache, KEY_1, 0, 15);
-    simpleCache.releaseHoleSpan(holeSpan);
-    simpleCache.release();
-
-    // Create a new instance pointing to the same directory.
-    simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
-
-    // Read the cached data back.
-    CacheSpan fileSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
-    assertCachedDataReadCorrect(fileSpan);
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Encrypted index is deprecated
-  public void newInstance_withEncryptedIndexAndWrongKey_clearsCache() throws Exception {
-    SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
-
-    // Write data.
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
-    addCache(simpleCache, KEY_1, 0, 15);
-    simpleCache.releaseHoleSpan(holeSpan);
-    simpleCache.release();
-
-    // Create a new instance pointing to the same directory, with a different key.
-    simpleCache = getEncryptedSimpleCache(Util.getUtf8Bytes("Foo12345Foo12345"));
-
-    // Cache should be cleared.
-    assertThat(simpleCache.getKeys()).isEmpty();
-    assertNoCacheFiles(cacheDir);
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Encrypted index is deprecated
-  public void newInstance_withEncryptedIndexAndNoKey_clearsCache() throws Exception {
-    SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
-
-    // Write data.
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
-    addCache(simpleCache, KEY_1, 0, 15);
-    simpleCache.releaseHoleSpan(holeSpan);
-    simpleCache.release();
-
-    // Create a new instance pointing to the same directory, with no key.
-    simpleCache = getSimpleCache();
-
-    // Cache should be cleared.
-    assertThat(simpleCache.getKeys()).isEmpty();
-    assertNoCacheFiles(cacheDir);
   }
 
   @Test
@@ -687,12 +631,6 @@ public class SimpleCacheTest {
 
   private SimpleCache getSimpleCache() {
     return new SimpleCache(cacheDir, new NoOpCacheEvictor(), databaseProvider);
-  }
-
-  @Deprecated
-  @SuppressWarnings("deprecation") // Testing deprecated behaviour.
-  private SimpleCache getEncryptedSimpleCache(byte[] secretKey) {
-    return new SimpleCache(cacheDir, new NoOpCacheEvictor(), secretKey);
   }
 
   private static void addCache(SimpleCache simpleCache, String key, int position, int length)
