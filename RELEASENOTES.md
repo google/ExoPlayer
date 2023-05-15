@@ -16,6 +16,8 @@
         performance.
     *   Remove `DefaultBandwidthMeter` constructor, use
         `DefaultBandwidthMeter.Builder` instead.
+    *   Remove `DefaultDrmSessionManager` constructors, use
+        `DefaultDrmSessionManager.Builder` instead.
 
 ### 1.1.0-alpha01 (2023-05-10)
 
