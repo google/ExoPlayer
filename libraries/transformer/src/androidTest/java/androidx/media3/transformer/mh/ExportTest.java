@@ -73,8 +73,11 @@ public class ExportTest {
             .build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    // TODO: b/239983127 - Make requestCalculateSsim always true.
+    boolean requestCalculateSsim =
+        !Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1");
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setRequestCalculateSsim(true)
+        .setRequestCalculateSsim(requestCalculateSsim)
         .build()
         .run(testId, mediaItem);
   }
@@ -114,8 +117,11 @@ public class ExportTest {
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+    // TODO: b/239983127 - Make requestCalculateSsim always true.
+    boolean requestCalculateSsim =
+        !Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1");
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setRequestCalculateSsim(true)
+        .setRequestCalculateSsim(requestCalculateSsim)
         .build()
         .run(testId, editedMediaItem);
   }
@@ -187,8 +193,11 @@ public class ExportTest {
         MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+    // TODO: b/239983127 - Make requestCalculateSsim always true.
+    boolean requestCalculateSsim =
+        !Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1");
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setRequestCalculateSsim(true)
+        .setRequestCalculateSsim(requestCalculateSsim)
         .build()
         .run(testId, editedMediaItem);
   }

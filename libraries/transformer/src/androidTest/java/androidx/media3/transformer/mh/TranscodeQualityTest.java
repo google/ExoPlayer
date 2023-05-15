@@ -17,11 +17,13 @@
 package androidx.media3.transformer.mh;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
@@ -51,6 +53,8 @@ public final class TranscodeQualityTest {
         /* outputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
       return;
     }
+    // TODO: b/239983127 - Remove this test skip on these devices.
+    assumeTrue(!Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1"));
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -96,6 +100,8 @@ public final class TranscodeQualityTest {
             .build())) {
       return;
     }
+    // TODO: b/239983127 - Remove this test skip on these devices.
+    assumeTrue(!Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1"));
 
     Transformer transformer =
         new Transformer.Builder(context)
