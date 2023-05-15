@@ -22,6 +22,9 @@
         `DefaultBandwidthMeter.Builder` instead.
     *   Remove `DefaultDrmSessionManager` constructors, use
         `DefaultDrmSessionManager.Builder` instead.
+    *   Remove two deprecated `HttpDataSource.InvalidResponseCodeException`
+        constructors, use a non-deprecated constructor that accepts additional
+        fields(`cause`, `responseBody`) to enhance error logging.
 
 ### 1.1.0-alpha01 (2023-05-10)
 

@@ -22,7 +22,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -424,43 +423,6 @@ public interface HttpDataSource extends DataSource {
 
     /** The response body. */
     public final byte[] responseBody;
-
-    /**
-     * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
-     *     byte[])}.
-     */
-    @UnstableApi
-    @Deprecated
-    public InvalidResponseCodeException(
-        int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
-      this(
-          responseCode,
-          /* responseMessage= */ null,
-          /* cause= */ null,
-          headerFields,
-          dataSpec,
-          /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
-    }
-
-    /**
-     * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
-     *     byte[])}.
-     */
-    @UnstableApi
-    @Deprecated
-    public InvalidResponseCodeException(
-        int responseCode,
-        @Nullable String responseMessage,
-        Map<String, List<String>> headerFields,
-        DataSpec dataSpec) {
-      this(
-          responseCode,
-          responseMessage,
-          /* cause= */ null,
-          headerFields,
-          dataSpec,
-          /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
-    }
 
     @UnstableApi
     public InvalidResponseCodeException(
