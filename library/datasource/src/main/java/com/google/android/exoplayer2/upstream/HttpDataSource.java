@@ -21,7 +21,6 @@ import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -407,41 +406,6 @@ public interface HttpDataSource extends DataSource {
 
     /** The response body. */
     public final byte[] responseBody;
-
-    /**
-     * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
-     *     byte[])}.
-     */
-    @Deprecated
-    public InvalidResponseCodeException(
-        int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
-      this(
-          responseCode,
-          /* responseMessage= */ null,
-          /* cause= */ null,
-          headerFields,
-          dataSpec,
-          /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
-    }
-
-    /**
-     * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
-     *     byte[])}.
-     */
-    @Deprecated
-    public InvalidResponseCodeException(
-        int responseCode,
-        @Nullable String responseMessage,
-        Map<String, List<String>> headerFields,
-        DataSpec dataSpec) {
-      this(
-          responseCode,
-          responseMessage,
-          /* cause= */ null,
-          headerFields,
-          dataSpec,
-          /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
-    }
 
     public InvalidResponseCodeException(
         int responseCode,
