@@ -124,12 +124,11 @@ public final class AudioCapabilities {
     }
 
     ImmutableSet supportedEncodingsSet = supportedEncodings.build();
-    if (supportedEncodingsSet.isEmpty()) {
-      return DEFAULT_AUDIO_CAPABILITIES;
-    } else {
+    if (!supportedEncodingsSet.isEmpty()) {
       return new AudioCapabilities(
           Ints.toArray(supportedEncodingsSet), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
     }
+    return DEFAULT_AUDIO_CAPABILITIES;
   }
 
   /**
