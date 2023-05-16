@@ -32,6 +32,11 @@
     *   Remove deprecated `DownloadService` constructor, use a non deprecated
         constructor that includes the option to provide a
         `channelDescriptionResourceId` parameter.
+    *   Remove deprecated String constants for Charsets (`ASCII_NAME`,
+        `UTF8_NAME`, `ISO88591_NAME`, `UTF16_NAME` and `UTF16LE_NAME`), use
+        Kotlin Charsets from the `kotlin.text` package, the
+        `java.nio.charset.StandardCharsets` or the
+        `com.google.common.base.Charsets` instead.
 
 ### 1.0.2 (2023-05-18)
 

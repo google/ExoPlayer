@@ -95,36 +95,6 @@ public final class C {
   /** The number of bytes per float. */
   @UnstableApi public static final int BYTES_PER_FLOAT = 4;
 
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @UnstableApi @Deprecated public static final String ASCII_NAME = "US-ASCII";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @UnstableApi @Deprecated public static final String UTF8_NAME = "UTF-8";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @UnstableApi @Deprecated public static final String ISO88591_NAME = "ISO-8859-1";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @UnstableApi @Deprecated public static final String UTF16_NAME = "UTF-16";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @UnstableApi @Deprecated public static final String UTF16LE_NAME = "UTF-16LE";
-
   /** The name of the serif font family. */
   @UnstableApi public static final String SERIF_NAME = "serif";
 
