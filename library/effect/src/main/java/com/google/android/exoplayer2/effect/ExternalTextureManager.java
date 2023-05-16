@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
-import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -113,12 +112,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Override
   public void setDefaultBufferSize(int width, int height) {
     surfaceTexture.setDefaultBufferSize(width, height);
-  }
-
-  @Override
-  public void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
-    throw new UnsupportedOperationException();
   }
 
   @Override
