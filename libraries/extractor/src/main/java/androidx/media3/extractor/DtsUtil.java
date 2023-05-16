@@ -47,10 +47,10 @@ public final class DtsUtil {
    */
   private static final int SYNC_EXT_SUB_LE = 0x25205864;
   /**
-   * DTS FTOC Sync words (in different Endianness). See ETSI TS 103 491 (V1.2.1)
-   * Section 6.4.4.1.
+   * DTS FTOC Sync words (in different Endianness). See ETSI TS 103 491 (V1.2.1) Section 6.4.4.1.
    */
   private static final int SYNC_FTOC_LE = 0xF21B4140;
+
   private static final int SYNC_FTOC_NON_SYNC_LE = 0xE842C471;
   private static final byte FIRST_BYTE_BE = (byte) (SYNC_VALUE_BE >>> 24);
   private static final byte FIRST_BYTE_14B_BE = (byte) (SYNC_VALUE_14B_BE >>> 24);
@@ -163,8 +163,7 @@ public final class DtsUtil {
 
     // Check for DTS:X Profile 2 sync or non sync word and return
     // 1024 if found. This is the only audio sample count that is used by DTS:X Streaming Encoder.
-    if ((buffer.getInt(0) == SYNC_FTOC_LE) ||
-        (buffer.getInt(0) == SYNC_FTOC_NON_SYNC_LE)) {
+    if ((buffer.getInt(0) == SYNC_FTOC_LE) || (buffer.getInt(0) == SYNC_FTOC_NON_SYNC_LE)) {
       return 1024;
     }
 

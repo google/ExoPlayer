@@ -57,8 +57,8 @@ public final class AudioCapabilities {
 
   /** Encodings supported when the device specifies external surround sound. */
   private static final int[] EXTERNAL_SURROUND_SOUND_ENCODINGS =
-      new int[]{
-          AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
+      new int[] {
+        AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
       };
 
   /**
@@ -116,19 +116,18 @@ public final class AudioCapabilities {
     }
 
     if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
-      supportedEncodings.addAll(Ints.asList(
-          intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
+      supportedEncodings.addAll(Ints.asList(intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
       return new AudioCapabilities(
           Ints.toArray(supportedEncodings.build()),
-          intent.getIntExtra(AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */
-              DEFAULT_MAX_CHANNEL_COUNT));
+          intent.getIntExtra(
+              AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
     }
 
     if (supportedEncodings.build().isEmpty()) {
       return DEFAULT_AUDIO_CAPABILITIES;
     } else {
-      return new AudioCapabilities(Ints.toArray(supportedEncodings.build()), /* defaultValue= */
-          DEFAULT_MAX_CHANNEL_COUNT);
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodings.build()), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
     }
   }
 
@@ -211,8 +210,8 @@ public final class AudioCapabilities {
     if (encoding == C.ENCODING_E_AC3_JOC && !supportsEncoding(C.ENCODING_E_AC3_JOC)) {
       // E-AC3 receivers support E-AC3 JOC streams (but decode only the base layer).
       encoding = C.ENCODING_E_AC3;
-    } else if ((encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD)) ||
-        (encoding == C.ENCODING_DTS_UHD_P2 && !supportsEncoding(C.ENCODING_DTS_UHD_P2))) {
+    } else if ((encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD))
+        || (encoding == C.ENCODING_DTS_UHD_P2 && !supportsEncoding(C.ENCODING_DTS_UHD_P2))) {
       // DTS receivers support DTS-HD streams (but decode only the core layer).
       encoding = C.ENCODING_DTS;
     }
@@ -411,9 +410,7 @@ public final class AudioCapabilities {
       return 0;
     }
 
-    /**
-     * Returns an array list of surround encodings that maybe supported.
-     */
+    /** Returns an array list of surround encodings that maybe supported. */
     @DoNotInline
     private static int[] getAllSurroundEncodingsMaybeSupported() {
       ImmutableList.Builder<Integer> encodings = new ImmutableList.Builder<>();
