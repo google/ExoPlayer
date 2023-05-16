@@ -237,23 +237,6 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * @deprecated Use {@link #DownloadService(int, long, String, int, int)}.
-   */
-  @Deprecated
-  protected DownloadService(
-      int foregroundNotificationId,
-      long foregroundNotificationUpdateInterval,
-      @Nullable String channelId,
-      @StringRes int channelNameResourceId) {
-    this(
-        foregroundNotificationId,
-        foregroundNotificationUpdateInterval,
-        channelId,
-        channelNameResourceId,
-        /* channelDescriptionResourceId= */ 0);
-  }
-
-  /**
    * Creates a DownloadService.
    *
    * @param foregroundNotificationId The notification id for the foreground notification, or {@link

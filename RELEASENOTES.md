@@ -29,6 +29,9 @@
     *   Remove `DownloadHelper.forProgressive`, `DownloadHelper.forHls`,
         `DownloadHelper.forDash`, and `DownloadHelper.forSmoothStreaming`, use
         `DownloadHelper.forMediaItem` instead.
+    *   Remove deprecated `DownloadService` constructor, use a non deprecated
+        constructor that includes the option to provide a
+        `channelDescriptionResourceId` parameter.
 
 ### 1.0.2 (2023-05-18)
 
