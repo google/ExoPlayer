@@ -123,11 +123,12 @@ public final class AudioCapabilities {
               AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
     }
 
-    if (supportedEncodings.build().isEmpty()) {
+    ImmutableSet supportedEncodingsSet = supportedEncodings.build();
+    if (supportedEncodingsSet.isEmpty()) {
       return DEFAULT_AUDIO_CAPABILITIES;
     } else {
       return new AudioCapabilities(
-          Ints.toArray(supportedEncodings.build()), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
+          Ints.toArray(supportedEncodingsSet), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
     }
   }
 
