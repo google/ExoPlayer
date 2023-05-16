@@ -229,8 +229,8 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      // To file a Bug: Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
-      // instead of 10.
+      // Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
+      // instead of 10. See https://github.com/androidx/media/issues/396
       if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
         if (channelCount > 10) {
           return null;
