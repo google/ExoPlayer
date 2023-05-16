@@ -17,6 +17,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static com.google.common.truth.Truth.assertThat;
@@ -89,8 +90,6 @@ public class TransformerMixedInputEndToEndTest {
     int imageFrameCount = 32;
     EditedMediaItem imageEditedMediaItem =
         createImageEditedMediaItem(PNG_ASSET_URI_STRING, /* frameCount= */ imageFrameCount);
-    // Result of the following command:
-    // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
     EditedMediaItem videoEditedMediaItem =
         createVideoEditedMediaItem(MP4_ASSET_URI_STRING, /* height= */ 480);
     ExportTestResult result =
@@ -117,10 +116,10 @@ public class TransformerMixedInputEndToEndTest {
             .build();
 
     int imageFrameCount = 33;
-    EditedMediaItem imageEditedMediaItem =
+    EditedMediaItem imageEditedMediaItem1 =
         createImageEditedMediaItem(PNG_ASSET_URI_STRING, /* frameCount= */ imageFrameCount);
-    // Result of the following command:
-    // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
+    EditedMediaItem imageEditedMediaItem2 =
+        createImageEditedMediaItem(JPG_ASSET_URI_STRING, /* frameCount= */ imageFrameCount);
     EditedMediaItem videoEditedMediaItem =
         createVideoEditedMediaItem(MP4_ASSET_URI_STRING, /* height= */ 360);
     ExportTestResult result =
@@ -132,10 +131,10 @@ public class TransformerMixedInputEndToEndTest {
                     ImmutableList.of(
                         videoEditedMediaItem,
                         videoEditedMediaItem,
-                        imageEditedMediaItem,
-                        imageEditedMediaItem,
+                        imageEditedMediaItem1,
+                        imageEditedMediaItem2,
                         videoEditedMediaItem,
-                        imageEditedMediaItem,
+                        imageEditedMediaItem1,
                         videoEditedMediaItem)));
 
     assertThat(result.exportResult.videoFrameCount)
