@@ -362,7 +362,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         .queueInputBitmap(
             inputBitmap,
             durationUs,
-            checkNotNull(nextInputFrameInfo).offsetToAddUs,
+            checkNotNull(nextInputFrameInfo),
             frameRate,
             /* useHdr= */ false);
     hasRefreshedNextInputFrameInfo = false;

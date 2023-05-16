@@ -49,7 +49,7 @@ import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
    * @param useHdr Whether input and/or output colors are HDR.
    */
   default void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
+      Bitmap inputBitmap, long durationUs, FrameInfo frameInfo, float frameRate, boolean useHdr) {
     throw new UnsupportedOperationException();
   }
 

@@ -24,6 +24,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
@@ -81,10 +82,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr) {
+      Bitmap inputBitmap, long durationUs, FrameInfo frameInfo, float frameRate, boolean useHdr) {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
-          setupBitmap(inputBitmap, durationUs, offsetUs, frameRate, useHdr);
+          setupBitmap(inputBitmap, durationUs, frameInfo, frameRate, useHdr);
           currentInputStreamEnded = false;
         });
   }
@@ -126,9 +127,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           }
         });
   }
+
   // Methods that must be called on the GL thread.
   private void setupBitmap(
-      Bitmap bitmap, long durationUs, long offsetUs, float frameRate, boolean useHdr)
+      Bitmap bitmap, long durationUs, FrameInfo frameInfo, float frameRate, boolean useHdr)
       throws VideoFrameProcessingException {
     if (Util.SDK_INT >= 26) {
       checkState(
@@ -141,7 +143,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.useHdr = useHdr;
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
-    pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, offsetUs, frameDurationUs, framesToAdd));
+    pendingBitmaps.add(
+        new BitmapFrameSequenceInfo(bitmap, frameInfo, frameDurationUs, framesToAdd));
     maybeQueueToShaderProgram();
   }
 
@@ -153,7 +156,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (framesToQueueForCurrentBitmap == 0) {
       Bitmap bitmap = currentBitmapInfo.bitmap;
       framesToQueueForCurrentBitmap = currentBitmapInfo.numberOfFrames;
-      currentPresentationTimeUs = currentBitmapInfo.offsetUs;
+      currentPresentationTimeUs = currentBitmapInfo.frameInfo.offsetToAddUs;
       int currentTexId;
       try {
         if (currentGlTextureInfo != null) {
@@ -161,8 +164,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
         currentTexId =
             GlUtil.createTexture(
-                bitmap.getWidth(),
-                bitmap.getHeight(),
+                currentBitmapInfo.frameInfo.width,
+                currentBitmapInfo.frameInfo.height,
                 /* useHighPrecisionColorComponents= */ useHdr);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, currentTexId);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
@@ -175,8 +178,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               currentTexId,
               /* fboId= */ C.INDEX_UNSET,
               /* rboId= */ C.INDEX_UNSET,
-              bitmap.getWidth(),
-              bitmap.getHeight());
+              currentBitmapInfo.frameInfo.width,
+              currentBitmapInfo.frameInfo.height);
     }
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
@@ -196,14 +199,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
     public final Bitmap bitmap;
-    public final long offsetUs;
+    public final FrameInfo frameInfo;
     public final double frameDurationUs;
     public final int numberOfFrames;
 
     public BitmapFrameSequenceInfo(
-        Bitmap bitmap, long offsetUs, double frameDurationUs, int numberOfFrames) {
+        Bitmap bitmap, FrameInfo frameInfo, double frameDurationUs, int numberOfFrames) {
       this.bitmap = bitmap;
-      this.offsetUs = offsetUs;
+      this.frameInfo = frameInfo;
       this.frameDurationUs = frameDurationUs;
       this.numberOfFrames = numberOfFrames;
     }
