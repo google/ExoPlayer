@@ -26,6 +26,9 @@
     *   Remove two deprecated `HttpDataSource.InvalidResponseCodeException`
         constructors, use a non-deprecated constructor that accepts additional
         fields(`cause`, `responseBody`) to enhance error logging.
+    *   Remove `DownloadHelper.forProgressive`, `DownloadHelper.forHls`,
+        `DownloadHelper.forDash`, and `DownloadHelper.forSmoothStreaming`, use
+        `DownloadHelper.forMediaItem` instead.
 
 ### 1.0.2 (2023-05-18)
 
