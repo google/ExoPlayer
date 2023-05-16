@@ -37,6 +37,9 @@
         Kotlin Charsets from the `kotlin.text` package, the
         `java.nio.charset.StandardCharsets` or the
         `com.google.common.base.Charsets` instead.
+    *   Remove deprecated `WorkManagerScheduler` constructor, use a non
+        deprecated constructor that includes the option to provide a `Context`
+        parameter instead.
 
 ### 1.0.2 (2023-05-18)
 

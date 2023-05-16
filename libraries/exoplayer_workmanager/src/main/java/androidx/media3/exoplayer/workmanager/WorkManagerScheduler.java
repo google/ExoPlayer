@@ -57,16 +57,6 @@ public final class WorkManagerScheduler implements Scheduler {
   private final String workName;
 
   /**
-   * @deprecated Call {@link #WorkManagerScheduler(Context, String)} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public WorkManagerScheduler(String workName) {
-    this.workName = workName;
-    workManager = WorkManager.getInstance();
-  }
-
-  /**
    * @param context A context.
    * @param workName A name for work scheduled by this instance. If the same name was used by a
    *     previous instance, anything scheduled by the previous instance will be canceled by this
