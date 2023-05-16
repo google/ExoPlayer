@@ -1,5 +1,24 @@
 # Release notes
 
+### 2.18.7 (2023-05-18)
+
+This release corresponds to the
+[AndroidX Media3 1.0.2 release](https://github.com/androidx/media/releases/tag/1.0.2).
+
+*   Core library:
+    *   Add `Buffer.isLastSample()` that denotes if `Buffer` contains flag
+        `C.BUFFER_FLAG_LAST_SAMPLE`.
+    *   Fix issue where last frame may not be rendered if the last sample with
+        frames is dequeued without reading the 'end of stream' sample.
+        ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
+*   Extractors:
+    *   Fix parsing of H.265 SPS in MPEG-TS files by re-using the parsing logic
+        already used by RTSP and MP4 extractors
+        ([#303](https://github.com/androidx/media/issues/303)).
+*   Text:
+    *   SSA: Add support for UTF-16 files if they start with a byte order mark
+        ([#319](https://github.com/androidx/media/issues/319)).
+
 ### 2.18.6 (2023-04-18)
 
 This release corresponds to the
