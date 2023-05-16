@@ -192,6 +192,7 @@ public final class C {
     ENCODING_DTS_HD,
     ENCODING_DOLBY_TRUEHD,
     ENCODING_OPUS,
+    ENCODING_DTS_UHD_P2,
   })
   public @interface Encoding {}
 
