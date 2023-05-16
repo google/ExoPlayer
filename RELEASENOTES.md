@@ -1,6 +1,12 @@
 # Release notes
 
-### Unreleased changes
+### 1.0.2 (2023-05-18)
+
+This release corresponds to the
+[ExoPlayer 2.18.7 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.7).
+
+This release contains the following changes since the
+[1.0.1 release](#101-2023-04-18):
 
 *   Core library:
     *   Add `Buffer.isLastSample()` that denotes if `Buffer` contains flag
