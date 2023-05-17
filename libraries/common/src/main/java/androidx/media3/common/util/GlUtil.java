@@ -558,8 +558,8 @@ public final class GlUtil {
    *
    * @param width The width of the new texture in pixels.
    * @param height The height of the new texture in pixels.
-   * @param useHighPrecisionColorComponents If {@code false}, uses 8-bit unsigned bytes. If {@code
-   *     true}, use 16-bit (half-precision) floating-point.
+   * @param useHighPrecisionColorComponents If {@code false}, uses colors with 8-bit unsigned bytes.
+   *     If {@code true}, use 16-bit (half-precision) floating-point.
    * @throws GlException If the texture allocation fails.
    * @return The texture identifier for the newly-allocated texture.
    */

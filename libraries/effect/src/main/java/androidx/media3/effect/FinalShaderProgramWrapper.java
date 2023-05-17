@@ -44,6 +44,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
@@ -87,9 +88,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
-  private final Queue<Pair<GlTextureInfo, Long>> outputTextures;
+  private final TexturePool outputTexturePool;
+  private final Queue<Long> outputTextureTimestamps; // Synchronized with outputTexturePool.
   @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
-  private final int textureOutputCapacity;
 
   private int inputWidth;
   private int inputHeight;
@@ -143,11 +144,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
     this.glObjectsProvider = glObjectsProvider;
     this.textureOutputListener = textureOutputListener;
-    this.textureOutputCapacity = textureOutputCapacity;
 
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
-    outputTextures = new ConcurrentLinkedQueue<>();
+
+    boolean useHighPrecisionColorComponents = ColorInfo.isTransferHdr(outputColorInfo);
+    outputTexturePool = new TexturePool(useHighPrecisionColorComponents, textureOutputCapacity);
+    outputTextureTimestamps = new ArrayDeque<>(textureOutputCapacity);
   }
 
   @Override
@@ -156,6 +159,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         !frameProcessingStarted,
         "The GlObjectsProvider cannot be set after frame processing has started.");
     this.glObjectsProvider = glObjectsProvider;
+    outputTexturePool.setGlObjectsProvider(glObjectsProvider);
   }
 
   @Override
@@ -207,7 +211,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
       }
     } else {
-      checkState(outputTextures.size() < textureOutputCapacity);
+      checkState(outputTexturePool.freeTextureCount() > 0);
       renderFrame(inputTexture, presentationTimeUs, /* renderTimeNs= */ presentationTimeUs * 1000);
     }
     maybeOnReadyToAcceptInputFrame();
@@ -219,16 +223,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     throw new UnsupportedOperationException();
   }
 
-  public void releaseOutputFrame(long presentationTimeUs) throws VideoFrameProcessingException {
-    while (!outputTextures.isEmpty()
-        && checkNotNull(outputTextures.peek()).second <= presentationTimeUs) {
-      GlTextureInfo outputTexture = outputTextures.remove().first;
-      try {
-        GlUtil.deleteTexture(outputTexture.texId);
-        GlUtil.deleteFbo(outputTexture.fboId);
-      } catch (GlUtil.GlException exception) {
-        throw new VideoFrameProcessingException(exception);
-      }
+  public void releaseOutputFrame(long presentationTimeUs) {
+    while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
+        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
+      outputTexturePool.freeTexture();
+      outputTextureTimestamps.remove();
       maybeOnReadyToAcceptInputFrame();
     }
   }
@@ -261,11 +260,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       defaultShaderProgram.release();
     }
     try {
-      while (!outputTextures.isEmpty()) {
-        GlTextureInfo outputTexture = outputTextures.remove().first;
-        GlUtil.deleteTexture(outputTexture.texId);
-        GlUtil.deleteFbo(outputTexture.fboId);
-      }
+      outputTexturePool.deleteAllTextures();
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
@@ -304,7 +299,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void maybeOnReadyToAcceptInputFrame() {
-    if (textureOutputListener == null || outputTextures.size() < textureOutputCapacity) {
+    if (textureOutputListener == null || outputTexturePool.freeTextureCount() > 0) {
       inputListener.onReadyToAcceptInputFrame();
     }
   }
@@ -363,15 +358,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void renderFrameToOutputTexture(GlTextureInfo inputTexture, long presentationTimeUs)
       throws GlUtil.GlException, VideoFrameProcessingException {
-    // TODO(b/262694346): Use a texture pool instead of creating a new texture on every frame.
-    int outputTexId =
-        GlUtil.createTexture(
-            outputWidth,
-            outputHeight,
-            /* useHighPrecisionColorComponents= */ ColorInfo.isTransferHdr(outputColorInfo));
-    GlTextureInfo outputTexture =
-        glObjectsProvider.createBuffersForTexture(outputTexId, outputWidth, outputHeight);
-
+    GlTextureInfo outputTexture = outputTexturePool.useTexture();
+    outputTextureTimestamps.add(presentationTimeUs);
     GlUtil.focusFramebufferUsingCurrentContext(
         outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearOutputFrame();
@@ -381,7 +369,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     //  glFinish. Consider removing glFinish and requiring onTextureRendered to handle
     //  synchronization.
     GLES20.glFinish();
-    outputTextures.add(Pair.create(outputTexture, presentationTimeUs));
     checkNotNull(textureOutputListener).onTextureRendered(outputTexture, presentationTimeUs);
   }
 
@@ -444,6 +431,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputColorInfo.colorTransfer,
               // Frames are only rendered automatically when outputting to an encoder.
               /* isEncoderInputSurface= */ renderFramesAutomatically);
+    }
+    if (textureOutputListener != null) {
+      outputTexturePool.ensureConfigured(outputWidth, outputHeight);
     }
 
     @Nullable

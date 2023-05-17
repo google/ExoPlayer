@@ -20,6 +20,7 @@ import androidx.media3.common.util.UnstableApi;
 /** Contains information describing an OpenGL texture. */
 @UnstableApi
 public final class GlTextureInfo {
+  // TODO: b/262694346 - Add a release() method for GlTextureInfo.
 
   /** A {@link GlTextureInfo} instance with all fields unset. */
   public static final GlTextureInfo UNSET =
