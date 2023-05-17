@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -245,13 +245,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>char</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekChar(java.nio.charset.Charset)">peekChar</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</code></th>
+<td class="colLast">
+<div class="block">Peeks at the next char (as decoded by <code>charset</code>)</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekUnsignedByte()">peekUnsignedByte</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Peeks at the next byte as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytes(byte%5B%5D,int,int)">readBytes</a></span>&#8203;(byte[]&nbsp;buffer,
          int&nbsp;offset,
@@ -260,7 +267,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code> at <code>offset</code>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytes(com.google.android.exoplayer2.util.ParsableBitArray,int)">readBytes</a></span>&#8203;(<a href="ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
          int&nbsp;length)</code></th>
@@ -269,7 +276,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  bitArray</code> to zero.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytes(java.nio.ByteBuffer,int)">readBytes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
          int&nbsp;length)</code></th>
@@ -277,98 +284,98 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readDelimiterTerminatedString(char)">readDelimiterTerminatedString</a></span>&#8203;(char&nbsp;delimiter)</code></th>
 <td class="colLast">
 <div class="block">Reads up to the next delimiter byte (or the limit) as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>double</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readDouble()">readDouble</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next eight bytes as a 64-bit floating point value.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readFloat()">readFloat</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes as a 32-bit floating point value.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readInt()">readInt</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes as a signed value</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readInt24()">readInt24</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next three bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLine()">readLine</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads a line of text in UTF-8.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLine(java.nio.charset.Charset)">readLine</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</code></th>
 <td class="colLast">
 <div class="block">Reads a line of text in <code>charset</code>.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianInt()">readLittleEndianInt</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes as a signed value in little endian order.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianInt24()">readLittleEndianInt24</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next three bytes as a signed value in little endian order.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianLong()">readLittleEndianLong</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next eight bytes as a signed value in little endian order.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>short</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianShort()">readLittleEndianShort</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next two bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianUnsignedInt()">readLittleEndianUnsignedInt</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes as an unsigned value in little endian order.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianUnsignedInt24()">readLittleEndianUnsignedInt24</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next three bytes as an unsigned value in little endian order.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianUnsignedIntToInt()">readLittleEndianUnsignedIntToInt</a></span>()</code></th>
 <td class="colLast">
@@ -376,49 +383,49 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  is a zero.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLittleEndianUnsignedShort()">readLittleEndianUnsignedShort</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next two bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLong()">readLong</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next eight bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readNullTerminatedString()">readNullTerminatedString</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads up to the next NUL byte (or the limit) as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readNullTerminatedString(int)">readNullTerminatedString</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads the next <code>length</code> bytes as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>short</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readShort()">readShort</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next two bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readString(int)">readString</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads the next <code>length</code> bytes as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readString(int,java.nio.charset.Charset)">readString</a></span>&#8203;(int&nbsp;length,
           <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</code></th>
@@ -426,77 +433,77 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Reads the next <code>length</code> bytes as characters in the specified <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readSynchSafeInt()">readSynchSafeInt</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads a Synchsafe integer.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedByte()">readUnsignedByte</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next byte as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedFixedPoint1616()">readUnsignedFixedPoint1616</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedInt()">readUnsignedInt</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedInt24()">readUnsignedInt24</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next three bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedIntToInt()">readUnsignedIntToInt</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next four bytes as an unsigned integer into an integer, if the top bit is a zero.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedLongToLong()">readUnsignedLongToLong</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next eight bytes as an unsigned long into a long, if the top bit is a zero.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUnsignedShort()">readUnsignedShort</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads the next two bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUtf8EncodedLong()">readUtf8EncodedLong</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads a long value encoded by UTF-8 encoding</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readUtfCharsetFromBom()">readUtfCharsetFromBom</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads a UTF byte order mark (BOM) and returns the UTF <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a> it represents.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D)">reset</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
@@ -504,7 +511,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <code>data.length</code>.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D,int)">reset</a></span>&#8203;(byte[]&nbsp;data,
      int&nbsp;limit)</code></th>
@@ -512,28 +519,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(int)">reset</a></span>&#8203;(int&nbsp;limit)</code></th>
 <td class="colLast">
 <div class="block">Resets the position to zero and the limit to the specified value.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLimit(int)">setLimit</a></span>&#8203;(int&nbsp;limit)</code></th>
 <td class="colLast">
 <div class="block">Sets the limit.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int)">setPosition</a></span>&#8203;(int&nbsp;position)</code></th>
 <td class="colLast">
 <div class="block">Sets the reading offset in the array.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBytes(int)">skipBytes</a></span>&#8203;(int&nbsp;bytes)</code></th>
 <td class="colLast">
@@ -864,7 +871,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>peekChar</h4>
 <pre class="methodSignature">public&nbsp;char&nbsp;peekChar()</pre>
-<div class="block">Peeks at the next char.</div>
+<div class="block">Peeks at the next char.
+
+ <p>Equivalent to passing <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true#UTF_16" title="class or interface in com.google.common.base" class="externalLink"><code>Charsets.UTF_16</code></a> or <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true#UTF_16BE" title="class or interface in com.google.common.base" class="externalLink"><code>Charsets.UTF_16BE</code></a> to <a href="#peekChar(java.nio.charset.Charset)"><code>peekChar(Charset)</code></a>.</div>
+</li>
+</ul>
+<a id="peekChar(java.nio.charset.Charset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>peekChar</h4>
+<pre class="methodSignature">public&nbsp;char&nbsp;peekChar&#8203;(<a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</pre>
+<div class="block">Peeks at the next char (as decoded by <code>charset</code>)</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - if charset is not supported. Only US_ASCII, UTF-8, UTF-16,
+     UTF-16BE, and UTF-16LE are supported.</dd>
+</dl>
 </li>
 </ul>
 <a id="readUnsignedByte()">
