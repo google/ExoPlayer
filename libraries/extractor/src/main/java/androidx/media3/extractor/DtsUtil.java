@@ -160,16 +160,13 @@ public final class DtsUtil {
    * @return The number of audio samples represented by the syncframe.
    */
   public static int parseDtsAudioSampleCount(ByteBuffer buffer) {
-
-    // Check for DTS:X Profile 2 sync or non sync word and return
-    // 1024 if found. This is the only audio sample count that is used by DTS:X Streaming Encoder.
     if ((buffer.getInt(0) == SYNC_FTOC_LE) || (buffer.getInt(0) == SYNC_FTOC_NON_SYNC_LE)) {
+      // Check for DTS:X Profile 2 sync or non sync word and return
+      // 1024 if found. This is the only audio sample count that is used by DTS:X Streaming Encoder.
       return 1024;
-    }
-
-    // Check for DTS Express sync word and return 4096 if found. This is the only audio
-    // sample count that is used by DTS Streaming Encoder.
-    else if (buffer.getInt(0) == SYNC_EXT_SUB_LE) {
+    } else if (buffer.getInt(0) == SYNC_EXT_SUB_LE) {
+      // Check for DTS Express sync word and return 4096 if found. This is the only audio
+      // sample count that is used by DTS Streaming Encoder.
       return 4096;
     }
 
