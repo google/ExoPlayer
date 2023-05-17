@@ -37,6 +37,7 @@ android {
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'lib-datasource')
+    implementation project(modulePrefix + 'lib-container')
     implementation project(modulePrefix + 'lib-exoplayer')
     implementation project(modulePrefix + 'lib-effect')
     implementation project(modulePrefix + 'lib-muxer')

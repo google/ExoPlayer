@@ -24,7 +24,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.extractor.metadata.mp4.Mp4LocationData;
+import androidx.media3.container.Mp4LocationData;
 import androidx.media3.muxer.Mp4Muxer;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
 import com.google.common.collect.ImmutableList;
