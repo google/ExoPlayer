@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 project.ext {
-    releaseVersion = '1.0.1'
-    releaseVersionCode = 1_000_001_3_00
+    releaseVersion = '1.0.2'
+    releaseVersionCode = 1_000_002_3_00
     minSdkVersion = 16
     appTargetSdkVersion = 33
     // API version before restricting local file access.
