@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 
 /** Contains information describing an OpenGL texture. */
 public final class GlTextureInfo {
+  // TODO: b/262694346 - Add a release() method for GlTextureInfo.
 
   /** A {@link GlTextureInfo} instance with all fields unset. */
   public static final GlTextureInfo UNSET =

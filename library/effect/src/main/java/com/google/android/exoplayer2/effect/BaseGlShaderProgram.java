@@ -23,10 +23,7 @@ import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.ArrayDeque;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
@@ -45,13 +42,7 @@ import java.util.concurrent.Executor;
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
  */
 public abstract class BaseGlShaderProgram implements GlShaderProgram {
-
-  private final ArrayDeque<GlTextureInfo> freeOutputTextures;
-  private final ArrayDeque<GlTextureInfo> inUseOutputTextures;
-  private final int texturePoolCapacity;
-  private final boolean useHdr;
-
-  private GlObjectsProvider glObjectsProvider;
+  private final TexturePool outputTexturePool;
   protected InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
@@ -67,11 +58,8 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
    *     texture cache, the size should be the number of textures to cache.
    */
   public BaseGlShaderProgram(boolean useHdr, int texturePoolCapacity) {
-    freeOutputTextures = new ArrayDeque<>(texturePoolCapacity);
-    inUseOutputTextures = new ArrayDeque<>(texturePoolCapacity);
-    this.useHdr = useHdr;
-    this.texturePoolCapacity = texturePoolCapacity;
-    glObjectsProvider = GlObjectsProvider.DEFAULT;
+    outputTexturePool =
+        new TexturePool(/* useHighPrecisionColorComponents= */ useHdr, texturePoolCapacity);
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = (frameProcessingException) -> {};
@@ -112,15 +100,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   @Override
   public void setInputListener(InputListener inputListener) {
     this.inputListener = inputListener;
-    int numberOfFreeFramesToNotify;
-    if (getIteratorToAllTextures().hasNext()) {
-      // The frame buffers have already been allocated.
-      numberOfFreeFramesToNotify = freeOutputTextures.size();
-    } else {
-      // Defer frame buffer allocation to when queueing input frames.
-      numberOfFreeFramesToNotify = texturePoolCapacity;
-    }
-    for (int i = 0; i < numberOfFreeFramesToNotify; i++) {
+    for (int i = 0; i < outputTexturePool.freeTextureCount(); i++) {
       inputListener.onReadyToAcceptInputFrame();
     }
   }
@@ -141,22 +121,19 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
     checkState(
         !frameProcessingStarted,
         "The GlObjectsProvider cannot be set after frame processing has started.");
-    this.glObjectsProvider = glObjectsProvider;
+    outputTexturePool.setGlObjectsProvider(glObjectsProvider);
   }
 
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     try {
-      configureAllOutputTextures(inputTexture.width, inputTexture.height);
-      checkState(
-          !freeOutputTextures.isEmpty(),
-          "The GlShaderProgram does not currently accept input frames. Release prior output frames"
-              + " first.");
+      Size outputTextureSize = configure(inputTexture.width, inputTexture.height);
+      outputTexturePool.ensureConfigured(
+          outputTextureSize.getWidth(), outputTextureSize.getHeight());
       frameProcessingStarted = true;
 
       // Focus on the next free buffer.
-      GlTextureInfo outputTexture = freeOutputTextures.remove();
-      inUseOutputTextures.add(outputTexture);
+      GlTextureInfo outputTexture = outputTexturePool.useTexture();
 
       // Copy frame to fbo.
       GlUtil.focusFramebufferUsingCurrentContext(
@@ -174,9 +151,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   @Override
   public void releaseOutputFrame(GlTextureInfo outputTexture) {
     frameProcessingStarted = true;
-    checkState(inUseOutputTextures.contains(outputTexture));
-    inUseOutputTextures.remove(outputTexture);
-    freeOutputTextures.add(outputTexture);
+    outputTexturePool.freeTexture(outputTexture);
     inputListener.onReadyToAcceptInputFrame();
   }
 
@@ -190,10 +165,9 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   @CallSuper
   public void flush() {
     frameProcessingStarted = true;
-    freeOutputTextures.addAll(inUseOutputTextures);
-    inUseOutputTextures.clear();
+    outputTexturePool.freeAllTextures();
     inputListener.onFlush();
-    for (int i = 0; i < freeOutputTextures.size(); i++) {
+    for (int i = 0; i < outputTexturePool.capacity(); i++) {
       inputListener.onReadyToAcceptInputFrame();
     }
   }
@@ -203,52 +177,9 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   public void release() throws VideoFrameProcessingException {
     frameProcessingStarted = true;
     try {
-      deleteAllOutputTextures();
+      outputTexturePool.deleteAllTextures();
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
-  }
-
-  private void configureAllOutputTextures(int inputWidth, int inputHeight)
-      throws GlUtil.GlException, VideoFrameProcessingException {
-    Iterator<GlTextureInfo> allTextures = getIteratorToAllTextures();
-    if (!allTextures.hasNext()) {
-      createAllOutputTextures(inputWidth, inputHeight);
-      return;
-    }
-    GlTextureInfo outputGlTextureInfo = allTextures.next();
-    if (outputGlTextureInfo.width != inputWidth || outputGlTextureInfo.height != inputHeight) {
-      deleteAllOutputTextures();
-      createAllOutputTextures(inputWidth, inputHeight);
-    }
-  }
-
-  private void createAllOutputTextures(int width, int height)
-      throws GlUtil.GlException, VideoFrameProcessingException {
-    checkState(freeOutputTextures.isEmpty());
-    checkState(inUseOutputTextures.isEmpty());
-    Size outputSize = configure(width, height);
-    for (int i = 0; i < texturePoolCapacity; i++) {
-      int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight(), useHdr);
-      GlTextureInfo outputTexture =
-          glObjectsProvider.createBuffersForTexture(
-              outputTexId, outputSize.getWidth(), outputSize.getHeight());
-      freeOutputTextures.add(outputTexture);
-    }
-  }
-
-  private void deleteAllOutputTextures() throws GlUtil.GlException {
-    Iterator<GlTextureInfo> allTextures = getIteratorToAllTextures();
-    while (allTextures.hasNext()) {
-      GlTextureInfo textureInfo = allTextures.next();
-      GlUtil.deleteTexture(textureInfo.texId);
-      GlUtil.deleteFbo(textureInfo.fboId);
-    }
-    freeOutputTextures.clear();
-    inUseOutputTextures.clear();
-  }
-
-  private Iterator<GlTextureInfo> getIteratorToAllTextures() {
-    return Iterables.concat(freeOutputTextures, inUseOutputTextures).iterator();
   }
 }
