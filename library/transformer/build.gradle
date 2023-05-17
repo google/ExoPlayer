@@ -37,6 +37,7 @@ android {
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-datasource')
+    implementation project(modulePrefix + 'library-container')
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-effect')
     implementation project(modulePrefix + 'library-muxer')
