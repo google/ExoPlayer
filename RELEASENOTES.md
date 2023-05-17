@@ -44,6 +44,12 @@
         `createAudioSampleFormat`, `createContainerFormat`, and
         `createSampleFormat`, which were used to instantiate the `Format` class.
         Instead use `Format.Builder` for creating instances of `Format`.
+    *   Remove the deprecated methods `copyWithMaxInputSize`,
+        `copyWithSubsampleOffsetUs`, `copyWithLabel`,
+        `copyWithManifestFormatInfo`, `copyWithGaplessInfo`,
+        `copyWithFrameRate`, `copyWithDrmInitData`, `copyWithMetadata`,
+        `copyWithBitrate` and `copyWithVideoSize`, use `Format.buildUpon()` and
+        setter methods instead.
 
 ### 1.0.2 (2023-05-18)
 

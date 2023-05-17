@@ -902,42 +902,6 @@ public final class Format implements Bundleable {
     return new Builder(this);
   }
 
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setMaxInputSize(int)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithMaxInputSize(int maxInputSize) {
-    return buildUpon().setMaxInputSize(maxInputSize).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setSubsampleOffsetUs(long)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
-    return buildUpon().setSubsampleOffsetUs(subsampleOffsetUs).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setLabel(String)} .
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithLabel(@Nullable String label) {
-    return buildUpon().setLabel(label).build();
-  }
-
-  /**
-   * @deprecated Use {@link #withManifestFormatInfo(Format)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithManifestFormatInfo(Format manifestFormat) {
-    return withManifestFormatInfo(manifestFormat);
-  }
-
   @UnstableApi
   @SuppressWarnings("ReferenceEquality")
   public Format withManifestFormatInfo(Format manifestFormat) {
@@ -1004,63 +968,6 @@ public final class Format implements Bundleable {
         .setDrmInitData(drmInitData)
         .setFrameRate(frameRate)
         .build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()}, {@link Builder#setEncoderDelay(int)} and {@link
-   *     Builder#setEncoderPadding(int)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
-    return buildUpon().setEncoderDelay(encoderDelay).setEncoderPadding(encoderPadding).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setFrameRate(float)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithFrameRate(float frameRate) {
-    return buildUpon().setFrameRate(frameRate).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setDrmInitData(DrmInitData)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
-    return buildUpon().setDrmInitData(drmInitData).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setMetadata(Metadata)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithMetadata(@Nullable Metadata metadata) {
-    return buildUpon().setMetadata(metadata).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()} and {@link Builder#setAverageBitrate(int)} and {@link
-   *     Builder#setPeakBitrate(int)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithBitrate(int bitrate) {
-    return buildUpon().setAverageBitrate(bitrate).setPeakBitrate(bitrate).build();
-  }
-
-  /**
-   * @deprecated Use {@link #buildUpon()}, {@link Builder#setWidth(int)} and {@link
-   *     Builder#setHeight(int)}.
-   */
-  @UnstableApi
-  @Deprecated
-  public Format copyWithVideoSize(int width, int height) {
-    return buildUpon().setWidth(width).setHeight(height).build();
   }
 
   /** Returns a copy of this format with the specified {@link #cryptoType}. */
