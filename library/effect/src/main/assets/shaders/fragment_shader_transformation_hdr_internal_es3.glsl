@@ -14,28 +14,20 @@
 // limitations under the License.
 
 // ES 3 fragment shader that:
-// 1. Samples electrical (HLG or PQ) BT.2020 YUV from an external texture with
-//    uTexSampler, where the sampler uses the EXT_YUV_target extension specified
-//    at
-//    https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt,
-// 2. Applies a YUV to RGB conversion using the specified color transform
-//    uYuvToRgbColorTransform, yielding electrical (HLG or PQ) BT.2020 RGB,
-// 3. Applies an EOTF based on uInputColorTransfer, yielding optical linear
+// 1. Samples electrical (HLG or PQ) BT.2020 RGB from an internal texture.
+// 2. Applies an EOTF based on uInputColorTransfer, yielding optical linear
 //    BT.2020 RGB.
-// 4. Optionally applies a BT2020 to BT709 OOTF, if OpenGL tone-mapping is
+// 3. Optionally applies a BT2020 to BT709 OOTF, if OpenGL tone-mapping is
 //    requested via uApplyHdrToSdrToneMapping.
-// 5. Applies a 4x4 RGB color matrix to change the pixel colors.
-// 6. Outputs as requested by uOutputColorTransfer. Use COLOR_TRANSFER_LINEAR
+// 4. Applies a 4x4 RGB color matrix to change the pixel colors.
+// 5. Outputs as requested by uOutputColorTransfer. Use COLOR_TRANSFER_LINEAR
 //    for outputting to intermediate shaders, or COLOR_TRANSFER_ST2084 /
 //    COLOR_TRANSFER_HLG to output electrical colors via an OETF (e.g. to an
 //    encoder).
 // The output will be red or blue if an error has occurred.
 
-#extension GL_OES_EGL_image_external : require
-#extension GL_EXT_YUV_target : require
 precision mediump float;
-uniform __samplerExternal2DY2YEXT uTexSampler;
-uniform mat3 uYuvToRgbColorTransform;
+uniform sampler2D uTexSampler;
 uniform mat4 uRgbMatrix;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
@@ -229,14 +221,9 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   }
 }
 
-vec3 yuvToRgb(vec3 yuv) {
-  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);
-  return clamp(uYuvToRgbColorTransform * (yuv - yuvOffset), 0.0, 1.0);
-}
-
 void main() {
-  vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
-  vec3 opticalColorBt2020 = applyEotf(yuvToRgb(srcYuv));
+  vec3 opticalColorBt2020 = applyEotf(
+      texture(uTexSampler, vTexSamplingCoord).xyz);
   vec4 opticalColor = (uApplyHdrToSdrToneMapping == 1)
       ? vec4(applyBt2020ToBt709Ootf(opticalColorBt2020), 1.0)
       : vec4(opticalColorBt2020, 1.0);
