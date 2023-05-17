@@ -305,7 +305,8 @@ implements <a href="../source/SampleStream.html" title="interface in com.google.
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToUs(long)">seekToUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToUs(long,boolean)">seekToUs</a></span>&#8203;(long&nbsp;positionUs,
+        boolean&nbsp;allowTimeBeyondBuffer)</code></th>
 <td class="colLast">
 <div class="block">Seeks the stream to a new position using already available data in the queue.</div>
 </td>
@@ -420,17 +421,20 @@ implements <a href="../source/SampleStream.html" title="interface in com.google.
 </dl>
 </li>
 </ul>
-<a id="seekToUs(long)">
+<a id="seekToUs(long,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>seekToUs</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;seekToUs&#8203;(long&nbsp;positionUs)</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;seekToUs&#8203;(long&nbsp;positionUs,
+                        boolean&nbsp;allowTimeBeyondBuffer)</pre>
 <div class="block">Seeks the stream to a new position using already available data in the queue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionUs</code> - The new position, in microseconds.</dd>
+<dd><code>allowTimeBeyondBuffer</code> - Whether the operation can succeed if timeUs is beyond the end of
+     the queue, by seeking to the last sample (or keyframe).</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether seeking inside the available data was possible.</dd>
 </dl>
