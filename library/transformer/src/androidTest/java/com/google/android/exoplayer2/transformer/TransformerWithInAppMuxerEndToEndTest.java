@@ -53,10 +53,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
   public void videoEditing_completesSuccessfully() throws Exception {
     String testId = "videoEditing_completesSuccessfully";
     Transformer transformer =
-        new Transformer.Builder(context)
-            .setMuxerFactory(
-                new InAppMuxer.Factory(DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS))
-            .build();
+        new Transformer.Builder(context).setMuxerFactory(new InAppMuxer.Factory()).build();
     ImmutableList<Effect> videoEffects = ImmutableList.of(RgbFilter.createGrayscaleFilter());
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + inputFile));
     EditedMediaItem editedMediaItem =
@@ -76,10 +73,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
   public void audioEditing_completesSuccessfully() throws Exception {
     String testId = "audioEditing_completesSuccessfully";
     Transformer transformer =
-        new Transformer.Builder(context)
-            .setMuxerFactory(
-                new InAppMuxer.Factory(DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS))
-            .build();
+        new Transformer.Builder(context).setMuxerFactory(new InAppMuxer.Factory()).build();
     ChannelMixingAudioProcessor channelMixingAudioProcessor = new ChannelMixingAudioProcessor();
     channelMixingAudioProcessor.putChannelMixingMatrix(
         ChannelMixingMatrix.create(/* inputChannelCount= */ 1, /* outputChannelCount= */ 2));
