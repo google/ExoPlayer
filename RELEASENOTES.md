@@ -40,6 +40,10 @@
     *   Remove deprecated `WorkManagerScheduler` constructor, use a non
         deprecated constructor that includes the option to provide a `Context`
         parameter instead.
+    *   Remove the deprecated methods `createVideoSampleFormat`,
+        `createAudioSampleFormat`, `createContainerFormat`, and
+        `createSampleFormat`, which were used to instantiate the `Format` class.
+        Instead use `Format.Builder` for creating instances of `Format`.
 
 ### 1.0.2 (2023-05-18)
 
