@@ -11,14 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-gradle.ext.exoplayerModulePrefix = ''
+ gradle.ext.exoplayerModulePrefix = ''
 
 def modulePrefix = ':'
-if (gradle.ext.has('exoplayerModulePrefix')) {
-    modulePrefix += gradle.ext.exoplayerModulePrefix
-}
-
-rootProject.name = 'media3'
+ if (gradle.ext.has('exoplayerModulePrefix')) {
+     modulePrefix += gradle.ext.exoplayerModulePrefix
+ }
 
 include modulePrefix + 'demo'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')

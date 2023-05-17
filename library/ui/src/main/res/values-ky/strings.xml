@@ -4,8 +4,8 @@
   <string name="exo_controls_hide">Ойноткучту башкаруу элементтерин жашыруу</string>
   <string name="exo_controls_seek_bar_description">Ойнотуу көрсөткүчү</string>
   <string name="exo_controls_settings_description">Параметрлер</string>
-  <string name="exo_controls_overflow_hide_description">Кошумча жөндөөлөрдү жашыруу</string>
-  <string name="exo_controls_overflow_show_description">Кошумча жөндөөлөрдү көрсөтүү</string>
+  <string name="exo_controls_overflow_hide_description">Кошумча параметрлерди жашыруу</string>
+  <string name="exo_controls_overflow_show_description">Кошумча параметрлерди көрсөтүү</string>
   <string name="exo_controls_fullscreen_enter_description">Толук экранга кирүү</string>
   <string name="exo_controls_fullscreen_exit_description">Толук экран режиминен чыгуу</string>
   <string name="exo_controls_previous_description">Мурунку</string>

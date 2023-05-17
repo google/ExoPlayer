@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
+ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
@@ -26,10 +26,10 @@ dependencies {
 ext {
     javadocTitle = 'Robolectric utils'
 }
-apply from: '../javadoc_library.gradle'
+ apply from: '../javadoc_library.gradle'
 
 ext {
-    releaseArtifactId = 'exoplayer-robolectricutils'
-    releaseDescription = 'Robolectric utils for ExoPlayer.'
+ releaseArtifactId = 'exoplayer-robolectricutils'
+ releaseDescription = 'Robolectric utils for ExoPlayer.'
 }
-apply from: '../publish.gradle'
+ apply from: '../publish.gradle'

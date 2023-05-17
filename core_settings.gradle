@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 def rootDir = file(".")
-if (!gradle.ext.has('exoplayerSettingsDir')) {
-    gradle.ext.exoplayerSettingsDir = rootDir.getCanonicalPath()
-}
+ if (!gradle.ext.has('exoplayerSettingsDir')) {
+     gradle.ext.exoplayerSettingsDir = rootDir.getCanonicalPath()
+ }
 
 def modulePrefix = ':'
-if (gradle.ext.has('exoplayerModulePrefix')) {
-    modulePrefix += gradle.ext.exoplayerModulePrefix
-}
+ if (gradle.ext.has('exoplayerModulePrefix')) {
+     modulePrefix += gradle.ext.exoplayerModulePrefix
+ }
+
+ rootProject.name = 'exoplayer2'
 
 include modulePrefix + 'library-common'
 project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')

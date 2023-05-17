@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
+ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
     defaultConfig {
@@ -20,7 +20,7 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+ androidTest.assets.srcDir '../../testdata/src/test/assets/'
     }
 }
 
@@ -46,7 +46,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifactId = 'extension-ima'
-    releaseDescription = 'Interactive Media Ads extension for ExoPlayer.'
+ releaseArtifactId = 'extension-ima'
+ releaseDescription = 'Interactive Media Ads extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

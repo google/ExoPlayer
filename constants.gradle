@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 project.ext {
-    // ExoPlayer version and version code.
-    releaseVersion = '2.18.6'
-    releaseVersionCode = 2_018_006
+ // ExoPlayer version and version code.
+ releaseVersion = '2.18.7'
+ releaseVersionCode = 2_018_007
     minSdkVersion = 16
     appTargetSdkVersion = 33
     // API version before restricting local file access.
@@ -57,7 +57,7 @@ project.ext {
     truthVersion = '1.1.3'
     okhttpVersion = '4.9.2'
     modulePrefix = ':'
-    if (gradle.ext.has('exoplayerModulePrefix')) {
-        modulePrefix += gradle.ext.exoplayerModulePrefix
-    }
+ if (gradle.ext.has('exoplayerModulePrefix')) {
+     modulePrefix += gradle.ext.exoplayerModulePrefix
+ }
 }
