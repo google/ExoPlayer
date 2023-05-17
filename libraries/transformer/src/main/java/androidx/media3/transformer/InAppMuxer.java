@@ -42,6 +42,16 @@ public final class InAppMuxer implements Muxer {
   public static final class Factory implements Muxer.Factory {
     private final long maxDelayBetweenSamplesMs;
 
+    /**
+     * Creates an instance with {@link Muxer#getMaxDelayBetweenSamplesMs() maxDelayBetweenSamplesMs}
+     * set to {@link DefaultMuxer.Factory#DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS}.
+     */
+    public Factory() {
+      this(
+          /* maxDelayBetweenSamplesMs= */ DefaultMuxer.Factory
+              .DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
+    }
+
     /** {@link Muxer.Factory} for {@link InAppMuxer}. */
     public Factory(long maxDelayBetweenSamplesMs) {
       this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
