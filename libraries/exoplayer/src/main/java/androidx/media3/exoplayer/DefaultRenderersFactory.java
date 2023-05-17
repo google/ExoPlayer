@@ -496,8 +496,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       Class<?> clazz = Class.forName("androidx.media3.decoder.midi.MidiRenderer");
-      Constructor<?> constructor = clazz.getConstructor();
-      Renderer renderer = (Renderer) constructor.newInstance();
+      Constructor<?> constructor = clazz.getConstructor(Context.class);
+      Renderer renderer = (Renderer) constructor.newInstance(context);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded MidiRenderer.");
     } catch (ClassNotFoundException e) {
