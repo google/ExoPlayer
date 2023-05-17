@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.common.util;
+package androidx.media3.container;
 
 import static java.lang.Math.min;
 
@@ -22,6 +22,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Log;
+import androidx.media3.common.util.UnstableApi;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 

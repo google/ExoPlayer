@@ -35,6 +35,7 @@ android {
 
 dependencies {
     api project(modulePrefix + 'lib-common')
+    api project(modulePrefix + 'lib-container')
     // TODO(b/203754886): Revisit which modules are exported as API dependencies.
     api project(modulePrefix + 'lib-datasource')
     api project(modulePrefix + 'lib-decoder')

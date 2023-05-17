@@ -40,6 +40,11 @@ ext {
 
 dependencies {
     implementation project(modulePrefix + 'lib-common')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 apply from: '../../javadoc_library.gradle'
 

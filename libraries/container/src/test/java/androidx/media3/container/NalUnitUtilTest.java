@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.common.util;
+package androidx.media3.container;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import java.util.Arrays;

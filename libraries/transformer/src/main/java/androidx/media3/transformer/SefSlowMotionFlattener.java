@@ -18,7 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.NalUnitUtil.NAL_START_CODE;
+import static androidx.media3.container.NalUnitUtil.NAL_START_CODE;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;

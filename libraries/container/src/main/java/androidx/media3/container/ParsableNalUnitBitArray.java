@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.common.util;
+package androidx.media3.container;
+
+import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.UnstableApi;
 
 /**
  * Wraps a byte array, providing methods that allow it to be read as a NAL unit bitstream.

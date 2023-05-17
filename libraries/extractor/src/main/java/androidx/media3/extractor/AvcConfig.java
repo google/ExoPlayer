@@ -20,10 +20,10 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.CodecSpecificDataUtil;
-import androidx.media3.common.util.NalUnitUtil;
-import androidx.media3.common.util.NalUnitUtil.SpsData;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.container.NalUnitUtil;
+import androidx.media3.container.NalUnitUtil.SpsData;
 import java.util.ArrayList;
 import java.util.List;
 
