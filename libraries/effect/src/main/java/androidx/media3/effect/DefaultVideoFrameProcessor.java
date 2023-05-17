@@ -620,12 +620,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     inputSwitcher.registerInput(INPUT_TYPE_SURFACE);
     if (!ColorInfo.isTransferHdr(inputColorInfo)) {
-      // HDR bitmap or texture input is not supported.
+      // HDR bitmap input is not supported.
       inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
-      if (inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB) {
-        // Image and textureId concatenation not supported.
-        inputSwitcher.registerInput(INPUT_TYPE_TEXTURE_ID);
-      }
+    }
+    if (inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB) {
+      // Image and textureId concatenation not supported.
+      inputSwitcher.registerInput(INPUT_TYPE_TEXTURE_ID);
     }
     inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 

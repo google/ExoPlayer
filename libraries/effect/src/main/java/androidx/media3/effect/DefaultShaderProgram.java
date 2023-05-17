@@ -71,6 +71,8 @@ import java.util.List;
       "shaders/fragment_shader_transformation_external_yuv_es3.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH =
       "shaders/fragment_shader_transformation_sdr_external_es2.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_HDR_INTERNAL_ES3_PATH =
+      "shaders/fragment_shader_transformation_hdr_internal_es3.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH =
       "shaders/fragment_shader_transformation_sdr_internal_es2.glsl";
   private static final ImmutableList<float[]> NDC_SQUARE =
@@ -205,15 +207,17 @@ import java.util.List;
       @InputType int inputType)
       throws VideoFrameProcessingException {
     checkState(
-        !ColorInfo.isTransferHdr(inputColorInfo),
-        "DefaultShaderProgram doesn't support HDR internal sampler input yet.");
-    checkState(
         inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB || inputType == INPUT_TYPE_BITMAP);
-    GlProgram glProgram =
-        createGlProgram(
-            context,
-            VERTEX_SHADER_TRANSFORMATION_PATH,
-            FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH);
+    boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
+    String vertexShaderFilePath =
+        isInputTransferHdr
+            ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH
+            : VERTEX_SHADER_TRANSFORMATION_PATH;
+    String fragmentShaderFilePath =
+        isInputTransferHdr
+            ? FRAGMENT_SHADER_TRANSFORMATION_HDR_INTERNAL_ES3_PATH
+            : FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH;
+    GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
     glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
     return createWithSampler(
         glProgram,
@@ -268,8 +272,23 @@ import java.util.List;
         isInputTransferHdr
             ? FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH;
+    GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
+    if (isInputTransferHdr) {
+      // In HDR editing mode the decoder output is sampled in YUV.
+      if (!GlUtil.isYuvTargetExtensionSupported()) {
+        throw new VideoFrameProcessingException(
+            "The EXT_YUV_target extension is required for HDR editing input.");
+      }
+      glProgram.setFloatsUniform(
+          "uYuvToRgbColorTransform",
+          inputColorInfo.colorRange == C.COLOR_RANGE_FULL
+              ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
+              : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
+      glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
+    }
+
     return createWithSampler(
-        createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath),
+        glProgram,
         matrixTransformations,
         rgbMatrices,
         inputColorInfo,
@@ -343,31 +362,16 @@ import java.util.List;
       List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      boolean enableColorTransfers)
-      throws VideoFrameProcessingException {
+      boolean enableColorTransfers) {
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (isInputTransferHdr) {
       checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
       checkArgument(enableColorTransfers);
-
-      // In HDR editing mode the decoder output is sampled in YUV.
-      if (!GlUtil.isYuvTargetExtensionSupported()) {
-        throw new VideoFrameProcessingException(
-            "The EXT_YUV_target extension is required for HDR editing input.");
-      }
-      glProgram.setFloatsUniform(
-          "uYuvToRgbColorTransform",
-          inputColorInfo.colorRange == C.COLOR_RANGE_FULL
-              ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
-              : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
-
-      checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
-      glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
       // TODO(b/239735341): Add a setBooleanUniform method to GlProgram.
       glProgram.setIntUniform(
           "uApplyHdrToSdrToneMapping",
-          /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? 1 : 0);
+          /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? GL_TRUE : GL_FALSE);
       checkArgument(
           outputColorTransfer != Format.NO_VALUE && outputColorTransfer != C.COLOR_TRANSFER_SDR);
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);

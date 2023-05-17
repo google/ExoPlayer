@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.common.ColorInfo.SDR_BT709_LIMITED;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -34,6 +35,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.media3.common.ColorInfo;
+import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
@@ -55,6 +57,7 @@ import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EncoderUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
@@ -89,6 +92,8 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG10_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
 
+  // A passthrough effect allows for testing having an intermediate effect injected, which uses
+  // different OpenGL shaders from having no effects.
   private static final GlEffect NO_OP_EFFECT =
       new GlEffectWrapper(new ScaleAndRotateTransformation.Builder().build());
 
@@ -111,7 +116,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         /* outputFormat= */ null)) {
       return;
     }
-    videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
+    videoFrameProcessorTestRunner = getSurfaceInputFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.processFirstFrameAndEnd();
@@ -134,23 +139,14 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         /* outputFormat= */ null)) {
       return;
     }
-    TextureBitmapReader producersBitmapReader = new TextureBitmapReader();
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
-    DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
-        new DefaultVideoFrameProcessor.Factory.Builder()
-            .setTextureOutput(
-                (outputTexture, presentationTimeUs) ->
-                    inputTextureIntoVideoFrameProcessor(
-                        testId, consumersBitmapReader, outputTexture, presentationTimeUs),
-                /* textureOutputCapacity= */ 1)
-            .build();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
-        new VideoFrameProcessorTestRunner.Builder()
-            .setTestId(testId)
-            .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-            .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING)
-            .setBitmapReader(producersBitmapReader)
-            .build();
+        getTexIdProducingFrameProcessorTestRunner(
+            testId,
+            consumersBitmapReader,
+            INPUT_SDR_MP4_ASSET_STRING,
+            SDR_BT709_LIMITED,
+            ImmutableList.of());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
@@ -177,7 +173,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
     videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
+        getSurfaceInputFrameProcessorTestRunnerBuilder(testId)
             .setEffects(new OverlayEffect(ImmutableList.of(bitmapOverlay)))
             .build();
     Bitmap expectedBitmap = readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH);
@@ -203,28 +199,16 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     }
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
-    TextureBitmapReader producersBitmapReader = new TextureBitmapReader();
+    ImmutableList<Effect> effects =
+        ImmutableList.of(new OverlayEffect(ImmutableList.of(bitmapOverlay)));
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
-    DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
-        new DefaultVideoFrameProcessor.Factory.Builder()
-            .setTextureOutput(
-                (outputTexture, presentationTimeUs) ->
-                    inputTextureIntoVideoFrameProcessor(
-                        testId, consumersBitmapReader, outputTexture, presentationTimeUs),
-                /* textureOutputCapacity= */ 1)
-            .build();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
-        new VideoFrameProcessorTestRunner.Builder()
-            .setTestId(testId)
-            .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-            .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING)
-            .setBitmapReader(producersBitmapReader)
-            .setEffects(new OverlayEffect(ImmutableList.of(bitmapOverlay)))
-            .build();
-    texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
-    texIdProducingVideoFrameProcessorTestRunner.release();
+        getTexIdProducingFrameProcessorTestRunner(
+            testId, consumersBitmapReader, INPUT_SDR_MP4_ASSET_STRING, SDR_BT709_LIMITED, effects);
     Bitmap expectedBitmap = readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH);
 
+    texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    texIdProducingVideoFrameProcessorTestRunner.release();
     Bitmap actualBitmap = consumersBitmapReader.getBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
@@ -249,7 +233,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     }
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
+        getSurfaceInputFrameProcessorTestRunnerBuilder(testId)
             .setInputColorInfo(colorInfo)
             .setOutputColorInfo(colorInfo)
             .setVideoAssetPath(INPUT_HLG10_MP4_ASSET_STRING)
@@ -267,11 +251,9 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
   }
 
-  // A passthrough effect allows for testing having an intermediate effect injected, which uses
-  // different OpenGL shaders from having no effects.
   @Test
-  public void noOpEffect_hlg10Input_matchesGoldenFile() throws Exception {
-    String testId = "noOpEffect_hlg10Input_matchesGoldenFile";
+  public void noEffects_hlg10TextureInput_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_hlg10TextureInput_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -283,17 +265,19 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       return;
     }
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
-    videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputColorInfo(colorInfo)
-            .setOutputColorInfo(colorInfo)
-            .setVideoAssetPath(INPUT_HLG10_MP4_ASSET_STRING)
-            .setEffects(NO_OP_EFFECT)
-            .build();
+    TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
+    VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
+        getTexIdProducingFrameProcessorTestRunner(
+            testId,
+            consumersBitmapReader,
+            INPUT_HLG10_MP4_ASSET_STRING,
+            colorInfo,
+            ImmutableList.of());
     Bitmap expectedBitmap = readBitmap(ORIGINAL_HLG10_PNG_ASSET_PATH);
 
-    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
-    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
+    texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    texIdProducingVideoFrameProcessorTestRunner.release();
+    Bitmap actualBitmap = consumersBitmapReader.getBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -309,7 +293,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
-      recordTestSkipped(context, testId, "No HLG editing support");
+      recordTestSkipped(context, testId, "No PQ editing support");
       return;
     }
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
@@ -318,7 +302,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     }
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
+        getSurfaceInputFrameProcessorTestRunnerBuilder(testId)
             .setInputColorInfo(colorInfo)
             .setOutputColorInfo(colorInfo)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
@@ -336,13 +320,47 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
   }
 
-  // A passthrough effect allows for testing having an intermediate effect injected, which uses
-  // different OpenGL shaders from having no effects.
   @Test
-  public void noOpEffect_hdr10Input_matchesGoldenFile() throws Exception {
-    String testId = "noOpEffect_hdr10Input_matchesGoldenFile";
+  public void noEffects_hdr10TextureInput_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_hdr10TextureInput_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No PQ editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
+    TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
+    VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
+        getTexIdProducingFrameProcessorTestRunner(
+            testId,
+            consumersBitmapReader,
+            INPUT_PQ_MP4_ASSET_STRING,
+            colorInfo,
+            ImmutableList.of());
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HDR10_PNG_ASSET_PATH);
+
+    texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    texIdProducingVideoFrameProcessorTestRunner.release();
+    Bitmap actualBitmap = consumersBitmapReader.getBitmap();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  @Test
+  public void noOpEffect_hlg10Input_matchesGoldenFile() throws Exception {
+    String testId = "noOpEffect_hlg10Input_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
       recordTestSkipped(context, testId, "No HLG editing support");
       return;
@@ -353,7 +371,77 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     }
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
+        getSurfaceInputFrameProcessorTestRunnerBuilder(testId)
+            .setInputColorInfo(colorInfo)
+            .setOutputColorInfo(colorInfo)
+            .setVideoAssetPath(INPUT_HLG10_MP4_ASSET_STRING)
+            .setEffects(NO_OP_EFFECT)
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HLG10_PNG_ASSET_PATH);
+
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  @Test
+  public void noOpEffect_hlg10TextureInput_matchesGoldenFile() throws Exception {
+    String testId = "noOpEffect_hlg10TextureInput_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No HLG editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
+    TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
+    VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
+        getTexIdProducingFrameProcessorTestRunner(
+            testId,
+            consumersBitmapReader,
+            INPUT_HLG10_MP4_ASSET_STRING,
+            colorInfo,
+            ImmutableList.of(NO_OP_EFFECT));
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HLG10_PNG_ASSET_PATH);
+
+    texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    texIdProducingVideoFrameProcessorTestRunner.release();
+    Bitmap actualBitmap = consumersBitmapReader.getBitmap();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  @Test
+  public void noOpEffect_hdr10Input_matchesGoldenFile() throws Exception {
+    String testId = "noOpEffect_hdr10Input_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No PQ editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
+    videoFrameProcessorTestRunner =
+        getSurfaceInputFrameProcessorTestRunnerBuilder(testId)
             .setInputColorInfo(colorInfo)
             .setOutputColorInfo(colorInfo)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
@@ -372,9 +460,78 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
   }
 
+  @Test
+  public void noOpEffect_hdr10TextureInput_matchesGoldenFile() throws Exception {
+    String testId = "noOpEffect_hdr10TextureInput_matchesGoldenFile";
+    Context context = getApplicationContext();
+    Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+    if (!deviceSupportsHdrEditing(format)) {
+      recordTestSkipped(context, testId, "No PQ editing support");
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
+      return;
+    }
+    ColorInfo colorInfo = checkNotNull(format.colorInfo);
+    TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
+    VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
+        getTexIdProducingFrameProcessorTestRunner(
+            testId,
+            consumersBitmapReader,
+            INPUT_PQ_MP4_ASSET_STRING,
+            colorInfo,
+            ImmutableList.of(NO_OP_EFFECT));
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_HDR10_PNG_ASSET_PATH);
+
+    texIdProducingVideoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    texIdProducingVideoFrameProcessorTestRunner.release();
+    Bitmap actualBitmap = consumersBitmapReader.getBitmap();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16(
+            expectedBitmap, actualBitmap);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16);
+  }
+
+  private VideoFrameProcessorTestRunner getTexIdProducingFrameProcessorTestRunner(
+      String testId,
+      TextureBitmapReader consumersBitmapReader,
+      String videoAssetPath,
+      ColorInfo colorInfo,
+      List<Effect> effects)
+      throws VideoFrameProcessingException {
+    TextureBitmapReader producersBitmapReader = new TextureBitmapReader();
+    DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
+        new DefaultVideoFrameProcessor.Factory.Builder()
+            .setTextureOutput(
+                (outputTexture, presentationTimeUs) ->
+                    inputTextureIntoVideoFrameProcessor(
+                        testId,
+                        consumersBitmapReader,
+                        colorInfo,
+                        effects,
+                        outputTexture,
+                        presentationTimeUs),
+                /* textureOutputCapacity= */ 1)
+            .build();
+    return new VideoFrameProcessorTestRunner.Builder()
+        .setTestId(testId)
+        .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
+        .setVideoAssetPath(videoAssetPath)
+        .setInputColorInfo(colorInfo)
+        .setOutputColorInfo(colorInfo)
+        .setBitmapReader(producersBitmapReader)
+        .build();
+  }
+
   private void inputTextureIntoVideoFrameProcessor(
       String testId,
       TextureBitmapReader bitmapReader,
+      ColorInfo colorInfo,
+      List<Effect> effects,
       GlTextureInfo texture,
       long presentationTimeUs)
       throws VideoFrameProcessingException {
@@ -389,9 +546,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         new VideoFrameProcessorTestRunner.Builder()
             .setTestId(testId)
             .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-            .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING)
+            .setInputColorInfo(colorInfo)
+            .setOutputColorInfo(colorInfo)
             .setBitmapReader(bitmapReader)
             .setInputType(VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID)
+            .setEffects(effects)
             .build();
 
     videoFrameProcessorTestRunner.queueInputTexture(texture, presentationTimeUs);
@@ -402,7 +561,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     }
   }
 
-  private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
+  private VideoFrameProcessorTestRunner.Builder getSurfaceInputFrameProcessorTestRunnerBuilder(
       String testId) {
     TextureBitmapReader textureBitmapReader = new TextureBitmapReader();
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
