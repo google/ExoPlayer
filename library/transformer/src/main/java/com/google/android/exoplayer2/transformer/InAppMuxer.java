@@ -21,8 +21,8 @@ import static com.google.android.exoplayer2.muxer.Mp4Muxer.SUPPORTED_VIDEO_SAMPL
 import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.Mp4LocationData;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
