@@ -27,6 +27,7 @@ import android.os.Build;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -85,7 +86,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkNotNull(format.sampleMimeType);
 
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
-      if (requestSdrToneMapping && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
+      if (requestSdrToneMapping
+          && (SDK_INT < 31
+              || deviceNeedsDisableToneMappingWorkaround(
+                  checkNotNull(format.colorInfo).colorTransfer))) {
         throw createExportException(
             format, /* reason= */ "Tone-mapping HDR is not supported on this device.");
       }
@@ -128,10 +132,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
   }
 
-  private static boolean deviceNeedsNoToneMappingWorkaround() {
-    // Some Pixel 6 builds report support for tone mapping but the feature doesn't work
-    // (see http://b/249297370#comment8).
-    return Util.MANUFACTURER.equals("Google") && Build.ID.startsWith("TP1A");
+  private static boolean deviceNeedsDisableToneMappingWorkaround(
+      @C.ColorTransfer int colorTransfer) {
+    if (Util.MANUFACTURER.equals("Google") && Build.ID.startsWith("TP1A")) {
+      // Some Pixel 6 builds report support for tone mapping but the feature doesn't work
+      // (see b/249297370#comment8).
+      return true;
+    }
+    if (colorTransfer == C.COLOR_TRANSFER_HLG
+        && (Util.MODEL.startsWith("SM-F936") || Util.MODEL.startsWith("SM-F916"))) {
+      // Some Samsung Galaxy Z Fold devices report support for HLG tone mapping but the feature only
+      // works on PQ (see b/282791751#comment7).
+      return true;
+    }
+    return false;
   }
 
   @RequiresNonNull("#1.sampleMimeType")
