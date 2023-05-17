@@ -63,16 +63,16 @@ import java.util.Queue;
       return;
     }
 
-    long presentationTimeUs = pendingFrame.second;
-    if (presentationTimeUs == C.TIME_END_OF_SOURCE) {
-      consumingGlShaderProgramInputCapacity++;
+    videoFrameProcessingTaskExecutor.submit(
+        () ->
+            consumingGlShaderProgram.queueInputFrame(
+                /* inputTexture= */ pendingFrame.first,
+                /* presentationTimeUs= */ pendingFrame.second));
+    @Nullable Pair<GlTextureInfo, Long> nextPendingFrame = availableFrames.peek();
+    if (nextPendingFrame != null && nextPendingFrame.second == C.TIME_END_OF_SOURCE) {
       videoFrameProcessingTaskExecutor.submit(
           consumingGlShaderProgram::signalEndOfCurrentInputStream);
-    } else {
-      videoFrameProcessingTaskExecutor.submit(
-          () ->
-              consumingGlShaderProgram.queueInputFrame(
-                  /* inputTexture= */ pendingFrame.first, presentationTimeUs));
+      availableFrames.remove();
     }
   }
 
