@@ -26,6 +26,7 @@ android {
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-common')
+    implementation project(modulePrefix + 'library-container')
     // TODO(b/203752187): Remove this dependency.
     implementation project(modulePrefix + 'library-decoder')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
