@@ -26,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
-import com.google.android.exoplayer2.transformer.DefaultMuxer;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
@@ -50,10 +49,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
       return;
     }
     Transformer transformer =
-        new Transformer.Builder(context)
-            .setMuxerFactory(
-                new InAppMuxer.Factory(DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS))
-            .build();
+        new Transformer.Builder(context).setMuxerFactory(new InAppMuxer.Factory()).build();
     ImmutableList<Effect> videoEffects = ImmutableList.of(RgbFilter.createGrayscaleFilter());
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_AV1_VIDEO_URI_STRING));
     EditedMediaItem editedMediaItem =
