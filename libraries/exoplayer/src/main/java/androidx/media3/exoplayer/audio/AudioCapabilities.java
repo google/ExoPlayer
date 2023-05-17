@@ -102,7 +102,7 @@ public final class AudioCapabilities {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
 
-    ImmutableSet.Builder supportedEncodings = new ImmutableSet.Builder<>();
+    ImmutableSet.Builder<Integer> supportedEncodings = new ImmutableSet.Builder<>();
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       supportedEncodings.addAll(Ints.asList(EXTERNAL_SURROUND_SOUND_ENCODINGS));
@@ -123,10 +123,10 @@ public final class AudioCapabilities {
               AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
     }
 
-    ImmutableSet supportedEncodingsSet = supportedEncodings.build();
+    ImmutableSet<Integer> supportedEncodingsSet = supportedEncodings.build();
     if (!supportedEncodingsSet.isEmpty()) {
       return new AudioCapabilities(
-          Ints.toArray(supportedEncodingsSet), /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT);
+          Ints.toArray(supportedEncodingsSet), /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT);
     }
     return DEFAULT_AUDIO_CAPABILITIES;
   }
@@ -230,7 +230,7 @@ public final class AudioCapabilities {
       channelCount = format.channelCount;
       // Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
       // instead of 10. See https://github.com/androidx/media/issues/396
-      if (format.sampleMimeType == MimeTypes.AUDIO_DTS_X) {
+      if (format.sampleMimeType.equals(MimeTypes.AUDIO_DTS_X)) {
         if (channelCount > 10) {
           return null;
         }
