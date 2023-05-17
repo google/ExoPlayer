@@ -388,7 +388,7 @@ public final class LibraryResult<V> implements Bundleable {
         throw new IllegalStateException();
     }
 
-    return new LibraryResult<>(resultCode, completionTimeMs, params, value, VALUE_TYPE_ITEM_LIST);
+    return new LibraryResult<>(resultCode, completionTimeMs, params, value, valueType);
   }
 
   @Documented

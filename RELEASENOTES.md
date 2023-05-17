@@ -1,5 +1,40 @@
 # Release notes
 
+### 1.0.2 (2023-05-18)
+
+This release corresponds to the
+[ExoPlayer 2.18.7 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.7).
+
+This release contains the following changes since the
+[1.0.1 release](#101-2023-04-18):
+
+*   Core library:
+    *   Add `Buffer.isLastSample()` that denotes if `Buffer` contains flag
+        `C.BUFFER_FLAG_LAST_SAMPLE`.
+    *   Fix issue where last frame may not be rendered if the last sample with
+        frames is dequeued without reading the 'end of stream' sample.
+        ([#11079](https://github.com/google/ExoPlayer/issues/11079)).
+*   Extractors:
+    *   Fix parsing of H.265 SPS in MPEG-TS files by re-using the parsing logic
+        already used by RTSP and MP4 extractors
+        ([#303](https://github.com/androidx/media/issues/303)).
+*   Text:
+    *   SSA: Add support for UTF-16 files if they start with a byte order mark
+        ([#319](https://github.com/androidx/media/issues/319)).
+*   Session:
+    *   Fix issue where `MediaController` doesn't update its available commands
+        when connected to a legacy `MediaSessionCompat` that updates its
+        actions.
+    *   Fix bug that prevented the `MediaLibraryService` from returning null for
+        a call from System UI to `Callback.onGetLibraryRoot` with
+        `params.isRecent == true` on API 30
+        ([#355](https://github.com/androidx/media/issues/355)).
+    *   Fix memory leak of `MediaSessionService` or `MediaLibraryService`
+        ([#346](https://github.com/androidx/media/issues/346)).
+    *   Fix bug where a combined `Timeline` and position update in a
+        `MediaSession` may cause a `MediaController` to throw an
+        `IllegalStateException`.
+
 ### 1.0.1 (2023-04-18)
 
 This release corresponds to the

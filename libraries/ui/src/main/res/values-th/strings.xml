@@ -45,7 +45,7 @@
   <string name="exo_track_selection_title_audio">เสียง</string>
   <string name="exo_track_selection_title_text">ข้อความ</string>
   <string name="exo_track_selection_none">ไม่มี</string>
-  <string name="exo_track_selection_auto">ยานยนต์</string>
+  <string name="exo_track_selection_auto">อัตโนมัติ</string>
   <string name="exo_track_unknown">ไม่ทราบ</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">โมโน</string>

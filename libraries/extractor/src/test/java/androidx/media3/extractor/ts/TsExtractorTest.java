@@ -93,6 +93,12 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithH265RpsPred() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_h265_rps_pred.ts", simulationConfig);
+  }
+
+  @Test
   public void sampleWithScte35() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new,

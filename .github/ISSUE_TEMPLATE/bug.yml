@@ -20,6 +20,8 @@ body:
       label: Media3 Version
       description: What version of Media3 (or ExoPlayer) are you using?
       options:
+        - Media3 1.1.0-alpha01
+        - Media3 1.0.2
         - Media3 1.0.1
         - Media3 1.0.0
         - Media3 1.0.0-rc02
@@ -30,6 +32,8 @@ body:
         - Media3 1.0.0-alpha03
         - Media3 1.0.0-alpha02
         - Media3 1.0.0-alpha01
+        - Media3 `main` branch
+        - ExoPlayer 2.18.7
         - ExoPlayer 2.18.6
         - ExoPlayer 2.18.5
         - ExoPlayer 2.18.4
@@ -46,6 +50,7 @@ body:
         - ExoPlayer 2.14.2
         - ExoPlayer 2.14.1
         - ExoPlayer 2.14.0
+        - ExoPlayer `dev-v2` branch
         - Older (unsupported)
     validations:
       required: true

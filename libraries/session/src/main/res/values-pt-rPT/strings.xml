@@ -5,7 +5,7 @@
   <string name="media3_controls_pause_description">Pausar</string>
   <string name="media3_controls_seek_to_previous_description">Retroceder para o item anterior</string>
   <string name="media3_controls_seek_to_next_description">Avançar para o item seguinte</string>
-  <string name="media3_controls_seek_back_description">Retroceder</string>
+  <string name="media3_controls_seek_back_description">Anterior</string>
   <string name="media3_controls_seek_forward_description">Avançar</string>
   <string name="authentication_required">Autenticação necessária</string>
 </resources>

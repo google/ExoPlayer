@@ -1411,13 +1411,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return new Pair<>(mergedPlayerInfo, mergedBundlingExclusions);
   }
 
-  private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {
-    try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-      bitmap.compress(Bitmap.CompressFormat.PNG, /* ignored */ 0, stream);
-      return stream.toByteArray();
-    }
-  }
-
+  /** Generates an array of {@code n} indices. */
   public static int[] generateUnshuffledIndices(int n) {
     int[] indices = new int[n];
     for (int i = 0; i < n; i++) {
@@ -1426,6 +1420,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return indices;
   }
 
+  /**
+   * Calculates the buffered percentage of the given buffered position and the duration in
+   * milliseconds.
+   */
   public static int calculateBufferedPercentage(long bufferedPositionMs, long durationMs) {
     return bufferedPositionMs == C.TIME_UNSET || durationMs == C.TIME_UNSET
         ? 0
@@ -1434,8 +1432,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             : Util.constrainValue((int) ((bufferedPositionMs * 100) / durationMs), 0, 100);
   }
 
+  /**
+   * Sets media items with start index and position for the given {@link Player} by honoring the
+   * available commands.
+   *
+   * @param player The player to set the media items.
+   * @param mediaItemsWithStartPosition The media items, the index and the position to set.
+   */
   public static void setMediaItemsWithStartIndexAndPosition(
-      PlayerWrapper player, MediaSession.MediaItemsWithStartPosition mediaItemsWithStartPosition) {
+      Player player, MediaSession.MediaItemsWithStartPosition mediaItemsWithStartPosition) {
     if (mediaItemsWithStartPosition.startIndex == C.INDEX_UNSET) {
       if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
         player.setMediaItems(mediaItemsWithStartPosition.mediaItems, /* resetPosition= */ true);
@@ -1443,17 +1448,35 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         player.setMediaItem(
             mediaItemsWithStartPosition.mediaItems.get(0), /* resetPosition= */ true);
       }
-    } else {
-      if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
-        player.setMediaItems(
-            mediaItemsWithStartPosition.mediaItems,
-            mediaItemsWithStartPosition.startIndex,
-            mediaItemsWithStartPosition.startPositionMs);
-      } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
-        player.setMediaItem(
-            mediaItemsWithStartPosition.mediaItems.get(0),
-            mediaItemsWithStartPosition.startPositionMs);
-      }
+    } else if (player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+      player.setMediaItems(
+          mediaItemsWithStartPosition.mediaItems,
+          mediaItemsWithStartPosition.startIndex,
+          mediaItemsWithStartPosition.startPositionMs);
+    } else if (!mediaItemsWithStartPosition.mediaItems.isEmpty()) {
+      player.setMediaItem(
+          mediaItemsWithStartPosition.mediaItems.get(0),
+          mediaItemsWithStartPosition.startPositionMs);
+    }
+  }
+
+  /**
+   * Returns whether the two provided {@link SessionPositionInfo} describe a position in the same
+   * period or ad.
+   */
+  public static boolean areSessionPositionInfosInSamePeriodOrAd(
+      SessionPositionInfo info1, SessionPositionInfo info2) {
+    // TODO: b/259220235 - Use UIDs instead of mediaItemIndex and periodIndex
+    return info1.positionInfo.mediaItemIndex == info2.positionInfo.mediaItemIndex
+        && info1.positionInfo.periodIndex == info2.positionInfo.periodIndex
+        && info1.positionInfo.adGroupIndex == info2.positionInfo.adGroupIndex
+        && info1.positionInfo.adIndexInAdGroup == info2.positionInfo.adIndexInAdGroup;
+  }
+
+  private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {
+    try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+      bitmap.compress(Bitmap.CompressFormat.PNG, /* ignored */ 0, stream);
+      return stream.toByteArray();
     }
   }
 

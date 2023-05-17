@@ -147,12 +147,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     appPackageName = context.getPackageName();
     sessionManager = MediaSessionManager.getSessionManager(context);
     controllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
-    connectionTimeoutHandler =
-        new ConnectionTimeoutHandler(session.getApplicationHandler().getLooper());
     mediaPlayPauseKeyHandler =
         new MediaPlayPauseKeyHandler(session.getApplicationHandler().getLooper());
     connectedControllersManager = new ConnectedControllersManager<>(session);
     connectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
+    connectionTimeoutHandler =
+        new ConnectionTimeoutHandler(
+            session.getApplicationHandler().getLooper(), connectedControllersManager);
 
     // Select a media button receiver component.
     ComponentName receiverComponentName = queryPackageManagerForMediaButtonReceiver(context);
@@ -1372,12 +1373,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  private class ConnectionTimeoutHandler extends Handler {
+  private static class ConnectionTimeoutHandler extends Handler {
 
     private static final int MSG_CONNECTION_TIMED_OUT = 1001;
 
-    public ConnectionTimeoutHandler(Looper looper) {
+    private final ConnectedControllersManager<RemoteUserInfo> connectedControllersManager;
+
+    public ConnectionTimeoutHandler(
+        Looper looper, ConnectedControllersManager<RemoteUserInfo> connectedControllersManager) {
       super(looper);
+      this.connectedControllersManager = connectedControllersManager;
     }
 
     @Override

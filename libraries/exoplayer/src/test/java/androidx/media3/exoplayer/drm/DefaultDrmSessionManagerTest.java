@@ -68,8 +68,8 @@ public class DefaultDrmSessionManagerTest {
         new DefaultDrmSessionManager.Builder()
             .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
             .build(/* mediaDrmCallback= */ licenseServer);
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -91,8 +91,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(10_000)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -116,8 +116,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(C.TIME_UNSET)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -138,8 +138,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(10_000)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -162,8 +162,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(C.TIME_UNSET)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -188,8 +188,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(10_000)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -233,8 +233,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(10_000)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -272,8 +272,8 @@ public class DefaultDrmSessionManagerTest {
             .setMultiSession(true)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession firstDrmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -313,8 +313,8 @@ public class DefaultDrmSessionManagerTest {
             .setMultiSession(true)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSessionReference firstDrmSessionReference =
         checkNotNull(
             drmSessionManager.preacquireSession(
@@ -358,8 +358,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(10_000)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession firstDrmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -405,8 +405,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(C.TIME_UNSET)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
 
     DrmSessionReference sessionReference =
         drmSessionManager.preacquireSession(eventDispatcher, FORMAT_WITH_DRM_INIT_DATA);
@@ -450,8 +450,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(C.TIME_UNSET)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
 
     DrmSessionReference sessionReference =
         drmSessionManager.preacquireSession(/* eventDispatcher= */ null, FORMAT_WITH_DRM_INIT_DATA);
@@ -486,8 +486,8 @@ public class DefaultDrmSessionManagerTest {
             .setSessionKeepaliveMs(C.TIME_UNSET)
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
 
     DrmSessionReference sessionReference =
         drmSessionManager.preacquireSession(/* eventDispatcher= */ null, FORMAT_WITH_DRM_INIT_DATA);
@@ -530,8 +530,8 @@ public class DefaultDrmSessionManagerTest {
             .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, new AppManagedProvider(exoMediaDrm))
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
 
     DefaultDrmSession drmSession =
         (DefaultDrmSession)
@@ -571,8 +571,8 @@ public class DefaultDrmSessionManagerTest {
             .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, new AppManagedProvider(exoMediaDrm))
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
 
     DefaultDrmSession drmSession =
         (DefaultDrmSession)
@@ -615,8 +615,8 @@ public class DefaultDrmSessionManagerTest {
                 DRM_SCHEME_UUID,
                 uuid -> new FakeExoMediaDrm.Builder().setProvisionsRequired(1).build())
             .build(/* mediaDrmCallback= */ licenseServer);
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -648,8 +648,8 @@ public class DefaultDrmSessionManagerTest {
                         .throwNotProvisionedExceptionFromGetKeyRequest()
                         .build())
             .build(/* mediaDrmCallback= */ licenseServer);
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -674,8 +674,8 @@ public class DefaultDrmSessionManagerTest {
                 DRM_SCHEME_UUID,
                 uuid -> new FakeExoMediaDrm.Builder().setProvisionsRequired(2).build())
             .build(/* mediaDrmCallback= */ licenseServer);
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -702,8 +702,8 @@ public class DefaultDrmSessionManagerTest {
             .setUuidAndExoMediaDrmProvider(
                 DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm.Builder().build())
             .build(/* mediaDrmCallback= */ licenseServer);
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -728,8 +728,8 @@ public class DefaultDrmSessionManagerTest {
             .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, new AppManagedProvider(mediaDrm))
             .setSessionKeepaliveMs(C.TIME_UNSET)
             .build(/* mediaDrmCallback= */ licenseServer);
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(
@@ -783,8 +783,8 @@ public class DefaultDrmSessionManagerTest {
             .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
             .build(/* mediaDrmCallback= */ licenseServer);
 
-    drmSessionManager.prepare();
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), PlayerId.UNSET);
+    drmSessionManager.prepare();
     DrmSession drmSession =
         checkNotNull(
             drmSessionManager.acquireSession(

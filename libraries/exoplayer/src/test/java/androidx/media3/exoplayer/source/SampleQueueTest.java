@@ -355,6 +355,32 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void readSingleSampleWithLoadingFinished() {
+    sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
+    sampleQueue.format(FORMAT_1);
+    sampleQueue.sampleMetadata(1000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
+
+    assertAllocationCount(1);
+    // If formatRequired, should read the format rather than the sample.
+    assertReadFormat(true, FORMAT_1);
+    // Otherwise should read the sample with loading finished.
+    assertReadLastSample(
+        1000,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE);
+    // Allocation should still be held.
+    assertAllocationCount(1);
+
+    sampleQueue.discardToRead();
+    // The allocation should have been released.
+    assertAllocationCount(0);
+  }
+
+  @Test
   public void readMultiSamples() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
@@ -1642,13 +1668,27 @@ public final class SampleQueueTest {
             FLAG_OMIT_SAMPLE_DATA | FLAG_PEEK,
             /* loadingFinished= */ false);
     assertSampleBufferReadResult(
-        flagsOnlyBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted);
+        flagsOnlyBuffer,
+        result,
+        timeUs,
+        isKeyFrame,
+        isDecodeOnly,
+        isEncrypted,
+        /* isLastSample= */ false);
 
     // Check that peek yields the expected values.
     clearFormatHolderAndInputBuffer();
     result = sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
     assertSampleBufferReadResult(
-        result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
+        result,
+        timeUs,
+        isKeyFrame,
+        isDecodeOnly,
+        isEncrypted,
+        /* isLastSample= */ false,
+        sampleData,
+        offset,
+        length);
 
     // Check that read yields the expected values.
     clearFormatHolderAndInputBuffer();
@@ -1656,7 +1696,85 @@ public final class SampleQueueTest {
         sampleQueue.read(
             formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertSampleBufferReadResult(
-        result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
+        result,
+        timeUs,
+        isKeyFrame,
+        isDecodeOnly,
+        isEncrypted,
+        /* isLastSample= */ false,
+        sampleData,
+        offset,
+        length);
+  }
+
+  /**
+   * Asserts {@link SampleQueue#read} returns {@link C#RESULT_BUFFER_READ} and that the buffer is
+   * filled with the specified sample data. Also asserts that being the last sample and loading is
+   * finished, that the {@link C#BUFFER_FLAG_LAST_SAMPLE} flag is set.
+   *
+   * @param timeUs The expected buffer timestamp.
+   * @param isKeyFrame The expected keyframe flag.
+   * @param isDecodeOnly The expected decodeOnly flag.
+   * @param isEncrypted The expected encrypted flag.
+   * @param sampleData An array containing the expected sample data.
+   * @param offset The offset in {@code sampleData} of the expected sample data.
+   * @param length The length of the expected sample data.
+   */
+  private void assertReadLastSample(
+      long timeUs,
+      boolean isKeyFrame,
+      boolean isDecodeOnly,
+      boolean isEncrypted,
+      byte[] sampleData,
+      int offset,
+      int length) {
+    // Check that peek whilst omitting data yields the expected values.
+    formatHolder.format = null;
+    DecoderInputBuffer flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            flagsOnlyBuffer,
+            FLAG_OMIT_SAMPLE_DATA | FLAG_PEEK,
+            /* loadingFinished= */ true);
+    assertSampleBufferReadResult(
+        flagsOnlyBuffer,
+        result,
+        timeUs,
+        isKeyFrame,
+        isDecodeOnly,
+        isEncrypted,
+        /* isLastSample= */ true);
+
+    // Check that peek yields the expected values.
+    clearFormatHolderAndInputBuffer();
+    result = sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ true);
+    assertSampleBufferReadResult(
+        result,
+        timeUs,
+        isKeyFrame,
+        isDecodeOnly,
+        isEncrypted,
+        /* isLastSample= */ true,
+        sampleData,
+        offset,
+        length);
+
+    // Check that read yields the expected values.
+    clearFormatHolderAndInputBuffer();
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ true);
+    assertSampleBufferReadResult(
+        result,
+        timeUs,
+        isKeyFrame,
+        isDecodeOnly,
+        isEncrypted,
+        /* isLastSample= */ true,
+        sampleData,
+        offset,
+        length);
   }
 
   private void assertSampleBufferReadResult(
@@ -1665,7 +1783,8 @@ public final class SampleQueueTest {
       long timeUs,
       boolean isKeyFrame,
       boolean isDecodeOnly,
-      boolean isEncrypted) {
+      boolean isEncrypted,
+      boolean isLastSample) {
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -1674,6 +1793,7 @@ public final class SampleQueueTest {
     assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyFrame);
     assertThat(inputBuffer.isDecodeOnly()).isEqualTo(isDecodeOnly);
     assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
+    assertThat(inputBuffer.isLastSample()).isEqualTo(isLastSample);
   }
 
   private void assertSampleBufferReadResult(
@@ -1682,11 +1802,12 @@ public final class SampleQueueTest {
       boolean isKeyFrame,
       boolean isDecodeOnly,
       boolean isEncrypted,
+      boolean isLastSample,
       byte[] sampleData,
       int offset,
       int length) {
     assertSampleBufferReadResult(
-        inputBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted);
+        inputBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, isLastSample);
     // inputBuffer should be populated with data.
     inputBuffer.flip();
     assertThat(inputBuffer.data.limit()).isEqualTo(length);

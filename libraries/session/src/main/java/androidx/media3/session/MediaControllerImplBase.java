@@ -2500,6 +2500,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private void updateSessionPositionInfoIfNeeded(SessionPositionInfo sessionPositionInfo) {
     if (pendingMaskingSequencedFutureNumbers.isEmpty()
         && playerInfo.sessionPositionInfo.eventTimeMs < sessionPositionInfo.eventTimeMs) {
+      if (!MediaUtils.areSessionPositionInfosInSamePeriodOrAd(
+          sessionPositionInfo, playerInfo.sessionPositionInfo)) {
+        // MediaSessionImpl before version 1.0.2 has a bug that may send position info updates for
+        // new periods too early. Ignore these updates to avoid an inconsistent state (see
+        // [internal b/277301159]).
+        return;
+      }
       playerInfo = playerInfo.copyWithSessionPositionInfo(sessionPositionInfo);
     }
   }

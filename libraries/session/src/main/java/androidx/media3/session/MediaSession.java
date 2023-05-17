@@ -39,6 +39,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.app.NotificationCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
@@ -1161,9 +1162,9 @@ public class MediaSession {
      * the items directly by using Guava's {@link Futures#immediateFuture(Object)}. Once the {@link
      * MediaItemsWithStartPosition} has been resolved, the session will call {@link
      * Player#setMediaItems} as requested. If the resolved {@link
-     * MediaItemsWithStartPosition#startIndex startIndex} is {@link
-     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} then the session will call {@link
-     * Player#setMediaItem(MediaItem, boolean)} with {@code resetPosition} set to {@code true}.
+     * MediaItemsWithStartPosition#startIndex startIndex} is {@link C#INDEX_UNSET C.INDEX_UNSET}
+     * then the session will call {@link Player#setMediaItem(MediaItem, boolean)} with {@code
+     * resetPosition} set to {@code true}.
      *
      * <p>Interoperability: This method will be called in response to the following {@link
      * MediaControllerCompat} methods:
@@ -1188,19 +1189,18 @@ public class MediaSession {
      * @param controller The controller information.
      * @param mediaItems The list of requested {@linkplain MediaItem media items}.
      * @param startIndex The start index in the {@link MediaItem} list from which to start playing,
-     *     or {@link androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} to start playing from the
-     *     default index in the playlist.
+     *     or {@link C#INDEX_UNSET C.INDEX_UNSET} to start playing from the default index in the
+     *     playlist.
      * @param startPositionMs The starting position in the media item from where to start playing,
-     *     or {@link androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} to start playing from the
-     *     default position in the media item. This value is ignored if startIndex is C.INDEX_UNSET
+     *     or {@link C#TIME_UNSET C.TIME_UNSET} to start playing from the default position in the
+     *     media item. This value is ignored if startIndex is C.INDEX_UNSET
      * @return A {@link ListenableFuture} with a {@link MediaItemsWithStartPosition} containing a
      *     list of resolved {@linkplain MediaItem media items}, and a starting index and position
      *     that are playable by the underlying {@link Player}. If returned {@link
-     *     MediaItemsWithStartPosition#startIndex} is {@link androidx.media3.common.C#INDEX_UNSET
-     *     C.INDEX_UNSET} and {@link MediaItemsWithStartPosition#startPositionMs} is {@link
-     *     androidx.media3.common.C#TIME_UNSET C.TIME_UNSET}, then {@linkplain
-     *     Player#setMediaItems(List, boolean) Player#setMediaItems(List, true)} will be called to
-     *     set media items with default index and position.
+     *     MediaItemsWithStartPosition#startIndex} is {@link C#INDEX_UNSET C.INDEX_UNSET} and {@link
+     *     MediaItemsWithStartPosition#startPositionMs} is {@link C#TIME_UNSET C.TIME_UNSET}, then
+     *     {@linkplain Player#setMediaItems(List, boolean) Player#setMediaItems(List, true)} will be
+     *     called to set media items with default index and position.
      */
     @UnstableApi
     default ListenableFuture<MediaItemsWithStartPosition> onSetMediaItems(
@@ -1217,34 +1217,35 @@ public class MediaSession {
     }
   }
 
-  /** Representation of list of media items and where to start playing */
+  /** Representation of a list of {@linkplain MediaItem media items} and where to start playing. */
   @UnstableApi
   public static final class MediaItemsWithStartPosition {
-    /** List of {@link MediaItem media items}. */
+    /** List of {@linkplain MediaItem media items}. */
     public final ImmutableList<MediaItem> mediaItems;
     /**
-     * Index to start playing at in {@link MediaItem} list.
+     * Index to start playing at in {@link #mediaItems}.
      *
-     * <p>The start index in the {@link MediaItem} list from which to start playing, or {@link
-     * androidx.media3.common.C#INDEX_UNSET C.INDEX_UNSET} to start playing from the default index
-     * in the playlist.
+     * <p>The start index in {@link #mediaItems} from which to start playing, or {@link
+     * C#INDEX_UNSET} to start playing from the default index in the playlist.
      */
     public final int startIndex;
     /**
-     * Position to start playing from in starting media item.
+     * Position in milliseconds to start playing from in the starting media item.
      *
      * <p>The starting position in the media item from where to start playing, or {@link
-     * androidx.media3.common.C#TIME_UNSET C.TIME_UNSET} to start playing from the default position
-     * in the media item. This value is ignored if startIndex is C.INDEX_UNSET
+     * C#TIME_UNSET} to start playing from the default position in the media item. This value is
+     * ignored if {@code startIndex} is {@link C#INDEX_UNSET}.
      */
     public final long startPositionMs;
 
     /**
-     * Create an instance.
+     * Creates an instance.
      *
-     * @param mediaItems List of {@link MediaItem media items}.
-     * @param startIndex Index to start playing at in {@link MediaItem} list.
-     * @param startPositionMs Position to start playing from in starting media item.
+     * @param mediaItems List of {@linkplain MediaItem media items}.
+     * @param startIndex Index to start playing at in {@code mediaItems}, or {@link C#INDEX_UNSET}
+     *     to start from the default index.
+     * @param startPositionMs Position in milliseconds to start playing from in the starting media
+     *     item, or {@link C#TIME_UNSET} to start from the default position.
      */
     public MediaItemsWithStartPosition(
         List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
@@ -1473,17 +1474,19 @@ public class MediaSession {
    * applied to the subclasses.
    */
   /* package */ abstract static class BuilderBase<
-      T extends MediaSession, U extends BuilderBase<T, U, C>, C extends Callback> {
+      SessionT extends MediaSession,
+      BuilderT extends BuilderBase<SessionT, BuilderT, CallbackT>,
+      CallbackT extends Callback> {
 
     /* package */ final Context context;
     /* package */ final Player player;
     /* package */ String id;
-    /* package */ C callback;
+    /* package */ CallbackT callback;
     /* package */ @Nullable PendingIntent sessionActivity;
     /* package */ Bundle extras;
     /* package */ @MonotonicNonNull BitmapLoader bitmapLoader;
 
-    public BuilderBase(Context context, Player player, C callback) {
+    public BuilderBase(Context context, Player player, CallbackT callback) {
       this.context = checkNotNull(context);
       this.player = checkNotNull(player);
       checkArgument(player.canAdvertiseSession());
@@ -1493,35 +1496,35 @@ public class MediaSession {
     }
 
     @SuppressWarnings("unchecked")
-    public U setSessionActivity(PendingIntent pendingIntent) {
+    public BuilderT setSessionActivity(PendingIntent pendingIntent) {
       sessionActivity = checkNotNull(pendingIntent);
-      return (U) this;
+      return (BuilderT) this;
     }
 
     @SuppressWarnings("unchecked")
-    public U setId(String id) {
+    public BuilderT setId(String id) {
       this.id = checkNotNull(id);
-      return (U) this;
+      return (BuilderT) this;
     }
 
     @SuppressWarnings("unchecked")
-    /* package */ U setCallback(C callback) {
+    /* package */ BuilderT setCallback(CallbackT callback) {
       this.callback = checkNotNull(callback);
-      return (U) this;
+      return (BuilderT) this;
     }
 
     @SuppressWarnings("unchecked")
-    public U setExtras(Bundle extras) {
+    public BuilderT setExtras(Bundle extras) {
       this.extras = new Bundle(checkNotNull(extras));
-      return (U) this;
+      return (BuilderT) this;
     }
 
     @SuppressWarnings("unchecked")
-    public U setBitmapLoader(BitmapLoader bitmapLoader) {
+    public BuilderT setBitmapLoader(BitmapLoader bitmapLoader) {
       this.bitmapLoader = bitmapLoader;
-      return (U) this;
+      return (BuilderT) this;
     }
 
-    public abstract T build();
+    public abstract SessionT build();
   }
 }

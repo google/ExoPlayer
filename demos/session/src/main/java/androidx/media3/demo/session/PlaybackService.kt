@@ -15,6 +15,7 @@
  */
 package androidx.media3.demo.session
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent.*
@@ -29,6 +30,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.*
+import androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
@@ -95,7 +97,7 @@ class PlaybackService : MediaLibraryService() {
     ): MediaSession.ConnectionResult {
       val connectionResult = super.onConnect(session, controller)
       val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
-      customCommands.forEach { commandButton ->
+      for (commandButton in customCommands) {
         // Add custom command to available session commands.
         commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
       }
@@ -142,6 +144,12 @@ class PlaybackService : MediaLibraryService() {
       browser: ControllerInfo,
       params: LibraryParams?
     ): ListenableFuture<LibraryResult<MediaItem>> {
+      if (params != null && params.isRecent) {
+        // The service currently does not support playback resumption. Tell System UI by returning
+        // an error of type 'RESULT_ERROR_NOT_SUPPORTED' for a `params.isRecent` request. See
+        // https://github.com/androidx/media/issues/355
+        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED))
+      }
       return Futures.immediateFuture(LibraryResult.ofItem(MediaItemTree.getRootItem(), params))
     }
 
@@ -270,6 +278,7 @@ class PlaybackService : MediaLibraryService() {
      * by a media controller to resume playback when the {@link MediaSessionService} is in the
      * background.
      */
+    @SuppressLint("MissingPermission") // TODO: b/280766358 - Request this permission at runtime.
     override fun onForegroundServiceStartNotAllowedException() {
       val notificationManagerCompat = NotificationManagerCompat.from(this@PlaybackService)
       ensureNotificationChannel(notificationManagerCompat)

@@ -49,6 +49,11 @@ public abstract class Buffer {
     return getFlag(C.BUFFER_FLAG_KEY_FRAME);
   }
 
+  /** Returns whether the {@link C#BUFFER_FLAG_LAST_SAMPLE} flag is set. */
+  public final boolean isLastSample() {
+    return getFlag(C.BUFFER_FLAG_LAST_SAMPLE);
+  }
+
   /** Returns whether the {@link C#BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA} flag is set. */
   public final boolean hasSupplementalData() {
     return getFlag(C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA);

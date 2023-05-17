@@ -18,7 +18,7 @@ if (gradle.ext.has('androidxMediaModulePrefix')) {
     modulePrefix += gradle.ext.androidxMediaModulePrefix
 }
 
-rootProject.name = 'media3'
+gradle.ext.androidxMediaProjectName = 'media3'
 
 include modulePrefix + 'demo'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
