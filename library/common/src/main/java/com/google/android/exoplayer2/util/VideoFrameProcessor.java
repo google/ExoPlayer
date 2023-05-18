@@ -47,7 +47,7 @@ public interface VideoFrameProcessor {
   // TODO(b/243036513): Allow effects to be replaced.
 
   /** A listener for frame processing events. */
-  public interface OnInputFrameProcessedListener {
+  interface OnInputFrameProcessedListener {
 
     /** Called when the given input frame has been processed. */
     void onInputFrameProcessed(int textureId) throws VideoFrameProcessingException;
@@ -288,18 +288,6 @@ public interface VideoFrameProcessor {
    *     frame, or {@link #RENDER_OUTPUT_FRAME_IMMEDIATELY} to render the frame immediately.
    */
   void renderOutputFrame(long renderTimeNs);
-
-  /**
-   * Releases resources associated with all output frames with presentation time less than or equal
-   * to {@code presentationTimeUs}.
-   *
-   * <p>Not needed for outputting to an {@linkplain #setOutputSurfaceInfo output surface}, but may
-   * be required for other outputs.
-   *
-   * @param presentationTimeUs The presentation time where all frames before and at this time should
-   *     be released, in microseconds.
-   */
-  void releaseOutputFrame(long presentationTimeUs);
 
   /**
    * Informs the {@code VideoFrameProcessor} that no further input frames should be accepted.
