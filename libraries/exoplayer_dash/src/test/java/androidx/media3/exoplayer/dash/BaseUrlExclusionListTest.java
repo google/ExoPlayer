@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import androidx.media3.exoplayer.dash.manifest.BaseUrl;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -61,7 +62,7 @@ public class BaseUrlExclusionListTest {
 
   @Test
   public void selectBaseUrl_excludeByPriority_excludesAllBaseUrlsOfSamePriority() {
-    Random mockRandom = mock(Random.class);
+    Random mockRandom = mock(Random.class, withSettings().withoutAnnotations());
     when(mockRandom.nextInt(anyInt())).thenReturn(0);
     BaseUrlExclusionList baseUrlExclusionList = new BaseUrlExclusionList(mockRandom);
     List<BaseUrl> baseUrls =
@@ -89,7 +90,7 @@ public class BaseUrlExclusionListTest {
                 /* url= */ "a", /* serviceLocation= */ "a", /* priority= */ 1, /* weight= */ 99),
             new BaseUrl(
                 /* url= */ "b", /* serviceLocation= */ "b", /* priority= */ 1, /* weight= */ 1));
-    Random mockRandom = mock(Random.class);
+    Random mockRandom = mock(Random.class, withSettings().withoutAnnotations());
     when(mockRandom.nextInt(anyInt())).thenReturn(99);
 
     assertThat(new BaseUrlExclusionList(mockRandom).selectBaseUrl(baseUrls))
@@ -114,7 +115,7 @@ public class BaseUrlExclusionListTest {
                 /* url= */ "a/a", /* serviceLocation= */ "a", /* priority= */ 1, /* weight= */ 99),
             new BaseUrl(
                 /* url= */ "b/a", /* serviceLocation= */ "b", /* priority= */ 1, /* weight= */ 1));
-    Random mockRandom = mock(Random.class);
+    Random mockRandom = mock(Random.class, withSettings().withoutAnnotations());
     BaseUrlExclusionList baseUrlExclusionList = new BaseUrlExclusionList(mockRandom);
     when(mockRandom.nextInt(anyInt())).thenReturn(99);
 
