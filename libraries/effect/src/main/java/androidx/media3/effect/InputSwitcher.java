@@ -39,7 +39,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 /* package */ final class InputSwitcher {
   private final Context context;
-  private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final GlObjectsProvider glObjectsProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
@@ -52,13 +51,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public InputSwitcher(
       Context context,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       GlObjectsProvider glObjectsProvider,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       boolean enableColorTransfers) {
     this.context = context;
-    this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.glObjectsProvider = glObjectsProvider;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
@@ -78,8 +75,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>Creates an {@link TextureManager} and an appropriate {@linkplain DefaultShaderProgram
    * sampler} to sample from the input.
+   *
+   * @param inputColorInfo The {@link ColorInfo} for the input frames.
+   * @param inputType The {@linkplain VideoFrameProcessor.InputType type} of the input being
+   *     registered.
    */
-  public void registerInput(@VideoFrameProcessor.InputType int inputType)
+  public void registerInput(ColorInfo inputColorInfo, @VideoFrameProcessor.InputType int inputType)
       throws VideoFrameProcessingException {
     // TODO(b/274109008): Investigate lazy instantiating the texture managers.
     DefaultShaderProgram samplingShaderProgram;

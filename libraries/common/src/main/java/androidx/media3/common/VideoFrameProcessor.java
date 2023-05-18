@@ -85,8 +85,8 @@ public interface VideoFrameProcessor {
      * @param effects The {@link Effect} instances to apply to each frame. Applied on the {@code
      *     outputColorInfo}'s color space.
      * @param debugViewProvider A {@link DebugViewProvider}.
-     * @param inputColorInfo The {@link ColorInfo} for input frames.
-     * @param outputColorInfo The {@link ColorInfo} for output frames.
+     * @param inputColorInfo The {@link ColorInfo} for the input frames.
+     * @param outputColorInfo The {@link ColorInfo} for the output frames.
      * @param renderFramesAutomatically If {@code true}, the instance will render output frames to
      *     the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface} automatically as
      *     {@link VideoFrameProcessor} is done processing them. If {@code false}, the {@link

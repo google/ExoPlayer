@@ -44,7 +44,6 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
-import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -596,7 +595,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     InputSwitcher inputSwitcher =
         new InputSwitcher(
             context,
-            inputColorInfo,
             /* outputColorInfo= */ linearColorInfo,
             glObjectsProvider,
             videoFrameProcessingTaskExecutor,
@@ -618,14 +616,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             textureOutputListener,
             textureOutputCapacity);
 
-    inputSwitcher.registerInput(INPUT_TYPE_SURFACE);
+    inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_SURFACE);
     if (!ColorInfo.isTransferHdr(inputColorInfo)) {
-      // HDR bitmap input is not supported.
-      inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
+      // HDR bitmap input is not supported. Bitmaps are always sRGB/Full range/BT.709.
+      inputSwitcher.registerInput(ColorInfo.SRGB_BT709_FULL, INPUT_TYPE_BITMAP);
     }
     if (inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB) {
       // Image and textureId concatenation not supported.
-      inputSwitcher.registerInput(INPUT_TYPE_TEXTURE_ID);
+      inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_TEXTURE_ID);
     }
     inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 

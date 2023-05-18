@@ -377,7 +377,6 @@ import java.util.List;
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
       glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
-      checkArgument(inputColorInfo.colorSpace == outputColorInfo.colorSpace);
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_SDR
               || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
