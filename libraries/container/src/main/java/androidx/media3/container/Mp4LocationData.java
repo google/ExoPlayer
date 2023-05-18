@@ -15,8 +15,11 @@
  */
 package androidx.media3.container;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
@@ -28,8 +31,18 @@ public final class Mp4LocationData implements Metadata.Entry {
   public final float latitude;
   public final float longitude;
 
-  /** Creates an instance. */
-  public Mp4LocationData(float latitude, float longitude) {
+  /**
+   * Creates an instance.
+   *
+   * @param latitude The latitude, in degrees. Its value must be in the range [-90, 90].
+   * @param longitude The longitude, in degrees. Its value must be in the range [-180, 180].
+   */
+  public Mp4LocationData(
+      @FloatRange(from = -90.0, to = 90.0) float latitude,
+      @FloatRange(from = -180.0, to = 180.0) float longitude) {
+    checkArgument(
+        latitude >= -90.0f && latitude <= 90.0f && longitude >= -180.0f && longitude <= 180.0f,
+        "Invalid latitude or longitude");
     this.latitude = latitude;
     this.longitude = longitude;
   }
