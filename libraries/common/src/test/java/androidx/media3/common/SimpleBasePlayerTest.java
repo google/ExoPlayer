@@ -65,7 +65,7 @@ public class SimpleBasePlayerTest {
 
   @Test
   public void allPlayerInterfaceMethods_declaredFinal() throws Exception {
-    for (Method method : Player.class.getDeclaredMethods()) {
+    for (Method method : TestUtil.getPublicMethods(Player.class)) {
       assertThat(
               SimpleBasePlayer.class
                       .getMethod(method.getName(), method.getParameterTypes())
