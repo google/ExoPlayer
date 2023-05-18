@@ -507,14 +507,15 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs) ->
+                (outputTexture, presentationTimeUs, releaseOutputTextureCallback) ->
                     inputTextureIntoVideoFrameProcessor(
                         testId,
                         consumersBitmapReader,
                         colorInfo,
                         effects,
                         outputTexture,
-                        presentationTimeUs),
+                        presentationTimeUs,
+                        releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
@@ -533,7 +534,8 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       ColorInfo colorInfo,
       List<Effect> effects,
       GlTextureInfo texture,
-      long presentationTimeUs)
+      long presentationTimeUs,
+      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
       throws VideoFrameProcessingException {
     GlObjectsProvider contextSharingGlObjectsProvider =
         new DefaultGlObjectsProvider(GlUtil.getCurrentContext());
@@ -559,6 +561,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     } catch (InterruptedException e) {
       throw new VideoFrameProcessingException(e);
     }
+    releaseOutputTextureCallback.release(presentationTimeUs);
   }
 
   private VideoFrameProcessorTestRunner.Builder getSurfaceInputFrameProcessorTestRunnerBuilder(
@@ -584,19 +587,12 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final class TextureBitmapReader implements BitmapReader {
     // TODO(b/239172735): This outputs an incorrect black output image on emulators.
     private boolean useHighPrecisionColorComponents;
-    private @MonotonicNonNull ReleaseOutputFrameListener releaseOutputFrameListener;
-
     private @MonotonicNonNull Bitmap outputBitmap;
 
     @Nullable
     @Override
-    public Surface getSurface(
-        int width,
-        int height,
-        boolean useHighPrecisionColorComponents,
-        ReleaseOutputFrameListener releaseOutputFrameListener) {
+    public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
       this.useHighPrecisionColorComponents = useHighPrecisionColorComponents;
-      this.releaseOutputFrameListener = releaseOutputFrameListener;
       return null;
     }
 
@@ -605,7 +601,10 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       return checkStateNotNull(outputBitmap);
     }
 
-    public void readBitmapFromTexture(GlTextureInfo outputTexture, long presentationTimeUs)
+    public void readBitmapFromTexture(
+        GlTextureInfo outputTexture,
+        long presentationTimeUs,
+        DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
         throws VideoFrameProcessingException {
       try {
         GlUtil.focusFramebufferUsingCurrentContext(
@@ -613,12 +612,10 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         outputBitmap =
             createBitmapFromCurrentGlFrameBuffer(
                 outputTexture.width, outputTexture.height, useHighPrecisionColorComponents);
-        GlUtil.deleteTexture(outputTexture.texId);
-        GlUtil.deleteFbo(outputTexture.fboId);
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }
-      checkNotNull(releaseOutputFrameListener).releaseOutputFrame(presentationTimeUs);
+      releaseOutputTextureCallback.release(presentationTimeUs);
     }
 
     private static Bitmap createBitmapFromCurrentGlFrameBuffer(

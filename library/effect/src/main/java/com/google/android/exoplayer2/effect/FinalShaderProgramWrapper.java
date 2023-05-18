@@ -85,6 +85,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ColorInfo outputColorInfo;
   private final boolean enableColorTransfers;
   private final boolean renderFramesAutomatically;
+  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final Executor videoFrameProcessorListenerExecutor;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
@@ -126,6 +127,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
       GlObjectsProvider glObjectsProvider,
@@ -140,6 +142,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.outputColorInfo = outputColorInfo;
     this.enableColorTransfers = enableColorTransfers;
     this.renderFramesAutomatically = renderFramesAutomatically;
+    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     this.videoFrameProcessorListenerExecutor = videoFrameProcessorListenerExecutor;
     this.videoFrameProcessorListener = videoFrameProcessorListener;
     this.glObjectsProvider = glObjectsProvider;
@@ -224,22 +227,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void releaseOutputFrame(long presentationTimeUs) {
+    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
+  }
+
+  private void releaseOutputFrameInternal(long presentationTimeUs) {
     while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
         && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
       outputTexturePool.freeTexture();
       outputTextureTimestamps.remove();
       maybeOnReadyToAcceptInputFrame();
     }
-  }
-
-  public void renderOutputFrame(long renderTimeNs) {
-    frameProcessingStarted = true;
-    checkState(!renderFramesAutomatically);
-    Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
-    renderFrame(
-        /* inputTexture= */ oldestAvailableFrame.first,
-        /* presentationTimeUs= */ oldestAvailableFrame.second,
-        renderTimeNs);
   }
 
   @Override
@@ -265,6 +262,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
+  }
+
+  public void renderOutputFrame(long renderTimeNs) {
+    frameProcessingStarted = true;
+    checkState(!renderFramesAutomatically);
+    Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
+    renderFrame(
+        /* inputTexture= */ oldestAvailableFrame.first,
+        /* presentationTimeUs= */ oldestAvailableFrame.second,
+        renderTimeNs);
   }
 
   /**
@@ -369,7 +376,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     //  glFinish. Consider removing glFinish and requiring onTextureRendered to handle
     //  synchronization.
     GLES20.glFinish();
-    checkNotNull(textureOutputListener).onTextureRendered(outputTexture, presentationTimeUs);
+    checkNotNull(textureOutputListener)
+        .onTextureRendered(outputTexture, presentationTimeUs, this::releaseOutputFrame);
   }
 
   /**
