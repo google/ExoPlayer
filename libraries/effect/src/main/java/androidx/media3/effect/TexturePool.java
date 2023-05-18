@@ -109,6 +109,8 @@ import java.util.Queue;
    * <p>Throws {@link IllegalStateException} if {@code textureInfo} isn't in use.
    */
   public void freeTexture(GlTextureInfo textureInfo) {
+    // TODO(b/262694346): Check before adding to freeTexture, that this texture wasn't released
+    // already.
     checkState(inUseTextures.contains(textureInfo));
     inUseTextures.remove(textureInfo);
     freeTextures.add(textureInfo);
@@ -120,6 +122,8 @@ import java.util.Queue;
    * <p>Throws {@link IllegalStateException} if there's no textures in use to free.
    */
   public void freeTexture() {
+    // TODO(b/262694346): Check before adding to freeTexture, that this texture wasn't released
+    // already.
     checkState(!inUseTextures.isEmpty());
     GlTextureInfo texture = inUseTextures.remove();
     freeTextures.add(texture);
@@ -127,6 +131,8 @@ import java.util.Queue;
 
   /** Free all in-use textures. */
   public void freeAllTextures() {
+    // TODO(b/262694346): Check before adding to freeTexture, that this texture wasn't released
+    // already.
     freeTextures.addAll(inUseTextures);
     inUseTextures.clear();
   }

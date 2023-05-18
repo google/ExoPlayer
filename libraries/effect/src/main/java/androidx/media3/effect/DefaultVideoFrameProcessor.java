@@ -71,9 +71,22 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /** Listener interface for texture output. */
   @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
   public interface TextureOutputListener {
-    /** Called when a texture has been rendered to. */
-    void onTextureRendered(GlTextureInfo outputTexture, long presentationTimeUs)
+    /**
+     * Called when a texture has been rendered to. {@code releaseOutputTextureCallback} must be
+     * called to release the {@link GlTextureInfo}.
+     */
+    void onTextureRendered(
+        GlTextureInfo outputTexture,
+        long presentationTimeUs,
+        ReleaseOutputTextureCallback releaseOutputTextureCallback)
         throws VideoFrameProcessingException;
+  }
+
+  /**
+   * Releases the output information stored for textures before and at {@code presentationTimeUs}.
+   */
+  public interface ReleaseOutputTextureCallback {
+    void release(long presentationTimeUs);
   }
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
@@ -118,9 +131,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        * Sets texture output settings.
        *
        * <p>If set, the {@link VideoFrameProcessor} will output to OpenGL textures, accessible via
-       * {@link TextureOutputListener#onTextureRendered}. Textures will stop being output when
-       * {@code textureOutputCapacity} is reached, until they're released via {@link
-       * #releaseOutputFrame}. Output textures must be released using {@link #releaseOutputFrame}.
+       * {@link TextureOutputListener#onTextureRendered}. Textures will stop being outputted when
+       * the number of output textures available reaches the {@code textureOutputCapacity}. To
+       * regain capacity, output textures must be released using {@link
+       * ReleaseOutputTextureCallback}.
        *
        * <p>If not set, there will be no texture output.
        *
@@ -455,21 +469,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         () -> finalShaderProgramWrapper.renderOutputFrame(renderTimeNs));
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>If a {@link TextureOutputListener} {@linkplain Factory.Builder#setTextureOutput is set},
-   * this must be called to release the output information stored in the {@link GlTextureInfo}
-   * instances.
-   */
-  @Override
-  public void releaseOutputFrame(long presentationTimeUs) {
-    // TODO(b/262694346): Add Compositor system tests exercising this code path after GL texture
-    //  input is possible.
-    videoFrameProcessingTaskExecutor.submit(
-        () -> finalShaderProgramWrapper.releaseOutputFrame(presentationTimeUs));
-  }
-
   @Override
   public void signalEndOfInput() {
     DebugTraceUtil.recordVideoFrameProcessorReceiveDecoderEos();
@@ -610,6 +609,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             outputColorInfo,
             enableColorTransfers,
             renderFramesAutomatically,
+            videoFrameProcessingTaskExecutor,
             executor,
             listener,
             glObjectsProvider,
@@ -661,6 +661,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor executor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
@@ -714,6 +715,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             outputColorInfo,
             enableColorTransfers,
             renderFramesAutomatically,
+            videoFrameProcessingTaskExecutor,
             executor,
             listener,
             glObjectsProvider,
