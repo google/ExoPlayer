@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
-import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -594,7 +593,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     InputSwitcher inputSwitcher =
         new InputSwitcher(
             context,
-            inputColorInfo,
             /* outputColorInfo= */ linearColorInfo,
             glObjectsProvider,
             videoFrameProcessingTaskExecutor,
@@ -616,14 +614,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             textureOutputListener,
             textureOutputCapacity);
 
-    inputSwitcher.registerInput(INPUT_TYPE_SURFACE);
+    inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_SURFACE);
     if (!ColorInfo.isTransferHdr(inputColorInfo)) {
-      // HDR bitmap input is not supported.
-      inputSwitcher.registerInput(INPUT_TYPE_BITMAP);
+      // HDR bitmap input is not supported. Bitmaps are always sRGB/Full range/BT.709.
+      inputSwitcher.registerInput(ColorInfo.SRGB_BT709_FULL, INPUT_TYPE_BITMAP);
     }
     if (inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB) {
       // Image and textureId concatenation not supported.
-      inputSwitcher.registerInput(INPUT_TYPE_TEXTURE_ID);
+      inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_TEXTURE_ID);
     }
     inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 
