@@ -131,15 +131,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   }
 
   /**
-   * @deprecated Use {@link #prepare()} instead.
-   */
-  @Deprecated
-  @Override
-  public void retry() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead.
    */
   @Deprecated

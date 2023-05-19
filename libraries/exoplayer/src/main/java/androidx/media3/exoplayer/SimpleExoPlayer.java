@@ -816,17 +816,6 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getPlayerError();
   }
 
-  /**
-   * @deprecated Use {@link #prepare()} instead.
-   */
-  @Deprecated
-  @Override
-  @SuppressWarnings("deprecation") // Calling deprecated method.
-  public void retry() {
-    blockUntilConstructorFinished();
-    player.retry();
-  }
-
   @Override
   public Commands getAvailableCommands() {
     blockUntilConstructorFinished();

@@ -521,13 +521,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  @Deprecated
-  public void retry() {
-    verifyApplicationThread();
-    prepare();
-  }
-
-  @Override
   public void prepare() {
     verifyApplicationThread();
     boolean playWhenReady = getPlayWhenReady();

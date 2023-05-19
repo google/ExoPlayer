@@ -75,6 +75,7 @@
         `copyWithFrameRate`, `copyWithDrmInitData`, `copyWithMetadata`,
         `copyWithBitrate` and `copyWithVideoSize`, use `Format.buildUpon()` and
         setter methods instead.
+    *   Remove deprecated `ExoPlayer.retry()`, use `prepare()` instead.
 
 ### 1.0.2 (2023-05-18)
 

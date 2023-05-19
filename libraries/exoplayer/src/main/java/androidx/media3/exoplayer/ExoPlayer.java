@@ -1355,13 +1355,6 @@ public interface ExoPlayer extends Player {
   Clock getClock();
 
   /**
-   * @deprecated Use {@link #prepare()} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  void retry();
-
-  /**
    * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead.
    */
   @UnstableApi
