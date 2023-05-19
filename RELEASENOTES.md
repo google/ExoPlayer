@@ -19,6 +19,18 @@
 *   DRM:
 *   Effect:
 *   Muxers:
+*   IMA extension:
+    *   Enable multi-period live DASH streams for DAI. Please note that the
+        current implementation does not yet support seeking in live streams
+        ([#10912](https://github.com/google/ExoPlayer/issues/10912)).
+*   ExoPlayer:
+    *   Make `MediaCodecVideoRenderer` report a `VideoSize` with a width and
+        height of 0 when the renderer is disabled.
+        `Player.Listener.onVideoSizeChanged` is called accordingly when
+        `Player.getVideoSize()` changes. With this change, ExoPlayer's video
+        size with `MediaCodecVideoRenderer` has a width and height of 0 when
+        `Player.getCurrentTracks` does not support video, or the size of the
+        supported video track is not yet determined.
 *   Session:
     *   Add `androidx.media3.session.MediaButtonReceiver` to enable apps to
         implement playback resumption with media button events sent by, for

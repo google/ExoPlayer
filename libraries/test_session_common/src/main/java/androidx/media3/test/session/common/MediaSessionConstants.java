@@ -24,6 +24,9 @@ public class MediaSessionConstants {
   public static final String TEST_CONTROLLER_LISTENER_SESSION_REJECTS = "connection_sessionRejects";
   public static final String TEST_IS_SESSION_COMMAND_AVAILABLE = "testIsSessionCommandAvailable";
   public static final String TEST_COMMAND_GET_TRACKS = "testCommandGetTracksUnavailable";
+  public static final String TEST_ON_VIDEO_SIZE_CHANGED = "onVideoSizeChanged";
+  public static final String TEST_ON_TRACKS_CHANGED_VIDEO_TO_AUDIO_TRANSITION =
+      "onTracksChanged_videoToAudioTransition";
 
   // Bundle keys
   public static final String KEY_AVAILABLE_SESSION_COMMANDS = "availableSessionCommands";

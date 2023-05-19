@@ -990,7 +990,7 @@ public interface Player {
     default void onDeviceVolumeChanged(int volume, boolean muted) {}
 
     /**
-     * Called each time there's a change in the size of the video being rendered.
+     * Called each time when {@link Player#getVideoSize()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -3093,8 +3093,8 @@ public interface Player {
   /**
    * Gets the size of the video.
    *
-   * <p>The video's width and height are {@code 0} if there is no video or its size has not been
-   * determined yet.
+   * <p>The video's width and height are {@code 0} if there is {@linkplain
+   * Tracks#isTypeSupported(int) no supported video track} or its size has not been determined yet.
    *
    * @see Listener#onVideoSizeChanged(VideoSize)
    */

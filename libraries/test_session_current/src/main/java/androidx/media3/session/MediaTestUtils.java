@@ -31,14 +31,21 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
+import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.common.Tracks;
+import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +56,50 @@ public final class MediaTestUtils {
   private static final String TAG = "MediaTestUtils";
 
   private static final String TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
+
+  private static final VideoSize DEFAULT_VIDEO_SIZE = new VideoSize(640, 480);
+  private static final Format VIDEO_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setAverageBitrate(2_400_000)
+          .setWidth(DEFAULT_VIDEO_SIZE.width)
+          .setHeight(DEFAULT_VIDEO_SIZE.height)
+          .build();
+  private static final Format AUDIO_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.AUDIO_AAC)
+          .setAverageBitrate(320_000)
+          .setChannelCount(2)
+          .setSampleRate(44100)
+          .build();
+
+  /**
+   * Tracks with {@linkplain C#TRACK_TYPE_VIDEO a single video} track and {@linkplain
+   * C#TRACK_TYPE_AUDIO a single audio} track for testing purpose.
+   */
+  public static Tracks createDefaultVideoTracks() {
+    return new Tracks(
+        ImmutableList.of(
+            new Tracks.Group(
+                new TrackGroup(VIDEO_FORMAT),
+                /* adaptiveSupported= */ false,
+                new int[] {C.FORMAT_HANDLED},
+                /* trackSelected= */ new boolean[] {true}),
+            new Tracks.Group(
+                new TrackGroup(AUDIO_FORMAT),
+                /* adaptiveSupported= */ false,
+                new int[] {C.FORMAT_HANDLED},
+                /* trackSelected= */ new boolean[] {true})));
+  }
+
+  /** Returns a new {@link VideoSize} instance for testing purpose. */
+  public static VideoSize createDefaultVideoSize() {
+    return new VideoSize(
+        DEFAULT_VIDEO_SIZE.width,
+        DEFAULT_VIDEO_SIZE.height,
+        DEFAULT_VIDEO_SIZE.unappliedRotationDegrees,
+        DEFAULT_VIDEO_SIZE.pixelWidthHeightRatio);
+  }
 
   /** Create a media item with the mediaId for testing purpose. */
   public static MediaItem createMediaItem(String mediaId) {

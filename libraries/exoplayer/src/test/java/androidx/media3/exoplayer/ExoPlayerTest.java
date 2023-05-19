@@ -116,6 +116,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
@@ -340,6 +341,76 @@ public final class ExoPlayerTest {
             ExoPlayerTestRunner.VIDEO_FORMAT);
     assertThat(renderer.sampleBufferReadCount).isEqualTo(3);
     assertThat(renderer.isEnded).isTrue();
+  }
+
+  @Test
+  public void play_audioVideoAudioVideoTransition_videoSizeChangedCalledCorrectly()
+      throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 0)));
+    Player.Listener mockPlayerListener = mock(Player.Listener.class);
+    player.addListener(mockPlayerListener);
+    AnalyticsListener mockAnalyticsListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(mockAnalyticsListener);
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(
+                timeline, ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(
+                timeline, ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT)));
+    player.prepare();
+    List<VideoSize> videoSizesFromGetter = new ArrayList<>();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onVideoSizeChanged(VideoSize videoSize) {
+            videoSizesFromGetter.add(player.getVideoSize());
+          }
+        });
+
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    // Get the video size right after the first audio item was prepared.
+    videoSizesFromGetter.add(player.getVideoSize());
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    videoSizesFromGetter.add(player.getVideoSize());
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    InOrder playerListenerOrder = inOrder(mockPlayerListener);
+    playerListenerOrder.verify(mockPlayerListener).onVideoSizeChanged(new VideoSize(1280, 720));
+    playerListenerOrder.verify(mockPlayerListener).onVideoSizeChanged(VideoSize.UNKNOWN);
+    playerListenerOrder.verify(mockPlayerListener).onVideoSizeChanged(new VideoSize(1280, 720));
+    playerListenerOrder.verify(mockPlayerListener).onPlaybackStateChanged(STATE_ENDED);
+    verify(mockPlayerListener, times(3)).onVideoSizeChanged(any());
+    // Verify calls to analytics listener.
+    verify(mockAnalyticsListener, times(2)).onVideoEnabled(any(), any());
+    verify(mockAnalyticsListener, times(2)).onVideoDisabled(any(), any());
+    verify(mockAnalyticsListener).onAudioEnabled(any(), any());
+    verify(mockAnalyticsListener).onAudioDisabled(any(), any());
+    InOrder inOrder = Mockito.inOrder(mockAnalyticsListener);
+    inOrder.verify(mockAnalyticsListener).onAudioEnabled(any(), any());
+    inOrder.verify(mockAnalyticsListener).onVideoEnabled(any(), any());
+    inOrder.verify(mockAnalyticsListener).onVideoSizeChanged(any(), eq(new VideoSize(1280, 720)));
+    inOrder.verify(mockAnalyticsListener).onVideoDisabled(any(), any());
+    inOrder.verify(mockAnalyticsListener).onVideoSizeChanged(any(), eq(VideoSize.UNKNOWN));
+    inOrder.verify(mockAnalyticsListener).onVideoEnabled(any(), any());
+    inOrder.verify(mockAnalyticsListener).onVideoSizeChanged(any(), eq(new VideoSize(1280, 720)));
+    inOrder.verify(mockAnalyticsListener).onVideoDisabled(any(), any());
+    inOrder.verify(mockAnalyticsListener).onAudioDisabled(any(), any());
+    verify(mockAnalyticsListener, times(3)).onVideoSizeChanged(any(), any());
+    // Verify video sizes from getter.
+    assertThat(videoSizesFromGetter)
+        .containsExactly(
+            VideoSize.UNKNOWN, // When first item starts playing
+            new VideoSize(1280, 720), // When onVideoSizeChanged() called
+            VideoSize.UNKNOWN, // When onVideoSizeChanged() called
+            new VideoSize(1280, 720), // When onVideoSizeChanged() called
+            new VideoSize(1280, 720)) // In STATE_ENDED
+        .inOrder();
   }
 
   /** Tests playback of periods with very short duration. */
