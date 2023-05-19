@@ -13,6 +13,10 @@
 // limitations under the License.
  apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
+android {
+    namespace 'com.google.android.exoplayer2.ext.cast'
+}
+
 dependencies {
     api 'com.google.android.gms:play-services-cast-framework:21.3.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion

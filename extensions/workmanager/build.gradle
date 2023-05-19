@@ -15,6 +15,10 @@
  */
  apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
+android {
+    namespace 'com.google.android.exoplayer2.ext.workmanager'
+}
+
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.work:work-runtime:2.8.1'

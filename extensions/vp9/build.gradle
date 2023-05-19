@@ -14,6 +14,8 @@
  apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
+    namespace 'com.google.android.exoplayer2.ext.vp9'
+
     sourceSets {
         main {
             jniLibs.srcDir 'src/main/libs'

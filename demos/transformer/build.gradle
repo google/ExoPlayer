@@ -17,6 +17,8 @@ apply from: '../../constants.gradle'
 apply plugin: 'com.android.application'
 
 android {
+    namespace 'com.google.android.exoplayer2.transformerdemo'
+
     compileSdkVersion project.ext.compileSdkVersion
 
     compileOptions {

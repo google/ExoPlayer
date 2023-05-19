@@ -17,6 +17,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'com.google.android.exoplayer2.demo'
+
     compileSdkVersion project.ext.compileSdkVersion
 
     compileOptions {

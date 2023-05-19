@@ -16,6 +16,8 @@
 android.buildTypes.debug.testCoverageEnabled true
 
 android {
+    namespace 'com.google.android.exoplayer2.ui'
+
     lint {
         baseline = file("lint-baseline.xml")
     }
