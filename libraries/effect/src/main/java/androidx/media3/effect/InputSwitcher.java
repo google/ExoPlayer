@@ -23,7 +23,6 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.util.SparseArray;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.GlObjectsProvider;
@@ -46,6 +45,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final boolean enableColorTransfers;
 
   private @MonotonicNonNull GlShaderProgram downstreamShaderProgram;
+  private @MonotonicNonNull TextureManager activeTextureManager;
   private boolean inputEnded;
   private int activeInputType;
 
@@ -159,17 +159,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * registered}.
    *
    * @param newInputType The new {@link VideoFrameProcessor.InputType} to switch to.
-   * @return The {@link TextureManager} associated with the {@code newInputType}.
    */
-  public TextureManager switchToInput(@VideoFrameProcessor.InputType int newInputType) {
+  public void switchToInput(@VideoFrameProcessor.InputType int newInputType) {
     checkStateNotNull(downstreamShaderProgram);
     checkState(inputs.indexOfKey(newInputType) >= 0, "Input type not registered: " + newInputType);
 
     if (newInputType == activeInputType) {
-      return inputs.get(activeInputType).textureManager;
+      activeTextureManager = inputs.get(activeInputType).textureManager;
     }
 
-    @Nullable TextureManager activeTextureManager = null;
     for (int i = 0; i < inputs.size(); i++) {
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
       Input input = inputs.get(inputType);
@@ -181,9 +179,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         input.setActive(false);
       }
     }
-
     activeInputType = newInputType;
+  }
+
+  /**
+   * Returns the {@link TextureManager} that is currently being used.
+   *
+   * <p>Must call {@link #switchToInput} before calling this method.
+   */
+  public TextureManager activeTextureManager() {
     return checkNotNull(activeTextureManager);
+  }
+
+  /**
+   * Invokes {@link TextureManager#signalEndOfCurrentInputStream} on the active {@link
+   * TextureManager}.
+   */
+  public void signalEndOfCurrentInputStream() {
+    checkNotNull(activeTextureManager).signalEndOfCurrentInputStream();
   }
 
   /** Signals end of input to all {@linkplain #registerInput registered inputs}. */
