@@ -296,9 +296,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   // CountDownLatch to wait for the current input stream to finish processing.
   private volatile @MonotonicNonNull CountDownLatch latch;
-  // TODO(b/274109008) Use InputSwither to interact with texture manager.
-  // Owned and released by inputSwitcher.
-  private @MonotonicNonNull TextureManager textureManager;
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
   private volatile boolean hasRefreshedNextInputFrameInfo;
@@ -361,7 +358,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    checkNotNull(textureManager).setDefaultBufferSize(width, height);
+    inputSwitcher.activeTextureManager().setDefaultBufferSize(width, height);
   }
 
   @Override
@@ -369,7 +366,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkState(
         hasRefreshedNextInputFrameInfo,
         "setInputFrameInfo must be called before queueing another bitmap");
-    checkNotNull(textureManager)
+    inputSwitcher
+        .activeTextureManager()
         .queueInputBitmap(
             inputBitmap,
             durationUs,
@@ -381,24 +379,24 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void queueInputTexture(int textureId, long presentationTimeUs) {
-    checkNotNull(textureManager).queueInputTexture(textureId, presentationTimeUs);
+    inputSwitcher.activeTextureManager().queueInputTexture(textureId, presentationTimeUs);
   }
 
   @Override
   public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-    checkNotNull(textureManager).setOnInputFrameProcessedListener(listener);
+    inputSwitcher.activeTextureManager().setOnInputFrameProcessedListener(listener);
   }
 
   @Override
   public Surface getInputSurface() {
-    return checkNotNull(textureManager).getInputSurface();
+    return inputSwitcher.activeTextureManager().getInputSurface();
   }
 
   @Override
   public void registerInputStream(@InputType int inputType) {
     synchronized (lock) {
       if (unprocessedInputStreams.isEmpty()) {
-        textureManager = inputSwitcher.switchToInput(inputType);
+        inputSwitcher.switchToInput(inputType);
         unprocessedInputStreams.add(inputType);
         return;
       }
@@ -406,14 +404,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     // Wait until the current input stream is processed before continuing to the next input.
     latch = new CountDownLatch(1);
-    checkNotNull(textureManager).signalEndOfCurrentInputStream();
+    inputSwitcher.activeTextureManager().signalEndOfCurrentInputStream();
     try {
       latch.await();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       listenerExecutor.execute(() -> listener.onError(VideoFrameProcessingException.from(e)));
     }
-    textureManager = inputSwitcher.switchToInput(inputType);
+    inputSwitcher.switchToInput(inputType);
     synchronized (lock) {
       unprocessedInputStreams.add(inputType);
     }
@@ -422,7 +420,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void setInputFrameInfo(FrameInfo inputFrameInfo) {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
-    checkNotNull(textureManager).setInputFrameInfo(nextInputFrameInfo);
+    inputSwitcher.activeTextureManager().setInputFrameInfo(nextInputFrameInfo);
     hasRefreshedNextInputFrameInfo = true;
   }
 
@@ -432,13 +430,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkStateNotNull(
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
-    checkNotNull(textureManager).registerInputFrame(nextInputFrameInfo);
+    inputSwitcher.activeTextureManager().registerInputFrame(nextInputFrameInfo);
     hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return checkNotNull(textureManager).getPendingFrameCount();
+    return inputSwitcher.activeTextureManager().getPendingFrameCount();
   }
 
   /**
@@ -479,7 +477,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     if (allInputStreamsProcessed) {
       inputSwitcher.signalEndOfInput();
     } else {
-      checkNotNull(textureManager).signalEndOfCurrentInputStream();
+      inputSwitcher.signalEndOfCurrentInputStream();
     }
   }
 
@@ -488,10 +486,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     try {
       videoFrameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);
-      checkNotNull(textureManager).setOnFlushCompleteListener(latch::countDown);
+      inputSwitcher.activeTextureManager().setOnFlushCompleteListener(latch::countDown);
       videoFrameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
-      checkNotNull(textureManager).setOnFlushCompleteListener(null);
+      inputSwitcher.activeTextureManager().setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
