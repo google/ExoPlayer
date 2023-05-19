@@ -16,8 +16,8 @@
 
 package androidx.media3.exoplayer;
 
+import static androidx.media3.container.MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS;
 import static androidx.media3.exoplayer.MetadataRetriever.retrieveMetadata;
-import static androidx.media3.extractor.metadata.mp4.MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -26,8 +26,8 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.exoplayer.source.TrackGroupArray;
-import androidx.media3.extractor.metadata.mp4.MdtaMetadataEntry;
 import androidx.media3.extractor.metadata.mp4.MotionPhotoMetadata;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.extractor.metadata.mp4;
+package androidx.media3.container;
 
 import static com.google.common.truth.Truth.assertThat;
 

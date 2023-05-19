@@ -24,13 +24,13 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.metadata.id3.ApicFrame;
 import androidx.media3.extractor.metadata.id3.CommentFrame;
 import androidx.media3.extractor.metadata.id3.Id3Frame;
 import androidx.media3.extractor.metadata.id3.InternalFrame;
 import androidx.media3.extractor.metadata.id3.TextInformationFrame;
-import androidx.media3.extractor.metadata.mp4.MdtaMetadataEntry;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
