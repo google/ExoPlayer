@@ -1885,11 +1885,12 @@ public final class Util {
       case 8:
         return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
       case 10:
-        if (Util.SDK_INT > 31) {
+        if (Util.SDK_INT >= 32) {
           return AudioFormat.CHANNEL_OUT_5POINT1POINT4;
         } else {
-          // This is used by DTS:X P2 with Direct Passthrough Playback.
-          // Specifying the audio format as 7.1 for 10 channels does not affect the playback.
+          // Before API 32, height channel masks are not available. For those 10-channel streams
+          // supported on the audio output devices (e.g. DTS:X P2), we will use 7.1-surround
+          // instead.
           return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
         }
       case 12:

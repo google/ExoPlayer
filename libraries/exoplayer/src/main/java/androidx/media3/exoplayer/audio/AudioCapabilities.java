@@ -56,10 +56,11 @@ public final class AudioCapabilities {
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
   /** Encodings supported when the device specifies external surround sound. */
-  private static final int[] EXTERNAL_SURROUND_SOUND_ENCODINGS =
-      new int[] {
-        AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
-      };
+  private static final ImmutableList<Integer> EXTERNAL_SURROUND_SOUND_ENCODINGS =
+      ImmutableList.of(
+          AudioFormat.ENCODING_PCM_16BIT,
+          AudioFormat.ENCODING_AC3,
+          AudioFormat.ENCODING_E_AC3);
 
   /**
    * All surround sound encodings that a device may be capable of playing mapped to a maximum
@@ -105,14 +106,14 @@ public final class AudioCapabilities {
     ImmutableSet.Builder<Integer> supportedEncodings = new ImmutableSet.Builder<>();
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      supportedEncodings.addAll(Ints.asList(EXTERNAL_SURROUND_SOUND_ENCODINGS));
+      supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
-      supportedEncodings.addAll(Ints.asList(Api29.getDirectPlaybackSupportedEncodings()));
+      supportedEncodings.addAll(Api29.getDirectPlaybackSupportedEncodings());
     }
 
     if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
@@ -369,8 +370,8 @@ public final class AudioCapabilities {
     private Api29() {}
 
     @DoNotInline
-    public static int[] getDirectPlaybackSupportedEncodings() {
-      int[] encodings = Api29.getAllSurroundEncodingsMaybeSupported();
+    public static ImmutableList<Integer> getDirectPlaybackSupportedEncodings() {
+      ImmutableList<Integer> encodings = Api29.getAllSurroundEncodingsMaybeSupported();
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : encodings) {
         if (AudioTrack.isDirectPlaybackSupported(
@@ -384,7 +385,7 @@ public final class AudioCapabilities {
         }
       }
       supportedEncodingsListBuilder.add(AudioFormat.ENCODING_PCM_16BIT);
-      return Ints.toArray(supportedEncodingsListBuilder.build());
+      return supportedEncodingsListBuilder.build();
     }
 
     /**
@@ -410,9 +411,9 @@ public final class AudioCapabilities {
       return 0;
     }
 
-    /** Returns an array list of surround encodings that maybe supported. */
+    /** Returns a list of surround encodings that maybe supported. */
     @DoNotInline
-    private static int[] getAllSurroundEncodingsMaybeSupported() {
+    private static ImmutableList<Integer> getAllSurroundEncodingsMaybeSupported() {
       ImmutableList.Builder<Integer> encodings = new ImmutableList.Builder<>();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
         // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
@@ -421,7 +422,7 @@ public final class AudioCapabilities {
         }
         encodings.add(encoding);
       }
-      return Ints.toArray(encodings.build());
+      return encodings.build();
     }
   }
 }
