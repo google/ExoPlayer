@@ -17,6 +17,8 @@ apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 group 'androidx.media3'
 
 android {
+    namespace 'androidx.media3.session'
+
     buildTypes {
         debug {
             testCoverageEnabled = true

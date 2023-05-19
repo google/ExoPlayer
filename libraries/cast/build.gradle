@@ -13,6 +13,10 @@
 // limitations under the License.
 apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 
+android {
+    namespace 'androidx.media3.cast'
+}
+
 dependencies {
     api 'com.google.android.gms:play-services-cast-framework:21.3.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion

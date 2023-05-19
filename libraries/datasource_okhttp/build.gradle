@@ -13,7 +13,11 @@
 // limitations under the License.
 apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 
-android.defaultConfig.minSdkVersion 21
+android {
+    namespace 'androidx.media3.datasource.okhttp'
+
+    defaultConfig.minSdkVersion 21
+}
 
 dependencies {
     implementation project(modulePrefix + 'lib-common')

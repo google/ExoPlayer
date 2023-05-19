@@ -16,6 +16,8 @@ apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 android.buildTypes.debug.testCoverageEnabled true
 
 android {
+    namespace 'androidx.media3.ui'
+
     lint {
         baseline = file("lint-baseline.xml")
     }

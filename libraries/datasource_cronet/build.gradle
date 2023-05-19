@@ -13,6 +13,10 @@
 // limitations under the License.
 apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 
+android {
+    namespace 'androidx.media3.datasource.cronet'
+}
+
 dependencies {
     api "com.google.android.gms:play-services-cronet:18.0.1"
     implementation project(modulePrefix + 'lib-common')

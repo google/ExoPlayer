@@ -14,6 +14,7 @@
 
 apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 android {
+    namespace 'androidx.media3.muxer'
 
     defaultConfig {
         // The following argument makes the Android Test Orchestrator run its

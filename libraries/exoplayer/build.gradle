@@ -14,6 +14,8 @@
 apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 
 android {
+    namespace 'androidx.media3.exoplayer'
+
     defaultConfig {
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures

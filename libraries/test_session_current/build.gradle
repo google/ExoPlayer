@@ -18,6 +18,8 @@ apply plugin: 'com.android.application'
 group 'androidx.media3'
 
 android {
+    namespace 'androidx.media3.test.session'
+
     compileSdkVersion project.ext.compileSdkVersion
 
     defaultConfig {

@@ -16,6 +16,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'androidx.media3.demo.session'
+
     compileSdkVersion project.ext.compileSdkVersion
 
     compileOptions {
