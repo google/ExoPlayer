@@ -33,6 +33,9 @@ android {
             withSourcesJar()
         }
     }
+    buildFeatures {
+        aidl true
+    }
 }
 dependencies {
     api project(modulePrefix + 'lib-common')
