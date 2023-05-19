@@ -2282,9 +2282,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           SessionResult result;
           try {
             result = checkNotNull(future.get(), "SessionResult must not be null");
-          } catch (CancellationException unused) {
+          } catch (CancellationException e) {
+            Log.w(TAG, "Session operation cancelled", e);
             result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
-          } catch (ExecutionException | InterruptedException unused) {
+          } catch (ExecutionException | InterruptedException e) {
+            Log.w(TAG, "Session operation failed", e);
             result = new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN);
           }
           sendControllerResult(seq, result);

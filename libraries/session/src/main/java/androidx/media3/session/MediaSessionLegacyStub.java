@@ -889,9 +889,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           SessionResult result;
           try {
             result = checkNotNull(future.get(), "SessionResult must not be null");
-          } catch (CancellationException unused) {
+          } catch (CancellationException e) {
+            Log.w(TAG, "Custom command cancelled", e);
             result = new SessionResult(RESULT_INFO_SKIPPED);
-          } catch (ExecutionException | InterruptedException unused) {
+          } catch (ExecutionException | InterruptedException e) {
+            Log.w(TAG, "Custom command failed", e);
             result = new SessionResult(RESULT_ERROR_UNKNOWN);
           }
           receiver.send(result.resultCode, result.extras);
@@ -1208,7 +1210,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           try {
             bitmap = Futures.getDone(future);
           } catch (CancellationException | ExecutionException e) {
-            Log.d(TAG, "Failed to get bitmap");
+            Log.d(TAG, "Failed to get bitmap", e);
           }
         }
         queueItemList.add(MediaUtils.convertToQueueItem(mediaItems.get(i), i, bitmap));

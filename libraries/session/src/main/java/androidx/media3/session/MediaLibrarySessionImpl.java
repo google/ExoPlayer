@@ -359,7 +359,8 @@ import java.util.concurrent.Future;
     checkState(future.isDone());
     try {
       return future.get();
-    } catch (CancellationException | ExecutionException | InterruptedException unused) {
+    } catch (CancellationException | ExecutionException | InterruptedException e) {
+      Log.w(TAG, "Library operation failed", e);
       return null;
     }
   }

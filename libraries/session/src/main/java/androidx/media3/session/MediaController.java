@@ -529,6 +529,7 @@ public class MediaController implements Player {
     try {
       controller = Futures.getDone(controllerFuture);
     } catch (CancellationException | ExecutionException e) {
+      Log.w(TAG, "MediaController future failed (so we couldn't release it)", e);
       return;
     }
     controller.release();

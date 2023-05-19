@@ -178,9 +178,11 @@ import java.util.concurrent.ExecutionException;
               SessionResult result;
               try {
                 result = checkNotNull(future.get(), "SessionResult must not be null");
-              } catch (CancellationException unused) {
+              } catch (CancellationException e) {
+                Log.w(TAG, "Session operation cancelled", e);
                 result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
               } catch (ExecutionException | InterruptedException exception) {
+                Log.w(TAG, "Session operation failed", exception);
                 result =
                     new SessionResult(
                         exception.getCause() instanceof UnsupportedOperationException
@@ -265,9 +267,11 @@ import java.util.concurrent.ExecutionException;
               LibraryResult<V> result;
               try {
                 result = checkNotNull(future.get(), "LibraryResult must not be null");
-              } catch (CancellationException unused) {
+              } catch (CancellationException e) {
+                Log.w(TAG, "Library operation cancelled", e);
                 result = LibraryResult.ofError(LibraryResult.RESULT_INFO_SKIPPED);
-              } catch (ExecutionException | InterruptedException unused) {
+              } catch (ExecutionException | InterruptedException e) {
+                Log.w(TAG, "Library operation failed", e);
                 result = LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN);
               }
               sendLibraryResult(controller, sequenceNumber, result);

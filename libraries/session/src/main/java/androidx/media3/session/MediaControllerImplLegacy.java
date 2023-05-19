@@ -1429,7 +1429,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         try {
           bitmap = Futures.getDone(future);
         } catch (CancellationException | ExecutionException e) {
-          Log.d(TAG, "Failed to get bitmap");
+          Log.d(TAG, "Failed to get bitmap", e);
         }
       }
       controllerCompat.addQueueItem(
