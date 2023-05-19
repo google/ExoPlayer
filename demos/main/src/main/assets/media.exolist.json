@@ -492,13 +492,25 @@
         ]
       },
       {
-        "name": "Audio -> Video -> Audio",
+        "name": "Audio -> Video (MKV) -> Video (MKV) -> Audio -> Video (MKV) -> Video (DASH) -> Audio",
         "playlist": [
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
           },
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
           },
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
