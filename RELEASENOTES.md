@@ -10,6 +10,9 @@
     *   Enable multi-period live DASH streams for DAI. Please note that the
         current implementation does not yet support seeking in live streams
         ([#10912](https://github.com/google/ExoPlayer/issues/10912)).
+*   ExoPlayer:
+    *   Add `FilteringMediaSource` that allows to filter available track types
+        from a `MediaSource`.
 *   Session:
     *   Add `androidx.media3.session.MediaButtonReceiver` to enable apps to
         implement playback resumption with media button events sent by, for
