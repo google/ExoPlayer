@@ -17,6 +17,12 @@
 
 android {
     namespace 'com.google.android.exoplayer2.ext.workmanager'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

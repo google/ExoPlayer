@@ -15,6 +15,12 @@
 
 android {
     namespace 'com.google.android.exoplayer2.ext.rtmp'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

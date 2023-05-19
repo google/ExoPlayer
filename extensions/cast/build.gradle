@@ -15,6 +15,12 @@
 
 android {
     namespace 'com.google.android.exoplayer2.ext.cast'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

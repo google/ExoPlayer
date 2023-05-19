@@ -21,6 +21,12 @@ android {
             testCoverageEnabled = true
         }
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

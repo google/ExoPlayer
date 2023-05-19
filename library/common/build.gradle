@@ -24,6 +24,11 @@ android {
     lint {
         baseline = file("lint-baseline.xml")
     }
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

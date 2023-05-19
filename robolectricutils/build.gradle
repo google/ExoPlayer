@@ -16,6 +16,12 @@
 
 android {
     namespace 'com.google.android.exoplayer2.robolectric'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

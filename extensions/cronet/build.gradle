@@ -15,6 +15,12 @@
 
 android {
     namespace 'com.google.android.exoplayer2.ext.cronet'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

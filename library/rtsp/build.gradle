@@ -23,6 +23,12 @@ android {
     }
 
  sourceSets.test.assets.srcDir '../../testdata/src/test/assets/'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
