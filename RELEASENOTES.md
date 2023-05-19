@@ -2,22 +2,44 @@
 
 ### Unreleased changes
 
-*   Core library:
+*   Common Library:
     *   Add `Player.replaceMediaItem(s)` as a shortcut to adding and removing
         items at the same position
         ([#8046](https://github.com/google/ExoPlayer/issues/8046)).
-*   IMA extension:
-    *   Enable multi-period live DASH streams for DAI. Please note that the
-        current implementation does not yet support seeking in live streams
-        ([#10912](https://github.com/google/ExoPlayer/issues/10912)).
 *   ExoPlayer:
     *   Add `FilteringMediaSource` that allows to filter available track types
         from a `MediaSource`.
+*   Transformer:
+*   Track Selection:
+*   Extractors:
+*   Audio:
+*   Video:
+*   Text:
+*   Metadata:
+*   DRM:
+*   Effect:
+*   Muxers:
 *   Session:
     *   Add `androidx.media3.session.MediaButtonReceiver` to enable apps to
         implement playback resumption with media button events sent by, for
         example, a Bluetooth headset
         ([#167](https://github.com/androidx/media/issues/167)).
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   DASH Extension:
+*   HLS Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   IMA Extension:
+    *   Enable multi-period live DASH streams for DAI. Please note that the
+        current implementation does not yet support seeking in live streams
+        ([#10912](https://github.com/google/ExoPlayer/issues/10912)).
+*   Cast Extension:
+*   Test Utilities:
 *   Remove deprecated symbols:
     *   Remove two deprecated `SimpleCache` constructors, use a non-deprecated
         constructor that takes a `DatabaseProvider` instead for better
