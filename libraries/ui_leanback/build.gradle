@@ -17,6 +17,12 @@ android {
     namespace 'androidx.media3.ui.leanback'
 
     defaultConfig.minSdkVersion 17
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

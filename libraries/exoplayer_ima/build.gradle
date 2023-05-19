@@ -19,6 +19,12 @@ android {
     sourceSets {
         androidTest.assets.srcDir '../test_data/src/test/assets'
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

@@ -33,6 +33,12 @@ android {
         androidTest.assets.srcDir '../test_data/src/test/assets/'
         test.assets.srcDir '../test_data/src/test/assets/'
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 ext {

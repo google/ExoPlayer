@@ -17,6 +17,12 @@ android {
     namespace 'androidx.media3.datasource.okhttp'
 
     defaultConfig.minSdkVersion 21
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {

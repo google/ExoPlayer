@@ -44,7 +44,6 @@ afterEvaluate {
                         variant.attributes.attribute(
                             DocsType.DOCS_TYPE_ATTRIBUTE,
                             project.objects.named(DocsType, DocsType.SOURCES))
-                        variant.outgoing.artifact(androidSourcesJar)
                         components.release.addVariantsFromConfiguration(variant) {}
                     }
                     pom {
@@ -81,8 +80,3 @@ afterEvaluate {
     }
 }
 tasks.withType(PublishToMavenRepository) { it.dependsOn lint, test }
-
-task androidSourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
-}
