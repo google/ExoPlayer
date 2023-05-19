@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer2.effect">
+    package="com.google.android.exoplayer2.effect.test">
 
   <uses-sdk/>
 
@@ -26,7 +26,7 @@
       android:usesCleartextTraffic="true"/>
 
   <instrumentation
-      android:targetPackage="com.google.android.exoplayer2.effect"
+      android:targetPackage="com.google.android.exoplayer2.effect.test"
       android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

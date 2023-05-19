@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
-  package="com.google.android.exoplayer2.muxer">
+  package="com.google.android.exoplayer2.muxer.test">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -29,6 +29,6 @@
     android:usesCleartextTraffic="true"/>
 
   <instrumentation
-    android:targetPackage="com.google.android.exoplayer2.muxer"
+    android:targetPackage="com.google.android.exoplayer2.muxer.test"
     android:name="androidx.test.runner.AndroidJUnitRunner"/>
 </manifest>
