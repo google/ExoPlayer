@@ -114,10 +114,15 @@ public final class AudioCapabilities {
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
       supportedEncodings.addAll(Api29.getDirectPlaybackSupportedEncodings());
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT);
     }
 
     if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
-      supportedEncodings.addAll(Ints.asList(intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS)));
+      @Nullable int[] encodingsFromExtra = intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS);
+      if (encodingsFromExtra != null) {
+        supportedEncodings.addAll(Ints.asList(encodingsFromExtra));
+      }
       return new AudioCapabilities(
           Ints.toArray(supportedEncodings.build()),
           intent.getIntExtra(
