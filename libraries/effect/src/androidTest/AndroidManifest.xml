@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.media3.effect">
+    package="androidx.media3.effect.test">
 
   <uses-sdk/>
 
@@ -26,7 +26,7 @@
       android:usesCleartextTraffic="true"/>
 
   <instrumentation
-      android:targetPackage="androidx.media3.effect"
+      android:targetPackage="androidx.media3.effect.test"
       android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

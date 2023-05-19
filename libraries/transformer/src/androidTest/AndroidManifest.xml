@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.media3.transformer">
+    package="androidx.media3.transformer.test">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -30,7 +30,7 @@
       android:usesCleartextTraffic="true"/>
 
   <instrumentation
-      android:targetPackage="androidx.media3.transformer"
+      android:targetPackage="androidx.media3.transformer.test"
       android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

@@ -14,6 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="androidx.media3.database">
+<manifest package="androidx.media3.database.test">
   <uses-sdk/>
 </manifest>
