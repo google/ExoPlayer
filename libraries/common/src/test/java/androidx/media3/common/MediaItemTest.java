@@ -248,6 +248,25 @@ public class MediaItemTest {
   }
 
   @Test
+  public void createDrmConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    MediaItem.DrmConfiguration drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+            .setLicenseUri(URI_STRING + "/license")
+            .setLicenseRequestHeaders(ImmutableMap.of("Referer", "http://www.google.com"))
+            .setMultiSession(true)
+            .setForceDefaultLicenseUri(true)
+            .setPlayClearContentWithoutKey(true)
+            .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+            .setKeySetId(new byte[] {1, 2, 3})
+            .build();
+
+    MediaItem.DrmConfiguration drmConfigurationFromBundle =
+        MediaItem.DrmConfiguration.CREATOR.fromBundle(drmConfiguration.toBundle());
+
+    assertThat(drmConfigurationFromBundle).isEqualTo(drmConfiguration);
+  }
+
+  @Test
   public void builderSetCustomCacheKey_setsCustomCacheKey() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setCustomCacheKey("key").build();

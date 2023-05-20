@@ -23,6 +23,7 @@ import android.os.Bundle;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -598,7 +599,7 @@ public final class MediaItem implements Bundleable {
   }
 
   /** DRM configuration for a media item. */
-  public static final class DrmConfiguration {
+  public static final class DrmConfiguration implements Bundleable {
 
     /** Builder for {@link DrmConfiguration}. */
     public static final class Builder {
@@ -773,7 +774,6 @@ public final class MediaItem implements Bundleable {
       }
 
       public DrmConfiguration build() {
-
         return new DrmConfiguration(this);
       }
     }
@@ -887,6 +887,83 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + forcedSessionTrackTypes.hashCode();
       result = 31 * result + Arrays.hashCode(keySetId);
       return result;
+    }
+
+    // Bundleable implementation
+
+    private static final String FIELD_SCHEME = Util.intToStringMaxRadix(0);
+    private static final String FIELD_LICENSE_URI = Util.intToStringMaxRadix(1);
+    private static final String FIELD_LICENSE_REQUEST_HEADERS = Util.intToStringMaxRadix(2);
+    private static final String FIELD_MULTI_SESSION = Util.intToStringMaxRadix(3);
+    private static final String FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY = Util.intToStringMaxRadix(4);
+    private static final String FIELD_FORCE_DEFAULT_LICENSE_URI = Util.intToStringMaxRadix(5);
+    private static final String FIELD_FORCED_SESSION_TRACK_TYPES = Util.intToStringMaxRadix(6);
+    private static final String FIELD_KEY_SET_ID = Util.intToStringMaxRadix(7);
+
+    /** Object that can restore {@link DrmConfiguration} from a {@link Bundle}. */
+    @UnstableApi
+    public static final Creator<DrmConfiguration> CREATOR = DrmConfiguration::fromBundle;
+
+    @UnstableApi
+    private static DrmConfiguration fromBundle(Bundle bundle) {
+      UUID scheme = UUID.fromString(checkNotNull(bundle.getString(FIELD_SCHEME)));
+      @Nullable Uri licenseUri = bundle.getParcelable(FIELD_LICENSE_URI);
+      Bundle licenseMapAsBundle =
+          BundleableUtil.getBundleWithDefault(bundle, FIELD_LICENSE_REQUEST_HEADERS, Bundle.EMPTY);
+      ImmutableMap<String, String> licenseRequestHeaders =
+          BundleableUtil.bundleToStringImmutableMap(licenseMapAsBundle);
+      boolean multiSession = bundle.getBoolean(FIELD_MULTI_SESSION, false);
+      boolean playClearContentWithoutKey =
+          bundle.getBoolean(FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY, false);
+      boolean forceDefaultLicenseUri = bundle.getBoolean(FIELD_FORCE_DEFAULT_LICENSE_URI, false);
+      ArrayList<@C.TrackType Integer> forcedSessionTrackTypesArray =
+          BundleableUtil.getIntegerArrayListWithDefault(
+              bundle, FIELD_FORCED_SESSION_TRACK_TYPES, new ArrayList<>());
+      ImmutableList<@C.TrackType Integer> forcedSessionTrackTypes =
+          ImmutableList.copyOf(forcedSessionTrackTypesArray);
+      @Nullable byte[] keySetId = bundle.getByteArray(FIELD_KEY_SET_ID);
+
+      Builder builder = new Builder(scheme);
+      return builder
+          .setLicenseUri(licenseUri)
+          .setLicenseRequestHeaders(licenseRequestHeaders)
+          .setMultiSession(multiSession)
+          .setForceDefaultLicenseUri(forceDefaultLicenseUri)
+          .setPlayClearContentWithoutKey(playClearContentWithoutKey)
+          .setForcedSessionTrackTypes(forcedSessionTrackTypes)
+          .setKeySetId(keySetId)
+          .build();
+    }
+
+    @UnstableApi
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putString(FIELD_SCHEME, scheme.toString());
+      if (licenseUri != null) {
+        bundle.putParcelable(FIELD_LICENSE_URI, licenseUri);
+      }
+      if (!licenseRequestHeaders.isEmpty()) {
+        bundle.putBundle(
+            FIELD_LICENSE_REQUEST_HEADERS, BundleableUtil.stringMapToBundle(licenseRequestHeaders));
+      }
+      if (multiSession) {
+        bundle.putBoolean(FIELD_MULTI_SESSION, multiSession);
+      }
+      if (playClearContentWithoutKey) {
+        bundle.putBoolean(FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY, playClearContentWithoutKey);
+      }
+      if (forceDefaultLicenseUri) {
+        bundle.putBoolean(FIELD_FORCE_DEFAULT_LICENSE_URI, forceDefaultLicenseUri);
+      }
+      if (!forcedSessionTrackTypes.isEmpty()) {
+        bundle.putIntegerArrayList(
+            FIELD_FORCED_SESSION_TRACK_TYPES, new ArrayList<>(forcedSessionTrackTypes));
+      }
+      if (keySetId != null) {
+        bundle.putByteArray(FIELD_KEY_SET_ID, keySetId);
+      }
+      return bundle;
     }
   }
 
