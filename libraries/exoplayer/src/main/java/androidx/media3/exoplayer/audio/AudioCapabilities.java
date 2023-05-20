@@ -58,9 +58,7 @@ public final class AudioCapabilities {
   /** Encodings supported when the device specifies external surround sound. */
   private static final ImmutableList<Integer> EXTERNAL_SURROUND_SOUND_ENCODINGS =
       ImmutableList.of(
-          AudioFormat.ENCODING_PCM_16BIT,
-          AudioFormat.ENCODING_AC3,
-          AudioFormat.ENCODING_E_AC3);
+          AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3);
 
   /**
    * All surround sound encodings that a device may be capable of playing mapped to a maximum
