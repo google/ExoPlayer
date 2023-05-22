@@ -86,7 +86,7 @@ import java.util.Queue;
       return;
     }
     GlTextureInfo texture = getIteratorToAllTextures().next();
-    if (texture.width != width || texture.height != height) {
+    if (texture.getWidth() != width || texture.getHeight() != height) {
       deleteAllTextures();
       createTextures(width, height);
     }
@@ -141,9 +141,7 @@ import java.util.Queue;
   public void deleteAllTextures() throws GlUtil.GlException {
     Iterator<GlTextureInfo> allTextures = getIteratorToAllTextures();
     while (allTextures.hasNext()) {
-      GlTextureInfo textureInfo = allTextures.next();
-      GlUtil.deleteTexture(textureInfo.texId);
-      GlUtil.deleteFbo(textureInfo.fboId);
+      allTextures.next().release();
     }
     freeTextures.clear();
     inUseTextures.clear();
