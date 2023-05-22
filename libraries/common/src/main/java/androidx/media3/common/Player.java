@@ -47,26 +47,125 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A media player interface defining traditional high-level functionality, such as the ability to
- * play, pause, seek and query properties of the currently playing media.
+ * A media player interface defining high-level functionality, such as the ability to play, pause,
+ * seek and query properties of the currently playing media.
  *
- * <p>All methods must be called from a single {@linkplain #getApplicationLooper() application
- * thread} unless indicated otherwise. Callbacks in registered listeners are called on the same
- * thread.
- *
- * <p>This interface includes some convenience methods that can be implemented by calling other
- * methods in the interface. {@link BasePlayer} implements these convenience methods so inheriting
- * {@link BasePlayer} is recommended when implementing the interface so that only the minimal set of
- * required methods can be implemented.
+ * <h2>Player features and usage</h2>
  *
  * <p>Some important properties of media players that implement this interface are:
  *
  * <ul>
- *   <li>They can provide a {@link Timeline} representing the structure of the media being played,
- *       which can be obtained by calling {@link #getCurrentTimeline()}.
- *   <li>They can provide a {@link Tracks} defining the currently available tracks and which are
- *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracks()}.
+ *   <li>All methods must be called from a single {@linkplain #getApplicationLooper() application
+ *       thread} unless indicated otherwise. Callbacks in registered listeners are called on the
+ *       same thread.
+ *   <li>The available functionality can be limited. Player instances provide a set of {@link
+ *       #getAvailableCommands() availabe commands} to signal feature support and users of the
+ *       interface must only call methods if the corresponding {@link Command} is available.
+ *   <li>Users can register {@link Player.Listener} callbacks that get informed about state changes.
+ *   <li>Player instances need to update the visible state immediately after each method call, even
+ *       if the actual changes are handled on background threads or even other devices. This
+ *       simplifies the usage for callers of methods as no asynchronous handling needs to be
+ *       considered.
+ *   <li>Player instances can provide playlist operations, like 'set', 'add', 'remove', 'move' or
+ *       'replace' of {@link MediaItem} instances. The player can also support {@linkplain
+ *       RepeatMode repeat modes} and shuffling within this playlist. The player provides a {@link
+ *       Timeline} representing the structure of the playlist and all its items, which can be
+ *       obtained by calling {@link #getCurrentTimeline()}
+ *   <li>Player instances can provide seeking within the currently playing item and to other items,
+ *       using the various {@code seek...} methods.
+ *   <li>Player instances can provide {@link Tracks} defining the currently available and selected
+ *       tracks, which can be obtained by calling {@link #getCurrentTracks()}. Users can also modify
+ *       track selection behavior by setting {@link TrackSelectionParameters} with {@link
+ *       #setTrackSelectionParameters}.
+ *   <li>Player instances can provide {@link MediaMetadata} about the currently playing item, which
+ *       can be obtained by calling {@link #getMediaMetadata()}.
+ *   <li>Player instances can provide information about ads in its media structure, for example via
+ *       {@link #isPlayingAd()}.
+ *   <li>Player instances can accept different types of video outputs, like {@link
+ *       #setVideoSurfaceView SurfaceView} or {@link #setVideoTextureView TextureView} for video
+ *       rendering.
+ *   <li>Player instances can handle {@linkplain #setPlaybackSpeed playback speed}, {@linkplain
+ *       #getAudioAttributes audio attributes}, and {@linkplain #setVolume audio volume}.
+ *   <li>Player instances can provide information about the {@linkplain #getDeviceInfo playback
+ *       device}, which may be remote, and allow to change the device's volume.
  * </ul>
+ *
+ * <h2>API stability guarantees</h2>
+ *
+ * <p>The majority of the Player interface and its related classes are part of the stable API that
+ * guarantees backwards-compatibility for users of the API. Only more advances use cases may need to
+ * rely on {@link UnstableApi} classes and methods that are subject to incompatible changes or even
+ * removal in a future release. Implementors of the Player interface are not covered by these API
+ * stability guarantees.
+ *
+ * <h2>Player state</h2>
+ *
+ * <p>Users can listen to state changes by adding a {@link Player.Listener} with {@link
+ * #addListener}.
+ *
+ * <p>The main elements of the overall player state are:
+ *
+ * <ul>
+ *   <li>Playlist
+ *       <ul>
+ *         <li>{@link MediaItem} instances can be added with methods like {@link #setMediaItem} to
+ *             define what the player will be playing.
+ *         <li>The current playlist can be obtained via {@link #getCurrentTimeline} and convenience
+ *             methods like {@link #getMediaItemCount} or {@link #getCurrentMediaItem}.
+ *         <li>With an empty playlist, the player can only be in {@link #STATE_IDLE} or {@link
+ *             #STATE_ENDED}.
+ *       </ul>
+ *   <li>Playback state
+ *       <ul>
+ *         <li>{@link #STATE_IDLE}: This is the initial state, the state when the player is
+ *             {@linkplain #stop stopped}, and when playback {@linkplain #getPlayerError failed}.
+ *             The player will hold only limited resources in this state. {@link #prepare} must be
+ *             called to transition away from this state.
+ *         <li>{@link #STATE_BUFFERING}: The player is not able to immediately play from its current
+ *             position. This mostly happens because more data needs to be loaded.
+ *         <li>{@link #STATE_READY}: The player is able to immediately play from its current
+ *             position.
+ *         <li>{@link #STATE_ENDED}: The player finished playing all media, or there is no media to
+ *             play.
+ *       </ul>
+ *   <li>Play/Pause, playback suppression and isPlaying
+ *       <ul>
+ *         <li>{@linkplain #getPlayWhenReady() playWhenReady}: Indicates the user intention to play.
+ *             It can be set with {@link #play} or {@link #pause}.
+ *         <li>{@linkplain #getPlaybackSuppressionReason() playback suppression}: Defines a reason
+ *             for which playback will be suppressed even if {@linkplain #getPlayWhenReady()
+ *             playWhenReady} is {@code true}.
+ *         <li>{@link #isPlaying()}: Whether the player is playing (that is, its position is
+ *             advancing and media is being presented). This will only be {@code true} if playback
+ *             state is {@link #STATE_READY}, {@linkplain #getPlayWhenReady() playWhenReady} is
+ *             {@code true}, and playback is not suppressed.
+ *       </ul>
+ *   <li>Playback position
+ *       <ul>
+ *         <li>{@linkplain #getCurrentMediaItemIndex() media item index}: The index in the playlist.
+ *         <li>{@linkplain #isPlayingAd() ad insertion}: Whether an inserted ad is playing and which
+ *             {@linkplain #getCurrentAdGroupIndex() ad group index} and {@linkplain
+ *             #getCurrentAdIndexInAdGroup() ad index in the group} it belongs to
+ *         <li>{@linkplain #getCurrentPosition() current position}: The current position of the
+ *             playback. This is the same as the {@linkplain #getContentPosition() content position}
+ *             unless an ad is playing, where this indicates the position in the inserted ad.
+ *       </ul>
+ * </ul>
+ *
+ * <p>Note that there are no callbacks for normal playback progression, only for {@linkplain
+ * Listener#onMediaItemTransition transitions between media items} and other {@linkplain
+ * Listener#onPositionDiscontinuity position discontinuities}. Code that needs to monitor playback
+ * progress (for example, an UI progress bar) should query the current position in appropriate
+ * intervals.
+ *
+ * <h2>Implementing the Player interface</h2>
+ *
+ * <p>Implementing the Player interface is complex, as the interface includes many convenience
+ * methods that need to provide a consistent state and behavior, requires correct handling of
+ * listeners and available commands, and expects immediate state changes even if methods are
+ * internally handled asynchronously. For this reason, implementations are advised to inherit {@link
+ * SimpleBasePlayer} that handles all of these complexities and provides a simpler integration point
+ * for implementors of the interface.
  */
 public interface Player {
 
