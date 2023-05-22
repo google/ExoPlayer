@@ -648,16 +648,7 @@ import java.util.concurrent.TimeoutException;
       setMediaSources(mediaSources, /* resetPosition= */ maskingWindowIndex == C.INDEX_UNSET);
       return;
     }
-    Timeline oldTimeline = getCurrentTimeline();
-    pendingOperationAcks++;
-    List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
-    Timeline newTimeline = createMaskingTimeline();
-    PlaybackInfo newPlaybackInfo =
-        maskTimelineAndPosition(
-            playbackInfo,
-            newTimeline,
-            getPeriodPositionUsAfterTimelineChanged(oldTimeline, newTimeline));
-    internalPlayer.addMediaSources(index, holders, shuffleOrder);
+    PlaybackInfo newPlaybackInfo = addMediaSourcesInternal(playbackInfo, index, mediaSources);
     updatePlaybackInfo(
         newPlaybackInfo,
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
@@ -680,7 +671,7 @@ import java.util.concurrent.TimeoutException;
       // Do nothing.
       return;
     }
-    PlaybackInfo newPlaybackInfo = removeMediaItemsInternal(fromIndex, toIndex);
+    PlaybackInfo newPlaybackInfo = removeMediaItemsInternal(playbackInfo, fromIndex, toIndex);
     boolean positionDiscontinuity =
         !newPlaybackInfo.periodId.periodUid.equals(playbackInfo.periodId.periodUid);
     updatePlaybackInfo(
@@ -714,7 +705,11 @@ import java.util.concurrent.TimeoutException;
         maskTimelineAndPosition(
             playbackInfo,
             newTimeline,
-            getPeriodPositionUsAfterTimelineChanged(oldTimeline, newTimeline));
+            getPeriodPositionUsAfterTimelineChanged(
+                oldTimeline,
+                newTimeline,
+                getCurrentWindowIndexInternal(playbackInfo),
+                getContentPositionInternal(playbackInfo)));
     internalPlayer.moveMediaSources(fromIndex, toIndex, newFromIndex, shuffleOrder);
     updatePlaybackInfo(
         newPlaybackInfo,
@@ -1046,7 +1041,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public int getCurrentMediaItemIndex() {
     verifyApplicationThread();
-    int currentWindowIndex = getCurrentWindowIndexInternal();
+    int currentWindowIndex = getCurrentWindowIndexInternal(playbackInfo);
     return currentWindowIndex == C.INDEX_UNSET ? 0 : currentWindowIndex;
   }
 
@@ -1106,17 +1101,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public long getContentPosition() {
     verifyApplicationThread();
-    if (isPlayingAd()) {
-      playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
-      return playbackInfo.requestedContentPositionUs == C.TIME_UNSET
-          ? playbackInfo
-              .timeline
-              .getWindow(getCurrentMediaItemIndex(), window)
-              .getDefaultPositionMs()
-          : period.getPositionInWindowMs() + Util.usToMs(playbackInfo.requestedContentPositionUs);
-    } else {
-      return getCurrentPosition();
-    }
+    return getContentPositionInternal(playbackInfo);
   }
 
   @Override
@@ -1842,13 +1827,25 @@ import java.util.concurrent.TimeoutException;
         /* repeatCurrentMediaItem= */ false);
   }
 
-  private int getCurrentWindowIndexInternal() {
+  private int getCurrentWindowIndexInternal(PlaybackInfo playbackInfo) {
     if (playbackInfo.timeline.isEmpty()) {
       return maskingWindowIndex;
-    } else {
-      return playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period)
-          .windowIndex;
     }
+    return playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period)
+        .windowIndex;
+  }
+
+  private long getContentPositionInternal(PlaybackInfo playbackInfo) {
+    if (playbackInfo.periodId.isAd()) {
+      playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
+      return playbackInfo.requestedContentPositionUs == C.TIME_UNSET
+          ? playbackInfo
+              .timeline
+              .getWindow(getCurrentWindowIndexInternal(playbackInfo), window)
+              .getDefaultPositionMs()
+          : period.getPositionInWindowMs() + Util.usToMs(playbackInfo.requestedContentPositionUs);
+    }
+    return Util.usToMs(getCurrentPositionUsInternal(playbackInfo));
   }
 
   private long getCurrentPositionUsInternal(PlaybackInfo playbackInfo) {
@@ -1863,10 +1860,9 @@ import java.util.concurrent.TimeoutException;
 
     if (playbackInfo.periodId.isAd()) {
       return positionUs;
-    } else {
-      return periodPositionUsToWindowPositionUs(
-          playbackInfo.timeline, playbackInfo.periodId, positionUs);
     }
+    return periodPositionUsToWindowPositionUs(
+        playbackInfo.timeline, playbackInfo.periodId, positionUs);
   }
 
   private List<MediaSource> createMediaSources(List<MediaItem> mediaItems) {
@@ -2265,7 +2261,7 @@ import java.util.concurrent.TimeoutException;
       int startWindowIndex,
       long startPositionMs,
       boolean resetToDefaultPosition) {
-    int currentWindowIndex = getCurrentWindowIndexInternal();
+    int currentWindowIndex = getCurrentWindowIndexInternal(playbackInfo);
     long currentPositionMs = getCurrentPosition();
     pendingOperationAcks++;
     if (!mediaSourceHolderSnapshots.isEmpty()) {
@@ -2336,9 +2332,30 @@ import java.util.concurrent.TimeoutException;
     return holders;
   }
 
-  private PlaybackInfo removeMediaItemsInternal(int fromIndex, int toIndex) {
-    int currentIndex = getCurrentMediaItemIndex();
-    Timeline oldTimeline = getCurrentTimeline();
+  private PlaybackInfo addMediaSourcesInternal(
+      PlaybackInfo playbackInfo, int index, List<MediaSource> mediaSources) {
+    Timeline oldTimeline = playbackInfo.timeline;
+    pendingOperationAcks++;
+    List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
+    Timeline newTimeline = createMaskingTimeline();
+    PlaybackInfo newPlaybackInfo =
+        maskTimelineAndPosition(
+            playbackInfo,
+            newTimeline,
+            getPeriodPositionUsAfterTimelineChanged(
+                oldTimeline,
+                newTimeline,
+                getCurrentWindowIndexInternal(playbackInfo),
+                getContentPositionInternal(playbackInfo)));
+    internalPlayer.addMediaSources(index, holders, shuffleOrder);
+    return newPlaybackInfo;
+  }
+
+  private PlaybackInfo removeMediaItemsInternal(
+      PlaybackInfo playbackInfo, int fromIndex, int toIndex) {
+    int currentIndex = getCurrentWindowIndexInternal(playbackInfo);
+    long contentPositionMs = getContentPositionInternal(playbackInfo);
+    Timeline oldTimeline = playbackInfo.timeline;
     int currentMediaSourceCount = mediaSourceHolderSnapshots.size();
     pendingOperationAcks++;
     removeMediaSourceHolders(fromIndex, /* toIndexExclusive= */ toIndex);
@@ -2347,7 +2364,8 @@ import java.util.concurrent.TimeoutException;
         maskTimelineAndPosition(
             playbackInfo,
             newTimeline,
-            getPeriodPositionUsAfterTimelineChanged(oldTimeline, newTimeline));
+            getPeriodPositionUsAfterTimelineChanged(
+                oldTimeline, newTimeline, currentIndex, contentPositionMs));
     // Player transitions to STATE_ENDED if the current index is part of the removed tail.
     final boolean transitionsToEnded =
         newPlaybackInfo.playbackState != STATE_IDLE
@@ -2376,7 +2394,9 @@ import java.util.concurrent.TimeoutException;
   private PlaybackInfo maskTimelineAndPosition(
       PlaybackInfo playbackInfo, Timeline timeline, @Nullable Pair<Object, Long> periodPositionUs) {
     checkArgument(timeline.isEmpty() || periodPositionUs != null);
+    // Get the old timeline and position before updating playbackInfo.
     Timeline oldTimeline = playbackInfo.timeline;
+    long oldContentPositionMs = getContentPositionInternal(playbackInfo);
     // Mask the timeline.
     playbackInfo = playbackInfo.copyWithTimeline(timeline);
 
@@ -2404,7 +2424,7 @@ import java.util.concurrent.TimeoutException;
     MediaPeriodId newPeriodId =
         playingPeriodChanged ? new MediaPeriodId(periodPositionUs.first) : playbackInfo.periodId;
     long newContentPositionUs = periodPositionUs.second;
-    long oldContentPositionUs = Util.msToUs(getContentPosition());
+    long oldContentPositionUs = Util.msToUs(oldContentPositionMs);
     if (!oldTimeline.isEmpty()) {
       oldContentPositionUs -=
           oldTimeline.getPeriodByUid(oldPeriodUid, period).getPositionInWindowUs();
@@ -2480,20 +2500,21 @@ import java.util.concurrent.TimeoutException;
 
   @Nullable
   private Pair<Object, Long> getPeriodPositionUsAfterTimelineChanged(
-      Timeline oldTimeline, Timeline newTimeline) {
-    long currentPositionMs = getContentPosition();
+      Timeline oldTimeline,
+      Timeline newTimeline,
+      int currentWindowIndexInternal,
+      long contentPositionMs) {
     if (oldTimeline.isEmpty() || newTimeline.isEmpty()) {
       boolean isCleared = !oldTimeline.isEmpty() && newTimeline.isEmpty();
       return maskWindowPositionMsOrGetPeriodPositionUs(
           newTimeline,
-          isCleared ? C.INDEX_UNSET : getCurrentWindowIndexInternal(),
-          isCleared ? C.TIME_UNSET : currentPositionMs);
+          isCleared ? C.INDEX_UNSET : currentWindowIndexInternal,
+          isCleared ? C.TIME_UNSET : contentPositionMs);
     }
-    int currentMediaItemIndex = getCurrentMediaItemIndex();
     @Nullable
     Pair<Object, Long> oldPeriodPositionUs =
         oldTimeline.getPeriodPositionUs(
-            window, period, currentMediaItemIndex, Util.msToUs(currentPositionMs));
+            window, period, currentWindowIndexInternal, Util.msToUs(contentPositionMs));
     Object periodUid = castNonNull(oldPeriodPositionUs).first;
     if (newTimeline.getIndexOfPeriod(periodUid) != C.INDEX_UNSET) {
       // The old period position is still available in the new timeline.
@@ -2545,7 +2566,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   private PlayerMessage createMessageInternal(Target target) {
-    int currentWindowIndex = getCurrentWindowIndexInternal();
+    int currentWindowIndex = getCurrentWindowIndexInternal(playbackInfo);
     return new PlayerMessage(
         internalPlayer,
         target,
