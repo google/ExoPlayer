@@ -501,6 +501,94 @@
       "totalTrackCount": 2,
       "duration": 160,
       "site": "https://www.youtube.com/audiolibrary/music"
+    },
+    {
+      "id": "mixed_media_01",
+      "title": "Tear of steal - DASH",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd",
+      "image": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
+    },
+    {
+      "id": "mixed_media_02",
+      "title": "Intro - The Way Of Waking Up (feat. Alan Watts - MP3)",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/01_-_Intro_-_The_Way_Of_Waking_Up_feat_Alan_Watts.mp3",
+      "image": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
+    },
+    {
+      "id": "mixed_media_03",
+      "title": "TTML Netflix Japanese examples (MP4)",
+      "source": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "image": "https://cdn.pixabay.com/photo/2014/10/09/13/14/video-481821_960_720.png",
+      "subtitles": [
+        {
+          "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/netflix_japanese_ttml.xml",
+          "subtitle_mime_type": "application/ttml+xml",
+          "subtitle_lang": "ja"
+        }
+      ]
+    },
+    {
+      "id": "mixed_media_04",
+      "title": "The Coldest Shoulder",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/automotive-media/The_Coldest_Shoulder.mp3",
+      "image": "https://storage.googleapis.com/automotive-media/album_art_3.jpg"
+    },
+    {
+      "id": "mixed_media_05",
+      "title": "Dizzy - MPEG-4 Timed Text",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4",
+      "image": "https://cdn.pixabay.com/photo/2014/10/09/13/14/video-481821_960_720.png"
+    },
+    {
+      "id": "mixed_media_06",
+      "title": "Apple 4x3 basic stream (TS)",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
+      "image": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
+    },
+    {
+      "id": "mixed_media_07",
+      "title": "The Calm Before The Storm",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/05_-_The_Calm_Before_The_Storm.mp3",
+      "image": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
+    },
+    {
+      "id": "mixed_media_08",
+      "title": "Android screens (MKV)",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
+      "image": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
+    },
+    {
+      "id": "mixed_media_09",
+      "title": "No Pain, No Gain",
+      "album": "Mixed media",
+      "artist": "Mixed artists",
+      "genre": "Mixed",
+      "source": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/06_-_No_Pain_No_Gain.mp3",
+      "image": "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
     }
   ]
 }

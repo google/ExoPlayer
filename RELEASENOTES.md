@@ -39,6 +39,8 @@
         example, a Bluetooth headset
         ([#167](https://github.com/androidx/media/issues/167)).
 *   UI:
+    *   Deprecate `PlayerView.setUseArtwork(boolean)` and replace it with
+        `PlayerView.setArtworkDisplayMode(@ArtworkDisplayMode)`.
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
