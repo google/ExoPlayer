@@ -106,7 +106,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private OnInputStreamProcessedListener onInputStreamProcessedListener;
   private boolean frameProcessingStarted;
 
-  private volatile boolean outputSurfaceInfoChanged;
+  @GuardedBy("this")
+  private boolean outputSurfaceInfoChanged;
 
   @GuardedBy("this")
   @Nullable
