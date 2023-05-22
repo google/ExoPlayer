@@ -33,7 +33,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /** {@link Muxer} implementation that uses a {@link Mp4Muxer}. */
 @UnstableApi
@@ -85,12 +87,14 @@ public final class InAppMuxer implements Muxer {
   private final long maxDelayBetweenSamplesMs;
   private final List<TrackToken> trackTokenList;
   private final BufferInfo bufferInfo;
+  private final Set<Metadata.Entry> metadataEntries;
 
   private InAppMuxer(Mp4Muxer mp4Muxer, long maxDelayBetweenSamplesMs) {
     this.mp4Muxer = mp4Muxer;
     this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
     trackTokenList = new ArrayList<>();
     bufferInfo = new BufferInfo();
+    metadataEntries = new LinkedHashSet<>();
   }
 
   @Override
@@ -133,15 +137,16 @@ public final class InAppMuxer implements Muxer {
   public void addMetadata(Metadata metadata) {
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
+      // Keep only supported metadata.
       if (entry instanceof Mp4LocationData) {
-        mp4Muxer.setLocation(
-            ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
+        metadataEntries.add(entry);
       }
     }
   }
 
   @Override
   public void release(boolean forCancellation) throws MuxerException {
+    writeMetadata();
     try {
       mp4Muxer.close();
     } catch (IOException e) {
@@ -152,5 +157,14 @@ public final class InAppMuxer implements Muxer {
   @Override
   public long getMaxDelayBetweenSamplesMs() {
     return maxDelayBetweenSamplesMs;
+  }
+
+  private void writeMetadata() {
+    for (Metadata.Entry entry : metadataEntries) {
+      if (entry instanceof Mp4LocationData) {
+        mp4Muxer.setLocation(
+            ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
+      }
+    }
   }
 }
