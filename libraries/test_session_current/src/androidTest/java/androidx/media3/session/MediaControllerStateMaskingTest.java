@@ -1833,16 +1833,21 @@ public class MediaControllerStateMaskingTest {
   }
 
   @Test
-  public void addMediaItems_toEmptyTimeline() throws Exception {
+  public void addMediaItems_withIdleStateAndEmptyTimeline() throws Exception {
     int testMediaItemCount = 2;
-    int testCurrentMediaItemIndex = 0;
-    int testNextMediaItemIndex = 1;
-    int testPreviousMediaItemIndex = C.INDEX_UNSET;
-    int testCurrentPeriodIndex = 0;
+    int testCurrentMediaItemIndex = 1;
+    int testNextMediaItemIndex = C.INDEX_UNSET;
+    int testPreviousMediaItemIndex = 0;
+    int testCurrentPeriodIndex = 1;
     List<MediaItem> testMediaItems = createMediaItems(testMediaItemCount);
     MediaItem testMediaItem = testMediaItems.get(testCurrentPeriodIndex);
 
-    Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder().build();
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlaybackState(Player.STATE_IDLE)
+            .setCurrentMediaItemIndex(1)
+            .setCurrentPeriodIndex(1)
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
@@ -1876,6 +1881,7 @@ public class MediaControllerStateMaskingTest {
     AtomicInteger nextMediaItemIndexRef = new AtomicInteger();
     AtomicInteger previousMediaItemIndexRef = new AtomicInteger();
     AtomicInteger currentPeriodIndexRef = new AtomicInteger();
+    AtomicInteger playbackStateRef = new AtomicInteger();
     threadTestRule
         .getHandler()
         .postAndSync(
@@ -1885,6 +1891,7 @@ public class MediaControllerStateMaskingTest {
               nextMediaItemIndexRef.set(controller.getNextMediaItemIndex());
               previousMediaItemIndexRef.set(controller.getPreviousMediaItemIndex());
               currentPeriodIndexRef.set(controller.getCurrentPeriodIndex());
+              playbackStateRef.set(controller.getPlaybackState());
             });
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -1901,6 +1908,89 @@ public class MediaControllerStateMaskingTest {
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testCurrentPeriodIndex);
     assertThat(newMediaItemRef.get()).isEqualTo(testMediaItem);
+    assertThat(playbackStateRef.get()).isEqualTo(Player.STATE_IDLE);
+  }
+
+  @Test
+  public void addMediaItems_withEndedStateAndEmptyTimeline() throws Exception {
+    int testMediaItemCount = 2;
+    int testCurrentMediaItemIndex = 1;
+    int testNextMediaItemIndex = C.INDEX_UNSET;
+    int testPreviousMediaItemIndex = 0;
+    int testCurrentPeriodIndex = 1;
+    List<MediaItem> testMediaItems = createMediaItems(testMediaItemCount);
+    MediaItem testMediaItem = testMediaItems.get(testCurrentPeriodIndex);
+
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlaybackState(Player.STATE_ENDED)
+            .setCurrentMediaItemIndex(1)
+            .setCurrentPeriodIndex(1)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    CountDownLatch latch = new CountDownLatch(3);
+    AtomicReference<Timeline> newTimelineRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    AtomicReference<MediaItem> newMediaItemRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(Timeline timeline, int reason) {
+            newTimelineRef.set(timeline);
+            latch.countDown();
+          }
+
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            newMediaItemRef.set(mediaItem);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicInteger nextMediaItemIndexRef = new AtomicInteger();
+    AtomicInteger previousMediaItemIndexRef = new AtomicInteger();
+    AtomicInteger currentPeriodIndexRef = new AtomicInteger();
+    AtomicInteger playbackStateRef = new AtomicInteger();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.addMediaItems(testMediaItems);
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              nextMediaItemIndexRef.set(controller.getNextMediaItemIndex());
+              previousMediaItemIndexRef.set(controller.getPreviousMediaItemIndex());
+              currentPeriodIndexRef.set(controller.getCurrentPeriodIndex());
+              playbackStateRef.set(controller.getPlaybackState());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertTimeline(
+        newTimelineRef.get(),
+        testMediaItemCount,
+        testCurrentMediaItemIndex,
+        /* testFirstPeriodIndex= */ testCurrentPeriodIndex,
+        /* testLastPeriodIndex= */ testCurrentPeriodIndex);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_TIMELINE_CHANGED,
+            Player.EVENT_MEDIA_ITEM_TRANSITION,
+            Player.EVENT_PLAYBACK_STATE_CHANGED);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
+    assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
+    assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
+    assertThat(currentPeriodIndexRef.get()).isEqualTo(testCurrentPeriodIndex);
+    assertThat(newMediaItemRef.get()).isEqualTo(testMediaItem);
+    assertThat(playbackStateRef.get()).isEqualTo(Player.STATE_BUFFERING);
   }
 
   @Test

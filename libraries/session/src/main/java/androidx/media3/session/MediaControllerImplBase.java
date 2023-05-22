@@ -918,6 +918,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (mediaItems.isEmpty()) {
       return;
     }
+    if (playerInfo.timeline.isEmpty()) {
+      // Handle initial items in a playlist as a set operation to ensure state changes and initial
+      // position are updated correctly.
+      setMediaItemsInternal(
+          mediaItems,
+          /* startIndex= */ C.INDEX_UNSET,
+          /* startPositionMs= */ C.TIME_UNSET,
+          /* resetToDefaultPosition= */ false);
+      return;
+    }
     // Add media items to the end of the timeline if the index exceeds the window count.
     index = min(index, playerInfo.timeline.getWindowCount());
     PlayerInfo newPlayerInfo = maskPlaybackInfoForAddedItems(playerInfo, index, mediaItems);
