@@ -27,6 +27,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Player;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -90,9 +91,9 @@ public interface Renderer extends PlayerMessage.Target {
    * #MSG_SET_SCALING_MODE}, {@link #MSG_SET_CHANGE_FRAME_RATE_STRATEGY}, {@link
    * #MSG_SET_AUX_EFFECT_INFO}, {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER}, {@link
    * #MSG_SET_CAMERA_MOTION_LISTENER}, {@link #MSG_SET_SKIP_SILENCE_ENABLED}, {@link
-   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER}, {@link #MSG_SET_VIDEO_EFFECTS} or
-   * {@link #MSG_SET_VIDEO_OUTPUT_RESOLUTION}. May also be an app-defined value (see {@link
-   * #MSG_CUSTOM_BASE}).
+   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER}, {@link #MSG_SET_VIDEO_EFFECTS},
+   * {@link #MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY} or {@link #MSG_SET_VIDEO_OUTPUT_RESOLUTION}. May
+   * also be an app-defined value (see {@link #MSG_CUSTOM_BASE}).
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -112,6 +113,7 @@ public interface Renderer extends PlayerMessage.Target {
         MSG_SET_AUDIO_SESSION_ID,
         MSG_SET_WAKEUP_LISTENER,
         MSG_SET_VIDEO_EFFECTS,
+        MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY,
         MSG_SET_VIDEO_OUTPUT_RESOLUTION
       })
   public @interface MessageType {}
@@ -220,11 +222,16 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_VIDEO_EFFECTS = 13;
   /**
+   * The type of a message that can be passed to a video renderer. The message payload should be a
+   * {@link VideoFrameProcessor.Factory}.
+   */
+  int MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY = 14;
+  /**
    * The type of a message that can be passed to a video renderer to set the desired output
    * resolution. The message payload should be a {@link Size} of the desired output width and
    * height. Use this method only when playing with video {@linkplain Effect effects}.
    */
-  int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 14;
+  int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 15;
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.

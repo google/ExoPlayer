@@ -44,6 +44,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
@@ -1561,6 +1562,19 @@ public interface ExoPlayer extends Player {
   @RequiresApi(18)
   @UnstableApi
   void setVideoEffects(List<Effect> videoEffects);
+
+  /**
+   * Sets a {@link VideoFrameProcessor.Factory} to create the {@link VideoFrameProcessor} that
+   * applies video effects set in {@link #setVideoEffects}.
+   *
+   * <p>See {@link #setVideoEffects} for limitations.
+   *
+   * @param videoFrameProcessorFactory The {@link VideoFrameProcessor.Factory} to use to apply the
+   *     video effects.
+   */
+  @RequiresApi(18)
+  @UnstableApi
+  void setVideoFrameProcessorFactory(VideoFrameProcessor.Factory videoFrameProcessorFactory);
 
   /**
    * Sets the {@link C.VideoScalingMode}.

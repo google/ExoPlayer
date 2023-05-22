@@ -90,6 +90,9 @@
     *   Remove deprecated `ExoPlayer.retry()`, use `prepare()` instead.
     *   Remove deprecated zero-arg `DefaultTrackSelector` constructor, use
         `DefaultTrackSelector(Context)` instead.
+*   Core library:
+    *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
+        a custom `VideoFrameProcessor.Factory` during video playback.
 
 ### 1.0.2 (2023-05-18)
 

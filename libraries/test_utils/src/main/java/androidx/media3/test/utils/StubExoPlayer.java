@@ -24,6 +24,7 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DecoderCounters;
@@ -246,6 +247,12 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public void setVideoEffects(List<Effect> videoEffects) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoFrameProcessorFactory(
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
     throw new UnsupportedOperationException();
   }
 

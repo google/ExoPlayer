@@ -43,6 +43,7 @@ import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
@@ -669,6 +670,13 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoEffects(List<Effect> videoEffects) {
     blockUntilConstructorFinished();
     player.setVideoEffects(videoEffects);
+  }
+
+  @Override
+  public void setVideoFrameProcessorFactory(
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+    blockUntilConstructorFinished();
+    player.setVideoFrameProcessorFactory(videoFrameProcessorFactory);
   }
 
   @Override

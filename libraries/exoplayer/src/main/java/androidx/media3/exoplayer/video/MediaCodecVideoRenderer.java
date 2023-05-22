@@ -687,6 +687,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         List<Effect> videoEffects = (List<Effect>) checkNotNull(message);
         videoFrameProcessorManager.setVideoEffects(videoEffects);
         break;
+      case MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY:
+        VideoFrameProcessor.Factory videoFrameProcessorFactory =
+            (VideoFrameProcessor.Factory) checkNotNull(message);
+        videoFrameProcessorManager.setVideoFrameProcessorFactory(videoFrameProcessorFactory);
+        break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
         Size outputResolution = (Size) checkNotNull(message);
         if (outputResolution.getWidth() != 0
@@ -1876,6 +1881,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private final ArrayDeque<Pair<Long, Format>> pendingFrameFormats;
 
     private @MonotonicNonNull Handler handler;
+    private VideoFrameProcessor.@MonotonicNonNull Factory videoFrameProcessorFactory;
     @Nullable private VideoFrameProcessor videoFrameProcessor;
     @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
     @Nullable private Format inputFormat;
@@ -1935,6 +1941,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       this.videoEffects.clear();
       this.videoEffects.addAll(videoEffects);
+    }
+
+    /** Sets the {@link VideoFrameProcessor.Factory}. */
+    public void setVideoFrameProcessorFactory(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
     }
 
     /** Returns whether video frame processing is enabled. */
@@ -2009,66 +2021,69 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
               VideoFrameProcessorAccessor.createRotationEffect(inputFormat.rotationDegrees));
         }
 
+        videoFrameProcessorFactory =
+            videoFrameProcessorFactory == null
+                ? VideoFrameProcessorAccessor.getFrameProcessorFactory()
+                : videoFrameProcessorFactory;
         videoFrameProcessor =
-            VideoFrameProcessorAccessor.getFrameProcessorFactory()
-                .create(
-                    renderer.context,
-                    checkNotNull(videoEffects),
-                    DebugViewProvider.NONE,
-                    inputAndOutputColorInfos.first,
-                    inputAndOutputColorInfos.second,
-                    /* renderFramesAutomatically= */ false,
-                    /* listenerExecutor= */ handler::post,
-                    new VideoFrameProcessor.Listener() {
-                      @Override
-                      public void onOutputSizeChanged(int width, int height) {
-                        @Nullable Format inputFormat = VideoFrameProcessorManager.this.inputFormat;
-                        checkStateNotNull(inputFormat);
-                        // TODO(b/264889146): Handle Effect that changes output size based on pts.
-                        processedFrameSize =
-                            new VideoSize(
-                                width,
-                                height,
-                                // VideoFrameProcessor is configured to produce rotation free
-                                // frames.
-                                /* unappliedRotationDegrees= */ 0,
-                                // VideoFrameProcessor always outputs pixelWidthHeightRatio 1.
-                                /* pixelWidthHeightRatio= */ 1.f);
-                        pendingOutputSizeChange = true;
-                      }
+            videoFrameProcessorFactory.create(
+                renderer.context,
+                checkNotNull(videoEffects),
+                DebugViewProvider.NONE,
+                inputAndOutputColorInfos.first,
+                inputAndOutputColorInfos.second,
+                /* renderFramesAutomatically= */ false,
+                /* listenerExecutor= */ handler::post,
+                new VideoFrameProcessor.Listener() {
+                  @Override
+                  public void onOutputSizeChanged(int width, int height) {
+                    @Nullable Format inputFormat = VideoFrameProcessorManager.this.inputFormat;
+                    checkStateNotNull(inputFormat);
+                    // TODO(b/264889146): Handle Effect that changes output size based on pts.
+                    processedFrameSize =
+                        new VideoSize(
+                            width,
+                            height,
+                            // VideoFrameProcessor is configured to produce rotation free
+                            // frames.
+                            /* unappliedRotationDegrees= */ 0,
+                            // VideoFrameProcessor always outputs pixelWidthHeightRatio 1.
+                            /* pixelWidthHeightRatio= */ 1.f);
+                    pendingOutputSizeChange = true;
+                  }
 
-                      @Override
-                      public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
-                        if (registeredLastFrame) {
-                          checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
-                        }
-                        processedFramesTimestampsUs.add(presentationTimeUs);
-                        // TODO(b/257464707) Support extensively modified media.
-                        if (registeredLastFrame
-                            && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
-                          processedLastFrame = true;
-                        }
-                        if (pendingOutputSizeChange) {
-                          // Report the size change on releasing this frame.
-                          pendingOutputSizeChange = false;
-                          pendingOutputSizeChangeNotificationTimeUs = presentationTimeUs;
-                        }
-                      }
+                  @Override
+                  public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                    if (registeredLastFrame) {
+                      checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
+                    }
+                    processedFramesTimestampsUs.add(presentationTimeUs);
+                    // TODO(b/257464707) Support extensively modified media.
+                    if (registeredLastFrame
+                        && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
+                      processedLastFrame = true;
+                    }
+                    if (pendingOutputSizeChange) {
+                      // Report the size change on releasing this frame.
+                      pendingOutputSizeChange = false;
+                      pendingOutputSizeChangeNotificationTimeUs = presentationTimeUs;
+                    }
+                  }
 
-                      @Override
-                      public void onError(VideoFrameProcessingException exception) {
-                        renderer.setPendingPlaybackException(
-                            renderer.createRendererException(
-                                exception,
-                                inputFormat,
-                                PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
-                      }
+                  @Override
+                  public void onError(VideoFrameProcessingException exception) {
+                    renderer.setPendingPlaybackException(
+                        renderer.createRendererException(
+                            exception,
+                            inputFormat,
+                            PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
+                  }
 
-                      @Override
-                      public void onEnded() {
-                        throw new IllegalStateException();
-                      }
-                    });
+                  @Override
+                  public void onEnded() {
+                    throw new IllegalStateException();
+                  }
+                });
         videoFrameProcessor.registerInputStream(VideoFrameProcessor.INPUT_TYPE_SURFACE);
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
