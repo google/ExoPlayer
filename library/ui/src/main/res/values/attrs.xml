@@ -42,6 +42,11 @@
 
   <!-- PlayerView and StyledPlayerView attributes -->
   <attr name="use_artwork" format="boolean"/>
+  <attr name="artwork_display_mode" format="enum">
+    <enum name="off" value="0"/>
+    <enum name="fit" value="1"/>
+    <enum name="fill" value="2"/>
+  </attr>
   <attr name="shutter_background_color" format="color"/>
   <attr name="default_artwork" format="reference"/>
   <attr name="use_controller" format="boolean"/>
@@ -93,6 +98,7 @@
 
   <declare-styleable name="StyledPlayerView">
     <attr name="use_artwork"/>
+    <attr name="artwork_display_mode"/>
     <attr name="shutter_background_color"/>
     <attr name="default_artwork"/>
     <attr name="use_controller"/>
