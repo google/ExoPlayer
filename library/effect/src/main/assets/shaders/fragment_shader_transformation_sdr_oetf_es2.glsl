@@ -30,37 +30,35 @@ uniform int uOutputColorTransfer;
 
 const float inverseGamma = 0.4500;
 
-// Transforms a single channel from optical to electrical SDR using the SMPTE 
+// Transforms a single channel from optical to electrical SDR using the SMPTE
 // 170M OETF.
 float smpte170mOetfSingleChannel(float opticalChannel) {
-    // Specification:
-    // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
-    return opticalChannel < 0.018
-        ? opticalChannel * 4.500
-        : 1.099 * pow(opticalChannel, inverseGamma) - 0.099;
+  // Specification:
+  // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
+  return opticalChannel < 0.018
+             ? opticalChannel * 4.500
+             : 1.099 * pow(opticalChannel, inverseGamma) - 0.099;
 }
 
 // Transforms optical SDR colors to electrical SDR using the SMPTE 170M OETF.
 vec3 smpte170mOetf(vec3 opticalColor) {
-    return vec3(
-        smpte170mOetfSingleChannel(opticalColor.r),
-        smpte170mOetfSingleChannel(opticalColor.g),
-        smpte170mOetfSingleChannel(opticalColor.b));
+  return vec3(smpte170mOetfSingleChannel(opticalColor.r),
+              smpte170mOetfSingleChannel(opticalColor.g),
+              smpte170mOetfSingleChannel(opticalColor.b));
 }
 
 // BT.709 gamma 2.2 OETF for one channel.
 float gamma22OetfSingleChannel(highp float linearChannel) {
-    // Reference:
-    // https://developer.android.com/reference/android/hardware/DataSpace#TRANSFER_gamma22
-    return pow(linearChannel, (1.0 / 2.2));
+  // Reference:
+  // https://developer.android.com/reference/android/hardware/DataSpace#TRANSFER_gamma22
+  return pow(linearChannel, (1.0 / 2.2));
 }
 
 // BT.709 gamma 2.2 OETF.
 vec3 gamma22Oetf(highp vec3 linearColor) {
-    return vec3(
-        gamma22OetfSingleChannel(linearColor.r),
-        gamma22OetfSingleChannel(linearColor.g),
-        gamma22OetfSingleChannel(linearColor.b));
+  return vec3(gamma22OetfSingleChannel(linearColor.r),
+              gamma22OetfSingleChannel(linearColor.g),
+              gamma22OetfSingleChannel(linearColor.b));
 }
 
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
@@ -80,8 +78,8 @@ highp vec3 applyOetf(highp vec3 linearColor) {
 }
 
 void main() {
-    vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
-    vec4 transformedColors = uRgbMatrix * vec4(inputColor.rgb, 1);
+  vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
+  vec4 transformedColors = uRgbMatrix * vec4(inputColor.rgb, 1);
 
-    gl_FragColor = vec4(applyOetf(transformedColors.rgb), inputColor.a);
+  gl_FragColor = vec4(applyOetf(transformedColors.rgb), inputColor.a);
 }

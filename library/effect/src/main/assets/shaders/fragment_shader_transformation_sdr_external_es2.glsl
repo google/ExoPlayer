@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 // ES 2 fragment shader that:
 // 1. Samples from an external texture with uTexSampler copying from this
 //    texture to the current output.
@@ -39,22 +38,21 @@ const float gamma = 1.0 / inverseGamma;
 const int GL_FALSE = 0;
 const int GL_TRUE = 1;
 
-// Transforms a single channel from electrical to optical SDR using the SMPTE 
+// Transforms a single channel from electrical to optical SDR using the SMPTE
 // 170M OETF.
 float smpte170mEotfSingleChannel(float electricalChannel) {
   // Specification:
   // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
   return electricalChannel < 0.0812
-    ? electricalChannel / 4.500
-    : pow((electricalChannel + 0.099) / 1.099, gamma);
+             ? electricalChannel / 4.500
+             : pow((electricalChannel + 0.099) / 1.099, gamma);
 }
 
 // Transforms electrical to optical SDR using the SMPTE 170M EOTF.
 vec3 smpte170mEotf(vec3 electricalColor) {
-  return vec3(
-    smpte170mEotfSingleChannel(electricalColor.r),
-    smpte170mEotfSingleChannel(electricalColor.g),
-    smpte170mEotfSingleChannel(electricalColor.b));
+  return vec3(smpte170mEotfSingleChannel(electricalColor.r),
+              smpte170mEotfSingleChannel(electricalColor.g),
+              smpte170mEotfSingleChannel(electricalColor.b));
 }
 
 // Transforms a single channel from optical to electrical SDR.
@@ -62,16 +60,15 @@ float smpte170mOetfSingleChannel(float opticalChannel) {
   // Specification:
   // https://www.itu.int/rec/R-REC-BT.1700-0-200502-I/en
   return opticalChannel < 0.018
-    ? opticalChannel * 4.500
-    : 1.099 * pow(opticalChannel, inverseGamma) - 0.099;
+             ? opticalChannel * 4.500
+             : 1.099 * pow(opticalChannel, inverseGamma) - 0.099;
 }
 
 // Transforms optical SDR colors to electrical SDR using the SMPTE 170M OETF.
 vec3 smpte170mOetf(vec3 opticalColor) {
-  return vec3(
-      smpte170mOetfSingleChannel(opticalColor.r),
-      smpte170mOetfSingleChannel(opticalColor.g),
-      smpte170mOetfSingleChannel(opticalColor.b));
+  return vec3(smpte170mOetfSingleChannel(opticalColor.r),
+              smpte170mOetfSingleChannel(opticalColor.g),
+              smpte170mOetfSingleChannel(opticalColor.b));
 }
 
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
@@ -80,8 +77,8 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_LINEAR = 1;
   const int COLOR_TRANSFER_SDR_VIDEO = 3;
-  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR
-    || uEnableColorTransfer == GL_FALSE) {
+  if (uOutputColorTransfer == COLOR_TRANSFER_LINEAR ||
+      uEnableColorTransfer == GL_FALSE) {
     return linearColor;
   } else if (uOutputColorTransfer == COLOR_TRANSFER_SDR_VIDEO) {
     return smpte170mOetf(linearColor);
@@ -91,8 +88,8 @@ highp vec3 applyOetf(highp vec3 linearColor) {
   }
 }
 
-vec3 applyEotf(vec3 electricalColor){
-  if (uEnableColorTransfer == GL_TRUE){
+vec3 applyEotf(vec3 electricalColor) {
+  if (uEnableColorTransfer == GL_TRUE) {
     return smpte170mEotf(electricalColor);
   } else if (uEnableColorTransfer == GL_FALSE) {
     return electricalColor;
