@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT_RESOLUTION;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
@@ -94,6 +95,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -1225,6 +1227,14 @@ import java.util.concurrent.TimeoutException;
   public void setVideoEffects(List<Effect> videoEffects) {
     verifyApplicationThread();
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_VIDEO_EFFECTS, videoEffects);
+  }
+
+  @Override
+  public void setVideoFrameProcessorFactory(
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+    verifyApplicationThread();
+    sendRendererMessage(
+        TRACK_TYPE_VIDEO, MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY, videoFrameProcessorFactory);
   }
 
   @Override
