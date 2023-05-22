@@ -58,17 +58,15 @@ highp float hlgEotfSingleChannel(highp float hlgChannel) {
   const highp float a = 0.17883277;
   const highp float b = 0.28466892;
   const highp float c = 0.55991073;
-  return hlgChannel <= 0.5 ? hlgChannel * hlgChannel / 3.0 :
-      (b + exp((hlgChannel - c) / a)) / 12.0;
+  return hlgChannel <= 0.5 ? hlgChannel * hlgChannel / 3.0
+                           : (b + exp((hlgChannel - c) / a)) / 12.0;
 }
 
 // BT.2100 / BT.2020 HLG EOTF.
 highp vec3 hlgEotf(highp vec3 hlgColor) {
-  return vec3(
-      hlgEotfSingleChannel(hlgColor.r),
-      hlgEotfSingleChannel(hlgColor.g),
-      hlgEotfSingleChannel(hlgColor.b)
-  );
+  return vec3(hlgEotfSingleChannel(hlgColor.r),
+              hlgEotfSingleChannel(hlgColor.g),
+              hlgEotfSingleChannel(hlgColor.b));
 }
 
 // BT.2100 / BT.2020 PQ EOTF.
@@ -107,18 +105,17 @@ highp vec3 applyHlgBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   // https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.2100-2-201807-I!!PDF-E.pdf
   // Matrix values based on computeXYZMatrix(BT2020Primaries, BT2020WhitePoint)
   // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/libs/hwui/utils/HostColorSpace.cpp;l=200-232;drc=86bd214059cd6150304888a285941bf74af5b687
-  const mat3 RGB_TO_XYZ_BT2020 = mat3(
-       0.63695805f,  0.26270021f,  0.00000000f,
-       0.14461690f,  0.67799807f,  0.02807269f,
-       0.16888098f,  0.05930172f,  1.06098506f);
+  const mat3 RGB_TO_XYZ_BT2020 =
+      mat3(0.63695805f, 0.26270021f, 0.00000000f, 0.14461690f, 0.67799807f,
+           0.02807269f, 0.16888098f, 0.05930172f, 1.06098506f);
   // Matrix values based on computeXYZMatrix(BT709Primaries, BT709WhitePoint)
-  const mat3 XYZ_TO_RGB_BT709 = mat3(
-       3.24096994f, -0.96924364f,  0.05563008f,
-      -1.53738318f,  1.87596750f, -0.20397696f,
-      -0.49861076f,  0.04155506f,  1.05697151f);
+  const mat3 XYZ_TO_RGB_BT709 =
+      mat3(3.24096994f, -0.96924364f, 0.05563008f, -1.53738318f, 1.87596750f,
+           -0.20397696f, -0.49861076f, 0.04155506f, 1.05697151f);
   // hlgGamma is 1.2 + 0.42 * log10(nominalPeakLuminance/1000);
   // nominalPeakLuminance was selected to use a 500 as a typical value, used
-  // in https://cs.android.com/android/platform/superproject/+/master:frameworks/native/libs/tonemap/tonemap.cpp;drc=7a577450e536aa1e99f229a0cb3d3531c82e8a8d;l=62,
+  // in
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/native/libs/tonemap/tonemap.cpp;drc=7a577450e536aa1e99f229a0cb3d3531c82e8a8d;l=62,
   // b/199162498#comment35, and
   // https://www.microsoft.com/applied-sciences/uploads/projects/investigation-of-hdr-vs-tone-mapped-sdr/investigation-of-hdr-vs-tone-mapped-sdr.pdf.
   const float hlgGamma = 1.0735674018211279;
@@ -159,17 +156,15 @@ highp float hlgOetfSingleChannel(highp float linearChannel) {
   const highp float b = 0.28466892;
   const highp float c = 0.55991073;
 
-  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel) :
-      a * log(12.0 * linearChannel - b) + c;
+  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel)
+                                     : a * log(12.0 * linearChannel - b) + c;
 }
 
 // BT.2100 / BT.2020 HLG OETF.
 highp vec3 hlgOetf(highp vec3 linearColor) {
-  return vec3(
-      hlgOetfSingleChannel(linearColor.r),
-      hlgOetfSingleChannel(linearColor.g),
-      hlgOetfSingleChannel(linearColor.b)
-  );
+  return vec3(hlgOetfSingleChannel(linearColor.r),
+              hlgOetfSingleChannel(linearColor.g),
+              hlgOetfSingleChannel(linearColor.b));
 }
 
 // BT.2100 / BT.2020, PQ / ST2084 OETF.
@@ -191,17 +186,16 @@ highp vec3 pqOetf(highp vec3 linearColor) {
 
 // BT.709 gamma 2.2 OETF for one channel.
 float gamma22OetfSingleChannel(highp float linearChannel) {
-    // Reference:
-    // https://developer.android.com/reference/android/hardware/DataSpace#TRANSFER_GAMMA2_2
-    return pow(linearChannel, (1.0 / 2.2));
+  // Reference:
+  // https://developer.android.com/reference/android/hardware/DataSpace#TRANSFER_GAMMA2_2
+  return pow(linearChannel, (1.0 / 2.2));
 }
 
 // BT.709 gamma 2.2 OETF.
 vec3 gamma22Oetf(highp vec3 linearColor) {
-    return vec3(
-        gamma22OetfSingleChannel(linearColor.r),
-        gamma22OetfSingleChannel(linearColor.g),
-        gamma22OetfSingleChannel(linearColor.b));
+  return vec3(gamma22OetfSingleChannel(linearColor.r),
+              gamma22OetfSingleChannel(linearColor.g),
+              gamma22OetfSingleChannel(linearColor.b));
 }
 
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
@@ -222,11 +216,12 @@ highp vec3 applyOetf(highp vec3 linearColor) {
 }
 
 void main() {
-  vec3 opticalColorBt2020 = applyEotf(
-      texture(uTexSampler, vTexSamplingCoord).xyz);
-  vec4 opticalColor = (uApplyHdrToSdrToneMapping == 1)
-      ? vec4(applyBt2020ToBt709Ootf(opticalColorBt2020), 1.0)
-      : vec4(opticalColorBt2020, 1.0);
+  vec3 opticalColorBt2020 =
+      applyEotf(texture(uTexSampler, vTexSamplingCoord).xyz);
+  vec4 opticalColor =
+      (uApplyHdrToSdrToneMapping == 1)
+          ? vec4(applyBt2020ToBt709Ootf(opticalColorBt2020), 1.0)
+          : vec4(opticalColorBt2020, 1.0);
   vec4 transformedColors = uRgbMatrix * opticalColor;
   outColor = vec4(applyOetf(transformedColors.rgb), 1.0);
 }
