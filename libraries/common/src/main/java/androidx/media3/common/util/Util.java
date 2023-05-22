@@ -1889,8 +1889,7 @@ public final class Util {
           return AudioFormat.CHANNEL_OUT_5POINT1POINT4;
         } else {
           // Before API 32, height channel masks are not available. For those 10-channel streams
-          // supported on the audio output devices (e.g. DTS:X P2), we will use 7.1-surround
-          // instead.
+          // supported on the audio output devices (e.g. DTS:X P2), we use 7.1-surround instead.
           return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
         }
       case 12:
