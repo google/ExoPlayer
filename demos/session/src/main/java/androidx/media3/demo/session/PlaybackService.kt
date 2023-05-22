@@ -18,6 +18,7 @@ package androidx.media3.demo.session
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.PendingIntent.*
 import android.app.TaskStackBuilder
 import android.content.Intent
@@ -55,6 +56,7 @@ class PlaybackService : MediaLibraryService() {
       "android.media3.session.demo.SHUFFLE_OFF"
     private const val NOTIFICATION_ID = 123
     private const val CHANNEL_ID = "demo_session_notification_channel_id"
+    private val immutableFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
   }
 
   override fun onCreate() {
@@ -78,14 +80,15 @@ class PlaybackService : MediaLibraryService() {
   }
 
   override fun onTaskRemoved(rootIntent: Intent?) {
-    if (!player.playWhenReady) {
+    if (!player.playWhenReady || player.mediaItemCount == 0) {
       stopSelf()
     }
   }
 
   override fun onDestroy() {
-    player.release()
+    mediaLibrarySession.setSessionActivity(getBackStackedActivity())
     mediaLibrarySession.release()
+    player.release()
     clearListener()
     super.onDestroy()
   }
@@ -235,23 +238,31 @@ class PlaybackService : MediaLibraryService() {
         .build()
     MediaItemTree.initialize(assets)
 
-    val sessionActivityPendingIntent =
-      TaskStackBuilder.create(this).run {
-        addNextIntent(Intent(this@PlaybackService, MainActivity::class.java))
-        addNextIntent(Intent(this@PlaybackService, PlayerActivity::class.java))
-
-        val immutableFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
-        getPendingIntent(0, immutableFlag or FLAG_UPDATE_CURRENT)
-      }
-
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, librarySessionCallback)
-        .setSessionActivity(sessionActivityPendingIntent)
+        .setSessionActivity(getSingleTopActivity())
         .setBitmapLoader(CacheBitmapLoader(DataSourceBitmapLoader(/* context= */ this)))
         .build()
     if (!customLayout.isEmpty()) {
       // Send custom layout to legacy session.
       mediaLibrarySession.setCustomLayout(customLayout)
+    }
+  }
+
+  private fun getSingleTopActivity(): PendingIntent {
+    return getActivity(
+      this,
+      0,
+      Intent(this, PlayerActivity::class.java),
+      immutableFlag or FLAG_UPDATE_CURRENT
+    )
+  }
+
+  private fun getBackStackedActivity(): PendingIntent {
+    return TaskStackBuilder.create(this).run {
+      addNextIntent(Intent(this@PlaybackService, MainActivity::class.java))
+      addNextIntent(Intent(this@PlaybackService, PlayerActivity::class.java))
+      getPendingIntent(0, immutableFlag or FLAG_UPDATE_CURRENT)
     }
   }
 

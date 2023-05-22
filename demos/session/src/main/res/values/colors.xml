@@ -22,4 +22,9 @@
   <color name="black">#FF000000</color>
   <color name="white">#FFFFFFFF</color>
   <color name="grey">#FF999999</color>
+  <color name="background">#292929</color>
+  <color name="player_background">#1c1c1c</color>
+  <color name="playlist_item_background">#363434</color>
+  <color name="playlist_item_foreground">#635E5E</color>
+  <color name="divider">#646464</color>
 </resources>

@@ -25,6 +25,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:paddingStart="10dp"
+    android:maxLines="1"
+    android:ellipsize="end"
     android:textColor="@color/white"
     android:paddingEnd="10dp"
     android:minHeight="50dp" />
@@ -35,6 +37,7 @@
     android:layout_width="50dp"
     android:layout_height="match_parent"
     android:id="@+id/delete_button"
+    android:backgroundTint="@color/playlist_item_foreground"
     android:background="@drawable/baseline_playlist_remove_white_48"
     />
 

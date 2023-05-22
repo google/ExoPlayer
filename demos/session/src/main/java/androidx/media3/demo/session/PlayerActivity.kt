@@ -19,7 +19,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -46,41 +45,33 @@ class PlayerActivity : AppCompatActivity() {
     get() = if (controllerFuture.isDone) controllerFuture.get() else null
 
   private lateinit var playerView: PlayerView
-  private lateinit var mediaList: ListView
-  private lateinit var mediaListAdapter: PlayingMediaItemArrayAdapter
-  private val subItemMediaList: MutableList<MediaItem> = mutableListOf()
+  private lateinit var mediaItemListView: ListView
+  private lateinit var mediaItemListAdapter: MediaItemListAdapter
+  private val mediaItemList: MutableList<MediaItem> = mutableListOf()
+  private var lastMediaItemId: String? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_player)
     playerView = findViewById(R.id.player_view)
 
-    mediaList = findViewById(R.id.current_playing_list)
-    mediaListAdapter = PlayingMediaItemArrayAdapter(this, R.layout.folder_items, subItemMediaList)
-    mediaList.adapter = mediaListAdapter
-    mediaList.setOnItemClickListener { _, _, position, _ ->
+    mediaItemListView = findViewById(R.id.current_playing_list)
+    mediaItemListAdapter = MediaItemListAdapter(this, R.layout.folder_items, mediaItemList)
+    mediaItemListView.adapter = mediaItemListAdapter
+    mediaItemListView.setOnItemClickListener { _, _, position, _ ->
       run {
         val controller = this.controller ?: return@run
-        controller.seekToDefaultPosition(/* windowIndex= */ position)
-        mediaListAdapter.notifyDataSetChanged()
+        if (controller.currentMediaItemIndex == position) {
+          controller.playWhenReady = !controller.playWhenReady
+          if (controller.playWhenReady) {
+            playerView.hideController()
+          }
+        } else {
+          controller.seekToDefaultPosition(/* mediaItemIndex= */ position)
+          mediaItemListAdapter.notifyDataSetChanged()
+        }
       }
     }
-
-    findViewById<ImageView>(R.id.shuffle_switch).setOnClickListener {
-      val controller = this.controller ?: return@setOnClickListener
-      controller.shuffleModeEnabled = !controller.shuffleModeEnabled
-    }
-
-    findViewById<ImageView>(R.id.repeat_switch).setOnClickListener {
-      val controller = this.controller ?: return@setOnClickListener
-      when (controller.repeatMode) {
-        Player.REPEAT_MODE_ALL -> controller.repeatMode = Player.REPEAT_MODE_OFF
-        Player.REPEAT_MODE_OFF -> controller.repeatMode = Player.REPEAT_MODE_ONE
-        Player.REPEAT_MODE_ONE -> controller.repeatMode = Player.REPEAT_MODE_ALL
-      }
-    }
-
-    supportActionBar!!.setDisplayHomeAsUpEnabled(true)
   }
 
   override fun onStart() {
@@ -92,14 +83,6 @@ class PlayerActivity : AppCompatActivity() {
     super.onStop()
     playerView.player = null
     releaseController()
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    if (item.itemId == android.R.id.home) {
-      onBackPressed()
-      return true
-    }
-    return super.onOptionsItemSelected(item)
   }
 
   private fun initializeController() {
@@ -123,22 +106,12 @@ class PlayerActivity : AppCompatActivity() {
 
     updateCurrentPlaylistUI()
     updateMediaMetadataUI(controller.mediaMetadata)
-    updateShuffleSwitchUI(controller.shuffleModeEnabled)
-    updateRepeatSwitchUI(controller.repeatMode)
     playerView.setShowSubtitleButton(controller.currentTracks.isTypeSupported(TRACK_TYPE_TEXT))
 
     controller.addListener(
       object : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
           updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
-        }
-
-        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-          updateShuffleSwitchUI(shuffleModeEnabled)
-        }
-
-        override fun onRepeatModeChanged(repeatMode: Int) {
-          updateRepeatSwitchUI(repeatMode)
         }
 
         override fun onTracksChanged(tracks: Tracks) {
@@ -148,48 +121,26 @@ class PlayerActivity : AppCompatActivity() {
     )
   }
 
-  private fun updateShuffleSwitchUI(shuffleModeEnabled: Boolean) {
-    val resId =
-      if (shuffleModeEnabled) R.drawable.exo_styled_controls_shuffle_on
-      else R.drawable.exo_styled_controls_shuffle_off
-    findViewById<ImageView>(R.id.shuffle_switch)
-      .setImageDrawable(ContextCompat.getDrawable(this, resId))
-  }
-
-  private fun updateRepeatSwitchUI(repeatMode: Int) {
-    val resId: Int =
-      when (repeatMode) {
-        Player.REPEAT_MODE_OFF -> R.drawable.exo_styled_controls_repeat_off
-        Player.REPEAT_MODE_ONE -> R.drawable.exo_styled_controls_repeat_one
-        Player.REPEAT_MODE_ALL -> R.drawable.exo_styled_controls_repeat_all
-        else -> R.drawable.exo_styled_controls_repeat_off
-      }
-    findViewById<ImageView>(R.id.repeat_switch)
-      .setImageDrawable(ContextCompat.getDrawable(this, resId))
-  }
-
   private fun updateMediaMetadataUI(mediaMetadata: MediaMetadata) {
-    val title: CharSequence = mediaMetadata.title ?: getString(R.string.no_item_prompt)
+    val title: CharSequence = mediaMetadata.title ?: "getString(R.string.no_item_prompt)"
 
-    findViewById<TextView>(R.id.video_title).text = title
-    findViewById<TextView>(R.id.video_album).text = mediaMetadata.albumTitle
-    findViewById<TextView>(R.id.video_artist).text = mediaMetadata.artist
-    findViewById<TextView>(R.id.video_genre).text = mediaMetadata.genre
+    findViewById<TextView>(R.id.media_title).text = title
+    findViewById<TextView>(R.id.media_artist).text = mediaMetadata.artist
 
     // Trick to update playlist UI
-    mediaListAdapter.notifyDataSetChanged()
+    mediaItemListAdapter.notifyDataSetChanged()
   }
 
   private fun updateCurrentPlaylistUI() {
     val controller = this.controller ?: return
-    subItemMediaList.clear()
+    mediaItemList.clear()
     for (i in 0 until controller.mediaItemCount) {
-      subItemMediaList.add(controller.getMediaItemAt(i))
+      mediaItemList.add(controller.getMediaItemAt(i))
     }
-    mediaListAdapter.notifyDataSetChanged()
+    mediaItemListAdapter.notifyDataSetChanged()
   }
 
-  private inner class PlayingMediaItemArrayAdapter(
+  private inner class MediaItemListAdapter(
     context: Context,
     viewID: Int,
     mediaItemList: List<MediaItem>
@@ -201,22 +152,30 @@ class PlayerActivity : AppCompatActivity() {
 
       returnConvertView.findViewById<TextView>(R.id.media_item).text = mediaItem.mediaMetadata.title
 
+      val deleteButton = returnConvertView.findViewById<Button>(R.id.delete_button)
       if (position == controller?.currentMediaItemIndex) {
-        returnConvertView.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
-        returnConvertView
-          .findViewById<TextView>(R.id.media_item)
-          .setTextColor(ContextCompat.getColor(context, R.color.black))
-      } else {
-        returnConvertView.setBackgroundColor(ContextCompat.getColor(context, R.color.black))
+        // Styles for the current media item list item.
+        returnConvertView.setBackgroundColor(
+          ContextCompat.getColor(context, R.color.playlist_item_background)
+        )
         returnConvertView
           .findViewById<TextView>(R.id.media_item)
           .setTextColor(ContextCompat.getColor(context, R.color.white))
-      }
-
-      returnConvertView.findViewById<Button>(R.id.delete_button).setOnClickListener {
-        val controller = this@PlayerActivity.controller ?: return@setOnClickListener
-        controller.removeMediaItem(position)
-        updateCurrentPlaylistUI()
+        deleteButton.visibility = View.GONE
+      } else {
+        // Styles for any other media item list item.
+        returnConvertView.setBackgroundColor(
+          ContextCompat.getColor(context, R.color.player_background)
+        )
+        returnConvertView
+          .findViewById<TextView>(R.id.media_item)
+          .setTextColor(ContextCompat.getColor(context, R.color.white))
+        deleteButton.visibility = View.VISIBLE
+        deleteButton.setOnClickListener {
+          val controller = this@PlayerActivity.controller ?: return@setOnClickListener
+          controller.removeMediaItem(position)
+          updateCurrentPlaylistUI()
+        }
       }
 
       return returnConvertView

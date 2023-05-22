@@ -19,7 +19,7 @@
   android:orientation="vertical"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="@color/black"
+  android:background="@color/player_background"
   tools:context=".PlayerActivity">
 
   <androidx.media3.ui.AspectRatioFrameLayout
@@ -28,77 +28,47 @@
     >
     <androidx.media3.ui.PlayerView
       android:id="@+id/player_view"
+      android:background="@color/player_background"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      app:use_artwork="true" />
+      app:default_artwork="@drawable/artwork_placeholder"
+      app:repeat_toggle_modes="one|all"
+      app:show_shuffle_button="true"
+      app:shutter_background_color="@color/player_background" />
   </androidx.media3.ui.AspectRatioFrameLayout>
 
-
   <TextView
-    android:id="@+id/video_title"
+    android:id="@+id/media_artist"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="10dp"
+    android:paddingStart="10dp"
+    android:paddingTop="10dp"
+    android:textColor="@color/white"
+    android:textSize="14sp"/>
+
+  <TextView
+    android:id="@+id/media_title"
+    android:ellipsize="end"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:paddingLeft="10dp"
     android:paddingBottom="10dp"
+    android:paddingStart="10dp"
     android:textColor="@color/white"
     android:textSize="20sp" />
 
-  <TextView
-    android:id="@+id/video_album"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="10dp"
-    android:paddingBottom="10dp"
-    android:textColor="@color/white"
-    android:textSize="20sp" />
-
-  <TextView
-    android:id="@+id/video_artist"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textColor="@color/white"
-    android:paddingLeft="10dp"
-    android:paddingBottom="10dp"/>
-
-  <TextView
-    android:id="@+id/video_genre"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textColor="@color/white"
-    android:paddingLeft="10dp"
-    android:paddingBottom="10dp"
-    android:textSize="12sp" />
-
-  <LinearLayout
-    android:gravity="center_vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <ImageView
-      android:id="@+id/shuffle_switch"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:contentDescription="@string/shuffle"
-      android:src="@drawable/exo_styled_controls_shuffle_off"
-      android:textColor="@color/white" />
-
-
-    <ImageView
-      android:layout_margin="@dimen/exo_icon_horizontal_margin"
-      android:id="@+id/repeat_switch"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:src="@drawable/exo_styled_controls_repeat_off"
-      android:textColor="@color/white"
-      android:contentDescription="@string/repeat"
-      />
-  </LinearLayout>
+  <View
+    android:background="@color/divider"
+    android:layout_height="1dp"
+    android:layout_width="match_parent" />
 
   <ListView
     android:id="@+id/current_playing_list"
-    android:layout_width="match_parent"
     android:divider="@drawable/divider"
     android:dividerHeight="1px"
-    android:layout_height="wrap_content"/>
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
 
 </LinearLayout>

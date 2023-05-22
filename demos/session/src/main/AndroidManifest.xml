@@ -40,7 +40,9 @@
 
     <activity
         android:name=".PlayerActivity"
-        android:exported="true"/>
+        android:exported="true"
+        android:launchMode="singleTop"
+        android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
     <activity
         android:name=".PlayableFolderActivity"
