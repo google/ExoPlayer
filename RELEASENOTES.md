@@ -88,6 +88,8 @@
         `copyWithBitrate` and `copyWithVideoSize`, use `Format.buildUpon()` and
         setter methods instead.
     *   Remove deprecated `ExoPlayer.retry()`, use `prepare()` instead.
+    *   Remove deprecated zero-arg `DefaultTrackSelector` constructor, use
+        `DefaultTrackSelector(Context)` instead.
 
 ### 1.0.2 (2023-05-18)
 

@@ -2226,14 +2226,6 @@ public class DefaultTrackSelector extends MappingTrackSelector
   private AudioAttributes audioAttributes;
 
   /**
-   * @deprecated Use {@link #DefaultTrackSelector(Context)} instead.
-   */
-  @Deprecated
-  public DefaultTrackSelector() {
-    this(Parameters.DEFAULT_WITHOUT_CONTEXT, new AdaptiveTrackSelection.Factory());
-  }
-
-  /**
    * @param context Any {@link Context}.
    */
   public DefaultTrackSelector(Context context) {
@@ -2260,6 +2252,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
    * @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelectionParameters,
    *     ExoTrackSelection.Factory)}
    */
+  // TODO: When this constructor is deleted, this.context can be made non-null and all
+  //       null-conditional can be removed (including the warning logging when it's null).
   @Deprecated
   public DefaultTrackSelector(
       TrackSelectionParameters parameters, ExoTrackSelection.Factory trackSelectionFactory) {
