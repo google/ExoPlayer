@@ -495,36 +495,6 @@ public final class GlUtil {
   }
 
   /**
-   * Deletes a GL texture.
-   *
-   * @param textureId The ID of the texture to delete.
-   */
-  public static void deleteTexture(int textureId) throws GlException {
-    GLES20.glDeleteTextures(/* n= */ 1, new int[] {textureId}, /* offset= */ 0);
-    checkGlError();
-  }
-
-  /**
-   * Destroys the {@link EGLContext} identified by the provided {@link EGLDisplay} and {@link
-   * EGLContext}.
-   */
-  @RequiresApi(17)
-  public static void destroyEglContext(
-      @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
-    Api17.destroyEglContext(eglDisplay, eglContext);
-  }
-
-  /**
-   * Destroys the {@link EGLSurface} identified by the provided {@link EGLDisplay} and {@link
-   * EGLSurface}.
-   */
-  @RequiresApi(17)
-  public static void destroyEglSurface(
-      @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
-    Api17.destroyEglSurface(eglDisplay, eglSurface);
-  }
-
-  /**
    * Allocates a FloatBuffer with the given data.
    *
    * @param data Used to initialize the new buffer.
@@ -656,11 +626,46 @@ public final class GlUtil {
     return fboId[0];
   }
 
-  /** Deletes a framebuffer. */
+  /**
+   * Deletes a GL texture.
+   *
+   * @param textureId The ID of the texture to delete.
+   */
+  public static void deleteTexture(int textureId) throws GlException {
+    GLES20.glDeleteTextures(/* n= */ 1, new int[] {textureId}, /* offset= */ 0);
+    checkGlError();
+  }
+
+  /**
+   * Destroys the {@link EGLContext} identified by the provided {@link EGLDisplay} and {@link
+   * EGLContext}.
+   */
+  @RequiresApi(17)
+  public static void destroyEglContext(
+      @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
+    Api17.destroyEglContext(eglDisplay, eglContext);
+  }
+
+  /**
+   * Destroys the {@link EGLSurface} identified by the provided {@link EGLDisplay} and {@link
+   * EGLSurface}.
+   */
+  @RequiresApi(17)
+  public static void destroyEglSurface(
+      @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
+    Api17.destroyEglSurface(eglDisplay, eglSurface);
+  }
+
+  /** Deletes a framebuffer, or silently ignores the method call if {@code fboId} is unused. */
   public static void deleteFbo(int fboId) throws GlException {
-    int[] fboIdArray = new int[1];
-    fboIdArray[0] = fboId;
-    GLES20.glDeleteFramebuffers(/* n= */ 1, fboIdArray, /* offset= */ 0);
+    GLES20.glDeleteFramebuffers(/* n= */ 1, new int[] {fboId}, /* offset= */ 0);
+    checkGlError();
+  }
+
+  /** Deletes a renderbuffer, or silently ignores the method call if {@code rboId} is unused. */
+  public static void deleteRbo(int rboId) throws GlException {
+    GLES20.glDeleteRenderbuffers(
+        /* n= */ 1, /* renderbuffers= */ new int[] {rboId}, /* offset= */ 0);
     checkGlError();
   }
 

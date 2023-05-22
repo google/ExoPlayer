@@ -353,7 +353,7 @@ public final class VideoFrameProcessorTestRunner {
 
   public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
     videoFrameProcessor.setInputFrameInfo(
-        new FrameInfo.Builder(inputTexture.width, inputTexture.height)
+        new FrameInfo.Builder(inputTexture.getWidth(), inputTexture.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
     videoFrameProcessor.registerInputStream(INPUT_TYPE_TEXTURE_ID);
@@ -365,7 +365,7 @@ public final class VideoFrameProcessorTestRunner {
             throw new VideoFrameProcessingException(e);
           }
         });
-    videoFrameProcessor.queueInputTexture(inputTexture.texId, pts);
+    videoFrameProcessor.queueInputTexture(inputTexture.getTexId(), pts);
   }
 
   public void endFrameProcessing() throws InterruptedException {

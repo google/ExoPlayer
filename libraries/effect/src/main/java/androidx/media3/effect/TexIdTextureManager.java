@@ -61,7 +61,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void onInputFrameProcessed(GlTextureInfo inputTexture) {
     videoFrameProcessingTaskExecutor.submit(
-        () -> checkNotNull(frameProcessedListener).onInputFrameProcessed(inputTexture.texId));
+        () -> checkNotNull(frameProcessedListener).onInputFrameProcessed(inputTexture.getTexId()));
   }
 
   @Override

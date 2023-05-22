@@ -123,7 +123,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           if (currentGlTextureInfo != null) {
-            GlUtil.deleteTexture(currentGlTextureInfo.texId);
+            currentGlTextureInfo.release();
           }
         });
   }
@@ -160,7 +160,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int currentTexId;
       try {
         if (currentGlTextureInfo != null) {
-          GlUtil.deleteTexture(currentGlTextureInfo.texId);
+          currentGlTextureInfo.release();
         }
         currentTexId =
             GlUtil.createTexture(

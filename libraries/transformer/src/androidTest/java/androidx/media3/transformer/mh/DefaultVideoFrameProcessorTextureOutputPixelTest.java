@@ -608,10 +608,12 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         throws VideoFrameProcessingException {
       try {
         GlUtil.focusFramebufferUsingCurrentContext(
-            outputTexture.fboId, outputTexture.width, outputTexture.height);
+            outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
         outputBitmap =
             createBitmapFromCurrentGlFrameBuffer(
-                outputTexture.width, outputTexture.height, useHighPrecisionColorComponents);
+                outputTexture.getWidth(),
+                outputTexture.getHeight(),
+                useHighPrecisionColorComponents);
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }
