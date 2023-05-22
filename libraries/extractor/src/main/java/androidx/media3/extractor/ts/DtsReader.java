@@ -131,7 +131,7 @@ public final class DtsReader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished() {
+  public void packetFinished(boolean isEndOfInput) {
     // Do nothing.
   }
 

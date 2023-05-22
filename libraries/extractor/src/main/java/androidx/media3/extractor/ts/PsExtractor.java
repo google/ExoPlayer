@@ -357,7 +357,7 @@ public final class PsExtractor implements Extractor {
       pesPayloadReader.packetStarted(timeUs, TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR);
       pesPayloadReader.consume(data);
       // We always have complete PES packets with program stream.
-      pesPayloadReader.packetFinished();
+      pesPayloadReader.packetFinished(false);
     }
 
     private void parseHeader() {
