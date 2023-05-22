@@ -26,8 +26,8 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
-import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The default {@link AssetLoader.Factory} implementation. */
@@ -133,7 +133,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     if (fileExtensionStart < 0) {
       return false;
     }
-    String extension = uriPath.substring(fileExtensionStart).toLowerCase(Locale.ENGLISH);
+    String extension = Ascii.toLowerCase(uriPath.substring(fileExtensionStart));
     return supportedImageTypes.contains(extension);
   }
 }
