@@ -1804,7 +1804,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     } else if (startIndex == C.INDEX_UNSET) {
       startIndex = playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex;
       startPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
-      if (startIndex >= newTimeline.getWindowCount()) {
+      if (!newTimeline.isEmpty() && startIndex >= newTimeline.getWindowCount()) {
         correctedStartIndex = true;
         startIndex = newTimeline.getFirstWindowIndex(playerInfo.shuffleModeEnabled);
         startPositionMs = C.TIME_UNSET;
@@ -1821,7 +1821,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               startIndex,
               /* mediaItem= */ null,
               /* periodUid= */ null,
-              /* periodIndex= */ 0,
+              startIndex,
               /* positionMs= */ startPositionMs == C.TIME_UNSET ? 0 : startPositionMs,
               /* contentPositionMs= */ startPositionMs == C.TIME_UNSET ? 0 : startPositionMs,
               /* adGroupIndex= */ C.INDEX_UNSET,
@@ -1987,7 +1987,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               windowIndex,
               /* mediaItem= */ null,
               /* periodUid= */ null,
-              /* periodIndex= */ 0,
+              windowIndex,
               /* positionMs= */ positionMs == C.TIME_UNSET ? 0 : positionMs,
               /* contentPositionMs= */ positionMs == C.TIME_UNSET ? 0 : positionMs,
               /* adGroupIndex= */ C.INDEX_UNSET,

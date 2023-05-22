@@ -1308,7 +1308,7 @@ public class MediaControllerStateMaskingTest {
     int initialBufferedPosition = 0;
     int initialTotalBufferedPosition = 0;
     int testMediaItemIndex = 3;
-    int testPeriodIndex = initialPeriodIndex;
+    int testPeriodIndex = 3;
     long testSeekPositionMs = 3_000;
     long testPosition = testSeekPositionMs;
     long testBufferedPosition = testSeekPositionMs;
@@ -1577,6 +1577,39 @@ public class MediaControllerStateMaskingTest {
   }
 
   @Test
+  public void setMediaItems_toEmptyListAndResetPositionFalse_correctMasking() throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentMediaItemIndex(2)
+            .setCurrentPeriodIndex(2)
+            .setCurrentPosition(8000)
+            .setContentPosition(8000)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    AtomicReference<Timeline> currentTimelineRef = new AtomicReference<>();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicLong currentPositionRef = new AtomicLong();
+    AtomicInteger currentPeriodIndexRef = new AtomicInteger();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setMediaItems(ImmutableList.of(), /* resetPosition= */ false);
+              currentTimelineRef.set(controller.getCurrentTimeline());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentPositionRef.set((int) controller.getCurrentPosition());
+              currentPeriodIndexRef.set(controller.getCurrentPeriodIndex());
+            });
+
+    assertThat(currentPositionRef.get()).isEqualTo(8000);
+    assertThat(currentTimelineRef.get().isEmpty()).isTrue();
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(2);
+    assertThat(currentPeriodIndexRef.get()).isEqualTo(2);
+  }
+
+  @Test
   public void setMediaItems_withStartMediaItemIndexAndStartPosition() throws Exception {
     int initialMediaItemIndex = 2;
     long initialPosition = 8_000;
@@ -1687,7 +1720,7 @@ public class MediaControllerStateMaskingTest {
     long initialTotalBufferedDuration = 1_200;
     List<MediaItem> testMediaItemList = new ArrayList<>();
     int testMediaItemIndex = 1;
-    int testPeriodIndex = 0;
+    int testPeriodIndex = 1;
     long testPosition = 1_000;
     long testBufferedPosition = 1_000;
     long testTotalBufferedDuration = 0;
