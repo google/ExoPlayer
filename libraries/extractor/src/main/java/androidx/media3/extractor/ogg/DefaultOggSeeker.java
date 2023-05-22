@@ -28,6 +28,7 @@ import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.SeekPoint;
 import java.io.EOFException;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /** Seeks in an Ogg stream. */
 /* package */ final class DefaultOggSeeker implements OggSeeker {
@@ -260,7 +261,12 @@ import java.io.IOException;
       long targetGranule = streamReader.convertTimeToGranule(timeUs);
       long estimatedPosition =
           payloadStartPosition
-              + (targetGranule * (payloadEndPosition - payloadStartPosition) / totalGranules)
+              // Use BigInteger arithmetic to avoid long overflow
+              // https://github.com/androidx/media/issues/391
+              + BigInteger.valueOf(targetGranule)
+                  .multiply(BigInteger.valueOf(payloadEndPosition - payloadStartPosition))
+                  .divide(BigInteger.valueOf(totalGranules))
+                  .longValue()
               - DEFAULT_OFFSET;
       estimatedPosition =
           Util.constrainValue(estimatedPosition, payloadStartPosition, payloadEndPosition - 1);

@@ -9,6 +9,8 @@
 *   ExoPlayer:
     *   Add `FilteringMediaSource` that allows to filter available track types
         from a `MediaSource`.
+    *   Fix bug seeking in files with long opus audio
+        ([#391](https://github.com/androidx/media/issues/391)).
 *   Transformer:
 *   Track Selection:
 *   Extractors:
