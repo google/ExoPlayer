@@ -44,17 +44,15 @@ highp float hlgOetfSingleChannel(highp float linearChannel) {
   const highp float b = 0.28466892;
   const highp float c = 0.55991073;
 
-  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel) :
-      a * log(12.0 * linearChannel - b) + c;
+  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel)
+                                     : a * log(12.0 * linearChannel - b) + c;
 }
 
 // BT.2100 / BT.2020 HLG OETF.
 highp vec3 hlgOetf(highp vec3 linearColor) {
-  return vec3(
-      hlgOetfSingleChannel(linearColor.r),
-      hlgOetfSingleChannel(linearColor.g),
-      hlgOetfSingleChannel(linearColor.b)
-  );
+  return vec3(hlgOetfSingleChannel(linearColor.r),
+              hlgOetfSingleChannel(linearColor.g),
+              hlgOetfSingleChannel(linearColor.b));
 }
 
 // BT.2100 / BT.2020, PQ / ST2084 OETF.
