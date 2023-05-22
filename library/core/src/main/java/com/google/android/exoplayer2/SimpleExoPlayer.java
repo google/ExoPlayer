@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -658,6 +659,13 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoEffects(List<Effect> videoEffects) {
     blockUntilConstructorFinished();
     player.setVideoEffects(videoEffects);
+  }
+
+  @Override
+  public void setVideoFrameProcessorFactory(
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+    blockUntilConstructorFinished();
+    player.setVideoFrameProcessorFactory(videoFrameProcessorFactory);
   }
 
   @Override
