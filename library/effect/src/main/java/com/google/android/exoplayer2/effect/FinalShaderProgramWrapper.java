@@ -316,7 +316,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlTextureInfo inputTexture, long presentationTimeUs, long renderTimeNs) {
     try {
       if (renderTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME
-          || !ensureConfigured(inputTexture.width, inputTexture.height)) {
+          || !ensureConfigured(inputTexture.getWidth(), inputTexture.getHeight())) {
         inputListener.onInputFrameProcessed(inputTexture);
         return; // Drop frames when requested, or there is no output surface and output texture.
       }
@@ -352,7 +352,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
     GlUtil.clearOutputFrame();
-    defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+    defaultShaderProgram.drawFrame(inputTexture.getTexId(), presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(
         eglDisplay,
@@ -369,9 +369,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GlTextureInfo outputTexture = outputTexturePool.useTexture();
     outputTextureTimestamps.add(presentationTimeUs);
     GlUtil.focusFramebufferUsingCurrentContext(
-        outputTexture.fboId, outputTexture.width, outputTexture.height);
+        outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
     GlUtil.clearOutputFrame();
-    checkNotNull(defaultShaderProgram).drawFrame(inputTexture.texId, presentationTimeUs);
+    checkNotNull(defaultShaderProgram).drawFrame(inputTexture.getTexId(), presentationTimeUs);
     // TODO(b/262694346): If Compositor's VFPs all use the same context, media3 should be able to
     //  avoid calling glFinish, and require the onTextureRendered listener to decide whether to
     //  glFinish. Consider removing glFinish and requiring onTextureRendered to handle
@@ -519,10 +519,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();
                   defaultShaderProgram.setOutputColorTransfer(
                       debugSurfaceViewWrapper.outputColorTransfer);
-                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                  defaultShaderProgram.drawFrame(inputTexture.getTexId(), presentationTimeUs);
                   defaultShaderProgram.setOutputColorTransfer(configuredColorTransfer);
                 } else {
-                  defaultShaderProgram.drawFrame(inputTexture.texId, presentationTimeUs);
+                  defaultShaderProgram.drawFrame(inputTexture.getTexId(), presentationTimeUs);
                 }
               },
               glObjectsProvider);

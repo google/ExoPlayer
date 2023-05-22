@@ -166,7 +166,8 @@ import java.util.concurrent.Future;
   @Override
   public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     AppTextureFrame appTextureFrame =
-        new AppTextureFrame(inputTexture.texId, inputTexture.width, inputTexture.height);
+        new AppTextureFrame(
+            inputTexture.getTexId(), inputTexture.getWidth(), inputTexture.getHeight());
     // TODO(b/238302213): Handle timestamps restarting from 0 when applying effects to a playlist.
     //  MediaPipe will fail if the timestamps are not monotonically increasing.
     //  Also make sure that a MediaPipe graph producing additional frames only starts producing
