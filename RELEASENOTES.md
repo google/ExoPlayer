@@ -95,6 +95,9 @@
     *   Remove deprecated `DownloadManager` constructor, use the constructor
         that takes an `Executor` instead.
     *   Remove deprecated `Cue` constructors, use `Cue.Builder` instead.
+    *   Remove deprecated `OfflineLicenseHelper` constructor, use
+        `OfflineLicenseHelper(DefaultDrmSessionManager,
+        DrmSessionEventListener.EventDispatcher)` instead.
     *   Remove `ExoPlayer.setHandleWakeLock(boolean)`, use `setWakeMode(int)`
         instead.
     *   Remove deprecated
