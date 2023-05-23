@@ -16,7 +16,7 @@ apply plugin: 'maven-publish'
 apply from: "$gradle.ext.androidxMediaSettingsDir/missing_aar_type_workaround.gradle"
 
 afterEvaluate {
-    if (rootProject.name == gradle.ext.androidxMediaProjectName) {
+    if (gradle.ext.has('rootProjectIsAndroidXMedia3') && gradle.ext.rootProjectIsAndroidXMedia3) {
         publishing {
             repositories {
                 maven {
