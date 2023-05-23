@@ -45,9 +45,13 @@ import java.io.IOException;
  *       way for the player to load and read the media.
  * </ul>
  *
- * All methods are called on the player's internal playback thread, as described in the {@link
- * ExoPlayer} Javadoc. They should not be called directly from application code. Instances can be
- * re-used, but only for one {@link ExoPlayer} instance simultaneously.
+ * <p>{@code MediaSource} methods should not be called from application code. Instead, the playback
+ * logic in {@link ExoPlayer} will trigger methods at the right time.
+ *
+ * <p>Instances can be re-used, but only for one {@link ExoPlayer} instance simultaneously.
+ *
+ * <p>MediaSource methods will be called on one of two threads, an application thread or a playback
+ * thread. Each method is documented with the thread it is called on.
  */
 public interface MediaSource {
 
@@ -169,6 +173,10 @@ public interface MediaSource {
    * Adds a {@link MediaSourceEventListener} to the list of listeners which are notified of media
    * source events.
    *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the playback thread.
+   *
    * @param handler A handler on the which listener events will be posted.
    * @param eventListener The listener to be added.
    */
@@ -178,6 +186,10 @@ public interface MediaSource {
    * Removes a {@link MediaSourceEventListener} from the list of listeners which are notified of
    * media source events.
    *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the playback thread.
+   *
    * @param eventListener The listener to be removed.
    */
   void removeEventListener(MediaSourceEventListener eventListener);
@@ -185,6 +197,10 @@ public interface MediaSource {
   /**
    * Adds a {@link DrmSessionEventListener} to the list of listeners which are notified of DRM
    * events for this media source.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the playback thread.
    *
    * @param handler A handler on the which listener events will be posted.
    * @param eventListener The listener to be added.
@@ -195,6 +211,10 @@ public interface MediaSource {
    * Removes a {@link DrmSessionEventListener} from the list of listeners which are notified of DRM
    * events for this media source.
    *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the playback thread.
+   *
    * @param eventListener The listener to be removed.
    */
   void removeDrmEventListener(DrmSessionEventListener eventListener);
@@ -203,12 +223,16 @@ public interface MediaSource {
    * Returns the initial placeholder timeline that is returned immediately when the real timeline is
    * not yet known, or null to let the player create an initial timeline.
    *
+   * <p>Should not be called directly from application code.
+   *
    * <p>The initial timeline must use the same uids for windows and periods that the real timeline
    * will use. It also must provide windows which are marked as dynamic to indicate that the window
    * is expected to change when the real timeline arrives.
    *
    * <p>Any media source which has multiple windows should typically provide such an initial
    * timeline to make sure the player reports the correct number of windows immediately.
+   *
+   * <p>This method must be called on the application thread.
    */
   @Nullable
   default Timeline getInitialTimeline() {
@@ -218,7 +242,11 @@ public interface MediaSource {
   /**
    * Returns true if the media source is guaranteed to never have zero or more than one window.
    *
+   * <p>Should not be called directly from application code.
+   *
    * <p>The default implementation returns {@code true}.
+   *
+   * <p>This method must be called on the application thread.
    *
    * @return true if the source has exactly one window.
    */
@@ -226,7 +254,13 @@ public interface MediaSource {
     return true;
   }
 
-  /** Returns the {@link MediaItem} whose media is provided by the source. */
+  /**
+   * Returns the {@link MediaItem} whose media is provided by the source.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the application thread.
+   */
   MediaItem getMediaItem();
 
   /**
@@ -251,6 +285,8 @@ public interface MediaSource {
    * <p>For each call to this method, a call to {@link #releaseSource(MediaSourceCaller)} is needed
    * to remove the caller and to release the source if no longer required.
    *
+   * <p>This method must be called on the playback thread.
+   *
    * @param caller The {@link MediaSourceCaller} to be registered.
    * @param mediaTransferListener The transfer listener which should be informed of any media data
    *     transfers. May be null if no listener is available. Note that this listener should be only
@@ -268,8 +304,8 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
-   * PlayerId)}.
+   * <p>This method must be called on the playback thread and only after {@link
+   * #prepareSource(MediaSourceCaller, TransferListener, PlayerId)}.
    */
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
@@ -278,8 +314,8 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
-   * PlayerId)}.
+   * <p>This method must be called on the playback thread and only after {@link
+   * #prepareSource(MediaSourceCaller, TransferListener, PlayerId)}.
    *
    * @param caller The {@link MediaSourceCaller} enabling the source.
    */
@@ -290,7 +326,7 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called if the source is enabled.
+   * <p>This method must be called on the playback thread and only if the source is enabled.
    *
    * @param id The identifier of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
@@ -304,6 +340,8 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
+   * <p>This method must be called on the playback thread.
+   *
    * @param mediaPeriod The period to release.
    */
   void releasePeriod(MediaPeriod mediaPeriod);
@@ -314,9 +352,9 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after all {@link MediaPeriod MediaPeriods} previously created by {@link
-   * #createPeriod(MediaPeriodId, Allocator, long)} have been released by {@link
-   * #releasePeriod(MediaPeriod)}.
+   * <p>This method must be called on the playback thread and only after all {@link MediaPeriod
+   * MediaPeriods} previously created by {@link #createPeriod(MediaPeriodId, Allocator, long)} have
+   * been released by {@link #releasePeriod(MediaPeriod)}.
    *
    * @param caller The {@link MediaSourceCaller} disabling the source.
    */
@@ -327,8 +365,8 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called if all created {@link MediaPeriod MediaPeriods} have been released by
-   * {@link #releasePeriod(MediaPeriod)}.
+   * <p>This method must be called on the playback thread and only if all created {@link MediaPeriod
+   * MediaPeriods} have been released by {@link #releasePeriod(MediaPeriod)}.
    *
    * @param caller The {@link MediaSourceCaller} to be unregistered.
    */
