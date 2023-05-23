@@ -889,7 +889,7 @@ public final class MediaItem implements Bundleable {
       return result;
     }
 
-    // Bundleable implementation
+    // Bundleable implementation.
 
     private static final String FIELD_SCHEME = Util.intToStringMaxRadix(0);
     private static final String FIELD_LICENSE_URI = Util.intToStringMaxRadix(1);
@@ -1419,7 +1419,7 @@ public final class MediaItem implements Bundleable {
 
   /** Properties for a text track. */
   // TODO: Mark this final when Subtitle is deleted.
-  public static class SubtitleConfiguration {
+  public static class SubtitleConfiguration implements Bundleable {
 
     /** Builder for {@link SubtitleConfiguration} instances. */
     public static final class Builder {
@@ -1589,6 +1589,67 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + (label == null ? 0 : label.hashCode());
       result = 31 * result + (id == null ? 0 : id.hashCode());
       return result;
+    }
+
+    // Bundleable implementation.
+
+    private static final String FIELD_URI = Util.intToStringMaxRadix(0);
+    private static final String FIELD_MIME_TYPE = Util.intToStringMaxRadix(1);
+    private static final String FIELD_LANGUAGE = Util.intToStringMaxRadix(2);
+    private static final String FIELD_SELECTION_FLAGS = Util.intToStringMaxRadix(3);
+    private static final String FIELD_ROLE_FLAGS = Util.intToStringMaxRadix(4);
+    private static final String FIELD_LABEL = Util.intToStringMaxRadix(5);
+    private static final String FIELD_ID = Util.intToStringMaxRadix(6);
+
+    /** Object that can restore {@link SubtitleConfiguration} from a {@link Bundle}. */
+    @UnstableApi
+    public static final Creator<SubtitleConfiguration> CREATOR = SubtitleConfiguration::fromBundle;
+
+    @UnstableApi
+    private static SubtitleConfiguration fromBundle(Bundle bundle) {
+      Uri uri = checkNotNull(bundle.getParcelable(FIELD_URI));
+      @Nullable String mimeType = bundle.getString(FIELD_MIME_TYPE);
+      @Nullable String language = bundle.getString(FIELD_LANGUAGE);
+      @C.SelectionFlags int selectionFlags = bundle.getInt(FIELD_SELECTION_FLAGS, 0);
+      @C.RoleFlags int roleFlags = bundle.getInt(FIELD_ROLE_FLAGS, 0);
+      @Nullable String label = bundle.getString(FIELD_LABEL);
+      @Nullable String id = bundle.getString(FIELD_ID);
+
+      SubtitleConfiguration.Builder builder = new SubtitleConfiguration.Builder(uri);
+      return builder
+          .setMimeType(mimeType)
+          .setLanguage(language)
+          .setSelectionFlags(selectionFlags)
+          .setRoleFlags(roleFlags)
+          .setLabel(label)
+          .setId(id)
+          .build();
+    }
+
+    @UnstableApi
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putParcelable(FIELD_URI, uri);
+      if (mimeType != null) {
+        bundle.putString(FIELD_MIME_TYPE, mimeType);
+      }
+      if (language != null) {
+        bundle.putString(FIELD_LANGUAGE, language);
+      }
+      if (selectionFlags != 0) {
+        bundle.putInt(FIELD_SELECTION_FLAGS, selectionFlags);
+      }
+      if (roleFlags != 0) {
+        bundle.putInt(FIELD_ROLE_FLAGS, roleFlags);
+      }
+      if (label != null) {
+        bundle.putString(FIELD_LABEL, label);
+      }
+      if (id != null) {
+        bundle.putString(FIELD_ID, id);
+      }
+      return bundle;
     }
   }
 

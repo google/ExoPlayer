@@ -339,6 +339,42 @@ public class MediaItemTest {
   }
 
   @Test
+  public void
+      createDefaultSubtitleConfigurationInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    MediaItem.SubtitleConfiguration subtitleConfiguration =
+        new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en")).build();
+
+    Bundle subtitleConfigurationBundle = subtitleConfiguration.toBundle();
+
+    // Check that default values are skipped when bundling, only Uri field (="0") is present
+    assertThat(subtitleConfigurationBundle.keySet()).containsExactly("0");
+
+    MediaItem.SubtitleConfiguration subtitleConfigurationFromBundle =
+        MediaItem.SubtitleConfiguration.CREATOR.fromBundle(subtitleConfigurationBundle);
+
+    assertThat(subtitleConfigurationFromBundle).isEqualTo(subtitleConfiguration);
+  }
+
+  @Test
+  public void createSubtitleConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    // Creates instance by setting some non-default values
+    MediaItem.SubtitleConfiguration subtitleConfiguration =
+        new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en"))
+            .setMimeType(MimeTypes.APPLICATION_TTML)
+            .setLanguage("en")
+            .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+            .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+            .setLabel("label")
+            .setId("id")
+            .build();
+
+    MediaItem.SubtitleConfiguration subtitleConfigurationFromBundle =
+        MediaItem.SubtitleConfiguration.CREATOR.fromBundle(subtitleConfiguration.toBundle());
+
+    assertThat(subtitleConfigurationFromBundle).isEqualTo(subtitleConfiguration);
+  }
+
+  @Test
   public void builderSetTag_isNullByDefault() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
