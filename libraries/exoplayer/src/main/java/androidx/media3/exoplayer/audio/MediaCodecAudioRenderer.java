@@ -293,12 +293,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean formatHasDrm = format.cryptoType != C.CRYPTO_TYPE_NONE;
     boolean supportsFormatDrm = supportsFormatDrm(format);
+
+    @AudioOffloadSupport int audioOffloadSupport = AUDIO_OFFLOAD_NOT_SUPPORTED;
     // In direct mode, if the format has DRM then we need to use a decoder that only decrypts.
-    // Else we don't don't need a decoder at all.
+    // Else we don't need a decoder at all.
     if (supportsFormatDrm
-        && audioSink.supportsFormat(format)
         && (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)) {
-      return RendererCapabilities.create(C.FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
+      audioOffloadSupport = getAudioOffloadSupport(format);
+      if (audioSink.supportsFormat(format)) {
+        return RendererCapabilities.create(
+            C.FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport, audioOffloadSupport);
+      }
     }
     // If the input is PCM then it will be passed directly to the sink. Hence the sink must support
     // the input format directly.
@@ -354,7 +359,24 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         adaptiveSupport,
         tunnelingSupport,
         hardwareAccelerationSupport,
-        decoderSupport);
+        decoderSupport,
+        audioOffloadSupport);
+  }
+
+  private @AudioOffloadSupport int getAudioOffloadSupport(Format format) {
+    androidx.media3.exoplayer.audio.AudioOffloadSupport audioSinkOffloadSupport =
+        audioSink.getFormatOffloadSupport(format);
+    if (!audioSinkOffloadSupport.isFormatSupported) {
+      return AUDIO_OFFLOAD_NOT_SUPPORTED;
+    }
+    @AudioOffloadSupport int audioOffloadSupport = AUDIO_OFFLOAD_SUPPORTED;
+    if (audioSinkOffloadSupport.isGaplessSupported) {
+      audioOffloadSupport |= AUDIO_OFFLOAD_GAPLESS_SUPPORTED;
+    }
+    if (audioSinkOffloadSupport.isSpeedChangeSupported) {
+      audioOffloadSupport |= AUDIO_OFFLOAD_SPEED_CHANGE_SUPPORTED;
+    }
+    return audioOffloadSupport;
   }
 
   @Override
@@ -404,6 +426,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected boolean shouldUseBypass(Format format) {
+    if (getConfiguration().offloadModePreferred != AudioSink.OFFLOAD_MODE_DISABLED) {
+      @AudioOffloadSupport int audioOffloadSupport = getAudioOffloadSupport(format);
+      if ((audioOffloadSupport & RendererCapabilities.AUDIO_OFFLOAD_SUPPORTED) != 0
+          && (getConfiguration().offloadModePreferred
+                  == AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED
+              || (audioOffloadSupport & RendererCapabilities.AUDIO_OFFLOAD_GAPLESS_SUPPORTED) != 0
+              || (format.encoderDelay == 0 && format.encoderPadding == 0))) {
+        return true;
+      }
+    }
     return audioSink.supportsFormat(format);
   }
 
@@ -542,6 +574,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     try {
+      if (Util.SDK_INT >= 29) {
+        if (isBypassEnabled()
+            && getConfiguration().offloadModePreferred != AudioSink.OFFLOAD_MODE_DISABLED) {
+          // TODO(b/280050553): Investigate potential issue where bypass is enabled for passthrough
+          //  but offload is not supported
+          audioSink.setOffloadMode(getConfiguration().offloadModePreferred);
+        } else {
+          audioSink.setOffloadMode(AudioSink.OFFLOAD_MODE_DISABLED);
+        }
+      }
       audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
     } catch (AudioSink.ConfigurationException e) {
       throw createRendererException(
@@ -667,6 +709,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
       allowFirstBufferPositionDiscontinuity = false;
     }
+  }
+
+  @CallSuper
+  @Override
+  protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    super.onProcessedOutputBuffer(presentationTimeUs);
+    // An output buffer has been successfully processed. If this value is not set to false then
+    // onQueueInputBuffer on transition from offload to codec-based playback may occur early.
+    allowFirstBufferPositionDiscontinuity = false;
   }
 
   @Override

@@ -17,6 +17,24 @@
     *   Ogg: Fix bug when seeking in files with a long duration
         ([#391](https://github.com/androidx/media/issues/391)).
 *   Audio:
+*   Audio Offload:
+    *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
+        offload support the sink can provide for the format through a
+        `DefaultAudioOffloadSupportProvider`. It returns the new
+        `AudioOffloadSupport` that contains `isFormatSupported`,
+        `isGaplessSupported`, and `isSpeedChangeSupported`.
+    *   Add `AudioSink.setOffloadMode()` through which the offload configuration
+        on the audio sink is configured. Default is
+        `AudioSink.OFFLOAD_MODE_DISABLED`.
+    *   Offload can be enabled through `setAudioOffloadPreference` in
+        `TrackSelectionParameters`. If the set preference is to enable, the
+        device supports offload for the format, and the track selection is a
+        single audio track, then audio offload will be enabled.
+    *   Remove parameter `enableOffload` from
+        `DefaultRenderersFactory.buildAudioSink` method signature.
+    *   Remove method `DefaultAudioSink.Builder.setOffloadMode`.
+    *   Remove intdef value
+        `DefaultAudioSink.OffloadMode.OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED`.
 *   Video:
     *   Make `MediaCodecVideoRenderer` report a `VideoSize` with a width and
         height of 0 when the renderer is disabled.

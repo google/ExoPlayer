@@ -19,12 +19,14 @@ import static androidx.media3.exoplayer.audio.AudioSink.CURRENT_POSITION_NOT_SET
 import static androidx.media3.exoplayer.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
 import static androidx.media3.exoplayer.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.exoplayer.audio.DefaultAudioSink.DefaultAudioProcessorChain;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -65,7 +67,6 @@ public final class DefaultAudioSinkTest {
     defaultAudioSink =
         new DefaultAudioSink.Builder()
             .setAudioProcessorChain(new DefaultAudioProcessorChain(teeAudioProcessor))
-            .setOffloadMode(DefaultAudioSink.OFFLOAD_MODE_DISABLED)
             .build();
   }
 
@@ -378,6 +379,15 @@ public final class DefaultAudioSinkTest {
         .isTrue();
 
     assertThat(defaultAudioSink.getPlaybackParameters().speed).isEqualTo(1);
+  }
+
+  @Test
+  public void build_calledTwice_throwsIllegalStateException() throws Exception {
+    DefaultAudioSink.Builder defaultAudioSinkBuilder =
+        new DefaultAudioSink.Builder(ApplicationProvider.getApplicationContext());
+    defaultAudioSinkBuilder.build();
+
+    assertThrows(IllegalStateException.class, defaultAudioSinkBuilder::build);
   }
 
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {

@@ -1892,6 +1892,17 @@ public final class Util {
     }
   }
 
+  /** Creates {@link AudioFormat} with given sampleRate, channelConfig, and encoding. */
+  @UnstableApi
+  @RequiresApi(21)
+  public static AudioFormat getAudioFormat(int sampleRate, int channelConfig, int encoding) {
+    return new AudioFormat.Builder()
+        .setSampleRate(sampleRate)
+        .setChannelMask(channelConfig)
+        .setEncoding(encoding)
+        .build();
+  }
+
   /**
    * Returns the frame size for audio with {@code channelCount} channels in the specified encoding.
    *

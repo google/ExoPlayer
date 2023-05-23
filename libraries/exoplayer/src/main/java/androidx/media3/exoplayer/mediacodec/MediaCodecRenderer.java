@@ -592,6 +592,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return false;
   }
 
+  /** Returns whether bypass is enabled by the renderer. */
+  protected final boolean isBypassEnabled() {
+    return bypassEnabled;
+  }
+
   /**
    * Sets an exception to be re-thrown by render.
    *
@@ -2313,7 +2318,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
               && inputFormat.sampleMimeType.equals(MimeTypes.AUDIO_OPUS)) {
             oggOpusAudioPacketizer.packetize(bypassSampleBuffer);
           }
-
           if (!bypassBatchBuffer.append(bypassSampleBuffer)) {
             bypassSampleBufferPending = true;
             return;
