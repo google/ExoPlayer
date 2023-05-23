@@ -855,35 +855,6 @@ public interface AnalyticsListener {
   default void onCues(EventTime eventTime, CueGroup cueGroup) {}
 
   /**
-   * @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead.
-   */
-  @Deprecated
-  default void onDecoderEnabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
-
-  /**
-   * @deprecated Use {@link #onAudioDecoderInitialized} and {@link #onVideoDecoderInitialized}
-   *     instead.
-   */
-  @Deprecated
-  default void onDecoderInitialized(
-      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
-
-  /**
-   * @deprecated Use {@link #onAudioInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}
-   *     and {@link #onVideoInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}. instead.
-   */
-  @Deprecated
-  default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
-
-  /**
-   * @deprecated Use {@link #onAudioDisabled} and {@link #onVideoDisabled} instead.
-   */
-  @Deprecated
-  default void onDecoderDisabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
-
-  /**
    * Called when an audio renderer is enabled.
    *
    * @param eventTime The event time.
