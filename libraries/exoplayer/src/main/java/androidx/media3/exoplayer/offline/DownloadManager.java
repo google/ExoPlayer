@@ -202,23 +202,6 @@ public final class DownloadManager {
    *     an {@link CacheEvictor} that will not evict downloaded content, for example {@link
    *     NoOpCacheEvictor}.
    * @param upstreamFactory A {@link Factory} for creating {@link DataSource}s for downloading data.
-   * @deprecated Use {@link #DownloadManager(Context, DatabaseProvider, Cache, Factory, Executor)}.
-   */
-  @Deprecated
-  public DownloadManager(
-      Context context, DatabaseProvider databaseProvider, Cache cache, Factory upstreamFactory) {
-    this(context, databaseProvider, cache, upstreamFactory, Runnable::run);
-  }
-
-  /**
-   * Constructs a {@link DownloadManager}.
-   *
-   * @param context Any context.
-   * @param databaseProvider Provides the SQLite database in which downloads are persisted.
-   * @param cache A cache to be used to store downloaded data. The cache should be configured with
-   *     an {@link CacheEvictor} that will not evict downloaded content, for example {@link
-   *     NoOpCacheEvictor}.
-   * @param upstreamFactory A {@link Factory} for creating {@link DataSource}s for downloading data.
    * @param executor An {@link Executor} used to download data. Passing {@code Runnable::run} will
    *     cause each download task to download data on its own thread. Passing an {@link Executor}
    *     that uses multiple threads will speed up download tasks that can be split into smaller

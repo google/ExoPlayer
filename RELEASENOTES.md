@@ -89,6 +89,11 @@
     *   Remove deprecated `ExoPlayer.retry()`, use `prepare()` instead.
     *   Remove deprecated zero-arg `DefaultTrackSelector` constructor, use
         `DefaultTrackSelector(Context)` instead.
+    *   Remove deprecated `OfflineLicenseHelper` constructor, use
+        `OfflineLicenseHelper(DefaultDrmSessionManager,
+        DrmSessionEventListener.EventDispatcher)` instead.
+    *   Remove deprecated `DownloadManager` constructor, use the constructor
+        that takes an `Executor` instead.
     *   Remove `ExoPlayer.setHandleWakeLock(boolean)`, use `setWakeMode(int)`
         instead.
     *   Remove deprecated
