@@ -9,13 +9,22 @@
 *   ExoPlayer:
     *   Add `FilteringMediaSource` that allows to filter available track types
         from a `MediaSource`.
-    *   Fix bug seeking in files with long opus audio
-        ([#391](https://github.com/androidx/media/issues/391)).
+    *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
+        a custom `VideoFrameProcessor.Factory` during video playback.
 *   Transformer:
 *   Track Selection:
 *   Extractors:
+    *   Ogg: Fix bug when seeking in files with a long duration
+        ([#391](https://github.com/androidx/media/issues/391)).
 *   Audio:
 *   Video:
+    *   Make `MediaCodecVideoRenderer` report a `VideoSize` with a width and
+        height of 0 when the renderer is disabled.
+        `Player.Listener.onVideoSizeChanged` is called accordingly when
+        `Player.getVideoSize()` changes. With this change, ExoPlayer's video
+        size with `MediaCodecVideoRenderer` has a width and height of 0 when
+        `Player.getCurrentTracks` does not support video, or the size of the
+        supported video track is not yet determined.
 *   Text:
 *   Metadata:
 *   DRM:
@@ -25,22 +34,12 @@
     *   Enable multi-period live DASH streams for DAI. Please note that the
         current implementation does not yet support seeking in live streams
         ([#10912](https://github.com/google/ExoPlayer/issues/10912)).
-*   ExoPlayer:
-    *   Make `MediaCodecVideoRenderer` report a `VideoSize` with a width and
-        height of 0 when the renderer is disabled.
-        `Player.Listener.onVideoSizeChanged` is called accordingly when
-        `Player.getVideoSize()` changes. With this change, ExoPlayer's video
-        size with `MediaCodecVideoRenderer` has a width and height of 0 when
-        `Player.getCurrentTracks` does not support video, or the size of the
-        supported video track is not yet determined.
 *   Session:
     *   Add `androidx.media3.session.MediaButtonReceiver` to enable apps to
         implement playback resumption with media button events sent by, for
         example, a Bluetooth headset
         ([#167](https://github.com/androidx/media/issues/167)).
 *   UI:
-    *   Deprecate `PlayerView.setUseArtwork(boolean)` and replace it with
-        `PlayerView.setArtworkDisplayMode(@ArtworkDisplayMode)`.
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
@@ -50,10 +49,6 @@
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
-*   IMA Extension:
-    *   Enable multi-period live DASH streams for DAI. Please note that the
-        current implementation does not yet support seeking in live streams
-        ([#10912](https://github.com/google/ExoPlayer/issues/10912)).
 *   Cast Extension:
 *   Test Utilities:
 *   Remove deprecated symbols:
@@ -94,9 +89,6 @@
     *   Remove deprecated `ExoPlayer.retry()`, use `prepare()` instead.
     *   Remove deprecated zero-arg `DefaultTrackSelector` constructor, use
         `DefaultTrackSelector(Context)` instead.
-*   Core library:
-    *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
-        a custom `VideoFrameProcessor.Factory` during video playback.
     *   Remove `ExoPlayer.setHandleWakeLock(boolean)`, use `setWakeMode(int)`
         instead.
     *   Remove deprecated
