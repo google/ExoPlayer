@@ -98,6 +98,18 @@
     *   Remove deprecated `OfflineLicenseHelper` constructor, use
         `OfflineLicenseHelper(DefaultDrmSessionManager,
         DrmSessionEventListener.EventDispatcher)` instead.
+    *   Remove four deprecated `AnalyticsListener` methods:
+        *   `onDecoderEnabled`, use `onAudioEnabled` and/or `onVideoEnabled`
+            instead.
+        *   `onDecoderInitialized`, use `onAudioDecoderInitialized` and/or
+            `onVideoDecoderInitialized` instead.
+        *   `onDecoderInputFormatChanged`, use `onAudioInputFormatChanged`
+            and/or `onVideoInputFormatChanged` instead.
+        *   `onDecoderDisabled`, use `onAudioDisabled` and/or `onVideoDisabled`
+            instead.
+*   Core library:
+    *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
+        a custom `VideoFrameProcessor.Factory` during video playback.
     *   Remove `ExoPlayer.setHandleWakeLock(boolean)`, use `setWakeMode(int)`
         instead.
     *   Remove deprecated
