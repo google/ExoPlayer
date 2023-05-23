@@ -21,8 +21,6 @@ def modulePrefix = ':'
      modulePrefix += gradle.ext.exoplayerModulePrefix
  }
 
- rootProject.name = 'exoplayer2'
-
 include modulePrefix + 'library-common'
 project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
 

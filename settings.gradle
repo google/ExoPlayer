@@ -18,6 +18,8 @@ def modulePrefix = ':'
      modulePrefix += gradle.ext.exoplayerModulePrefix
  }
 
+ rootProject.name = 'exoplayer2'
+
 include modulePrefix + 'demo'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
 include modulePrefix + 'demo-cast'
