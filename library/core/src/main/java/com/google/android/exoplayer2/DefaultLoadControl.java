@@ -228,14 +228,6 @@ public class DefaultLoadControl implements LoadControl {
       return this;
     }
 
-    /**
-     * @deprecated use {@link #build} instead.
-     */
-    @Deprecated
-    public DefaultLoadControl createDefaultLoadControl() {
-      return build();
-    }
-
     /** Creates a {@link DefaultLoadControl}. */
     public DefaultLoadControl build() {
       checkState(!buildCalled);
