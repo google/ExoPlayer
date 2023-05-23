@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -122,25 +121,6 @@ public final class OfflineLicenseHelper {
             .build(
                 new HttpMediaDrmCallback(
                     defaultLicenseUrl, forceDefaultLicenseUrl, dataSourceFactory)),
-        eventDispatcher);
-  }
-
-  /**
-   * @deprecated Use {@link #OfflineLicenseHelper(DefaultDrmSessionManager,
-   *     DrmSessionEventListener.EventDispatcher)} instead.
-   */
-  @Deprecated
-  public OfflineLicenseHelper(
-      UUID uuid,
-      ExoMediaDrm.Provider mediaDrmProvider,
-      MediaDrmCallback callback,
-      @Nullable Map<String, String> optionalKeyRequestParameters,
-      DrmSessionEventListener.EventDispatcher eventDispatcher) {
-    this(
-        new DefaultDrmSessionManager.Builder()
-            .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
-            .setKeyRequestParameters(optionalKeyRequestParameters)
-            .build(callback),
         eventDispatcher);
   }
 
