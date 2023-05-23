@@ -31,6 +31,7 @@
       android:background="@color/player_background"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
+      app:artwork_display_mode="fill"
       app:default_artwork="@drawable/artwork_placeholder"
       app:repeat_toggle_modes="one|all"
       app:show_shuffle_button="true"

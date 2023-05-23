@@ -298,8 +298,6 @@ class PlaybackService : MediaLibraryService() {
       val pendingIntent =
         TaskStackBuilder.create(this@PlaybackService).run {
           addNextIntent(Intent(this@PlaybackService, MainActivity::class.java))
-
-          val immutableFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
           getPendingIntent(0, immutableFlag or FLAG_UPDATE_CURRENT)
         }
       val builder =

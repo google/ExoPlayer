@@ -122,7 +122,7 @@ class PlayerActivity : AppCompatActivity() {
   }
 
   private fun updateMediaMetadataUI(mediaMetadata: MediaMetadata) {
-    val title: CharSequence = mediaMetadata.title ?: "getString(R.string.no_item_prompt)"
+    val title: CharSequence = mediaMetadata.title ?: ""
 
     findViewById<TextView>(R.id.media_title).text = title
     findViewById<TextView>(R.id.media_artist).text = mediaMetadata.artist

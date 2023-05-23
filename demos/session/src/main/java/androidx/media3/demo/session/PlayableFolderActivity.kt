@@ -88,8 +88,7 @@ class PlayableFolderActivity : AppCompatActivity() {
       browser.shuffleModeEnabled = true
       browser.prepare()
       browser.play()
-      val intent = Intent(this, PlayerActivity::class.java)
-      startActivity(intent)
+      browser?.sessionActivity?.send()
     }
 
     findViewById<Button>(R.id.play_button).setOnClickListener {
