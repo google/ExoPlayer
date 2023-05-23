@@ -36,27 +36,60 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** {@link Muxer} implementation that uses a {@link Mp4Muxer}. */
 @UnstableApi
 public final class InAppMuxer implements Muxer {
+
+  /** Provides {@linkplain Metadata.Entry metadata} to add in the output MP4 file. */
+  public interface MetadataProvider {
+
+    /**
+     * Updates the list of {@link Metadata.Entry metadata entries}.
+     *
+     * <p>A {@link Metadata.Entry} can be added or removed. To modify an existing {@link
+     * Metadata.Entry}, first remove it and then add a new one.
+     *
+     * <p>List of supported {@link Metadata.Entry}:
+     *
+     * <ul>
+     *   <li>{@link Mp4LocationData}
+     * </ul>
+     */
+    void updateMetadataEntries(Set<Metadata.Entry> metadataEntries);
+  }
+
   /** {@link Muxer.Factory} for {@link InAppMuxer}. */
   public static final class Factory implements Muxer.Factory {
     private final long maxDelayBetweenSamplesMs;
+    private final @Nullable MetadataProvider metadataProvider;
 
     /**
      * Creates an instance with {@link Muxer#getMaxDelayBetweenSamplesMs() maxDelayBetweenSamplesMs}
-     * set to {@link DefaultMuxer.Factory#DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS}.
+     * set to {@link DefaultMuxer.Factory#DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS} and {@link
+     * #metadataProvider} set to {@code null}.
+     *
+     * <p>If the {@link #metadataProvider} is not set then the {@linkplain Metadata.Entry metadata}
+     * from the input file is set as it is in the output file.
      */
     public Factory() {
       this(
-          /* maxDelayBetweenSamplesMs= */ DefaultMuxer.Factory
-              .DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
+          /* maxDelayBetweenSamplesMs= */ DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
+          /* metadataProvider= */ null);
     }
 
-    /** {@link Muxer.Factory} for {@link InAppMuxer}. */
-    public Factory(long maxDelayBetweenSamplesMs) {
+    /**
+     * {@link Muxer.Factory} for {@link InAppMuxer}.
+     *
+     * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
+     * @param metadataProvider A {@link MetadataProvider} implementation. If the value is set to
+     *     {@code null} then the {@linkplain Metadata.Entry metadata} from the input file is set as
+     *     it is in the output file.
+     */
+    public Factory(long maxDelayBetweenSamplesMs, @Nullable MetadataProvider metadataProvider) {
       this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
+      this.metadataProvider = metadataProvider;
     }
 
     @Override
@@ -69,7 +102,7 @@ public final class InAppMuxer implements Muxer {
       }
 
       Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputStream).build();
-      return new InAppMuxer(mp4Muxer, maxDelayBetweenSamplesMs);
+      return new InAppMuxer(mp4Muxer, maxDelayBetweenSamplesMs, metadataProvider);
     }
 
     @Override
@@ -85,13 +118,18 @@ public final class InAppMuxer implements Muxer {
 
   private final Mp4Muxer mp4Muxer;
   private final long maxDelayBetweenSamplesMs;
+  private final @Nullable MetadataProvider metadataProvider;
   private final List<TrackToken> trackTokenList;
   private final BufferInfo bufferInfo;
   private final Set<Metadata.Entry> metadataEntries;
 
-  private InAppMuxer(Mp4Muxer mp4Muxer, long maxDelayBetweenSamplesMs) {
+  private InAppMuxer(
+      Mp4Muxer mp4Muxer,
+      long maxDelayBetweenSamplesMs,
+      @Nullable MetadataProvider metadataProvider) {
     this.mp4Muxer = mp4Muxer;
     this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
+    this.metadataProvider = metadataProvider;
     trackTokenList = new ArrayList<>();
     bufferInfo = new BufferInfo();
     metadataEntries = new LinkedHashSet<>();
@@ -138,6 +176,7 @@ public final class InAppMuxer implements Muxer {
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
       // Keep only supported metadata.
+      // LINT.IfChange(added_metadata)
       if (entry instanceof Mp4LocationData) {
         metadataEntries.add(entry);
       }
@@ -146,7 +185,15 @@ public final class InAppMuxer implements Muxer {
 
   @Override
   public void release(boolean forCancellation) throws MuxerException {
+    if (metadataProvider != null) {
+      Set<Metadata.Entry> metadataEntriesCopy = new LinkedHashSet<>(metadataEntries);
+      metadataProvider.updateMetadataEntries(metadataEntriesCopy);
+      metadataEntries.clear();
+      metadataEntries.addAll(metadataEntriesCopy);
+    }
+
     writeMetadata();
+
     try {
       mp4Muxer.close();
     } catch (IOException e) {
@@ -161,6 +208,7 @@ public final class InAppMuxer implements Muxer {
 
   private void writeMetadata() {
     for (Metadata.Entry entry : metadataEntries) {
+      // LINT.IfChange(written_metadata)
       if (entry instanceof Mp4LocationData) {
         mp4Muxer.setLocation(
             ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
