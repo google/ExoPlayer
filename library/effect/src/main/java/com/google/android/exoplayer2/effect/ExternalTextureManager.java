@@ -137,6 +137,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             // Reset because there could be further input streams after the current one ends.
             currentInputStreamEnded = false;
             externalShaderProgram.signalEndOfCurrentInputStream();
+            DebugTraceUtil.recordExternalInputManagerSignalEndOfCurrentInputStream();
           } else {
             maybeQueueFrameToExternalShaderProgram();
           }
@@ -183,6 +184,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         () -> {
           if (pendingFrames.isEmpty() && currentFrame == null) {
             externalShaderProgram.signalEndOfCurrentInputStream();
+            DebugTraceUtil.recordExternalInputManagerSignalEndOfCurrentInputStream();
           } else {
             currentInputStreamEnded = true;
           }
@@ -251,6 +253,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             currentFrame.height),
         presentationTimeUs);
     checkStateNotNull(pendingFrames.remove());
+    DebugTraceUtil.recordFrameDequeuedFromVideoFrameProcessorInput();
     // If the queued frame is the last frame, end of stream will be signaled onInputFrameProcessed.
   }
 }

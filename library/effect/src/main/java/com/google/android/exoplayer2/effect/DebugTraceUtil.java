@@ -48,6 +48,14 @@ public final class DebugTraceUtil {
       new ArrayDeque<>();
 
   /**
+   * The timestamps at which {@code ExternalTextureManager} signalled end of current input stream,
+   * in milliseconds.
+   */
+  @GuardedBy("DebugTraceUtil.class")
+  private static final Queue<Long> EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS =
+      new ArrayDeque<>();
+
+  /**
    * The timestamps at which {@code VideoFrameProcessor} signalled end of stream, in milliseconds.
    */
   @GuardedBy("DebugTraceUtil.class")
@@ -80,6 +88,13 @@ public final class DebugTraceUtil {
   @GuardedBy("DebugTraceUtil.class")
   private static int numberOfFramesRenderedToVideoFrameProcessorInput = 0;
 
+  /**
+   * The number of frames sent to the {@link GlShaderProgram} after they arrive on {@code
+   * VideoFrameProcessor}'s input surface.
+   */
+  @GuardedBy("DebugTraceUtil.class")
+  private static int numberOfFramesDequeuedFromVideoProcessorInput = 0;
+
   /** The number of frames rendered to {@code VideoFrameProcessor}'s output. */
   @GuardedBy("DebugTraceUtil.class")
   private static int numberOfFramesRenderedToVideoFrameProcessorOutput = 0;
@@ -98,12 +113,14 @@ public final class DebugTraceUtil {
     latestVideoInputFormat = null;
     numberOfDecodedFrames = 0;
     numberOfFramesRenderedToVideoFrameProcessorInput = 0;
+    numberOfFramesDequeuedFromVideoProcessorInput = 0;
     numberOfFramesRenderedToVideoFrameProcessorOutput = 0;
     numberOfEncodedFrames = 0;
     numberOfMuxedFrames = 0;
     DECODER_RECEIVE_EOS_TIMES_MS.clear();
     DECODER_SIGNAL_EOS_TIMES_MS.clear();
     VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS.clear();
+    EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
     VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS.clear();
     ENCODER_RECEIVE_EOS_TIMES_MS.clear();
     MUXER_CAN_WRITE_VIDEO_SAMPLE.clear();
@@ -120,6 +137,10 @@ public final class DebugTraceUtil {
 
   public static synchronized void recordFrameRenderedToVideoFrameProcessorInput() {
     numberOfFramesRenderedToVideoFrameProcessorInput++;
+  }
+
+  public static synchronized void recordFrameDequeuedFromVideoFrameProcessorInput() {
+    numberOfFramesDequeuedFromVideoProcessorInput++;
   }
 
   public static synchronized void recordFrameRenderedToVideoFrameProcessorOutput() {
@@ -146,6 +167,10 @@ public final class DebugTraceUtil {
 
   public static synchronized void recordVideoFrameProcessorReceiveDecoderEos() {
     VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
+  }
+
+  public static synchronized void recordExternalInputManagerSignalEndOfCurrentInputStream() {
+    EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
   }
 
   public static synchronized void recordVideoFrameProcessorSignalEos() {
@@ -179,6 +204,8 @@ public final class DebugTraceUtil {
         + numberOfDecodedFrames
         + ", Rendered to VFP: "
         + numberOfFramesRenderedToVideoFrameProcessorInput
+        + ", Rendered to GlSP: "
+        + numberOfFramesDequeuedFromVideoProcessorInput
         + ", Rendered to encoder: "
         + numberOfFramesRenderedToVideoFrameProcessorOutput
         + ", Encoded: "
@@ -191,6 +218,8 @@ public final class DebugTraceUtil {
         + generateString(DECODER_SIGNAL_EOS_TIMES_MS)
         + ", VFP receive EOS: "
         + generateString(VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS)
+        + ", VFP ExtTexMgr signal EndOfCurrentInputStream: "
+        + generateString(EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
         + ", VFP signal EOS: "
         + generateString(VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS)
         + ", Encoder receive EOS: "
