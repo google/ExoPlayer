@@ -56,6 +56,10 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredAudioRoleFlags).isEqualTo(0);
     assertThat(parameters.maxAudioChannelCount).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.maxAudioBitrate).isEqualTo(Integer.MAX_VALUE);
+    assertThat(parameters.audioOffloadModePreference)
+        .isEqualTo(TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED);
+    assertThat(parameters.isGaplessSupportRequired).isFalse();
+    assertThat(parameters.isSpeedChangeSupportRequired).isFalse();
     // Text
     assertThat(parameters.preferredAudioMimeTypes).isEmpty();
     assertThat(parameters.preferredTextLanguages).isEmpty();
@@ -100,6 +104,10 @@ public final class TrackSelectionParametersTest {
             .setMaxAudioChannelCount(10)
             .setMaxAudioBitrate(11)
             .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3)
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ true)
             // Text
             .setPreferredTextLanguages("de", "en")
             .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
@@ -144,6 +152,10 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredAudioMimeTypes)
         .containsExactly(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3)
         .inOrder();
+    assertThat(parameters.audioOffloadModePreference)
+        .isEqualTo(TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED);
+    assertThat(parameters.isGaplessSupportRequired).isFalse();
+    assertThat(parameters.isSpeedChangeSupportRequired).isTrue();
     // Text
     assertThat(parameters.preferredTextLanguages).containsExactly("de", "en").inOrder();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(C.ROLE_FLAG_CAPTION);

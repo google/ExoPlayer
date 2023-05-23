@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static com.google.android.exoplayer2.RendererCapabilities.AUDIO_OFFLOAD_GAPLESS_SUPPORTED;
+import static com.google.android.exoplayer2.RendererCapabilities.AUDIO_OFFLOAD_NOT_SUPPORTED;
+import static com.google.android.exoplayer2.RendererCapabilities.AUDIO_OFFLOAD_SPEED_CHANGE_SUPPORTED;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -50,6 +54,7 @@ import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -448,6 +453,17 @@ public class DefaultTrackSelector extends MappingTrackSelector
     @Override
     public ParametersBuilder setPreferredAudioMimeTypes(String... mimeTypes) {
       delegate.setPreferredAudioMimeTypes(mimeTypes);
+      return this;
+    }
+
+    @CanIgnoreReturnValue
+    @Override
+    public ParametersBuilder setAudioOffloadPreference(
+        @TrackSelectionParameters.AudioOffloadModePreference int audioOffloadModePreference,
+        boolean isGaplessSupportRequired,
+        boolean isSpeedChangeSupportRequired) {
+      delegate.setAudioOffloadPreference(
+          audioOffloadModePreference, isGaplessSupportRequired, isSpeedChangeSupportRequired);
       return this;
     }
 
@@ -2468,6 +2484,16 @@ public class DefaultTrackSelector extends MappingTrackSelector
           mappedTrackInfo, rendererFormatSupports, rendererConfigurations, rendererTrackSelections);
     }
 
+    // Configure audio renderer to use offload if appropriate.
+    if (parameters.audioOffloadModePreference != AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED) {
+      maybeConfigureRendererForOffload(
+          parameters,
+          mappedTrackInfo,
+          rendererFormatSupports,
+          rendererConfigurations,
+          rendererTrackSelections);
+    }
+
     return Pair.create(rendererConfigurations, rendererTrackSelections);
   }
 
@@ -2918,7 +2944,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
    * if so.
    *
    * @param mappedTrackInfo Mapped track information.
-   * @param renderererFormatSupports The {@link Capabilities} for each mapped track, indexed by
+   * @param rendererFormatSupports The {@link Capabilities} for each mapped track, indexed by
    *     renderer, track group and track (in that order).
    * @param rendererConfigurations The renderer configurations. Configurations may be replaced with
    *     ones that enable tunneling as a result of this call.
@@ -2926,7 +2952,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
    */
   private static void maybeConfigureRenderersForTunneling(
       MappedTrackInfo mappedTrackInfo,
-      @Capabilities int[][][] renderererFormatSupports,
+      @Capabilities int[][][] rendererFormatSupports,
       @NullableType RendererConfiguration[] rendererConfigurations,
       @NullableType ExoTrackSelection[] trackSelections) {
     // Check whether we can enable tunneling. To enable tunneling we require exactly one audio and
@@ -2940,7 +2966,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       if ((rendererType == C.TRACK_TYPE_AUDIO || rendererType == C.TRACK_TYPE_VIDEO)
           && trackSelection != null) {
         if (rendererSupportsTunneling(
-            renderererFormatSupports[i], mappedTrackInfo.getTrackGroups(i), trackSelection)) {
+            rendererFormatSupports[i], mappedTrackInfo.getTrackGroups(i), trackSelection)) {
           if (rendererType == C.TRACK_TYPE_AUDIO) {
             if (tunnelingAudioRendererIndex != -1) {
               enableTunneling = false;
@@ -2962,7 +2988,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
     enableTunneling &= tunnelingAudioRendererIndex != -1 && tunnelingVideoRendererIndex != -1;
     if (enableTunneling) {
       RendererConfiguration tunnelingRendererConfiguration =
-          new RendererConfiguration(/* tunneling= */ true);
+          new RendererConfiguration(AudioSink.OFFLOAD_MODE_DISABLED, /* tunneling= */ true);
       rendererConfigurations[tunnelingAudioRendererIndex] = tunnelingRendererConfiguration;
       rendererConfigurations[tunnelingVideoRendererIndex] = tunnelingRendererConfiguration;
     }
@@ -2992,6 +3018,97 @@ public class DefaultTrackSelector extends MappingTrackSelector
           != RendererCapabilities.TUNNELING_SUPPORTED) {
         return false;
       }
+    }
+    return true;
+  }
+
+  /**
+   * Determines whether audio offload can be enabled, replacing a {@link RendererConfiguration} in
+   * {@code rendererConfigurations} with one that enables audio offload on the appropriate renderer.
+   *
+   * @param parameters The selection parameters with audio offload mode preferences.
+   * @param mappedTrackInfo Mapped track information.
+   * @param rendererFormatSupports The {@link Capabilities} for each mapped track, indexed by
+   *     renderer, track group and track (in that order).
+   * @param rendererConfigurations The renderer configurations. A configuration may be replaced with
+   *     one that enables audio offload as a result of this call.
+   * @param trackSelections The renderer track selections.
+   */
+  private static void maybeConfigureRendererForOffload(
+      Parameters parameters,
+      MappedTrackInfo mappedTrackInfo,
+      @Capabilities int[][][] rendererFormatSupports,
+      @NullableType RendererConfiguration[] rendererConfigurations,
+      @NullableType ExoTrackSelection[] trackSelections) {
+    // Check whether we can enable offload. To enable offload we require exactly one audio track
+    // and a renderer with support matching the requirements set by
+    // setAudioOffloadPreference. There also cannot be other non-audio renderers with their own
+    // selected tracks.
+    int audioRendererIndex = C.INDEX_UNSET;
+    int audioRenderersSupportingOffload = 0;
+    boolean hasNonAudioRendererWithSelectedTracks = false;
+    for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+      int rendererType = mappedTrackInfo.getRendererType(i);
+      ExoTrackSelection trackSelection = trackSelections[i];
+      if (rendererType != C.TRACK_TYPE_AUDIO && trackSelection != null) {
+        hasNonAudioRendererWithSelectedTracks = true;
+        break;
+      }
+      if (rendererType == C.TRACK_TYPE_AUDIO
+          && trackSelection != null
+          && trackSelection.length() == 1) {
+        int trackGroupIndex =
+            mappedTrackInfo.getTrackGroups(i).indexOf(trackSelection.getTrackGroup());
+        @Capabilities
+        int trackFormatSupport =
+            rendererFormatSupports[i][trackGroupIndex][trackSelection.getIndexInTrackGroup(0)];
+        if (rendererSupportsOffload(parameters, trackFormatSupport, trackSelection)) {
+          audioRendererIndex = i;
+          audioRenderersSupportingOffload++;
+        }
+      }
+    }
+    if (!hasNonAudioRendererWithSelectedTracks && audioRenderersSupportingOffload == 1) {
+      RendererConfiguration offloadRendererConfiguration =
+          new RendererConfiguration(
+              parameters.isGaplessSupportRequired
+                  ? AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
+                  : AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED,
+              /* tunneling= */ rendererConfigurations[audioRendererIndex] != null
+                  && rendererConfigurations[audioRendererIndex].tunneling);
+      rendererConfigurations[audioRendererIndex] = offloadRendererConfiguration;
+    }
+  }
+
+  /**
+   * Returns whether a renderer supports offload for a {@link ExoTrackSelection}.
+   *
+   * @param parameters The selection parameters with audio offload mode preferences.
+   * @param formatSupport The {@link Capabilities} for the selected track.
+   * @param selection The track selection.
+   * @return Whether the renderer supports tunneling for the {@link ExoTrackSelection}.
+   */
+  private static boolean rendererSupportsOffload(
+      Parameters parameters, @Capabilities int formatSupport, ExoTrackSelection selection) {
+    if (RendererCapabilities.getAudioOffloadSupport(formatSupport) == AUDIO_OFFLOAD_NOT_SUPPORTED) {
+      return false;
+    }
+    if (parameters.isSpeedChangeSupportRequired
+        && (RendererCapabilities.getAudioOffloadSupport(formatSupport)
+                & AUDIO_OFFLOAD_SPEED_CHANGE_SUPPORTED)
+            == 0) {
+      return false;
+    }
+    // TODO(b/235883373): Add check for OPUS where gapless info is in initialization data
+    if (parameters.isGaplessSupportRequired) {
+      boolean isGapless =
+          selection.getSelectedFormat().encoderDelay != 0
+              || selection.getSelectedFormat().encoderPadding != 0;
+      boolean isGaplessSupported =
+          (RendererCapabilities.getAudioOffloadSupport(formatSupport)
+                  & AUDIO_OFFLOAD_GAPLESS_SUPPORTED)
+              != 0;
+      return !isGapless || isGaplessSupported;
     }
     return true;
   }

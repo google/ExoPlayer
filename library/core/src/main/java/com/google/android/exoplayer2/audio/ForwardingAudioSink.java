@@ -53,6 +53,11 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
+  public AudioOffloadSupport getFormatOffloadSupport(Format format) {
+    return sink.getFormatOffloadSupport(format);
+  }
+
+  @Override
   public long getCurrentPositionUs(boolean sourceEnded) {
     return sink.getCurrentPositionUs(sourceEnded);
   }
@@ -155,6 +160,11 @@ public class ForwardingAudioSink implements AudioSink {
   @Override
   public void disableTunneling() {
     sink.disableTunneling();
+  }
+
+  @Override
+  public void setOffloadMode(@OffloadMode int offloadMode) {
+    sink.setOffloadMode(offloadMode);
   }
 
   @Override

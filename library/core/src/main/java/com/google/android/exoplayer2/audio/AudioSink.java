@@ -282,6 +282,39 @@ public interface AudioSink {
   long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
 
   /**
+   * Audio offload mode configuration. One of {@link #OFFLOAD_MODE_DISABLED}, {@link
+   * #OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED} or {@link #OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    OFFLOAD_MODE_DISABLED,
+    OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED,
+    OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED
+  })
+  @interface OffloadMode {}
+
+  /** The audio sink will never play in offload mode. */
+  int OFFLOAD_MODE_DISABLED = 0;
+  /**
+   * The audio sink will prefer offload playback except in the case where both the track is gapless
+   * and the device does support gapless offload playback.
+   *
+   * <p>Use this option to prioritize uninterrupted playback of consecutive audio tracks over power
+   * savings.
+   */
+  int OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED = 1;
+  /**
+   * The audio sink will prefer offload playback even if this might result in silence gaps between
+   * tracks.
+   *
+   * <p>Use this option to prioritize battery saving at the cost of a possible non seamless
+   * transitions between tracks of the same album.
+   */
+  int OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED = 2;
+
+  /**
    * Sets the listener for sink events, which should be the audio renderer.
    *
    * @param listener The listener for sink events, which should be the audio renderer.
@@ -311,6 +344,16 @@ public interface AudioSink {
    */
   @SinkFormatSupport
   int getFormatSupport(Format format);
+
+  /**
+   * Returns the level of offload support that the sink can provide for a given {@link Format}.
+   *
+   * @param format The format.
+   * @return The level of support provided.
+   */
+  default AudioOffloadSupport getFormatOffloadSupport(Format format) {
+    return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
+  }
 
   /**
    * Returns the playback position in the stream starting at zero, in microseconds, or {@link
@@ -454,6 +497,14 @@ public interface AudioSink {
    * session id is cleared.
    */
   void disableTunneling();
+
+  /**
+   * Sets audio offload mode, if possible. Enabling offload is only possible if the sink is based on
+   * a platform {@link AudioTrack}, and requires platform API version 29 onwards.
+   *
+   * @throws IllegalStateException Thrown if enabling offload on platform API version &lt; 29.
+   */
+  default void setOffloadMode(@OffloadMode int offloadMode) {}
 
   /**
    * Sets the playback volume.

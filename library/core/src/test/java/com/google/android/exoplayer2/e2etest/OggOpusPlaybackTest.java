@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.e2etest;
 
+import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED;
+
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -24,7 +26,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioOffloadSupport;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.ForwardingAudioSink;
@@ -33,6 +35,7 @@ import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.testutil.FakeClock;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +57,19 @@ public class OggOpusPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     OffloadRenderersFactory offloadRenderersFactory =
         new OffloadRenderersFactory(applicationContext);
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector(applicationContext);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setAudioOffloadPreference(
+                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, offloadRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setTrackSelector(trackSelector)
             .build();
     player.setMediaItem(MediaItem.fromUri("asset:///media/ogg/" + INPUT_FILE));
     player.prepare();
@@ -81,22 +94,16 @@ public class OggOpusPlaybackTest {
      */
     public OffloadRenderersFactory(Context context) {
       super(context);
-      setEnableAudioOffload(true);
     }
 
     @Override
     protected AudioSink buildAudioSink(
-        Context context,
-        boolean enableFloatOutput,
-        boolean enableAudioTrackPlaybackParams,
-        boolean enableOffload) {
+        Context context, boolean enableFloatOutput, boolean enableAudioTrackPlaybackParams) {
       dumpingAudioSink =
           new DumpingAudioSink(
-              new DefaultAudioSink.Builder()
-                  .setAudioCapabilities(AudioCapabilities.getCapabilities(context))
+              new DefaultAudioSink.Builder(context)
                   .setEnableFloatOutput(enableFloatOutput)
                   .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
-                  .setOffloadMode(DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED)
                   .build());
       return dumpingAudioSink;
     }
@@ -126,6 +133,15 @@ public class OggOpusPlaybackTest {
     @Override
     public boolean supportsFormat(Format format) {
       return true;
+    }
+
+    @Override
+    public AudioOffloadSupport getFormatOffloadSupport(Format format) {
+      return new AudioOffloadSupport.Builder()
+          .setIsFormatSupported(true)
+          .setIsGaplessSupported(false)
+          .setIsSpeedChangeSupported(false)
+          .build();
     }
 
     @Override

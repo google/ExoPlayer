@@ -99,7 +99,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private MediaCodecSelector mediaCodecSelector;
   private boolean enableFloatOutput;
   private boolean enableAudioTrackPlaybackParams;
-  private boolean enableOffload;
 
   /**
    * @param context A {@link Context}.
@@ -219,29 +218,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Sets whether audio should be played using the offload path.
-   *
-   * <p>Audio offload disables ExoPlayer audio processing, but significantly reduces the energy
-   * consumption of the playback when {@link
-   * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean) offload scheduling} is enabled.
-   *
-   * <p>Most Android devices can only support one offload {@link android.media.AudioTrack} at a time
-   * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
-   * play in offload.
-   *
-   * <p>The default value is {@code false}.
-   *
-   * @param enableOffload Whether to enable use of audio offload for supported formats, if
-   *     available.
-   * @return This factory, for convenience.
-   */
-  @CanIgnoreReturnValue
-  public DefaultRenderersFactory setEnableAudioOffload(boolean enableOffload) {
-    this.enableOffload = enableOffload;
-    return this;
-  }
-
-  /**
    * Sets whether to enable setting playback speed using {@link
    * android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, which is supported from API level
    * 23, rather than using application-level audio speed adjustment. This setting has no effect on
@@ -301,7 +277,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         renderersList);
     @Nullable
     AudioSink audioSink =
-        buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams, enableOffload);
+        buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams);
     if (audioSink != null) {
       buildAudioRenderers(
           context,
@@ -636,25 +612,16 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param enableFloatOutput Whether to enable use of floating point audio output, if available.
    * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
    *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, if supported.
-   * @param enableOffload Whether to enable use of audio offload for supported formats, if
-   *     available.
    * @return The {@link AudioSink} to which the audio renderers will output. May be {@code null} if
    *     no audio renderers are required. If {@code null} is returned then {@link
    *     #buildAudioRenderers} will not be called.
    */
   @Nullable
   protected AudioSink buildAudioSink(
-      Context context,
-      boolean enableFloatOutput,
-      boolean enableAudioTrackPlaybackParams,
-      boolean enableOffload) {
+      Context context, boolean enableFloatOutput, boolean enableAudioTrackPlaybackParams) {
     return new DefaultAudioSink.Builder(context)
         .setEnableFloatOutput(enableFloatOutput)
         .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
-        .setOffloadMode(
-            enableOffload
-                ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
-                : DefaultAudioSink.OFFLOAD_MODE_DISABLED)
         .build();
   }
 
