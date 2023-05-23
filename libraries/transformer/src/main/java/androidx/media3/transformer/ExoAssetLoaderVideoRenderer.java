@@ -147,8 +147,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
 
-    if (maxDecoderPendingFrameCount != C.UNLIMITED_PENDING_FRAME_COUNT
-        && sampleConsumer.getPendingVideoFrameCount() == maxDecoderPendingFrameCount) {
+    if (sampleConsumer.getPendingVideoFrameCount() == maxDecoderPendingFrameCount) {
       return false;
     }
 

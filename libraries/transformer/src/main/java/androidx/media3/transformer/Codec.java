@@ -132,10 +132,10 @@ public interface Codec {
 
   /**
    * Returns the maximum number of frames that may be pending in the output {@code Codec} at a time,
-   * or {@link C#UNLIMITED_PENDING_FRAME_COUNT} if it's not necessary to enforce a limit.
+   * or {@code 5} as a default value.
    */
   default int getMaxPendingFrameCount() {
-    return C.UNLIMITED_PENDING_FRAME_COUNT;
+    return 5;
   }
 
   /**
