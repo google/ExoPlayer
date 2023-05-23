@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
-import static com.google.android.exoplayer2.C.UNLIMITED_PENDING_FRAME_COUNT;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_PREPARE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
@@ -2701,25 +2700,20 @@ public final class Util {
       // TODO(b/226330223): Investigate increasing this limit.
       return 1;
     }
-    if (Ascii.toUpperCase(codecName).startsWith("OMX.")) {
-      // Some OMX decoders don't correctly track their number of output buffers available, and get
-      // stuck if too many frames are rendered without being processed, so limit the number of
-      // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, b/229978305, and b/245491744.
-      //
-      // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
-      return 5;
-    }
-    if (requestedHdrToneMapping && codecName.equals("c2.qti.hevc.decoder")) {
-      // This decoder drops frames if too many frames are rendered without being processed when
-      // tone-mapping HDR. This value is experimentally determined. See also b/260408846.
-      // TODO(b/260713009): Add API version check after bug is fixed on new API versions.
-      return 12;
-    }
-
-    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
-    // throughput.
-    return UNLIMITED_PENDING_FRAME_COUNT;
+    // Limit the maximum amount of frames for all decoders. This is a tentative value that should be
+    // large enough to avoid significant performance degradation, but small enough to bypass decoder
+    // issues.
+    //
+    // TODO: b/278234847 - Evaluate whether this reduces decoder timeouts, and consider restoring
+    // prior higher limits as appropriate.
+    //
+    // Some OMX decoders don't correctly track their number of output buffers available, and get
+    // stuck if too many frames are rendered without being processed. This value is experimentally
+    // determined. See also
+    // b/213455700, b/230097284, b/229978305, and b/245491744.
+    //
+    // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
+    return 5;
   }
 
   /**
