@@ -1666,12 +1666,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void setHandleWakeLock(boolean handleWakeLock) {
-    verifyApplicationThread();
-    setWakeMode(handleWakeLock ? C.WAKE_MODE_LOCAL : C.WAKE_MODE_NONE);
-  }
-
-  @Override
   public void setWakeMode(@C.WakeMode int wakeMode) {
     verifyApplicationThread();
     switch (wakeMode) {

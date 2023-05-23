@@ -1240,16 +1240,6 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getContentBufferedPosition();
   }
 
-  /**
-   * @deprecated Use {@link #setWakeMode(int)} instead.
-   */
-  @Deprecated
-  @Override
-  public void setHandleWakeLock(boolean handleWakeLock) {
-    blockUntilConstructorFinished();
-    player.setHandleWakeLock(handleWakeLock);
-  }
-
   @Override
   public void setWakeMode(@C.WakeMode int wakeMode) {
     blockUntilConstructorFinished();

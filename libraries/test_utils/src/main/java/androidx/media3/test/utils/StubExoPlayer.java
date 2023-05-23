@@ -394,15 +394,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * @deprecated Use {@link #setWakeMode(int)} instead.
-   */
-  @Deprecated
-  @Override
-  public void setHandleWakeLock(boolean handleWakeLock) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public void setWakeMode(int wakeMode) {
     throw new UnsupportedOperationException();

@@ -1759,13 +1759,6 @@ public interface ExoPlayer extends Player {
   void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy);
 
   /**
-   * @deprecated Use {@link #setWakeMode(int)} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  void setHandleWakeLock(boolean handleWakeLock);
-
-  /**
    * Sets how the player should keep the device awake for playback when the screen is off.
    *
    * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK} permission.

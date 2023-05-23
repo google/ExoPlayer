@@ -97,6 +97,8 @@
 *   Core library:
     *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
         a custom `VideoFrameProcessor.Factory` during video playback.
+    *   Remove `ExoPlayer.setHandleWakeLock(boolean)`, use `setWakeMode(int)`
+        instead.
 
 ### 1.0.2 (2023-05-18)
 
