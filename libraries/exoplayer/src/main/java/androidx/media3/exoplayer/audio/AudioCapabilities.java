@@ -48,6 +48,8 @@ import java.util.Arrays;
 @UnstableApi
 public final class AudioCapabilities {
 
+  // TODO(internal b/283945513): Have separate default max channel counts in `AudioCapabilities`
+  // for PCM and compressed audio.
   private static final int DEFAULT_MAX_CHANNEL_COUNT = 10;
   @VisibleForTesting /* package */ static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
@@ -374,9 +376,12 @@ public final class AudioCapabilities {
 
     @DoNotInline
     public static ImmutableList<Integer> getDirectPlaybackSupportedEncodings() {
-      ImmutableList<Integer> encodings = Api29.getAllSurroundEncodingsMaybeSupported();
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
-      for (int encoding : encodings) {
+      for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
+        // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
+        if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
+          continue;
+        }
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
@@ -412,20 +417,6 @@ public final class AudioCapabilities {
         }
       }
       return 0;
-    }
-
-    /** Returns a list of surround encodings that maybe supported. */
-    @DoNotInline
-    private static ImmutableList<Integer> getAllSurroundEncodingsMaybeSupported() {
-      ImmutableList.Builder<Integer> encodings = new ImmutableList.Builder<>();
-      for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
-        // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
-        if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
-          continue;
-        }
-        encodings.add(encoding);
-      }
-      return encodings.build();
     }
   }
 }
