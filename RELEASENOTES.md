@@ -125,6 +125,9 @@
             and/or `onVideoInputFormatChanged` instead.
         *   `onDecoderDisabled`, use `onAudioDisabled` and/or `onVideoDisabled`
             instead.
+    *   Remove the deprecated `Player.Listener.onSeekProcessed` and
+        `AnalyticsListener.onSeekProcessed`, use `onPositionDiscontinuity` with
+        `DISCONTINUITY_REASON_SEEK` instead.
 *   Core library:
     *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
         a custom `VideoFrameProcessor.Factory` during video playback.

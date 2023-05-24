@@ -547,7 +547,6 @@ import java.util.concurrent.TimeoutException;
         playbackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
@@ -666,7 +665,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
@@ -691,7 +689,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         positionDiscontinuity,
         DISCONTINUITY_REASON_REMOVE,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
@@ -728,7 +725,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
@@ -753,7 +749,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
@@ -878,7 +873,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ true,
         /* positionDiscontinuity= */ true,
         /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
@@ -920,7 +914,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
@@ -1834,7 +1827,6 @@ import java.util.concurrent.TimeoutException;
         playbackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
@@ -1935,7 +1927,6 @@ import java.util.concurrent.TimeoutException;
           playbackInfoUpdate.playbackInfo,
           TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
           pendingPlayWhenReadyChangeReason,
-          /* seekProcessed= */ false,
           positionDiscontinuity,
           pendingDiscontinuityReason,
           discontinuityWindowStartPositionUs,
@@ -1950,7 +1941,6 @@ import java.util.concurrent.TimeoutException;
       PlaybackInfo playbackInfo,
       @TimelineChangeReason int timelineChangeReason,
       @PlayWhenReadyChangeReason int playWhenReadyChangeReason,
-      boolean seekProcessed,
       boolean positionDiscontinuity,
       @DiscontinuityReason int positionDiscontinuityReason,
       long discontinuityWindowStartPositionUs,
@@ -2098,9 +2088,6 @@ import java.util.concurrent.TimeoutException;
       listeners.queueEvent(
           Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(newPlaybackInfo.playbackParameters));
-    }
-    if (seekProcessed) {
-      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
     }
     updateAvailableCommands();
     listeners.flushEvents();
@@ -2323,7 +2310,6 @@ import java.util.concurrent.TimeoutException;
         newPlaybackInfo,
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ positionDiscontinuity,
         DISCONTINUITY_REASON_REMOVE,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
@@ -2745,7 +2731,6 @@ import java.util.concurrent.TimeoutException;
         playbackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         playWhenReadyChangeReason,
-        /* seekProcessed= */ false,
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,

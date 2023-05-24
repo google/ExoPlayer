@@ -3438,9 +3438,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       listeners.queueEvent(
           Player.EVENT_METADATA, listener -> listener.onMetadata(newState.timedMetadata));
     }
-    if (positionDiscontinuityReason == Player.DISCONTINUITY_REASON_SEEK) {
-      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
-    }
     if (!previousState.availableCommands.equals(newState.availableCommands)) {
       listeners.queueEvent(
           Player.EVENT_AVAILABLE_COMMANDS_CHANGED,

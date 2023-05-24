@@ -1067,12 +1067,6 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void onSeekProcessed() {
-      listener.onSeekProcessed();
-    }
-
-    @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
       listener.onVideoSizeChanged(videoSize);
     }

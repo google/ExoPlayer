@@ -147,7 +147,6 @@ public final class DefaultAnalyticsCollectorTest {
   // Deprecated event constants.
   private static final long EVENT_PLAYER_STATE_CHANGED = 1L << 63;
   private static final long EVENT_SEEK_STARTED = 1L << 62;
-  private static final long EVENT_SEEK_PROCESSED = 1L << 61;
 
   private static final UUID DRM_SCHEME_UUID =
       UUID.nameUUIDFromBytes(TestUtil.createByteArray(7, 8, 9));
@@ -471,7 +470,6 @@ public final class DefaultAnalyticsCollectorTest {
         .inOrder();
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0, period0)
         .inOrder();
@@ -562,7 +560,6 @@ public final class DefaultAnalyticsCollectorTest {
         .containsExactly(period0, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0, period0, period0, period0)
         .inOrder();
@@ -763,7 +760,6 @@ public final class DefaultAnalyticsCollectorTest {
         .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* prepared */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0Seq0);
-    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period0Seq0);
@@ -1293,7 +1289,6 @@ public final class DefaultAnalyticsCollectorTest {
             contentAfterMidroll /* ad transition */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(contentBeforeMidroll);
-    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(contentBeforeMidroll, contentBeforeMidroll, midrollAd, midrollAd)
         .inOrder();
@@ -1360,7 +1355,6 @@ public final class DefaultAnalyticsCollectorTest {
 
     populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0);
   }
 
   @Test
@@ -2122,12 +2116,6 @@ public final class DefaultAnalyticsCollectorTest {
     @Override
     public void onSeekStarted(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_SEEK_STARTED, eventTime));
-    }
-
-    @SuppressWarnings("deprecation") // Testing deprecated behaviour.
-    @Override
-    public void onSeekProcessed(EventTime eventTime) {
-      reportedEvents.add(new ReportedEvent(EVENT_SEEK_PROCESSED, eventTime));
     }
 
     @Override

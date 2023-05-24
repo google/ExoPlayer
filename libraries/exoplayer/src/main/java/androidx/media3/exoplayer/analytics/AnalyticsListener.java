@@ -622,14 +622,6 @@ public interface AnalyticsListener {
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
-   * @deprecated Seeks are processed without delay. Use {@link #onPositionDiscontinuity(EventTime,
-   *     int)} with reason {@link Player#DISCONTINUITY_REASON_SEEK} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  default void onSeekProcessed(EventTime eventTime) {}
-
-  /**
    * Called when the playback parameters changed.
    *
    * @param eventTime The event time.

@@ -394,8 +394,9 @@ public final class CastPlayer extends BasePlayer {
     return playWhenReady.value;
   }
 
-  // We still call Listener#onSeekProcessed() for backwards compatibility with listeners that
-  // don't implement onPositionDiscontinuity().
+  // We still call Listener#onPositionDiscontinuity(@DiscontinuityReason int) for backwards
+  // compatibility with listeners that don't implement
+  // onPositionDiscontinuity(PositionInfo, PositionInfo, @DiscontinuityReason int).
   @SuppressWarnings("deprecation")
   @Override
   @VisibleForTesting(otherwise = PROTECTED)
@@ -449,8 +450,6 @@ public final class CastPlayer extends BasePlayer {
         }
       }
       updateAvailableCommandsAndNotifyIfChanged();
-    } else if (pendingSeekCount == 0) {
-      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
     }
     listeners.flushEvents();
   }
@@ -1437,9 +1436,6 @@ public final class CastPlayer extends BasePlayer {
 
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
 
-    // We still call Listener#onSeekProcessed() for backwards compatibility with listeners that
-    // don't implement onPositionDiscontinuity().
-    @SuppressWarnings("deprecation")
     @Override
     public void onResult(MediaChannelResult result) {
       int statusCode = result.getStatus().getStatusCode();
@@ -1452,7 +1448,6 @@ public final class CastPlayer extends BasePlayer {
         currentWindowIndex = pendingSeekWindowIndex;
         pendingSeekWindowIndex = C.INDEX_UNSET;
         pendingSeekPositionMs = C.TIME_UNSET;
-        listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
       }
     }
   }
