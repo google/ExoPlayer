@@ -218,6 +218,16 @@ public class RemoteMediaController {
     binder.moveMediaItems(controllerId, fromIndex, toIndex, newIndex);
   }
 
+  public void replaceMediaItem(int index, MediaItem mediaItem) throws RemoteException {
+    binder.replaceMediaItem(controllerId, index, mediaItem.toBundle());
+  }
+
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems)
+      throws RemoteException {
+    binder.replaceMediaItems(
+        controllerId, fromIndex, toIndex, BundleableUtil.toBundleList(mediaItems));
+  }
+
   public void seekToPreviousMediaItem() throws RemoteException {
     binder.seekToPreviousMediaItem(controllerId);
   }

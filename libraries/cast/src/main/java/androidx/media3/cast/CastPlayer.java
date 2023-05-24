@@ -322,6 +322,18 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex);
+    int playlistSize = currentTimeline.getWindowCount();
+    if (fromIndex > playlistSize) {
+      return;
+    }
+    toIndex = min(toIndex, playlistSize);
+    addMediaItems(toIndex, mediaItems);
+    removeMediaItems(fromIndex, toIndex);
+  }
+
+  @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
     int playlistSize = currentTimeline.getWindowCount();

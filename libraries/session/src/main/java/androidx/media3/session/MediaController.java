@@ -1071,12 +1071,6 @@ public class MediaController implements Player {
     impl.addMediaItem(index, mediaItem);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this doesn't atomically add items.
-   */
   @Override
   public final void addMediaItems(List<MediaItem> mediaItems) {
     verifyApplicationThread();
@@ -1087,12 +1081,6 @@ public class MediaController implements Player {
     impl.addMediaItems(mediaItems);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this doesn't atomically add items.
-   */
   @Override
   public final void addMediaItems(int index, List<MediaItem> mediaItems) {
     verifyApplicationThread();
@@ -1113,12 +1101,6 @@ public class MediaController implements Player {
     impl.removeMediaItem(index);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this doesn't atomically remove items.
-   */
   @Override
   public final void removeMediaItems(int fromIndex, int toIndex) {
     verifyApplicationThread();
@@ -1129,12 +1111,6 @@ public class MediaController implements Player {
     impl.removeMediaItems(fromIndex, toIndex);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this doesn't atomically clear items.
-   */
   @Override
   public final void clearMediaItems() {
     verifyApplicationThread();
@@ -1145,12 +1121,6 @@ public class MediaController implements Player {
     impl.clearMediaItems();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this doesn't atomically move items.
-   */
   @Override
   public final void moveMediaItem(int currentIndex, int newIndex) {
     verifyApplicationThread();
@@ -1161,12 +1131,6 @@ public class MediaController implements Player {
     impl.moveMediaItem(currentIndex, newIndex);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this doesn't atomically move items.
-   */
   @Override
   public final void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
     verifyApplicationThread();
@@ -1175,6 +1139,26 @@ public class MediaController implements Player {
       return;
     }
     impl.moveMediaItems(fromIndex, toIndex, newIndex);
+  }
+
+  @Override
+  public final void replaceMediaItem(int index, MediaItem mediaItem) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring replaceMediaItem().");
+      return;
+    }
+    impl.replaceMediaItem(index, mediaItem);
+  }
+
+  @Override
+  public final void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring replaceMediaItems().");
+      return;
+    }
+    impl.replaceMediaItems(fromIndex, toIndex, mediaItems);
   }
 
   /**
@@ -2033,6 +2017,10 @@ public class MediaController implements Player {
     void moveMediaItem(int currentIndex, int newIndex);
 
     void moveMediaItems(int fromIndex, int toIndex, int newIndex);
+
+    void replaceMediaItem(int index, MediaItem mediaItem);
+
+    void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems);
 
     int getCurrentPeriodIndex();
 

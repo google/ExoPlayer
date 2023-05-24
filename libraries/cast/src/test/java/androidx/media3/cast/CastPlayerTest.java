@@ -699,6 +699,38 @@ public class CastPlayerTest {
         .queueRemoveItems(new int[] {1, 2, 3, 4, 5}, /* customData= */ null);
   }
 
+  @Test
+  public void replaceMediaItems_callsRemoteMediaClient() {
+    int[] mediaQueueItemIds = createMediaQueueItemIds(/* numberOfIds= */ 2);
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    // Add two items.
+    addMediaItemsAndUpdateTimeline(mediaItems, mediaQueueItemIds);
+    String uri = "http://www.google.com/video3";
+    MediaItem anotherMediaItem =
+        new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_MPD).build();
+    ImmutableList<MediaItem> newPlaylist = ImmutableList.of(mediaItems.get(0), anotherMediaItem);
+
+    // Replace item at position 1.
+    castPlayer.replaceMediaItems(
+        /* fromIndex= */ 1, /* toIndex= */ 2, ImmutableList.of(anotherMediaItem));
+    updateTimeLine(
+        newPlaylist,
+        /* mediaQueueItemIds= */ new int[] {mediaQueueItemIds[0], 123},
+        /* currentItemId= */ 123);
+
+    verify(mockRemoteMediaClient, times(2))
+        .queueInsertItems(queueItemsArgumentCaptor.capture(), anyInt(), any());
+    verify(mockRemoteMediaClient).queueRemoveItems(new int[] {2}, /* customData= */ null);
+    assertThat(queueItemsArgumentCaptor.getAllValues().get(1)[0])
+        .isEqualTo(mediaItemConverter.toMediaQueueItem(anotherMediaItem));
+    Timeline.Window currentWindow =
+        castPlayer
+            .getCurrentTimeline()
+            .getWindow(castPlayer.getCurrentMediaItemIndex(), new Timeline.Window());
+    assertThat(currentWindow.uid).isEqualTo(123);
+    assertThat(currentWindow.mediaItem).isEqualTo(anotherMediaItem);
+  }
+
   @SuppressWarnings("ConstantConditions")
   @Test
   public void addMediaItems_fillsTimeline() {

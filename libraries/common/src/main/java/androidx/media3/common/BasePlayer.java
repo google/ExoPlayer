@@ -79,6 +79,12 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void replaceMediaItem(int index, MediaItem mediaItem) {
+    replaceMediaItems(
+        /* fromIndex= */ index, /* toIndex= */ index + 1, ImmutableList.of(mediaItem));
+  }
+
+  @Override
   public final void removeMediaItem(int index) {
     removeMediaItems(/* fromIndex= */ index, /* toIndex= */ index + 1);
   }

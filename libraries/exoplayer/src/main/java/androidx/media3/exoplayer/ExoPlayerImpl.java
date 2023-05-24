@@ -733,6 +733,38 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    verifyApplicationThread();
+    checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
+    int playlistSize = mediaSourceHolderSnapshots.size();
+    if (fromIndex > playlistSize) {
+      // Do nothing.
+      return;
+    }
+    toIndex = min(toIndex, playlistSize);
+    List<MediaSource> mediaSources = createMediaSources(mediaItems);
+    if (mediaSourceHolderSnapshots.isEmpty()) {
+      // Handle initial items in a playlist as a set operation to ensure state changes and initial
+      // position are updated correctly.
+      setMediaSources(mediaSources, /* resetPosition= */ maskingWindowIndex == C.INDEX_UNSET);
+      return;
+    }
+    PlaybackInfo newPlaybackInfo = addMediaSourcesInternal(playbackInfo, toIndex, mediaSources);
+    newPlaybackInfo = removeMediaItemsInternal(newPlaybackInfo, fromIndex, toIndex);
+    boolean positionDiscontinuity =
+        !newPlaybackInfo.periodId.periodUid.equals(playbackInfo.periodId.periodUid);
+    updatePlaybackInfo(
+        newPlaybackInfo,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        positionDiscontinuity,
+        DISCONTINUITY_REASON_REMOVE,
+        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
+  }
+
+  @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     verifyApplicationThread();
     this.shuffleOrder = shuffleOrder;

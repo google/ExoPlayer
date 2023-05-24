@@ -850,6 +850,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
+  public void replaceMediaItem(int index, MediaItem mediaItem) {
+    replaceMediaItems(
+        /* fromIndex= */ index, /* toIndex= */ index + 1, ImmutableList.of(mediaItem));
+  }
+
+  @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex);
+    QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
+    int size = queueTimeline.getWindowCount();
+    if (fromIndex > size) {
+      return;
+    }
+    toIndex = min(toIndex, size);
+    addMediaItems(toIndex, mediaItems);
+    removeMediaItems(fromIndex, toIndex);
+  }
+
+  @Override
   public int getCurrentPeriodIndex() {
     return getCurrentMediaItemIndex();
   }

@@ -85,6 +85,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
@@ -12649,6 +12650,232 @@ public final class ExoPlayerTest {
         .verify(mockListener)
         .onMediaItemTransition(any(), any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
     eventsInOrder.verify(mockListener).onPlayerError(any(), any());
+  }
+
+  @Test
+  public void replaceMediaItems_notReplacingCurrentItem_correctMasking() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.addMediaSources(
+        ImmutableList.of(new FakeMediaSource(), new FakeMediaSource(), new FakeMediaSource()));
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 2);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.addListener(listener);
+    player.replaceMediaItems(
+        /* fromIndex= */ 1,
+        /* toIndex= */ 2,
+        ImmutableList.of(
+            MediaItem.fromUri("test://test.uri"), MediaItem.fromUri("test://test2.uri")));
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(3);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(4);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 2, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test2.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void replaceMediaItems_replacingCurrentItem_correctMasking() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.addMediaSources(
+        ImmutableList.of(
+            createFakeMediaSource("1"), createFakeMediaSource("2"), createFakeMediaSource("3")));
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 1);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.addListener(listener);
+    player.replaceMediaItems(
+        /* fromIndex= */ 1,
+        /* toIndex= */ 2,
+        ImmutableList.of(
+            MediaItem.fromUri("test://test.uri"), MediaItem.fromUri("test://test2.uri")));
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(4);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 2, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test2.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            MediaItem.fromUri("test://test.uri"),
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onTracksChanged(Tracks.EMPTY);
+    verify(listener).onAvailableCommandsChanged(any());
+    verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void replaceMediaItems_replacingCurrentItemWithEmptyListAndSubsequentItem_correctMasking()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.addMediaSources(
+        ImmutableList.of(
+            createFakeMediaSource("1"), createFakeMediaSource("2"), createFakeMediaSource("3")));
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 1);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.addListener(listener);
+    player.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, ImmutableList.of());
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            createFakeMediaSource("3").getMediaItem(),
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onTracksChanged(Tracks.EMPTY);
+    verify(listener).onAvailableCommandsChanged(any());
+    verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void
+      replaceMediaItems_replacingCurrentItemWithEmptyListAndNoSubsequentItem_correctMasking()
+          throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.addMediaSources(
+        ImmutableList.of(createFakeMediaSource("1"), createFakeMediaSource("2")));
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 1);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.addListener(listener);
+    player.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, ImmutableList.of());
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(1);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_REMOVE);
+    verify(listener)
+        .onMediaItemTransition(
+            createFakeMediaSource("1").getMediaItem(),
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onTracksChanged(Tracks.EMPTY);
+    verify(listener).onAvailableCommandsChanged(any());
+    verify(listener).onPlaybackStateChanged(Player.STATE_ENDED);
+    verify(listener).onPlayerStateChanged(/* playWhenReady= */ false, Player.STATE_ENDED);
+    verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated listener call.
+  @Test
+  public void replaceMediaItems_fromPreparedEmpty_correctMasking() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.prepare();
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 1);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    player.addListener(listener);
+    player.replaceMediaItems(
+        /* fromIndex= */ 0,
+        /* toIndex= */ 0,
+        ImmutableList.of(
+            MediaItem.fromUri("test://test.uri"), MediaItem.fromUri("test://test2.uri")));
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test2.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener)
+        .onMediaItemTransition(
+            MediaItem.fromUri("test://test2.uri"),
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    verify(listener).onAvailableCommandsChanged(any());
+    verify(listener).onPlaybackStateChanged(Player.STATE_BUFFERING);
+    verify(listener).onPlayerStateChanged(/* playWhenReady= */ false, Player.STATE_BUFFERING);
+    verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @Test
+  public void replaceMediaItems_fromEmptyToEmpty_doesNothing() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.prepare();
+    player.seekToDefaultPosition(/* mediaItemIndex= */ 1);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    player.addListener(listener);
+    player.replaceMediaItems(/* fromIndex= */ 0, /* toIndex= */ 0, ImmutableList.of());
+
+    assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
+    assertThat(player.getCurrentTimeline().isEmpty()).isTrue();
+    verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @Test
+  public void replaceMediaItems_withInvalidToIndex_correctMasking() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Listener listener = mock(Listener.class);
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.addListener(listener);
+    player.replaceMediaItems(
+        /* fromIndex= */ 1,
+        /* toIndex= */ 5000,
+        ImmutableList.of(MediaItem.fromUri("test://test.uri")));
+
+    assertThat(player.getCurrentTimeline().getWindowCount()).isEqualTo(2);
+    Timeline.Window window = new Timeline.Window();
+    player.getCurrentTimeline().getWindow(/* windowIndex= */ 1, window);
+    assertThat(window.mediaItem.localConfiguration.uri).isEqualTo(Uri.parse("test://test.uri"));
+    assertThat(window.isPlaceholder).isTrue();
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verifyNoMoreInteractions(listener);
+    player.release();
   }
 
   // Internal methods.

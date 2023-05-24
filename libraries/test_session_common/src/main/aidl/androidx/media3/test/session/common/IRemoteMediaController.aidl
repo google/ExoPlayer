@@ -62,6 +62,8 @@ interface IRemoteMediaController {
   void clearMediaItems(String controllerId);
   void moveMediaItem(String controllerId, int currentIndex, int newIndex);
   void moveMediaItems(String controllerId, int fromIndex, int toIndex, int newIndex);
+  void replaceMediaItem(String controllerId, int index, in Bundle mediaItem);
+  void replaceMediaItems(String controllerId, int fromIndex, int toIndex, in List<Bundle> mediaItems);
   void seekToPreviousMediaItem(String controllerId);
   void seekToNextMediaItem(String controllerId);
   void seekToPrevious(String controllerId);

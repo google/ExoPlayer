@@ -1307,4 +1307,380 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(itemsAfterMove).containsExactly(items.get(1), items.get(0)).inOrder();
   }
+
+  @Test
+  public void replaceMediaItems_notReplacingCurrentItem_correctMasking() throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
+    long testPosition = 200L;
+    int initialMediaItemIndex = 2;
+    MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
+            .build());
+    session.setQueue(queue);
+    List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems("A", "B");
+    List<MediaItem> expectedMediaItems = new ArrayList<>();
+    expectedMediaItems.add(mediaItems.get(0));
+    expectedMediaItems.addAll(newMediaItems);
+    expectedMediaItems.add(mediaItems.get(2));
+    Events expectedEvents =
+        new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(3); // 2x onTimelineChanged + onEvents
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineChangedReasonRef.set(reason);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, newMediaItems);
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentMediaItemRef.set(controller.getCurrentMediaItem());
+              timelineFromGetterRef.set(controller.getCurrentTimeline());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
+    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(3);
+    assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
+    MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), expectedMediaItems);
+  }
+
+  @Test
+  public void replaceMediaItems_replacingCurrentItem_correctMasking() throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
+    long testPosition = 200L;
+    int initialMediaItemIndex = 1;
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
+            .build());
+    session.setQueue(queue);
+    List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems("A", "B");
+    List<MediaItem> expectedMediaItems = new ArrayList<>();
+    expectedMediaItems.add(mediaItems.get(0));
+    expectedMediaItems.addAll(newMediaItems);
+    expectedMediaItems.add(mediaItems.get(2));
+    Events expectedEvents =
+        new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(3); // 2x onTimelineChanged + onEvents
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineChangedReasonRef.set(reason);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, newMediaItems);
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentMediaItemRef.set(controller.getCurrentMediaItem());
+              timelineFromGetterRef.set(controller.getCurrentTimeline());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
+    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(1);
+    assertThat(currentMediaItemRef.get()).isEqualTo(newMediaItems.get(0));
+    MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), expectedMediaItems);
+  }
+
+  @Test
+  public void replaceMediaItems_replacingCurrentItemWithEmptyListAndSubsequentItem_correctMasking()
+      throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
+    long testPosition = 200L;
+    int initialMediaItemIndex = 1;
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
+            .build());
+    session.setQueue(queue);
+    List<MediaItem> expectedMediaItems = new ArrayList<>();
+    expectedMediaItems.add(mediaItems.get(0));
+    expectedMediaItems.add(mediaItems.get(2));
+    Events expectedEvents =
+        new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineChangedReasonRef.set(reason);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.replaceMediaItems(
+                  /* fromIndex= */ 1, /* toIndex= */ 2, ImmutableList.of());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentMediaItemRef.set(controller.getCurrentMediaItem());
+              timelineFromGetterRef.set(controller.getCurrentTimeline());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
+    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(1);
+    assertThat(currentMediaItemRef.get()).isEqualTo(expectedMediaItems.get(1));
+    MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), expectedMediaItems);
+  }
+
+  @Test
+  public void
+      replaceMediaItems_replacingCurrentItemWithEmptyListAndNoSubsequentItem_correctMasking()
+          throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b");
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
+    long testPosition = 200L;
+    int initialMediaItemIndex = 1;
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
+            .build());
+    session.setQueue(queue);
+    List<MediaItem> expectedMediaItems = new ArrayList<>();
+    expectedMediaItems.add(mediaItems.get(0));
+    Events expectedEvents =
+        new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineChangedReasonRef.set(reason);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.replaceMediaItems(
+                  /* fromIndex= */ 1, /* toIndex= */ 2, ImmutableList.of());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentMediaItemRef.set(controller.getCurrentMediaItem());
+              timelineFromGetterRef.set(controller.getCurrentTimeline());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
+    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(0);
+    assertThat(currentMediaItemRef.get()).isEqualTo(expectedMediaItems.get(0));
+    MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), expectedMediaItems);
+  }
+
+  @Test
+  public void replaceMediaItems_fromEmpty_correctMasking() throws Exception {
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(
+                PlaybackStateCompat.STATE_STOPPED, /* position= */ 0, /* playbackSpeed= */ 1.0f)
+            .build());
+    session.setQueue(ImmutableList.of());
+    List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems("A", "B");
+    Events expectedEvents =
+        new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineChangedReasonRef.set(reason);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.replaceMediaItems(/* fromIndex= */ 0, /* toIndex= */ 0, newMediaItems);
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentMediaItemRef.set(controller.getCurrentMediaItem());
+              timelineFromGetterRef.set(controller.getCurrentTimeline());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), newMediaItems);
+    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(0);
+    assertThat(currentMediaItemRef.get()).isEqualTo(newMediaItems.get(0));
+    MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), newMediaItems);
+  }
+
+  @Test
+  public void replaceMediaItems_withInvalidToIndex_correctMasking() throws Exception {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
+    long testPosition = 200L;
+    int initialMediaItemIndex = 1;
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
+            .build());
+    session.setQueue(queue);
+    List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems("A", "B");
+    List<MediaItem> expectedMediaItems = new ArrayList<>();
+    expectedMediaItems.add(mediaItems.get(0));
+    expectedMediaItems.addAll(newMediaItems);
+    Events expectedEvents =
+        new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(3);
+    AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
+    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTimelineChanged(
+              Timeline timeline, @Player.TimelineChangeReason int reason) {
+            timelineFromParamRef.set(timeline);
+            timelineChangedReasonRef.set(reason);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
+    AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
+    AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 5000, newMediaItems);
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
+              currentMediaItemRef.set(controller.getCurrentMediaItem());
+              timelineFromGetterRef.set(controller.getCurrentTimeline());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
+    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(1);
+    assertThat(currentMediaItemRef.get()).isEqualTo(newMediaItems.get(0));
+    MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), expectedMediaItems);
+  }
 }

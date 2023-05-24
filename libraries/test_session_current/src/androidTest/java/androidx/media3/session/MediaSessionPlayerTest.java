@@ -704,6 +704,34 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
+  public void replaceMediaItem() throws Exception {
+    player.setMediaItems(MediaTestUtils.createMediaItems(4));
+    MediaItem mediaItem = MediaTestUtils.createMediaItem("replaceMediaItem");
+
+    controller.replaceMediaItem(/* index= */ 2, mediaItem);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_REPLACE_MEDIA_ITEM, TIMEOUT_MS);
+    assertThat(player.index).isEqualTo(2);
+    assertThat(player.mediaItems).hasSize(4);
+    assertThat(player.mediaItems.get(2)).isEqualTo(mediaItem);
+  }
+
+  @Test
+  public void replaceMediaItems() throws Exception {
+    player.setMediaItems(MediaTestUtils.createMediaItems(4));
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(2);
+
+    controller.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, mediaItems);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_REPLACE_MEDIA_ITEMS, TIMEOUT_MS);
+    assertThat(player.fromIndex).isEqualTo(1);
+    assertThat(player.toIndex).isEqualTo(2);
+    assertThat(player.mediaItems).hasSize(5);
+    assertThat(player.mediaItems.get(1)).isEqualTo(mediaItems.get(0));
+    assertThat(player.mediaItems.get(2)).isEqualTo(mediaItems.get(1));
+  }
+
+  @Test
   public void seekToPreviousMediaItem() throws Exception {
     controller.seekToPreviousMediaItem();
 

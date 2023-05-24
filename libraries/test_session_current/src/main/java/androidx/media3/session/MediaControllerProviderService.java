@@ -464,6 +464,28 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
+    public void replaceMediaItem(String controllerId, int index, Bundle mediaItem)
+        throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaController controller = mediaControllerMap.get(controllerId);
+            controller.replaceMediaItem(index, MediaItem.CREATOR.fromBundle(mediaItem));
+          });
+    }
+
+    @Override
+    public void replaceMediaItems(
+        String controllerId, int fromIndex, int toIndex, List<Bundle> mediaItems)
+        throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaController controller = mediaControllerMap.get(controllerId);
+            controller.replaceMediaItems(
+                fromIndex, toIndex, BundleableUtil.fromBundleList(MediaItem.CREATOR, mediaItems));
+          });
+    }
+
+    @Override
     public void seekToPreviousMediaItem(String controllerId) throws RemoteException {
       runOnHandler(
           () -> {

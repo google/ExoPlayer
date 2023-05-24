@@ -945,6 +945,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    blockUntilConstructorFinished();
+    player.replaceMediaItems(fromIndex, toIndex, mediaItems);
+  }
+
+  @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     blockUntilConstructorFinished();
     player.removeMediaItems(fromIndex, toIndex);

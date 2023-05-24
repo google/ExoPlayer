@@ -107,7 +107,9 @@ public class MockPlayer implements Player {
     METHOD_SET_SHUFFLE_MODE,
     METHOD_SET_TRACK_SELECTION_PARAMETERS,
     METHOD_SET_VOLUME,
-    METHOD_STOP
+    METHOD_STOP,
+    METHOD_REPLACE_MEDIA_ITEM,
+    METHOD_REPLACE_MEDIA_ITEMS
   })
   public @interface Method {}
 
@@ -203,6 +205,10 @@ public class MockPlayer implements Player {
   public static final int METHOD_SET_DEVICE_MUTED_WITH_FLAGS = 44;
   /** Maps to {@link Player#setDeviceVolume(int, int)}. */
   public static final int METHOD_SET_DEVICE_VOLUME_WITH_FLAGS = 45;
+  /** Maps to {@link Player#replaceMediaItem(int, MediaItem)}. */
+  public static final int METHOD_REPLACE_MEDIA_ITEM = 46;
+  /** Maps to {@link Player#replaceMediaItems(int, int, List)} . */
+  public static final int METHOD_REPLACE_MEDIA_ITEMS = 47;
 
   private final boolean changePlayerStateWithTransportControl;
   private final Looper applicationLooper;
@@ -990,6 +996,22 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEMS)).open();
   }
 
+  @Override
+  public void replaceMediaItem(int index, MediaItem mediaItem) {
+    this.index = index;
+    this.mediaItems.set(index, mediaItem);
+    checkNotNull(conditionVariables.get(METHOD_REPLACE_MEDIA_ITEM)).open();
+  }
+
+  @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    this.fromIndex = fromIndex;
+    this.toIndex = toIndex;
+    this.mediaItems.addAll(toIndex, mediaItems);
+    Util.removeRange(this.mediaItems, fromIndex, toIndex);
+    checkNotNull(conditionVariables.get(METHOD_REPLACE_MEDIA_ITEMS)).open();
+  }
+
   /**
    * @deprecated Use {@link #hasPreviousMediaItem()} instead.
    */
@@ -1410,6 +1432,8 @@ public class MockPlayer implements Player {
         .put(METHOD_SET_TRACK_SELECTION_PARAMETERS, new ConditionVariable())
         .put(METHOD_SET_VOLUME, new ConditionVariable())
         .put(METHOD_STOP, new ConditionVariable())
+        .put(METHOD_REPLACE_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_REPLACE_MEDIA_ITEMS, new ConditionVariable())
         .buildOrThrow();
   }
 

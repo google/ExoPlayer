@@ -83,6 +83,8 @@ oneway interface IMediaSession {
       IMediaController caller, int seq, int currentIndex, int newIndex) = 3021;
   void moveMediaItems(
       IMediaController caller, int seq, int fromIndex, int toIndex, int newIndex) = 3022;
+  void replaceMediaItem(IMediaController caller, int seq, int index, in Bundle mediaItemBundle) = 3054;
+  void replaceMediaItems(IMediaController caller, int seq, int fromIndex, int toIndex, IBinder mediaItems) = 3055;
   void play(IMediaController caller, int seq) = 3023;
   void pause(IMediaController caller, int seq) = 3024;
   void prepare(IMediaController caller, int seq) = 3025;
@@ -118,7 +120,7 @@ oneway interface IMediaSession {
   void setRatingWithMediaId(
        IMediaController caller, int seq, String mediaId, in Bundle rating) = 3048;
   void setRating(IMediaController caller, int seq, in Bundle rating) = 3049;
-  // Next Id for MediaSession: 3054
+  // Next Id for MediaSession: 3056
 
   void getLibraryRoot(IMediaController caller, int seq, in Bundle libraryParams) = 4000;
   void getItem(IMediaController caller, int seq, String mediaId) = 4001;

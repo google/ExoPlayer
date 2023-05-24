@@ -103,6 +103,11 @@ public class StubPlayer extends BasePlayer {
   }
 
   @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     throw new UnsupportedOperationException();
   }

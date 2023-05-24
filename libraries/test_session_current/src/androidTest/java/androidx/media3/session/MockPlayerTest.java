@@ -371,6 +371,39 @@ public class MockPlayerTest {
   }
 
   @Test
+  public void replaceMediaItem() {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+    player.addMediaItems(mediaItems);
+    MediaItem mediaItem = MediaTestUtils.createMediaItem("item");
+
+    player.replaceMediaItem(/* index= */ 1, mediaItem);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_REPLACE_MEDIA_ITEM)).isTrue();
+    assertThat(player.index).isEqualTo(1);
+    assertThat(player.mediaItems).containsExactly(mediaItems.get(0), mediaItem, mediaItems.get(2));
+  }
+
+  @Test
+  public void replaceMediaItems() {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 4);
+    player.addMediaItems(mediaItems);
+    List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+
+    player.replaceMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3, newMediaItems);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_REPLACE_MEDIA_ITEMS)).isTrue();
+    assertThat(player.fromIndex).isEqualTo(1);
+    assertThat(player.toIndex).isEqualTo(3);
+    assertThat(player.mediaItems)
+        .containsExactly(
+            mediaItems.get(0),
+            newMediaItems.get(0),
+            newMediaItems.get(1),
+            newMediaItems.get(2),
+            mediaItems.get(3));
+  }
+
+  @Test
   public void seekToPreviousMediaItem() {
     player.seekToPreviousMediaItem();
 

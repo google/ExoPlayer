@@ -2142,15 +2142,42 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final void replaceMediaItem(int index, MediaItem mediaItem) {
-    replaceMediaItems(
-        /* fromIndex= */ index, /* toIndex= */ index + 1, ImmutableList.of(mediaItem));
-  }
-
-  @Override
   public final void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
-    addMediaItems(toIndex, mediaItems);
-    removeMediaItems(fromIndex, toIndex);
+    verifyApplicationThreadAndInitState();
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex);
+    State state = this.state;
+    int playlistSize = state.playlist.size();
+    if (!shouldHandleCommand(Player.COMMAND_CHANGE_MEDIA_ITEMS) || fromIndex > playlistSize) {
+      return;
+    }
+    int correctedToIndex = min(toIndex, playlistSize);
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleReplaceMediaItems(fromIndex, correctedToIndex, mediaItems),
+        /* placeholderStateSupplier= */ () -> {
+          ArrayList<MediaItemData> placeholderPlaylist = new ArrayList<>(state.playlist);
+          for (int i = 0; i < mediaItems.size(); i++) {
+            placeholderPlaylist.add(
+                i + correctedToIndex, getPlaceholderMediaItemData(mediaItems.get(i)));
+          }
+          State updatedState;
+          if (!state.playlist.isEmpty()) {
+            updatedState = getStateWithNewPlaylist(state, placeholderPlaylist, period);
+          } else {
+            // Handle initial position update when these are the first items added to the playlist.
+            updatedState =
+                getStateWithNewPlaylistAndPosition(
+                    state,
+                    placeholderPlaylist,
+                    state.currentMediaItemIndex,
+                    state.contentPositionMsSupplier.get());
+          }
+          if (fromIndex < correctedToIndex) {
+            Util.removeRange(placeholderPlaylist, fromIndex, correctedToIndex);
+            return getStateWithNewPlaylist(updatedState, placeholderPlaylist, period);
+          } else {
+            return updatedState;
+          }
+        });
   }
 
   @Override
@@ -3180,6 +3207,27 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleMoveMediaItems(int fromIndex, int toIndex, int newIndex) {
     throw new IllegalStateException("Missing implementation to handle COMMAND_CHANGE_MEDIA_ITEMS");
+  }
+
+  /**
+   * Handles calls to {@link Player#replaceMediaItem} and {@link Player#replaceMediaItems}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_CHANGE_MEDIA_ITEMS} is available.
+   *
+   * @param fromIndex The start index of the items to replace. The index is in the range 0 &lt;=
+   *     {@code fromIndex} &lt; {@link #getMediaItemCount()}.
+   * @param toIndex The index of the first item not to be replaced (exclusive). The index is in the
+   *     range {@code fromIndex} &lt; {@code toIndex} &lt;= {@link #getMediaItemCount()}.
+   * @param mediaItems The media items to replace the specified range with.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleReplaceMediaItems(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    ListenableFuture<?> addFuture = handleAddMediaItems(toIndex, mediaItems);
+    ListenableFuture<?> removeFuture = handleRemoveMediaItems(fromIndex, toIndex);
+    return Util.transformFutureAsync(addFuture, unused -> removeFuture);
   }
 
   /**

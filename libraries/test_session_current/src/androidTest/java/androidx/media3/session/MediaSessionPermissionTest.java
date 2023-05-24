@@ -169,6 +169,21 @@ public class MediaSessionPermissionTest {
   }
 
   @Test
+  public void replaceMediaItem() throws Exception {
+    testOnCommandRequest(
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        controller -> controller.replaceMediaItem(/* index= */ 0, MediaItem.EMPTY));
+  }
+
+  @Test
+  public void replaceMediaItems() throws Exception {
+    testOnCommandRequest(
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        controller ->
+            controller.replaceMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1, ImmutableList.of()));
+  }
+
+  @Test
   public void setDeviceVolume() throws Exception {
     testOnCommandRequest(COMMAND_SET_DEVICE_VOLUME, controller -> controller.setDeviceVolume(0));
   }

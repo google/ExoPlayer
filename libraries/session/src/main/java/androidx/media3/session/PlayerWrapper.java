@@ -484,6 +484,18 @@ import java.util.List;
     super.moveMediaItems(fromIndex, toIndex, newIndex);
   }
 
+  @Override
+  public void replaceMediaItem(int index, MediaItem mediaItem) {
+    verifyApplicationThread();
+    super.replaceMediaItem(index, mediaItem);
+  }
+
+  @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    verifyApplicationThread();
+    super.replaceMediaItems(fromIndex, toIndex, mediaItems);
+  }
+
   @Deprecated
   @Override
   public boolean hasPrevious() {

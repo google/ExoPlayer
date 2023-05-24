@@ -113,7 +113,7 @@ import java.util.concurrent.ExecutionException;
   private static final String TAG = "MediaSessionStub";
 
   /** The version of the IMediaSession interface. */
-  public static final int VERSION_INT = 1;
+  public static final int VERSION_INT = 2;
 
   private final WeakReference<MediaSessionImpl> sessionImpl;
   private final MediaSessionManager sessionManager;
@@ -1268,6 +1268,74 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultSuccess(player -> player.moveMediaItems(fromIndex, toIndex, newIndex)));
+  }
+
+  @Override
+  public void replaceMediaItem(
+      IMediaController caller, int sequenceNumber, int index, Bundle mediaItemBundle) {
+    if (caller == null || mediaItemBundle == null) {
+      return;
+    }
+    MediaItem mediaItem;
+    try {
+      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        sendSessionResultWhenReady(
+            handleMediaItemsWhenReady(
+                (sessionImpl, controller, sequenceNum) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+                (player, controller, mediaItems) -> {
+                  if (mediaItems.size() == 1) {
+                    player.replaceMediaItem(
+                        maybeCorrectMediaItemIndex(controller, player, index), mediaItems.get(0));
+                  } else {
+                    player.replaceMediaItems(
+                        maybeCorrectMediaItemIndex(controller, player, index),
+                        maybeCorrectMediaItemIndex(controller, player, index + 1),
+                        mediaItems);
+                  }
+                })));
+  }
+
+  @Override
+  public void replaceMediaItems(
+      IMediaController caller,
+      int sequenceNumber,
+      int fromIndex,
+      int toIndex,
+      IBinder mediaItemsRetriever) {
+    if (caller == null || mediaItemsRetriever == null) {
+      return;
+    }
+    ImmutableList<MediaItem> mediaItems;
+    try {
+      mediaItems =
+          BundleableUtil.fromBundleList(
+              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        sendSessionResultWhenReady(
+            handleMediaItemsWhenReady(
+                (sessionImpl, controller, sequenceNum) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+                (player, controller, items) ->
+                    player.replaceMediaItems(
+                        maybeCorrectMediaItemIndex(controller, player, fromIndex),
+                        maybeCorrectMediaItemIndex(controller, player, toIndex),
+                        items))));
   }
 
   @Override

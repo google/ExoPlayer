@@ -1184,6 +1184,79 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public void replaceMediaItem(int index, MediaItem mediaItem) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
+      return;
+    }
+    checkArgument(index >= 0);
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) -> {
+          if (checkNotNull(connectedToken).getInterfaceVersion() >= 2) {
+            iSession.replaceMediaItem(controllerStub, seq, index, mediaItem.toBundle());
+          } else {
+            iSession.addMediaItemWithIndex(controllerStub, seq, index + 1, mediaItem.toBundle());
+            iSession.removeMediaItem(controllerStub, seq, index);
+          }
+        });
+    replaceMediaItemsInternal(
+        /* fromIndex= */ index, /* toIndex= */ index + 1, ImmutableList.of(mediaItem));
+  }
+
+  @Override
+  public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
+      return;
+    }
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex);
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) -> {
+          IBinder mediaItemsBundleBinder =
+              new BundleListRetriever(BundleableUtil.toBundleList(mediaItems));
+          if (checkNotNull(connectedToken).getInterfaceVersion() >= 2) {
+            iSession.replaceMediaItems(
+                controllerStub, seq, fromIndex, toIndex, mediaItemsBundleBinder);
+          } else {
+            iSession.addMediaItemsWithIndex(controllerStub, seq, toIndex, mediaItemsBundleBinder);
+            iSession.removeMediaItems(controllerStub, seq, fromIndex, toIndex);
+          }
+        });
+    replaceMediaItemsInternal(fromIndex, toIndex, mediaItems);
+  }
+
+  private void replaceMediaItemsInternal(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    int playlistSize = playerInfo.timeline.getWindowCount();
+    if (fromIndex > playlistSize) {
+      return;
+    }
+    if (playerInfo.timeline.isEmpty()) {
+      // Handle initial items in a playlist as a set operation to ensure state changes and initial
+      // position are updated correctly.
+      setMediaItemsInternal(
+          mediaItems,
+          /* startIndex= */ C.INDEX_UNSET,
+          /* startPositionMs= */ C.TIME_UNSET,
+          /* resetToDefaultPosition= */ false);
+      return;
+    }
+    toIndex = min(toIndex, playlistSize);
+    PlayerInfo newPlayerInfo = maskPlaybackInfoForAddedItems(playerInfo, toIndex, mediaItems);
+    newPlayerInfo = maskPlayerInfoForRemovedItems(newPlayerInfo, fromIndex, toIndex);
+    boolean replacedCurrentItem =
+        playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex >= fromIndex
+            && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < toIndex;
+    updatePlayerInfo(
+        newPlayerInfo,
+        /* timelineChangeReason= */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* positionDiscontinuity= */ replacedCurrentItem,
+        Player.DISCONTINUITY_REASON_REMOVE,
+        /* mediaItemTransition= */ replacedCurrentItem,
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Override
   public int getCurrentPeriodIndex() {
     return playerInfo.sessionPositionInfo.positionInfo.periodIndex;
   }
