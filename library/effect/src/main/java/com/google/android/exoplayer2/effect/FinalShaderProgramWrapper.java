@@ -266,6 +266,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void renderOutputFrame(long renderTimeNs) {
+    if (textureOutputListener != null) {
+      return;
+    }
     frameProcessingStarted = true;
     checkState(!renderFramesAutomatically);
     Pair<GlTextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
@@ -275,13 +278,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         renderTimeNs);
   }
 
-  /**
-   * Sets the output {@link SurfaceInfo}.
-   *
-   * @see VideoFrameProcessor#setOutputSurfaceInfo(SurfaceInfo)
-   */
+  /** See {@link DefaultVideoFrameProcessor#setOutputSurfaceInfo} */
   public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    checkState(textureOutputListener == null);
+    if (textureOutputListener != null) {
+      return;
+    }
     if (Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
       return;
     }
