@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -2147,10 +2146,7 @@ public interface Player {
    *     of the playlist, the request is ignored.
    * @param mediaItem The new {@link MediaItem}.
    */
-  default void replaceMediaItem(int index, MediaItem mediaItem) {
-    replaceMediaItems(
-        /* fromIndex= */ index, /* toIndex= */ index + 1, ImmutableList.of(mediaItem));
-  }
+  void replaceMediaItem(int index, MediaItem mediaItem);
 
   /**
    * Replaces the media items at the given range of the playlist.
@@ -2169,10 +2165,7 @@ public interface Player {
    *     larger than the size of the playlist, items up to the end of the playlist are replaced.
    * @param mediaItems The {@linkplain MediaItem media items} to replace the range with.
    */
-  default void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
-    addMediaItems(toIndex, mediaItems);
-    removeMediaItems(fromIndex, toIndex);
-  }
+  void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems);
 
   /**
    * Removes the media item at the given index of the playlist.
