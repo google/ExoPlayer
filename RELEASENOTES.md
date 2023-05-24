@@ -66,6 +66,9 @@
 *   HLS Extension:
 *   Smooth Streaming Extension:
 *   RTSP Extension:
+    *   Use base Uri for relative path resolution from the RTSP session if
+        present in DESCRIBE response header
+        ([#11160](https://github.com/google/ExoPlayer/issues/11160)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
 *   Cast Extension:
 *   Test Utilities:
