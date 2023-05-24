@@ -22,6 +22,7 @@ import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.container.Mp4LocationData;
+import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
@@ -44,15 +45,16 @@ public final class InAppMuxer implements Muxer {
   public interface MetadataProvider {
 
     /**
-     * Updates the list of {@link Metadata.Entry metadata entries}.
+     * Updates the list of {@linkplain Metadata.Entry metadata entries}.
      *
      * <p>A {@link Metadata.Entry} can be added or removed. To modify an existing {@link
      * Metadata.Entry}, first remove it and then add a new one.
      *
-     * <p>List of supported {@link Metadata.Entry}:
+     * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
      *
      * <ul>
      *   <li>{@link Mp4LocationData}
+     *   <li>{@link XmpData}
      * </ul>
      */
     void updateMetadataEntries(Set<Metadata.Entry> metadataEntries);
@@ -175,7 +177,7 @@ public final class InAppMuxer implements Muxer {
       Metadata.Entry entry = metadata.get(i);
       // Keep only supported metadata.
       // LINT.IfChange(added_metadata)
-      if (entry instanceof Mp4LocationData) {
+      if (entry instanceof Mp4LocationData || entry instanceof XmpData) {
         metadataEntries.add(entry);
       }
     }
@@ -183,13 +185,6 @@ public final class InAppMuxer implements Muxer {
 
   @Override
   public void release(boolean forCancellation) throws MuxerException {
-    if (metadataProvider != null) {
-      Set<Metadata.Entry> metadataEntriesCopy = new LinkedHashSet<>(metadataEntries);
-      metadataProvider.updateMetadataEntries(metadataEntriesCopy);
-      metadataEntries.clear();
-      metadataEntries.addAll(metadataEntriesCopy);
-    }
-
     writeMetadata();
 
     try {
@@ -205,11 +200,22 @@ public final class InAppMuxer implements Muxer {
   }
 
   private void writeMetadata() {
+    if (metadataProvider != null) {
+      Set<Metadata.Entry> metadataEntriesCopy = new LinkedHashSet<>(metadataEntries);
+      metadataProvider.updateMetadataEntries(metadataEntriesCopy);
+      metadataEntries.clear();
+      metadataEntries.addAll(metadataEntriesCopy);
+    }
+
     for (Metadata.Entry entry : metadataEntries) {
       // LINT.IfChange(written_metadata)
       if (entry instanceof Mp4LocationData) {
         mp4Muxer.setLocation(
             ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
+      } else if (entry instanceof XmpData) {
+        mp4Muxer.addXmp(ByteBuffer.wrap(((XmpData) entry).data));
+      } else {
+        throw new IllegalStateException("Unsupported Metadata.Entry " + entry.getClass().getName());
       }
     }
   }
