@@ -873,7 +873,7 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_FORCED_SESSION_TRACK_TYPES = Util.intToStringMaxRadix(6);
     private static final String FIELD_KEY_SET_ID = Util.intToStringMaxRadix(7);
 
-    /** Object that can restore {@link DrmConfiguration} from a {@link Bundle}. */
+    /** An object that can restore {@link DrmConfiguration} from a {@link Bundle}. */
     public static final Creator<DrmConfiguration> CREATOR = DrmConfiguration::fromBundle;
 
     private static DrmConfiguration fromBundle(Bundle bundle) {
@@ -938,7 +938,7 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Configuration for playing back linear ads with a media item. */
-  public static final class AdsConfiguration {
+  public static final class AdsConfiguration implements Bundleable {
 
     /** Builder for {@link AdsConfiguration} instances. */
     public static final class Builder {
@@ -1021,6 +1021,36 @@ public final class MediaItem implements Bundleable {
       int result = adTagUri.hashCode();
       result = 31 * result + (adsId != null ? adsId.hashCode() : 0);
       return result;
+    }
+
+    // Bundleable implementation.
+
+    private static final String FIELD_AD_TAG_URI = Util.intToStringMaxRadix(0);
+
+    /**
+     * An object that can restore {@link AdsConfiguration} from a {@link Bundle}.
+     *
+     * <p>The {@link #adsId} of a restored instance will always be {@code null}.
+     */
+    public static final Creator<AdsConfiguration> CREATOR = AdsConfiguration::fromBundle;
+
+    private static AdsConfiguration fromBundle(Bundle bundle) {
+      @Nullable Uri adTagUri = bundle.getParcelable(FIELD_AD_TAG_URI);
+      checkNotNull(adTagUri);
+      return new AdsConfiguration.Builder(adTagUri).build();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #adsId} field. The {@link #adsId} of an instance restored from such a
+     * bundle by {@link #CREATOR} will be {@code null}.
+     */
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putParcelable(FIELD_AD_TAG_URI, adTagUri);
+      return bundle;
     }
   }
 
@@ -1370,7 +1400,7 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link LiveConfiguration} from a {@link Bundle}. */
+    /** An object that can restore {@link LiveConfiguration} from a {@link Bundle}. */
     public static final Creator<LiveConfiguration> CREATOR =
         bundle ->
             new LiveConfiguration(
@@ -1567,7 +1597,7 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_LABEL = Util.intToStringMaxRadix(5);
     private static final String FIELD_ID = Util.intToStringMaxRadix(6);
 
-    /** Object that can restore {@link SubtitleConfiguration} from a {@link Bundle}. */
+    /** An object that can restore {@link SubtitleConfiguration} from a {@link Bundle}. */
     public static final Creator<SubtitleConfiguration> CREATOR = SubtitleConfiguration::fromBundle;
 
     private static SubtitleConfiguration fromBundle(Bundle bundle) {
@@ -1852,7 +1882,7 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link ClippingConfiguration} from a {@link Bundle}. */
+    /** An object that can restore {@link ClippingConfiguration} from a {@link Bundle}. */
     public static final Creator<ClippingProperties> CREATOR =
         bundle ->
             new ClippingConfiguration.Builder()
@@ -2009,7 +2039,7 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link RequestMetadata} from a {@link Bundle}. */
+    /** An object that can restore {@link RequestMetadata} from a {@link Bundle}. */
     public static final Creator<RequestMetadata> CREATOR =
         bundle ->
             new RequestMetadata.Builder()
@@ -2146,7 +2176,7 @@ public final class MediaItem implements Bundleable {
   }
 
   /**
-   * Object that can restore {@link MediaItem} from a {@link Bundle}.
+   * An object that can restore {@link MediaItem} from a {@link Bundle}.
    *
    * <p>The {@link #localConfiguration} of a restored instance will always be {@code null}.
    */
