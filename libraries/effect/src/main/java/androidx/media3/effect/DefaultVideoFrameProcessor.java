@@ -136,10 +136,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        * regain capacity, output textures must be released using {@link
        * ReleaseOutputTextureCallback}.
        *
-       * <p>If not set, there will be no texture output.
+       * <p>If set, {@linkplain #setOutputSurfaceInfo} and {@link #renderOutputFrame} will be
+       * no-ops, and {@code renderFramesAutomatically} will behave as if it is set to {@code true}.
        *
-       * <p>This must not be set if the {@linkplain #setOutputSurfaceInfo output surface info} is
-       * also set.
+       * <p>If not set, there will be no texture output.
        *
        * @param textureOutputListener The {@link TextureOutputListener}.
        * @param textureOutputCapacity The amount of output textures that may be allocated at a time
@@ -211,6 +211,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
      *
      * <p>If invoking the {@code listener} on {@link DefaultVideoFrameProcessor}'s internal thread
      * is desired, pass a {@link MoreExecutors#directExecutor() direct listenerExecutor}.
+     *
+     * <p>If {@linkplain Factory.Builder#setTextureOutput texture output} is set, {@linkplain
+     * #setOutputSurfaceInfo} and {@link #renderOutputFrame} will be no-ops, and {@code
+     * renderFramesAutomatically} will behave as if it is set to {@code true}.
      */
     @Override
     public DefaultVideoFrameProcessor create(
@@ -235,7 +239,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
       if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
           || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
-        // GL Tone mapping is only implemented for BT2020 to BT709 and HDR to SDR (Gamma 2.2).
+        // OpenGL tone mapping is only implemented for BT2020 to BT709 and HDR to SDR (Gamma 2.2).
         // Gamma 2.2 is used instead of SMPTE 170M for SDR, despite MediaFormat's
         // COLOR_TRANSFER_SDR_VIDEO being defined as SMPTE 170M. This is to match
         // other known tone-mapping behavior within the Android ecosystem.
@@ -444,8 +448,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /**
    * {@inheritDoc}
    *
-   * <p>This must not be set on an instance where {@linkplain Factory.Builder#setTextureOutput
-   * texture output} is set.
+   * <p>If {@linkplain Factory.Builder#setTextureOutput texture output} is set, calling this method
+   * will be a no-op.
    */
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
@@ -455,8 +459,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /**
    * {@inheritDoc}
    *
-   * <p>This may also be used for rendering from an output texture, if a {@link
-   * TextureOutputListener} {@linkplain Factory.Builder#setTextureOutput is set}
+   * <p>If {@linkplain Factory.Builder#setTextureOutput texture output} is set, calling this method
+   * will be a no-op.
    */
   @Override
   public void renderOutputFrame(long renderTimeNs) {
