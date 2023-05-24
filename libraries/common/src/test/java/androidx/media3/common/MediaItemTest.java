@@ -594,6 +594,21 @@ public class MediaItemTest {
   }
 
   @Test
+  public void createAdsConfigurationInstance_roundTripViaBundle_yieldsEqualInstanceExceptAdsId() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+    MediaItem.AdsConfiguration adsConfiguration =
+        new MediaItem.AdsConfiguration.Builder(adTagUri)
+            .setAdsId("Something that will be lost")
+            .build();
+
+    MediaItem.AdsConfiguration adsConfigurationFromBundle =
+        MediaItem.AdsConfiguration.CREATOR.fromBundle(adsConfiguration.toBundle());
+
+    assertThat(adsConfigurationFromBundle.adTagUri).isEqualTo(adsConfiguration.adTagUri);
+    assertThat(adsConfigurationFromBundle.adsId).isNull();
+  }
+
+  @Test
   public void builderSetMediaMetadata_setsMetadata() {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
 
