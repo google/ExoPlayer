@@ -2169,6 +2169,11 @@ public interface Player {
    * <p>This method must only be called if {@link #COMMAND_CHANGE_MEDIA_ITEMS} is {@linkplain
    * #getAvailableCommands() available}.
    *
+   * <p>Note that it is possible to replace a range with an arbitrary number of new items, so that
+   * the number of removed items defined by {@code fromIndex} and {@code toIndex} does not have to
+   * match the number of added items defined by {@code mediaItems}. As result, it may also change
+   * the index of subsequent items not touched by this operation.
+   *
    * @param fromIndex The start of the range. If the index is larger than the size of the playlist,
    *     the request is ignored.
    * @param toIndex The first item not to be included in the range (exclusive). If the index is
