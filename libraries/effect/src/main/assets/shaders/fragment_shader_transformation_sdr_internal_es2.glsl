@@ -29,8 +29,10 @@ uniform sampler2D uTexSampler;
 uniform mat4 uRgbMatrix;
 varying vec2 vTexSamplingCoord;
 // C.java#ColorTransfer value.
-// Only COLOR_TRANSFER_LINEAR and COLOR_TRANSFER_SDR_VIDEO are allowed.
+// Only COLOR_TRANSFER_SRGB and COLOR_TRANSFER_SDR_VIDEO are allowed.
 uniform int uInputColorTransfer;
+// C.java#ColorTransfer value.
+// Only COLOR_TRANSFER_LINEAR and COLOR_TRANSFER_SDR_VIDEO are allowed.
 uniform int uOutputColorTransfer;
 uniform int uEnableColorTransfer;
 
