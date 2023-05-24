@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.source.rtsp;
 
 import static com.google.android.exoplayer2.source.rtsp.MediaDescription.MEDIA_TYPE_AUDIO;
 import static com.google.android.exoplayer2.source.rtsp.RtpPayloadFormat.getMimeTypeFromRtpMediaType;
+import static com.google.android.exoplayer2.source.rtsp.RtspHeaders.CONTENT_BASE;
+import static com.google.android.exoplayer2.source.rtsp.RtspHeaders.CONTENT_LOCATION;
 import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_CONTROL;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -24,6 +26,7 @@ import static com.google.android.exoplayer2.util.NalUnitUtil.NAL_START_CODE;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 import androidx.annotation.Nullable;
@@ -153,14 +156,18 @@ import com.google.common.collect.ImmutableMap;
   /**
    * Creates a new instance from a {@link MediaDescription}.
    *
+   * @param rtspHeaders The {@link RtspHeaders} from the session's DESCRIBE response.
    * @param mediaDescription The {@link MediaDescription} of this track.
    * @param sessionUri The {@link Uri} of the RTSP playback session.
    */
-  public RtspMediaTrack(MediaDescription mediaDescription, Uri sessionUri) {
+  public RtspMediaTrack(
+      RtspHeaders rtspHeaders, MediaDescription mediaDescription, Uri sessionUri) {
     checkArgument(
         mediaDescription.attributes.containsKey(ATTR_CONTROL), "missing attribute control");
     payloadFormat = generatePayloadFormat(mediaDescription);
-    uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
+    uri =
+        extractTrackUri(
+            rtspHeaders, sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
   }
 
   @Override
@@ -464,15 +471,25 @@ import com.google.common.collect.ImmutableMap;
    *
    * <p>The processing logic is specified in RFC2326 Section C.1.1.
    *
+   * @param rtspHeaders The {@link RtspHeaders} from the session's DESCRIBE response.
    * @param sessionUri The session URI.
    * @param controlAttributeString The control attribute from the track's {@link MediaDescription}.
    * @return The extracted track URI.
    */
-  private static Uri extractTrackUri(Uri sessionUri, String controlAttributeString) {
+  private static Uri extractTrackUri(
+      RtspHeaders rtspHeaders, Uri sessionUri, String controlAttributeString) {
     Uri controlAttributeUri = Uri.parse(controlAttributeString);
     if (controlAttributeUri.isAbsolute()) {
       return controlAttributeUri;
-    } else if (controlAttributeString.equals(GENERIC_CONTROL_ATTR)) {
+    }
+
+    if (!TextUtils.isEmpty(rtspHeaders.get(CONTENT_BASE))) {
+      sessionUri = Uri.parse(rtspHeaders.get(CONTENT_BASE));
+    } else if (!TextUtils.isEmpty(rtspHeaders.get(CONTENT_LOCATION))) {
+      sessionUri = Uri.parse(rtspHeaders.get(CONTENT_LOCATION));
+    }
+
+    if (controlAttributeString.equals(GENERIC_CONTROL_ATTR)) {
       return sessionUri;
     } else {
       return sessionUri.buildUpon().appendEncodedPath(controlAttributeString).build();
