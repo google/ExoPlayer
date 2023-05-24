@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
@@ -23,13 +24,13 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.Util;
 import androidx.media3.container.Mp4LocationData;
+import androidx.media3.container.XmpData;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
 import androidx.media3.test.utils.FakeExtractorOutput;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.After;
@@ -42,6 +43,7 @@ import org.junit.runner.RunWith;
 public class TransformerWithInAppMuxerEndToEndTest {
   private static final String MP4_FILE_ASSET_DIRECTORY = "asset:///media/";
   private static final String H264_MP4 = "mp4/sample.mp4";
+  private static final String XMP_SAMPLE_DATA = "media/xmp/sample_datetime_xmp.xmp";
   private Context context;
   private String outputPath;
 
@@ -58,7 +60,6 @@ public class TransformerWithInAppMuxerEndToEndTest {
 
   @Test
   public void transmux_withLocationMetadata_outputMatchedExpected() throws Exception {
-    String outputPath = Util.createTempFile(context, "TransformerTest").getPath();
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory(
             DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
@@ -72,15 +73,8 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setMuxerFactory(inAppMuxerFactory)
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + H264_MP4));
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem)
-            .setEffects(
-                new Effects(
-                    /* audioProcessors= */ ImmutableList.of(),
-                    /* videoEffects= */ ImmutableList.of()))
-            .build();
 
-    transformer.start(editedMediaItem, outputPath);
+    transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     FakeExtractorOutput fakeExtractorOutput =
@@ -91,5 +85,26 @@ public class TransformerWithInAppMuxerEndToEndTest {
         context,
         fakeExtractorOutput,
         TestUtil.getDumpFileName(H264_MP4 + ".with_location_metadata"));
+  }
+
+  @Test
+  public void transmux_withXmpData_completesSuccessfully() throws Exception {
+    byte[] xmpData = androidx.media3.test.utils.TestUtil.getByteArray(context, XMP_SAMPLE_DATA);
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory(
+            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
+            metadataEntries -> metadataEntries.add(new XmpData(xmpData)));
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + H264_MP4));
+
+    transformer.start(mediaItem, outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    // TODO(b/270956881): Use FakeExtractorOutput once it starts dumping uuid box.
+    assertThat(exportResult.exportException).isNull();
   }
 }
