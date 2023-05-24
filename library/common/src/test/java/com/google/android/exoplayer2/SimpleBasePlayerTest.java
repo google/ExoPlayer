@@ -1402,7 +1402,6 @@ public class SimpleBasePlayerTest {
                 /* adIndexInAdGroup= */ C.INDEX_UNSET),
             Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onMediaItemTransition(mediaItem1, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
-    verify(listener).onSeekProcessed();
     verify(listener)
         .onEvents(
             player,
@@ -6918,7 +6917,6 @@ public class SimpleBasePlayerTest {
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
     verify(listener).onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
   }
 
@@ -6969,7 +6967,6 @@ public class SimpleBasePlayerTest {
     verify(listener).onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7029,7 +7026,6 @@ public class SimpleBasePlayerTest {
     verify(listener).onMediaItemTransition(newMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7081,7 +7077,6 @@ public class SimpleBasePlayerTest {
     assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7133,7 +7128,6 @@ public class SimpleBasePlayerTest {
     assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7185,7 +7179,6 @@ public class SimpleBasePlayerTest {
     assertThat(player.getTotalBufferedDuration()).isEqualTo(0);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7237,7 +7230,6 @@ public class SimpleBasePlayerTest {
     assertThat(player.getTotalBufferedDuration()).isEqualTo(7000);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7289,7 +7281,6 @@ public class SimpleBasePlayerTest {
     assertThat(player.getTotalBufferedDuration()).isEqualTo(3000);
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);
@@ -7347,7 +7338,6 @@ public class SimpleBasePlayerTest {
     verify(listener).onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     verify(listener).onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
     verify(listener).onMediaItemTransition(mediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
-    verify(listener).onSeekProcessed();
     verifyNoMoreInteractions(listener);
 
     future.set(null);

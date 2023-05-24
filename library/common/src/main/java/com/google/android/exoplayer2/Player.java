@@ -1011,14 +1011,6 @@ public interface Player {
     default void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {}
 
     /**
-     * @deprecated Seeks are processed without delay. Listen to {@link
-     *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
-     *     #DISCONTINUITY_REASON_SEEK} instead.
-     */
-    @Deprecated
-    default void onSeekProcessed() {}
-
-    /**
      * Called when the audio session ID changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
