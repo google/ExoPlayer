@@ -39,6 +39,16 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class RtspMediaTrackTest {
 
+  private static final RtspHeaders RTSP_DESCRIBE_RESPONSE_HEADERS =
+      new RtspHeaders.Builder()
+          .addAll(
+              ImmutableList.of(
+                  "Accept: application/sdp",
+                  "CSeq: 3",
+                  "Content-Length: 707",
+                  "Transport: RTP/AVP;unicast;client_port=65458-65459\r\n"))
+          .build();
+
   @Test
   public void generatePayloadFormat_withH264MediaDescription_succeeds() {
     MediaDescription mediaDescription =
@@ -361,7 +371,9 @@ public class RtspMediaTrackTest {
     MediaDescription mediaDescription =
         createGenericMediaDescriptionWithControlAttribute("path1/track2");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(
+            RTSP_DESCRIBE_RESPONSE_HEADERS, mediaDescription, Uri.parse("rtsp://test.com"));
 
     assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/track2"));
   }
@@ -371,7 +383,9 @@ public class RtspMediaTrackTest {
     MediaDescription mediaDescription =
         createGenericMediaDescriptionWithControlAttribute("rtsp://test.com/foo");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(
+            RTSP_DESCRIBE_RESPONSE_HEADERS, mediaDescription, Uri.parse("rtsp://test.com"));
 
     assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/foo"));
   }
@@ -380,9 +394,111 @@ public class RtspMediaTrackTest {
   public void rtspMediaTrack_mediaDescriptionContainsGenericUri_setsCorrectTrackUri() {
     MediaDescription mediaDescription = createGenericMediaDescriptionWithControlAttribute("*");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(
+            RTSP_DESCRIBE_RESPONSE_HEADERS, mediaDescription, Uri.parse("rtsp://test.com"));
 
     assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com"));
+  }
+
+  @Test
+  public void rtspMediaTrack_withContentBaseAndRelativeUri_setsCorrectTrackUri() {
+    RtspHeaders rtspHeaders =
+        RTSP_DESCRIBE_RESPONSE_HEADERS
+            .buildUpon()
+            .addAll(ImmutableList.of("Content-Base: rtsp://test.com/path1"))
+            .build();
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path2/track3");
+
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(rtspHeaders, mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/path2/track3"));
+  }
+
+  @Test
+  public void rtspMediaTrack_withContentLocationAndRelativeUri_setsCorrectTrackUri() {
+    RtspHeaders rtspHeaders =
+        RTSP_DESCRIBE_RESPONSE_HEADERS
+            .buildUpon()
+            .addAll(ImmutableList.of("Content-Location: rtsp://test.com/path1"))
+            .build();
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path2/track3");
+
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(rtspHeaders, mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/path2/track3"));
+  }
+
+  @Test
+  public void rtspMediaTrack_withBothContentBaseAndLocation_setsCorrectTrackUri() {
+    RtspHeaders rtspHeaders =
+        RTSP_DESCRIBE_RESPONSE_HEADERS
+            .buildUpon()
+            .addAll(
+                ImmutableList.of(
+                    "Content-Base: rtsp://test.com/path1",
+                    "Content-Location: rtsp://test.com/path2"))
+            .build();
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path2/track3");
+
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(rtspHeaders, mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/path2/track3"));
+  }
+
+  @Test
+  public void
+      rtspMediaTrack_withContentLocationAndEmptyContentBaseAndRelativeUri_setsCorrectTrackUri() {
+    RtspHeaders rtspHeaders =
+        RTSP_DESCRIBE_RESPONSE_HEADERS
+            .buildUpon()
+            .addAll(ImmutableList.of("Content-Base:", "Content-Location: rtsp://test.com/path1"))
+            .build();
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path2/track3");
+
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(rtspHeaders, mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/path2/track3"));
+  }
+
+  @Test
+  public void rtspMediaTrack_withEmptyContentLocationAndRelativeUri_setsCorrectTrackUri() {
+    RtspHeaders rtspHeaders =
+        RTSP_DESCRIBE_RESPONSE_HEADERS
+            .buildUpon()
+            .addAll(ImmutableList.of("Content-Location:"))
+            .build();
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path2/track3");
+
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(rtspHeaders, mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path2/track3"));
+  }
+
+  @Test
+  public void rtspMediaTrack_withContentBaseAndAbsoluteUri_setsCorrectTrackUri() {
+    RtspHeaders rtspHeaders =
+        RTSP_DESCRIBE_RESPONSE_HEADERS
+            .buildUpon()
+            .addAll(ImmutableList.of("Content-Base: rtsp://test.com/path1"))
+            .build();
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("rtsp://test.com/foo");
+
+    RtspMediaTrack mediaTrack =
+        new RtspMediaTrack(rtspHeaders, mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/foo"));
   }
 
   @Test
