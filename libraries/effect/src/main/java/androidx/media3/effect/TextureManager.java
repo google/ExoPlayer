@@ -25,7 +25,7 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
 
-/** A component that handles {@code DefaultVideoFrameProcessor}'s input. */
+/** Handles {@code DefaultVideoFrameProcessor}'s input. */
 /* package */ interface TextureManager extends GlShaderProgram.InputListener {
 
   /**
@@ -41,11 +41,9 @@ import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
    * Provides an input {@link Bitmap} to put into the video frames.
    *
    * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
-   * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
-   * @param offsetUs The offset, from the start of the input stream, to apply for the {@code
-   *     inputBitmap} in microseconds.
-   * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
-   *     second.
+   * @param durationUs The duration of the bitmap in the composition, in microseconds.
+   * @param frameInfo Information about the bitmap being queued.
+   * @param frameRate The rate at which to generate frames with the bitmap, in frames per second.
    * @param useHdr Whether input and/or output colors are HDR.
    */
   default void queueInputBitmap(
