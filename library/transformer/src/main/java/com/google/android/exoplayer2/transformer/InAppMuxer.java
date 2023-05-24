@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -55,6 +56,7 @@ public final class InAppMuxer implements Muxer {
      * <ul>
      *   <li>{@link Mp4LocationData}
      *   <li>{@link XmpData}
+     *   <li>{@link MdtaMetadataEntry}
      * </ul>
      */
     void updateMetadataEntries(Set<Metadata.Entry> metadataEntries);
@@ -177,7 +179,9 @@ public final class InAppMuxer implements Muxer {
       Metadata.Entry entry = metadata.get(i);
       // Keep only supported metadata.
       // LINT.IfChange(added_metadata)
-      if (entry instanceof Mp4LocationData || entry instanceof XmpData) {
+      if (entry instanceof Mp4LocationData
+          || entry instanceof XmpData
+          || entry instanceof MdtaMetadataEntry) {
         metadataEntries.add(entry);
       }
     }
@@ -214,6 +218,14 @@ public final class InAppMuxer implements Muxer {
             ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
       } else if (entry instanceof XmpData) {
         mp4Muxer.addXmp(ByteBuffer.wrap(((XmpData) entry).data));
+      } else if (entry instanceof MdtaMetadataEntry) {
+        MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
+        if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {
+          byte[] captureFps = mdtaMetadataEntry.value;
+          mp4Muxer.setCaptureFps(ByteBuffer.wrap(captureFps).getFloat());
+        } else {
+          throw new IllegalStateException("Unsupported MdtaMetadataEntry " + mdtaMetadataEntry.key);
+        }
       } else {
         throw new IllegalStateException("Unsupported Metadata.Entry " + entry.getClass().getName());
       }

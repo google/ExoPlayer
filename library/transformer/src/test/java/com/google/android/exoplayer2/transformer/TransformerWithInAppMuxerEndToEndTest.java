@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
@@ -107,5 +108,37 @@ public class TransformerWithInAppMuxerEndToEndTest {
 
     // TODO(b/270956881): Use FakeExtractorOutput once it starts dumping uuid box.
     assertThat(exportResult.exportException).isNull();
+  }
+
+  @Test
+  public void transmux_withCaptureFps_outputMatchedExpected() throws Exception {
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory(
+            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
+            metadataEntries -> {
+              byte[] captureFps = new byte[] {66, 112, 0, 0}; // 60.0f
+              metadataEntries.add(
+                  new MdtaMetadataEntry(
+                      MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
+                      /* value= */ captureFps,
+                      /* localeIndicator= */ 0,
+                      MdtaMetadataEntry.TYPE_INDICATOR_FLOAT));
+            });
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + H264_MP4));
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    FakeExtractorOutput fakeExtractorOutput =
+        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(), checkNotNull(outputPath));
+    // [mdta: key=com.android.capture.fps, value=60.0] in video track metadata dump.
+    DumpFileAsserts.assertOutput(
+        context, fakeExtractorOutput, TestUtil.getDumpFileName(H264_MP4 + ".with_capture_fps"));
   }
 }
