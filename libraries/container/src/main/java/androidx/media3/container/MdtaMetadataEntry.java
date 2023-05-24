@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -32,6 +33,8 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   /** Key for the capture frame rate (in frames per second). */
   public static final String KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
+
+  public static final int TYPE_INDICATOR_FLOAT = 23;
 
   /** The metadata key name. */
   public final String key;
@@ -84,7 +87,11 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   @Override
   public String toString() {
-    return "mdta: key=" + key + ", value=" + Util.toHexString(value);
+    String formattedValue =
+        typeIndicator == TYPE_INDICATOR_FLOAT
+            ? Float.toString(ByteBuffer.wrap(value).getFloat())
+            : Util.toHexString(value);
+    return "mdta: key=" + key + ", value=" + formattedValue;
   }
 
   // Parcelable implementation.

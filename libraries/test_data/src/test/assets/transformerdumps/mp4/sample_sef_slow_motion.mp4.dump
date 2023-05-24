@@ -6,11 +6,11 @@ format 0:
   width = 320
   height = 240
   frameRate = 29.523811
-  metadata = entries=[mdta: key=com.android.capture.fps, value=43700000, smta: captureFrameRate=240.0, svcTemporalLayerCount=4, SlowMotion: segments=[Segment: startTimeMs=88, endTimeMs=879, speedDivisor=2, Segment: startTimeMs=1255, endTimeMs=1970, speedDivisor=8]]
+  metadata = entries=[mdta: key=com.android.capture.fps, value=240.0, smta: captureFrameRate=240.0, svcTemporalLayerCount=4, SlowMotion: segments=[Segment: startTimeMs=88, endTimeMs=879, speedDivisor=2, Segment: startTimeMs=1255, endTimeMs=1970, speedDivisor=8]]
   initializationData:
     data = length 33, hash D3FB879D
     data = length 10, hash 7A0D0F2B
-container metadata = entries=[mdta: key=com.android.capture.fps, value=43700000, smta: captureFrameRate=240.0, svcTemporalLayerCount=4, SlowMotion: segments=[Segment: startTimeMs=88, endTimeMs=879, speedDivisor=2, Segment: startTimeMs=1255, endTimeMs=1970, speedDivisor=8]]
+container metadata = entries=[mdta: key=com.android.capture.fps, value=240.0, smta: captureFrameRate=240.0, svcTemporalLayerCount=4, SlowMotion: segments=[Segment: startTimeMs=88, endTimeMs=879, speedDivisor=2, Segment: startTimeMs=1255, endTimeMs=1970, speedDivisor=8]]
 format 1:
   averageBitrate = 131072
   sampleMimeType = audio/mp4a-latm
