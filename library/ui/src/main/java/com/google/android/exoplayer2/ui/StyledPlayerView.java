@@ -1564,6 +1564,10 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
+      if (videoSize.equals(VideoSize.UNKNOWN)
+          && (player == null || player.getPlaybackState() == Player.STATE_IDLE)) {
+        return;
+      }
       updateAspectRatio();
     }
 
