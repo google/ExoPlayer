@@ -659,7 +659,7 @@ public final class TransformerActivity extends AppCompatActivity {
   private void onCompleted(Uri inputUri, String filePath) {
     exportStopwatch.stop();
     informationTextView.setText(
-        getString(R.string.export_completed, exportStopwatch.elapsed(TimeUnit.SECONDS)));
+        getString(R.string.export_completed, exportStopwatch.elapsed(TimeUnit.SECONDS), filePath));
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
     inputCardView.setVisibility(View.VISIBLE);
