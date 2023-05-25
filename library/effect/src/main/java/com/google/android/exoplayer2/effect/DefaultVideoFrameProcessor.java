@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;

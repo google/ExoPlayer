@@ -22,8 +22,8 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
-import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
 
 /** Handles {@code DefaultVideoFrameProcessor}'s input. */
 /* package */ interface TextureManager extends GlShaderProgram.InputListener {

@@ -25,7 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
