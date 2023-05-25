@@ -24,7 +24,7 @@ import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
+import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlTextureInfo;
-import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
+import androidx.media3.common.OnInputFrameProcessedListener;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**

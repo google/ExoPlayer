@@ -19,7 +19,7 @@ import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
+import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 

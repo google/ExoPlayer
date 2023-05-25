@@ -32,7 +32,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.VideoFrameProcessor.OnInputFrameProcessedListener;
+import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.decoder.DecoderInputBuffer;
