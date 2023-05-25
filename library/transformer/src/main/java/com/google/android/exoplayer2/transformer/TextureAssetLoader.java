@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.common.collect.ImmutableMap;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 

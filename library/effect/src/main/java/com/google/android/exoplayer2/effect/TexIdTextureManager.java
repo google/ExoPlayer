@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlTextureInfo;
-import com.google.android.exoplayer2.util.VideoFrameProcessor.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
