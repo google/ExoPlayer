@@ -48,21 +48,19 @@ import java.util.Arrays;
 @UnstableApi
 public final class AudioCapabilities {
 
-  private static final int DEFAULT_MAX_CHANNEL_COUNT = 8;
+  // TODO(internal b/283945513): Have separate default max channel counts in `AudioCapabilities`
+  // for PCM and compressed audio.
+  private static final int DEFAULT_MAX_CHANNEL_COUNT = 10;
   @VisibleForTesting /* package */ static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
   /** The minimum audio capabilities supported by all devices. */
   public static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
-  /** Audio capabilities when the device specifies external surround sound. */
-  @SuppressWarnings("InlinedApi")
-  private static final AudioCapabilities EXTERNAL_SURROUND_SOUND_CAPABILITIES =
-      new AudioCapabilities(
-          new int[] {
-            AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
-          },
-          DEFAULT_MAX_CHANNEL_COUNT);
+  /** Encodings supported when the device specifies external surround sound. */
+  private static final ImmutableList<Integer> EXTERNAL_SURROUND_SOUND_ENCODINGS =
+      ImmutableList.of(
+          AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3);
 
   /**
    * All surround sound encodings that a device may be capable of playing mapped to a maximum
@@ -73,6 +71,7 @@ public final class AudioCapabilities {
           .put(C.ENCODING_AC3, 6)
           .put(C.ENCODING_AC4, 6)
           .put(C.ENCODING_DTS, 6)
+          .put(C.ENCODING_DTS_UHD_P2, 10)
           .put(C.ENCODING_E_AC3_JOC, 6)
           .put(C.ENCODING_E_AC3, 8)
           .put(C.ENCODING_DTS_HD, 8)
@@ -103,25 +102,39 @@ public final class AudioCapabilities {
     if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
+
+    ImmutableSet.Builder<Integer> supportedEncodings = new ImmutableSet.Builder<>();
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+      supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
+      supportedEncodings.addAll(Api29.getDirectPlaybackSupportedEncodings());
       return new AudioCapabilities(
-          Api29.getDirectPlaybackSupportedEncodings(), DEFAULT_MAX_CHANNEL_COUNT);
+          Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT);
     }
-    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
-      return DEFAULT_AUDIO_CAPABILITIES;
+
+    if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
+      @Nullable int[] encodingsFromExtra = intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS);
+      if (encodingsFromExtra != null) {
+        supportedEncodings.addAll(Ints.asList(encodingsFromExtra));
+      }
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodings.build()),
+          intent.getIntExtra(
+              AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
     }
-    return new AudioCapabilities(
-        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
-        intent.getIntExtra(
-            AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
+
+    ImmutableSet<Integer> supportedEncodingsSet = supportedEncodings.build();
+    if (!supportedEncodingsSet.isEmpty()) {
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodingsSet), /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT);
+    }
+    return DEFAULT_AUDIO_CAPABILITIES;
   }
 
   /**
@@ -203,7 +216,8 @@ public final class AudioCapabilities {
     if (encoding == C.ENCODING_E_AC3_JOC && !supportsEncoding(C.ENCODING_E_AC3_JOC)) {
       // E-AC3 receivers support E-AC3 JOC streams (but decode only the base layer).
       encoding = C.ENCODING_E_AC3;
-    } else if (encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD)) {
+    } else if ((encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD))
+        || (encoding == C.ENCODING_DTS_UHD_P2 && !supportsEncoding(C.ENCODING_DTS_UHD_P2))) {
       // DTS receivers support DTS-HD streams (but decode only the core layer).
       encoding = C.ENCODING_DTS;
     }
@@ -220,7 +234,13 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (channelCount > maxChannelCount) {
+      // Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
+      // instead of 10. See https://github.com/androidx/media/issues/396
+      if (format.sampleMimeType.equals(MimeTypes.AUDIO_DTS_X)) {
+        if (channelCount > 10) {
+          return null;
+        }
+      } else if (channelCount > maxChannelCount) {
         return null;
       }
     }
@@ -355,9 +375,13 @@ public final class AudioCapabilities {
     private Api29() {}
 
     @DoNotInline
-    public static int[] getDirectPlaybackSupportedEncodings() {
+    public static ImmutableList<Integer> getDirectPlaybackSupportedEncodings() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
+        // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
+        if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
+          continue;
+        }
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
@@ -369,7 +393,7 @@ public final class AudioCapabilities {
         }
       }
       supportedEncodingsListBuilder.add(AudioFormat.ENCODING_PCM_16BIT);
-      return Ints.toArray(supportedEncodingsListBuilder.build());
+      return supportedEncodingsListBuilder.build();
     }
 
     /**

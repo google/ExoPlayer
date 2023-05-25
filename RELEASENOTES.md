@@ -17,6 +17,8 @@
     *   Ogg: Fix bug when seeking in files with a long duration
         ([#391](https://github.com/androidx/media/issues/391)).
 *   Audio:
+    *   Add direct playback support for DTS Express and DTS:X
+        ([#335](https://github.com/androidx/media/pull/335)).
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
         offload support the sink can provide for the format through a
