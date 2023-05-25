@@ -42,7 +42,7 @@
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
   <string name="export_started" translatable="false">Export started</string>
   <string name="export_timer" translatable="false">Export started %d seconds ago.</string>
-  <string name="export_completed" translatable="false">Export completed in %d seconds.</string>
+  <string name="export_completed" translatable="false">Export completed in %d seconds.\nOutput: %s</string>
   <string name="export_error" translatable="false">Export error</string>
   <string name="trim_range">Bounds in seconds</string>
   <string-array name="color_filter_options">
