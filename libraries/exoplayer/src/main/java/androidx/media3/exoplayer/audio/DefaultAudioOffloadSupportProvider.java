@@ -71,7 +71,7 @@ public final class DefaultAudioOffloadSupportProvider
     checkNotNull(format);
     checkNotNull(audioAttributes);
 
-    if (Util.SDK_INT < 29) {
+    if (Util.SDK_INT < 29 || format.sampleRate == Format.NO_VALUE) {
       return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
     }
 
