@@ -153,11 +153,7 @@ public final class MimeTypes {
 
   // image/ MIME types
 
-  public static final String IMAGE_PNG = BASE_TYPE_IMAGE + "/png";
-  public static final String IMAGE_WEBP = BASE_TYPE_IMAGE + "/webp";
   public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
-  public static final String IMAGE_HEIC = BASE_TYPE_IMAGE + "/heic";
-  public static final String IMAGE_HEIF = BASE_TYPE_IMAGE + "/heif";
 
   /**
    * A non-standard codec string for E-AC3-JOC. Use of this constant allows for disambiguation
