@@ -976,6 +976,28 @@ public final class MediaItemExportTest {
   }
 
   @Test
+  public void start_withOnlyRegularRotationEffect_transmuxesAndRotates() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(270).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+
+    transformer.start(editedMediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    // Video transcoding in unit tests is not supported.
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_VIDEO + ".rotated"));
+  }
+
+  @Test
   public void getProgress_knownDuration_returnsConsistentStates() throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
