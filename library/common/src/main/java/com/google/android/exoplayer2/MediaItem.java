@@ -544,15 +544,14 @@ public final class MediaItem implements Bundleable {
     }
 
     /** Returns a new {@link MediaItem} instance with the current builder values. */
-    @SuppressWarnings("deprecation") // Using PlaybackProperties while it exists.
     public MediaItem build() {
       // TODO: remove this check once all the deprecated individual DRM setters are removed.
       checkState(drmConfiguration.licenseUri == null || drmConfiguration.scheme != null);
-      @Nullable PlaybackProperties localConfiguration = null;
+      @Nullable LocalConfiguration localConfiguration = null;
       @Nullable Uri uri = this.uri;
       if (uri != null) {
         localConfiguration =
-            new PlaybackProperties(
+            new LocalConfiguration(
                 uri,
                 mimeType,
                 drmConfiguration.scheme != null ? drmConfiguration.build() : null,
@@ -1055,8 +1054,7 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Properties for local playback. */
-  // TODO: Mark this final when PlaybackProperties is deleted.
-  public static class LocalConfiguration {
+  public static final class LocalConfiguration {
 
     /** The {@link Uri}. */
     public final Uri uri;
@@ -1151,33 +1149,6 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + subtitleConfigurations.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
-    }
-  }
-
-  /**
-   * @deprecated Use {@link LocalConfiguration}.
-   */
-  @Deprecated
-  public static final class PlaybackProperties extends LocalConfiguration {
-
-    private PlaybackProperties(
-        Uri uri,
-        @Nullable String mimeType,
-        @Nullable DrmConfiguration drmConfiguration,
-        @Nullable AdsConfiguration adsConfiguration,
-        List<StreamKey> streamKeys,
-        @Nullable String customCacheKey,
-        ImmutableList<SubtitleConfiguration> subtitleConfigurations,
-        @Nullable Object tag) {
-      super(
-          uri,
-          mimeType,
-          drmConfiguration,
-          adsConfiguration,
-          streamKeys,
-          customCacheKey,
-          subtitleConfigurations,
-          tag);
     }
   }
 
@@ -2069,7 +2040,7 @@ public final class MediaItem implements Bundleable {
   /**
    * @deprecated Use {@link #localConfiguration} instead.
    */
-  @Deprecated @Nullable public final PlaybackProperties playbackProperties;
+  @Deprecated @Nullable public final LocalConfiguration playbackProperties;
 
   /** The live playback configuration. */
   public final LiveConfiguration liveConfiguration;
@@ -2087,12 +2058,12 @@ public final class MediaItem implements Bundleable {
   /** The media {@link RequestMetadata}. */
   public final RequestMetadata requestMetadata;
 
-  // Using PlaybackProperties and ClippingProperties until they're deleted.
+  // Using ClippingProperties until they're deleted.
   @SuppressWarnings("deprecation")
   private MediaItem(
       String mediaId,
       ClippingProperties clippingConfiguration,
-      @Nullable PlaybackProperties localConfiguration,
+      @Nullable LocalConfiguration localConfiguration,
       LiveConfiguration liveConfiguration,
       MediaMetadata mediaMetadata,
       RequestMetadata requestMetadata) {

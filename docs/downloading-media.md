@@ -390,7 +390,7 @@ follows these steps:
 Playback of downloaded adaptive content requires configuring the player and
 passing the corresponding `MediaItem`, as described above.
 
-When building the `MediaItem`, `MediaItem.playbackProperties.streamKeys` must be
+When building the `MediaItem`, `MediaItem.localConfiguration.streamKeys` must be
 set to match those in the `DownloadRequest` so that the player only tries to
 play the subset of tracks that have been downloaded. Using
 `Download.request.toMediaItem` and `DownloadRequest.toMediaItem` to build the
