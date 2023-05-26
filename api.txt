@@ -335,7 +335,7 @@ package androidx.media3.common {
     method public androidx.media3.common.MediaItem.LiveConfiguration.Builder setTargetOffsetMs(long);
   }
 
-  public static class MediaItem.LocalConfiguration {
+  public static final class MediaItem.LocalConfiguration {
     field @Nullable public final androidx.media3.common.MediaItem.AdsConfiguration adsConfiguration;
     field @Nullable public final androidx.media3.common.MediaItem.DrmConfiguration drmConfiguration;
     field @Nullable public final String mimeType;

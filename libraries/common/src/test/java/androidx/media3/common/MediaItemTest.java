@@ -797,7 +797,7 @@ public class MediaItemTest {
     MediaItem copy = mediaItem.buildUpon().build();
 
     assertThat(copy).isEqualTo(mediaItem);
-    assertThat(copy.localConfiguration).isEqualTo(mediaItem.playbackProperties);
+    assertThat(copy.localConfiguration).isEqualTo(mediaItem.localConfiguration);
   }
 
   @Test
@@ -862,7 +862,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundTripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
+  public void roundTripViaBundle_withoutLocalConfiguration_yieldsEqualInstance() {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("mediaId")
@@ -892,7 +892,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundTripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
+  public void roundTripViaBundle_withLocalConfiguration_dropsLocalConfiguration() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.localConfiguration).isNotNull();

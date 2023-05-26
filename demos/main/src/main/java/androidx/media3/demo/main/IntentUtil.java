@@ -94,7 +94,7 @@ public class IntentUtil {
       if (mediaItem.mediaMetadata.title != null) {
         intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
       }
-      addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "");
+      addLocalConfigurationToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "");
       addClippingConfigurationToIntent(
           mediaItem.clippingConfiguration, intent, /* extrasKeySuffix= */ "");
     } else {
@@ -104,7 +104,7 @@ public class IntentUtil {
         MediaItem.LocalConfiguration localConfiguration =
             checkNotNull(mediaItem.localConfiguration);
         intent.putExtra(URI_EXTRA + ("_" + i), localConfiguration.uri.toString());
-        addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
+        addLocalConfigurationToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
         addClippingConfigurationToIntent(
             mediaItem.clippingConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
         if (mediaItem.mediaMetadata.title != null) {
@@ -195,7 +195,7 @@ public class IntentUtil {
     return builder;
   }
 
-  private static void addPlaybackPropertiesToIntent(
+  private static void addLocalConfigurationToIntent(
       MediaItem.LocalConfiguration localConfiguration, Intent intent, String extrasKeySuffix) {
     intent
         .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, localConfiguration.mimeType)
