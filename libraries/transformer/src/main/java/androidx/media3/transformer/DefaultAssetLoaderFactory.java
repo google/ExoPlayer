@@ -117,17 +117,10 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
       return false;
     }
     if (localConfiguration.mimeType != null) {
-      ImmutableList<String> supportedMimeTypes =
-          ImmutableList.of(
-              MimeTypes.IMAGE_PNG,
-              MimeTypes.IMAGE_WEBP,
-              MimeTypes.IMAGE_JPEG,
-              MimeTypes.IMAGE_HEIC,
-              MimeTypes.IMAGE_HEIF);
-      return supportedMimeTypes.contains(localConfiguration.mimeType);
+      return MimeTypes.isImage(localConfiguration.mimeType);
     }
     ImmutableList<String> supportedImageTypes =
-        ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif");
+        ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif", ".bmp");
     String uriPath = checkNotNull(localConfiguration.uri.getPath());
     int fileExtensionStart = uriPath.lastIndexOf(".");
     if (fileExtensionStart < 0) {

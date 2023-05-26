@@ -46,7 +46,13 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-/** An {@link AssetLoader} implementation that loads images into {@link Bitmap} instances. */
+/**
+ * An {@link AssetLoader} implementation that loads images into {@link Bitmap} instances.
+ *
+ * <p>Supports the image formats listed <a
+ * href="https://developer.android.com/guide/topics/media/media-formats#image-formats">here</a>
+ * except from GIFs, which could exhibit unexpected behavior.
+ */
 @UnstableApi
 public final class ImageAssetLoader implements AssetLoader {
 
