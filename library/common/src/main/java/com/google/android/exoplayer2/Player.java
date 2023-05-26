@@ -97,7 +97,7 @@ import java.util.List;
  *
  * <p>The majority of the Player interface and its related classes are part of the stable API that
  * guarantees backwards-compatibility for users of the API. Only more advances use cases may need to
- * rely on {@link UnstableApi} classes and methods that are subject to incompatible changes or even
+ * rely on {@code UnstableApi} classes and methods that are subject to incompatible changes or even
  * removal in a future release. Implementors of the Player interface are not covered by these API
  * stability guarantees.
  *
