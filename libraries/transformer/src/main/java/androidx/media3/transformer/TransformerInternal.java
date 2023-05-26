@@ -48,6 +48,7 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.effect.Presentation;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -710,7 +711,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (inputFormat.pixelWidthHeightRatio != 1f) {
           return true;
         }
-        if (!areVideoEffectsAllNoOp(firstEditedMediaItem.effects.videoEffects, inputFormat)) {
+        ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
+        return !videoEffects.isEmpty()
+            && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
+            && !hasOnlyRegularRotationEffect(videoEffects);
+      }
+
+      private boolean hasOnlyRegularRotationEffect(ImmutableList<Effect> videoEffects) {
+        if (videoEffects.size() != 1) {
+          return false;
+        }
+        Effect videoEffect = videoEffects.get(0);
+        if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
+          return false;
+        }
+        ScaleAndRotateTransformation scaleAndRotateTransformation =
+            (ScaleAndRotateTransformation) videoEffect;
+        if (scaleAndRotateTransformation.scaleX != 1f
+            || scaleAndRotateTransformation.scaleY != 1f) {
+          return false;
+        }
+        float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
+        if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
+          // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
+          // is counterclockwise.
+          muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
           return true;
         }
         return false;

@@ -83,6 +83,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isAborted;
   private @MonotonicNonNull Muxer muxer;
 
+  private volatile int additionalRotationDegrees;
   private volatile int trackCount;
 
   public MuxerWrapper(String outputPath, Muxer.Factory muxerFactory, Listener listener) {
@@ -93,6 +94,25 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
     abortScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+  }
+
+  /**
+   * Sets the clockwise rotation to add to the {@linkplain #addTrackFormat(Format) video track's}
+   * rotation, in degrees.
+   *
+   * <p>This value must be set before any track format is {@linkplain #addTrackFormat(Format)
+   * added}.
+   *
+   * <p>Can be called from any thread.
+   *
+   * @throws IllegalStateException If a track format was {@linkplain #addTrackFormat(Format) added}
+   *     before calling this method.
+   */
+  public void setAdditionalRotationDegrees(int additionalRotationDegrees) {
+    checkState(
+        trackTypeToInfo.size() == 0,
+        "The additional rotation cannot be changed after adding track formats.");
+    this.additionalRotationDegrees = additionalRotationDegrees;
   }
 
   /**
@@ -160,6 +180,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     ensureMuxerInitialized();
 
+    if (trackType == C.TRACK_TYPE_VIDEO) {
+      format =
+          format
+              .buildUpon()
+              .setRotationDegrees((format.rotationDegrees + additionalRotationDegrees) % 360)
+              .build();
+    }
     TrackInfo trackInfo = new TrackInfo(format, muxer.addTrack(format));
     trackTypeToInfo.put(trackType, trackInfo);
 

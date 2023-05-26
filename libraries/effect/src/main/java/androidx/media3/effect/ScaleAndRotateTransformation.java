@@ -92,17 +92,20 @@ public final class ScaleAndRotateTransformation implements MatrixTransformation 
     }
   }
 
+  /** The multiplier by which the frame will scale horizontally, along the x-axis. */
+  public final float scaleX;
+  /** The multiplier by which the frame will scale vertically, along the y-axis. */
+  public final float scaleY;
+  /** The counterclockwise rotation, in degrees. */
+  public final float rotationDegrees;
+
   private final Matrix transformationMatrix;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
-  /**
-   * Creates a new instance.
-   *
-   * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
-   * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
-   * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
-   */
   private ScaleAndRotateTransformation(float scaleX, float scaleY, float rotationDegrees) {
+    this.scaleX = scaleX;
+    this.scaleY = scaleY;
+    this.rotationDegrees = rotationDegrees;
     transformationMatrix = new Matrix();
     transformationMatrix.postScale(scaleX, scaleY);
     transformationMatrix.postRotate(rotationDegrees);
