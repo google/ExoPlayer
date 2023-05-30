@@ -32,7 +32,6 @@ import static androidx.media3.exoplayer.Renderer.MSG_SET_SCALING_MODE;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_EFFECTS;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
-import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_OUTPUT_RESOLUTION;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VOLUME;
@@ -78,7 +77,6 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.CueGroup;
@@ -1263,14 +1261,6 @@ import java.util.concurrent.TimeoutException;
   public void setVideoEffects(List<Effect> videoEffects) {
     verifyApplicationThread();
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_VIDEO_EFFECTS, videoEffects);
-  }
-
-  @Override
-  public void setVideoFrameProcessorFactory(
-      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
-    verifyApplicationThread();
-    sendRendererMessage(
-        TRACK_TYPE_VIDEO, MSG_SET_VIDEO_FRAME_PROCESSOR_FACTORY, videoFrameProcessorFactory);
   }
 
   @Override

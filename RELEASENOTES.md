@@ -49,8 +49,6 @@ This release includes the following changes since
 *   ExoPlayer:
     *   Add `FilteringMediaSource` that allows to filter available track types
         from a `MediaSource`.
-    *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
-        a custom `VideoFrameProcessor.Factory` during video playback.
 *   Extractors:
     *   Ogg: Fix bug when seeking in files with a long duration
         ([#391](https://github.com/androidx/media/issues/391)).
