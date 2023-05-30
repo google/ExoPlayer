@@ -3,6 +3,46 @@
 ### Unreleased changes
 
 *   Common Library:
+*   ExoPlayer:
+*   Transformer:
+*   Track Selection:
+*   Extractors:
+*   Audio:
+*   Audio Offload:
+*   Video:
+*   Text:
+*   Metadata:
+*   DRM:
+*   Effect:
+*   Muxers:
+*   IMA extension:
+*   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   DASH Extension:
+*   HLS Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   Cast Extension:
+*   Test Utilities:
+*   Remove deprecated symbols:
+    *   Remove deprecated `MediaItem.PlaybackProperties`, use
+        `MediaItem.LocalConfiguration` instead. Deprecated field
+        `MediaItem.playbackProperties` is now of type
+        `MediaItem.LocalConfiguration`.
+
+## 1.1
+
+### 1.1.0-beta01 (2023-06-07)
+
+This release includes the following changes since
+[1.1.0-alpha01](#110-alpha01-2023-05-10):
+
+*   Common Library:
     *   Add `Player.replaceMediaItem(s)` as a shortcut to adding and removing
         items at the same position
         ([#8046](https://github.com/google/ExoPlayer/issues/8046)).
@@ -11,8 +51,6 @@
         from a `MediaSource`.
     *   Add `ExoPlayer.setVideoFrameProcessorFactory()` for using `Effect` with
         a custom `VideoFrameProcessor.Factory` during video playback.
-*   Transformer:
-*   Track Selection:
 *   Extractors:
     *   Ogg: Fix bug when seeking in files with a long duration
         ([#391](https://github.com/androidx/media/issues/391)).
@@ -45,11 +83,6 @@
         size with `MediaCodecVideoRenderer` has a width and height of 0 when
         `Player.getCurrentTracks` does not support video, or the size of the
         supported video track is not yet determined.
-*   Text:
-*   Metadata:
-*   DRM:
-*   Effect:
-*   Muxers:
 *   IMA extension:
     *   Enable multi-period live DASH streams for DAI. Please note that the
         current implementation does not yet support seeking in live streams
@@ -59,21 +92,10 @@
         implement playback resumption with media button events sent by, for
         example, a Bluetooth headset
         ([#167](https://github.com/androidx/media/issues/167)).
-*   UI:
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
-*   RTMP Extension:
-*   DASH Extension:
-*   HLS Extension:
-*   Smooth Streaming Extension:
 *   RTSP Extension:
     *   Use base Uri for relative path resolution from the RTSP session if
         present in DESCRIBE response header
         ([#11160](https://github.com/google/ExoPlayer/issues/11160)).
-*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
-*   Cast Extension:
-*   Test Utilities:
 *   Remove deprecated symbols:
     *   Remove two deprecated `SimpleCache` constructors, use a non-deprecated
         constructor that takes a `DatabaseProvider` instead for better
@@ -138,12 +160,6 @@
     *   Remove deprecated
         `DefaultLoadControl.Builder.createDefaultLoadControl()`, use `build()`
         instead.
-    *   Remove deprecated `MediaItem.PlaybackProperties`, use
-        `MediaItem.LocalConfiguration` instead. Deprecated field
-        `MediaItem.playbackProperties` is now of type
-        `MediaItem.LocalConfiguration`.
-
-## 1.1
 
 ### 1.1.0-alpha01 (2023-05-10)
 
