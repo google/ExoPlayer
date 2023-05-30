@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
@@ -245,12 +244,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public void setVideoEffects(List<Effect> videoEffects) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setVideoFrameProcessorFactory(
-      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
     throw new UnsupportedOperationException();
   }
 

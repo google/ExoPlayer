@@ -61,7 +61,6 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -1487,18 +1486,6 @@ public interface ExoPlayer extends Player {
    */
   @RequiresApi(18)
   void setVideoEffects(List<Effect> videoEffects);
-
-  /**
-   * Sets a {@link VideoFrameProcessor.Factory} to create the {@link VideoFrameProcessor} that
-   * applies video effects set in {@link #setVideoEffects}.
-   *
-   * <p>See {@link #setVideoEffects} for limitations.
-   *
-   * @param videoFrameProcessorFactory The {@link VideoFrameProcessor.Factory} to use to apply the
-   *     video effects.
-   */
-  @RequiresApi(18)
-  void setVideoFrameProcessorFactory(VideoFrameProcessor.Factory videoFrameProcessorFactory);
 
   /**
    * Sets the {@link C.VideoScalingMode}.
