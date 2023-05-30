@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.util.ArrayDeque;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -148,16 +147,13 @@ import java.util.concurrent.RejectedExecutionException;
       shouldCancelTasks = true;
       highPriorityTasks.clear();
     }
-    Future<?> releaseFuture =
+    Future<?> unused =
         wrapTaskAndSubmitToExecutorService(releaseTask, /* isFlushOrReleaseTask= */ true);
     singleThreadExecutorService.shutdown();
-    try {
-      if (!singleThreadExecutorService.awaitTermination(releaseWaitTimeMs, MILLISECONDS)) {
-        listener.onError(new VideoFrameProcessingException("Release timed out"));
-      }
-      releaseFuture.get();
-    } catch (ExecutionException e) {
-      listener.onError(new VideoFrameProcessingException(e));
+    if (!singleThreadExecutorService.awaitTermination(releaseWaitTimeMs, MILLISECONDS)) {
+      listener.onError(
+          new VideoFrameProcessingException(
+              "Release timed out. OpenGL resources may not be cleaned up properly."));
     }
   }
 
