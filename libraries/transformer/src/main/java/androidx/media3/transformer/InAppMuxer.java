@@ -183,7 +183,9 @@ public final class InAppMuxer implements Muxer {
       // LINT.IfChange(added_metadata)
       if (entry instanceof Mp4LocationData
           || entry instanceof XmpData
-          || entry instanceof MdtaMetadataEntry) {
+          || (entry instanceof MdtaMetadataEntry
+              && ((MdtaMetadataEntry) entry)
+                  .key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS))) {
         metadataEntries.add(entry);
       }
     }
