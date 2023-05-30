@@ -88,7 +88,11 @@ public final class DefaultAudioOffloadSupportProvider
     if (channelConfig == AudioFormat.CHANNEL_INVALID) {
       return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
     }
-
+    // AudioFormat.ENCODING_DTS_UHD_P2 is defined from API 34 onwards. Before that encoding should
+    // be set to C.ENCODING_DTS, which is supported by TV ICs for offload playback.
+    if ((Util.SDK_INT < 34) && (encoding == C.ENCODING_DTS_UHD_P2)) {
+      encoding = C.ENCODING_DTS;
+    }
     AudioFormat audioFormat = Util.getAudioFormat(format.sampleRate, channelConfig, encoding);
     if (Util.SDK_INT >= 31) {
       return Api31.getOffloadedPlaybackSupport(
