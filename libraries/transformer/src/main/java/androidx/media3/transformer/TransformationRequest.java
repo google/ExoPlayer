@@ -310,6 +310,22 @@ public final class TransformationRequest {
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "TransformationRequest{"
+        + "outputHeight="
+        + outputHeight
+        + ", audioMimeType='"
+        + audioMimeType
+        + '\''
+        + ", videoMimeType='"
+        + videoMimeType
+        + '\''
+        + ", hdrMode="
+        + hdrMode
+        + '}';
+  }
+
   /**
    * Returns a new {@link TransformationRequest.Builder} initialized with the values of this
    * instance.
