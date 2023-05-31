@@ -2200,7 +2200,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         Format format, long presentationTimestampUs, boolean isLastBuffer) {
       checkStateNotNull(videoFrameProcessor);
       checkState(videoFrameProcessorMaxPendingFrameCount != C.LENGTH_UNSET);
-      checkState(!registeredLastFrame);
+
       if (videoFrameProcessor.getPendingInputFrameCount()
           < videoFrameProcessorMaxPendingFrameCount) {
         videoFrameProcessor.registerInputFrame();
