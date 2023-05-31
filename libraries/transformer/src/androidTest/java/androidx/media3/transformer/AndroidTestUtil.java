@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.MimeTypes.VIDEO_AV1;
+import static androidx.media3.common.MimeTypes.VIDEO_DOLBY_VISION;
 import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkNotNull;
@@ -167,7 +168,23 @@ public final class AndroidTestUtil {
           .setCodecs("hvc1.2.4.L153")
           .build();
 
+  // This file needs alternative MIME type, meaning the decoder needs to be configured with
+  // video/hevc instead of video/dolby-vision.
   public static final String MP4_ASSET_DOLBY_VISION_HDR = "asset:///media/mp4/dolbyVision-hdr.MOV";
+  public static final Format MP4_ASSET_DOLBY_VISION_HDR_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_DOLBY_VISION)
+          .setWidth(1280)
+          .setHeight(720)
+          .setFrameRate(30.00f)
+          .setCodecs("hev1.08.02")
+          .setColorInfo(
+              new ColorInfo.Builder()
+                  .setColorTransfer(C.COLOR_TRANSFER_HLG)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .build())
+          .build();
 
   public static final String MP4_ASSET_4K60_PORTRAIT_URI_STRING =
       "asset:///media/mp4/portrait_4k60.mp4";
@@ -707,7 +724,7 @@ public final class AndroidTestUtil {
    */
   public static boolean skipAndLogIfFormatsUnsupported(
       Context context, String testId, Format inputFormat, @Nullable Format outputFormat)
-      throws IOException, JSONException {
+      throws IOException, JSONException, MediaCodecUtil.DecoderQueryException {
     // TODO(b/278657595): Make this capability check match the default codec factory selection code.
     boolean canDecode = canDecode(inputFormat);
 
@@ -809,7 +826,7 @@ public final class AndroidTestUtil {
     }
   }
 
-  private static boolean canDecode(Format format) {
+  private static boolean canDecode(Format format) throws MediaCodecUtil.DecoderQueryException {
     // Check decoding capability in the same way as the default decoder factory.
     MediaFormat mediaFormat = MediaFormatUtil.createMediaFormatFromFormat(format);
     @Nullable
@@ -818,7 +835,7 @@ public final class AndroidTestUtil {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
-    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null;
+    return DefaultDecoderFactory.getDecoderInfo(format) != null;
   }
 
   private static boolean canEncode(Format format) {

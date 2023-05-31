@@ -27,6 +27,7 @@ import android.os.Build;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
@@ -64,7 +65,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     String mediaCodecName;
     try {
-      mediaCodecName = getMediaCodecNameForDecoding(format);
+      @Nullable MediaCodecInfo decoderInfo = getDecoderInfo(format);
+      if (decoderInfo == null) {
+        throw createExportException(format, /* reason= */ "No decoders for format");
+      }
+      mediaCodecName = decoderInfo.name;
+      String codecMimeType = decoderInfo.codecMimeType;
+      // Does not alter format.sampleMimeType to keep the original MimeType.
+      // The MIME type of the selected decoder may differ from Format.sampleMimeType.
+      mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
     } catch (MediaCodecUtil.DecoderQueryException e) {
       Log.e(TAG, "Error querying decoders", e);
       throw createExportException(format, /* reason= */ "Querying codecs failed.");
@@ -113,7 +122,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     String mediaCodecName;
     try {
-      mediaCodecName = getMediaCodecNameForDecoding(format);
+      @Nullable MediaCodecInfo decoderInfo = getDecoderInfo(format);
+      if (decoderInfo == null) {
+        throw createExportException(format, /* reason= */ "No decoders for format");
+      }
+      mediaCodecName = decoderInfo.name;
+      String codecMimeType = decoderInfo.codecMimeType;
+      // Does not alter format.sampleMimeType to keep the original MimeType.
+      // The MIME type of the selected decoder may differ from Format.sampleMimeType, for example,
+      // video/hevc is used instead of video/dolby-vision for some specific DolbyVision videos.
+      mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
     } catch (MediaCodecUtil.DecoderQueryException e) {
       Log.e(TAG, "Error querying decoders", e);
       throw createExportException(format, /* reason= */ "Querying codecs failed");
@@ -158,8 +176,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         format);
   }
 
-  private static String getMediaCodecNameForDecoding(Format format)
-      throws MediaCodecUtil.DecoderQueryException, ExportException {
+  @VisibleForTesting
+  @Nullable
+  /* package */ static MediaCodecInfo getDecoderInfo(Format format)
+      throws MediaCodecUtil.DecoderQueryException {
     checkNotNull(format.sampleMimeType);
     List<MediaCodecInfo> decoderInfos =
         MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
@@ -170,8 +190,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 /* requiresTunnelingDecoder= */ false),
             format);
     if (decoderInfos.isEmpty()) {
-      throw createExportException(format, /* reason= */ "No decoders for format");
+      return null;
     }
-    return decoderInfos.get(0).name;
+    return decoderInfos.get(0);
   }
 }
