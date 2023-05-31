@@ -99,7 +99,12 @@ public final class ListenerSet<T extends @NonNull Object> {
    *     during one {@link Looper} message queue iteration were handled by the listeners.
    */
   public ListenerSet(Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
-    this(/* listeners= */ new CopyOnWriteArraySet<>(), looper, clock, iterationFinishedEvent, true);
+    this(
+        /* listeners= */ new CopyOnWriteArraySet<>(),
+        looper,
+        clock,
+        iterationFinishedEvent,
+        /* throwsWhenUsingWrongThread= */ true);
   }
 
   private ListenerSet(
@@ -107,7 +112,7 @@ public final class ListenerSet<T extends @NonNull Object> {
       Looper looper,
       Clock clock,
       IterationFinishedEvent<T> iterationFinishedEvent,
-      Boolean throwsWhenUsingWrongThread) {
+      boolean throwsWhenUsingWrongThread) {
     this.clock = clock;
     this.listeners = listeners;
     this.iterationFinishedEvent = iterationFinishedEvent;
@@ -150,7 +155,8 @@ public final class ListenerSet<T extends @NonNull Object> {
   @CheckResult
   public ListenerSet<T> copy(
       Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
-    return new ListenerSet<>(listeners, looper, clock, iterationFinishedEvent, throwsWhenUsingWrongThread);
+    return new ListenerSet<>(
+        listeners, looper, clock, iterationFinishedEvent, throwsWhenUsingWrongThread);
   }
 
   /**
