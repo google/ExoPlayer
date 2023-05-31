@@ -119,9 +119,7 @@ public final class Presentation implements MatrixTransformation {
    */
   public static Presentation createForAspectRatio(
       @FloatRange(from = 0, fromInclusive = false) float aspectRatio, @Layout int layout) {
-    checkArgument(
-        aspectRatio == C.LENGTH_UNSET || aspectRatio > 0,
-        "aspect ratio " + aspectRatio + " must be positive or unset");
+    checkArgument(aspectRatio > 0, "aspect ratio " + aspectRatio + " must be positive");
     checkLayout(layout);
     return new Presentation(
         /* width= */ C.LENGTH_UNSET, /* height= */ C.LENGTH_UNSET, aspectRatio, layout);
@@ -169,7 +167,7 @@ public final class Presentation implements MatrixTransformation {
 
   private Presentation(int width, int height, float aspectRatio, @Layout int layout) {
     checkArgument(
-        (aspectRatio == C.LENGTH_UNSET) || (width == C.LENGTH_UNSET),
+        (aspectRatio == ASPECT_RATIO_UNSET) || (width == C.LENGTH_UNSET),
         "width and aspect ratio should not both be set");
 
     this.requestedWidthPixels = width;
@@ -195,7 +193,7 @@ public final class Presentation implements MatrixTransformation {
       requestedAspectRatio = (float) requestedWidthPixels / requestedHeightPixels;
     }
 
-    if (requestedAspectRatio != C.LENGTH_UNSET) {
+    if (requestedAspectRatio != ASPECT_RATIO_UNSET) {
       applyAspectRatio();
     }
 
