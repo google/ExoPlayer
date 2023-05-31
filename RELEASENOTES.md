@@ -81,6 +81,8 @@ This release includes the following changes since
         size with `MediaCodecVideoRenderer` has a width and height of 0 when
         `Player.getCurrentTracks` does not support video, or the size of the
         supported video track is not yet determined.
+    *   Allow `MediaCodecVideoRenderer` to use a custom
+        `VideoFrameProcessor.Factory`.
 *   IMA extension:
     *   Enable multi-period live DASH streams for DAI. Please note that the
         current implementation does not yet support seeking in live streams

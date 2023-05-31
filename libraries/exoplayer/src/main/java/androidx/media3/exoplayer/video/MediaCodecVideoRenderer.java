@@ -82,6 +82,8 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil.DecoderQueryException;
 import androidx.media3.exoplayer.video.VideoRendererEventListener.EventDispatcher;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.Constructor;
@@ -90,6 +92,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -298,7 +301,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
-
     this(
         context,
         codecAdapterFactory,
@@ -342,6 +344,53 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
       float assumedMinimumCodecOperatingRate) {
+    this(
+        context,
+        codecAdapterFactory,
+        mediaCodecSelector,
+        allowedJoiningTimeMs,
+        enableDecoderFallback,
+        eventHandler,
+        eventListener,
+        maxDroppedFramesToNotify,
+        assumedMinimumCodecOperatingRate,
+        new ReflectiveDefaultVideoFrameProcessorFactory());
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param context A context.
+   * @param codecAdapterFactory The {@link MediaCodecAdapter.Factory} used to create {@link
+   *     MediaCodecAdapter} instances.
+   * @param mediaCodecSelector A decoder selector.
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is slower/less efficient than
+   *     the primary decoder.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   * @param assumedMinimumCodecOperatingRate A codec operating rate that all codecs instantiated by
+   *     this renderer are assumed to meet implicitly (i.e. without the operating rate being set
+   *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
+   * @param videoFrameProcessorFactory The {@link VideoFrameProcessor.Factory} applied on video
+   *     output. {@code null} means a default implementation will be applied.
+   */
+  public MediaCodecVideoRenderer(
+      Context context,
+      MediaCodecAdapter.Factory codecAdapterFactory,
+      MediaCodecSelector mediaCodecSelector,
+      long allowedJoiningTimeMs,
+      boolean enableDecoderFallback,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify,
+      float assumedMinimumCodecOperatingRate,
+      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
     super(
         C.TRACK_TYPE_VIDEO,
         codecAdapterFactory,
@@ -354,7 +403,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseHelper = new VideoFrameReleaseHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     videoFrameProcessorManager =
-        new VideoFrameProcessorManager(frameReleaseHelper, /* renderer= */ this);
+        new VideoFrameProcessorManager(
+            videoFrameProcessorFactory, frameReleaseHelper, /* renderer= */ this);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
@@ -1874,6 +1924,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private final MediaCodecVideoRenderer renderer;
     private final ArrayDeque<Long> processedFramesTimestampsUs;
     private final ArrayDeque<Pair<Long, Format>> pendingFrameFormats;
+    private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
 
     private @MonotonicNonNull Handler handler;
     @Nullable private VideoFrameProcessor videoFrameProcessor;
@@ -1913,8 +1964,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     /** Creates a new instance. */
     public VideoFrameProcessorManager(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory,
         VideoFrameReleaseHelper frameReleaseHelper,
         @UnderInitialization MediaCodecVideoRenderer renderer) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       this.frameReleaseHelper = frameReleaseHelper;
       this.renderer = renderer;
       processedFramesTimestampsUs = new ArrayDeque<>();
@@ -2006,69 +2059,68 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           // Insert as the first effect as if the decoder has applied the rotation.
           videoEffects.add(
               /* index= */ 0,
-              VideoFrameProcessorAccessor.createRotationEffect(inputFormat.rotationDegrees));
+              ScaleAndRotateAccessor.createRotationEffect(inputFormat.rotationDegrees));
         }
 
         videoFrameProcessor =
-            VideoFrameProcessorAccessor.getFrameProcessorFactory()
-                .create(
-                    renderer.context,
-                    checkNotNull(videoEffects),
-                    DebugViewProvider.NONE,
-                    inputAndOutputColorInfos.first,
-                    inputAndOutputColorInfos.second,
-                    /* renderFramesAutomatically= */ false,
-                    /* listenerExecutor= */ handler::post,
-                    new VideoFrameProcessor.Listener() {
-                      @Override
-                      public void onOutputSizeChanged(int width, int height) {
-                        @Nullable Format inputFormat = VideoFrameProcessorManager.this.inputFormat;
-                        checkStateNotNull(inputFormat);
-                        // TODO(b/264889146): Handle Effect that changes output size based on pts.
-                        processedFrameSize =
-                            new VideoSize(
-                                width,
-                                height,
-                                // VideoFrameProcessor is configured to produce rotation free
-                                // frames.
-                                /* unappliedRotationDegrees= */ 0,
-                                // VideoFrameProcessor always outputs pixelWidthHeightRatio 1.
-                                /* pixelWidthHeightRatio= */ 1.f);
-                        pendingOutputSizeChange = true;
-                      }
+            videoFrameProcessorFactory.create(
+                renderer.context,
+                checkNotNull(videoEffects),
+                DebugViewProvider.NONE,
+                inputAndOutputColorInfos.first,
+                inputAndOutputColorInfos.second,
+                /* renderFramesAutomatically= */ false,
+                /* listenerExecutor= */ handler::post,
+                new VideoFrameProcessor.Listener() {
+                  @Override
+                  public void onOutputSizeChanged(int width, int height) {
+                    @Nullable Format inputFormat = VideoFrameProcessorManager.this.inputFormat;
+                    checkStateNotNull(inputFormat);
+                    // TODO(b/264889146): Handle Effect that changes output size based on pts.
+                    processedFrameSize =
+                        new VideoSize(
+                            width,
+                            height,
+                            // VideoFrameProcessor is configured to produce rotation free
+                            // frames.
+                            /* unappliedRotationDegrees= */ 0,
+                            // VideoFrameProcessor always outputs pixelWidthHeightRatio 1.
+                            /* pixelWidthHeightRatio= */ 1.f);
+                    pendingOutputSizeChange = true;
+                  }
 
-                      @Override
-                      public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
-                        if (registeredLastFrame) {
-                          checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
-                        }
-                        processedFramesTimestampsUs.add(presentationTimeUs);
-                        // TODO(b/257464707) Support extensively modified media.
-                        if (registeredLastFrame
-                            && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
-                          processedLastFrame = true;
-                        }
-                        if (pendingOutputSizeChange) {
-                          // Report the size change on releasing this frame.
-                          pendingOutputSizeChange = false;
-                          pendingOutputSizeChangeNotificationTimeUs = presentationTimeUs;
-                        }
-                      }
+                  @Override
+                  public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                    if (registeredLastFrame) {
+                      checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
+                    }
+                    processedFramesTimestampsUs.add(presentationTimeUs);
+                    // TODO(b/257464707) Support extensively modified media.
+                    if (registeredLastFrame
+                        && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
+                      processedLastFrame = true;
+                    }
+                    if (pendingOutputSizeChange) {
+                      // Report the size change on releasing this frame.
+                      pendingOutputSizeChange = false;
+                      pendingOutputSizeChangeNotificationTimeUs = presentationTimeUs;
+                    }
+                  }
 
-                      @Override
-                      public void onError(VideoFrameProcessingException exception) {
-                        renderer.setPendingPlaybackException(
-                            renderer.createRendererException(
-                                exception,
-                                inputFormat,
-                                PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
-                      }
+                  @Override
+                  public void onError(VideoFrameProcessingException exception) {
+                    renderer.setPendingPlaybackException(
+                        renderer.createRendererException(
+                            exception,
+                            inputFormat,
+                            PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
+                  }
 
-                      @Override
-                      public void onEnded() {
-                        throw new IllegalStateException();
-                      }
-                    });
+                  @Override
+                  public void onEnded() {
+                    throw new IllegalStateException();
+                  }
+                });
         videoFrameProcessor.registerInputStream(VideoFrameProcessor.INPUT_TYPE_SURFACE);
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
@@ -2318,13 +2370,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
 
-    private static final class VideoFrameProcessorAccessor {
+    private static final class ScaleAndRotateAccessor {
       private static @MonotonicNonNull Constructor<?>
           scaleAndRotateTransformationBuilderConstructor;
       private static @MonotonicNonNull Method setRotationMethod;
       private static @MonotonicNonNull Method buildScaleAndRotateTransformationMethod;
-      private static @MonotonicNonNull Constructor<?> videoFrameProcessorFactoryBuilderConstructor;
-      private static @MonotonicNonNull Method buildVideoFrameProcessorFactoryMethod;
 
       public static Effect createRotationEffect(float rotationDegrees) throws Exception {
         prepare();
@@ -2333,24 +2383,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         return (Effect) checkNotNull(buildScaleAndRotateTransformationMethod.invoke(builder));
       }
 
-      public static VideoFrameProcessor.Factory getFrameProcessorFactory() throws Exception {
-        prepare();
-        Object builder = videoFrameProcessorFactoryBuilderConstructor.newInstance();
-        return (VideoFrameProcessor.Factory)
-            checkNotNull(buildVideoFrameProcessorFactoryMethod.invoke(builder));
-      }
-
       @EnsuresNonNull({
         "scaleAndRotateTransformationBuilderConstructor",
         "setRotationMethod",
-        "buildScaleAndRotateTransformationMethod",
-        "videoFrameProcessorFactoryBuilderConstructor",
-        "buildVideoFrameProcessorFactoryMethod"
+        "buildScaleAndRotateTransformationMethod"
       })
       private static void prepare() throws Exception {
         if (scaleAndRotateTransformationBuilderConstructor == null
             || setRotationMethod == null
             || buildScaleAndRotateTransformationMethod == null) {
+          // TODO: b/284964524- Add LINT and proguard checks for media3.effect reflection.
           Class<?> scaleAndRotateTransformationBuilderClass =
               Class.forName("androidx.media3.effect.ScaleAndRotateTransformation$Builder");
           scaleAndRotateTransformationBuilderConstructor =
@@ -2360,19 +2402,63 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           buildScaleAndRotateTransformationMethod =
               scaleAndRotateTransformationBuilderClass.getMethod("build");
         }
-        if (videoFrameProcessorFactoryBuilderConstructor == null
-            || buildVideoFrameProcessorFactoryMethod == null) {
-          Class<?> videoFrameProcessorFactoryBuilderClass =
-              Class.forName("androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder");
-          videoFrameProcessorFactoryBuilderConstructor =
-              videoFrameProcessorFactoryBuilderClass.getConstructor();
-          buildVideoFrameProcessorFactoryMethod =
-              videoFrameProcessorFactoryBuilderClass.getMethod("build");
-        }
       }
     }
   }
 
+  /**
+   * Delays reflection for loading a {@linkplain VideoFrameProcessor.Factory
+   * DefaultVideoFrameProcessor} instance.
+   */
+  private static final class ReflectiveDefaultVideoFrameProcessorFactory
+      implements VideoFrameProcessor.Factory {
+    private static final Supplier<VideoFrameProcessor.Factory>
+        VIDEO_FRAME_PROCESSOR_FACTORY_SUPPLIER =
+            Suppliers.memoize(
+                () -> {
+                  try {
+                    // TODO: b/284964524- Add LINT and proguard checks for media3.effect reflection.
+                    Class<?> defaultVideoFrameProcessorFactoryBuilderClass =
+                        Class.forName(
+                            "androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder");
+                    Object builder =
+                        defaultVideoFrameProcessorFactoryBuilderClass
+                            .getConstructor()
+                            .newInstance();
+                    return (VideoFrameProcessor.Factory)
+                        checkNotNull(
+                            defaultVideoFrameProcessorFactoryBuilderClass
+                                .getMethod("build")
+                                .invoke(builder));
+                  } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                  }
+                });
+
+    @Override
+    public VideoFrameProcessor create(
+        Context context,
+        List<Effect> effects,
+        DebugViewProvider debugViewProvider,
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        boolean renderFramesAutomatically,
+        Executor listenerExecutor,
+        VideoFrameProcessor.Listener listener)
+        throws VideoFrameProcessingException {
+      return VIDEO_FRAME_PROCESSOR_FACTORY_SUPPLIER
+          .get()
+          .create(
+              context,
+              effects,
+              debugViewProvider,
+              inputColorInfo,
+              outputColorInfo,
+              renderFramesAutomatically,
+              listenerExecutor,
+              listener);
+    }
+  }
   /**
    * Returns a maximum video size to use when configuring a codec for {@code format} in a way that
    * will allow possible adaptation to other compatible formats that are expected to have the same
