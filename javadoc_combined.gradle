@@ -35,7 +35,6 @@ class CombinedJavadocPlugin implements Plugin<Project> {
             links "https://developer.android.com/reference", guavaReferenceUrl
             encoding = "UTF-8"
           }
-          options.addBooleanOption "-no-module-directories", true
           exclude "**/BuildConfig.java"
           exclude "**/R.java"
           doFirst {
