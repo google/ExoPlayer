@@ -90,6 +90,7 @@ dependencies {
     withDecoderExtensionsImplementation project(modulePrefix + 'extension-flac')
     withDecoderExtensionsImplementation project(modulePrefix + 'extension-opus')
     withDecoderExtensionsImplementation project(modulePrefix + 'extension-vp9')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-midi')
     withDecoderExtensionsImplementation project(modulePrefix + 'extension-rtmp')
 }
 

@@ -9,6 +9,10 @@
 -keepclassmembers class com.google.android.exoplayer2.ext.flac.FlacLibrary {
   public static boolean isAvailable();
 }
+-dontnote com.google.android.exoplayer2.decoder.midi.MidiExtractor
+-keepclassmembers class com.google.android.exoplayer2.decoder.midi.MidiExtractor {
+  <init>();
+}
 
 # Don't warn about checkerframework and Kotlin annotations
 -dontwarn org.checkerframework.**

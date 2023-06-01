@@ -1,0 +1,39 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
+
+android {
+    namespace 'com.google.android.exoplayer2.decoder.midi'
+}
+
+dependencies {
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-decoder')
+    implementation project(modulePrefix + 'library-extractor')
+    implementation project(modulePrefix + 'library-common')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    // Jsyn v17.1.0
+    implementation 'com.github.philburk:jsyn:40a41092cbab558d7d410ec43d93bb1e4121e86a'
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    testImplementation 'androidx.test:core:' + androidxTestCoreVersion
+    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation project(modulePrefix + 'testdata')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+}
+
+ext {
+    javadocTitle = 'MIDI extension'
+}
+apply from: '../../javadoc_library.gradle'
