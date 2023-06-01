@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
+import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -62,6 +63,13 @@ public final class AndroidTestUtil {
    * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
    */
   public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
+
+  /** An {@link Effects} instance that forces video transcoding. */
+  public static final Effects FORCE_TRANSCODE_VIDEO_EFFECTS =
+      new Effects(
+          /* audioProcessors= */ ImmutableList.of(),
+          ImmutableList.of(
+              new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build()));
 
   public static final String PNG_ASSET_URI_STRING =
       "asset:///media/bitmap/input_images/media3test.png";
