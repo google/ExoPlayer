@@ -17,6 +17,7 @@ package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR;
@@ -28,12 +29,9 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
-import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.EditedMediaItem;
-import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.EncoderUtil;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
@@ -42,7 +40,6 @@ import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,12 +125,8 @@ public class HdrEditingTest {
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     ExportTestResult exportTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -153,12 +146,8 @@ public class HdrEditingTest {
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     ExportTestResult exportTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -180,12 +169,8 @@ public class HdrEditingTest {
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_DOLBY_VISION_HDR));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     ExportTestResult exportTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -225,12 +210,8 @@ public class HdrEditingTest {
                 })
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     try {
       ExportTestResult exportTestResult =
@@ -280,12 +261,8 @@ public class HdrEditingTest {
                 })
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     try {
       ExportTestResult exportTestResult =

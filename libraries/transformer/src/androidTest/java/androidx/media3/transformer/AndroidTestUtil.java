@@ -43,6 +43,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultGlObjectsProvider;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -62,6 +63,13 @@ public final class AndroidTestUtil {
    * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
    */
   public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
+
+  /** An {@link Effects} instance that forces video transcoding. */
+  public static final Effects FORCE_TRANSCODE_VIDEO_EFFECTS =
+      new Effects(
+          /* audioProcessors= */ ImmutableList.of(),
+          ImmutableList.of(
+              new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build()));
 
   public static final String PNG_ASSET_URI_STRING =
       "asset:///media/bitmap/input_images/media3test.png";

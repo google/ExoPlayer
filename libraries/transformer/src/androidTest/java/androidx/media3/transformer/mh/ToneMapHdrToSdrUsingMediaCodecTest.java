@@ -16,6 +16,7 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
@@ -24,12 +25,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.C;
-import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
-import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.EditedMediaItem;
-import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.TransformationRequest;
@@ -37,7 +35,6 @@ import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -160,12 +157,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                 })
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     try {
       ExportTestResult exportTestResult =
@@ -208,12 +201,8 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
                 })
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     try {
       ExportTestResult exportTestResult =

@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_4K60_PORTRAIT_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_BT2020_SDR;
@@ -281,11 +282,8 @@ public class ExportTest {
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_BT2020_SDR));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()

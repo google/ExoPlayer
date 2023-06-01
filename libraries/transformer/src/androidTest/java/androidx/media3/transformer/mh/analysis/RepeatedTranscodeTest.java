@@ -16,23 +16,20 @@
 package androidx.media3.transformer.mh.analysis;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.net.Uri;
-import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
-import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EditedMediaItem;
-import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Ignore;
@@ -60,11 +57,8 @@ public final class RepeatedTranscodeTest {
             .build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
@@ -93,11 +87,11 @@ public final class RepeatedTranscodeTest {
             .build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS)
+            .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
