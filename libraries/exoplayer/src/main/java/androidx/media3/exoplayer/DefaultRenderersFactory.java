@@ -471,6 +471,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     }
 
     try {
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
       Class<?> clazz = Class.forName("androidx.media3.decoder.midi.MidiRenderer");
       Constructor<?> constructor = clazz.getConstructor(Context.class);
       Renderer renderer = (Renderer) constructor.newInstance(context);

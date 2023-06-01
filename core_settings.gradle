@@ -70,6 +70,8 @@ include modulePrefix + 'lib-decoder-ffmpeg'
 project(modulePrefix + 'lib-decoder-ffmpeg').projectDir = new File(rootDir, 'libraries/decoder_ffmpeg')
 include modulePrefix + 'lib-decoder-flac'
 project(modulePrefix + 'lib-decoder-flac').projectDir = new File(rootDir, 'libraries/decoder_flac')
+include modulePrefix + 'lib-decoder-midi'
+project(modulePrefix + 'lib-decoder-midi').projectDir = new File(rootDir, 'libraries/decoder_midi')
 include modulePrefix + 'lib-decoder-opus'
 project(modulePrefix + 'lib-decoder-opus').projectDir = new File(rootDir, 'libraries/decoder_opus')
 include modulePrefix + 'lib-decoder-vp9'

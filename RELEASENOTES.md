@@ -29,6 +29,9 @@
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   MIDI extension:
+    *   Release the MIDI decoder module, which provides support for playback of
+        standard MIDI files using the Jsyn library to synthesize audio.
 *   Cast Extension:
 *   Test Utilities:
 *   Remove deprecated symbols:

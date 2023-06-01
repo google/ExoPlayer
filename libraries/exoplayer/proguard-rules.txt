@@ -25,6 +25,10 @@
 -keepclassmembers class androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer {
   <init>(android.os.Handler, androidx.media3.exoplayer.audio.AudioRendererEventListener, androidx.media3.exoplayer.audio.AudioSink);
 }
+-dontnote androidx.media3.decoder.midi.MidiRenderer
+-keepclassmembers class androidx.media3.decoder.midi.MidiRenderer {
+  <init>(android.content.Context);
+}
 
 # Constructors accessed via reflection in DefaultDownloaderFactory
 -dontnote androidx.media3.exoplayer.dash.offline.DashDownloader

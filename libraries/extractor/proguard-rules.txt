@@ -9,6 +9,10 @@
 -keepclassmembers class androidx.media3.decoder.flac.FlacLibrary {
   public static boolean isAvailable();
 }
+-dontnote androidx.media3.decoder.midi.MidiExtractor
+-keepclassmembers class androidx.media3.decoder.midi.MidiExtractor {
+  <init>();
+}
 
 # Don't warn about checkerframework and Kotlin annotations
 -dontwarn org.checkerframework.**

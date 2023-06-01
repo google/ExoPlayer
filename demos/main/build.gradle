@@ -90,6 +90,7 @@ dependencies {
     withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-flac')
     withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-opus')
     withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-vp9')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-midi')
     withDecoderExtensionsImplementation project(modulePrefix + 'lib-datasource-rtmp')
 }
 
