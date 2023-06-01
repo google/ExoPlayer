@@ -55,11 +55,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Session module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-session'
     releaseName = 'Media3 Session module'
 }
