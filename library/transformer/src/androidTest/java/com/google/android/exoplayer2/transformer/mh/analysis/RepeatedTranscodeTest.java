@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh.analysis;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -23,16 +24,12 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
-import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
-import com.google.android.exoplayer2.util.Effect;
-import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Ignore;
@@ -60,11 +57,8 @@ public final class RepeatedTranscodeTest {
             .build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem).setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS).build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
@@ -93,11 +87,11 @@ public final class RepeatedTranscodeTest {
             .build();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING));
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS)
+            .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
