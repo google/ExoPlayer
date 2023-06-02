@@ -457,7 +457,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       previousReason = Iterables.getLast(queue).trackSelectionReason;
     }
     int newSelectedIndex = determineIdealSelectedIndex(nowMs, chunkDurationUs);
-    if (!isTrackExcluded(previousSelectedIndex, nowMs)) {
+    if (newSelectedIndex != previousSelectedIndex
+        && !isTrackExcluded(previousSelectedIndex, nowMs)) {
       // Revert back to the previous selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(previousSelectedIndex);
       Format selectedFormat = getFormat(newSelectedIndex);
