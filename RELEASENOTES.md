@@ -5,6 +5,7 @@
 *   Common Library:
 *   ExoPlayer:
 *   Transformer:
+    *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
 *   Extractors:
 *   Audio:
