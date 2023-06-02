@@ -43,10 +43,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'SmoothStreaming module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'SmoothStreaming module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-smoothstreaming'

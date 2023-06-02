@@ -43,10 +43,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'Cronet extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Cronet extension'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'extension-cronet'

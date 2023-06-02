@@ -41,9 +41,9 @@ android {
     }
 }
 
-ext {
-    javadocTitle = 'Muxer module'
-}
+ ext {
+     javadocTitle = 'Muxer module'
+ }
 
 dependencies {
     implementation project(modulePrefix + 'library-common')
@@ -63,7 +63,7 @@ dependencies {
     androidTestImplementation project(modulePrefix + 'testutils')
     androidTestImplementation project(modulePrefix + 'library-extractor')
 }
-apply from: '../../javadoc_library.gradle'
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-muxer'

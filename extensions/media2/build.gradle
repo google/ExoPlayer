@@ -40,10 +40,10 @@ dependencies {
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
 }
 
-ext {
-    javadocTitle = 'Media2 extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Media2 extension'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
     releaseArtifactId = 'extension-media2'

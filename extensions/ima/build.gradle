@@ -42,10 +42,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
+ ext {
     javadocTitle = 'IMA extension'
-}
-apply from: '../../javadoc_library.gradle'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'extension-ima'

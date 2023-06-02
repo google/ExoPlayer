@@ -38,10 +38,10 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:' + okhttpVersion
 }
 
-ext {
-    javadocTitle = 'OkHttp extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'OkHttp extension'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'extension-okhttp'

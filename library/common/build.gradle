@@ -64,10 +64,10 @@ dependencies {
     testImplementation project(modulePrefix + 'testutils')
 }
 
-ext {
-    javadocTitle = 'Common module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Common module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-common'

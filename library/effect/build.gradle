@@ -61,10 +61,10 @@ dependencies {
     androidTestCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
 }
 
-ext {
-    javadocTitle = 'Effect module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Effect module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-effect'

@@ -40,9 +40,9 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'Test utils'
-}
+ ext {
+     javadocTitle = 'Test utils'
+ }
  apply from: '../javadoc_library.gradle'
 
 ext {

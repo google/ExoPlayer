@@ -42,4 +42,4 @@ allprojects {
  group = 'com.google.android.exoplayer'
 }
 
-apply from: 'javadoc_combined.gradle'
+ apply from: 'javadoc_combined.gradle'

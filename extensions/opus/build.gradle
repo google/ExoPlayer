@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
 }
 
-ext {
-    javadocTitle = 'Opus extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Opus extension'
+ }
+ apply from: '../../javadoc_library.gradle'

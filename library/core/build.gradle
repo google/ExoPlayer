@@ -70,10 +70,10 @@ dependencies {
     testImplementation project(modulePrefix + 'robolectricutils')
 }
 
-ext {
-    javadocTitle = 'Core module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Core module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-core'

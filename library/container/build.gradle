@@ -41,9 +41,9 @@ android {
     }
 }
 
-ext {
-    javadocTitle = 'Container module'
-}
+ ext {
+     javadocTitle = 'Container module'
+ }
 
 dependencies {
     implementation project(modulePrefix + 'library-common')
@@ -53,7 +53,7 @@ dependencies {
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
-apply from: '../../javadoc_library.gradle'
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-container'

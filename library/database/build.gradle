@@ -40,10 +40,10 @@ dependencies {
     testImplementation project(modulePrefix + 'testutils')
 }
 
-ext {
-    javadocTitle = 'Database module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Database module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-database'

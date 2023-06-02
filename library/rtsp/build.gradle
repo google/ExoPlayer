@@ -46,10 +46,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'RTSP module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'RTSP module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-rtsp'

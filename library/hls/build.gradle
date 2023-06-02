@@ -45,10 +45,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'HLS module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'HLS module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-hls'

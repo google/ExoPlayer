@@ -34,9 +34,9 @@ dependencies {
     implementation project(modulePrefix + 'testutils')
 }
 
-ext {
-    javadocTitle = 'Robolectric utils'
-}
+ ext {
+     javadocTitle = 'Robolectric utils'
+ }
  apply from: '../javadoc_library.gradle'
 
 ext {

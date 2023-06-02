@@ -33,7 +33,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'MIDI extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'MIDI extension'
+ }
+ apply from: '../../javadoc_library.gradle'

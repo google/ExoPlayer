@@ -47,10 +47,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'Extractor module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Extractor module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-extractor'

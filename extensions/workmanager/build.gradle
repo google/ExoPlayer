@@ -31,10 +31,10 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
-ext {
-    javadocTitle = 'WorkManager extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'WorkManager extension'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'extension-workmanager'

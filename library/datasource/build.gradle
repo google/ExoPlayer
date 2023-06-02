@@ -60,10 +60,10 @@ dependencies {
     testImplementation project(modulePrefix + 'testutils')
 }
 
-ext {
-    javadocTitle = 'DataSource module'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'DataSource module'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'exoplayer-datasource'

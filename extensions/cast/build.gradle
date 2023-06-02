@@ -34,10 +34,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
-ext {
-    javadocTitle = 'Cast extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Cast extension'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'extension-cast'

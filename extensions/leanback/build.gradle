@@ -32,10 +32,10 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
-ext {
-    javadocTitle = 'Leanback extension'
-}
-apply from: '../../javadoc_library.gradle'
+ ext {
+     javadocTitle = 'Leanback extension'
+ }
+ apply from: '../../javadoc_library.gradle'
 
 ext {
  releaseArtifactId = 'extension-leanback'
