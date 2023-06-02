@@ -99,14 +99,20 @@ public final class ListenerSet<T extends @NonNull Object> {
    *     during one {@link Looper} message queue iteration were handled by the listeners.
    */
   public ListenerSet(Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
-    this(/* listeners= */ new CopyOnWriteArraySet<>(), looper, clock, iterationFinishedEvent);
+    this(
+        /* listeners= */ new CopyOnWriteArraySet<>(),
+        looper,
+        clock,
+        iterationFinishedEvent,
+        /* throwsWhenUsingWrongThread= */ true);
   }
 
   private ListenerSet(
       CopyOnWriteArraySet<ListenerHolder<T>> listeners,
       Looper looper,
       Clock clock,
-      IterationFinishedEvent<T> iterationFinishedEvent) {
+      IterationFinishedEvent<T> iterationFinishedEvent,
+      boolean throwsWhenUsingWrongThread) {
     this.clock = clock;
     this.listeners = listeners;
     this.iterationFinishedEvent = iterationFinishedEvent;
@@ -117,7 +123,7 @@ public final class ListenerSet<T extends @NonNull Object> {
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper handler = clock.createHandler(looper, this::handleMessage);
     this.handler = handler;
-    throwsWhenUsingWrongThread = true;
+    this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
 
   /**
@@ -149,7 +155,8 @@ public final class ListenerSet<T extends @NonNull Object> {
   @CheckResult
   public ListenerSet<T> copy(
       Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
-    return new ListenerSet<>(listeners, looper, clock, iterationFinishedEvent);
+    return new ListenerSet<>(
+        listeners, looper, clock, iterationFinishedEvent, throwsWhenUsingWrongThread);
   }
 
   /**
