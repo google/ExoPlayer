@@ -21,15 +21,19 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.Executors;
 
 /**
@@ -81,16 +85,38 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
     return listeningExecutorService.submit(() -> load(dataSourceFactory.createDataSource(), uri));
   }
 
-  private static Bitmap decode(byte[] data) {
+  private static Bitmap decode(byte[] data) throws IOException {
     @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length);
     checkArgument(bitmap != null, "Could not decode image data");
+    ExifInterface exifInterface;
+    try (InputStream inputStream = new ByteArrayInputStream(data)) {
+      exifInterface = new ExifInterface(inputStream);
+    }
+    int rotationDegrees = exifInterface.getRotationDegrees();
+    if (rotationDegrees != 0) {
+      Matrix matrix = new Matrix();
+      matrix.postRotate(rotationDegrees);
+      bitmap =
+          Bitmap.createBitmap(
+              bitmap,
+              /* x= */ 0,
+              /* y= */ 0,
+              bitmap.getWidth(),
+              bitmap.getHeight(),
+              matrix,
+              /* filter= */ false);
+    }
     return bitmap;
   }
 
   private static Bitmap load(DataSource dataSource, Uri uri) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri);
-    dataSource.open(dataSpec);
-    byte[] readData = DataSourceUtil.readToEnd(dataSource);
-    return decode(readData);
+    try {
+      DataSpec dataSpec = new DataSpec(uri);
+      dataSource.open(dataSpec);
+      byte[] readData = DataSourceUtil.readToEnd(dataSource);
+      return decode(readData);
+    } finally {
+      dataSource.close();
+    }
   }
 }
