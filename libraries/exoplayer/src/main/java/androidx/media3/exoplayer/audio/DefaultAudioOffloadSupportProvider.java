@@ -81,11 +81,13 @@ public final class DefaultAudioOffloadSupportProvider
 
     @C.Encoding
     int encoding = MimeTypes.getEncoding(checkNotNull(format.sampleMimeType), format.codecs);
+    if (encoding == C.ENCODING_INVALID) {
+      return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
+    }
     // AudioFormat.ENCODING_DTS_UHD_P2 is defined from API 34 onwards. We return offload
     // unsupported to prevent crash in Util.getAudioFormat() below when it tries to create
     // an AudioFormat with ENCODING_DTS_UHD_P2.
-    if ((encoding == C.ENCODING_INVALID) ||
-        ((Util.SDK_INT < 34) && (encoding == C.ENCODING_DTS_UHD_P2))) {
+    if ((Util.SDK_INT < 34) && (encoding == C.ENCODING_DTS_UHD_P2)) {
       return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
     }
     int channelConfig = Util.getAudioTrackChannelConfig(format.channelCount);
