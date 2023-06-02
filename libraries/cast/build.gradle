@@ -35,11 +35,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Cast extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-cast'
     releaseName = 'Media3 Cast module'
 }

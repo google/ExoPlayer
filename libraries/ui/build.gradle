@@ -41,11 +41,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'UI module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-ui'
     releaseName = 'Media3 UI module'
 }

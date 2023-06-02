@@ -33,11 +33,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Leanback extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-ui-leanback'
     releaseName = 'Media3 Leanback UI module'
 }

@@ -40,11 +40,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Decoder module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-decoder'
     releaseName = 'Media3 decoder module'
 }

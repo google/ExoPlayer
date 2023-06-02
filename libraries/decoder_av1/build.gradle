@@ -52,8 +52,3 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
-
-ext {
-    javadocTitle = 'AV1 extension'
-}
-apply from: '../../javadoc_library.gradle'

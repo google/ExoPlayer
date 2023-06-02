@@ -66,11 +66,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Transformer module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-transformer'
     releaseName = 'Media3 Transformer module'
 }

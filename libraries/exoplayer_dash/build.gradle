@@ -44,11 +44,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'DASH module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-exoplayer-dash'
     releaseName = 'Media3 ExoPlayer DASH module'
 }

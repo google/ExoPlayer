@@ -39,11 +39,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'OkHttp extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-datasource-okhttp'
     releaseName = 'Media3 OkHttp DataSource module'
 }

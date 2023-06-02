@@ -61,11 +61,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'DataSource module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-datasource'
     releaseName = 'Media3 DataSource module'
 }

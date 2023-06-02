@@ -36,11 +36,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'RTMP extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-datasource-rtmp'
     releaseName = 'Media3 RTMP DataSource module'
 }

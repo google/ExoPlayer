@@ -43,11 +43,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'IMA extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-exoplayer-ima'
     releaseName = 'Media3 ExoPlayer IMA module'
 }

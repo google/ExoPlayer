@@ -47,11 +47,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'RTSP module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-exoplayer-rtsp'
     releaseName = 'Media3 ExoPlayer RTSP module'
 }

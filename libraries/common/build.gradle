@@ -87,11 +87,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Common module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-common'
     releaseName = 'Media3 common module'
 }

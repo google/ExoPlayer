@@ -41,11 +41,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Test utils'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-test-utils'
     releaseName = 'Media3 test utils module'
 }

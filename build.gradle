@@ -41,5 +41,3 @@ allprojects {
     }
     group = 'androidx.media3'
 }
-
-apply from: 'javadoc_combined.gradle'

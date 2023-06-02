@@ -41,10 +41,6 @@ android {
     }
 }
 
-ext {
-    javadocTitle = 'Container module'
-}
-
 dependencies {
     implementation project(modulePrefix + 'lib-common')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
@@ -53,7 +49,6 @@ dependencies {
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
-apply from: '../../javadoc_library.gradle'
 
 ext {
     releaseArtifactId = 'media3-container'

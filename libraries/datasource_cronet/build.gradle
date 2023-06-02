@@ -44,11 +44,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Cronet extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-datasource-cronet'
     releaseName = 'Media3 Cronet DataSource module'
 }

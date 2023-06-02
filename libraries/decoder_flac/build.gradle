@@ -40,8 +40,3 @@ dependencies {
     testImplementation project(modulePrefix + 'test-data')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
-
-ext {
-    javadocTitle = 'FLAC extension'
-}
-apply from: '../../javadoc_library.gradle'

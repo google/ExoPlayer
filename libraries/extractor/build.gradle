@@ -48,11 +48,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Extractor module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-extractor'
     releaseName = 'Media3 Extractor module'
 }

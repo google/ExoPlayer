@@ -62,11 +62,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Effect module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-effect'
     releaseName = 'Media3 Effect module'
 }

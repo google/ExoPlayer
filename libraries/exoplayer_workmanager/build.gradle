@@ -32,11 +32,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'WorkManager extension'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-exoplayer-workmanager'
     releaseName = 'Media3 ExoPlayer WorkManager module'
 }

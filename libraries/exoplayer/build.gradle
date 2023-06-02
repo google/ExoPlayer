@@ -71,11 +71,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Core module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-exoplayer'
     releaseName = 'Media3 ExoPlayer module'
 }

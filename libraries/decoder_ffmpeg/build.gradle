@@ -33,8 +33,3 @@ dependencies {
     testImplementation project(modulePrefix + 'test-utils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
-
-ext {
-    javadocTitle = 'FFmpeg extension'
-}
-apply from: '../../javadoc_library.gradle'

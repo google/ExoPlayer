@@ -41,11 +41,6 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Database module'
-}
-apply from: '../../javadoc_library.gradle'
-
-ext {
     releaseArtifactId = 'media3-database'
     releaseName = 'Media3 database module'
 }
