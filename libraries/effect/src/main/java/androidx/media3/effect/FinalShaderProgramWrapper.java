@@ -461,14 +461,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       defaultShaderProgram = null;
       outputSurfaceInfoChanged = false;
     }
+
     if (defaultShaderProgram == null) {
       defaultShaderProgram =
           createDefaultShaderProgram(
               outputSurfaceInfo == null ? 0 : outputSurfaceInfo.orientationDegrees,
               outputWidth,
               outputHeight);
+      outputSurfaceInfoChanged = false;
     }
-
     return true;
   }
 
