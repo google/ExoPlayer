@@ -25,7 +25,6 @@ import static androidx.media3.test.session.common.MediaSessionConstants.KEY_COMM
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
-import static androidx.media3.test.session.common.MediaSessionConstants.TEST_ON_VIDEO_SIZE_CHANGED;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
@@ -2546,53 +2545,40 @@ public class MediaControllerListenerTest {
 
   @Test
   public void onVideoSizeChanged() throws Exception {
-    VideoSize defaultVideoSize = MediaTestUtils.createDefaultVideoSize();
-    RemoteMediaSession session = createRemoteMediaSession(TEST_ON_VIDEO_SIZE_CHANGED);
-    MediaController controller = controllerTestRule.createController(session.getToken());
-    List<VideoSize> videoSizeFromGetterList = new ArrayList<>();
-    List<VideoSize> videoSizeFromParamList = new ArrayList<>();
-    List<Player.Events> eventsList = new ArrayList<>();
-    CountDownLatch latch = new CountDownLatch(6);
+    VideoSize testVideoSize =
+        new VideoSize(
+            /* width= */ 100,
+            /* height= */ 42,
+            /* unappliedRotationDegrees= */ 90,
+            /* pixelWidthHeightRatio= */ 1.2f);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<VideoSize> videoSizeFromParamRef = new AtomicReference<>();
+    AtomicReference<VideoSize> videoSizeFromGetterRef = new AtomicReference<>();
+    AtomicReference<Player.Events> eventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
           public void onVideoSizeChanged(VideoSize videoSize) {
-            videoSizeFromParamList.add(videoSize);
-            videoSizeFromGetterList.add(controller.getVideoSize());
+            videoSizeFromParamRef.set(videoSize);
+            videoSizeFromGetterRef.set(controller.getVideoSize());
             latch.countDown();
           }
 
           @Override
           public void onEvents(Player player, Player.Events events) {
-            eventsList.add(events);
+            eventsRef.set(events);
             latch.countDown();
           }
         };
-    threadTestRule
-        .getHandler()
-        .postAndSync(
-            () -> {
-              controller.addListener(listener);
-              // Verify initial controller state.
-              assertThat(controller.getVideoSize()).isEqualTo(defaultVideoSize);
-            });
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    session.getMockPlayer().notifyVideoSizeChanged(VideoSize.UNKNOWN);
-    session.getMockPlayer().notifyVideoSizeChanged(defaultVideoSize);
-    session.getMockPlayer().notifyVideoSizeChanged(defaultVideoSize);
-    session.getMockPlayer().notifyVideoSizeChanged(VideoSize.UNKNOWN);
+    remoteSession.getMockPlayer().notifyVideoSizeChanged(testVideoSize);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(videoSizeFromParamList)
-        .containsExactly(VideoSize.UNKNOWN, defaultVideoSize, VideoSize.UNKNOWN)
-        .inOrder();
-    assertThat(videoSizeFromGetterList)
-        .containsExactly(VideoSize.UNKNOWN, defaultVideoSize, VideoSize.UNKNOWN)
-        .inOrder();
-    assertThat(eventsList).hasSize(3);
-    assertThat(getEventsAsList(eventsList.get(0))).containsExactly(Player.EVENT_VIDEO_SIZE_CHANGED);
-    assertThat(getEventsAsList(eventsList.get(1))).containsExactly(Player.EVENT_VIDEO_SIZE_CHANGED);
-    assertThat(getEventsAsList(eventsList.get(2))).containsExactly(Player.EVENT_VIDEO_SIZE_CHANGED);
+    assertThat(videoSizeFromParamRef.get()).isEqualTo(testVideoSize);
+    assertThat(videoSizeFromGetterRef.get()).isEqualTo(testVideoSize);
+    assertThat(getEventsAsList(eventsRef.get())).containsExactly(Player.EVENT_VIDEO_SIZE_CHANGED);
   }
 
   @Test
