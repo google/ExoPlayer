@@ -48,6 +48,10 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Add default implementation to `MediaSession.Callback.onAddMediaItems` to
+        allow requested `MediaItems` to be passed onto `Player` if they have
+        `LocalConfiguration` (e.g. URI)
+        ([#282](https://github.com/androidx/media/issues/282)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

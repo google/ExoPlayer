@@ -666,6 +666,68 @@ public class MediaItemTest {
   }
 
   @Test
+  public void
+      createDefaultLocalConfigurationInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
+
+    Bundle localConfigurationBundle = mediaItem.localConfiguration.toBundle();
+
+    // Check that default values are skipped when bundling, only Uri field (="0") is present
+    assertThat(localConfigurationBundle.keySet()).containsExactly("0");
+
+    MediaItem.LocalConfiguration restoredLocalConfiguration =
+        MediaItem.LocalConfiguration.CREATOR.fromBundle(localConfigurationBundle);
+
+    assertThat(restoredLocalConfiguration).isEqualTo(mediaItem.localConfiguration);
+    assertThat(restoredLocalConfiguration.streamKeys).isEmpty();
+    assertThat(restoredLocalConfiguration.subtitleConfigurations).isEmpty();
+  }
+
+  @Test
+  public void createLocalConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    Map<String, String> requestHeaders = new HashMap<>();
+    requestHeaders.put("Referer", "http://www.google.com");
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setMimeType(MimeTypes.APPLICATION_MP4)
+            .setCustomCacheKey("key")
+            .setSubtitleConfigurations(
+                ImmutableList.of(
+                    new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en"))
+                        .setMimeType(MimeTypes.APPLICATION_TTML)
+                        .setLanguage("en")
+                        .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+                        .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+                        .setLabel("label")
+                        .setId("id")
+                        .build()))
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri(Uri.parse(URI_STRING))
+                    .setLicenseRequestHeaders(requestHeaders)
+                    .setMultiSession(true)
+                    .setForceDefaultLicenseUri(true)
+                    .setPlayClearContentWithoutKey(true)
+                    .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+                    .setKeySetId(new byte[] {1, 2, 3})
+                    .build())
+            .setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_STRING)).build())
+            .build();
+
+    MediaItem.LocalConfiguration localConfiguration = mediaItem.localConfiguration;
+    MediaItem.LocalConfiguration localConfigurationFromBundle =
+        MediaItem.LocalConfiguration.CREATOR.fromBundle(localConfiguration.toBundle());
+    MediaItem.LocalConfiguration localConfigurationFromMediaItemBundle =
+        MediaItem.CREATOR.fromBundle(mediaItem.toBundleIncludeLocalConfiguration())
+            .localConfiguration;
+
+    assertThat(localConfigurationFromBundle).isEqualTo(localConfiguration);
+    assertThat(localConfigurationFromMediaItemBundle).isEqualTo(localConfiguration);
+  }
+
+  @Test
   public void builderSetLiveConfiguration() {
     MediaItem mediaItem =
         new MediaItem.Builder()
@@ -892,11 +954,23 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundTripViaBundle_withLocalConfiguration_dropsLocalConfiguration() {
+  public void
+      roundTripViaDefaultBundle_mediaItemContainsLocalConfiguration_dropsLocalConfiguration() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.localConfiguration).isNotNull();
     assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle()).localConfiguration).isNull();
+  }
+
+  @Test
+  public void
+      roundTripViaBundleIncludeLocalConfiguration_mediaItemContainsLocalConfiguration_restoresLocalConfiguration() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
+    MediaItem restoredMediaItem =
+        MediaItem.CREATOR.fromBundle(mediaItem.toBundleIncludeLocalConfiguration());
+
+    assertThat(mediaItem.localConfiguration).isNotNull();
+    assertThat(restoredMediaItem.localConfiguration).isEqualTo(mediaItem.localConfiguration);
   }
 
   @Test

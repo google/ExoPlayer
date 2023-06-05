@@ -144,6 +144,10 @@ public class RemoteMediaController {
     binder.setMediaItem(controllerId, mediaItem.toBundle());
   }
 
+  public void setMediaItemIncludeLocalConfiguration(MediaItem mediaItem) throws RemoteException {
+    binder.setMediaItem(controllerId, mediaItem.toBundleIncludeLocalConfiguration());
+  }
+
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) throws RemoteException {
     binder.setMediaItemWithStartPosition(controllerId, mediaItem.toBundle(), startPositionMs);
   }
@@ -154,6 +158,13 @@ public class RemoteMediaController {
 
   public void setMediaItems(List<MediaItem> mediaItems) throws RemoteException {
     binder.setMediaItems(controllerId, BundleableUtil.toBundleList(mediaItems));
+  }
+
+  public void setMediaItemsIncludeLocalConfiguration(List<MediaItem> mediaItems)
+      throws RemoteException {
+    binder.setMediaItems(
+        controllerId,
+        BundleableUtil.toBundleList(mediaItems, MediaItem::toBundleIncludeLocalConfiguration));
   }
 
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition)
@@ -186,12 +197,23 @@ public class RemoteMediaController {
     binder.addMediaItem(controllerId, mediaItem.toBundle());
   }
 
+  public void addMediaItemIncludeLocalConfiguration(MediaItem mediaItem) throws RemoteException {
+    binder.addMediaItem(controllerId, mediaItem.toBundleIncludeLocalConfiguration());
+  }
+
   public void addMediaItem(int index, MediaItem mediaItem) throws RemoteException {
     binder.addMediaItemWithIndex(controllerId, index, mediaItem.toBundle());
   }
 
   public void addMediaItems(List<MediaItem> mediaItems) throws RemoteException {
     binder.addMediaItems(controllerId, BundleableUtil.toBundleList(mediaItems));
+  }
+
+  public void addMediaItemsIncludeLocalConfiguration(List<MediaItem> mediaItems)
+      throws RemoteException {
+    binder.addMediaItems(
+        controllerId,
+        BundleableUtil.toBundleList(mediaItems, MediaItem::toBundleIncludeLocalConfiguration));
   }
 
   public void addMediaItems(int index, List<MediaItem> mediaItems) throws RemoteException {

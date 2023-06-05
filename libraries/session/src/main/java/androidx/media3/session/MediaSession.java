@@ -1129,10 +1129,15 @@ public class MediaSession {
      * prepare or play media (for instance when browsing the catalogue and then selecting an item
      * for preparation from Android Auto that is using the legacy Media1 library).
      *
-     * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
-     * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
-     * playable by the underlying {@link Player}. Typically, this implementation should be able to
-     * identify the correct item by its {@link MediaItem#mediaId} and/or the {@link
+     * <p>By default, if and only if each of the provided {@linkplain MediaItem media items} has a
+     * set {@link MediaItem.LocalConfiguration} (for example, a URI), then the callback returns the
+     * list unaltered. Otherwise, the default implementation returns an {@link
+     * UnsupportedOperationException}.
+     *
+     * <p>If the requested {@linkplain MediaItem media items} don't have a {@link
+     * MediaItem.LocalConfiguration}, they need to be updated to make them playable by the
+     * underlying {@link Player}. Typically, this callback would be overridden with implementation
+     * that identifies the correct item by its {@link MediaItem#mediaId} and/or the {@link
      * MediaItem#requestMetadata}.
      *
      * <p>Return a {@link ListenableFuture} with the resolved {@link MediaItem media items}. You can
@@ -1167,7 +1172,12 @@ public class MediaSession {
      */
     default ListenableFuture<List<MediaItem>> onAddMediaItems(
         MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
-      return Futures.immediateFailedFuture(new UnsupportedOperationException());
+      for (MediaItem mediaItem : mediaItems) {
+        if (mediaItem.localConfiguration == null) {
+          return Futures.immediateFailedFuture(new UnsupportedOperationException());
+        }
+      }
+      return Futures.immediateFuture(mediaItems);
     }
 
     /**
@@ -1181,11 +1191,16 @@ public class MediaSession {
      * the catalogue and then selecting an item for preparation from Android Auto that is using the
      * legacy Media1 library).
      *
-     * <p>Note that the requested {@linkplain MediaItem media items} in the
-     * MediaItemsWithStartPosition don't have a {@link MediaItem.LocalConfiguration} (for example, a
-     * URI) and need to be updated to make them playable by the underlying {@link Player}.
-     * Typically, this implementation should be able to identify the correct item by its {@link
-     * MediaItem#mediaId} and/or the {@link MediaItem#requestMetadata}.
+     * <p>By default, if and only if each of the provided {@linkplain MediaItem media items} has a
+     * set {@link MediaItem.LocalConfiguration} (for example, a URI), then the callback returns the
+     * list unaltered. Otherwise, the default implementation returns an {@link
+     * UnsupportedOperationException}.
+     *
+     * <p>If the requested {@linkplain MediaItem media items} don't have a {@link
+     * MediaItem.LocalConfiguration}, they need to be updated to make them playable by the
+     * underlying {@link Player}. Typically, this callback would be overridden with implementation
+     * that identifies the correct item by its {@link MediaItem#mediaId} and/or the {@link
+     * MediaItem#requestMetadata}.
      *
      * <p>Return a {@link ListenableFuture} with the resolved {@linkplain
      * MediaItemsWithStartPosition media items and starting index and position}. You can also return

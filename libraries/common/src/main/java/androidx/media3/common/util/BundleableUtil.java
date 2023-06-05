@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -36,10 +37,21 @@ public final class BundleableUtil {
 
   /** Converts a list of {@link Bundleable} to a list {@link Bundle}. */
   public static <T extends Bundleable> ImmutableList<Bundle> toBundleList(List<T> bundleableList) {
+    return toBundleList(bundleableList, Bundleable::toBundle);
+  }
+
+  /**
+   * Converts a list of {@link Bundleable} to a list {@link Bundle}
+   *
+   * @param bundleableList list of Bundleable items to be converted
+   * @param customToBundleFunc function that specifies how to bundle up each {@link Bundleable}
+   */
+  public static <T extends Bundleable> ImmutableList<Bundle> toBundleList(
+      List<T> bundleableList, Function<T, Bundle> customToBundleFunc) {
     ImmutableList.Builder<Bundle> builder = ImmutableList.builder();
     for (int i = 0; i < bundleableList.size(); i++) {
-      Bundleable bundleable = bundleableList.get(i);
-      builder.add(bundleable.toBundle());
+      T bundleable = bundleableList.get(i);
+      builder.add(customToBundleFunc.apply(bundleable));
     }
     return builder.build();
   }
