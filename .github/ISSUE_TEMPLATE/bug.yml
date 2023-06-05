@@ -17,7 +17,7 @@ body:
           tracker: https://github.com/google/ExoPlayer/issues?q=is%3Aissue
   - type: dropdown
     attributes:
-      label: Media3 Version
+      label: Version
       description: What version of Media3 (or ExoPlayer) are you using?
       options:
         - Media3 1.1.0-beta01
@@ -34,6 +34,7 @@ body:
         - Media3 1.0.0-alpha02
         - Media3 1.0.0-alpha01
         - Media3 `main` branch
+        - Media3 pre-release (alpha, beta or RC not in this list)
         - ExoPlayer 2.18.7
         - ExoPlayer 2.18.6
         - ExoPlayer 2.18.5
@@ -55,6 +56,12 @@ body:
         - Older (unsupported)
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: More version details
+      description: |
+        Required if you selected `main` or `dev-v2` (please provide an exact commit SHA),
+        or 'pre-release' or 'older' (please provide the version).
   - type: textarea
     attributes:
       label: Devices that reproduce the issue
