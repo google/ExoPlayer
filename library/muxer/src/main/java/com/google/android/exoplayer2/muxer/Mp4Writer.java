@@ -270,7 +270,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Calculate the additional space required.
     long bytesNeededInMdat = 0L;
     for (Pair<BufferInfo, ByteBuffer> sample : track.pendingSamples) {
-      bytesNeededInMdat += sample.second.remaining();
+      bytesNeededInMdat += sample.second.limit();
     }
 
     // If the required number of bytes doesn't fit in the gap between the actual data and the moov
