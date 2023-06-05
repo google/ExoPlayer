@@ -28,6 +28,11 @@
         `TrackSelectionParameters`. If the set preference is to enable, the
         device supports offload for the format, and the track selection is a
         single audio track, then audio offload will be enabled.
+    *   If `audioOffloadModePreference` is set to
+        `AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED`, then the
+        `DefaultTrackSelector` will only select an audio track and only if that
+        track's format is supported in offload. If no audio track is supported
+        in offload, then no track will be selected.
     *   Remove parameter `enableOffload` from
         `DefaultRenderersFactory.buildAudioSink` method signature.
     *   Remove method `DefaultAudioSink.Builder.setOffloadMode`.

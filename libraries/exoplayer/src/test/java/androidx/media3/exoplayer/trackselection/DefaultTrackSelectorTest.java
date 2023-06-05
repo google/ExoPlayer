@@ -20,7 +20,9 @@ import static androidx.media3.common.C.FORMAT_HANDLED;
 import static androidx.media3.common.C.FORMAT_UNSUPPORTED_SUBTYPE;
 import static androidx.media3.common.C.FORMAT_UNSUPPORTED_TYPE;
 import static androidx.media3.common.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED;
+import static androidx.media3.common.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED;
 import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
+import static androidx.media3.exoplayer.RendererCapabilities.AUDIO_OFFLOAD_GAPLESS_SUPPORTED;
 import static androidx.media3.exoplayer.RendererCapabilities.AUDIO_OFFLOAD_SUPPORTED;
 import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK;
 import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK_MIMETYPE;
@@ -30,6 +32,7 @@ import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATI
 import static androidx.media3.exoplayer.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static androidx.media3.exoplayer.RendererConfiguration.DEFAULT;
 import static androidx.media3.exoplayer.audio.AudioSink.OFFLOAD_MODE_DISABLED;
+import static androidx.media3.exoplayer.audio.AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED;
 import static androidx.media3.exoplayer.audio.AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
@@ -2318,7 +2321,7 @@ public final class DefaultTrackSelectorTest {
 
   @Test
   public void
-      selectTracks_withSingleTrackAndOffloadPreferenceEnabled_returnsRendererConfigOffloadEnabled()
+      selectTracks_withSingleTrackAndOffloadPreferenceEnabled_returnsRendererConfigOffloadModeEnabledGaplessRequired()
           throws Exception {
     Format formatAAC =
         new Format.Builder().setId("0").setSampleMimeType(MimeTypes.AUDIO_AAC).build();
@@ -2347,8 +2350,6 @@ public final class DefaultTrackSelectorTest {
             periodId,
             TIMELINE);
 
-    assertThat(trackSelector.getParameters().audioOffloadModePreference)
-        .isEqualTo(AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED);
     assertFixedSelection(result.selections[0], trackGroups, formatAAC);
     assertThat(result.rendererConfigurations[0].offloadModePreferred)
         .isEqualTo(OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED);
@@ -2356,7 +2357,7 @@ public final class DefaultTrackSelectorTest {
 
   @Test
   public void
-      selectTracks_withMultipleAudioTracksAndOffloadPreferenceEnabled_returnsRendererConfigOffloadDisabled()
+      selectTracks_withMultipleAudioTracksAndOffloadPreferenceEnabled_returnsRendererConfigOffloadModeDisabled()
           throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
     TrackGroupArray trackGroups =
@@ -2385,8 +2386,6 @@ public final class DefaultTrackSelectorTest {
             periodId,
             TIMELINE);
 
-    assertThat(trackSelector.getParameters().audioOffloadModePreference)
-        .isEqualTo(AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED);
     assertThat(result.length).isEqualTo(1);
     assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1);
     assertThat(result.rendererConfigurations[0].offloadModePreferred)
@@ -2395,20 +2394,16 @@ public final class DefaultTrackSelectorTest {
 
   @Test
   public void
-      selectTracks_gaplessTrackWithOffloadPreferenceGaplessRequired_returnsConfigOffloadDisabled()
+      selectTracks_withMultipleAudioTracksAndOffloadPreferenceRequired_returnsRendererConfigOffloadModeEnabledGaplessRequired()
           throws Exception {
-    Format formatAAC =
-        new Format.Builder()
-            .setId("0")
-            .setSampleMimeType(MimeTypes.AUDIO_AAC)
-            .setEncoderDelay(100)
-            .build();
-    TrackGroupArray trackGroups = new TrackGroupArray(new TrackGroup(formatAAC));
+    Format format1 = AUDIO_FORMAT.buildUpon().setId("0").build();
+    Format format2 = AUDIO_FORMAT.buildUpon().setId("0").build();
+    TrackGroupArray trackGroups = singleTrackGroup(format1, format2);
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
             .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
                 /* isGaplessSupportRequired= */ true,
                 /* isSpeedChangeSupportRequired= */ false)
             .build());
@@ -2428,11 +2423,205 @@ public final class DefaultTrackSelectorTest {
             periodId,
             TIMELINE);
 
-    assertThat(trackSelector.getParameters().audioOffloadModePreference)
-        .isEqualTo(AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED);
-    assertFixedSelection(result.selections[0], trackGroups, formatAAC);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups, format1);
+    assertThat(result.rendererConfigurations[0].offloadModePreferred)
+        .isEqualTo(OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED);
+  }
+
+  @Test
+  public void
+      selectTracks_withAudioAndVideoAndOffloadPreferenceEnabled_returnsRendererConfigOffloadModeDisabled()
+          throws Exception {
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(VIDEO_FORMAT), new TrackGroup(AUDIO_FORMAT));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setAudioOffloadPreference(
+                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    RendererCapabilities audioCapabilities =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED,
+                ADAPTIVE_NOT_SEAMLESS,
+                TUNNELING_NOT_SUPPORTED,
+                AUDIO_OFFLOAD_SUPPORTED));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, audioCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertFixedSelection(result.selections[0], trackGroups, VIDEO_FORMAT);
+    assertFixedSelection(result.selections[1], trackGroups, AUDIO_FORMAT);
+    assertThat(result.rendererConfigurations[1].offloadModePreferred)
+        .isEqualTo(OFFLOAD_MODE_DISABLED);
+  }
+
+  @Test
+  public void
+      selectTracks_withAudioAndVideoAndOffloadPreferenceRequired_returnsRendererConfigOffloadModeEnabledGaplessNotRequired()
+          throws Exception {
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(VIDEO_FORMAT), new TrackGroup(AUDIO_FORMAT));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setAudioOffloadPreference(
+                AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    RendererCapabilities audioCapabilities =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED,
+                ADAPTIVE_NOT_SEAMLESS,
+                TUNNELING_NOT_SUPPORTED,
+                AUDIO_OFFLOAD_SUPPORTED));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, audioCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertThat(result.selections[0]).isNull();
+    assertFixedSelection(result.selections[1], trackGroups, AUDIO_FORMAT);
+    assertThat(result.rendererConfigurations[1].offloadModePreferred)
+        .isEqualTo(OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED);
+  }
+
+  @Test
+  public void
+      selectTracks_gaplessTrackWithOffloadPreferenceGaplessRequired_returnsConfigOffloadDisabled()
+          throws Exception {
+    Format formatAac =
+        new Format.Builder()
+            .setId("0")
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setEncoderDelay(100)
+            .build();
+    TrackGroupArray trackGroups = new TrackGroupArray(new TrackGroup(formatAac));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setAudioOffloadPreference(
+                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ true,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    // Offload playback without gapless transitions is supported
+    RendererCapabilities capabilitiesOffloadSupport =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED,
+                ADAPTIVE_NOT_SEAMLESS,
+                TUNNELING_NOT_SUPPORTED,
+                AUDIO_OFFLOAD_SUPPORTED));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {capabilitiesOffloadSupport},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups, formatAac);
     assertThat(result.rendererConfigurations[0].offloadModePreferred)
         .isEqualTo(OFFLOAD_MODE_DISABLED);
+  }
+
+  @Test
+  public void
+      selectTracks_gaplessTrackWithOffloadPreferenceGaplessRequiredWithGaplessSupport_returnsConfigOffloadModeEnabledGaplessRequired()
+          throws Exception {
+    Format formatAac =
+        new Format.Builder()
+            .setId("0")
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setEncoderDelay(100)
+            .build();
+    TrackGroupArray trackGroups = new TrackGroupArray(new TrackGroup(formatAac));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setAudioOffloadPreference(
+                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ true,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    // Offload playback without gapless transitions is supported
+    RendererCapabilities capabilitiesOffloadSupport =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED,
+                ADAPTIVE_NOT_SEAMLESS,
+                TUNNELING_NOT_SUPPORTED,
+                /* audioOffloadSupport= */ AUDIO_OFFLOAD_SUPPORTED
+                    | AUDIO_OFFLOAD_GAPLESS_SUPPORTED));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {capabilitiesOffloadSupport},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups, formatAac);
+    assertThat(result.rendererConfigurations[0].offloadModePreferred)
+        .isEqualTo(OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED);
+  }
+
+  @Test
+  public void
+      selectTracks_gaplessTrackWithOffloadPreferenceRequiredGaplessRequired_returnsEmptySelection()
+          throws Exception {
+    Format formatAac =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setEncoderDelay(100).build();
+    TrackGroupArray trackGroups = new TrackGroupArray(new TrackGroup(formatAac));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setAudioOffloadPreference(
+                AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
+                /* isGaplessSupportRequired= */ true,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    // Offload playback without gapless transitions is supported
+    RendererCapabilities capabilitiesOffloadSupport =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED,
+                ADAPTIVE_NOT_SEAMLESS,
+                TUNNELING_NOT_SUPPORTED,
+                AUDIO_OFFLOAD_SUPPORTED));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {capabilitiesOffloadSupport},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).hasLength(1);
+    assertThat(result.selections[0]).isNull();
   }
 
   /**
