@@ -680,7 +680,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       super.onDisabled();
     } finally {
       eventDispatcher.disabled(decoderCounters);
-      eventDispatcher.videoSizeChanged(VideoSize.UNKNOWN);
     }
   }
 

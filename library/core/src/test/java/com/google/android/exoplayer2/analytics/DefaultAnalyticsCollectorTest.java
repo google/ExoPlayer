@@ -356,7 +356,9 @@ public final class DefaultAnalyticsCollectorTest {
         .containsExactly(period0, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period1);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
+        .containsExactly(period0, period1)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(period0, period1)
         .inOrder();
@@ -423,11 +425,7 @@ public final class DefaultAnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            period0, // First frame rendered of first video item
-            period1) // width=0, height=0 for audio only media source
-        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET)).containsExactly(period0);
     listener.assertNoMoreEvents();
@@ -508,11 +506,7 @@ public final class DefaultAnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INITIALIZED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            period0, // First frame rendered of first video item
-            period1) // width=0, height=0 for audio only media source
-        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
     listener.assertNoMoreEvents();
   }
@@ -610,10 +604,7 @@ public final class DefaultAnalyticsCollectorTest {
         .containsExactly(period0, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            period0, // First frame rendered
-            period1Seq1, // Renderer disabled after seek
-            period0) // First frame rendered after seek
+        .containsExactly(period0, period1Seq1, period0, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(period0, period1Seq1, period0, period1Seq2)
@@ -706,10 +697,7 @@ public final class DefaultAnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            period0Seq0, // First frame rendered
-            period0Seq0, // Renderer disabled after timeline changed
-            period0Seq1) // First frame rendered of new source
+        .containsExactly(period0Seq0, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(period0Seq0, period0Seq1)
@@ -788,7 +776,7 @@ public final class DefaultAnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(period0Seq0, period0Seq0, period0Seq0);
+        .containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
@@ -865,9 +853,7 @@ public final class DefaultAnalyticsCollectorTest {
         .containsExactly(window0Period1Seq0, period1Seq0)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            window0Period1Seq0, // First frame rendered
-            window0Period1Seq0) // Renderer disabled after timeline update
+        .containsExactly(window0Period1Seq0, window1Period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(window0Period1Seq0, window1Period0Seq1)
@@ -955,10 +941,7 @@ public final class DefaultAnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            period0Seq0, // First frame rendered
-            period0Seq1, // Renderer disabled after media item removal
-            period0Seq1) // First frame rendered after removal
+        .containsExactly(period0Seq0, period1Seq1, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(period0Seq0, period1Seq1, period0Seq1);
@@ -1185,7 +1168,13 @@ public final class DefaultAnalyticsCollectorTest {
         .containsExactly(contentAfterPreroll, contentAfterMidroll, contentAfterPostroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(prerollAd) // First frame rendered
+        .containsExactly(
+            prerollAd,
+            contentAfterPreroll,
+            midrollAd,
+            contentAfterMidroll,
+            postrollAd,
+            contentAfterPostroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(
@@ -1325,10 +1314,7 @@ public final class DefaultAnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(contentBeforeMidroll);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(
-            contentBeforeMidroll, // First frame rendered
-            midrollAd, // Renderer disabled for seek
-            midrollAd) // First frame rendered after seek
+        .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll)

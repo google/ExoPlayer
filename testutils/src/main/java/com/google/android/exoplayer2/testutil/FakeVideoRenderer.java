@@ -27,8 +27,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoSize;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link FakeRenderer} that supports {@link C#TRACK_TYPE_VIDEO}. */
@@ -37,7 +35,6 @@ public class FakeVideoRenderer extends FakeRenderer {
   private final HandlerWrapper handler;
   private final VideoRendererEventListener eventListener;
   private final DecoderCounters decoderCounters;
-  private final AtomicReference<VideoSize> videoSizeRef = new AtomicReference<>();
   private @MonotonicNonNull Format format;
   @Nullable private Object output;
   private long streamOffsetUs;
@@ -50,7 +47,6 @@ public class FakeVideoRenderer extends FakeRenderer {
     this.handler = handler;
     this.eventListener = eventListener;
     decoderCounters = new DecoderCounters();
-    videoSizeRef.set(VideoSize.UNKNOWN);
   }
 
   @Override
@@ -83,12 +79,7 @@ public class FakeVideoRenderer extends FakeRenderer {
   @Override
   protected void onDisabled() {
     super.onDisabled();
-    videoSizeRef.set(VideoSize.UNKNOWN);
-    handler.post(
-        () -> {
-          eventListener.onVideoDisabled(decoderCounters);
-          eventListener.onVideoSizeChanged(VideoSize.UNKNOWN);
-        });
+    handler.post(() -> eventListener.onVideoDisabled(decoderCounters));
   }
 
   @Override
@@ -148,18 +139,13 @@ public class FakeVideoRenderer extends FakeRenderer {
     if (shouldProcess && !renderedFirstFrameAfterReset && output != null) {
       @MonotonicNonNull Format format = Assertions.checkNotNull(this.format);
       handler.post(
-          () -> {
-            VideoSize videoSize =
-                new VideoSize(
-                    format.width,
-                    format.height,
-                    format.rotationDegrees,
-                    format.pixelWidthHeightRatio);
-            if (!Objects.equals(videoSize, videoSizeRef.get())) {
-              eventListener.onVideoSizeChanged(videoSize);
-              videoSizeRef.set(videoSize);
-            }
-          });
+          () ->
+              eventListener.onVideoSizeChanged(
+                  new VideoSize(
+                      format.width,
+                      format.height,
+                      format.rotationDegrees,
+                      format.pixelWidthHeightRatio)));
       handler.post(
           () ->
               eventListener.onRenderedFirstFrame(
