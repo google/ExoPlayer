@@ -15,18 +15,20 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
-import static androidx.media3.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+import static androidx.media3.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.Log;
+import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
@@ -35,6 +37,7 @@ import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.util.Objects;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,12 +48,22 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ToneMapHdrToSdrUsingMediaCodecTest {
-  public static final String TAG = "ToneMapHdrToSdrUsingMediaCodecTest";
 
   @Test
   public void export_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {
     String testId = "export_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
+
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
+        /* outputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build())) {
+      return;
+    }
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -79,13 +92,19 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      Log.i(TAG, "Tone mapped.");
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
-      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      assertThat(exception.errorCode)
-          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      if (exception.getCause() != null
+          && (Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping HDR is not supported on this device.")
+              || Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping requested but not supported by the decoder."))) {
+        // Expected on devices without a tone-mapping plugin for this codec.
+        return;
+      }
+      throw exception;
     }
   }
 
@@ -94,6 +113,17 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
     String testId = "export_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
+        /* outputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build())) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
@@ -121,13 +151,19 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, mediaItem);
-      Log.i(TAG, "Tone mapped.");
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
-      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      assertThat(exception.errorCode)
-          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      if (exception.getCause() != null
+          && (Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping HDR is not supported on this device.")
+              || Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping requested but not supported by the decoder."))) {
+        // Expected on devices without a tone-mapping plugin for this codec.
+        return;
+      }
+      throw exception;
     }
   }
 
@@ -135,6 +171,17 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public void export_toneMapAndTranscode_hdr10File_toneMapsOrThrows() throws Exception {
     String testId = "export_toneMapAndTranscode_hdr10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
+
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
+        /* outputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build())) {
+      return;
+    }
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -165,13 +212,19 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, editedMediaItem);
-      Log.i(TAG, "Tone mapped.");
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
-      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      assertThat(exception.errorCode)
-          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      if (exception.getCause() != null
+          && (Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping HDR is not supported on this device.")
+              || Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping requested but not supported by the decoder."))) {
+        // Expected on devices without a tone-mapping plugin for this codec.
+        return;
+      }
+      throw exception;
     }
   }
 
@@ -179,6 +232,17 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public void export_toneMapAndTranscode_hlg10File_toneMapsOrThrows() throws Exception {
     String testId = "export_toneMapAndTranscode_hlg10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
+
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
+        /* outputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build())) {
+      return;
+    }
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -209,13 +273,19 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, editedMediaItem);
-      Log.i(TAG, "Tone mapped.");
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
-      Log.i(TAG, checkNotNull(exception.getCause()).toString());
-      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      assertThat(exception.errorCode)
-          .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      if (exception.getCause() != null
+          && (Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping HDR is not supported on this device.")
+              || Objects.equals(
+                  exception.getCause().getMessage(),
+                  "Tone-mapping requested but not supported by the decoder."))) {
+        // Expected on devices without a tone-mapping plugin for this codec.
+        return;
+      }
+      throw exception;
     }
   }
 }

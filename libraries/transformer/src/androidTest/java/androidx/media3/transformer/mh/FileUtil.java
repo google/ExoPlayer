@@ -16,70 +16,57 @@
 
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.media.MediaFormat;
+import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.util.MediaFormatUtil;
-import androidx.media3.common.util.Util;
-import androidx.media3.test.utils.DecodeOneFrameUtil;
-import java.io.IOException;
+import androidx.media3.common.Format;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.exoplayer.MetadataRetriever;
+import androidx.media3.exoplayer.source.TrackGroupArray;
+import java.util.concurrent.ExecutionException;
 
 /** Utilities for accessing details of media files. */
 /* package */ class FileUtil {
 
   /**
-   * Assert that the file has a certain color transfer, if supported on this device.
+   * Asserts that the file has a certain color transfer.
    *
-   * <p>This will silently pass if under API 24, or if decoding this file is not supported on this
-   * device.
-   *
+   * @param context The current context.
    * @param filePath The path of the input file.
    * @param expectedColorTransfer The expected {@link C.ColorTransfer} for the input file.
-   * @throws IOException If extractor or codec creation fails.
    */
-  public static void maybeAssertFileHasColorTransfer(
-      @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) throws IOException {
-    if (Util.SDK_INT < 24) {
-      // MediaFormat#KEY_COLOR_TRANSFER unsupported before API 24.
-      return;
-    }
-    DecodeOneFrameUtil.Listener listener =
-        new DecodeOneFrameUtil.Listener() {
-          @Override
-          public void onContainerExtracted(MediaFormat mediaFormat) {
-            @Nullable ColorInfo extractedColorInfo = MediaFormatUtil.getColorInfo(mediaFormat);
-            assertColorInfoHasTransfer(extractedColorInfo, expectedColorTransfer);
-          }
-
-          @Override
-          public void onFrameDecoded(MediaFormat mediaFormat) {
-            @Nullable ColorInfo decodedColorInfo = MediaFormatUtil.getColorInfo(mediaFormat);
-            assertColorInfoHasTransfer(decodedColorInfo, expectedColorTransfer);
-          }
-        };
-
+  public static void assertFileHasColorTransfer(
+      Context context, @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) {
+    TrackGroupArray trackGroupArray;
     try {
-      DecodeOneFrameUtil.decodeOneCacheFileFrame(
-          checkNotNull(filePath), listener, /* surface= */ null);
-    } catch (UnsupportedOperationException e) {
-      if (e.getMessage() != null
-          && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
+      trackGroupArray =
+          MetadataRetriever.retrieveMetadata(context, MediaItem.fromUri("file://" + filePath))
+              .get();
+    } catch (ExecutionException | InterruptedException e) {
+      throw new IllegalStateException(e);
+    }
+
+    int trackGroupCount = trackGroupArray.length;
+    assertThat(trackGroupCount).isEqualTo(2);
+    for (int i = 0; i < trackGroupCount; i++) {
+      TrackGroup trackGroup = trackGroupArray.get(i);
+      if (trackGroup.type == C.TRACK_TYPE_VIDEO) {
+        assertThat(trackGroup.length).isEqualTo(1);
+        @Nullable ColorInfo colorInfo = trackGroup.getFormat(0).colorInfo;
+        @C.ColorTransfer
+        int actualColorTransfer =
+            colorInfo == null || colorInfo.colorTransfer == Format.NO_VALUE
+                ? C.COLOR_TRANSFER_SDR
+                : colorInfo.colorTransfer;
+        assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
         return;
-      } else {
-        throw e;
       }
     }
-  }
-
-  private static void assertColorInfoHasTransfer(
-      @Nullable ColorInfo colorInfo, @C.ColorTransfer int expectedColorTransfer) {
-    @C.ColorTransfer
-    int actualColorTransfer = colorInfo == null ? C.COLOR_TRANSFER_SDR : colorInfo.colorTransfer;
-    assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
+    throw new IllegalStateException("Couldn't find video track");
   }
 
   private FileUtil() {}
