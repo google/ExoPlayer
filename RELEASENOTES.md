@@ -3,6 +3,12 @@
 ### Unreleased changes
 
 *   Common Library:
+    *   Add a `@Nullable Throwable` parameter to the methods in the `Log.Logger`
+        interface. The `message` parameter to these methods no longer contains
+        any information about the `Throwable` passed to the `Log.{d,i,w,e}()`
+        methods, so implementations will need to manually append this
+        information if desired (possibly using
+        `Logger.appendThrowableString(String, Throwable)`).
 *   ExoPlayer:
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
