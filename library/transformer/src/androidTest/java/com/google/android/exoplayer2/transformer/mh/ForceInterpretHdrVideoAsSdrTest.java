@@ -21,7 +21,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
-import static com.google.android.exoplayer2.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
+import static com.google.android.exoplayer2.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
@@ -46,7 +46,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ForceInterpretHdrVideoAsSdrTest {
-  public static final String TAG = "ForceInterpretHdrVideoAsSdrTest";
 
   @Test
   public void forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows() throws Exception {
@@ -85,7 +84,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .build()
             .run(testId, mediaItem);
 
-    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
   }
 
   @Test
@@ -125,6 +124,6 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .build()
             .run(testId, mediaItem);
 
-    maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
   }
 }

@@ -23,7 +23,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.mh.FileUtil.maybeAssertFileHasColorTransfer;
+import static com.google.android.exoplayer2.transformer.mh.FileUtil.assertFileHasColorTransfer;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
@@ -33,14 +33,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
-import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.io.IOException;
 import org.json.JSONException;
 import org.junit.Test;
@@ -52,13 +51,12 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ToneMapHdrToSdrUsingOpenGlTest {
-  public static final String TAG = "ToneMapHdrToSdrUsingOpenGlTest";
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
   @Test
-  public void export_toneMap_hlg10File_toneMapsOrThrows() throws Exception {
-    String testId = "export_glToneMap_hlg10File_toneMapsOrThrows";
+  public void export_toneMap_hlg10File_toneMaps() throws Exception {
+    String testId = "export_glToneMap_hlg10File_toneMaps";
     if (!deviceSupportsOpenGlToneMapping(
         testId, /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
       return;
@@ -68,8 +66,8 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
   }
 
   @Test
-  public void export_toneMap_hdr10File_toneMapsOrThrows() throws Exception {
-    String testId = "export_glToneMap_hdr10File_toneMapsOrThrows";
+  public void export_toneMap_hdr10File_toneMaps() throws Exception {
+    String testId = "export_glToneMap_hdr10File_toneMaps";
     if (!deviceSupportsOpenGlToneMapping(
         testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
       return;
@@ -79,8 +77,8 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
   }
 
   @Test
-  public void export_toneMap_dolbyVisionFile_toneMapsOrThrows() throws Exception {
-    String testId = "export_toneMap_dolbyVisionFile_toneMapsOrThrows";
+  public void export_toneMap_dolbyVisionFile_toneMaps() throws Exception {
+    String testId = "export_toneMap_dolbyVisionFile_toneMaps";
     if (!deviceSupportsOpenGlToneMapping(
         testId, /* inputFormat= */ MP4_ASSET_DOLBY_VISION_HDR_FORMAT)) {
       return;
@@ -97,19 +95,11 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
                     .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
                     .build())
             .build();
-    try {
-      ExportTestResult exportTestResult =
-          new TransformerAndroidTestRunner.Builder(context, transformer)
-              .build()
-              .run(testId, MediaItem.fromUri(fileUri));
-      Log.i(TAG, "Tone mapped.");
-      maybeAssertFileHasColorTransfer(exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
-    } catch (ExportException exception) {
-      Log.e(TAG, "Error during export.", exception);
-      if (exception.errorCode != ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED) {
-        throw exception;
-      }
-    }
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, MediaItem.fromUri(fileUri));
+    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
   }
 
   private static boolean deviceSupportsOpenGlToneMapping(String testId, Format inputFormat)
@@ -129,6 +119,12 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
     }
 
     return !AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        getApplicationContext(), testId, /* inputFormat= */ inputFormat, /* outputFormat= */ null);
+        getApplicationContext(),
+        testId,
+        inputFormat,
+        /* outputFormat= */ inputFormat
+            .buildUpon()
+            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
+            .build());
   }
 }
