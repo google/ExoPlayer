@@ -202,12 +202,16 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets the minimum position to start playback from, in a live stream.
-     * This value will override any suggested value from the manifest.
+     * Sets the minimum position to start playback from in a live stream, in microseconds relative
+     * to the start of the live window.
+     *
+     * <p>This value will override any suggested value from the manifest and helps to prevent {@link
+     * androidx.media3.exoplayer.source.BehindLiveWindowException} issues.
      *
      * <p>The default value is {@link #MIN_LIVE_DEFAULT_START_POSITION_US}.
      *
-     * @param minLiveStartPositionUs The minimum live start position in microseconds.
+     * @param minLiveStartPositionUs The minimum live start position, in microseconds relative to
+     *     the start of the live window.
      * @return This factory, for convenience.
      */
     @CanIgnoreReturnValue
@@ -350,8 +354,8 @@ public final class DashMediaSource extends BaseMediaSource {
   public static final String DEFAULT_MEDIA_ID = "DashMediaSource";
 
   /**
-   * The minimum default start position for live streams in micro seconds, relative to
-   * the start of the live window.
+   * The minimum default start position for live streams, in microseconds relative to the start of
+   * the live window.
    */
   public static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5_000_000;
 
@@ -853,8 +857,7 @@ public final class DashMediaSource extends BaseMediaSource {
       windowStartUnixTimeMs =
           manifest.availabilityStartTimeMs + Util.usToMs(windowStartTimeInManifestUs);
       windowDefaultPositionUs = nowInWindowUs - Util.msToUs(liveConfiguration.targetOffsetMs);
-      long minimumWindowDefaultPositionUs =
-          min(minLiveStartPositionUs, windowDurationUs / 2);
+      long minimumWindowDefaultPositionUs = min(minLiveStartPositionUs, windowDurationUs / 2);
       if (windowDefaultPositionUs < minimumWindowDefaultPositionUs) {
         // The default position is too close to the start of the live window. Set it to the minimum
         // default position provided the window is at least twice as big. Else set it to the middle
@@ -963,8 +966,7 @@ public final class DashMediaSource extends BaseMediaSource {
       targetOffsetMs = minLiveOffsetMs;
     }
     if (targetOffsetMs > maxLiveOffsetMs) {
-      long safeDistanceFromWindowStartUs =
-          min(minLiveStartPositionUs, windowDurationUs / 2);
+      long safeDistanceFromWindowStartUs = min(minLiveStartPositionUs, windowDurationUs / 2);
       long maxTargetOffsetForSafeDistanceToWindowStartMs =
           usToMs(nowInWindowUs - safeDistanceFromWindowStartUs);
       targetOffsetMs =
