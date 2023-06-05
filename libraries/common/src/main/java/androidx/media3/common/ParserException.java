@@ -107,4 +107,15 @@ public class ParserException extends IOException {
     this.contentIsMalformed = contentIsMalformed;
     this.dataType = dataType;
   }
+
+  @Nullable
+  @Override
+  public String getMessage() {
+    return super.getMessage()
+        + "{contentIsMalformed="
+        + contentIsMalformed
+        + ", dataType="
+        + dataType
+        + "}";
+  }
 }
