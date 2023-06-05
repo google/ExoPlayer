@@ -24,6 +24,7 @@ import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
+import android.media.MediaFormat;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -37,6 +38,7 @@ import androidx.media3.common.C.ColorTransfer;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
@@ -299,6 +301,37 @@ public final class EncoderUtil {
       }
     }
     return maxSupportedLevel;
+  }
+
+  /**
+   * Finds a {@link MediaCodec} that supports the {@link MediaFormat}, or {@code null} if none is
+   * found.
+   */
+  @Nullable
+  public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+    // Format must not include KEY_FRAME_RATE on API21.
+    // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
+    float frameRate = Format.NO_VALUE;
+    if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+      try {
+        frameRate = format.getFloat(MediaFormat.KEY_FRAME_RATE);
+      } catch (ClassCastException e) {
+        frameRate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
+      }
+      // Clears the frame rate field.
+      format.setString(MediaFormat.KEY_FRAME_RATE, null);
+    }
+
+    String mediaCodecName =
+        isDecoder
+            ? mediaCodecList.findDecoderForFormat(format)
+            : mediaCodecList.findEncoderForFormat(format);
+
+    if (Util.SDK_INT == 21) {
+      MediaFormatUtil.maybeSetInteger(format, MediaFormat.KEY_FRAME_RATE, round(frameRate));
+    }
+    return mediaCodecName;
   }
 
   /** Returns the range of supported bitrates for the given {@linkplain MimeTypes MIME type}. */

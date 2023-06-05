@@ -834,7 +834,7 @@ public final class AndroidTestUtil {
     }
   }
 
-  private static boolean canDecode(Format format) throws MediaCodecUtil.DecoderQueryException {
+  private static boolean canDecode(Format format) {
     // Check decoding capability in the same way as the default decoder factory.
     MediaFormat mediaFormat = MediaFormatUtil.createMediaFormatFromFormat(format);
     @Nullable
@@ -843,7 +843,7 @@ public final class AndroidTestUtil {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
-    return DefaultDecoderFactory.getDecoderInfo(format) != null;
+    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null;
   }
 
   private static boolean canEncode(Format format) {
