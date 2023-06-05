@@ -75,18 +75,26 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 public class TrackSelectionParameters implements Bundleable {
 
   /**
-   * The preference level for enabling audio offload on the audio sink. Either {@link
-   * #AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED} or {@link #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
+   * The preference level for enabling audio offload on the audio sink. One of {@link
+   * #AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED}, {@link #AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED}, or
+   * {@link #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
+    AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
     AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
     AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED,
   })
   public @interface AudioOffloadModePreference {}
 
+  /**
+   * The track selector will only select tracks that with the renderer capabilities provide an audio
+   * offload compatible playback scenario. If it is impossible to create an offload-compatible track
+   * selection, then no tracks will be selected.
+   */
+  public static final int AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED = 2;
   /**
    * The track selector will enable audio offload if the selected tracks and renderer capabilities
    * are compatible.
@@ -982,9 +990,8 @@ public class TrackSelectionParameters implements Bundleable {
   public final ImmutableList<String> preferredAudioMimeTypes;
 
   /**
-   * The preferred offload mode setting for audio playback. Either {@link
-   * #AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED} or {@link #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}. The
-   * default is {@code AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
+   * The preferred offload mode setting for audio playback. The default is {@link
+   * #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
    */
   public final @AudioOffloadModePreference int audioOffloadModePreference;
   /**
