@@ -22,6 +22,7 @@ track 0:
       colorRange = 2
       colorTransfer = 3
       hdrStaticInfo = length 0, hash 0
+    metadata = entries=[Creation time: 1635264810000]
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B

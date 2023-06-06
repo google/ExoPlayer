@@ -13,6 +13,7 @@ track 0:
     id = 1
     sampleMimeType = application/meta
     maxInputSize = 161
+    metadata = entries=[Creation time: 500000000]
   sample 0:
     time = 0
     flags = 1
@@ -38,6 +39,7 @@ track 1:
     channelCount = 2
     sampleRate = 48000
     language = ```
+    metadata = entries=[Creation time: 500000000]
     initializationData:
       data = length 2, hash 560
   sample 0:
@@ -68,6 +70,7 @@ track 2:
       colorRange = 1
       colorTransfer = 3
       hdrStaticInfo = length 0, hash 0
+    metadata = entries=[Creation time: 500000000]
     initializationData:
       data = length 85, hash 6F3CAA16
   sample 0:

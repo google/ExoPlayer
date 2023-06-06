@@ -21,7 +21,7 @@ track 0:
       colorRange = 1
       colorTransfer = -1
       hdrStaticInfo = length 0, hash 0
-    metadata = entries=[mdta: key=com.android.capture.fps, value=120.0]
+    metadata = entries=[mdta: key=com.android.capture.fps, value=120.0, Creation time: 5000000]
     initializationData:
       data = length 28, hash 410B510
       data = length 9, hash FBADD682

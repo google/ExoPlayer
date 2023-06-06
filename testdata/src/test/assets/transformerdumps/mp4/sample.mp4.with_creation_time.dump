@@ -17,7 +17,7 @@ track 0:
     width = 1080
     height = 720
     frameRate = 32.113037
-    metadata = entries=[mdta: key=com.android.capture.fps, value=60.0, xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
+    metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Creation time: 2000000000000]
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B
@@ -153,7 +153,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
-    metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
+    metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Creation time: 2000000000000]
     initializationData:
       data = length 2, hash 5F7
   sample 0:
