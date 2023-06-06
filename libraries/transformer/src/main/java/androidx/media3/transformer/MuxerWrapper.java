@@ -34,7 +34,6 @@ import androidx.media3.effect.DebugTraceUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -48,6 +47,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 /* package */ final class MuxerWrapper {
 
+  private static final String TIMER_THREAD_NAME = "Muxer:Timer";
   private static final String MUXER_TIMEOUT_ERROR_FORMAT_STRING =
       "Abort: no output sample written in the last %d milliseconds. DebugTrace: %s";
 
@@ -93,7 +93,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
-    abortScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    abortScheduledExecutorService = Util.newSingleThreadScheduledExecutor(TIMER_THREAD_NAME);
   }
 
   /**
