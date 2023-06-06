@@ -81,6 +81,7 @@ public class Mp4MuxerEndToEndTest {
 
     try {
       mp4Muxer = new Mp4Muxer.Builder(outputStream).build();
+      mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
       feedInputDataToMuxer(mp4Muxer, inputFile);
     } finally {
       if (mp4Muxer != null) {
@@ -97,6 +98,7 @@ public class Mp4MuxerEndToEndTest {
   @Test
   public void createMp4File_muxerNotClosed_createsPartiallyWrittenValidFile() throws IOException {
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputStream).build();
+    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
     feedInputDataToMuxer(mp4Muxer, H265_HDR10_MP4);
 
     // Muxer not closed.

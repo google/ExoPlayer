@@ -17,6 +17,7 @@ track 0:
     width = 180
     height = 120
     pixelWidthHeightRatio = 0.5
+    metadata = entries=[Creation time: unset]
     initializationData:
       data = length 32, hash 1F3D6E87
       data = length 10, hash 7A0D0F2B

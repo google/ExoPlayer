@@ -11,9 +11,11 @@ format 0:
     colorRange = 1
     colorTransfer = 3
     hdrStaticInfo = length 0, hash 0
+  metadata = entries=[Creation time: unset]
   initializationData:
     data = length 31, hash 4B108214
     data = length 9, hash FBA158BB
+container metadata = entries=[Creation time: unset]
 format 1:
   averageBitrate = 192181
   peakBitrate = 192181
@@ -24,10 +26,10 @@ format 1:
   channelCount = 2
   sampleRate = 48000
   language = en
-  metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
+  metadata = entries=[TSSE: description=null: values=[Lavf58.76.100], Creation time: unset]
   initializationData:
     data = length 2, hash 560
-container metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
+container metadata = entries=[TSSE: description=null: values=[Lavf58.76.100], Creation time: unset]
 sample:
   trackIndex = 1
   dataHashCode = -119592194

@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.container.CreationTime;
 import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -60,7 +61,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
   }
 
   @Test
-  public void transmux_withLocationMetadata_outputMatchedExpected() throws Exception {
+  public void transmux_withLocationMetadata_outputMatchesExpected() throws Exception {
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory(
             DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
@@ -111,7 +112,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
   }
 
   @Test
-  public void transmux_withCaptureFps_outputMatchedExpected() throws Exception {
+  public void transmux_withCaptureFps_outputMatchesExpected() throws Exception {
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory(
             DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
@@ -140,5 +141,30 @@ public class TransformerWithInAppMuxerEndToEndTest {
     // [mdta: key=com.android.capture.fps, value=60.0] in video track metadata dump.
     DumpFileAsserts.assertOutput(
         context, fakeExtractorOutput, TestUtil.getDumpFileName(H264_MP4 + ".with_capture_fps"));
+  }
+
+  @Test
+  public void transmux_withCreationTime_outputMatchesExpected() throws Exception {
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory(
+            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
+            metadataEntries ->
+                metadataEntries.add(new CreationTime(/* timestampMs= */ 2_000_000_000_000L)));
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + H264_MP4));
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    FakeExtractorOutput fakeExtractorOutput =
+        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(), checkNotNull(outputPath));
+    // [Creation time: 2_000_000_000_000] in track metadata dump.
+    DumpFileAsserts.assertOutput(
+        context, fakeExtractorOutput, TestUtil.getDumpFileName(H264_MP4 + ".with_creation_time"));
   }
 }
