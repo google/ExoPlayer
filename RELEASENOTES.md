@@ -4,6 +4,9 @@
 
 *   Common Library:
 *   ExoPlayer:
+    *   Add additional action to manifest of main demo for making it easier to
+        start the demo app with a custom `*.exolist.json` file
+        ([#439](https://github.com/androidx/media/pull/439)).
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
