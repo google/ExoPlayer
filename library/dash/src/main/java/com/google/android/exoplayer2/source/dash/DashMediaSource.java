@@ -108,6 +108,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long fallbackTargetLiveOffsetMs;
+    private long minLiveStartPositionUs;
     @Nullable private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
 
     /**
@@ -143,7 +144,7 @@ public final class DashMediaSource extends BaseMediaSource {
      * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
      * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
      *     to load (and refresh) the manifest. May be {@code null} if the factory will only ever be
-     *     used to create create media sources with sideloaded manifests via {@link
+     *     used to create media sources with sideloaded manifests via {@link
      *     #createMediaSource(DashManifest, MediaItem)}.
      */
     public Factory(
@@ -154,6 +155,7 @@ public final class DashMediaSource extends BaseMediaSource {
       drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       fallbackTargetLiveOffsetMs = DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS;
+      minLiveStartPositionUs = MIN_LIVE_DEFAULT_START_POSITION_US;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
 
@@ -194,6 +196,25 @@ public final class DashMediaSource extends BaseMediaSource {
     @CanIgnoreReturnValue
     public Factory setFallbackTargetLiveOffsetMs(long fallbackTargetLiveOffsetMs) {
       this.fallbackTargetLiveOffsetMs = fallbackTargetLiveOffsetMs;
+      return this;
+    }
+
+    /**
+     * Sets the minimum position to start playback from in a live stream, in microseconds relative
+     * to the start of the live window.
+     *
+     * <p>This value will override any suggested value from the manifest and helps to prevent {@link
+     * com.google.android.exoplayer2.source.BehindLiveWindowException} issues.
+     *
+     * <p>The default value is {@link #MIN_LIVE_DEFAULT_START_POSITION_US}.
+     *
+     * @param minLiveStartPositionUs The minimum live start position, in microseconds relative to
+     *     the start of the live window.
+     * @return This factory, for convenience.
+     */
+    @CanIgnoreReturnValue
+    public Factory setMinLiveStartPositionUs(long minLiveStartPositionUs) {
+      this.minLiveStartPositionUs = minLiveStartPositionUs;
       return this;
     }
 
@@ -276,7 +297,8 @@ public final class DashMediaSource extends BaseMediaSource {
           compositeSequenceableLoaderFactory,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
-          fallbackTargetLiveOffsetMs);
+          fallbackTargetLiveOffsetMs,
+          minLiveStartPositionUs);
     }
 
     /**
@@ -307,7 +329,8 @@ public final class DashMediaSource extends BaseMediaSource {
           compositeSequenceableLoaderFactory,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
-          fallbackTargetLiveOffsetMs);
+          fallbackTargetLiveOffsetMs,
+          minLiveStartPositionUs);
     }
 
     @Override
@@ -329,15 +352,17 @@ public final class DashMediaSource extends BaseMediaSource {
   public static final String DEFAULT_MEDIA_ID = "DashMediaSource";
 
   /**
+   * The minimum default start position for live streams, in microseconds relative to the start of
+   * the live window.
+   */
+  public static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5_000_000;
+
+  /**
    * The interval in milliseconds between invocations of {@link
    * MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} when the source's {@link
    * Timeline} is changing dynamically (for example, for incomplete live streams).
    */
   private static final long DEFAULT_NOTIFY_MANIFEST_INTERVAL_MS = 5000;
-  /**
-   * The minimum default start position for live streams, relative to the start of the live window.
-   */
-  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5_000_000;
 
   private static final String TAG = "DashMediaSource";
 
@@ -350,6 +375,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final BaseUrlExclusionList baseUrlExclusionList;
   private final long fallbackTargetLiveOffsetMs;
+  private final long minLiveStartPositionUs;
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
   private final ManifestCallback manifestCallback;
@@ -390,7 +416,8 @@ public final class DashMediaSource extends BaseMediaSource {
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      long fallbackTargetLiveOffsetMs) {
+      long fallbackTargetLiveOffsetMs,
+      long minLiveStartPositionUs) {
     this.mediaItem = mediaItem;
     this.liveConfiguration = mediaItem.liveConfiguration;
     this.manifestUri = checkNotNull(mediaItem.localConfiguration).uri;
@@ -402,6 +429,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.fallbackTargetLiveOffsetMs = fallbackTargetLiveOffsetMs;
+    this.minLiveStartPositionUs = minLiveStartPositionUs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     baseUrlExclusionList = new BaseUrlExclusionList();
     sideloadedManifest = manifest != null;
@@ -827,8 +855,7 @@ public final class DashMediaSource extends BaseMediaSource {
       windowStartUnixTimeMs =
           manifest.availabilityStartTimeMs + Util.usToMs(windowStartTimeInManifestUs);
       windowDefaultPositionUs = nowInWindowUs - Util.msToUs(liveConfiguration.targetOffsetMs);
-      long minimumWindowDefaultPositionUs =
-          min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
+      long minimumWindowDefaultPositionUs = min(minLiveStartPositionUs, windowDurationUs / 2);
       if (windowDefaultPositionUs < minimumWindowDefaultPositionUs) {
         // The default position is too close to the start of the live window. Set it to the minimum
         // default position provided the window is at least twice as big. Else set it to the middle
@@ -937,8 +964,7 @@ public final class DashMediaSource extends BaseMediaSource {
       targetOffsetMs = minLiveOffsetMs;
     }
     if (targetOffsetMs > maxLiveOffsetMs) {
-      long safeDistanceFromWindowStartUs =
-          min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
+      long safeDistanceFromWindowStartUs = min(minLiveStartPositionUs, windowDurationUs / 2);
       long maxTargetOffsetForSafeDistanceToWindowStartMs =
           usToMs(nowInWindowUs - safeDistanceFromWindowStartUs);
       targetOffsetMs =
