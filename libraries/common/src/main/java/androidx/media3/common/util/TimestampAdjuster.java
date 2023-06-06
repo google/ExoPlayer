@@ -106,14 +106,13 @@ public final class TimestampAdjuster {
   public synchronized void sharedInitializeOrWait(boolean canInitialize, long nextSampleTimestampUs)
       throws InterruptedException {
     Assertions.checkState(firstSampleTimestampUs == MODE_SHARED);
-    if (timestampOffsetUs != C.TIME_UNSET) {
-      // Already initialized.
+    if (isInitialized()) {
       return;
     } else if (canInitialize) {
       this.nextSampleTimestampUs.set(nextSampleTimestampUs);
     } else {
       // Wait for another calling thread to complete initialization.
-      while (timestampOffsetUs == C.TIME_UNSET) {
+      while (!isInitialized()) {
         wait();
       }
     }
@@ -195,7 +194,7 @@ public final class TimestampAdjuster {
     if (timeUs == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
-    if (timestampOffsetUs == C.TIME_UNSET) {
+    if (!isInitialized()) {
       long desiredSampleTimestampUs =
           firstSampleTimestampUs == MODE_SHARED
               ? Assertions.checkNotNull(nextSampleTimestampUs.get())
@@ -206,6 +205,11 @@ public final class TimestampAdjuster {
     }
     lastUnadjustedTimestampUs = timeUs;
     return timeUs + timestampOffsetUs;
+  }
+
+  /** Returns whether the instance is initialized with a timestamp offset. */
+  public synchronized boolean isInitialized() {
+    return timestampOffsetUs != C.TIME_UNSET;
   }
 
   /**

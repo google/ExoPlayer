@@ -14,6 +14,9 @@
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
 *   Extractors:
+    *   FMP4: Fix issue where `TimestampAdjuster` initializes a wrong timestamp
+        offset with metadata sample time from emsg atom
+        ([#356](https://github.com/androidx/media/issues/356)).
 *   Audio:
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of

@@ -683,6 +683,13 @@ public class FragmentedMp4Extractor implements Extractor {
       pendingMetadataSampleInfos.addLast(
           new MetadataSampleInfo(sampleTimeUs, /* sampleTimeIsRelative= */ false, sampleSize));
       pendingMetadataSampleBytes += sampleSize;
+    } else if (timestampAdjuster != null && !timestampAdjuster.isInitialized()) {
+      // We also need to defer outputting metadata if the timestampAdjuster is not initialized,
+      // else we will set a wrong timestampOffsetUs in timestampAdjuster. See:
+      // https://github.com/androidx/media/issues/356.
+      pendingMetadataSampleInfos.addLast(
+          new MetadataSampleInfo(sampleTimeUs, /* sampleTimeIsRelative= */ false, sampleSize));
+      pendingMetadataSampleBytes += sampleSize;
     } else {
       // We can output the sample metadata immediately.
       if (timestampAdjuster != null) {
