@@ -327,8 +327,9 @@ public final class TsExtractor implements Extractor {
         // Send a dummy pusi to allow for packetFinished to be triggered on the last unit
         for (int i = 0; i < tsPayloadReaders.size(); i++) {
           TsPayloadReader payloadReader = tsPayloadReaders.valueAt(i);
-          int pid = tsPayloadReaders.keyAt(i);
-          payloadReader.consume(new ParsableByteArray(), FLAG_PAYLOAD_UNIT_START_INDICATOR);
+          if (payloadReader instanceof PesReader) {
+            payloadReader.consume(new ParsableByteArray(), FLAG_PAYLOAD_UNIT_START_INDICATOR);
+          }
         }
       }      return RESULT_END_OF_INPUT;
     }
