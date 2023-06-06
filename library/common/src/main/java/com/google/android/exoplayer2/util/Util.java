@@ -116,6 +116,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
@@ -713,6 +714,16 @@ public final class Util {
    */
   public static ExecutorService newSingleThreadExecutor(String threadName) {
     return Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
+  }
+
+  /**
+   * Instantiates a new single threaded scheduled executor whose thread has the specified name.
+   *
+   * @param threadName The name of the thread.
+   * @return The executor.
+   */
+  public static ScheduledExecutorService newSingleThreadScheduledExecutor(String threadName) {
+    return Executors.newSingleThreadScheduledExecutor(runnable -> new Thread(runnable, threadName));
   }
 
   /**
