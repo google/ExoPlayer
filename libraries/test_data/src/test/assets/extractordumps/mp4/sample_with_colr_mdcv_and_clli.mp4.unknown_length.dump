@@ -21,6 +21,7 @@ track 0:
       colorRange = 2
       colorTransfer = 6
       hdrStaticInfo = length 25, hash 423AFC35
+    metadata = entries=[Creation time: unset]
   sample 0:
     time = 0
     flags = 1
@@ -274,7 +275,7 @@ track 1:
     channelCount = 2
     sampleRate = 44100
     language = und
-    metadata = entries=[TSSE: description=null: values=[Lavf58.76.100]]
+    metadata = entries=[TSSE: description=null: values=[Lavf58.76.100], Creation time: unset]
     initializationData:
       data = length 16, hash CAA21BBF
   sample 0:

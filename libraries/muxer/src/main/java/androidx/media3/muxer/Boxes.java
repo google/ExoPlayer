@@ -1101,11 +1101,14 @@ import java.util.Locale;
     return BoxUtils.wrapIntoBox("esds", contents);
   }
 
-  /** Convert UNIX timestamps to the format used by MP4 files. */
+  /** Convert Unix epoch timestamps to the format used by MP4 files. */
   private static int toMp4Time(long unixTimeMs) {
-    // Jan 1, 1904, including leap years.
-    long delta = (66 * 365 + 17) * (24 * 60 * 60);
-    return (int) (unixTimeMs / 1000L + delta);
+    // Time delta between January 1, 1904 (MP4 format) and January 1, 1970 (Unix epoch).
+    // Includes leap year.
+    long timeDeltaSeconds = (66 * 365 + 17) * (24 * 60 * 60);
+
+    // The returned value is a positive (when read as unsigned) integer.
+    return (int) (unixTimeMs / 1000L + timeDeltaSeconds);
   }
 
   /** Packs a three-letter language code into a short, packing 3x5 bits. */

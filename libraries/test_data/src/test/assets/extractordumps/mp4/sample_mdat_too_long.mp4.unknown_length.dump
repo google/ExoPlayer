@@ -17,6 +17,7 @@ track 0:
     width = 1080
     height = 720
     frameRate = 29.970028
+    metadata = entries=[Creation time: 1464714095000]
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B
@@ -152,7 +153,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
-    metadata = entries=[TSSE: description=null: values=[Lavf56.1.0]]
+    metadata = entries=[TSSE: description=null: values=[Lavf56.1.0], Creation time: 1464714095000]
     initializationData:
       data = length 2, hash 5F7
   sample 0:

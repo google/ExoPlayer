@@ -24,6 +24,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.container.CreationTime;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.XmpData;
@@ -183,6 +184,7 @@ public final class InAppMuxer implements Muxer {
       // LINT.IfChange(added_metadata)
       if (entry instanceof Mp4LocationData
           || entry instanceof XmpData
+          || entry instanceof CreationTime
           || (entry instanceof MdtaMetadataEntry
               && ((MdtaMetadataEntry) entry)
                   .key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS))) {
@@ -222,6 +224,9 @@ public final class InAppMuxer implements Muxer {
             ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
       } else if (entry instanceof XmpData) {
         mp4Muxer.addXmp(ByteBuffer.wrap(((XmpData) entry).data));
+      } else if (entry instanceof CreationTime) {
+        // TODO: b/285281716 - Use creation time specific API.
+        mp4Muxer.setModificationTime(((CreationTime) entry).timestampMs);
       } else if (entry instanceof MdtaMetadataEntry) {
         MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
         if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {

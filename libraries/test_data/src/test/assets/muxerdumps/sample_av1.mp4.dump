@@ -16,6 +16,7 @@ track 0:
     width = 1080
     height = 720
     frameRate = 31.004547
+    metadata = entries=[Creation time: 500000000]
   sample 0:
     time = 0
     flags = 1
@@ -149,6 +150,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
+    metadata = entries=[Creation time: 500000000]
     initializationData:
       data = length 5, hash 2B7623A
   sample 0:

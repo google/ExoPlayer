@@ -191,10 +191,10 @@ public final class Mp4Muxer {
   /**
    * Sets the file modification time.
    *
-   * @param modificationDateUnixMs The modification time, in milliseconds since epoch.
+   * @param timestampMs The modification time UTC in milliseconds since the Unix epoch.
    */
-  public void setModificationTime(long modificationDateUnixMs) {
-    metadataCollector.setModificationTime(modificationDateUnixMs);
+  public void setModificationTime(long timestampMs) {
+    metadataCollector.setModificationTime(timestampMs);
   }
 
   /**

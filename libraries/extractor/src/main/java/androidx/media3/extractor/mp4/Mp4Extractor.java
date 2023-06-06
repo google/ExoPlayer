@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.mp4;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.extractor.mp4.AtomParsers.parseTraks;
 import static androidx.media3.extractor.mp4.Sniffer.BRAND_HEIC;
@@ -511,6 +512,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       mdtaMetadata = AtomParsers.parseMdtaFromMeta(meta);
     }
 
+    Metadata mvhdMetadata =
+        AtomParsers.parseMvhd(checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)).data).metadata;
+
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
     List<TrackSampleTable> trackSampleTables =
         parseTraks(
@@ -562,7 +566,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           formatBuilder,
           smtaMetadata,
           slowMotionMetadataEntries.isEmpty() ? null : new Metadata(slowMotionMetadataEntries),
-          xyzMetadata);
+          xyzMetadata,
+          mvhdMetadata);
       mp4Track.trackOutput.format(formatBuilder.build());
 
       if (track.type == C.TRACK_TYPE_VIDEO && firstVideoTrackIndex == C.INDEX_UNSET) {

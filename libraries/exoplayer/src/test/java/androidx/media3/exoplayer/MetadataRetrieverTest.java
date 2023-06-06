@@ -26,6 +26,7 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.container.CreationTime;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.extractor.metadata.mp4.MotionPhotoMetadata;
@@ -162,6 +163,7 @@ public class MetadataRetrieverTest {
         new SlowMotionData.Segment(
             /* startTimeMs= */ 1255, /* endTimeMs= */ 1970, /* speedDivisor= */ 8));
     SlowMotionData expectedSlowMotionData = new SlowMotionData(segments);
+    CreationTime expectedCreationTime = new CreationTime(/* timestampMs= */ 1604060090000L);
     MdtaMetadataEntry expectedMdtaEntry =
         new MdtaMetadataEntry(
             KEY_ANDROID_CAPTURE_FPS,
@@ -176,14 +178,17 @@ public class MetadataRetrieverTest {
 
     assertThat(trackGroups.length).isEqualTo(2); // Video and audio
     // Audio
-    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(2);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(3);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(1)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(2)).isEqualTo(expectedCreationTime);
+
     // Video
-    assertThat(trackGroups.get(1).getFormat(0).metadata.length()).isEqualTo(3);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.length()).isEqualTo(4);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(0)).isEqualTo(expectedMdtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(1)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(2)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedCreationTime);
   }
 
   @Test

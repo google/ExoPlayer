@@ -74,6 +74,7 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withSameTracksOffset_matchesExpected() throws IOException {
     Context context = ApplicationProvider.getApplicationContext();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
 
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
@@ -115,6 +116,7 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withDifferentTracksOffset_matchesExpected() throws IOException {
     Context context = ApplicationProvider.getApplicationContext();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
 
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);

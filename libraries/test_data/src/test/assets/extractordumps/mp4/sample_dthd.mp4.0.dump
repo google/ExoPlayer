@@ -16,6 +16,7 @@ track 0:
     channelCount = 2
     sampleRate = 48000
     language = und
+    metadata = entries=[Creation time: 1633006610000]
   sample 0:
     time = 0
     flags = 1

@@ -33,6 +33,7 @@ import androidx.media3.common.util.CodecSpecificDataUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
+import androidx.media3.container.CreationTime;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.extractor.AacUtil;
 import androidx.media3.extractor.Ac3Util;
@@ -76,6 +77,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       this.metaMetadata = metaMetadata;
       this.smtaMetadata = smtaMetadata;
       this.xyzMetadata = xyzMetadata;
+    }
+  }
+
+  /** Stores data retrieved from the mvhd atom. */
+  public static final class MvhdInfo {
+    /** The metadata. */
+    public final Metadata metadata;
+    /** The movie timescale. */
+    public final long timescale;
+
+    public MvhdInfo(Metadata metadata, long timescale) {
+      this.metadata = metadata;
+      this.timescale = timescale;
     }
   }
 
@@ -206,6 +220,35 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
+   * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
+   *
+   * @param mvhd Contents of the mvhd atom to be parsed.
+   * @return An object containing the parsed data.
+   */
+  public static MvhdInfo parseMvhd(ParsableByteArray mvhd) {
+    mvhd.setPosition(Atom.HEADER_SIZE);
+    int fullAtom = mvhd.readInt();
+    int version = Atom.parseFullAtomVersion(fullAtom);
+    long creationTimestampSeconds;
+    if (version == 0) {
+      creationTimestampSeconds = mvhd.readUnsignedInt();
+      mvhd.skipBytes(4); // modification_time
+    } else {
+      creationTimestampSeconds = mvhd.readLong();
+      mvhd.skipBytes(8); // modification_time
+    }
+
+    // Convert creation time from MP4 format to Unix epoch timestamp in Ms.
+    // Time delta between January 1, 1904 (MP4 format) and January 1, 1970 (Unix epoch).
+    // Includes leap year.
+    int timeDeltaSeconds = (66 * 365 + 17) * (24 * 60 * 60);
+    long unixTimestampMs = (creationTimestampSeconds - timeDeltaSeconds) * 1000;
+
+    long timescale = mvhd.readUnsignedInt();
+    return new MvhdInfo(new Metadata(new CreationTime(unixTimestampMs)), timescale);
+  }
+
+  /**
    * Parses a metadata meta atom if it contains metadata with handler 'mdta'.
    *
    * @param meta The metadata atom to decode.
@@ -318,7 +361,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (duration == C.TIME_UNSET) {
       duration = tkhdData.duration;
     }
-    long movieTimescale = parseMvhd(mvhd.data);
+    long movieTimescale = parseMvhd(mvhd.data).timescale;
     long durationUs;
     if (duration == C.TIME_UNSET) {
       durationUs = C.TIME_UNSET;
@@ -836,22 +879,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
-   *
-   * @param mvhd Contents of the mvhd atom to be parsed.
-   * @return Timescale for the movie.
-   */
-  private static long parseMvhd(ParsableByteArray mvhd) {
-    mvhd.setPosition(Atom.HEADER_SIZE);
-    int fullAtom = mvhd.readInt();
-    int version = Atom.parseFullAtomVersion(fullAtom);
-    mvhd.skipBytes(version == 0 ? 8 : 16);
-    return mvhd.readUnsignedInt();
-  }
-
-  /**
    * Parses a tkhd atom (defined in ISO/IEC 14496-12).
    *
+   * @param tkhd Contents of the tkhd atom to be parsed.
    * @return An object containing the parsed data.
    */
   private static TkhdData parseTkhd(ParsableByteArray tkhd) {
