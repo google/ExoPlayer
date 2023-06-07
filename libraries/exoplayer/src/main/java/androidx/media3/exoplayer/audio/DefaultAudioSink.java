@@ -1088,7 +1088,6 @@ public final class DefaultAudioSink implements AudioSink {
         && (outputBuffer == null || !outputBuffer.hasRemaining());
   }
 
-  @SuppressWarnings("ReferenceEquality")
   /**
    * Writes the provided buffer to the audio track.
    *
@@ -1096,6 +1095,7 @@ public final class DefaultAudioSink implements AudioSink {
    * @param avSyncPresentationTimeUs The tunneling AV sync presentation time for the buffer, or
    *     {@link C#TIME_END_OF_SOURCE} when draining remaining buffers at the end of the stream.
    */
+  @SuppressWarnings("ReferenceEquality")
   private void writeBuffer(ByteBuffer buffer, long avSyncPresentationTimeUs) throws WriteException {
     if (!buffer.hasRemaining()) {
       return;
