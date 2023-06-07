@@ -19,8 +19,6 @@ import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUn
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
@@ -39,9 +37,6 @@ public class ImageAssetLoaderTest {
 
   @Test
   public void imageAssetLoader_callsListenerCallbacksInRightOrder() throws Exception {
-    HandlerThread assetLoaderThread = new HandlerThread("AssetLoaderThread");
-    assetLoaderThread.start();
-    Looper assetLoaderLooper = assetLoaderThread.getLooper();
     AtomicReference<Exception> exceptionRef = new AtomicReference<>();
     AtomicBoolean isOutputFormatSet = new AtomicBoolean();
     AssetLoader.Listener listener =
@@ -103,9 +98,9 @@ public class ImageAssetLoaderTest {
             }
           }
         };
-    AssetLoader assetLoader = getAssetLoader(assetLoaderLooper, listener);
+    AssetLoader assetLoader = getAssetLoader(listener);
 
-    new Handler(assetLoaderLooper).post(assetLoader::start);
+    assetLoader.start();
     runLooperUntil(
         Looper.myLooper(),
         () -> {
@@ -116,7 +111,7 @@ public class ImageAssetLoaderTest {
     assertThat(exceptionRef.get()).isNull();
   }
 
-  private static AssetLoader getAssetLoader(Looper looper, AssetLoader.Listener listener) {
+  private static AssetLoader getAssetLoader(AssetLoader.Listener listener) {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(
                 MediaItem.fromUri("asset:///media/bitmap/input_images/media3test.png"))
@@ -124,7 +119,7 @@ public class ImageAssetLoaderTest {
             .setFrameRate(30)
             .build();
     return new ImageAssetLoader.Factory(ApplicationProvider.getApplicationContext())
-        .createAssetLoader(editedMediaItem, looper, listener);
+        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener);
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

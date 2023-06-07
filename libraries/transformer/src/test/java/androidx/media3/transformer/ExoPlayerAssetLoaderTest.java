@@ -20,8 +20,6 @@ import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -44,9 +42,6 @@ public class ExoPlayerAssetLoaderTest {
 
   @Test
   public void exoPlayerAssetLoader_callsListenerCallbacksInRightOrder() throws Exception {
-    HandlerThread assetLoaderThread = new HandlerThread("AssetLoaderThread");
-    assetLoaderThread.start();
-    Looper assetLoaderLooper = assetLoaderThread.getLooper();
     AtomicReference<Exception> exceptionRef = new AtomicReference<>();
     AtomicBoolean isAudioOutputFormatSet = new AtomicBoolean();
     AtomicBoolean isVideoOutputFormatSet = new AtomicBoolean();
@@ -128,9 +123,9 @@ public class ExoPlayerAssetLoaderTest {
     // Use default clock so that messages sent on different threads are not always executed in the
     // order in which they are received.
     Clock clock = Clock.DEFAULT;
-    AssetLoader assetLoader = getAssetLoader(assetLoaderLooper, listener, clock);
+    AssetLoader assetLoader = getAssetLoader(listener, clock);
 
-    new Handler(assetLoaderLooper).post(assetLoader::start);
+    assetLoader.start();
     runLooperUntil(
         Looper.myLooper(),
         () -> {
@@ -142,15 +137,14 @@ public class ExoPlayerAssetLoaderTest {
     assertThat(exceptionRef.get()).isNull();
   }
 
-  private static AssetLoader getAssetLoader(
-      Looper looper, AssetLoader.Listener listener, Clock clock) {
+  private static AssetLoader getAssetLoader(AssetLoader.Listener listener, Clock clock) {
     Context context = ApplicationProvider.getApplicationContext();
     Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/mp4/sample.mp4")).build();
     return new ExoPlayerAssetLoader.Factory(
             context, decoderFactory, /* forceInterpretHdrAsSdr= */ false, clock)
-        .createAssetLoader(editedMediaItem, looper, listener);
+        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener);
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

@@ -18,8 +18,6 @@ package androidx.media3.transformer;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -27,6 +25,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.time.Duration;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
@@ -39,9 +38,6 @@ public class TextureAssetLoaderTest {
 
   @Test
   public void textureAssetLoader_callsListenerCallbacksInRightOrder() throws Exception {
-    HandlerThread assetLoaderThread = new HandlerThread("AssetLoaderThread");
-    assetLoaderThread.start();
-    Looper assetLoaderLooper = assetLoaderThread.getLooper();
     AtomicReference<Exception> exceptionRef = new AtomicReference<>();
     AtomicBoolean isOutputFormatSet = new AtomicBoolean();
     AssetLoader.Listener listener =
@@ -105,7 +101,7 @@ public class TextureAssetLoaderTest {
         };
     TextureAssetLoader assetLoader = getAssetLoader(listener);
 
-    new Handler(assetLoaderLooper).post(() -> runTextureAssetLoader(assetLoader));
+    runTextureAssetLoader(assetLoader);
     runLooperUntil(
         Looper.myLooper(),
         () -> {
@@ -116,10 +112,16 @@ public class TextureAssetLoaderTest {
     assertThat(exceptionRef.get()).isNull();
   }
 
+  @SuppressWarnings("FutureReturnValueIgnored")
   private static void runTextureAssetLoader(TextureAssetLoader assetLoader) {
     assetLoader.start();
-    assetLoader.queueInputTexture(/* texId= */ 0, /* presentationTimeUs= */ 0);
-    assetLoader.signalEndOfVideoInput();
+
+    Executors.newSingleThreadExecutor()
+        .submit(
+            () -> {
+              assetLoader.queueInputTexture(/* texId= */ 0, /* presentationTimeUs= */ 0);
+              assetLoader.signalEndOfVideoInput();
+            });
   }
 
   private static TextureAssetLoader getAssetLoader(AssetLoader.Listener listener) {
