@@ -87,6 +87,11 @@ public final class DefaultVideoFrameProcessorPixelTest {
   /** Input video of which we only use the first frame. */
   private static final String INPUT_SDR_MP4_ASSET_STRING = "media/mp4/sample.mp4";
 
+  // A passthrough effect allows for testing having an intermediate effect injected, which uses
+  // different OpenGL shaders from having no effects.
+  private static final GlEffect NO_OP_EFFECT =
+      new GlEffectWrapper(new ScaleAndRotateTransformation.Builder().build());
+
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   @After
@@ -98,6 +103,45 @@ public final class DefaultVideoFrameProcessorPixelTest {
   public void noEffects_matchesGoldenFile() throws Exception {
     String testId = "noEffects_matchesGoldenFile";
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_withFrameCache_matchesGoldenFile";
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setEffects(new FrameCache(/* capacity= */ 5))
+            .build();
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+
+    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void noEffects_withDisabledColorTransfers_matchesGoldenFile() throws Exception {
+    String testId = "noEffects_withDisabledColorTransfers_matchesGoldenFile";
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setVideoFrameProcessorFactory(
+                new DefaultVideoFrameProcessor.Factory.Builder()
+                    .setEnableColorTransfers(false)
+                    .build())
+            .build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.processFirstFrameAndEnd();
@@ -161,20 +205,29 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_withFrameCache_matchesGoldenFile";
+  public void noOpEffect_withImageInputAndDisabledColorTransfers_matchesGoldenFile()
+      throws Exception {
+    String testId = "noOpEffect_withImageInputAndDisabledColorTransfers_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setEffects(new FrameCache(/* capacity= */ 5))
+            .setVideoFrameProcessorFactory(
+                new DefaultVideoFrameProcessor.Factory.Builder()
+                    .setEnableColorTransfers(false)
+                    .build())
+            .setInputType(INPUT_TYPE_BITMAP)
+            .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
+            .setEffects(NO_OP_EFFECT)
             .build();
-    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
 
-    videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
+    videoFrameProcessorTestRunner.endFrameProcessing();
     Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(originalBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
