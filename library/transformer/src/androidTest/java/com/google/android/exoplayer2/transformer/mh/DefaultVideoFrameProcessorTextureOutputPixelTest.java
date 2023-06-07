@@ -26,14 +26,11 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.video.ColorInfo.SDR_BT709_LIMITED;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.view.Surface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.BitmapOverlay;
@@ -45,21 +42,18 @@ import com.google.android.exoplayer2.effect.OverlayEffect;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
-import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner.BitmapReader;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.EncoderUtil;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -577,57 +571,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
         .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING)
         .setBitmapReader(textureBitmapReader);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Reads from an OpenGL texture. Only for use on physical devices.
-   */
-  private static final class TextureBitmapReader implements BitmapReader {
-    // TODO(b/239172735): This outputs an incorrect black output image on emulators.
-    private boolean useHighPrecisionColorComponents;
-    private @MonotonicNonNull Bitmap outputBitmap;
-
-    @Nullable
-    @Override
-    public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
-      this.useHighPrecisionColorComponents = useHighPrecisionColorComponents;
-      return null;
-    }
-
-    @Override
-    public Bitmap getBitmap() {
-      return checkStateNotNull(outputBitmap);
-    }
-
-    public void readBitmapFromTexture(
-        GlTextureInfo outputTexture,
-        long presentationTimeUs,
-        DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
-        throws VideoFrameProcessingException {
-      try {
-        GlUtil.focusFramebufferUsingCurrentContext(
-            outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
-        outputBitmap =
-            createBitmapFromCurrentGlFrameBuffer(
-                outputTexture.getWidth(),
-                outputTexture.getHeight(),
-                useHighPrecisionColorComponents);
-      } catch (GlUtil.GlException e) {
-        throw new VideoFrameProcessingException(e);
-      }
-      releaseOutputTextureCallback.release(presentationTimeUs);
-    }
-
-    private static Bitmap createBitmapFromCurrentGlFrameBuffer(
-        int width, int height, boolean useHighPrecisionColorComponents) throws GlUtil.GlException {
-      if (!useHighPrecisionColorComponents) {
-        return BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
-      }
-      checkState(Util.SDK_INT > 26, "useHighPrecisionColorComponents only supported on API 26+");
-      return BitmapPixelTestUtil.createFp16BitmapFromCurrentGlFramebuffer(width, height);
-    }
   }
 
   private static boolean deviceSupportsHdrEditing(Format format) {
