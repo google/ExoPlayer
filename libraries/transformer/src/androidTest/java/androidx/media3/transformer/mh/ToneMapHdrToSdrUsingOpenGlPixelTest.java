@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -24,10 +25,12 @@ import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUns
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
+import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
@@ -75,6 +78,13 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
       "OpenGL-based HDR to SDR tone mapping is unsupported below API 29.";
   private static final String SKIP_REASON_NO_YUV = "Device lacks YUV extension support.";
 
+  private static final ColorInfo TONE_MAP_SDR_COLOR =
+      new ColorInfo.Builder()
+          .setColorSpace(C.COLOR_SPACE_BT709)
+          .setColorRange(C.COLOR_RANGE_LIMITED)
+          .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
+          .build();
+
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   @After
@@ -87,38 +97,14 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMap_hlgFrame_matchesGoldenFile";
-    if (Util.SDK_INT < 29) {
-      recordTestSkipped(getApplicationContext(), testId, SKIP_REASON_NO_OPENGL_UNDER_API_29);
+    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
       return;
     }
-    if (!GlUtil.isYuvTargetExtensionSupported()) {
-      recordTestSkipped(getApplicationContext(), testId, SKIP_REASON_NO_YUV);
-      return;
-    }
-    if (skipAndLogIfFormatsUnsupported(
-        getApplicationContext(),
-        testId,
-        /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
-    ColorInfo hlgColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT2020)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_HLG)
-            .build();
-    ColorInfo toneMapSdrColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT709)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
-            .build();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
-            .setInputColorInfo(hlgColor)
-            .setOutputColorInfo(toneMapSdrColor)
+            .setInputColorInfo(checkNotNull(MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo))
+            .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
 
@@ -151,38 +137,15 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
     // TODO(b/239735341): Move this test to mobileharness testing.
     String testId = "toneMap_pqFrame_matchesGoldenFile";
-    if (Util.SDK_INT < 29) {
-      recordTestSkipped(getApplicationContext(), testId, SKIP_REASON_NO_OPENGL_UNDER_API_29);
+    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
       return;
     }
-    if (!GlUtil.isYuvTargetExtensionSupported()) {
-      recordTestSkipped(getApplicationContext(), testId, SKIP_REASON_NO_YUV);
-      return;
-    }
-    if (skipAndLogIfFormatsUnsupported(
-        getApplicationContext(),
-        testId,
-        /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
-    ColorInfo pqColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT2020)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_ST2084)
-            .build();
-    ColorInfo toneMapSdrColor =
-        new ColorInfo.Builder()
-            .setColorSpace(C.COLOR_SPACE_BT709)
-            .setColorRange(C.COLOR_RANGE_LIMITED)
-            .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
-            .build();
+
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
-            .setInputColorInfo(pqColor)
-            .setOutputColorInfo(toneMapSdrColor)
+            .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
+            .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
 
@@ -211,7 +174,24 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
         .isAtMost(MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
+  private static boolean deviceSupportsOpenGlToneMapping(String testId, Format inputFormat)
+      throws Exception {
+    Context context = getApplicationContext();
+    if (Util.SDK_INT < 29) {
+      recordTestSkipped(context, testId, SKIP_REASON_NO_OPENGL_UNDER_API_29);
+      return false;
+    }
+    if (!GlUtil.isYuvTargetExtensionSupported()) {
+      recordTestSkipped(context, testId, SKIP_REASON_NO_YUV);
+      return false;
+    }
+    if (skipAndLogIfFormatsUnsupported(context, testId, inputFormat, /* outputFormat= */ null)) {
+      return false;
+    }
+    return true;
+  }
+
+  private static VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
       String testId) {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
