@@ -31,6 +31,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.DebugTraceUtil;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
@@ -38,6 +39,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -351,6 +353,7 @@ public class TransformerAndroidTestRunner {
 
     // Block here until timeout reached or latch is counted down.
     if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
+      logTimeoutDiagnostics();
       throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
     }
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
@@ -449,5 +452,19 @@ public class TransformerAndroidTestRunner {
       }
     }
     return false;
+  }
+
+  private static void logTimeoutDiagnostics() {
+    Log.e(TAG, "Effect debug traces at timeout: " + DebugTraceUtil.generateTrace());
+    Log.e(TAG, "Thread state at timeout:");
+    Set<Map.Entry<Thread, StackTraceElement[]>> entries = Thread.getAllStackTraces().entrySet();
+    for (Map.Entry<Thread, StackTraceElement[]> threadAndStackTraceElements : entries) {
+      Thread thread = threadAndStackTraceElements.getKey();
+      StackTraceElement[] stackTraceElements = threadAndStackTraceElements.getValue();
+      Log.e(TAG, ">  " + thread + ' ' + thread.getState());
+      for (StackTraceElement stackTraceElement : stackTraceElements) {
+        Log.e(TAG, ">    " + stackTraceElement);
+      }
+    }
   }
 }
