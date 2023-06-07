@@ -17,8 +17,6 @@ package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.ColorInfo.SDR_BT709_LIMITED;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
@@ -33,7 +31,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.view.Surface;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
@@ -42,7 +39,6 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
-import androidx.media3.common.util.Util;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
@@ -52,14 +48,12 @@ import androidx.media3.effect.OverlayEffect;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
-import androidx.media3.test.utils.VideoFrameProcessorTestRunner.BitmapReader;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EncoderUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -577,57 +571,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
         .setVideoAssetPath(INPUT_SDR_MP4_ASSET_STRING)
         .setBitmapReader(textureBitmapReader);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Reads from an OpenGL texture. Only for use on physical devices.
-   */
-  private static final class TextureBitmapReader implements BitmapReader {
-    // TODO(b/239172735): This outputs an incorrect black output image on emulators.
-    private boolean useHighPrecisionColorComponents;
-    private @MonotonicNonNull Bitmap outputBitmap;
-
-    @Nullable
-    @Override
-    public Surface getSurface(int width, int height, boolean useHighPrecisionColorComponents) {
-      this.useHighPrecisionColorComponents = useHighPrecisionColorComponents;
-      return null;
-    }
-
-    @Override
-    public Bitmap getBitmap() {
-      return checkStateNotNull(outputBitmap);
-    }
-
-    public void readBitmapFromTexture(
-        GlTextureInfo outputTexture,
-        long presentationTimeUs,
-        DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
-        throws VideoFrameProcessingException {
-      try {
-        GlUtil.focusFramebufferUsingCurrentContext(
-            outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
-        outputBitmap =
-            createBitmapFromCurrentGlFrameBuffer(
-                outputTexture.getWidth(),
-                outputTexture.getHeight(),
-                useHighPrecisionColorComponents);
-      } catch (GlUtil.GlException e) {
-        throw new VideoFrameProcessingException(e);
-      }
-      releaseOutputTextureCallback.release(presentationTimeUs);
-    }
-
-    private static Bitmap createBitmapFromCurrentGlFrameBuffer(
-        int width, int height, boolean useHighPrecisionColorComponents) throws GlUtil.GlException {
-      if (!useHighPrecisionColorComponents) {
-        return BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
-      }
-      checkState(Util.SDK_INT > 26, "useHighPrecisionColorComponents only supported on API 26+");
-      return BitmapPixelTestUtil.createFp16BitmapFromCurrentGlFramebuffer(width, height);
-    }
   }
 
   private static boolean deviceSupportsHdrEditing(Format format) {

@@ -368,10 +368,12 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputTexture(inputTexture.getTexId(), pts);
   }
 
+  /** {@link #endFrameProcessing(long)} with {@link #VIDEO_FRAME_PROCESSING_WAIT_MS} applied. */
   public void endFrameProcessing() throws InterruptedException {
     endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS);
   }
 
+  /** Have the {@link VideoFrameProcessor} finish processing. */
   public void endFrameProcessing(long videoFrameProcessingWaitTime) throws InterruptedException {
     videoFrameProcessor.signalEndOfInput();
     Thread.sleep(videoFrameProcessingWaitTime);
