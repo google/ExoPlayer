@@ -104,22 +104,22 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
 
   private static boolean deviceSupportsOpenGlToneMapping(String testId, Format inputFormat)
       throws JSONException, IOException, MediaCodecUtil.DecoderQueryException {
+    Context context = getApplicationContext();
     if (Util.SDK_INT < 29) {
       recordTestSkipped(
-          ApplicationProvider.getApplicationContext(),
+          context,
           testId,
           /* reason= */ "OpenGL-based HDR to SDR tone mapping is only supported on API 29+.");
       return false;
     }
 
     if (!GlUtil.isYuvTargetExtensionSupported()) {
-      recordTestSkipped(
-          getApplicationContext(), testId, /* reason= */ "Device lacks YUV extension support.");
+      recordTestSkipped(context, testId, /* reason= */ "Device lacks YUV extension support.");
       return false;
     }
 
     return !AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        getApplicationContext(),
+        context,
         testId,
         inputFormat,
         /* outputFormat= */ inputFormat
