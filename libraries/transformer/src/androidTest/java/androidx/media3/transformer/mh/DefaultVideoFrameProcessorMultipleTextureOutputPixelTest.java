@@ -75,11 +75,12 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
         /* frameRate= */ 1);
     videoFrameProcessorTestRunner.endFrameProcessing();
 
-    Set<Long> outputTimestamps = checkNotNull(textureBitmapReader).getOutputTimestamps();
+    TextureBitmapReader textureBitmapReader = checkNotNull(this.textureBitmapReader);
+    Set<Long> outputTimestamps = textureBitmapReader.getOutputTimestamps();
     assertThat(outputTimestamps)
         .containsExactly(
             offsetUs, offsetUs + C.MICROS_PER_SECOND, offsetUs + 2 * C.MICROS_PER_SECOND);
-    Bitmap actualBitmap = checkNotNull(textureBitmapReader).getBitmap(offsetUs);
+    Bitmap actualBitmap = textureBitmapReader.getBitmap(offsetUs);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
@@ -107,7 +108,8 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
         /* frameRate= */ 1);
     videoFrameProcessorTestRunner.endFrameProcessing();
 
-    Set<Long> outputTimestamps = checkNotNull(textureBitmapReader).getOutputTimestamps();
+    TextureBitmapReader textureBitmapReader = checkNotNull(this.textureBitmapReader);
+    Set<Long> outputTimestamps = textureBitmapReader.getOutputTimestamps();
     assertThat(outputTimestamps)
         .containsExactly(
             offsetUs1,
@@ -115,9 +117,9 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
             offsetUs2,
             offsetUs2 + C.MICROS_PER_SECOND,
             offsetUs2 + 2 * C.MICROS_PER_SECOND);
-    Bitmap actualBitmap1 = checkNotNull(textureBitmapReader).getBitmap(offsetUs1);
+    Bitmap actualBitmap1 = textureBitmapReader.getBitmap(offsetUs1);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual1", actualBitmap1, /* path= */ null);
-    Bitmap actualBitmap2 = checkNotNull(textureBitmapReader).getBitmap(offsetUs2);
+    Bitmap actualBitmap2 = textureBitmapReader.getBitmap(offsetUs2);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual2", actualBitmap2, /* path= */ null);
     float averagePixelAbsoluteDifference1 =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
