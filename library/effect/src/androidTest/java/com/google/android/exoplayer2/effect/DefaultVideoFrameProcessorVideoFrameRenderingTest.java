@@ -350,7 +350,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
               checkNotNull(defaultVideoFrameProcessor).registerInputStream(INPUT_TYPE_SURFACE);
               defaultVideoFrameProcessor.setInputFrameInfo(
                   new FrameInfo.Builder(WIDTH, HEIGHT).build());
-              defaultVideoFrameProcessor.registerInputFrame();
               blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
               defaultVideoFrameProcessor.signalEndOfInput();
             });
@@ -398,7 +397,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
       for (long presentationTimeUs : presentationTimesUs) {
         outputListener.onOutputFrameAvailable(checkNotNull(blankTexture), presentationTimeUs);
       }
-      outputListener.onCurrentOutputStreamEnded();
     }
 
     @Override
@@ -426,8 +424,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
 
     @Override
     public void signalEndOfCurrentInputStream() {
-      // The tests don't end the input stream.
-      throw new UnsupportedOperationException();
+      checkNotNull(outputListener).onCurrentOutputStreamEnded();
     }
 
     @Override
