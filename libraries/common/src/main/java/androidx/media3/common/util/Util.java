@@ -27,6 +27,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -206,8 +207,16 @@ public final class Util {
     return outputStream.toByteArray();
   }
 
+  /** Converts an integer into an equivalent byte array. */
+  @UnstableApi
+  public static byte[] toByteArray(int value) {
+    return new byte[] {
+      (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value
+    };
+  }
+
   /**
-   * Converts an array of 32-bit integers into an equivalent byte array.
+   * Converts an array of integers into an equivalent byte array.
    *
    * <p>Each integer is converted into 4 sequential bytes.
    */
@@ -216,12 +225,35 @@ public final class Util {
     byte[] array = new byte[values.length * 4];
     int index = 0;
     for (int value : values) {
-      array[index++] = (byte) (value >> 24);
-      array[index++] = (byte) (value >> 16);
-      array[index++] = (byte) (value >> 8);
-      array[index++] = (byte) (value /* >> 0 */);
+      byte[] byteArray = toByteArray(value);
+      array[index++] = byteArray[0];
+      array[index++] = byteArray[1];
+      array[index++] = byteArray[2];
+      array[index++] = byteArray[3];
     }
     return array;
+  }
+
+  /** Converts a float into an equivalent byte array. */
+  @UnstableApi
+  public static byte[] toByteArray(float value) {
+    return toByteArray(Float.floatToIntBits(value));
+  }
+
+  /** Converts a byte array into a float. */
+  @UnstableApi
+  public static float toFloat(byte[] bytes) {
+    checkArgument(bytes.length == 4);
+    int intBits =
+        bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    return Float.intBitsToFloat(intBits);
+  }
+
+  /** Converts a byte array into an integer. */
+  @UnstableApi
+  public static int toInteger(byte[] bytes) {
+    checkArgument(bytes.length == 4);
+    return bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
   }
 
   /**
@@ -463,7 +495,7 @@ public final class Util {
   @UnstableApi
   @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
-    Assertions.checkArgument(length <= input.length);
+    checkArgument(length <= input.length);
     return Arrays.copyOf(input, length);
   }
 
@@ -478,8 +510,8 @@ public final class Util {
   @UnstableApi
   @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static <T> T[] nullSafeArrayCopyOfRange(T[] input, int from, int to) {
-    Assertions.checkArgument(0 <= from);
-    Assertions.checkArgument(to <= input.length);
+    checkArgument(0 <= from);
+    checkArgument(to <= input.length);
     return Arrays.copyOfRange(input, from, to);
   }
 
@@ -1609,7 +1641,7 @@ public final class Util {
   @UnstableApi
   public static int getIntegerCodeForString(String string) {
     int length = string.length();
-    Assertions.checkArgument(length <= 4);
+    checkArgument(length <= 4);
     int result = 0;
     for (int i = 0; i < length; i++) {
       result <<= 8;

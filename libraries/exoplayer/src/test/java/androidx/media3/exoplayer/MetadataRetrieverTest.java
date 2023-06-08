@@ -26,6 +26,7 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Util;
 import androidx.media3.container.CreationTime;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.exoplayer.source.TrackGroupArray;
@@ -153,6 +154,18 @@ public class MetadataRetrieverTest {
   public void retrieveMetadata_sefSlowMotion_outputsExpectedMetadata() throws Exception {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample_sef_slow_motion.mp4"));
+    MdtaMetadataEntry expectedAndroidVersionMetadata =
+        new MdtaMetadataEntry(
+            /* key= */ "com.android.version",
+            /* value= */ Util.getUtf8Bytes("10"),
+            /* localeIndicator= */ 0,
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+    MdtaMetadataEntry expectedTemporalLayersCountMetdata =
+        new MdtaMetadataEntry(
+            /* key= */ "com.android.video.temporal_layers_count",
+            /* value= */ Util.toByteArray(4),
+            /* localeIndicator= */ 0,
+            MdtaMetadataEntry.TYPE_INDICATOR_INT32);
     SmtaMetadataEntry expectedSmtaEntry =
         new SmtaMetadataEntry(/* captureFrameRate= */ 240, /* svcTemporalLayerCount= */ 4);
     List<SlowMotionData.Segment> segments = new ArrayList<>();
@@ -178,17 +191,25 @@ public class MetadataRetrieverTest {
 
     assertThat(trackGroups.length).isEqualTo(2); // Video and audio
     // Audio
-    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(3);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedSmtaEntry);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(1)).isEqualTo(expectedSlowMotionData);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(2)).isEqualTo(expectedCreationTime);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(5);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0))
+        .isEqualTo(expectedAndroidVersionMetadata);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(1))
+        .isEqualTo(expectedTemporalLayersCountMetdata);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(2)).isEqualTo(expectedSmtaEntry);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(3)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(4)).isEqualTo(expectedCreationTime);
 
     // Video
-    assertThat(trackGroups.get(1).getFormat(0).metadata.length()).isEqualTo(4);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(0)).isEqualTo(expectedMdtaEntry);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(1)).isEqualTo(expectedSmtaEntry);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(2)).isEqualTo(expectedSlowMotionData);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedCreationTime);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.length()).isEqualTo(6);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(0))
+        .isEqualTo(expectedAndroidVersionMetadata);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(1))
+        .isEqualTo(expectedTemporalLayersCountMetdata);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(2)).isEqualTo(expectedMdtaEntry);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedSmtaEntry);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(4)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(5)).isEqualTo(expectedCreationTime);
   }
 
   @Test

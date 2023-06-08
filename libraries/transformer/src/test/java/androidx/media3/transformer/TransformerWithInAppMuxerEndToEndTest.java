@@ -116,13 +116,13 @@ public class TransformerWithInAppMuxerEndToEndTest {
         new InAppMuxer.Factory(
             DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
             metadataEntries -> {
-              byte[] captureFps = new byte[] {66, 112, 0, 0}; // 60.0f
+              float captureFps = 60.0f;
               metadataEntries.add(
                   new MdtaMetadataEntry(
                       MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
-                      /* value= */ captureFps,
+                      /* value= */ Util.toByteArray(captureFps),
                       /* localeIndicator= */ 0,
-                      MdtaMetadataEntry.TYPE_INDICATOR_FLOAT));
+                      MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
             });
     Transformer transformer =
         new Transformer.Builder(context)
@@ -165,5 +165,47 @@ public class TransformerWithInAppMuxerEndToEndTest {
     // [Creation time: 2_000_000_000_000] in track metadata dump.
     DumpFileAsserts.assertOutput(
         context, fakeExtractorOutput, TestUtil.getDumpFileName(H264_MP4 + ".with_creation_time"));
+  }
+
+  @Test
+  public void transmux_withCustomeMetadata_outputMatchesExpected() throws Exception {
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory(
+            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
+            metadataEntries -> {
+              String stringKey = "StringKey";
+              String stringValue = "StringValue";
+              metadataEntries.add(
+                  new MdtaMetadataEntry(
+                      stringKey,
+                      Util.getUtf8Bytes(stringValue),
+                      /* localeIndicator= */ 0,
+                      MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+              String floatKey = "FloatKey";
+              float floatValue = 600.0f;
+              metadataEntries.add(
+                  new MdtaMetadataEntry(
+                      floatKey,
+                      Util.toByteArray(floatValue),
+                      /* localeIndicator= */ 0,
+                      MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
+            });
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + H264_MP4));
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    FakeExtractorOutput fakeExtractorOutput =
+        androidx.media3.test.utils.TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(), checkNotNull(outputPath));
+    // [mdta: key=StringKey, value=StringValue, mdta: key=FloatKey, value=600.0] in track metadata
+    // dump
+    DumpFileAsserts.assertOutput(
+        context, fakeExtractorOutput, TestUtil.getDumpFileName(H264_MP4 + ".with_custom_metadata"));
   }
 }

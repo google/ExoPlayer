@@ -299,17 +299,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       if (udtaMetaMetadata != null) {
         formatMetadata = udtaMetaMetadata;
       }
-    } else if (trackType == C.TRACK_TYPE_VIDEO) {
-      // Populate only metadata keys that are known to be specific to video.
-      if (mdtaMetadata != null) {
-        for (int i = 0; i < mdtaMetadata.length(); i++) {
-          Metadata.Entry entry = mdtaMetadata.get(i);
-          if (entry instanceof MdtaMetadataEntry) {
-            MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-            if (MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)) {
-              formatMetadata = new Metadata(mdtaMetadataEntry);
-              break;
+    }
+
+    if (mdtaMetadata != null) {
+      for (int i = 0; i < mdtaMetadata.length(); i++) {
+        Metadata.Entry entry = mdtaMetadata.get(i);
+        if (entry instanceof MdtaMetadataEntry) {
+          MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
+          // This key is present in the container level meta box.
+          if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {
+            if (trackType == C.TRACK_TYPE_VIDEO) {
+              formatMetadata = formatMetadata.copyWithAppendedEntries(mdtaMetadataEntry);
             }
+          } else {
+            formatMetadata = formatMetadata.copyWithAppendedEntries(mdtaMetadataEntry);
           }
         }
       }

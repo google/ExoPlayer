@@ -24,6 +24,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.container.CreationTime;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
@@ -186,8 +187,11 @@ public final class InAppMuxer implements Muxer {
           || entry instanceof XmpData
           || entry instanceof CreationTime
           || (entry instanceof MdtaMetadataEntry
-              && ((MdtaMetadataEntry) entry)
-                  .key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS))) {
+              && (((MdtaMetadataEntry) entry).key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)
+                  || ((MdtaMetadataEntry) entry).typeIndicator
+                      == MdtaMetadataEntry.TYPE_INDICATOR_STRING
+                  || ((MdtaMetadataEntry) entry).typeIndicator
+                      == MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32))) {
         metadataEntries.add(entry);
       }
     }
@@ -232,6 +236,10 @@ public final class InAppMuxer implements Muxer {
         if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {
           byte[] captureFps = mdtaMetadataEntry.value;
           mp4Muxer.setCaptureFps(ByteBuffer.wrap(captureFps).getFloat());
+        } else if (mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_STRING) {
+          mp4Muxer.addMetadata(mdtaMetadataEntry.key, Util.fromUtf8Bytes(mdtaMetadataEntry.value));
+        } else if (mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32) {
+          mp4Muxer.addMetadata(mdtaMetadataEntry.key, Util.toFloat(mdtaMetadataEntry.value));
         } else {
           throw new IllegalStateException("Unsupported MdtaMetadataEntry " + mdtaMetadataEntry.key);
         }
