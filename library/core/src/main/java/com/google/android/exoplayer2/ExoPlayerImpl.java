@@ -40,10 +40,12 @@ import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaFormat;
 import android.media.metrics.LogSessionId;
@@ -161,6 +163,8 @@ import java.util.concurrent.TimeoutException;
   private final WakeLockManager wakeLockManager;
   private final WifiLockManager wifiLockManager;
   private final long detachSurfaceTimeoutMs;
+  @Nullable private AudioManager audioManager;
+  private final boolean suppressPlaybackWhenNoSuitableOutputAvailable;
 
   private @RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
@@ -263,6 +267,8 @@ import java.util.concurrent.TimeoutException;
       this.applicationLooper = builder.looper;
       this.clock = builder.clock;
       this.wrappingPlayer = wrappingPlayer == null ? this : wrappingPlayer;
+      this.suppressPlaybackWhenNoSuitableOutputAvailable =
+          builder.suppressPlaybackWhenNoSuitableOutputAvailable;
       listeners =
           new ListenerSet<>(
               applicationLooper,
@@ -371,6 +377,9 @@ import java.util.concurrent.TimeoutException;
       audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
       audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
       audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
+      if (suppressPlaybackWhenNoSuitableOutputAvailable) {
+        audioManager = (AudioManager) applicationContext.getSystemService(Context.AUDIO_SERVICE);
+      }
       if (builder.deviceVolumeControlEnabled) {
         streamVolumeManager =
             new StreamVolumeManager(builder.context, eventHandler, componentListener);
@@ -2720,26 +2729,22 @@ import java.util.concurrent.TimeoutException;
       @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
     playWhenReady = playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_DO_NOT_PLAY;
     @PlaybackSuppressionReason
-    int playbackSuppressionReason =
-        playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
-            ? Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
-            : Player.PLAYBACK_SUPPRESSION_REASON_NONE;
+    int playbackSuppressionReason = computePlaybackSuppressionReason(playWhenReady, playerCommand);
     if (playbackInfo.playWhenReady == playWhenReady
         && playbackInfo.playbackSuppressionReason == playbackSuppressionReason) {
       return;
     }
     pendingOperationAcks++;
-
     // Position estimation and copy must occur before changing/masking playback state.
-    PlaybackInfo playbackInfo =
+    PlaybackInfo newPlaybackInfo =
         this.playbackInfo.sleepingForOffload
             ? this.playbackInfo.copyWithEstimatedPosition()
             : this.playbackInfo;
-    playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
-
+    newPlaybackInfo =
+        newPlaybackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
     internalPlayer.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
     updatePlaybackInfo(
-        playbackInfo,
+        newPlaybackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         playWhenReadyChangeReason,
         /* positionDiscontinuity= */ false,
@@ -2747,6 +2752,35 @@ import java.util.concurrent.TimeoutException;
         /* ignored */ C.TIME_UNSET,
         /* ignored */ C.INDEX_UNSET,
         /* repeatCurrentMediaItem= */ false);
+  }
+
+  @PlaybackSuppressionReason
+  private int computePlaybackSuppressionReason(
+      boolean playWhenReady, @AudioFocusManager.PlayerCommand int playerCommand) {
+    if (playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY) {
+      return Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS;
+    }
+    if (suppressPlaybackWhenNoSuitableOutputAvailable) {
+      if (playWhenReady && !hasSupportedAudioOutput()) {
+        return Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT;
+      }
+      if (!playWhenReady
+          && playbackInfo.playbackSuppressionReason
+              == PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
+        return Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT;
+      }
+    }
+    return Player.PLAYBACK_SUPPRESSION_REASON_NONE;
+  }
+
+  private boolean hasSupportedAudioOutput() {
+    if (audioManager == null || Util.SDK_INT < 23) {
+      // The Audio Manager API to determine the list of connected audio devices is available only in
+      // API >= 23.
+      return true;
+    }
+    return Api23.isSuitableAudioOutputPresentInAudioDeviceInfoList(
+        applicationContext, audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS));
   }
 
   private void updateWakeAndWifiLock() {
@@ -3268,6 +3302,48 @@ import java.util.concurrent.TimeoutException;
         player.addAnalyticsListener(listener);
       }
       return new PlayerId(listener.getLogSessionId());
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    public static boolean isSuitableAudioOutputPresentInAudioDeviceInfoList(
+        Context context, AudioDeviceInfo[] audioDeviceInfos) {
+      if (!isRunningOnWear(context)) {
+        return true;
+      }
+      for (AudioDeviceInfo device : audioDeviceInfos) {
+        if (device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+            || device.getType() == AudioDeviceInfo.TYPE_LINE_ANALOG
+            || device.getType() == AudioDeviceInfo.TYPE_LINE_DIGITAL
+            || device.getType() == AudioDeviceInfo.TYPE_USB_DEVICE
+            || device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+            || device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
+          return true;
+        }
+        if (Util.SDK_INT >= 26 && device.getType() == AudioDeviceInfo.TYPE_USB_HEADSET) {
+          return true;
+        }
+        if (Util.SDK_INT >= 28 && device.getType() == AudioDeviceInfo.TYPE_HEARING_AID) {
+          return true;
+        }
+        if (Util.SDK_INT >= 31
+            && (device.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET
+                || device.getType() == AudioDeviceInfo.TYPE_BLE_SPEAKER)) {
+          return true;
+        }
+        if (Util.SDK_INT >= 33 && device.getType() == AudioDeviceInfo.TYPE_BLE_BROADCAST) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private static boolean isRunningOnWear(Context context) {
+      PackageManager packageManager = context.getPackageManager();
+      return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
     }
   }
 }
