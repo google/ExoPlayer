@@ -26,6 +26,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECO
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static androidx.media3.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -42,10 +43,7 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
-import androidx.media3.effect.GlEffect;
-import androidx.media3.effect.GlShaderProgram;
 import androidx.media3.effect.OverlayEffect;
-import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.media3.transformer.AndroidTestUtil;
@@ -85,11 +83,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG10_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
-
-  // A passthrough effect allows for testing having an intermediate effect injected, which uses
-  // different OpenGL shaders from having no effects.
-  private static final GlEffect NO_OP_EFFECT =
-      new GlEffectWrapper(new ScaleAndRotateTransformation.Builder().build());
 
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
@@ -577,28 +570,5 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     return !EncoderUtil.getSupportedEncodersForHdrEditing(
             checkNotNull(checkNotNull(format).sampleMimeType), format.colorInfo)
         .isEmpty();
-  }
-
-  /**
-   * Wraps a {@link GlEffect} to prevent the {@link DefaultVideoFrameProcessor} from detecting its
-   * class and optimizing it.
-   *
-   * <p>This ensures that {@link DefaultVideoFrameProcessor} uses a separate {@link GlShaderProgram}
-   * for the wrapped {@link GlEffect} rather than merging it with preceding or subsequent {@link
-   * GlEffect} instances and applying them in one combined {@link GlShaderProgram}.
-   */
-  private static final class GlEffectWrapper implements GlEffect {
-
-    private final GlEffect effect;
-
-    public GlEffectWrapper(GlEffect effect) {
-      this.effect = effect;
-    }
-
-    @Override
-    public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-        throws VideoFrameProcessingException {
-      return effect.toGlShaderProgram(context, useHdr);
-    }
   }
 }

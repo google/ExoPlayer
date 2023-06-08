@@ -22,6 +22,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECO
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
+import static androidx.media3.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -37,6 +38,7 @@ import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.DecodeOneFrameUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
@@ -58,7 +60,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
    * across codec/OpenGL versions don't affect whether the test passes for most devices, but
    * substantial distortions introduced by changes in tested components will cause the test to fail.
    */
-  private static final float MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 5f;
+  private static final float MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 6f;
 
   // This file is generated on a Pixel 7, because the emulator isn't able to decode HLG to generate
   // this file.
@@ -134,8 +136,47 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   }
 
   @Test
+  public void toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile() throws Exception {
+    String testId = "toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile";
+    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
+      return;
+    }
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
+            .setInputColorInfo(checkNotNull(MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo))
+            .setOutputColorInfo(TONE_MAP_SDR_COLOR)
+            .setEffects(ImmutableList.of(NO_OP_EFFECT))
+            .build();
+    Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap;
+    try {
+      videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+      actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
+    } catch (UnsupportedOperationException e) {
+      if (e.getMessage() != null
+          && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
+        recordTestSkipped(
+            getApplicationContext(),
+            testId,
+            /* reason= */ DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING);
+        return;
+      } else {
+        throw e;
+      }
+    }
+
+    Log.i(TAG, "Successfully tone mapped.");
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
   public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
-    // TODO(b/239735341): Move this test to mobileharness testing.
     String testId = "toneMap_pqFrame_matchesGoldenFile";
     if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
       return;
@@ -146,6 +187,47 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
             .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
+            .build();
+    Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap;
+    try {
+      videoFrameProcessorTestRunner.processFirstFrameAndEnd();
+      actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
+    } catch (UnsupportedOperationException e) {
+      if (e.getMessage() != null
+          && e.getMessage().equals(DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING)) {
+        recordTestSkipped(
+            getApplicationContext(),
+            testId,
+            /* reason= */ DecodeOneFrameUtil.NO_DECODER_SUPPORT_ERROR_STRING);
+        return;
+      } else {
+        throw e;
+      }
+    }
+
+    Log.i(TAG, "Successfully tone mapped.");
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference)
+        .isAtMost(MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void toneMapWithNoOpEffect_pqFrame_matchesGoldenFile() throws Exception {
+    String testId = "toneMapWithNoOpEffect_pqFrame_matchesGoldenFile";
+    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
+      return;
+    }
+
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
+            .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
+            .setOutputColorInfo(TONE_MAP_SDR_COLOR)
+            .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
 

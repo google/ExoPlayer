@@ -577,9 +577,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  // TODO(b/227624622): Add a test for HDR input after BitmapPixelTestUtil can read HDR bitmaps,
-  //  using GlEffectWrapper to ensure usage of intermediate textures.
-
   private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
       String testId) {
     return new VideoFrameProcessorTestRunner.Builder()
