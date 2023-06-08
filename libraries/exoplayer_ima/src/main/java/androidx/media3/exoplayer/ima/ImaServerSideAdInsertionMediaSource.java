@@ -110,8 +110,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** MediaSource for IMA server side inserted ad streams. */
 @UnstableApi
@@ -520,7 +518,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @Nullable private StreamManager streamManager;
   @Nullable private ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource;
   @Nullable private IOException loadError;
-  private @MonotonicNonNull Timeline contentTimeline;
+  @Nullable private Timeline contentTimeline;
   private AdPlaybackState adPlaybackState;
 
   private ImaServerSideAdInsertionMediaSource(
@@ -635,6 +633,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           });
       loader = null;
     }
+    contentTimeline = null;
+    serverSideAdInsertionMediaSource = null;
   }
 
   // Internal methods (called on the main thread).
@@ -682,7 +682,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   }
 
   @MainThread
-  @EnsuresNonNull("this.contentTimeline")
   private void setContentTimeline(Timeline contentTimeline) {
     if (contentTimeline.equals(this.contentTimeline)) {
       return;
@@ -700,6 +699,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @MainThread
   private void invalidateServerSideAdInsertionAdPlaybackState() {
     if (!adPlaybackState.equals(AdPlaybackState.NONE) && contentTimeline != null) {
+      Timeline contentTimeline = checkNotNull(this.contentTimeline);
       ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStates;
       if (Objects.equals(streamRequest.getFormat(), StreamFormat.DASH)) {
         // DASH ad groups are always split by period.
@@ -727,27 +727,27 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   // Internal methods (called on the playback thread).
 
   private void setContentUri(Uri contentUri) {
-    if (serverSideAdInsertionMediaSource != null) {
-      return;
+    if (serverSideAdInsertionMediaSource == null) {
+      MediaItem contentMediaItem =
+          new MediaItem.Builder()
+              .setUri(contentUri)
+              .setDrmConfiguration(checkNotNull(mediaItem.localConfiguration).drmConfiguration)
+              .setLiveConfiguration(mediaItem.liveConfiguration)
+              .setCustomCacheKey(mediaItem.localConfiguration.customCacheKey)
+              .setStreamKeys(mediaItem.localConfiguration.streamKeys)
+              .build();
+      ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource =
+          new ServerSideAdInsertionMediaSource(
+              contentMediaSourceFactory.createMediaSource(contentMediaItem), componentListener);
+      this.serverSideAdInsertionMediaSource = serverSideAdInsertionMediaSource;
+      if (isLiveStream) {
+        mainHandler.post(
+            () ->
+                setAdPlaybackState(
+                    new AdPlaybackState(adsId).withLivePostrollPlaceholderAppended()));
+      }
+      prepareChildSource(/* id= */ null, serverSideAdInsertionMediaSource);
     }
-    MediaItem contentMediaItem =
-        new MediaItem.Builder()
-            .setUri(contentUri)
-            .setDrmConfiguration(checkNotNull(mediaItem.localConfiguration).drmConfiguration)
-            .setLiveConfiguration(mediaItem.liveConfiguration)
-            .setCustomCacheKey(mediaItem.localConfiguration.customCacheKey)
-            .setStreamKeys(mediaItem.localConfiguration.streamKeys)
-            .build();
-    ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource =
-        new ServerSideAdInsertionMediaSource(
-            contentMediaSourceFactory.createMediaSource(contentMediaItem), componentListener);
-    this.serverSideAdInsertionMediaSource = serverSideAdInsertionMediaSource;
-    if (isLiveStream) {
-      mainHandler.post(
-          () ->
-              setAdPlaybackState(new AdPlaybackState(adsId).withLivePostrollPlaceholderAppended()));
-    }
-    prepareChildSource(/* id= */ null, serverSideAdInsertionMediaSource);
   }
 
   // Static methods.
