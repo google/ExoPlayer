@@ -55,6 +55,7 @@ public class TestExoPlayerBuilder {
   private long seekBackIncrementMs;
   private long seekForwardIncrementMs;
   private boolean deviceVolumeControlEnabled;
+  private boolean suppressPlaybackWhenUnsuitableOutput;
 
   public TestExoPlayerBuilder(Context context) {
     this.context = context;
@@ -301,6 +302,21 @@ public class TestExoPlayerBuilder {
     return seekForwardIncrementMs;
   }
 
+  /**
+   * See {@link ExoPlayer.Builder#setSuppressPlaybackWhenNoSuitableOutputAvailable(boolean)} for
+   * details.
+   *
+   * @param suppressPlaybackWhenNoSuitableOutputAvailable Whether the player should suppress the
+   *     playback when suitable media route is not available.
+   * @return This builder.
+   */
+  @CanIgnoreReturnValue
+  public TestExoPlayerBuilder setSuppressOutputWhenNoSuitableOutputAvailable(
+      boolean suppressPlaybackWhenNoSuitableOutputAvailable) {
+    this.suppressPlaybackWhenUnsuitableOutput = suppressPlaybackWhenNoSuitableOutputAvailable;
+    return this;
+  }
+
   /** Builds an {@link ExoPlayer} using the provided values or their defaults. */
   public ExoPlayer build() {
     Assertions.checkNotNull(
@@ -337,7 +353,8 @@ public class TestExoPlayerBuilder {
             .setLooper(looper)
             .setSeekBackIncrementMs(seekBackIncrementMs)
             .setSeekForwardIncrementMs(seekForwardIncrementMs)
-            .setDeviceVolumeControlEnabled(deviceVolumeControlEnabled);
+            .setDeviceVolumeControlEnabled(deviceVolumeControlEnabled)
+            .setSuppressPlaybackWhenNoSuitableOutputAvailable(suppressPlaybackWhenUnsuitableOutput);
     if (mediaSourceFactory != null) {
       builder.setMediaSourceFactory(mediaSourceFactory);
     }

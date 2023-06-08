@@ -90,7 +90,9 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -112,6 +114,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.Listener;
+import androidx.media3.common.Player.PlayWhenReadyChangeReason;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
@@ -201,8 +204,10 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.AudioDeviceInfoBuilder;
 import org.robolectric.shadows.ShadowAudioManager;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowPackageManager;
 
 /** Unit test for {@link ExoPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -8564,7 +8569,8 @@ public final class ExoPlayerTest {
     Player.Listener playerListener1 =
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
             events.add(playWhenReadyChange1);
           }
 
@@ -8576,7 +8582,8 @@ public final class ExoPlayerTest {
     Player.Listener playerListener2 =
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
             events.add(playWhenReadyChange2);
           }
 
@@ -12807,7 +12814,202 @@ public final class ExoPlayerTest {
     player.release();
   }
 
+  /**
+   * Tests playback suppression for playback with only unsuitable route (e.g. builtin speaker) on
+   * Wear OS.
+   */
+  @Test
+  public void play_withNoSuitableMediaRouteOnWear_shouldSuppressPlayback() throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady) {
+              playbackSuppressionList.add(player.getPlaybackSuppressionReason());
+            }
+          }
+        });
+    player.prepare();
+
+    player.play();
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(playbackSuppressionList)
+        .containsExactly(Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT);
+    player.release();
+  }
+
+  /**
+   * Tests playback suppression for playback with suitable route (e.g. BluetoothA2DP) on Wear OS.
+   */
+  @Test
+  public void play_withNoSuitableMediaRouteOnWear_shouldNotSuppressPlayback() throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady) {
+              playbackSuppressionList.add(player.getPlaybackSuppressionReason());
+            }
+          }
+        });
+    player.prepare();
+
+    player.play();
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(playbackSuppressionList).containsExactly(Player.PLAYBACK_SUPPRESSION_REASON_NONE);
+    player.release();
+  }
+
+  /**
+   * Tests playback suppression for multiple play calls with only unsuitable route (e.g. builtin
+   * speaker) on Wear OS.
+   */
+  @Test
+  public void
+      play_call2TimesWithSubsequentPauseWithNoSuitableRouteOnWear_shouldSuppressionPlayback2Times()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            player.pause();
+            if (playWhenReady) {
+              playbackSuppressionList.add(player.getPlaybackSuppressionReason());
+            }
+          }
+        });
+    player.prepare();
+
+    player.play();
+    player.play();
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(playbackSuppressionList)
+        .containsExactly(
+            Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT,
+            Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT);
+    player.release();
+  }
+
+  /** Tests playback suppression for playback on the built-speaker on non-Wear OS surfaces. */
+  @Test
+  public void play_onBuiltinSpeakerWithoutWearSystemFeature_shouldNotSuppressPlayback()
+      throws Exception {
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady) {
+              playbackSuppressionList.add(player.getPlaybackSuppressionReason());
+            }
+          }
+        });
+    player.prepare();
+
+    player.play();
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(playbackSuppressionList).containsExactly(Player.PLAYBACK_SUPPRESSION_REASON_NONE);
+    player.release();
+  }
+
+  /**
+   * Tests playback suppression for playback with only unsuitable route (e.g. builtin speaker) on
+   * Wear OS but {@link ExoPlayer.Builder#setSuppressPlaybackWhenNoSuitableOutputAvailable(boolean)}
+   * is not called with parameter as TRUE.
+   */
+  @Test
+  public void
+      play_withOnlyUnsuitableRoutesWithoutEnablingPlaybackSuppression_shouldNotSuppressPlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady) {
+              playbackSuppressionList.add(player.getPlaybackSuppressionReason());
+            }
+          }
+        });
+    player.prepare();
+
+    player.play();
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(playbackSuppressionList).containsExactly(Player.PLAYBACK_SUPPRESSION_REASON_NONE);
+    player.release();
+  }
+
   // Internal methods.
+
+  private void addWatchAsSystemFeature() {
+    ShadowPackageManager shadowPackageManager = shadowOf(context.getPackageManager());
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+  }
+
+  private void setupConnectedAudioOutput(int... deviceTypes) {
+    ShadowAudioManager shadowAudioManager = shadowOf(context.getSystemService(AudioManager.class));
+    ImmutableList.Builder<AudioDeviceInfo> deviceListBuilder = ImmutableList.builder();
+    for (int deviceType : deviceTypes) {
+      deviceListBuilder.add(AudioDeviceInfoBuilder.newBuilder().setType(deviceType).build());
+    }
+    shadowAudioManager.setOutputDevices(deviceListBuilder.build());
+  }
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
     final Surface surface1 = new Surface(new SurfaceTexture(/* texName= */ 0));

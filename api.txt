@@ -862,7 +862,8 @@ package androidx.media3.common {
     field public static final int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2; // 0x2
     field public static final int PLAYBACK_SUPPRESSION_REASON_NONE = 0; // 0x0
     field public static final int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1; // 0x1
-    field public static final int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2; // 0x2
+    field public static final int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT = 3; // 0x3
+    field @Deprecated public static final int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2; // 0x2
     field public static final int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY = 3; // 0x3
     field public static final int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS = 2; // 0x2
     field public static final int PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM = 5; // 0x5
@@ -944,7 +945,7 @@ package androidx.media3.common {
   @IntDef({androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST, androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS, androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY, androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE, androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM, androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.TYPE_USE}) public static @interface Player.PlayWhenReadyChangeReason {
   }
 
-  @IntDef({androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE, androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS, androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.TYPE_USE}) public static @interface Player.PlaybackSuppressionReason {
+  @IntDef({androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE, androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS, androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE, androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT}) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.TYPE_USE}) public static @interface Player.PlaybackSuppressionReason {
   }
 
   public static final class Player.PositionInfo {

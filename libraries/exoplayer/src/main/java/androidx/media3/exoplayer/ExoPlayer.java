@@ -493,6 +493,7 @@ public interface ExoPlayer extends Player {
     /* package */ boolean usePlatformDiagnostics;
     @Nullable /* package */ Looper playbackLooper;
     /* package */ boolean buildCalled;
+    /* package */ boolean suppressPlaybackWhenNoSuitableOutputAvailable;
 
     /**
      * Creates a builder.
@@ -709,6 +710,31 @@ public interface ExoPlayer extends Player {
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
       checkState(!buildCalled);
       foregroundModeTimeoutMs = timeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets whether the player should suppress playback when a suitable audio output is not
+     * available. An example of an unsuitable audio output is the built-in speaker on a Wear OS
+     * device (unless it is explicitly selected by the user).
+     *
+     * <p>If called with {@code suppressPlaybackWhenNoSuitableOutputAvailable = true}, then a
+     * playback attempt while no suitable output is available will result in calls to {@link
+     * Player.Listener#onPlaybackSuppressionReasonChanged(int)} with the value {@link
+     * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT}.
+     *
+     * @param suppressPlaybackWhenNoSuitableOutputAvailable Whether the player should suppress the
+     *     playback when suitable media route is not available.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @CanIgnoreReturnValue
+    @UnstableApi
+    public Builder setSuppressPlaybackWhenNoSuitableOutputAvailable(
+        boolean suppressPlaybackWhenNoSuitableOutputAvailable) {
+      checkState(!buildCalled);
+      this.suppressPlaybackWhenNoSuitableOutputAvailable =
+          suppressPlaybackWhenNoSuitableOutputAvailable;
       return this;
     }
 

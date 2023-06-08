@@ -1221,8 +1221,9 @@ public interface Player {
   /**
    * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
    * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE}, {@link
-   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS} or {@link
-   * #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE}.
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}, {@link
+   * #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1232,7 +1233,8 @@ public interface Player {
   @IntDef({
     PLAYBACK_SUPPRESSION_REASON_NONE,
     PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS,
-    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE
+    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE,
+    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT
   })
   @interface PlaybackSuppressionReason {}
   /** Playback is not suppressed. */
@@ -1240,10 +1242,14 @@ public interface Player {
   /** Playback is suppressed due to transient audio focus loss. */
   int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
   /**
-   * Playback is suppressed due to no suitable audio route, such as an attempt to use an internal
-   * speaker instead of bluetooth headphones on Wear OS.
+   * @deprecated Use {@link #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} instead.
    */
-  int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2;
+  @Deprecated int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2;
+  /**
+   * Playback is suppressed due to attempt to play on an unsuitable audio output (e.g. attempt to
+   * play on built-in speaker on a Wear OS device).
+   */
+  int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT = 3;
 
   /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link

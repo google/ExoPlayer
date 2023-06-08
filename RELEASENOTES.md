@@ -13,6 +13,12 @@
     *   Add additional action to manifest of main demo for making it easier to
         start the demo app with a custom `*.exolist.json` file
         ([#439](https://github.com/androidx/media/pull/439)).
+    *   Add suppression of playback on unsuitable audio output devices (e.g. the
+        built-in speaker on Wear OS devices) when this feature is enabled via
+        `ExoPlayer.Builder.setSuppressPlaybackWhenNoSuitableOutputAvailable`.
+        The playback suppression reason will be updated as
+        `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` if playback
+        is attempted when no suitable audio outputs are available.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
