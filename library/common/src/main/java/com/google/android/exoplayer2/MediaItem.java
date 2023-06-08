@@ -1181,7 +1181,8 @@ public final class MediaItem implements Bundleable {
         bundle.putBundle(FIELD_ADS_CONFIGURATION, adsConfiguration.toBundle());
       }
       if (!streamKeys.isEmpty()) {
-        bundle.putParcelableArrayList(FIELD_STREAM_KEYS, new ArrayList<>(streamKeys));
+        bundle.putParcelableArrayList(
+            FIELD_STREAM_KEYS, BundleableUtil.toBundleArrayList(streamKeys));
       }
       if (customCacheKey != null) {
         bundle.putString(FIELD_CUSTOM_CACHE_KEY, customCacheKey);
@@ -1203,9 +1204,11 @@ public final class MediaItem implements Bundleable {
       @Nullable Bundle adsBundle = bundle.getBundle(FIELD_ADS_CONFIGURATION);
       AdsConfiguration adsConfiguration =
           adsBundle == null ? null : AdsConfiguration.CREATOR.fromBundle(adsBundle);
-      @Nullable List<StreamKey> streamKeysList = bundle.getParcelableArrayList(FIELD_STREAM_KEYS);
+      @Nullable List<Bundle> streamKeysBundles = bundle.getParcelableArrayList(FIELD_STREAM_KEYS);
       List<StreamKey> streamKeys =
-          streamKeysList == null ? ImmutableList.of() : ImmutableList.copyOf(streamKeysList);
+          streamKeysBundles == null
+              ? ImmutableList.of()
+              : BundleableUtil.fromBundleList(StreamKey::fromBundle, streamKeysBundles);
       @Nullable
       List<Bundle> subtitleBundles = bundle.getParcelableArrayList(FIELD_SUBTITLE_CONFIGURATION);
       ImmutableList<SubtitleConfiguration> subtitleConfiguration =
