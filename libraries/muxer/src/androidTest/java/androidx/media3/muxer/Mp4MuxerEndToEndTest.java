@@ -15,6 +15,8 @@
  */
 package androidx.media3.muxer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,26 +56,23 @@ public class Mp4MuxerEndToEndTest {
     return ImmutableList.of(H264_MP4, H265_HDR10_MP4, H265_WITH_METADATA_TRACK_MP4, AV1_MP4);
   }
 
-  @Parameter public String inputFile;
-
+  @Parameter public @MonotonicNonNull String inputFile;
   @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private static final String MP4_FILE_ASSET_DIRECTORY = "media/mp4/";
-
-  private Context context;
-  private String outputPath;
-  private FileOutputStream outputStream;
+  private final Context context = ApplicationProvider.getApplicationContext();
+  private @MonotonicNonNull String outputPath;
+  private @MonotonicNonNull FileOutputStream outputStream;
 
   @Before
   public void setUp() throws Exception {
-    context = ApplicationProvider.getApplicationContext();
     outputPath = temporaryFolder.newFile("muxeroutput.mp4").getPath();
     outputStream = new FileOutputStream(outputPath);
   }
 
   @After
   public void tearDown() throws IOException {
-    outputStream.close();
+    checkNotNull(outputStream).close();
   }
 
   @Test
@@ -80,9 +80,9 @@ public class Mp4MuxerEndToEndTest {
     Mp4Muxer mp4Muxer = null;
 
     try {
-      mp4Muxer = new Mp4Muxer.Builder(outputStream).build();
+      mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
       mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
-      feedInputDataToMuxer(mp4Muxer, inputFile);
+      feedInputDataToMuxer(mp4Muxer, checkNotNull(inputFile));
     } finally {
       if (mp4Muxer != null) {
         mp4Muxer.close();
@@ -90,14 +90,14 @@ public class Mp4MuxerEndToEndTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputPath);
+        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), checkNotNull(outputPath));
     DumpFileAsserts.assertOutput(
         context, fakeExtractorOutput, AndroidMuxerTestUtil.getExpectedDumpFilePath(inputFile));
   }
 
   @Test
   public void createMp4File_muxerNotClosed_createsPartiallyWrittenValidFile() throws IOException {
-    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputStream).build();
+    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
     mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
     feedInputDataToMuxer(mp4Muxer, H265_HDR10_MP4);
 
@@ -107,7 +107,7 @@ public class Mp4MuxerEndToEndTest {
     // Video sample written = 94 out of 127.
     // Output is still a valid MP4 file.
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputPath);
+        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), checkNotNull(outputPath));
     DumpFileAsserts.assertOutput(
         context,
         fakeExtractorOutput,
