@@ -25,7 +25,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 
-// TODO(b/227625363): Add tests for this file.
 /**
  * Drops frames by only queuing input frames that are chosen by the frame dropping strategy.
  *
@@ -40,7 +39,7 @@ import androidx.media3.common.VideoFrameProcessingException;
  * <p>Where T_lastQueued is the timestamp of the last queued frame and T_(x+1) is the timestamp of
  * the next frame. The target frame interval is determined from {@code targetFps}.
  */
-/* package */ final class FrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
+/* package */ final class DefaultFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
   private final long targetFrameDeltaUs;
 
   @Nullable private GlTextureInfo previousTexture;
@@ -56,7 +55,7 @@ import androidx.media3.common.VideoFrameProcessingException;
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param targetFps The number of frames per second the output video should roughly have.
    */
-  public FrameDroppingShaderProgram(Context context, boolean useHdr, float targetFps)
+  public DefaultFrameDroppingShaderProgram(Context context, boolean useHdr, float targetFps)
       throws VideoFrameProcessingException {
     super(context, /* capacity= */ 1, useHdr);
     this.targetFrameDeltaUs = (long) (C.MICROS_PER_SECOND / targetFps);

@@ -17,6 +17,7 @@
 package androidx.media3.effect;
 
 import android.content.Context;
+import androidx.media3.common.C;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
@@ -24,20 +25,56 @@ import androidx.media3.common.util.UnstableApi;
 @UnstableApi
 public class FrameDropEffect implements GlEffect {
 
+  private final float inputFrameRate;
   private final float targetFrameRate;
 
   /**
-   * Creates an instance.
+   * Creates a {@link FrameDropEffect} with the default frame dropping strategy.
+   *
+   * <p>The strategy used is to queue the current frame, x, with timestamp T_x if and only if one of
+   * the following is true:
+   *
+   * <ul>
+   *   <li>x is the first frame,
+   *   <li>(T_x - T_lastQueued) is closer to the target frame interval than (T_(x+1) - T_lastQueued)
+   * </ul>
+   *
+   * <p>Where T_lastQueued is the timestamp of the last queued frame and T_(x+1) is the timestamp of
+   * the next frame. The target frame interval is determined from {@code targetFrameRate}.
    *
    * @param targetFrameRate The number of frames per second the output video should roughly have.
    */
-  public FrameDropEffect(float targetFrameRate) {
-    this.targetFrameRate = targetFrameRate;
+  public static FrameDropEffect createDefaultFrameDropEffect(float targetFrameRate) {
+    return new FrameDropEffect(/* inputFrameRate= */ C.RATE_UNSET, targetFrameRate);
+  }
+
+  /**
+   * Creates a {@link FrameDropEffect} that keeps every nth frame, where n is the {@code
+   * inputFrameRate} divided by the {@code targetFrameRate}.
+   *
+   * <p>For example, if the input stream came in at 60fps and the targeted frame rate was 20fps,
+   * every 3rd frame would be kept. If n is not an integer, then we round to the nearest one.
+   *
+   * @param expectedFrameRate The number of frames per second in the input stream.
+   * @param targetFrameRate The number of frames per second the output video should roughly have.
+   */
+  public static FrameDropEffect createSimpleFrameDropEffect(
+      float expectedFrameRate, float targetFrameRate) {
+    return new FrameDropEffect(expectedFrameRate, targetFrameRate);
   }
 
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
-    return new FrameDroppingShaderProgram(context, useHdr, targetFrameRate);
+    if (inputFrameRate == C.RATE_UNSET) {
+      return new DefaultFrameDroppingShaderProgram(context, useHdr, targetFrameRate);
+    } else {
+      return new SimpleFrameDroppingShaderProgram(context, useHdr, inputFrameRate, targetFrameRate);
+    }
+  }
+
+  private FrameDropEffect(float inputFrameRate, float targetFrameRate) {
+    this.inputFrameRate = inputFrameRate;
+    this.targetFrameRate = targetFrameRate;
   }
 }
