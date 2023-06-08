@@ -20,7 +20,6 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -32,7 +31,12 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
   /** Key for the capture frame rate (in frames per second). */
   public static final String KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
 
-  public static final int TYPE_INDICATOR_FLOAT = 23;
+  /** The type indicator for UTF-8 string. */
+  public static final int TYPE_INDICATOR_STRING = 1;
+  /** The type indicator for Float32. */
+  public static final int TYPE_INDICATOR_FLOAT32 = 23;
+  /** The type indicator for 32-bit signed integer. */
+  public static final int TYPE_INDICATOR_INT32 = 67;
 
   /** The metadata key name. */
   public final String key;
@@ -85,10 +89,21 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   @Override
   public String toString() {
-    String formattedValue =
-        typeIndicator == TYPE_INDICATOR_FLOAT
-            ? Float.toString(ByteBuffer.wrap(value).getFloat())
-            : Util.toHexString(value);
+    String formattedValue;
+    switch (typeIndicator) {
+      case TYPE_INDICATOR_STRING:
+        formattedValue = Util.fromUtf8Bytes(value);
+        break;
+      case TYPE_INDICATOR_FLOAT32:
+        formattedValue = String.valueOf(Util.toFloat(value));
+        break;
+      case TYPE_INDICATOR_INT32:
+        formattedValue = String.valueOf(Util.toInteger(value));
+        break;
+      default:
+        formattedValue = Util.toHexString(value);
+    }
+
     return "mdta: key=" + key + ", value=" + formattedValue;
   }
 
