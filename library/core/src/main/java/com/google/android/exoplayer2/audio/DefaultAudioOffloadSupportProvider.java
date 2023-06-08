@@ -91,7 +91,14 @@ public final class DefaultAudioOffloadSupportProvider
     if (channelConfig == AudioFormat.CHANNEL_INVALID) {
       return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
     }
-    AudioFormat audioFormat = Util.getAudioFormat(format.sampleRate, channelConfig, encoding);
+
+    AudioFormat audioFormat;
+    try {
+      audioFormat = Util.getAudioFormat(format.sampleRate, channelConfig, encoding);
+    } catch (IllegalArgumentException e) {
+      return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
+    }
+
     if (Util.SDK_INT >= 31) {
       return Api31.getOffloadedPlaybackSupport(
           audioFormat,
