@@ -15,10 +15,12 @@
  */
 package androidx.media3.common;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 
 /**
  * A key for a subset of media that can be separately loaded (a "stream").
@@ -35,7 +37,7 @@ import androidx.media3.common.util.UnstableApi;
  * particular track selection.
  */
 @UnstableApi
-public final class StreamKey implements Comparable<StreamKey>, Parcelable {
+public final class StreamKey implements Comparable<StreamKey>, Parcelable, Bundleable {
 
   /** The period index. */
   public final int periodIndex;
@@ -43,11 +45,6 @@ public final class StreamKey implements Comparable<StreamKey>, Parcelable {
   public final int groupIndex;
   /** The stream index. */
   public final int streamIndex;
-
-  /**
-   * @deprecated Use {@link #streamIndex}.
-   */
-  @Deprecated public final int trackIndex;
 
   /**
    * Creates an instance with {@link #periodIndex} set to 0.
@@ -60,26 +57,22 @@ public final class StreamKey implements Comparable<StreamKey>, Parcelable {
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance of {@link StreamKey} using 3 indices.
    *
    * @param periodIndex The period index.
    * @param groupIndex The group index.
    * @param streamIndex The stream index.
    */
-  @SuppressWarnings("deprecation")
   public StreamKey(int periodIndex, int groupIndex, int streamIndex) {
     this.periodIndex = periodIndex;
     this.groupIndex = groupIndex;
     this.streamIndex = streamIndex;
-    trackIndex = streamIndex;
   }
 
-  @SuppressWarnings("deprecation")
   /* package */ StreamKey(Parcel in) {
     periodIndex = in.readInt();
     groupIndex = in.readInt();
     streamIndex = in.readInt();
-    trackIndex = streamIndex;
   }
 
   @Override
@@ -151,4 +144,36 @@ public final class StreamKey implements Comparable<StreamKey>, Parcelable {
           return new StreamKey[size];
         }
       };
+
+  // Bundleable implementation.
+
+  private static final String FIELD_PERIOD_INDEX = Util.intToStringMaxRadix(0);
+  private static final String FIELD_GROUP_INDEX = Util.intToStringMaxRadix(1);
+  private static final String FIELD_STREAM_INDEX = Util.intToStringMaxRadix(2);
+
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    if (periodIndex != 0) {
+      bundle.putInt(FIELD_PERIOD_INDEX, periodIndex);
+    }
+    if (groupIndex != 0) {
+      bundle.putInt(FIELD_GROUP_INDEX, groupIndex);
+    }
+    if (streamIndex != 0) {
+      bundle.putInt(FIELD_STREAM_INDEX, streamIndex);
+    }
+    return bundle;
+  }
+
+  /**
+   * Constructs an instance of {@link StreamKey} from a {@link Bundle} produced by {@link
+   * #toBundle()}.
+   */
+  public static StreamKey fromBundle(Bundle bundle) {
+    return new StreamKey(
+        bundle.getInt(FIELD_PERIOD_INDEX, /* defaultValue= */ 0),
+        bundle.getInt(FIELD_GROUP_INDEX, /* defaultValue= */ 0),
+        bundle.getInt(FIELD_STREAM_INDEX, /* defaultValue= */ 0));
+  }
 }

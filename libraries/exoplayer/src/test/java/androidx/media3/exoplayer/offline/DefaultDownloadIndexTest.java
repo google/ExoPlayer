@@ -102,8 +102,8 @@ public class DefaultDownloadIndexTest {
             .setStartTimeMs(10)
             .setUpdateTimeMs(20)
             .setStreamKeys(
-                new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
-                new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5))
+                new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* streamIndex= */ 2),
+                new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* streamIndex= */ 5))
             .setCustomMetadata(new byte[] {0, 1, 2, 3, 7, 8, 9, 10})
             .setKeySetId(new byte[] {0, 1, 2, 3})
             .build();
