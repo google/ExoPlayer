@@ -20,8 +20,8 @@ import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.Util
 import com.google.common.collect.ImmutableList
+import java.io.BufferedReader
 import org.json.JSONObject
 
 /**
@@ -91,10 +91,8 @@ object MediaItemTree {
       .build()
   }
 
-  private fun loadJSONFromAsset(assets: AssetManager): String {
-    val buffer = assets.open("catalog.json").use { Util.toByteArray(it) }
-    return String(buffer, Charsets.UTF_8)
-  }
+  private fun loadJSONFromAsset(assets: AssetManager): String =
+    assets.open("catalog.json").bufferedReader().use(BufferedReader::readText)
 
   fun initialize(assets: AssetManager) {
     if (isInitialized) return
