@@ -28,6 +28,7 @@ import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.upstream.Allocator;
+import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
 
@@ -66,6 +67,19 @@ public interface MediaSource {
     @UnstableApi
     @SuppressWarnings("deprecation")
     Factory UNSUPPORTED = MediaSourceFactory.UNSUPPORTED;
+
+    /**
+     * Sets the {@link CmcdConfiguration.Factory} used to obtain a {@link CmcdConfiguration} for a
+     * {@link MediaItem}.
+     *
+     * @return This factory, for convenience.
+     */
+    @UnstableApi
+    default Factory setCmcdConfigurationFactory(
+        CmcdConfiguration.Factory cmcdConfigurationFactory) {
+      // do nothing
+      return this;
+    }
 
     /**
      * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a

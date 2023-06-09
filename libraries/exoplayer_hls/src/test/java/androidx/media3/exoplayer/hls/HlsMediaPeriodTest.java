@@ -84,6 +84,7 @@ public final class HlsMediaPeriodTest {
               mockPlaylistTracker,
               mockDataSourceFactory,
               mock(TransferListener.class),
+              /* cmcdConfiguration= */ null,
               mock(DrmSessionManager.class),
               new DrmSessionEventListener.EventDispatcher()
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId),

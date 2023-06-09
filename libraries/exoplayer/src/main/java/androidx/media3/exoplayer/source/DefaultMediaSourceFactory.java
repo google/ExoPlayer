@@ -38,6 +38,7 @@ import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.source.ads.AdsLoader;
 import androidx.media3.exoplayer.source.ads.AdsMediaSource;
 import androidx.media3.exoplayer.text.SubtitleDecoderFactory;
+import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.Extractor;
@@ -384,6 +385,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @CanIgnoreReturnValue
   @UnstableApi
   @Override
+  public DefaultMediaSourceFactory setCmcdConfigurationFactory(
+      CmcdConfiguration.Factory cmcdConfigurationFactory) {
+    delegateFactoryLoader.setCmcdConfigurationFactory(checkNotNull(cmcdConfigurationFactory));
+    return this;
+  }
+
+  @CanIgnoreReturnValue
+  @UnstableApi
+  @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
       DrmSessionManagerProvider drmSessionManagerProvider) {
     delegateFactoryLoader.setDrmSessionManagerProvider(
@@ -566,6 +576,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     private final Map<Integer, MediaSource.Factory> mediaSourceFactories;
 
     private DataSource.@MonotonicNonNull Factory dataSourceFactory;
+    @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -595,6 +606,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       }
 
       mediaSourceFactory = mediaSourceFactorySupplier.get();
+      if (cmcdConfigurationFactory != null) {
+        mediaSourceFactory.setCmcdConfigurationFactory(cmcdConfigurationFactory);
+      }
       if (drmSessionManagerProvider != null) {
         mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
       }
@@ -612,6 +626,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         // exists on the interface.
         mediaSourceFactorySuppliers.clear();
         mediaSourceFactories.clear();
+      }
+    }
+
+    public void setCmcdConfigurationFactory(CmcdConfiguration.Factory cmcdConfigurationFactory) {
+      this.cmcdConfigurationFactory = cmcdConfigurationFactory;
+      for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setCmcdConfigurationFactory(cmcdConfigurationFactory);
       }
     }
 

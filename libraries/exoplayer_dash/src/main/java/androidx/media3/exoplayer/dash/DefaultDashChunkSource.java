@@ -50,9 +50,12 @@ import androidx.media3.exoplayer.source.chunk.MediaChunk;
 import androidx.media3.exoplayer.source.chunk.MediaChunkIterator;
 import androidx.media3.exoplayer.source.chunk.SingleSampleMediaChunk;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
+import androidx.media3.exoplayer.upstream.CmcdConfiguration;
+import androidx.media3.exoplayer.upstream.CmcdLog;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import androidx.media3.extractor.ChunkIndex;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +117,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
         List<Format> closedCaptionFormats,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
         @Nullable TransferListener transferListener,
-        PlayerId playerId) {
+        PlayerId playerId,
+        @Nullable CmcdConfiguration cmcdConfiguration) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
@@ -134,7 +138,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
           enableEventMessageTrack,
           closedCaptionFormats,
           playerEmsgHandler,
-          playerId);
+          playerId,
+          cmcdConfiguration);
     }
   }
 
@@ -146,6 +151,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final long elapsedRealtimeOffsetMs;
   private final int maxSegmentsPerLoad;
   @Nullable private final PlayerTrackEmsgHandler playerTrackEmsgHandler;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
 
   protected final RepresentationHolder[] representationHolders;
 
@@ -177,6 +183,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param playerTrackEmsgHandler The {@link PlayerTrackEmsgHandler} instance to handle emsg
    *     messages targeting the player. Maybe null if this is not necessary.
    * @param playerId The {@link PlayerId} of the player using this chunk source.
+   * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
    */
   public DefaultDashChunkSource(
       ChunkExtractor.Factory chunkExtractorFactory,
@@ -193,7 +200,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       boolean enableEventMessageTrack,
       List<Format> closedCaptionFormats,
       @Nullable PlayerTrackEmsgHandler playerTrackEmsgHandler,
-      PlayerId playerId) {
+      PlayerId playerId,
+      @Nullable CmcdConfiguration cmcdConfiguration) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.baseUrlExclusionList = baseUrlExclusionList;
@@ -205,6 +213,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
     this.maxSegmentsPerLoad = maxSegmentsPerLoad;
     this.playerTrackEmsgHandler = playerTrackEmsgHandler;
+    this.cmcdConfiguration = cmcdConfiguration;
 
     long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
 
@@ -436,6 +445,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
       }
     }
 
+    @Nullable
+    CmcdLog cmcdLog =
+        cmcdConfiguration == null
+            ? null
+            : CmcdLog.createInstance(
+                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+
     long seekTimeUs = queue.isEmpty() ? loadPositionUs : C.TIME_UNSET;
     out.chunk =
         newMediaChunk(
@@ -448,7 +464,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
             segmentNum,
             maxSegmentCount,
             seekTimeUs,
-            nowPeriodTimeUs);
+            nowPeriodTimeUs,
+            cmcdLog);
   }
 
   @Override
@@ -658,10 +675,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
       long firstSegmentNum,
       int maxSegmentCount,
       long seekTimeUs,
-      long nowPeriodTimeUs) {
+      long nowPeriodTimeUs,
+      @Nullable CmcdLog cmcdLog) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
+    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
+        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
     if (representationHolder.chunkExtractor == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
       int flags =
@@ -672,6 +692,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
               representation, representationHolder.selectedBaseUrl.url, segmentUri, flags);
+      dataSpec = dataSpec.buildUpon().setHttpRequestHeaders(httpRequestHeaders).build();
       return new SingleSampleMediaChunk(
           dataSource,
           dataSpec,
@@ -711,6 +732,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
               representation, representationHolder.selectedBaseUrl.url, segmentUri, flags);
+      dataSpec = dataSpec.buildUpon().setHttpRequestHeaders(httpRequestHeaders).build();
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,

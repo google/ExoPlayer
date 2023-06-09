@@ -34,6 +34,7 @@ import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.source.chunk.ChunkSampleStream;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
+import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Nullable private final TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final DrmSessionManager drmSessionManager;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
@@ -66,6 +68,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       SsChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
@@ -76,6 +79,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
+    this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
@@ -237,7 +241,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int streamElementIndex = trackGroups.indexOf(selection.getTrackGroup());
     SsChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(
-            manifestLoaderErrorThrower, manifest, streamElementIndex, selection, transferListener);
+            manifestLoaderErrorThrower,
+            manifest,
+            streamElementIndex,
+            selection,
+            transferListener,
+            cmcdConfiguration);
     return new ChunkSampleStream<>(
         manifest.streamElements[streamElementIndex].type,
         null,

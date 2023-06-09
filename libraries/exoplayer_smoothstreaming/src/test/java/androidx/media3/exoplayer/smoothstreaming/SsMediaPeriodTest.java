@@ -67,6 +67,7 @@ public class SsMediaPeriodTest {
               mock(SsChunkSource.Factory.class),
               mock(TransferListener.class),
               mock(CompositeSequenceableLoaderFactory.class),
+              /* cmcdConfiguration= */ null,
               mock(DrmSessionManager.class),
               new DrmSessionEventListener.EventDispatcher()
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId),

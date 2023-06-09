@@ -211,6 +211,7 @@ public final class DashMediaPeriodTest {
         periodIndex,
         mock(DashChunkSource.Factory.class),
         mock(TransferListener.class),
+        /* cmcdConfiguration= */ null,
         DrmSessionManager.DRM_UNSUPPORTED,
         new DrmSessionEventListener.EventDispatcher()
             .withParameters(/* windowIndex= */ 0, mediaPeriodId),

@@ -21,6 +21,7 @@ import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.smoothstreaming.manifest.SsManifest;
 import androidx.media3.exoplayer.source.chunk.ChunkSource;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
+import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 
 /** A {@link ChunkSource} for SmoothStreaming. */
@@ -39,6 +40,7 @@ public interface SsChunkSource extends ChunkSource {
      * @param trackSelection The track selection.
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
+     * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
      * @return The created {@link SsChunkSource}.
      */
     SsChunkSource createChunkSource(
@@ -46,7 +48,8 @@ public interface SsChunkSource extends ChunkSource {
         SsManifest manifest,
         int streamElementIndex,
         ExoTrackSelection trackSelection,
-        @Nullable TransferListener transferListener);
+        @Nullable TransferListener transferListener,
+        @Nullable CmcdConfiguration cmcdConfiguration);
   }
 
   /**

@@ -10,6 +10,20 @@
         information if desired (possibly using
         `Logger.appendThrowableString(String, Throwable)`).
 *   ExoPlayer:
+    *   Add support for including Common Media Client Data (CMCD) in the
+        outgoing requests of adaptive streaming formats DASH, HLS, and
+        SmoothStreaming. The following fields, `br`, `bl`, `cid`, `rtp`, and
+        `sid`, have been incorporated
+        ([#8699](https://github.com/google/ExoPlayer/issues/8699)). API
+        structure and API methods:
+        *   CMCD logging is disabled by default, use
+            `MediaSource.Factory.setCmcdConfigurationFactory(CmcdConfiguration.Factory
+            cmcdConfigurationFactory)` to enable it.
+        *   All keys are enabled by default, override
+            `CmcdConfiguration.RequestConfig.isKeyAllowed(String key)` to filter
+            out which keys are logged.
+        *   Override `CmcdConfiguration.RequestConfig.getCustomData()` to enable
+            custom key logging.
     *   Add additional action to manifest of main demo for making it easier to
         start the demo app with a custom `*.exolist.json` file
         ([#439](https://github.com/androidx/media/pull/439)).
