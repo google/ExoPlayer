@@ -421,6 +421,7 @@ import java.util.Set;
     Map<Object, AdPlaybackState> adPlaybackStates = new HashMap<>();
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
+      int mappedAdCount = 0;
       if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
         checkState(i == adPlaybackState.adGroupCount - 1);
         // The last ad group is a placeholder for a potential post roll. We can just stop here.
@@ -454,8 +455,10 @@ import java.util.Set;
                     adsId, adGroup, periodStartUs, periodDurationUs, window.isLive()));
             // Current period added as an ad period. Advance and look at the next period.
             periodIndex++;
+            mappedAdCount++;
             elapsedAdGroupAdDurationUs += periodDurationUs;
-            if (periodStartUs + periodDurationUs == adGroup.timeUs + adGroupDurationUs) {
+            if ((adGroup.originalCount > adGroup.count && adGroup.count == mappedAdCount)
+                || periodStartUs + periodDurationUs == adGroup.timeUs + adGroupDurationUs) {
               // Periods have consumed the ad group. We're at the end of the ad group.
               if (window.isLive()) {
                 // Add elapsed ad duration to elapsed content duration for live streams to account

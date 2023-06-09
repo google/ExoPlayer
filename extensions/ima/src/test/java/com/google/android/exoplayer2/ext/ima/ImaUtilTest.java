@@ -855,6 +855,46 @@ public class ImaUtilTest {
 
   @Test
   public void
+      splitAdPlaybackStateForPeriods_partialAdGroupEndingAtPeriodBeforeLast_adPeriodsCorrectlyDetected() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId", C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+    FakeMultiPeriodLiveTimeline liveTimeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ 60_000_000,
+            /* nowUs= */ 70_000_000,
+            /* adSequencePattern= */ new boolean[] {false, true, true, true},
+            /* periodDurationMsPattern= */ new long[] {30_000, 10_000, 10_000, 10_000},
+            /* isContentTimeline= */ true,
+            /* populateAds= */ false,
+            /* playedAds= */ false);
+    // Ad event received from SDK around 30s.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 40_000_000,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 30_000_000,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+
+    ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStates =
+        ImaUtil.splitAdPlaybackStateForPeriods(adPlaybackState, liveTimeline);
+
+    assertThat(liveTimeline.getPeriodCount()).isEqualTo(5);
+    assertThat(splitAdPlaybackStates).hasSize(5);
+    assertThat(liveTimeline.getWindow(0, new Window()).windowStartTimeMs).isEqualTo(10_000L);
+    assertThat(liveTimeline.getPeriod(0, new Period()).positionInWindowUs).isEqualTo(-10_000_000L);
+    assertThat(splitAdPlaybackStates.get("uid-0[c]").adGroupCount).isEqualTo(1);
+    assertThat(splitAdPlaybackStates.get("uid-1[a]").adGroupCount).isEqualTo(1);
+    assertThat(splitAdPlaybackStates.get("uid-2[a]").adGroupCount).isEqualTo(2);
+    assertThat(splitAdPlaybackStates.get("uid-3[a]").adGroupCount).isEqualTo(2);
+    assertThat(splitAdPlaybackStates.get("uid-4[c]").adGroupCount).isEqualTo(1);
+  }
+
+  @Test
+  public void
       splitAdPlaybackStateForPeriods_fullAdGroupAtBeginOfWindow_adPeriodsCorrectlyDetected() {
     long adPeriodDurationUs = msToUs(AD_PERIOD_DURATION_MS);
     AdPlaybackState adPlaybackState =
