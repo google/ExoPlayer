@@ -53,8 +53,8 @@ public interface SubtitleParser {
    * @param offset The index in {@code data} to start reading from (inclusive).
    * @param length The number of bytes to read from {@code data}.
    * @return The {@linkplain CueGroup cue groups} parsed from {@code data} (and possibly previous
-   *     provided samples too), or null if there is insufficient data to generate a complete {@link
-   *     CueGroup}.
+   *     provided samples too), sorted in ascending order by {@link CueGroup#presentationTimeUs}.
+   *     Otherwise null if there is insufficient data to generate a complete {@link CueGroup}.
    */
   @Nullable
   List<CueGroup> parse(byte[] data, int offset, int length);
