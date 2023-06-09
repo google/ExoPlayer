@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
+import com.google.android.exoplayer2.upstream.CmcdLog;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -39,6 +41,7 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -93,15 +96,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable byte[] mediaSegmentKey,
       @Nullable byte[] initSegmentKey,
       boolean shouldSpliceIn,
-      PlayerId playerId) {
+      PlayerId playerId,
+      @Nullable CmcdLog cmcdLog) {
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
+    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
+        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
     DataSpec dataSpec =
         new DataSpec.Builder()
             .setUri(UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url))
             .setPosition(mediaSegment.byteRangeOffset)
             .setLength(mediaSegment.byteRangeLength)
             .setFlags(segmentBaseHolder.isPreload ? FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED : 0)
+            .setHttpRequestHeaders(httpRequestHeaders)
             .build();
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     @Nullable

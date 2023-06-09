@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segmen
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
+import com.google.android.exoplayer2.upstream.CmcdLog;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -130,6 +132,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private final List<Format> muxedCaptionFormats;
   private final FullSegmentEncryptionKeyCache keyCache;
   private final PlayerId playerId;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
 
   private boolean isPrimaryTimestampSource;
   private byte[] scratchSpace;
@@ -170,7 +173,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
       @Nullable List<Format> muxedCaptionFormats,
-      PlayerId playerId) {
+      PlayerId playerId,
+      @Nullable CmcdConfiguration cmcdConfiguration) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
@@ -178,6 +182,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
     this.playerId = playerId;
+    this.cmcdConfiguration = cmcdConfiguration;
     keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
@@ -493,6 +498,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
 
+    @Nullable
+    CmcdLog cmcdLog =
+        cmcdConfiguration == null
+            ? null
+            : CmcdLog.createInstance(
+                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+
     out.chunk =
         HlsMediaChunk.createInstance(
             extractorFactory,
@@ -511,7 +523,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
             shouldSpliceIn,
-            playerId);
+            playerId,
+            cmcdLog);
   }
 
   @Nullable
