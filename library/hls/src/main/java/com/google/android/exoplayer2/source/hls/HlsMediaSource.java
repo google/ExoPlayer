@@ -111,6 +111,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private @MetadataType int metadataType;
     private boolean useSessionKeys;
     private long elapsedRealTimeOffsetMs;
+    private long timestampAdjusterInitializationTimeoutMs;
 
     /**
      * Creates a new factory for {@link HlsMediaSource}s.
@@ -321,6 +322,21 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
+     * Sets the timeout for the loading thread to wait for the timestamp adjuster to initialize, in
+     * milliseconds.The default value is zero, which is interpreted as an infinite timeout.
+     *
+     * @param timestampAdjusterInitializationTimeoutMs The timeout in milliseconds. A timeout of
+     *     zero is interpreted as an infinite timeout.
+     * @return This factory, for convenience.
+     */
+    @CanIgnoreReturnValue
+    public Factory setTimestampAdjusterInitializationTimeoutMs(
+        long timestampAdjusterInitializationTimeoutMs) {
+      this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
+      return this;
+    }
+
+    /**
      * Sets the offset between {@link SystemClock#elapsedRealtime()} and the time since the Unix
      * epoch. By default, is it set to {@link C#TIME_UNSET}.
      *
@@ -370,7 +386,8 @@ public final class HlsMediaSource extends BaseMediaSource
           elapsedRealTimeOffsetMs,
           allowChunklessPreparation,
           metadataType,
-          useSessionKeys);
+          useSessionKeys,
+          timestampAdjusterInitializationTimeoutMs);
     }
 
     @Override
@@ -392,6 +409,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final HlsPlaylistTracker playlistTracker;
   private final long elapsedRealTimeOffsetMs;
   private final MediaItem mediaItem;
+  private final long timestampAdjusterInitializationTimeoutMs;
 
   private MediaItem.LiveConfiguration liveConfiguration;
   @Nullable private TransferListener mediaTransferListener;
@@ -408,7 +426,8 @@ public final class HlsMediaSource extends BaseMediaSource
       long elapsedRealTimeOffsetMs,
       boolean allowChunklessPreparation,
       @MetadataType int metadataType,
-      boolean useSessionKeys) {
+      boolean useSessionKeys,
+      long timestampAdjusterInitializationTimeoutMs) {
     this.localConfiguration = checkNotNull(mediaItem.localConfiguration);
     this.mediaItem = mediaItem;
     this.liveConfiguration = mediaItem.liveConfiguration;
@@ -423,6 +442,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.allowChunklessPreparation = allowChunklessPreparation;
     this.metadataType = metadataType;
     this.useSessionKeys = useSessionKeys;
+    this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
   }
 
   @Override
@@ -466,7 +486,8 @@ public final class HlsMediaSource extends BaseMediaSource
         allowChunklessPreparation,
         metadataType,
         useSessionKeys,
-        getPlayerId());
+        getPlayerId(),
+        timestampAdjusterInitializationTimeoutMs);
   }
 
   @Override

@@ -321,6 +321,7 @@ public class HlsChunkSourceTest {
         new DefaultHlsDataSourceFactory(new FakeDataSource.Factory()),
         /* mediaTransferListener= */ null,
         new TimestampAdjusterProvider(),
+        /* timestampAdjusterInitializationTimeoutMs= */ 0,
         /* muxedCaptionFormats= */ null,
         PlayerId.UNSET,
         cmcdConfiguration);
