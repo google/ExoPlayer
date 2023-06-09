@@ -523,7 +523,7 @@ public final class DashMediaSource extends BaseMediaSource {
     DrmSessionEventListener.EventDispatcher drmEventDispatcher = createDrmEventDispatcher(id);
     DashMediaPeriod mediaPeriod =
         new DashMediaPeriod(
-            firstPeriodId + periodIndex,
+            /* id= */ firstPeriodId + periodIndex,
             manifest,
             baseUrlExclusionList,
             periodIndex,
@@ -571,7 +571,6 @@ public final class DashMediaSource extends BaseMediaSource {
     elapsedRealtimeOffsetMs = C.TIME_UNSET;
     staleManifestReloadAttempt = 0;
     expiredManifestPublishTimeUs = C.TIME_UNSET;
-    firstPeriodId = 0;
     periodsById.clear();
     baseUrlExclusionList.reset();
     drmSessionManager.release();
