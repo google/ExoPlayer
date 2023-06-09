@@ -87,6 +87,9 @@
 *   Cronet Extension:
 *   RTMP Extension:
 *   DASH Extension:
+    *   Fix a bug where re-preparing a multi-period live Dash media source
+        produced a `IndexOutOfBoundsException`
+        ([#10838](https://github.com/google/ExoPlayer/issues/10838)).
 *   HLS Extension:
 *   Smooth Streaming Extension:
 *   RTSP Extension:
