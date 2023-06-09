@@ -365,6 +365,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return new PlaylistTimeline(mediaSourceHolders, shuffleOrder);
   }
 
+  /** Returns the shuffle order */
+  public ShuffleOrder getShuffleOrder() {
+    return shuffleOrder;
+  }
+
   // Internal methods.
 
   private void enableMediaSource(MediaSourceHolder mediaSourceHolder) {

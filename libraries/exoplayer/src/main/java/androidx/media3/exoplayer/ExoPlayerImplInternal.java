@@ -1492,9 +1492,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
     queue.clear();
     shouldContinueLoading = false;
 
+    Timeline timeline = playbackInfo.timeline;
+    if (releaseMediaSourceList && timeline instanceof PlaylistTimeline) {
+      // Wrap the current live timeline to make sure the current period is marked as a placeholder
+      // to force resolving the default start position with the next timeline refresh.
+      timeline =
+          ((PlaylistTimeline) playbackInfo.timeline)
+              .copyWithPlaceholderTimeline(mediaSourceList.getShuffleOrder());
+    }
     playbackInfo =
         new PlaybackInfo(
-            playbackInfo.timeline,
+            timeline,
             mediaPeriodId,
             requestedContentPositionUs,
             /* discontinuityStartPositionUs= */ startPositionUs,
