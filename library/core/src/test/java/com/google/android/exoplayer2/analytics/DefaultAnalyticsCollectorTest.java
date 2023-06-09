@@ -757,7 +757,11 @@ public final class DefaultAnalyticsCollectorTest {
             period0Seq0 /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
-        .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* prepared */);
+        .containsExactly(
+            WINDOW_0 /* playlist change */,
+            WINDOW_0 /* prepared */,
+            period0Seq0 /* reset after error */,
+            period0Seq0 /* second prepare */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
