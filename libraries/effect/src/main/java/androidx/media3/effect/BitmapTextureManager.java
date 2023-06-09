@@ -42,19 +42,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @UnstableApi
 /* package */ final class BitmapTextureManager implements TextureManager {
+
   private static final String UNSUPPORTED_IMAGE_CONFIGURATION =
       "Unsupported Image Configuration: No more than 8 bits of precision should be used for each"
           + " RGB channel.";
+
   private final GlShaderProgram shaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
+
   private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
   private int framesToQueueForCurrentBitmap;
   private double currentPresentationTimeUs;
   private boolean useHdr;
   private boolean currentInputStreamEnded;
+
   /**
    * Creates a new instance.
    *
@@ -140,6 +144,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkState(
           !bitmap.getConfig().equals(Bitmap.Config.RGBA_1010102), UNSUPPORTED_IMAGE_CONFIGURATION);
     }
+
     this.useHdr = useHdr;
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
@@ -152,6 +157,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (pendingBitmaps.isEmpty() || downstreamShaderProgramCapacity == 0) {
       return;
     }
+
     BitmapFrameSequenceInfo currentBitmapInfo = checkNotNull(pendingBitmaps.peek());
     if (framesToQueueForCurrentBitmap == 0) {
       Bitmap bitmap = currentBitmapInfo.bitmap;
@@ -173,6 +179,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } catch (GlUtil.GlException e) {
         throw VideoFrameProcessingException.from(e);
       }
+
       currentGlTextureInfo =
           new GlTextureInfo(
               currentTexId,
@@ -181,11 +188,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               currentBitmapInfo.frameInfo.width,
               currentBitmapInfo.frameInfo.height);
     }
+
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
     shaderProgram.queueInputFrame(
         checkNotNull(currentGlTextureInfo), round(currentPresentationTimeUs));
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
+
     if (framesToQueueForCurrentBitmap == 0) {
       pendingBitmaps.remove();
       if (pendingBitmaps.isEmpty() && currentInputStreamEnded) {
@@ -196,6 +205,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
   }
+
   /** Information to generate all the frames associated with a specific {@link Bitmap}. */
   private static final class BitmapFrameSequenceInfo {
     public final Bitmap bitmap;
