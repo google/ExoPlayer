@@ -205,7 +205,7 @@ public interface VideoFrameProcessor {
    * <p>Call {@link #setInputFrameInfo} before this method if the {@link FrameInfo} of the new input
    * stream differs from that of the current input stream.
    */
-  // TODO(b/286032822) Merge this and setInputFrameInfo.
+  // TODO(b/274109008) Merge this and setInputFrameInfo.
   void registerInputStream(@InputType int inputType);
 
   /**
@@ -219,7 +219,6 @@ public interface VideoFrameProcessor {
    *
    * <p>Can be called on any thread.
    */
-  // TODO(b/286032822) Simplify frame and stream registration.
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
   /**
