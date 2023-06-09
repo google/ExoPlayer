@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -73,6 +74,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param isPrimaryTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjusterProvider The provider from which to obtain the {@link
    *     TimestampAdjuster}.
+   * @param timestampAdjusterInitializationTimeoutMs The timeout for the loading thread to wait for
+   *     the timestamp adjuster to initialize, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
    * @param mediaSegmentKey The media segment decryption key, if fully encrypted. Null otherwise.
    * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
@@ -92,6 +96,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable Object trackSelectionData,
       boolean isPrimaryTimestampSource,
       TimestampAdjusterProvider timestampAdjusterProvider,
+      long timestampAdjusterInitializationTimeoutMs,
       @Nullable HlsMediaChunk previousChunk,
       @Nullable byte[] mediaSegmentKey,
       @Nullable byte[] initSegmentKey,
@@ -189,6 +194,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         mediaSegment.hasGapTag,
         isPrimaryTimestampSource,
         /* timestampAdjuster= */ timestampAdjusterProvider.getAdjuster(discontinuitySequenceNumber),
+        timestampAdjusterInitializationTimeoutMs,
         mediaSegment.drmInitData,
         previousExtractor,
         id3Decoder,
@@ -267,6 +273,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final boolean mediaSegmentEncrypted;
   private final boolean initSegmentEncrypted;
   private final PlayerId playerId;
+  private final long timestampAdjusterInitializationTimeoutMs;
 
   private @MonotonicNonNull HlsMediaChunkExtractor extractor;
   private @MonotonicNonNull HlsSampleStreamWrapper output;
@@ -302,6 +309,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       boolean hasGapTag,
       boolean isPrimaryTimestampSource,
       TimestampAdjuster timestampAdjuster,
+      long timestampAdjusterInitializationTimeoutMs,
       @Nullable DrmInitData drmInitData,
       @Nullable HlsMediaChunkExtractor previousExtractor,
       Id3Decoder id3Decoder,
@@ -328,6 +336,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.playlistUrl = playlistUrl;
     this.isPrimaryTimestampSource = isPrimaryTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
+    this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
     this.hasGapTag = hasGapTag;
     this.extractorFactory = extractorFactory;
     this.muxedCaptionFormats = muxedCaptionFormats;
@@ -502,9 +511,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     long bytesToRead = dataSource.open(dataSpec);
     if (initializeTimestampAdjuster) {
       try {
-        timestampAdjuster.sharedInitializeOrWait(isPrimaryTimestampSource, startTimeUs);
+        timestampAdjuster.sharedInitializeOrWait(
+            isPrimaryTimestampSource, startTimeUs, timestampAdjusterInitializationTimeoutMs);
       } catch (InterruptedException e) {
         throw new InterruptedIOException();
+      } catch (TimeoutException e) {
+        throw new IOException(e);
       }
     }
     DefaultExtractorInput extractorInput =

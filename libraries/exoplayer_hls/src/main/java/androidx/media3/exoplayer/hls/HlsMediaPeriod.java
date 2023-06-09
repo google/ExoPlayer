@@ -84,6 +84,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
   private final boolean useSessionKeys;
   private final PlayerId playerId;
   private final HlsSampleStreamWrapper.Callback sampleStreamWrapperCallback;
+  private final long timestampAdjusterInitializationTimeoutMs;
 
   @Nullable private MediaPeriod.Callback mediaPeriodCallback;
   private int pendingPrepareCount;
@@ -118,6 +119,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
    * @param metadataType The type of metadata to extract from the period.
    * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
    * @param playerId The ID of the current player.
+   * @param timestampAdjusterInitializationTimeoutMs The timeout for the loading thread to wait for
+   *     the timestamp adjuster to initialize, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
    */
   public HlsMediaPeriod(
       HlsExtractorFactory extractorFactory,
@@ -134,7 +138,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
       boolean allowChunklessPreparation,
       @HlsMediaSource.MetadataType int metadataType,
       boolean useSessionKeys,
-      PlayerId playerId) {
+      PlayerId playerId,
+      long timestampAdjusterInitializationTimeoutMs) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
@@ -150,6 +155,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
     this.metadataType = metadataType;
     this.useSessionKeys = useSessionKeys;
     this.playerId = playerId;
+    this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
     sampleStreamWrapperCallback = new SampleStreamWrapperCallback();
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
@@ -781,6 +787,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
             dataSourceFactory,
             mediaTransferListener,
             timestampAdjusterProvider,
+            timestampAdjusterInitializationTimeoutMs,
             muxedCaptionFormats,
             playerId,
             cmcdConfiguration);

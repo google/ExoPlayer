@@ -91,6 +91,13 @@
         produced a `IndexOutOfBoundsException`
         ([#10838](https://github.com/google/ExoPlayer/issues/10838)).
 *   HLS Extension:
+    *   Add
+        `HlsMediaSource.Factory.setTimestampAdjusterInitializationTimeoutMs(long)`
+        to set a timeout for the loading thread to wait for the
+        `TimestampAdjuster` to initialize. If the initialization doesn't
+        complete before the timeout, a `PlaybackException` is thrown to avoid
+        the playback endless stalling. The timeout is set to zero by default
+        ([#323](https://github.com/androidx/media/issues//323)).
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):

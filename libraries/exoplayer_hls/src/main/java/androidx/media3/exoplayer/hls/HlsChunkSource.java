@@ -133,6 +133,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final FullSegmentEncryptionKeyCache keyCache;
   private final PlayerId playerId;
   @Nullable private final CmcdConfiguration cmcdConfiguration;
+  private final long timestampAdjusterInitializationTimeoutMs;
 
   private boolean isPrimaryTimestampSource;
   private byte[] scratchSpace;
@@ -161,6 +162,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If multiple
    *     {@link HlsChunkSource}s are used for a single playback, they should all share the same
    *     provider.
+   * @param timestampAdjusterInitializationTimeoutMs The timeout for the loading thread to wait for
+   *     the timestamp adjuster to initialize, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the multivariant playlist.
    */
@@ -172,6 +176,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
+      long timestampAdjusterInitializationTimeoutMs,
       @Nullable List<Format> muxedCaptionFormats,
       PlayerId playerId,
       @Nullable CmcdConfiguration cmcdConfiguration) {
@@ -180,6 +185,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.playlistUrls = playlistUrls;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
+    this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
     this.muxedCaptionFormats = muxedCaptionFormats;
     this.playerId = playerId;
     this.cmcdConfiguration = cmcdConfiguration;
@@ -519,6 +525,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             trackSelection.getSelectionData(),
             isPrimaryTimestampSource,
             timestampAdjusterProvider,
+            timestampAdjusterInitializationTimeoutMs,
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
