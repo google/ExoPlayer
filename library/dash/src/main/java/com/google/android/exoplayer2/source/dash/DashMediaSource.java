@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -104,6 +105,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private final DashChunkSource.Factory chunkSourceFactory;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
+    private CmcdConfiguration.Factory cmcdConfigurationFactory;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -157,6 +159,13 @@ public final class DashMediaSource extends BaseMediaSource {
       fallbackTargetLiveOffsetMs = DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS;
       minLiveStartPositionUs = MIN_LIVE_DEFAULT_START_POSITION_US;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+    }
+
+    @CanIgnoreReturnValue
+    @Override
+    public Factory setCmcdConfigurationFactory(CmcdConfiguration.Factory cmcdConfigurationFactory) {
+      this.cmcdConfigurationFactory = checkNotNull(cmcdConfigurationFactory);
+      return this;
     }
 
     @CanIgnoreReturnValue
@@ -288,6 +297,11 @@ public final class DashMediaSource extends BaseMediaSource {
         mediaItemBuilder.setUri(Uri.EMPTY);
       }
       mediaItem = mediaItemBuilder.build();
+      @Nullable
+      CmcdConfiguration cmcdConfiguration =
+          cmcdConfigurationFactory == null
+              ? null
+              : cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
       return new DashMediaSource(
           mediaItem,
           manifest,
@@ -295,6 +309,7 @@ public final class DashMediaSource extends BaseMediaSource {
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
+          cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           fallbackTargetLiveOffsetMs,
@@ -319,6 +334,11 @@ public final class DashMediaSource extends BaseMediaSource {
       if (!streamKeys.isEmpty()) {
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
+      @Nullable
+      CmcdConfiguration cmcdConfiguration =
+          cmcdConfigurationFactory == null
+              ? null
+              : cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
 
       return new DashMediaSource(
           mediaItem,
@@ -327,6 +347,7 @@ public final class DashMediaSource extends BaseMediaSource {
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
+          cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           fallbackTargetLiveOffsetMs,
@@ -371,6 +392,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final BaseUrlExclusionList baseUrlExclusionList;
@@ -414,6 +436,7 @@ public final class DashMediaSource extends BaseMediaSource {
       @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long fallbackTargetLiveOffsetMs,
@@ -426,6 +449,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.fallbackTargetLiveOffsetMs = fallbackTargetLiveOffsetMs;
@@ -505,6 +529,7 @@ public final class DashMediaSource extends BaseMediaSource {
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
+            cmcdConfiguration,
             drmSessionManager,
             drmEventDispatcher,
             loadErrorHandlingPolicy,

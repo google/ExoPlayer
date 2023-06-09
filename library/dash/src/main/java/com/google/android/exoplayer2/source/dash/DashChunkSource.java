@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.util.List;
@@ -53,6 +54,7 @@ public interface DashChunkSource extends ChunkSource {
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
      * @param playerId The {@link PlayerId} of the player using this chunk source.
+     * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
      * @return The created {@link DashChunkSource}.
      */
     DashChunkSource createDashChunkSource(
@@ -68,7 +70,8 @@ public interface DashChunkSource extends ChunkSource {
         List<Format> closedCaptionFormats,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
         @Nullable TransferListener transferListener,
-        PlayerId playerId);
+        PlayerId playerId,
+        @Nullable CmcdConfiguration cmcdConfiguration);
   }
 
   /**

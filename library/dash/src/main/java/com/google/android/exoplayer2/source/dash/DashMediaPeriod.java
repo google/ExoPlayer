@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -85,6 +86,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
   @Nullable private final TransferListener transferListener;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final BaseUrlExclusionList baseUrlExclusionList;
@@ -116,6 +118,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
+      @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
@@ -132,6 +135,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
+    this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
@@ -791,7 +795,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             embeddedClosedCaptionTrackFormats,
             trackPlayerEmsgHandler,
             transferListener,
-            playerId);
+            playerId,
+            cmcdConfiguration);
     ChunkSampleStream<DashChunkSource> stream =
         new ChunkSampleStream<>(
             trackGroupInfo.trackType,

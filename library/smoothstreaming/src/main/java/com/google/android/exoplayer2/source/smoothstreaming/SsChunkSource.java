@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
@@ -37,6 +38,7 @@ public interface SsChunkSource extends ChunkSource {
      * @param trackSelection The track selection.
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
+     * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
      * @return The created {@link SsChunkSource}.
      */
     SsChunkSource createChunkSource(
@@ -44,7 +46,8 @@ public interface SsChunkSource extends ChunkSource {
         SsManifest manifest,
         int streamElementIndex,
         ExoTrackSelection trackSelection,
-        @Nullable TransferListener transferListener);
+        @Nullable TransferListener transferListener,
+        @Nullable CmcdConfiguration cmcdConfiguration);
   }
 
   /**
