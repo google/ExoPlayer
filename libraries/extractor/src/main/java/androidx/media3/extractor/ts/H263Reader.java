@@ -218,7 +218,9 @@ public final class H263Reader implements ElementaryStreamReader {
 
   @Override
   public void packetFinished(boolean isEndOfInput) {
-    // Do nothing.
+    if (isEndOfInput) {
+      sampleReader.onDataEnd(totalBytesWritten, 0, hasOutputFormat);
+    }
   }
 
   /**
