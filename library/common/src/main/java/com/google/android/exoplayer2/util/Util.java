@@ -1866,6 +1866,47 @@ public final class Util {
   }
 
   /**
+   * Retrieves the API Level that {@link AudioFormat} introduced an encoding.
+   *
+   * <p>Method returns {@link Integer#MAX_VALUE} if the encoding is unknown.
+   *
+   * @param encoding for which to get the API level.
+   */
+  public static int getApiLevelThatAudioFormatIntroducedAudioEncoding(int encoding) {
+    switch (encoding) {
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_8BIT:
+        return 3;
+      case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_AC3:
+      case C.ENCODING_E_AC3:
+        return 21;
+      case C.ENCODING_DTS:
+      case C.ENCODING_DTS_HD:
+        return 23;
+      case C.ENCODING_DOLBY_TRUEHD:
+        return 25;
+      case C.ENCODING_MP3:
+      case C.ENCODING_AAC_LC:
+      case C.ENCODING_AAC_HE_V1:
+      case C.ENCODING_AAC_HE_V2:
+      case C.ENCODING_AAC_ELD:
+      case C.ENCODING_AAC_XHE:
+      case C.ENCODING_AC4:
+      case C.ENCODING_E_AC3_JOC:
+        return 28;
+      case C.ENCODING_OPUS:
+        return 30;
+      case C.ENCODING_PCM_32BIT:
+        return 31;
+      case C.ENCODING_DTS_UHD_P2:
+        return 34;
+      default:
+        return Integer.MAX_VALUE;
+    }
+  }
+
+  /**
    * Returns the frame size for audio with {@code channelCount} channels in the specified encoding.
    *
    * @param pcmEncoding The encoding of the audio data.

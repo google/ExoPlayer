@@ -20,7 +20,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.Bundleable;
 
 /**
  * A key for a subset of media that can be separately loaded (a "stream").
