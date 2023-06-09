@@ -331,7 +331,8 @@ public final class TsExtractor implements Extractor {
             payloadReader.consume(new ParsableByteArray(), FLAG_PAYLOAD_UNIT_START_INDICATOR);
           }
         }
-      }      return RESULT_END_OF_INPUT;
+      }
+      return RESULT_END_OF_INPUT;
     }
 
     int endOfPacket = findEndOfFirstTsPacketInBuffer();

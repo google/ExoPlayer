@@ -218,7 +218,11 @@ public final class H262Reader implements ElementaryStreamReader {
 
   @Override
   public void packetFinished(boolean isEndOfInput) {
-    // Do nothing.
+    if (isEndOfInput) {
+      @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
+      int size = (int) (totalBytesWritten - samplePosition);
+      output.sampleMetadata(sampleTimeUs, flags, size, 0, null);
+    }
   }
 
   /**
