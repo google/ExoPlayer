@@ -96,7 +96,8 @@ public final class HlsMediaPeriodTest {
               /* allowChunklessPreparation= */ true,
               HlsMediaSource.METADATA_TYPE_ID3,
               /* useSessionKeys= */ false,
-              PlayerId.UNSET);
+              PlayerId.UNSET,
+              /* timestampAdjusterInitializationTimeoutMs= */ 0);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
