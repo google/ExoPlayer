@@ -17,6 +17,7 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
@@ -26,9 +27,13 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Util;
 import androidx.media3.effect.GlShaderProgram.InputListener;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,6 +42,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 /* package */ final class ExternalTextureManager implements TextureManager {
 
+  private static final String TAG = "ExtTexMgr";
+  private static final String TIMER_THREAD_NAME = "ExtTexMgr:Timer";
+  /**
+   * The time out in milliseconds after calling signalEndOfCurrentInputStream after which the input
+   * stream is considered to have ended, even if not all expected frames have been received from the
+   * decoder. This has been observed on some decoders.
+   */
+  private static final long SURFACE_TEXTURE_TIMEOUT_MS = 500;
+
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
@@ -44,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final SurfaceTexture surfaceTexture;
   private final float[] textureTransformMatrix;
   private final Queue<FrameInfo> pendingFrames;
+  private final ScheduledExecutorService forceEndOfStreamExecutorService;
 
   // Incremented on any thread, decremented on the GL thread only.
   private final AtomicInteger externalShaderProgramInputCapacity;
@@ -66,6 +81,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   // TODO(b/238302341) Remove the use of after flush task, block the calling thread instead.
   @Nullable private volatile VideoFrameProcessingTask onFlushCompleteTask;
+  @Nullable private Future<?> forceSignalEndOfStreamFuture;
+
+  // Whether to reject frames from the SurfaceTexture. Accessed only on GL thread.
+  private boolean shouldRejectIncomingFrames;
 
   /**
    * Creates a new instance.
@@ -91,6 +110,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     surfaceTexture = new SurfaceTexture(externalTexId);
     textureTransformMatrix = new float[16];
     pendingFrames = new ConcurrentLinkedQueue<>();
+    forceEndOfStreamExecutorService = Util.newSingleThreadScheduledExecutor(TIMER_THREAD_NAME);
     externalShaderProgramInputCapacity = new AtomicInteger();
     surfaceTexture.setOnFrameAvailableListener(
         unused ->
@@ -101,7 +121,16 @@ import java.util.concurrent.atomic.AtomicInteger;
                     numberOfFramesToDropOnBecomingAvailable--;
                     surfaceTexture.updateTexImage();
                     maybeExecuteAfterFlushTask();
+                  } else if (shouldRejectIncomingFrames) {
+                    surfaceTexture.updateTexImage();
+                    Log.w(
+                        TAG,
+                        "Dropping frame received on SurfaceTexture after forcing EOS: "
+                            + surfaceTexture.getTimestamp() / 1000);
                   } else {
+                    if (currentInputStreamEnded) {
+                      restartForceSignalEndOfStreamTimer();
+                    }
                     availableFrameCount++;
                     maybeQueueFrameToExternalShaderProgram();
                   }
@@ -138,6 +167,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             currentInputStreamEnded = false;
             externalShaderProgram.signalEndOfCurrentInputStream();
             DebugTraceUtil.recordExternalInputManagerSignalEndOfCurrentInputStream();
+            cancelForceSignalEndOfStreamTimer();
           } else {
             maybeQueueFrameToExternalShaderProgram();
           }
@@ -165,6 +195,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void registerInputFrame(FrameInfo frame) {
     checkState(!inputStreamEnded);
     pendingFrames.add(frame);
+    videoFrameProcessingTaskExecutor.submit(() -> shouldRejectIncomingFrames = false);
   }
 
   /**
@@ -185,8 +216,10 @@ import java.util.concurrent.atomic.AtomicInteger;
           if (pendingFrames.isEmpty() && currentFrame == null) {
             externalShaderProgram.signalEndOfCurrentInputStream();
             DebugTraceUtil.recordExternalInputManagerSignalEndOfCurrentInputStream();
+            cancelForceSignalEndOfStreamTimer();
           } else {
             currentInputStreamEnded = true;
+            restartForceSignalEndOfStreamTimer();
           }
         });
   }
@@ -201,6 +234,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void release() {
     surfaceTexture.release();
     surface.release();
+    forceEndOfStreamExecutorService.shutdownNow();
   }
 
   private void maybeExecuteAfterFlushTask() {
@@ -211,6 +245,36 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   // Methods that must be called on the GL thread.
+
+  private void restartForceSignalEndOfStreamTimer() {
+    cancelForceSignalEndOfStreamTimer();
+    forceSignalEndOfStreamFuture =
+        forceEndOfStreamExecutorService.schedule(
+            () -> videoFrameProcessingTaskExecutor.submit(this::forceSignalEndOfStream),
+            SURFACE_TEXTURE_TIMEOUT_MS,
+            MILLISECONDS);
+  }
+
+  private void cancelForceSignalEndOfStreamTimer() {
+    if (forceSignalEndOfStreamFuture != null) {
+      forceSignalEndOfStreamFuture.cancel(/* mayInterruptIfRunning= */ false);
+    }
+    forceSignalEndOfStreamFuture = null;
+  }
+
+  private void forceSignalEndOfStream() {
+    // Reset because there could be further input streams after the current one ends.
+    Log.w(
+        TAG,
+        Util.formatInvariant(
+            "Forcing EOS after missing %d frames for %d ms",
+            pendingFrames.size(), SURFACE_TEXTURE_TIMEOUT_MS));
+    currentInputStreamEnded = false;
+    pendingFrames.clear();
+    currentFrame = null;
+    shouldRejectIncomingFrames = true;
+    signalEndOfCurrentInputStream();
+  }
 
   private void flush() {
     // A frame that is registered before flush may arrive after flush.
