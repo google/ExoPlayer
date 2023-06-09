@@ -378,8 +378,8 @@ public final class AudioCapabilities {
     public static ImmutableList<Integer> getDirectPlaybackSupportedEncodings() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
-        // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
-        if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
+        if (Util.SDK_INT < Util.getApiLevelThatAudioFormatIntroducedAudioEncoding(encoding)) {
+          // Example: AudioFormat.ENCODING_DTS_UHD_P2 is supported only from API 34.
           continue;
         }
         if (AudioTrack.isDirectPlaybackSupported(
