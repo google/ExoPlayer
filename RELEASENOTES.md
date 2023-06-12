@@ -33,6 +33,11 @@
         The playback suppression reason will be updated as
         `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` if playback
         is attempted when no suitable audio outputs are available.
+    *   Add handling for auto-resume or auto-pause of playback when audio output
+        devices are added or removed dynamically during suppressed or ongoing
+        playback when the playback suppression due to no suitable output has
+        been enabled via
+        `ExoPlayer.Builder.setSuppressPlaybackWhenNoSuitableOutputAvailable`.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
