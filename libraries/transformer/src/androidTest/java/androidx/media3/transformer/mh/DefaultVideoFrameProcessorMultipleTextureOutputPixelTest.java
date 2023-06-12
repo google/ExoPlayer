@@ -68,7 +68,7 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
 
     long offsetUs = 1_000_000L;
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ 3 * C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ offsetUs,
@@ -95,13 +95,13 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
 
     long offsetUs1 = 1_000_000L;
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ offsetUs1,
         /* frameRate= */ 2);
     long offsetUs2 = 2_000_000L;
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         readBitmap(MEDIA3_TEST_PNG_ASSET_PATH),
         /* durationUs= */ 3 * C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ offsetUs2,

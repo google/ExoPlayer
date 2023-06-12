@@ -164,7 +164,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
     videoFrameProcessorTestRunner.endFrameProcessing();
     Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
@@ -193,7 +193,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH);
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
     videoFrameProcessorTestRunner.endFrameProcessing();
     Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();
@@ -220,7 +220,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .build();
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
     videoFrameProcessorTestRunner.endFrameProcessing();
     Bitmap actualBitmap = videoFrameProcessorTestRunner.getOutputBitmap();

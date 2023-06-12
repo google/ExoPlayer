@@ -42,6 +42,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.VideoFrameProcessor.InputType;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
@@ -70,7 +71,7 @@ public final class VideoFrameProcessorTestRunner {
     private float pixelWidthHeightRatio;
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
-    private @VideoFrameProcessor.InputType int inputType;
+    private @InputType int inputType;
     private OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableListener;
 
     /** Creates a new instance with default values. */
@@ -199,7 +200,7 @@ public final class VideoFrameProcessorTestRunner {
      * <p>The default value is {@link VideoFrameProcessor#INPUT_TYPE_SURFACE}.
      */
     @CanIgnoreReturnValue
-    public Builder setInputType(@VideoFrameProcessor.InputType int inputType) {
+    public Builder setInputType(@InputType int inputType) {
       this.inputType = inputType;
       return this;
     }
@@ -263,7 +264,7 @@ public final class VideoFrameProcessorTestRunner {
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      @VideoFrameProcessor.InputType int inputType,
+      @InputType int inputType,
       OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
@@ -341,7 +342,7 @@ public final class VideoFrameProcessorTestRunner {
     endFrameProcessing();
   }
 
-  public void queueInputBitmap(
+  public void registerAndQueueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
     videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
