@@ -25,6 +25,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
@@ -140,6 +141,34 @@ public class BitmapPixelTestUtil {
         int b = buffer.get(offset + 2) & 0xFF;
         int a = buffer.get(offset + 3) & 0xFF;
         colors[y * width + x] = Color.argb(a, r, g, b);
+      }
+    }
+    return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
+  }
+
+  /**
+   * Returns a grayscale bitmap from the Luma channel in the {@link ImageFormat#YUV_420_888} image.
+   */
+  @RequiresApi(19)
+  public static Bitmap createGrayscaleArgb8888BitmapFromYuv420888Image(Image image) {
+    int width = image.getWidth();
+    int height = image.getHeight();
+    assertThat(image.getPlanes()).hasLength(3);
+    assertThat(image.getFormat()).isEqualTo(ImageFormat.YUV_420_888);
+    Image.Plane lumaPlane = image.getPlanes()[0];
+    ByteBuffer lumaBuffer = lumaPlane.getBuffer();
+    int[] colors = new int[width * height];
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int offset = y * lumaPlane.getRowStride() + x * lumaPlane.getPixelStride();
+        int lumaValue = lumaBuffer.get(offset) & 0xFF;
+        colors[y * width + x] =
+            Color.argb(
+                /* alpha= */ 255,
+                /* red= */ lumaValue,
+                /* green= */ lumaValue,
+                /* blue= */ lumaValue);
       }
     }
     return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);

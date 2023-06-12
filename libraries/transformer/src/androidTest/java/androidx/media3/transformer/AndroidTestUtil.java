@@ -74,6 +74,8 @@ public final class AndroidTestUtil {
   public static final String PNG_ASSET_URI_STRING =
       "asset:///media/bitmap/input_images/media3test.png";
   public static final String JPG_ASSET_URI_STRING = "asset:///media/bitmap/input_images/london.jpg";
+  public static final String JPG_PORTRAIT_ASSET_URI_STRING =
+      "asset:///media/bitmap/input_images/tokyo.jpg";
 
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final Format MP4_ASSET_FORMAT =
@@ -81,6 +83,17 @@ public final class AndroidTestUtil {
           .setSampleMimeType(VIDEO_H264)
           .setWidth(1080)
           .setHeight(720)
+          .setFrameRate(29.97f)
+          .setCodecs("avc1.64001F")
+          .build();
+
+  public static final String MP4_PORTRAIT_ASSET_URI_STRING =
+      "asset:///media/mp4/sample_portrait.mp4";
+  public static final Format MP4_PORTRAIT_ASSET_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(720)
+          .setHeight(1080)
           .setFrameRate(29.97f)
           .setCodecs("avc1.64001F")
           .build();
