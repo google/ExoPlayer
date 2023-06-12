@@ -10,23 +10,6 @@
         information if desired (possibly using
         `Logger.appendThrowableString(String, Throwable)`).
 *   ExoPlayer:
-    *   Add support for including Common Media Client Data (CMCD) in the
-        outgoing requests of adaptive streaming formats DASH, HLS, and
-        SmoothStreaming. The following fields, `br`, `bl`, `cid`, `rtp`, and
-        `sid`, have been incorporated
-        ([#8699](https://github.com/google/ExoPlayer/issues/8699)). API
-        structure and API methods:
-        *   CMCD logging is disabled by default, use
-            `MediaSource.Factory.setCmcdConfigurationFactory(CmcdConfiguration.Factory
-            cmcdConfigurationFactory)` to enable it.
-        *   All keys are enabled by default, override
-            `CmcdConfiguration.RequestConfig.isKeyAllowed(String key)` to filter
-            out which keys are logged.
-        *   Override `CmcdConfiguration.RequestConfig.getCustomData()` to enable
-            custom key logging.
-    *   Add additional action to manifest of main demo for making it easier to
-        start the demo app with a custom `*.exolist.json` file
-        ([#439](https://github.com/androidx/media/pull/439)).
     *   Add suppression of playback on unsuitable audio output devices (e.g. the
         built-in speaker on Wear OS devices) when this feature is enabled via
         `ExoPlayer.Builder.setSuppressPlaybackWhenNoSuitableOutputAvailable`.
@@ -42,9 +25,6 @@
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
 *   Extractors:
-    *   FMP4: Fix issue where `TimestampAdjuster` initializes a wrong timestamp
-        offset with metadata sample time from emsg atom
-        ([#356](https://github.com/androidx/media/issues/356)).
 *   Audio:
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
@@ -79,6 +59,52 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   HLS Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   MIDI extension:
+    *   Release the MIDI decoder module, which provides support for playback of
+        standard MIDI files using the Jsyn library to synthesize audio.
+*   Cast Extension:
+*   Test Utilities:
+*   Remove deprecated symbols:
+
+## 1.1
+
+### 1.1.0-rc01 (2023-06-07)
+
+This release includes the following changes since
+[1.1.0-beta01](#110-beta01-2023-06-07):
+
+*   ExoPlayer:
+    *   Add support for including Common Media Client Data (CMCD) in the
+        outgoing requests of adaptive streaming formats DASH, HLS, and
+        SmoothStreaming. The following fields, `br`, `bl`, `cid`, `rtp`, and
+        `sid`, have been incorporated
+        ([#8699](https://github.com/google/ExoPlayer/issues/8699)). API
+        structure and API methods:
+        *   CMCD logging is disabled by default, use
+            `MediaSource.Factory.setCmcdConfigurationFactory(CmcdConfiguration.Factory
+            cmcdConfigurationFactory)` to enable it.
+        *   All keys are enabled by default, override
+            `CmcdConfiguration.RequestConfig.isKeyAllowed(String key)` to filter
+            out which keys are logged.
+        *   Override `CmcdConfiguration.RequestConfig.getCustomData()` to enable
+            custom key logging.
+    *   Add additional action to manifest of main demo to make it easier to
+        start the demo app with a custom `*.exolist.json` file
+        ([#439](https://github.com/androidx/media/pull/439)).
+*   Extractors:
+    *   FMP4: Fix issue where `TimestampAdjuster` initializes a wrong timestamp
+        offset with metadata sample time from emsg atom
+        ([#356](https://github.com/androidx/media/issues/356)).
+*   Session:
     *   Add default implementation to `MediaSession.Callback.onAddMediaItems` to
         allow requested `MediaItems` to be passed onto `Player` if they have
         `LocalConfiguration` (e.g. URI)
@@ -86,11 +112,6 @@
     *   Add "seek to previous" and "seek to next" command buttons on compact
         media notification view by default for Android 12 and below
         ([#410](https://github.com/androidx/media/issues/410)).
-*   UI:
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
-*   RTMP Extension:
 *   DASH Extension:
     *   Fix a bug where re-preparing a multi-period live Dash media source
         produced a `IndexOutOfBoundsException`
@@ -103,21 +124,11 @@
         complete before the timeout, a `PlaybackException` is thrown to avoid
         the playback endless stalling. The timeout is set to zero by default
         ([#323](https://github.com/androidx/media/issues//323)).
-*   Smooth Streaming Extension:
-*   RTSP Extension:
-*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
-*   MIDI extension:
-    *   Release the MIDI decoder module, which provides support for playback of
-        standard MIDI files using the Jsyn library to synthesize audio.
-*   Cast Extension:
-*   Test Utilities:
 *   Remove deprecated symbols:
     *   Remove deprecated `MediaItem.PlaybackProperties`, use
         `MediaItem.LocalConfiguration` instead. Deprecated field
         `MediaItem.playbackProperties` is now of type
         `MediaItem.LocalConfiguration`.
-
-## 1.1
 
 ### 1.1.0-beta01 (2023-06-07)
 
