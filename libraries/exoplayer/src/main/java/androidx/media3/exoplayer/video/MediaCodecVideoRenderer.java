@@ -2120,7 +2120,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                     throw new IllegalStateException();
                   }
                 });
-        videoFrameProcessor.registerInputStream(VideoFrameProcessor.INPUT_TYPE_SURFACE);
+
+        videoFrameProcessor.registerInputStream(
+            VideoFrameProcessor.INPUT_TYPE_SURFACE, /* effects= */ ImmutableList.of());
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
         throw renderer.createRendererException(

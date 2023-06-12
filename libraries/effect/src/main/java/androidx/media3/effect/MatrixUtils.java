@@ -21,6 +21,7 @@ import android.opengl.Matrix;
 import androidx.media3.common.util.Size;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
+import java.util.List;
 
 /** Utility functions for working with matrices, vertices, and polygons. */
 /* package */ final class MatrixUtils {
@@ -223,9 +224,7 @@ import java.util.Arrays;
    * GlMatrixTransformations} to an input frame with the given size.
    */
   public static Size configureAndGetOutputSize(
-      int inputWidth,
-      int inputHeight,
-      ImmutableList<GlMatrixTransformation> matrixTransformations) {
+      int inputWidth, int inputHeight, List<GlMatrixTransformation> matrixTransformations) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 

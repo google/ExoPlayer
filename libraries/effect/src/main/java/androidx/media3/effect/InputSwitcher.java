@@ -23,7 +23,6 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.util.SparseArray;
-import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
@@ -47,7 +46,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull GlShaderProgram downstreamShaderProgram;
   private @MonotonicNonNull TextureManager activeTextureManager;
   private boolean inputEnded;
-  private int activeInputType;
 
   public InputSwitcher(
       Context context,
@@ -61,7 +59,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     this.inputs = new SparseArray<>();
     this.enableColorTransfers = enableColorTransfers;
-    activeInputType = C.INDEX_UNSET;
   }
 
   /**
@@ -136,24 +133,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  /** Sets the {@link GlShaderProgram} that {@code InputSwitcher} outputs to. */
   public void setDownstreamShaderProgram(GlShaderProgram downstreamShaderProgram) {
     this.downstreamShaderProgram = downstreamShaderProgram;
-
-    for (int i = 0; i < inputs.size(); i++) {
-      @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
-      Input input = inputs.get(inputType);
-      input.setChainingListener(
-          new GatedChainingListenerWrapper(
-              input.samplingGlShaderProgram,
-              this.downstreamShaderProgram,
-              videoFrameProcessingTaskExecutor));
-    }
   }
 
   /**
    * Switches to a new source of input.
-   *
-   * <p>Blocks until the current input stream is processed.
    *
    * <p>Must be called after the corresponding {@code newInputType} is {@linkplain #registerInput
    * registered}.
@@ -164,14 +150,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkStateNotNull(downstreamShaderProgram);
     checkState(inputs.indexOfKey(newInputType) >= 0, "Input type not registered: " + newInputType);
 
-    if (newInputType == activeInputType) {
-      activeTextureManager = inputs.get(activeInputType).textureManager;
-    }
-
     for (int i = 0; i < inputs.size(); i++) {
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
       Input input = inputs.get(inputType);
       if (inputType == newInputType) {
+        input.setChainingListener(
+            new GatedChainingListenerWrapper(
+                input.samplingGlShaderProgram,
+                this.downstreamShaderProgram,
+                videoFrameProcessingTaskExecutor));
         input.setActive(true);
         downstreamShaderProgram.setInputListener(checkNotNull(input.gatedChainingListenerWrapper));
         activeTextureManager = input.textureManager;
@@ -179,7 +166,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         input.setActive(false);
       }
     }
-    activeInputType = newInputType;
   }
 
   /**
@@ -240,7 +226,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     public void setActive(boolean active) {
-      checkStateNotNull(gatedChainingListenerWrapper);
+      if (gatedChainingListenerWrapper == null) {
+        return;
+      }
       gatedChainingListenerWrapper.setActive(active);
     }
 

@@ -347,7 +347,8 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
               blankFrameProducer.configureGlObjects();
               // A frame needs to be registered despite not queuing any external input to ensure
               // that the video frame processor knows about the stream offset.
-              checkNotNull(defaultVideoFrameProcessor).registerInputStream(INPUT_TYPE_SURFACE);
+              checkNotNull(defaultVideoFrameProcessor)
+                  .registerInputStream(INPUT_TYPE_SURFACE, /* effects= */ ImmutableList.of());
               defaultVideoFrameProcessor.setInputFrameInfo(
                   new FrameInfo.Builder(WIDTH, HEIGHT).build());
               blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);

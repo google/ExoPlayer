@@ -45,6 +45,8 @@ import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
@@ -77,8 +79,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String TAG = "FinalShaderWrapper";
 
   private final Context context;
-  private final ImmutableList<GlMatrixTransformation> matrixTransformations;
-  private final ImmutableList<RgbMatrix> rgbMatrices;
+  private final List<GlMatrixTransformation> matrixTransformations;
+  private final List<RgbMatrix> rgbMatrices;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
@@ -105,6 +107,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private SurfaceView debugSurfaceView;
   @Nullable private OnInputStreamProcessedListener onInputStreamProcessedListener;
   private boolean frameProcessingStarted;
+  private boolean matrixTransformationsChanged;
 
   @GuardedBy("this")
   private boolean outputSurfaceInfoChanged;
@@ -122,8 +125,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Context context,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      ImmutableList<GlMatrixTransformation> matrixTransformations,
-      ImmutableList<RgbMatrix> rgbMatrices,
       DebugViewProvider debugViewProvider,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
@@ -135,8 +136,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener,
       int textureOutputCapacity) {
     this.context = context;
-    this.matrixTransformations = matrixTransformations;
-    this.rgbMatrices = rgbMatrices;
+    this.matrixTransformations = new ArrayList<>();
+    this.rgbMatrices = new ArrayList<>();
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
@@ -225,6 +226,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void releaseOutputFrame(GlTextureInfo outputTexture) {
     // FinalShaderProgramWrapper cannot release output textures using GlTextureInfo.
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Sets the list of {@link GlMatrixTransformation GlMatrixTransformations} and list of {@link
+   * RgbMatrix RgbMatrices} to apply to the next {@linkplain #queueInputFrame queued} frame.
+   *
+   * <p>The new transformations will be applied to the next {@linkplain #queueInputFrame queued}
+   * frame.
+   */
+  public void setMatrixTransformations(
+      List<GlMatrixTransformation> matrixTransformations, List<RgbMatrix> rgbMatrices) {
+    this.matrixTransformations.clear();
+    this.matrixTransformations.addAll(matrixTransformations);
+    this.rgbMatrices.clear();
+    this.rgbMatrices.addAll(rgbMatrices);
+    matrixTransformationsChanged = true;
   }
 
   public void releaseOutputFrame(long presentationTimeUs) {
@@ -456,10 +473,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     this.debugSurfaceView = debugSurfaceView;
 
-    if (defaultShaderProgram != null && (outputSurfaceInfoChanged || inputSizeChanged)) {
+    if (defaultShaderProgram != null
+        && (outputSurfaceInfoChanged || inputSizeChanged || matrixTransformationsChanged)) {
       defaultShaderProgram.release();
       defaultShaderProgram = null;
       outputSurfaceInfoChanged = false;
+      matrixTransformationsChanged = false;
     }
 
     if (defaultShaderProgram == null) {
