@@ -22,7 +22,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -50,7 +52,7 @@ import java.util.concurrent.RejectedExecutionException;
   private final Object lock;
 
   @GuardedBy("lock")
-  private final ArrayDeque<VideoFrameProcessingTask> highPriorityTasks;
+  private final Queue<VideoFrameProcessingTask> highPriorityTasks;
 
   @GuardedBy("lock")
   private boolean shouldCancelTasks;
@@ -84,6 +86,28 @@ import java.util.concurrent.RejectedExecutionException;
 
     if (executionException != null) {
       handleException(executionException);
+    }
+  }
+
+  /**
+   * Submits the given {@link VideoFrameProcessingTask} to execute, and returns after the task is
+   * executed.
+   */
+  public void submitAndBlock(VideoFrameProcessingTask task) {
+    synchronized (lock) {
+      if (shouldCancelTasks) {
+        return;
+      }
+    }
+
+    Future<?> future = wrapTaskAndSubmitToExecutorService(task, /* isFlushOrReleaseTask= */ false);
+    try {
+      future.get();
+    } catch (ExecutionException e) {
+      handleException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      handleException(e);
     }
   }
 

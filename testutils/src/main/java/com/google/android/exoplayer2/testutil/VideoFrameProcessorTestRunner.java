@@ -310,7 +310,7 @@ public final class VideoFrameProcessorTestRunner {
                 videoFrameProcessingEnded = true;
               }
             });
-    videoFrameProcessor.registerInputStream(inputType);
+    videoFrameProcessor.registerInputStream(inputType, /* effects= */ ImmutableList.of());
   }
 
   public void processFirstFrameAndEnd() throws Exception {
@@ -325,7 +325,8 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            videoFrameProcessor.registerInputStream(INPUT_TYPE_SURFACE);
+            videoFrameProcessor.registerInputStream(
+                INPUT_TYPE_SURFACE, /* effects= */ ImmutableList.of());
             videoFrameProcessor.registerInputFrame();
           }
 
@@ -345,7 +346,7 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
-    videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP);
+    videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP, /* effects= */ ImmutableList.of());
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
@@ -354,7 +355,8 @@ public final class VideoFrameProcessorTestRunner {
         new FrameInfo.Builder(inputTexture.getWidth(), inputTexture.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    videoFrameProcessor.registerInputStream(INPUT_TYPE_TEXTURE_ID);
+    videoFrameProcessor.registerInputStream(
+        INPUT_TYPE_TEXTURE_ID, /* effects= */ ImmutableList.of());
     videoFrameProcessor.setOnInputFrameProcessedListener(
         texId -> {
           try {

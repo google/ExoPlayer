@@ -59,7 +59,6 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -74,6 +73,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final ColorInfo videoFrameProcessorInputColor;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
+  @Nullable final Presentation presentation;
 
   private volatile boolean encoderExpectsTimestampZero;
   /**
@@ -149,15 +149,12 @@ import org.checkerframework.dataflow.qual.Pure;
       videoFrameProcessorOutputColor = videoFrameProcessorInputColor;
     }
 
-    List<Effect> effectsWithPresentation = new ArrayList<>(effects);
-    if (presentation != null) {
-      effectsWithPresentation.add(presentation);
-    }
+    this.presentation = presentation;
     try {
       videoFrameProcessor =
           videoFrameProcessorFactory.create(
               context,
-              effectsWithPresentation,
+              createEffectListWithPresentation(effects, presentation),
               debugViewProvider,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
@@ -216,7 +213,8 @@ import org.checkerframework.dataflow.qual.Pure;
     if (trackFormat != null) {
       Size decodedSize = getDecodedSize(trackFormat);
       videoFrameProcessor.registerInputStream(
-          getInputType(checkNotNull(trackFormat.sampleMimeType)));
+          getInputType(checkNotNull(trackFormat.sampleMimeType)),
+          createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation));
       videoFrameProcessor.setInputFrameInfo(
           new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
@@ -333,6 +331,16 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedWidth = (format.rotationDegrees % 180 == 0) ? format.width : format.height;
     int decodedHeight = (format.rotationDegrees % 180 == 0) ? format.height : format.width;
     return new Size(decodedWidth, decodedHeight);
+  }
+
+  private static ImmutableList<Effect> createEffectListWithPresentation(
+      List<Effect> effects, @Nullable Presentation presentation) {
+    if (presentation == null) {
+      return ImmutableList.copyOf(effects);
+    }
+    ImmutableList.Builder<Effect> effectsWithPresentationBuilder = new ImmutableList.Builder<>();
+    effectsWithPresentationBuilder.addAll(effects).add(presentation);
+    return effectsWithPresentationBuilder.build();
   }
 
   /**

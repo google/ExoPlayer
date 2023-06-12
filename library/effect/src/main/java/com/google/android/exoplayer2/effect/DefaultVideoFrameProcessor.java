@@ -20,7 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.common.collect.Iterables.getLast;
+import static com.google.common.collect.Iterables.getFirst;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -283,6 +284,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private static final String THREAD_NAME = "Effect:GlThread";
   private static final long RELEASE_WAIT_TIME_MS = 500;
 
+  private final Context context;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final InputSwitcher inputSwitcher;
@@ -291,13 +293,17 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
   private final FinalShaderProgramWrapper finalShaderProgramWrapper;
+
   // Shader programs that apply Effects.
-  private final ImmutableList<GlShaderProgram> effectsShaderPrograms;
+  private final List<GlShaderProgram> intermediateGlShaderPrograms;
   // A queue of input streams that have not been fully processed identified by their input types.
   @GuardedBy("lock")
   private final Queue<@InputType Integer> unprocessedInputStreams;
 
+  private final List<Effect> activeEffects;
   private final Object lock;
+  private final ColorInfo outputColorInfo;
+  private final GlObjectsProvider glObjectsProvider;
 
   // CountDownLatch to wait for the current input stream to finish processing.
   private volatile @MonotonicNonNull CountDownLatch latch;
@@ -306,14 +312,19 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private volatile boolean hasRefreshedNextInputFrameInfo;
 
   private DefaultVideoFrameProcessor(
+      Context context,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       InputSwitcher inputSwitcher,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
-      VideoFrameProcessor.Listener listener,
+      Listener listener,
       Executor listenerExecutor,
-      ImmutableList<GlShaderProgram> effectsShaderPrograms,
-      boolean renderFramesAutomatically) {
+      ImmutableList<GlShaderProgram> intermediateGlShaderPrograms,
+      FinalShaderProgramWrapper finalShaderProgramWrapper,
+      boolean renderFramesAutomatically,
+      ColorInfo outputColorInfo,
+      GlObjectsProvider glObjectsProvider) {
+    this.context = context;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.inputSwitcher = inputSwitcher;
@@ -322,12 +333,11 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.listenerExecutor = listenerExecutor;
     this.renderFramesAutomatically = renderFramesAutomatically;
     this.unprocessedInputStreams = new ConcurrentLinkedQueue<>();
+    this.activeEffects = new ArrayList<>();
     this.lock = new Object();
-
-    checkState(!effectsShaderPrograms.isEmpty());
-    checkState(getLast(effectsShaderPrograms) instanceof FinalShaderProgramWrapper);
-
-    finalShaderProgramWrapper = (FinalShaderProgramWrapper) getLast(effectsShaderPrograms);
+    this.outputColorInfo = outputColorInfo;
+    this.glObjectsProvider = glObjectsProvider;
+    this.finalShaderProgramWrapper = finalShaderProgramWrapper;
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
           synchronized (lock) {
@@ -338,7 +348,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             return inputStreamEnded && unprocessedInputStreams.isEmpty();
           }
         });
-    this.effectsShaderPrograms = effectsShaderPrograms;
+    this.intermediateGlShaderPrograms = new ArrayList<>(intermediateGlShaderPrograms);
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
@@ -398,11 +408,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
-  public void registerInputStream(@InputType int inputType) {
+  public void registerInputStream(@InputType int inputType, List<Effect> effects) {
     synchronized (lock) {
       if (unprocessedInputStreams.isEmpty()) {
         inputSwitcher.switchToInput(inputType);
         unprocessedInputStreams.add(inputType);
+        activeEffects.clear();
+        activeEffects.addAll(effects);
         return;
       }
     }
@@ -416,10 +428,47 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       Thread.currentThread().interrupt();
       listenerExecutor.execute(() -> listener.onError(VideoFrameProcessingException.from(e)));
     }
-    inputSwitcher.switchToInput(inputType);
+
     synchronized (lock) {
       unprocessedInputStreams.add(inputType);
     }
+
+    if (!activeEffects.equals(effects)) {
+      // TODO(b/269424561) Investigate non blocking re-configuration.
+      // Shader program recreation must be on GL thread. Currently the calling thread is blocked
+      // until all shader programs are recreated, so that DefaultVideoFrameProcessor doesn't receive
+      // a new frame from the new input stream prematurely.
+      videoFrameProcessingTaskExecutor.submitAndBlock(
+          () -> {
+            try {
+              for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
+                intermediateGlShaderPrograms.get(i).release();
+              }
+              intermediateGlShaderPrograms.clear();
+              intermediateGlShaderPrograms.addAll(
+                  createGlShaderPrograms(
+                      context, effects, outputColorInfo, finalShaderProgramWrapper));
+            } catch (VideoFrameProcessingException e) {
+              listenerExecutor.execute(() -> listener.onError(e));
+              return;
+            }
+
+            inputSwitcher.setDownstreamShaderProgram(
+                getFirst(
+                    intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
+            setGlObjectProviderOnShaderPrograms(intermediateGlShaderPrograms, glObjectsProvider);
+            chainShaderProgramsWithListeners(
+                intermediateGlShaderPrograms,
+                finalShaderProgramWrapper,
+                videoFrameProcessingTaskExecutor,
+                listener,
+                listenerExecutor);
+
+            activeEffects.clear();
+            activeEffects.addAll(effects);
+          });
+    }
+    inputSwitcher.switchToInput(inputType);
   }
 
   @Override
@@ -504,7 +553,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void release() {
     try {
       videoFrameProcessingTaskExecutor.release(
-          /* releaseTask= */ this::releaseShaderProgramsAndDestroyGlContext, RELEASE_WAIT_TIME_MS);
+          /* releaseTask= */ this::releaseGlObjects, RELEASE_WAIT_TIME_MS);
     } catch (InterruptedException unexpected) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
@@ -553,7 +602,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,
       ExecutorService singleThreadExecutorService,
-      Executor executor,
+      Executor videoFrameProcessorListenerExecutor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
       @Nullable TextureOutputListener textureOutputListener,
@@ -600,10 +649,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             videoFrameProcessingTaskExecutor,
             enableColorTransfers);
 
-    ImmutableList<GlShaderProgram> effectsShaderPrograms =
-        getGlShaderProgramsForGlEffects(
+    FinalShaderProgramWrapper finalShaderProgramWrapper =
+        new FinalShaderProgramWrapper(
             context,
-            effects,
             eglDisplay,
             eglContext,
             debugViewProvider,
@@ -611,11 +659,17 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             enableColorTransfers,
             renderFramesAutomatically,
             videoFrameProcessingTaskExecutor,
-            executor,
+            videoFrameProcessorListenerExecutor,
             listener,
             glObjectsProvider,
             textureOutputListener,
             textureOutputCapacity);
+
+    // TODO(b/269424561): Move effect creation to registerInputStream().
+    // The GlShaderPrograms that should be inserted in between InputSwitcher and
+    // FinalShaderProgramWrapper.
+    ImmutableList<GlShaderProgram> intermediateGlShaderPrograms =
+        createGlShaderPrograms(context, effects, outputColorInfo, finalShaderProgramWrapper);
 
     inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_SURFACE);
     if (!ColorInfo.isTransferHdr(inputColorInfo)) {
@@ -626,48 +680,53 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       // Image and textureId concatenation not supported.
       inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_TEXTURE_ID);
     }
-    inputSwitcher.setDownstreamShaderProgram(effectsShaderPrograms.get(0));
 
-    setGlObjectProviderOnShaderPrograms(effectsShaderPrograms, glObjectsProvider);
+    inputSwitcher.setDownstreamShaderProgram(
+        getFirst(intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
+
+    setGlObjectProviderOnShaderPrograms(intermediateGlShaderPrograms, glObjectsProvider);
     chainShaderProgramsWithListeners(
-        effectsShaderPrograms, videoFrameProcessingTaskExecutor, listener, executor);
+        intermediateGlShaderPrograms,
+        finalShaderProgramWrapper,
+        videoFrameProcessingTaskExecutor,
+        listener,
+        videoFrameProcessorListenerExecutor);
 
     return new DefaultVideoFrameProcessor(
+        context,
         eglDisplay,
         eglContext,
         inputSwitcher,
         videoFrameProcessingTaskExecutor,
         listener,
-        executor,
-        effectsShaderPrograms,
-        renderFramesAutomatically);
+        videoFrameProcessorListenerExecutor,
+        intermediateGlShaderPrograms,
+        finalShaderProgramWrapper,
+        renderFramesAutomatically,
+        outputColorInfo,
+        glObjectsProvider);
   }
 
   /**
-   * Combines consecutive {@link GlMatrixTransformation} and {@link RgbMatrix} instances into a
-   * single {@link DefaultShaderProgram} and converts all other {@link GlEffect} instances to
-   * separate {@link GlShaderProgram} instances.
+   * Combines consecutive {@link GlMatrixTransformation GlMatrixTransformations} and {@link
+   * RgbMatrix RgbMatrices} instances into a single {@link DefaultShaderProgram} and converts all
+   * other {@link GlEffect} instances to separate {@link GlShaderProgram} instances.
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
-   * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order. The
-   *     last is a {@link FinalShaderProgramWrapper}.
+   * @param context The {@link Context}.
+   * @param effects The list of {@link GlEffect effects}.
+   * @param outputColorInfo The {@link ColorInfo} on {@code DefaultVideoFrameProcessor} output.
+   * @param finalShaderProgramWrapper The {@link FinalShaderProgramWrapper} to apply the {@link
+   *     GlMatrixTransformation GlMatrixTransformations} and {@link RgbMatrix RgbMatrices} after all
+   *     other {@link GlEffect GlEffects}.
+   * @return A non-empty list of {@link GlShaderProgram} instances to apply in the given order.
    */
-  private static ImmutableList<GlShaderProgram> getGlShaderProgramsForGlEffects(
+  private static ImmutableList<GlShaderProgram> createGlShaderPrograms(
       Context context,
       List<Effect> effects,
-      EGLDisplay eglDisplay,
-      EGLContext eglContext,
-      DebugViewProvider debugViewProvider,
       ColorInfo outputColorInfo,
-      boolean enableColorTransfers,
-      boolean renderFramesAutomatically,
-      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
-      Executor executor,
-      Listener listener,
-      GlObjectsProvider glObjectsProvider,
-      @Nullable TextureOutputListener textureOutputListener,
-      int textureOutputCapacity)
+      FinalShaderProgramWrapper finalShaderProgramWrapper)
       throws VideoFrameProcessingException {
     ImmutableList.Builder<GlShaderProgram> shaderProgramListBuilder = new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
@@ -705,29 +764,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       shaderProgramListBuilder.add(glEffect.toGlShaderProgram(context, isOutputTransferHdr));
     }
 
-    shaderProgramListBuilder.add(
-        new FinalShaderProgramWrapper(
-            context,
-            eglDisplay,
-            eglContext,
-            matrixTransformationListBuilder.build(),
-            rgbMatrixListBuilder.build(),
-            debugViewProvider,
-            outputColorInfo,
-            enableColorTransfers,
-            renderFramesAutomatically,
-            videoFrameProcessingTaskExecutor,
-            executor,
-            listener,
-            glObjectsProvider,
-            textureOutputListener,
-            textureOutputCapacity));
+    finalShaderProgramWrapper.setMatrixTransformations(
+        matrixTransformationListBuilder.build(), rgbMatrixListBuilder.build());
     return shaderProgramListBuilder.build();
   }
 
   /** Sets the {@link GlObjectsProvider} on all of the {@linkplain GlShaderProgram}s provided. */
   private static void setGlObjectProviderOnShaderPrograms(
-      ImmutableList<GlShaderProgram> shaderPrograms, GlObjectsProvider glObjectsProvider) {
+      List<GlShaderProgram> shaderPrograms, GlObjectsProvider glObjectsProvider) {
     for (int i = 0; i < shaderPrograms.size() - 1; i++) {
       GlShaderProgram shaderProgram = shaderPrograms.get(i);
       shaderProgram.setGlObjectsProvider(glObjectsProvider);
@@ -739,13 +783,16 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * ChainingGlShaderProgramListener} instances.
    */
   private static void chainShaderProgramsWithListeners(
-      ImmutableList<GlShaderProgram> shaderPrograms,
+      List<GlShaderProgram> shaderPrograms,
+      FinalShaderProgramWrapper finalShaderProgramWrapper,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Listener videoFrameProcessorListener,
       Executor videoFrameProcessorListenerExecutor) {
-    for (int i = 0; i < shaderPrograms.size() - 1; i++) {
-      GlShaderProgram producingGlShaderProgram = shaderPrograms.get(i);
-      GlShaderProgram consumingGlShaderProgram = shaderPrograms.get(i + 1);
+    ArrayList<GlShaderProgram> shaderProgramsToChain = new ArrayList<>(shaderPrograms);
+    shaderProgramsToChain.add(finalShaderProgramWrapper);
+    for (int i = 0; i < shaderProgramsToChain.size() - 1; i++) {
+      GlShaderProgram producingGlShaderProgram = shaderProgramsToChain.get(i);
+      GlShaderProgram consumingGlShaderProgram = shaderProgramsToChain.get(i + 1);
       ChainingGlShaderProgramListener chainingGlShaderProgramListener =
           new ChainingGlShaderProgramListener(
               producingGlShaderProgram, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
@@ -761,12 +808,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    *
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
-  private void releaseShaderProgramsAndDestroyGlContext() {
+  private void releaseGlObjects() {
     try {
       try {
         inputSwitcher.release();
-        for (int i = 0; i < effectsShaderPrograms.size(); i++) {
-          effectsShaderPrograms.get(i).release();
+        for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
+          intermediateGlShaderPrograms.get(i).release();
         }
       } catch (Exception e) {
         Log.e(TAG, "Error releasing shader program", e);

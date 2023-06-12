@@ -203,9 +203,15 @@ public interface VideoFrameProcessor {
    *
    * <p>Call {@link #setInputFrameInfo} before this method if the {@link FrameInfo} of the new input
    * stream differs from that of the current input stream.
+   *
+   * @param inputType The {@link InputType} of the new input stream.
+   * @param effects The list of {@link Effect effects} to apply to the new input stream. The list is
+   *     ignored for the first input stream registered after {@linkplain Factory#create creating the
+   *     VideoFrameProcessor}. The first input stream will use the effects passed in in {@link
+   *     Factory#create}.
    */
-  // TODO(b/274109008) Merge this and setInputFrameInfo.
-  void registerInputStream(@InputType int inputType);
+  // TODO(b/286032822) Merge this and setInputFrameInfo.
+  void registerInputStream(@InputType int inputType, List<Effect> effects);
 
   /**
    * Sets information about the input frames.
