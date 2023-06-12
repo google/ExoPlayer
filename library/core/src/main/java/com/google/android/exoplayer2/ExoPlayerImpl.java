@@ -43,6 +43,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -379,6 +380,8 @@ import java.util.concurrent.TimeoutException;
       audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
       if (suppressPlaybackWhenNoSuitableOutputAvailable) {
         audioManager = (AudioManager) applicationContext.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.registerAudioDeviceCallback(
+            new NoSuitableOutputPlaybackSuppressionAudioDeviceCallback(), /* handler= */ null);
       }
       if (builder.deviceVolumeControlEnabled) {
         streamVolumeManager =
@@ -3344,6 +3347,30 @@ import java.util.concurrent.TimeoutException;
     private static boolean isRunningOnWear(Context context) {
       PackageManager packageManager = context.getPackageManager();
       return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
+    }
+  }
+
+  /**
+   * A {@link AudioDeviceCallback} to handle auto-resume and auto-pause for playback suppression due
+   * to no suitable audio output.
+   */
+  private final class NoSuitableOutputPlaybackSuppressionAudioDeviceCallback
+      extends AudioDeviceCallback {
+
+    @Override
+    public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+      if (hasSupportedAudioOutput()
+          && playbackInfo.playbackSuppressionReason
+              == Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
+        play();
+      }
+    }
+
+    @Override
+    public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+      if (!hasSupportedAudioOutput()) {
+        pause();
+      }
     }
   }
 }

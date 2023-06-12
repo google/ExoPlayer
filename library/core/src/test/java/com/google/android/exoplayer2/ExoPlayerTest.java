@@ -67,6 +67,7 @@ import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindow
 import static com.google.android.exoplayer2.testutil.TestUtil.assertTimelinesSame;
 import static com.google.android.exoplayer2.testutil.TestUtil.timelinesAreSame;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.stream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
@@ -13129,6 +13130,304 @@ public final class ExoPlayerTest {
     player.release();
   }
 
+  @Test
+  public void
+      onAudioDeviceAdded_addSuitableDevicesWhenPlaybackSuppressed_shouldResumeSuppressedPlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    player.pause();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady
+                && player.getPlaybackSuppressionReason()
+                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
+              isPlaybackResumed.set(true);
+            }
+          }
+        });
+
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackResumed.get()).isTrue();
+    player.release();
+  }
+
+  @Test
+  public void
+      onAudioDeviceAdded_addUnsuitableDevicesWithPlaybackSuppressed_shouldNotResumePlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady
+                && player.getPlaybackSuppressionReason()
+                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
+              isPlaybackResumed.set(true);
+            }
+          }
+        });
+
+    addConnectedAudioOutput(AudioDeviceInfo.TYPE_UNKNOWN, /* notifyAudioDeviceCallbacks= */ true);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackResumed.get()).isFalse();
+    player.release();
+  }
+
+  @Test
+  public void
+      onAudioDeviceAdded_addSuitableDevicesWhenPlaybackNotSuppressed_shouldNotResumePlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady
+                && player.getPlaybackSuppressionReason()
+                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
+              isPlaybackResumed.set(true);
+            }
+          }
+        });
+
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackResumed.get()).isFalse();
+    player.release();
+  }
+
+  @Test
+  public void onAudioDeviceAdded_addSuitableDevicesOnNonWearSurface_shouldResumeSuppressedPlayback()
+      throws Exception {
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    player.pause();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (playWhenReady
+                && player.getPlaybackSuppressionReason()
+                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
+              isPlaybackResumed.set(true);
+            }
+          }
+        });
+
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackResumed.get()).isFalse();
+    player.release();
+  }
+
+  @Test
+  public void
+      onAudioDeviceRemoved_removeSuitableDeviceWhenPlaybackOngoing_shouldPauseOngoingPlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (!playWhenReady) {
+              isPlaybackPaused.set(true);
+            }
+          }
+        });
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackPaused.get()).isTrue();
+    player.release();
+  }
+
+  @Test
+  public void
+      onAudioDeviceRemoved_removeUnsuitableDeviceLeavingOneSuitableDevice_shouldNotPausePlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+        AudioDeviceInfo.TYPE_UNKNOWN,
+        AudioDeviceInfo.TYPE_BUS,
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (!playWhenReady) {
+              isPlaybackPaused.set(true);
+            }
+          }
+        });
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_UNKNOWN);
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BUS);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackPaused.get()).isFalse();
+    player.release();
+  }
+
+  @Test
+  public void
+      onAudioDeviceRemoved_removeSuitableDeviceLeavingOneSuitableDevice_shouldNotPausePlayback()
+          throws Exception {
+    addWatchAsSystemFeature();
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+        AudioDeviceInfo.TYPE_BLE_SPEAKER,
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (!playWhenReady) {
+              isPlaybackPaused.set(true);
+            }
+          }
+        });
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLE_SPEAKER);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackPaused.get()).isFalse();
+    player.release();
+  }
+
+  @Test
+  public void
+      onAudioDeviceRemoved_removeSuitableDeviceOnNonWearSurface_shouldNotPauseOngoingPlayback()
+          throws Exception {
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
+            .build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            if (!playWhenReady) {
+              isPlaybackPaused.set(true);
+            }
+          }
+        });
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    player.stop();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+
+    assertThat(isPlaybackPaused.get()).isFalse();
+    player.release();
+  }
+
   // Internal methods.
 
   private void addWatchAsSystemFeature() {
@@ -13143,6 +13442,24 @@ public final class ExoPlayerTest {
       deviceListBuilder.add(AudioDeviceInfoBuilder.newBuilder().setType(deviceType).build());
     }
     shadowAudioManager.setOutputDevices(deviceListBuilder.build());
+  }
+
+  private void addConnectedAudioOutput(int deviceTypes, boolean notifyAudioDeviceCallbacks) {
+    ShadowAudioManager shadowAudioManager = shadowOf(context.getSystemService(AudioManager.class));
+    shadowAudioManager.addOutputDevice(
+        AudioDeviceInfoBuilder.newBuilder().setType(deviceTypes).build(),
+        notifyAudioDeviceCallbacks);
+  }
+
+  private void removeConnectedAudioOutput(int deviceType) {
+    ShadowAudioManager shadowAudioManager = shadowOf(context.getSystemService(AudioManager.class));
+    stream(shadowAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS))
+        .filter(audioDeviceInfo -> deviceType == audioDeviceInfo.getType())
+        .findFirst()
+        .ifPresent(
+            filteredAudioDeviceInfo ->
+                shadowAudioManager.removeOutputDevice(
+                    filteredAudioDeviceInfo, /* notifyAudioDeviceCallbacks= */ true));
   }
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
