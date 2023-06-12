@@ -127,4 +127,27 @@ public final class ScaleAndRotateTransformationTest {
     assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);
     assertThat(outputSize.getHeight()).isEqualTo(expectedOutputWidthHeight);
   }
+
+  @Test
+  public void setRotation_setsRotationBetween0and360() {
+    ScaleAndRotateTransformation scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build();
+    assertThat(scaleAndRotateTransformation.rotationDegrees).isEqualTo(90);
+
+    scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(90 + 360).build();
+    assertThat(scaleAndRotateTransformation.rotationDegrees).isEqualTo(90);
+
+    scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(-90).build();
+    assertThat(scaleAndRotateTransformation.rotationDegrees).isEqualTo(270);
+
+    scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(-90 - 360).build();
+    assertThat(scaleAndRotateTransformation.rotationDegrees).isEqualTo(270);
+
+    scaleAndRotateTransformation =
+        new ScaleAndRotateTransformation.Builder().setRotationDegrees(360).build();
+    assertThat(scaleAndRotateTransformation.rotationDegrees).isEqualTo(0);
+  }
 }
