@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.android.exoplayer2.util.VideoFrameProcessor.InputType;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -68,7 +69,7 @@ public final class VideoFrameProcessorTestRunner {
     private float pixelWidthHeightRatio;
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
-    private @VideoFrameProcessor.InputType int inputType;
+    private @InputType int inputType;
     private OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableListener;
 
     /** Creates a new instance with default values. */
@@ -197,7 +198,7 @@ public final class VideoFrameProcessorTestRunner {
      * <p>The default value is {@link VideoFrameProcessor#INPUT_TYPE_SURFACE}.
      */
     @CanIgnoreReturnValue
-    public Builder setInputType(@VideoFrameProcessor.InputType int inputType) {
+    public Builder setInputType(@InputType int inputType) {
       this.inputType = inputType;
       return this;
     }
@@ -261,7 +262,7 @@ public final class VideoFrameProcessorTestRunner {
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      @VideoFrameProcessor.InputType int inputType,
+      @InputType int inputType,
       OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
@@ -339,7 +340,7 @@ public final class VideoFrameProcessorTestRunner {
     endFrameProcessing();
   }
 
-  public void queueInputBitmap(
+  public void registerAndQueueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
     videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())

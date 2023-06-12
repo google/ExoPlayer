@@ -74,7 +74,7 @@ public class FrameDropTest {
 
     ImmutableList<Integer> timestampsMs = ImmutableList.of(0, 16, 32, 48, 58, 71, 86);
     for (int timestampMs : timestampsMs) {
-      videoFrameProcessorTestRunner.queueInputBitmap(
+      videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
           readBitmap(ORIGINAL_PNG_ASSET_PATH),
           /* durationUs= */ C.MICROS_PER_SECOND,
           /* offsetToAddUs= */ timestampMs * 1000L,
@@ -97,12 +97,12 @@ public class FrameDropTest {
                     /* expectedFrameRate= */ 6, /* targetFrameRate= */ 2))
             .build();
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ 0L,
         /* frameRate= */ 4);
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         readBitmap(SCALE_WIDE_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ C.MICROS_PER_SECOND,
@@ -123,7 +123,7 @@ public class FrameDropTest {
                     /* expectedFrameRate= */ 3, /* targetFrameRate= */ 3))
             .build();
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
+    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ 0L,
