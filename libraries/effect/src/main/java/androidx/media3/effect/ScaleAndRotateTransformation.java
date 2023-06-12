@@ -83,7 +83,10 @@ public final class ScaleAndRotateTransformation implements MatrixTransformation 
      */
     @CanIgnoreReturnValue
     public Builder setRotationDegrees(float rotationDegrees) {
-      this.rotationDegrees = rotationDegrees;
+      this.rotationDegrees = rotationDegrees % 360;
+      if (this.rotationDegrees < 0) {
+        this.rotationDegrees += 360;
+      }
       return this;
     }
 
@@ -96,7 +99,10 @@ public final class ScaleAndRotateTransformation implements MatrixTransformation 
   public final float scaleX;
   /** The multiplier by which the frame will scale vertically, along the y-axis. */
   public final float scaleY;
-  /** The counterclockwise rotation, in degrees. */
+  /**
+   * The counterclockwise rotation, in degrees. The value should always be between 0 (included) and
+   * 360 degrees (excluded).
+   */
   public final float rotationDegrees;
 
   private final Matrix transformationMatrix;
