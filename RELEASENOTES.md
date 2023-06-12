@@ -77,7 +77,7 @@
 
 ## 1.1
 
-### 1.1.0-rc01 (2023-06-07)
+### 1.1.0-rc01 (2023-06-21)
 
 This release includes the following changes since
 [1.1.0-beta01](#110-beta01-2023-06-07):
