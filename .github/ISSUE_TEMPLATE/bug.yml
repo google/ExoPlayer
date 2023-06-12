@@ -20,6 +20,7 @@ body:
       label: Version
       description: What version of Media3 (or ExoPlayer) are you using?
       options:
+        - Media3 1.1.0-rc01
         - Media3 1.1.0-beta01
         - Media3 1.1.0-alpha01
         - Media3 1.0.2
