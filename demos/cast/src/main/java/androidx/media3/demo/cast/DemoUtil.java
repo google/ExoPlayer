@@ -37,27 +37,90 @@ import java.util.List;
 
   static {
     ArrayList<MediaItem> samples = new ArrayList<>();
-
-    // Clear content.
+    // HLS streams.
     samples.add(
         new MediaItem.Builder()
-            .setUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear DASH: Tears").build())
-            .setMimeType(MIME_TYPE_DASH)
-            .build());
-    samples.add(
-        new MediaItem.Builder()
-            .setUri("https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8")
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear HLS: Angel one").build())
+            .setUri(
+                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")
+            .setMediaMetadata(
+                new MediaMetadata.Builder()
+                    .setTitle("HLS (adaptive): Apple 4x3 basic stream (TS/h264/aac)")
+                    .build())
             .setMimeType(MIME_TYPE_HLS)
             .build());
     samples.add(
         new MediaItem.Builder()
+            .setUri(
+                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8")
+            .setMediaMetadata(
+                new MediaMetadata.Builder()
+                    .setTitle("HLS (adaptive): Apple 16x9 basic stream (TS/h264/aac)")
+                    .build())
+            .setMimeType(MIME_TYPE_HLS)
+            .build());
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/hls/DesigningForGoogleCast.m3u8")
+            .setMediaMetadata(
+                new MediaMetadata.Builder()
+                    .setTitle("HLS (1280x720): Designing For Google Cast (TS/h264/aac)")
+                    .build())
+            .setMimeType(MIME_TYPE_HLS)
+            .build());
+    // DASH streams
+    samples.add(
+        new MediaItem.Builder()
+            .setUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
+            .setMediaMetadata(
+                new MediaMetadata.Builder()
+                    .setTitle("DASH (adaptive): Tears of steal (HD, MP4, H264/aac)")
+                    .build())
+            .setMimeType(MIME_TYPE_DASH)
+            .build());
+    samples.add(
+        new MediaItem.Builder()
+            .setUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd")
+            .setMediaMetadata(
+                new MediaMetadata.Builder()
+                    .setTitle("DASH (3840x1714): Tears of steal (MP4, H264/aac)")
+                    .build())
+            .setMimeType(MIME_TYPE_DASH)
+            .build());
+    // Progressive video streams
+    samples.add(
+        new MediaItem.Builder()
             .setUri("https://html5demos.com/assets/dizzy.mp4")
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear MP4: Dizzy").build())
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setTitle("MP4 (480x360): Dizzy (H264/aac)").build())
             .setMimeType(MIME_TYPE_VIDEO_MP4)
             .build());
-
+    samples.add(
+        new MediaItem.Builder()
+            .setUri(
+                "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv")
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setTitle("MKV (1280x720): Screens (h264/aac)").build())
+            .setMimeType(MIME_TYPE_VIDEO_MP4)
+            .build());
+    // Progressive audio streams with artwork
+    samples.add(
+        new MediaItem.Builder()
+            .setUri("https://storage.googleapis.com/automotive-media/Keys_To_The_Kingdom.mp3")
+            .setMediaMetadata(
+                new MediaMetadata.Builder()
+                    .setTitle("MP3: Keys To The Kingdom (44100/stereo/320kb/s)")
+                    .setArtist("The 126ers")
+                    .setAlbumTitle("Youtube Audio Library Rock 2")
+                    .setGenre("Rock")
+                    .setTrackNumber(1)
+                    .setTotalTrackCount(4)
+                    .setArtworkUri(
+                        Uri.parse(
+                            "https://storage.googleapis.com/automotive-media/album_art_3.jpg"))
+                    .build())
+            .setMimeType(MimeTypes.AUDIO_MPEG)
+            .build());
     // DRM content.
     samples.add(
         new MediaItem.Builder()
