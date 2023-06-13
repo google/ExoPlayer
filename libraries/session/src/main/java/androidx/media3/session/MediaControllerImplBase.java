@@ -421,13 +421,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         (iSession, seq) -> iSession.prepare(controllerStub, seq));
 
     if (playerInfo.playbackState == Player.STATE_IDLE) {
-      PlayerInfo playerInfo =
+      PlayerInfo newPlayerInfo =
           this.playerInfo.copyWithPlaybackState(
               this.playerInfo.timeline.isEmpty() ? Player.STATE_ENDED : Player.STATE_BUFFERING,
               /* playerError= */ null);
 
       updatePlayerInfo(
-          playerInfo,
+          newPlayerInfo,
           /* ignored */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
           /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ false,
@@ -2152,11 +2152,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     // Update position and then stop estimating until a new positionInfo arrives from the player.
     maybeUpdateCurrentPositionMs();
     lastSetPlayWhenReadyCalledTimeMs = SystemClock.elapsedRealtime();
-    PlayerInfo playerInfo =
+    PlayerInfo newPlayerInfo =
         this.playerInfo.copyWithPlayWhenReady(
             playWhenReady, playWhenReadyChangeReason, playbackSuppressionReason);
     updatePlayerInfo(
-        playerInfo,
+        newPlayerInfo,
         /* ignored */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         playWhenReadyChangeReason,
         /* positionDiscontinuity= */ false,
@@ -2198,6 +2198,21 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newPlayerInfo.timeline, timelineChangeReason));
+    }
+    PlaybackException oldPlayerError = oldPlayerInfo.playerError;
+    PlaybackException newPlayerError = newPlayerInfo.playerError;
+    boolean errorsMatch =
+        oldPlayerError == newPlayerError
+            || (oldPlayerError != null && oldPlayerError.errorInfoEquals(newPlayerError));
+    if (!errorsMatch) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
+          listener -> listener.onPlayerErrorChanged(newPlayerError));
+      if (newPlayerError != null) {
+        listeners.queueEvent(
+            /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
+            listener -> listener.onPlayerError(newPlayerError));
+      }
     }
     if (oldPlayerInfo.playbackState != newPlayerInfo.playbackState) {
       listeners.queueEvent(

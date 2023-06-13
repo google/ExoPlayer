@@ -630,9 +630,10 @@ public class MediaControllerStateMaskingTest {
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    CountDownLatch latch = new CountDownLatch(2);
+    CountDownLatch latch = new CountDownLatch(3);
     AtomicInteger playbackStateFromCallbackRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    AtomicReference<PlaybackException> playerErrorFromCallbackRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -646,25 +647,32 @@ public class MediaControllerStateMaskingTest {
             onEventsRef.set(events);
             latch.countDown();
           }
+
+          @Override
+          public void onPlayerErrorChanged(@Nullable PlaybackException error) {
+            playerErrorFromCallbackRef.set(error);
+            latch.countDown();
+          }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
     AtomicInteger playbackStateFromGetterRef = new AtomicInteger();
-    AtomicReference<PlaybackException> playerErrorRef = new AtomicReference<>();
+    AtomicReference<PlaybackException> playerErrorFromGetterRef = new AtomicReference<>();
     threadTestRule
         .getHandler()
         .postAndSync(
             () -> {
               controller.prepare();
               playbackStateFromGetterRef.set(controller.getPlaybackState());
-              playerErrorRef.set(controller.getPlayerError());
+              playerErrorFromGetterRef.set(controller.getPlayerError());
             });
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackStateFromCallbackRef.get()).isEqualTo(testPlaybackState);
-    assertThat(getEventsAsList(onEventsRef.get()))
-        .containsExactly(Player.EVENT_PLAYBACK_STATE_CHANGED);
     assertThat(playbackStateFromGetterRef.get()).isEqualTo(testPlaybackState);
-    assertThat(playerErrorRef.get()).isNull();
+    assertThat(playerErrorFromGetterRef.get()).isNull();
+    assertThat(playerErrorFromCallbackRef.get()).isNull();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_PLAYBACK_STATE_CHANGED, Player.EVENT_PLAYER_ERROR);
   }
 
   @Test
