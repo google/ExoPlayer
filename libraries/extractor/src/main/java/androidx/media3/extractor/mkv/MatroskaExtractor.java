@@ -2293,12 +2293,12 @@ public class MatroskaExtractor implements Extractor {
           // The range of projectionPoseRoll is [-180, 180].
           if (Float.compare(projectionPoseRoll, 0f) == 0) {
             rotationDegrees = 0;
-          } else if (Float.compare(projectionPosePitch, 90f) == 0) {
+          } else if (Float.compare(projectionPoseRoll, 90f) == 0) {
             rotationDegrees = 90;
-          } else if (Float.compare(projectionPosePitch, -180f) == 0
-              || Float.compare(projectionPosePitch, 180f) == 0) {
+          } else if (Float.compare(projectionPoseRoll, -180f) == 0
+              || Float.compare(projectionPoseRoll, 180f) == 0) {
             rotationDegrees = 180;
-          } else if (Float.compare(projectionPosePitch, -90f) == 0) {
+          } else if (Float.compare(projectionPoseRoll, -90f) == 0) {
             rotationDegrees = 270;
           }
         }
