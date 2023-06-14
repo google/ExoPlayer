@@ -541,7 +541,7 @@ public class AsynchronousMediaCodecCallbackTest {
             Integer.TYPE, Integer.TYPE, String.class);
     constructor.setAccessible(true);
     return constructor.newInstance(
-        /* errorCode= */ 0, /* actionCode= */ 0, /* detailMessage= */ "error from codec");
+        /* errorCode */ 0, /* actionCode */ 0, /* detailMessage */ "error from codec");
   }
 
   private static MediaFormat createMediaFormat(String name) {
