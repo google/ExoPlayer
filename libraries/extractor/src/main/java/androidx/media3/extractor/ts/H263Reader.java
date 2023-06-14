@@ -220,6 +220,7 @@ public final class H263Reader implements ElementaryStreamReader {
   public void packetFinished(boolean isEndOfInput) {
     if (isEndOfInput) {
       sampleReader.onDataEnd(totalBytesWritten, 0, hasOutputFormat);
+      sampleReader.reset();
     }
   }
 

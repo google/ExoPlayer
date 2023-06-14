@@ -506,6 +506,7 @@ public final class H264Reader implements ElementaryStreamReader {
       // Output a final sample with the nal units currently held
       nalUnitStartPosition = position;
       outputSample(0);
+      readingSample = false;
     }
 
     private static final class SliceHeaderData {

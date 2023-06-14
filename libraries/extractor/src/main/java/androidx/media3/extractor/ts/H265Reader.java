@@ -382,6 +382,7 @@ public final class H265Reader implements ElementaryStreamReader {
       // Output a final sample with the nal units currently held
       nalUnitPosition = position;
       outputSample(0);
+      readingSample = false;
     }
 
     /** Returns whether a NAL unit type is one that occurs before any VCL NAL units in a sample. */
