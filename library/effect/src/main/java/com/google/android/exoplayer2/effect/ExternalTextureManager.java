@@ -47,10 +47,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * The time out in milliseconds after calling signalEndOfCurrentInputStream after which the input
    * stream is considered to have ended, even if not all expected frames have been received from the
-   * decoder. This has been observed on some decoders. Some emulator decoders are slower, hence
-   * using a longer timeout. Also on some emulators, GL operation takes a long time to finish, the
-   * timeout could be a result of slow GL operation back pressured the decoder, and the decoder is
-   * not able to decode another frame.
+   * decoder. This has been observed on some decoders.
+   *
+   * <p>Some emulator decoders are slower, hence using a longer timeout. Also on some emulators, GL
+   * operation takes a long time to finish, the timeout could be a result of slow GL operation back
+   * pressured the decoder, and the decoder is not able to decode another frame.
    */
   private static final long SURFACE_TEXTURE_TIMEOUT_MS =
       Util.DEVICE.contains("emulator") ? 10_000 : 500;
