@@ -234,6 +234,7 @@ public interface MediaPeriod extends SequenceableLoader {
   boolean continueLoading(long positionUs);
 
   /** Returns whether the media period is currently loading. */
+  @Override
   boolean isLoading();
 
   /**
