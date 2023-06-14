@@ -144,14 +144,14 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
                     // Using the time base of the entire file, not that of the track; otherwise,
                     // Quicktime will stretch the audio accordingly, see b/158120042.
                     (int) Mp4Utils.vuFromUs(trackDurationUs, MVHD_TIMEBASE),
-                    metadataCollector.modificationDateUnixMs,
+                    metadataCollector.modificationTimestampSeconds,
                     metadataCollector.orientation,
                     format),
                 Boxes.mdia(
                     Boxes.mdhd(
                         trackDurationInTrackUnitsVu,
                         track.videoUnitTimebase(),
-                        metadataCollector.modificationDateUnixMs,
+                        metadataCollector.modificationTimestampSeconds,
                         languageCode),
                     Boxes.hdlr(handlerType, handlerName),
                     Boxes.minf(mhdBox, Boxes.dinf(Boxes.dref(Boxes.localUrl())), stblBox)));
@@ -163,7 +163,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
     }
 
     ByteBuffer mvhdBox =
-        Boxes.mvhd(nextTrackId, metadataCollector.modificationDateUnixMs, videoDurationUs);
+        Boxes.mvhd(nextTrackId, metadataCollector.modificationTimestampSeconds, videoDurationUs);
     ByteBuffer udtaBox = Boxes.udta(metadataCollector.location);
     ByteBuffer metaBox =
         metadataCollector.metadataPairs.isEmpty()

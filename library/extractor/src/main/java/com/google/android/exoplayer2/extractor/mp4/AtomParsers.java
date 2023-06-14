@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.audio.OpusUtil;
-import com.google.android.exoplayer2.container.CreationTime;
 import com.google.android.exoplayer2.container.Mp4LocationData;
+import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ExtractorUtil;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
@@ -77,19 +77,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       this.metaMetadata = metaMetadata;
       this.smtaMetadata = smtaMetadata;
       this.xyzMetadata = xyzMetadata;
-    }
-  }
-
-  /** Stores data retrieved from the mvhd atom. */
-  public static final class MvhdInfo {
-    /** The metadata. */
-    public final Metadata metadata;
-    /** The movie timescale. */
-    public final long timescale;
-
-    public MvhdInfo(Metadata metadata, long timescale) {
-      this.metadata = metadata;
-      this.timescale = timescale;
     }
   }
 
@@ -220,32 +207,27 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
+   * Parses an mvhd atom (defined in ISO/IEC 14496-12).
    *
    * @param mvhd Contents of the mvhd atom to be parsed.
    * @return An object containing the parsed data.
    */
-  public static MvhdInfo parseMvhd(ParsableByteArray mvhd) {
+  public static Mp4TimestampData parseMvhd(ParsableByteArray mvhd) {
     mvhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = mvhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
     long creationTimestampSeconds;
+    long modificationTimestampSeconds;
     if (version == 0) {
       creationTimestampSeconds = mvhd.readUnsignedInt();
-      mvhd.skipBytes(4); // modification_time
+      modificationTimestampSeconds = mvhd.readUnsignedInt();
     } else {
       creationTimestampSeconds = mvhd.readLong();
-      mvhd.skipBytes(8); // modification_time
+      modificationTimestampSeconds = mvhd.readLong();
     }
 
-    // Convert creation time from MP4 format to Unix epoch timestamp in Ms.
-    // Time delta between January 1, 1904 (MP4 format) and January 1, 1970 (Unix epoch).
-    // Includes leap year.
-    int timeDeltaSeconds = (66 * 365 + 17) * (24 * 60 * 60);
-    long unixTimestampMs = (creationTimestampSeconds - timeDeltaSeconds) * 1000;
-
     long timescale = mvhd.readUnsignedInt();
-    return new MvhdInfo(new Metadata(new CreationTime(unixTimestampMs)), timescale);
+    return new Mp4TimestampData(creationTimestampSeconds, modificationTimestampSeconds, timescale);
   }
 
   /**

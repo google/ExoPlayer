@@ -25,7 +25,7 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.container.CreationTime;
+import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
@@ -174,7 +174,11 @@ public class MetadataRetrieverTest {
         new SlowMotionData.Segment(
             /* startTimeMs= */ 1255, /* endTimeMs= */ 1970, /* speedDivisor= */ 8));
     SlowMotionData expectedSlowMotionData = new SlowMotionData(segments);
-    CreationTime expectedCreationTime = new CreationTime(/* timestampMs= */ 1604060090000L);
+    Mp4TimestampData expectedMp4TimestampData =
+        new Mp4TimestampData(
+            /* creationTimestampSeconds= */ 3_686_904_890L,
+            /* modificationTimestampSeconds= */ 3_686_904_890L,
+            /* timescale= */ 1000);
     MdtaMetadataEntry expectedMdtaEntry =
         new MdtaMetadataEntry(
             KEY_ANDROID_CAPTURE_FPS,
@@ -196,7 +200,7 @@ public class MetadataRetrieverTest {
         .isEqualTo(expectedTemporalLayersCountMetdata);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(2)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(3)).isEqualTo(expectedSlowMotionData);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(4)).isEqualTo(expectedCreationTime);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(4)).isEqualTo(expectedMp4TimestampData);
 
     // Video
     assertThat(trackGroups.get(1).getFormat(0).metadata.length()).isEqualTo(6);
@@ -207,7 +211,7 @@ public class MetadataRetrieverTest {
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(2)).isEqualTo(expectedMdtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(4)).isEqualTo(expectedSlowMotionData);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(5)).isEqualTo(expectedCreationTime);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(5)).isEqualTo(expectedMp4TimestampData);
   }
 
   @Test

@@ -76,14 +76,14 @@ import java.util.Locale;
   public static ByteBuffer tkhd(
       int trackId,
       int trackDurationVu,
-      long modificationDateUnixMs,
+      int modificationTimestampSeconds,
       int orientation,
       Format format) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0x00000007); // version and flags; allow presentation, etc.
 
-    contents.putInt(toMp4Time(modificationDateUnixMs)); // creation_time
-    contents.putInt(toMp4Time(modificationDateUnixMs)); // modification_time
+    contents.putInt(modificationTimestampSeconds); // creation_time
+    contents.putInt(modificationTimestampSeconds); // modification_time
 
     contents.putInt(trackId);
     contents.putInt(0); // reserved
@@ -115,12 +115,12 @@ import java.util.Locale;
    * <p>This is the movie header for the entire MP4 file.
    */
   public static ByteBuffer mvhd(
-      int nextEmptyTrackId, long modificationDateUnixMs, long videoDurationUs) {
+      int nextEmptyTrackId, int modificationTimestampSeconds, long videoDurationUs) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0); // version and flags
 
-    contents.putInt(toMp4Time(modificationDateUnixMs)); // creation_time
-    contents.putInt(toMp4Time(modificationDateUnixMs)); // modification_time
+    contents.putInt(modificationTimestampSeconds); // creation_time
+    contents.putInt(modificationTimestampSeconds); // modification_time
     contents.putInt((int) MVHD_TIMEBASE); // The per-track timescales might be different.
     contents.putInt(
         (int) Mp4Utils.vuFromUs(videoDurationUs, MVHD_TIMEBASE)); // Duration of the entire video.
@@ -158,13 +158,13 @@ import java.util.Locale;
   public static ByteBuffer mdhd(
       long trackDurationVu,
       int videoUnitTimebase,
-      long modificationDateUnixMs,
+      int modificationTimestampSeconds,
       @Nullable String languageCode) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0x0); // version and flags
 
-    contents.putInt(toMp4Time(modificationDateUnixMs)); // creation_time
-    contents.putInt(toMp4Time(modificationDateUnixMs)); // modification_time
+    contents.putInt(modificationTimestampSeconds); // creation_time
+    contents.putInt(modificationTimestampSeconds); // modification_time
 
     contents.putInt(videoUnitTimebase);
 
@@ -1099,16 +1099,6 @@ import java.util.Locale;
 
     contents.flip();
     return BoxUtils.wrapIntoBox("esds", contents);
-  }
-
-  /** Convert Unix epoch timestamps to the format used by MP4 files. */
-  private static int toMp4Time(long unixTimeMs) {
-    // Time delta between January 1, 1904 (MP4 format) and January 1, 1970 (Unix epoch).
-    // Includes leap year.
-    long timeDeltaSeconds = (66 * 365 + 17) * (24 * 60 * 60);
-
-    // The returned value is a positive (when read as unsigned) integer.
-    return (int) (unixTimeMs / 1000L + timeDeltaSeconds);
   }
 
   /** Packs a three-letter language code into a short, packing 3x5 bits. */

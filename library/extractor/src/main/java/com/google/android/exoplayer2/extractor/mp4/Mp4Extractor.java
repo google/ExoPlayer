@@ -511,7 +511,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
 
     Metadata mvhdMetadata =
-        AtomParsers.parseMvhd(checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)).data).metadata;
+        new Metadata(
+            AtomParsers.parseMvhd(checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)).data));
 
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
     List<TrackSampleTable> trackSampleTables =

@@ -23,8 +23,8 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.container.CreationTime;
 import com.google.android.exoplayer2.container.Mp4LocationData;
+import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -149,7 +149,8 @@ public class TransformerWithInAppMuxerEndToEndTest {
         new InAppMuxer.Factory(
             DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
             metadataEntries ->
-                metadataEntries.add(new CreationTime(/* timestampMs= */ 2_000_000_000_000L)));
+                metadataEntries.add(
+                    new Mp4TimestampData(/* creationTimestampSeconds= */ 2_000_000_000L)));
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
