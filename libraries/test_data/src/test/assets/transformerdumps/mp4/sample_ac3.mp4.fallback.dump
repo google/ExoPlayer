@@ -4,8 +4,8 @@ format 0:
   channelCount = 6
   sampleRate = 48000
   pcmEncoding = 2
-  metadata = entries=[Creation time: 1581574441000]
-container metadata = entries=[Creation time: 1581574441000]
+  metadata = entries=[Mp4Timestamp: creation time=3664419241, modification time=3664419241, timescale=600]
+container metadata = entries=[Mp4Timestamp: creation time=3664419241, modification time=3664419241, timescale=600]
 sample:
   trackIndex = 0
   dataHashCode = 1896404418

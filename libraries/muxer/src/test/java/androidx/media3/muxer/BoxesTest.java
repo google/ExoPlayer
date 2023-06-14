@@ -63,7 +63,7 @@ public class BoxesTest {
         Boxes.tkhd(
             /* trackId= */ 1,
             /* trackDurationVu= */ 5_000_000,
-            /* modificationDateUnixMs= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 1_000_000_000,
             /* orientation= */ 90,
             videoFormat);
 
@@ -80,7 +80,7 @@ public class BoxesTest {
         Boxes.tkhd(
             /* trackId= */ 1,
             /* trackDurationVu= */ 5_000_000,
-            /* modificationDateUnixMs= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 1_000_000_000,
             /* orientation= */ 90,
             audioFormat);
 
@@ -94,7 +94,7 @@ public class BoxesTest {
     ByteBuffer mvhdBox =
         Boxes.mvhd(
             /* nextEmptyTrackId= */ 3,
-            /* modificationDateUnixMs= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 1_000_000_000,
             /* videoDurationUs= */ 5_000_000);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(mvhdBox);
@@ -107,7 +107,7 @@ public class BoxesTest {
         Boxes.mdhd(
             /* trackDurationVu= */ 5_000_000,
             VU_TIMEBASE,
-            /* modificationDateUnixMs= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 1_000_000_000,
             /* languageCode= */ "und");
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(mdhdBox);

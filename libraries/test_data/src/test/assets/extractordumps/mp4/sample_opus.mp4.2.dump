@@ -16,7 +16,7 @@ track 0:
     channelCount = 2
     sampleRate = 48000
     language = und
-    metadata = entries=[TSSE: description=null: values=[Lavf58.29.100], Creation time: unset]
+    metadata = entries=[TSSE: description=null: values=[Lavf58.29.100], Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
     initializationData:
       data = length 19, hash 86852AE2
       data = length 8, hash 72CBCBF5
