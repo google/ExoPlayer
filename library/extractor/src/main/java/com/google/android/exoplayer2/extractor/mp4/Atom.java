@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("ConstantField")
+@Deprecated
 /* package */ abstract class Atom {
 
   /** Size of an atom header, in bytes. */

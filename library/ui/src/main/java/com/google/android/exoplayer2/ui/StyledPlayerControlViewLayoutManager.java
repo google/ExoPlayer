@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 /* package */ final class StyledPlayerControlViewLayoutManager {
   private static final long ANIMATION_INTERVAL_MS = 2_000;
   private static final long DURATION_FOR_HIDING_ANIMATION_MS = 250;

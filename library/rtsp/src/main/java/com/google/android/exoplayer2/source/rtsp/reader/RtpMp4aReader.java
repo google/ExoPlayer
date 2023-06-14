@@ -39,7 +39,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Parses an MP4A-LATM byte stream carried on RTP packets, and extracts MP4A-LATM Access Units.
  *
  * <p>Refer to RFC3016 for more details. The LATM byte stream format is defined in ISO/IEC14496-3.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtpMp4aReader implements RtpPayloadReader {
   private static final String TAG = "RtpMp4aReader";
 

@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.util.MediaClock;
 
+@Deprecated
 /* package */ final class TransformerMediaClock implements MediaClock {
 
   private final SparseLongArray trackTypeToTimeUs;

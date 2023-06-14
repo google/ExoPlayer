@@ -170,7 +170,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * The drawables used by {@link StyledPlayerControlView} can be overridden by drawables with the
  * same names defined in your application. See the {@link StyledPlayerControlView} documentation for
  * a list of drawables that can be overridden.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   /** Listener to be notified about changes of the visibility of the UI controls. */

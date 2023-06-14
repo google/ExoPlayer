@@ -38,6 +38,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
+@Deprecated
 /* package */ abstract class ExoAssetLoaderBaseRenderer extends BaseRenderer {
 
   protected long streamStartPositionUs;

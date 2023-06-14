@@ -26,7 +26,15 @@ import com.google.common.base.Joiner;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-/** A debugging tracing utility. */
+/**
+ * A debugging tracing utility.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class DebugTraceUtil {
 
   private static final int MUXER_CAN_WRITE_SAMPLE_RECORD_COUNT = 10;

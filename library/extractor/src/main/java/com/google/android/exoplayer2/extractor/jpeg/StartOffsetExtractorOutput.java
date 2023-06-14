@@ -27,7 +27,13 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
  * <p>This is useful for extracting from a container that's concatenated after some prefix data but
  * where the container's extractor doesn't handle a non-zero start offset (for example, because it
  * seeks to absolute positions read from the container data).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class StartOffsetExtractorOutput implements ExtractorOutput {
 
   private final long startOffset;

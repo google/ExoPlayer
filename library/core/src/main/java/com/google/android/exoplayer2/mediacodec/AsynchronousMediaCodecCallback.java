@@ -30,8 +30,16 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A {@link MediaCodec.Callback} that routes callbacks on a separate thread. */
+/**
+ * A {@link MediaCodec.Callback} that routes callbacks on a separate thread.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @RequiresApi(23)
+@Deprecated
 /* package */ final class AsynchronousMediaCodecCallback extends MediaCodec.Callback {
   private final Object lock;
   private final HandlerThread callbackThread;

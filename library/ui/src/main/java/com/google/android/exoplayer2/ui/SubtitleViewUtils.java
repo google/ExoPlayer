@@ -27,7 +27,15 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.LanguageFeatureSpan;
 import com.google.common.base.Predicate;
 
-/** Utility class for subtitle layout logic. */
+/**
+ * Utility class for subtitle layout logic.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class SubtitleViewUtils {
 
   /**

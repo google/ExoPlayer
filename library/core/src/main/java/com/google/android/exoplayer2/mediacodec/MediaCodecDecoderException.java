@@ -21,7 +21,15 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.util.Util;
 
-/** Thrown when a failure occurs in a {@link MediaCodec} decoder. */
+/**
+ * Thrown when a failure occurs in a {@link MediaCodec} decoder.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class MediaCodecDecoderException extends DecoderException {
 
   /** The {@link MediaCodecInfo} of the decoder that failed. Null if unknown. */

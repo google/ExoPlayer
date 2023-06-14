@@ -26,7 +26,15 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 
-/** Parses track chunk bytes from standard MIDI files. */
+/**
+ * Parses track chunk bytes from standard MIDI files.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class TrackChunk implements Comparable<TrackChunk> {
 
   /** A listener for changes to track tempo. */

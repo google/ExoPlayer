@@ -28,7 +28,15 @@ import com.google.errorprone.annotations.InlineMe;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Text information ID3 frame. */
+/**
+ * Text information ID3 frame.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class TextInformationFrame extends Id3Frame {
 
   @Nullable public final String description;

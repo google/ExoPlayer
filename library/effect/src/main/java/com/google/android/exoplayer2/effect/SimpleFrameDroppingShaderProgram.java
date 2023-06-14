@@ -29,7 +29,13 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *
  * <p>For example, if the input stream came in at 60fps and the targeted frame rate was 20fps, every
  * 3rd frame would be kept. If n is not an integer, then we round to the nearest one.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class SimpleFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
 
   private final int n;

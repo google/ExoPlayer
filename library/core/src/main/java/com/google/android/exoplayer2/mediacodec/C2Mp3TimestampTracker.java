@@ -28,7 +28,13 @@ import java.nio.ByteBuffer;
 /**
  * Tracks the number of processed samples to calculate an accurate current timestamp, matching the
  * calculations made in the Codec2 Mp3 decoder.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class C2Mp3TimestampTracker {
 
   private static final long DECODER_DELAY_FRAMES = 529;

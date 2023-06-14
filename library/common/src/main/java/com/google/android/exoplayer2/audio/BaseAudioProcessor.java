@@ -24,7 +24,13 @@ import java.nio.ByteOrder;
  * Base class for audio processors that keep an output buffer and an internal buffer that is reused
  * whenever input is queued. Subclasses should override {@link #onConfigure(AudioFormat)} to return
  * the output audio format for the processor if it's active.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class BaseAudioProcessor implements AudioProcessor {
 
   /** The current input audio format. */

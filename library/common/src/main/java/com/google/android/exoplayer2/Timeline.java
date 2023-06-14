@@ -137,9 +137,15 @@ import java.util.List;
  *
  * <p>This case includes mid-roll ad groups, which are defined as part of the timeline's single
  * period. The period can be queried for information about the ad groups and the ads they contain.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
 // developer.android.com.
+@Deprecated
 public abstract class Timeline implements Bundleable {
 
   /**

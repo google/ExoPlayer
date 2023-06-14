@@ -22,7 +22,15 @@ import java.nio.ByteBuffer;
 import org.chromium.net.UploadDataProvider;
 import org.chromium.net.UploadDataSink;
 
-/** A {@link UploadDataProvider} implementation that provides data from a {@code byte[]}. */
+/**
+ * A {@link UploadDataProvider} implementation that provides data from a {@code byte[]}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class ByteArrayUploadDataProvider extends UploadDataProvider {
 
   private final byte[] data;

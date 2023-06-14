@@ -26,7 +26,13 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *
  * <p>Example usage: cache the processed frames when presenting them on screen, to accommodate for
  * the possible fluctuation in video frame processing time between frames.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class FrameCache implements GlEffect {
   /** The capacity of the frame cache. */
   public final int capacity;

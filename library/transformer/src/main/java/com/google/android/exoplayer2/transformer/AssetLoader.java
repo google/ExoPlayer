@@ -45,7 +45,13 @@ import java.lang.annotation.Target;
  * flattening} is requested, the asset loader should flatten the video track for media containing
  * slow motion markers. This is usually done prior to decoding. The audio samples are flattened
  * after they are output by the {@link AssetLoader}, because this is done on decoded samples.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface AssetLoader {
 
   /** A factory for {@link AssetLoader} instances. */

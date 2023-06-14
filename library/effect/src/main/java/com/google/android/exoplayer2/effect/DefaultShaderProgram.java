@@ -50,8 +50,14 @@ import java.util.List;
  * <p>The background color of the output frame will be (r=0, g=0, b=0, a=0).
  *
  * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
+@Deprecated
 /* package */ final class DefaultShaderProgram extends SingleFrameGlShaderProgram
     implements ExternalShaderProgram {
 

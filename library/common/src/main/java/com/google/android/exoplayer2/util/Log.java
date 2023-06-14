@@ -32,7 +32,13 @@ import org.checkerframework.dataflow.qual.Pure;
 /**
  * Wrapper around {@link android.util.Log} which allows to set the log level and to specify a custom
  * log output.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class Log {
 
   /**

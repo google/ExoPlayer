@@ -24,7 +24,15 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Collections;
 
-/** Parses audio tags from an FLV stream and extracts AAC frames. */
+/**
+ * Parses audio tags from an FLV stream and extracts AAC frames.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class AudioTagPayloadReader extends TagPayloadReader {
 
   private static final int AUDIO_FORMAT_MP3 = 2;

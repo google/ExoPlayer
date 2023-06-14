@@ -38,7 +38,13 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *
  * <p>Where T_lastQueued is the timestamp of the last queued frame and T_(x+1) is the timestamp of
  * the next frame. The target frame interval is determined from {@code targetFps}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class DefaultFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
   private final long targetFrameDeltaUs;
 

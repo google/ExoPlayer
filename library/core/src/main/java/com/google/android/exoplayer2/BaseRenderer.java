@@ -31,7 +31,15 @@ import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** An abstract base class suitable for most {@link Renderer} implementations. */
+/**
+ * An abstract base class suitable for most {@link Renderer} implementations.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final Object lock;

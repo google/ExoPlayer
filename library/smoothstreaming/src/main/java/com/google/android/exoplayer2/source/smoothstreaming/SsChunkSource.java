@@ -23,7 +23,15 @@ import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
-/** A {@link ChunkSource} for SmoothStreaming. */
+/**
+ * A {@link ChunkSource} for SmoothStreaming.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public interface SsChunkSource extends ChunkSource {
 
   /** Factory for {@link SsChunkSource}s. */

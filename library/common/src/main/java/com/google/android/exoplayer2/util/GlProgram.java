@@ -32,7 +32,13 @@ import java.util.Map;
  *
  * <p>After constructing a program, keep a reference for its lifetime and call {@link #delete()} (or
  * release the current GL context) when it's no longer needed.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class GlProgram {
 
   // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt

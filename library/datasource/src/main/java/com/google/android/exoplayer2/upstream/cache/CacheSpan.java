@@ -19,7 +19,15 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.File;
 
-/** Defines a span of data that may or may not be cached (as indicated by {@link #isCached}). */
+/**
+ * Defines a span of data that may or may not be cached (as indicated by {@link #isCached}).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class CacheSpan implements Comparable<CacheSpan> {
 
   /** The cache key that uniquely identifies the resource. */

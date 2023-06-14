@@ -241,7 +241,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * single instance in a layout file. This is achieved by setting the {@code controller_layout_id}
  * attribute on a PlayerControlView. This will cause the specified layout to be inflated instead of
  * {@code exo_player_control_view.xml} for only the instance on which the attribute is set.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class PlayerControlView extends FrameLayout {
 
   static {

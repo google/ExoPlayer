@@ -35,7 +35,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Creates {@link TextureOverlay}s from {@link Bitmap}s.
  *
  * <p>Useful for overlaying images and animated images (e.g. GIFs).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class BitmapOverlay extends TextureOverlay {
   private int lastTextureId;
   private @MonotonicNonNull Bitmap lastBitmap;

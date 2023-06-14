@@ -49,7 +49,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>Received RTP packets' payloads will be extracted by an {@link RtpExtractor}, and will be
  * written to the {@link ExtractorOutput} instance provided at construction.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtpDataLoadable implements Loader.Loadable {
 
   /** Called on loadable events. */

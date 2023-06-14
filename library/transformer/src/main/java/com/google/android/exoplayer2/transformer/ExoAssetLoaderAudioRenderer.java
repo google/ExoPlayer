@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
+@Deprecated
 /* package */ final class ExoAssetLoaderAudioRenderer extends ExoAssetLoaderBaseRenderer {
 
   private static final String TAG = "ExoAssetLoaderAudioRenderer";

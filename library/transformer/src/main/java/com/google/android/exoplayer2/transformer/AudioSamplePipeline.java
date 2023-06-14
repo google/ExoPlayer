@@ -38,7 +38,15 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Pipeline to process, re-encode and mux raw audio samples. */
+/**
+ * Pipeline to process, re-encode and mux raw audio samples.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class AudioSamplePipeline extends SamplePipeline {
 
   private static final int MAX_INPUT_BUFFER_COUNT = 10;

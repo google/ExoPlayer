@@ -64,7 +64,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Transformer.Builder} is created on is used, or if that thread does not have a Looper, the Looper
  * of the application's main thread is used. In all cases the Looper of the thread from which the
  * transformer must be accessed can be queried using {@link #getApplicationLooper()}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class Transformer {
 
   static {

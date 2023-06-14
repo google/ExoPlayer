@@ -43,10 +43,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Contains information about a specific cue, including textual content and formatting data. */
+/**
+ * Contains information about a specific cue, including textual content and formatting data.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 // This class shouldn't be sub-classed. If a subtitle format needs additional fields, either they
 // should be generic enough to be added here, or the format-specific decoder should pass the
 // information around in a sidecar object.
+@Deprecated
 public final class Cue implements Bundleable {
 
   /** The empty cue. */

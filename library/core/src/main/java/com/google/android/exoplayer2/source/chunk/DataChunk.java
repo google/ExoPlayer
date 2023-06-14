@@ -29,7 +29,13 @@ import java.util.Arrays;
 /**
  * A base class for {@link Chunk} implementations where the data should be loaded into a {@code
  * byte[]} before being consumed.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class DataChunk extends Chunk {
 
   private static final int READ_GRANULARITY = 16 * 1024;

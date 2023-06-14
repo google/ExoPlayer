@@ -21,7 +21,15 @@ import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.util.concurrent.Executor;
 
-/** Applies a {@link TimestampWrapper} to apply a wrapped {@link GlEffect} on certain timestamps. */
+/**
+ * Applies a {@link TimestampWrapper} to apply a wrapped {@link GlEffect} on certain timestamps.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class TimestampWrapperShaderProgram implements GlShaderProgram {
 
   private final GlShaderProgram copyGlShaderProgram;

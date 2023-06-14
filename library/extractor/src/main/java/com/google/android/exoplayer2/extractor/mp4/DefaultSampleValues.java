@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+@Deprecated
 /* package */ final class DefaultSampleValues {
 
   public final int sampleDescriptionIndex;

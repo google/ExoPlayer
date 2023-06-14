@@ -35,7 +35,15 @@ import java.nio.ByteBuffer;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/** Decodes MIDI commands into PCM. */
+/**
+ * Decodes MIDI commands into PCM.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class MidiDecoder
     extends SimpleDecoder<DecoderInputBuffer, SimpleDecoderOutputBuffer, MidiDecoderException> {
 

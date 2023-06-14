@@ -62,6 +62,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+@Deprecated
 /* package */ final class TransformerInternal implements MuxerWrapper.Listener {
 
   public interface Listener {

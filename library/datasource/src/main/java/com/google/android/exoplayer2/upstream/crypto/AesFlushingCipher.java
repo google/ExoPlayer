@@ -33,7 +33,13 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * <p>Unlike a regular {@link Cipher}, the update methods of this class are guaranteed to process
  * all of the bytes input (and hence output the same number of bytes).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class AesFlushingCipher {
 
   private final Cipher cipher;

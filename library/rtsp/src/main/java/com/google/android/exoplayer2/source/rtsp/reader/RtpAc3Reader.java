@@ -29,7 +29,14 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Parses an AC3 byte stream carried on RTP packets, and extracts AC3 frames. */
+/**
+ * Parses an AC3 byte stream carried on RTP packets, and extracts AC3 frames.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 /* package */ public final class RtpAc3Reader implements RtpPayloadReader {
 
   /** AC3 frame types defined in RFC4184 Section 4.1.1. */

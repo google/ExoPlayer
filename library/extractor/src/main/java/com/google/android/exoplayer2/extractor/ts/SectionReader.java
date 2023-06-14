@@ -27,7 +27,13 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Reads section data packets and feeds the whole sections to a given {@link SectionPayloadReader}.
  * Useful information on PSI sections can be found in ISO/IEC 13818-1, section 2.4.4.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class SectionReader implements TsPayloadReader {
 
   private static final int SECTION_HEADER_LENGTH = 3;

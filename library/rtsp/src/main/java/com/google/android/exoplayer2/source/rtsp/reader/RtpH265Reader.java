@@ -35,7 +35,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /**
  * Parses an H265 byte stream carried on RTP packets, and extracts H265 Access Units. Refer to
  * RFC7798 for more details.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtpH265Reader implements RtpPayloadReader {
 
   private static final String TAG = "RtpH265Reader";

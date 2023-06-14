@@ -49,7 +49,13 @@ import java.util.Set;
  * Concatenates multiple {@link MediaSource}s. The list of {@link MediaSource}s can be modified
  * during playback. It is valid for the same {@link MediaSource} instance to be present more than
  * once in the concatenation. Access to this class is thread-safe.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder> {
 
   private static final int MSG_ADD = 0;

@@ -28,7 +28,13 @@ import java.util.PriorityQueue;
  * unregister. A registered task will prevent tasks of lower priority from proceeding, and should
  * call {@link #proceed(int)}, {@link #proceedNonBlocking(int)} or {@link #proceedOrThrow(int)} each
  * time it wishes to check whether it is itself allowed to proceed.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class PriorityTaskManager {
 
   /** Thrown when task attempts to proceed when another registered task has a higher priority. */

@@ -17,8 +17,16 @@ package com.google.android.exoplayer2.metadata.vorbis;
 
 import android.os.Parcel;
 
-/** A vorbis comment, extracted from a FLAC or Ogg file. */
+/**
+ * A vorbis comment, extracted from a FLAC or Ogg file.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @SuppressWarnings("deprecation") // Extending deprecated type for backwards compatibility.
+@Deprecated
 public final class VorbisComment extends com.google.android.exoplayer2.metadata.flac.VorbisComment {
 
   /**

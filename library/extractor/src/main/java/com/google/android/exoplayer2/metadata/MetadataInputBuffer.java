@@ -18,7 +18,15 @@ package com.google.android.exoplayer2.metadata;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
-/** A {@link DecoderInputBuffer} for a {@link MetadataDecoder}. */
+/**
+ * A {@link DecoderInputBuffer} for a {@link MetadataDecoder}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class MetadataInputBuffer extends DecoderInputBuffer {
 
   /**

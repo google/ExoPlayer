@@ -48,7 +48,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *
  * <p>Instances are immutable. Call the {@code with*} methods to get new instances that have the
  * required changes.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class AdPlaybackState implements Bundleable {
 
   /**

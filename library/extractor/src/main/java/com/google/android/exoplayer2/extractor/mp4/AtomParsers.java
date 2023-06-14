@@ -56,8 +56,16 @@ import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
+/**
+ * Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @SuppressWarnings("ConstantField")
+@Deprecated
 /* package */ final class AtomParsers {
 
   /** Stores metadata retrieved from the udta atom. */

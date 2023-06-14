@@ -21,7 +21,13 @@ import java.util.Locale;
  * A template from which URLs can be built.
  *
  * <p>URLs are built according to the substitution rules defined in ISO/IEC 23009-1:2014 5.3.9.4.4.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class UrlTemplate {
 
   private static final String REPRESENTATION = "RepresentationID";

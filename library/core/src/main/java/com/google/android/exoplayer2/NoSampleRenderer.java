@@ -26,7 +26,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * A {@link Renderer} implementation whose track type is {@link C#TRACK_TYPE_NONE} and does not
  * consume data from its {@link SampleStream}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class NoSampleRenderer implements Renderer, RendererCapabilities {
 
   private @MonotonicNonNull RendererConfiguration configuration;

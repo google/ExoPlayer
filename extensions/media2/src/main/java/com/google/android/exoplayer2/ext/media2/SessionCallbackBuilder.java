@@ -44,7 +44,12 @@ import java.util.List;
  * Builds a {@link MediaSession.SessionCallback} with various collaborators.
  *
  * @see MediaSession.SessionCallback
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class SessionCallbackBuilder {
   /** Default timeout value for {@link #setSeekTimeoutMs}. */
   public static final int DEFAULT_SEEK_TIMEOUT_MS = 1_000;

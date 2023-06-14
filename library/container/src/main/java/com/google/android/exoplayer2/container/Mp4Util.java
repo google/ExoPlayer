@@ -15,7 +15,15 @@
  */
 package com.google.android.exoplayer2.container;
 
-/** Utilities for MP4 container. */
+/**
+ * Utilities for MP4 container.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class Mp4Util {
   private static final int UNIX_EPOCH_TO_MP4_TIME_DELTA_SECONDS =
       ((1970 - 1904) * 365 + 17 /* leap year */) * (24 * 60 * 60);

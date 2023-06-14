@@ -18,7 +18,15 @@ package com.google.android.exoplayer2.metadata;
 import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 
-/** Decodes metadata from binary data. */
+/**
+ * Decodes metadata from binary data.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public interface MetadataDecoder {
 
   /**

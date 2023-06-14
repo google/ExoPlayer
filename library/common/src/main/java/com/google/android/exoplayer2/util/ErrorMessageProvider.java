@@ -17,7 +17,15 @@ package com.google.android.exoplayer2.util;
 
 import android.util.Pair;
 
-/** Converts throwables into error codes and user readable error messages. */
+/**
+ * Converts throwables into error codes and user readable error messages.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public interface ErrorMessageProvider<T extends Throwable> {
 
   /**
