@@ -108,7 +108,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     state = STATE_ENABLED;
     onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, startPositionUs, offsetUs);
-    resetPosition(positionUs, joining);
+    resetPosition(startPositionUs, joining);
   }
 
   @Override

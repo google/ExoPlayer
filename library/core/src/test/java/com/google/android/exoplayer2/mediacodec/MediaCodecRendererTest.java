@@ -19,6 +19,9 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
@@ -323,6 +326,90 @@ public class MediaCodecRendererTest {
     inOrder.verify(renderer).onProcessedOutputBuffer(400);
   }
 
+  @Test
+  public void render_afterEnableWithStartPositionUs_skipsSamplesBeforeStartPositionUs()
+      throws Exception {
+    Format format =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1000).build();
+    FakeSampleStream fakeSampleStream =
+        createFakeSampleStream(format, /* sampleTimesUs...= */ 0, 100, 200, 300, 400, 500);
+    MediaCodecRenderer renderer = spy(new TestRenderer());
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {format},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 300,
+        /* offsetUs= */ 0);
+    renderer.start();
+    renderer.setCurrentStreamFinal();
+    long positionUs = 0;
+    while (!renderer.isEnded()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+
+    InOrder inOrder = inOrder(renderer);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 0, /* isDecodeOnly= */ true);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 100, /* isDecodeOnly= */ true);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 200, /* isDecodeOnly= */ true);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 300, /* isDecodeOnly= */ false);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 400, /* isDecodeOnly= */ false);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 500, /* isDecodeOnly= */ false);
+  }
+
+  @Test
+  public void render_afterPositionReset_skipsSamplesBeforeStartPositionUs() throws Exception {
+    Format format =
+        new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1000).build();
+    FakeSampleStream fakeSampleStream =
+        createFakeSampleStream(format, /* sampleTimesUs...= */ 0, 100, 200, 300, 400, 500);
+    MediaCodecRenderer renderer = spy(new TestRenderer());
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {format},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 400,
+        /* offsetUs= */ 0);
+    renderer.start();
+
+    renderer.resetPosition(/* positionUs= */ 200);
+    renderer.setCurrentStreamFinal();
+    long positionUs = 0;
+    while (!renderer.isEnded()) {
+      renderer.render(positionUs, SystemClock.elapsedRealtime());
+      positionUs += 100;
+    }
+
+    InOrder inOrder = inOrder(renderer);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 0, /* isDecodeOnly= */ true);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 100, /* isDecodeOnly= */ true);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 200, /* isDecodeOnly= */ false);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 300, /* isDecodeOnly= */ false);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 400, /* isDecodeOnly= */ false);
+    verifyProcessOutputBufferDecodeOnly(
+        inOrder, renderer, /* presentationTimeUs= */ 500, /* isDecodeOnly= */ false);
+  }
+
   private FakeSampleStream createFakeSampleStream(Format format, long... sampleTimesUs) {
     ImmutableList.Builder<FakeSampleStream.FakeSampleStreamItem> sampleListBuilder =
         ImmutableList.builder();
@@ -428,5 +515,24 @@ public class MediaCodecRendererTest {
           REUSE_RESULT_YES_WITHOUT_RECONFIGURATION,
           /* discardReasons= */ 0);
     }
+  }
+
+  private static void verifyProcessOutputBufferDecodeOnly(
+      InOrder inOrder, MediaCodecRenderer renderer, long presentationTimeUs, boolean isDecodeOnly)
+      throws Exception {
+    inOrder
+        .verify(renderer)
+        .processOutputBuffer(
+            anyLong(),
+            anyLong(),
+            any(),
+            any(),
+            anyInt(),
+            anyInt(),
+            anyInt(),
+            eq(presentationTimeUs),
+            eq(isDecodeOnly),
+            anyBoolean(),
+            any());
   }
 }
