@@ -255,7 +255,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
-        /* startPositionUs= */ 0,
+        /* startPositionUs= */ 30_000,
         /* offsetUs= */ 0);
 
     mediaCodecVideoRenderer.start();
