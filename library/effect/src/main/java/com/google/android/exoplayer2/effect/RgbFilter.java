@@ -22,7 +22,15 @@ import android.content.Context;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Provides common color filters. */
+/**
+ * Provides common color filters.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class RgbFilter implements RgbMatrix {
   private static final int COLOR_FILTER_GRAYSCALE_INDEX = 1;
   private static final int COLOR_FILTER_INVERTED_INDEX = 2;

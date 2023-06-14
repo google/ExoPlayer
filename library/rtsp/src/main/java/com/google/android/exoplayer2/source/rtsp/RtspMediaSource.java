@@ -42,7 +42,15 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import javax.net.SocketFactory;
 
-/** An Rtsp {@link MediaSource} */
+/**
+ * An Rtsp {@link MediaSource}
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class RtspMediaSource extends BaseMediaSource {
 
   static {

@@ -42,7 +42,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/** Builder for a dialog with a {@link TrackSelectionView}. */
+/**
+ * Builder for a dialog with a {@link TrackSelectionView}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class TrackSelectionDialogBuilder {
 
   /** Callback which is invoked when a track selection has been made. */

@@ -48,7 +48,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** Default implementation for {@link HlsPlaylistTracker}. */
+/**
+ * Default implementation for {@link HlsPlaylistTracker}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class DefaultHlsPlaylistTracker
     implements HlsPlaylistTracker, Loader.Callback<ParsingLoadable<HlsPlaylist>> {
 

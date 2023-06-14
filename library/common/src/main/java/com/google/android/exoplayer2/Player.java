@@ -169,7 +169,13 @@ import java.util.List;
  * internally handled asynchronously. For this reason, implementations are advised to inherit {@link
  * SimpleBasePlayer} that handles all of these complexities and provides a simpler integration point
  * for implementors of the interface.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface Player {
 
   /** A set of {@linkplain Event events}. */

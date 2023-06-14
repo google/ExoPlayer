@@ -20,7 +20,15 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import java.io.EOFException;
 import java.io.IOException;
 
-/** Reads EBML variable-length integers (varints) from an {@link ExtractorInput}. */
+/**
+ * Reads EBML variable-length integers (varints) from an {@link ExtractorInput}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class VarintReader {
 
   private static final int STATE_BEGIN_READING = 0;

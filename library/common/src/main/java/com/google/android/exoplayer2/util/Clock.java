@@ -22,7 +22,13 @@ import androidx.annotation.Nullable;
 /**
  * An interface through which system clocks can be read and {@link HandlerWrapper}s created. The
  * {@link #DEFAULT} implementation must be used for all non-test cases.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface Clock {
 
   /** Default {@link Clock} to use for all non-test cases. */

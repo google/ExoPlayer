@@ -152,9 +152,15 @@ import java.util.List;
  *   <li>Injected player components may use additional background threads. For example a MediaSource
  *       may use background threads to load data. These are implementation specific.
  * </ul>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
 // developer.android.com.
+@Deprecated
 public interface ExoPlayer extends Player {
 
   /**

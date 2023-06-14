@@ -27,7 +27,13 @@ import java.util.ArrayList;
  * <p>Subclasses must call {@link #transferInitializing(DataSpec)}, {@link
  * #transferStarted(DataSpec)}, {@link #bytesTransferred(int)}, and {@link #transferEnded()} to
  * inform listeners of data transfers.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class BaseDataSource implements DataSource {
 
   private final boolean isNetwork;

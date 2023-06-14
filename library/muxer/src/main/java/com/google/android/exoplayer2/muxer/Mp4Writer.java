@@ -39,7 +39,15 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Writes MP4 data to the disk. */
+/**
+ * Writes MP4 data to the disk.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class Mp4Writer {
   private static final long INTERLEAVE_DURATION_US = 1_000_000L;
 

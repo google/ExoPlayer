@@ -24,7 +24,13 @@ package com.google.android.exoplayer2.effect;
  * GlShaderProgram} directly.
  *
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class SingleFrameGlShaderProgram extends BaseGlShaderProgram {
 
   // TODO(b/275384398): Remove this class as it only wraps the BaseGlShaderProgram.

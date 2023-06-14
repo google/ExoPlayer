@@ -19,7 +19,15 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
-/** Utility methods for handling CEA-608/708 messages. Defined in A/53 Part 4:2009. */
+/**
+ * Utility methods for handling CEA-608/708 messages. Defined in A/53 Part 4:2009.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class CeaUtil {
 
   private static final String TAG = "CeaUtil";

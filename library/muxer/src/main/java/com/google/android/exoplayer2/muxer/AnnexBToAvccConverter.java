@@ -24,7 +24,13 @@ import java.nio.ByteBuffer;
  * Converts a buffer containing H.264/H.265 NAL units from the Annex-B format (ISO/IEC 14496-14
  * Annex B, which uses start codes to delineate NAL units) to the avcC format (ISO/IEC 14496-15,
  * which uses length prefixes).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface AnnexBToAvccConverter {
   /** Default implementation for {@link AnnexBToAvccConverter}. */
   AnnexBToAvccConverter DEFAULT =

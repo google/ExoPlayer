@@ -51,7 +51,13 @@ import java.util.regex.Pattern;
  * href="https://developer.android.com/guide/topics/text/spans">span-styled text</a> to HTML.
  *
  * <p>Supports all of the spans used by subtitle decoders.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class SpannedToHtmlConverter {
 
   // Matches /n and /r/n in ampersand-encoding (returned from Html.escapeHtml).

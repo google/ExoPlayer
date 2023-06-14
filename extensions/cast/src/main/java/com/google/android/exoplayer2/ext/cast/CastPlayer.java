@@ -78,7 +78,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * available, in which case, the last observed receiver app state is reported.
  *
  * <p>Methods should be called on the application's main thread.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class CastPlayer extends BasePlayer {
 
   /** The {@link DeviceInfo} returned by {@link #getDeviceInfo() this player}. */

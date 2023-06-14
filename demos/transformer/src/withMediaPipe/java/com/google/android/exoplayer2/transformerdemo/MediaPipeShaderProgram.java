@@ -43,7 +43,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-/** Runs a MediaPipe graph on input frames. */
+/**
+ * Runs a MediaPipe graph on input frames.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class MediaPipeShaderProgram implements GlShaderProgram {
 
   private static final String THREAD_NAME = "Demo:MediaPipeShaderProgram";

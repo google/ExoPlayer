@@ -62,7 +62,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>This wrapper is used for the final {@link DefaultShaderProgram} instance in the chain of
  * {@link DefaultShaderProgram} instances used by {@link VideoFrameProcessor}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class FinalShaderProgramWrapper implements GlShaderProgram {
 
   /** Listener interface for the current input stream ending. */

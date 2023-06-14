@@ -29,8 +29,13 @@ import java.util.Queue;
  * consumingGlShaderProgram} at a consumable pace.
  *
  * <p>Frames are stored as a {@link GlTextureInfo} with a {@code presentationTimeUs}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
-
+@Deprecated
 /* package */ final class FrameConsumptionManager implements GlShaderProgram.InputListener {
   private final GlShaderProgram consumingGlShaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;

@@ -48,7 +48,12 @@ import java.util.concurrent.Executor;
  * Base class for multi segment stream downloaders.
  *
  * @param <M> The type of the manifest object.
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class SegmentDownloader<M extends FilterableManifest<M>> implements Downloader {
 
   /** Smallest unit of content to be downloaded. */

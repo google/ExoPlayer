@@ -32,7 +32,13 @@ import java.io.IOException;
  * duration to interpolate the SCR value of the seeking position. Then it performs binary search
  * within the stream to find a packets whose SCR value is with in {@link #SEEK_TOLERANCE_US} from
  * the target SCR.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class PsBinarySearchSeeker extends BinarySearchSeeker {
 
   private static final long SEEK_TOLERANCE_US = 100_000;

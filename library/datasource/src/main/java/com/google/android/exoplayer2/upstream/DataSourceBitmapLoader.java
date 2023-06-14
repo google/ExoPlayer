@@ -39,7 +39,13 @@ import java.util.concurrent.Executors;
  * <p>Loading tasks are delegated to a {@link ListeningExecutorService} defined during construction.
  * If no executor service is passed, all tasks are delegated to a single-thread executor service
  * that is shared between instances of this class.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class DataSourceBitmapLoader implements BitmapLoader {
 
   public static final Supplier<ListeningExecutorService> DEFAULT_EXECUTOR_SERVICE =

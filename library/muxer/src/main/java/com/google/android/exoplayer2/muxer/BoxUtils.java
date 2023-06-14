@@ -19,7 +19,15 @@ import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-/** Utilities for dealing with MP4 boxes. */
+/**
+ * Utilities for dealing with MP4 boxes.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class BoxUtils {
   private static final int BOX_TYPE_BYTES = 4;
   private static final int BOX_SIZE_BYTES = 4;

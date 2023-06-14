@@ -19,7 +19,15 @@ import android.os.Handler;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 
-/** The interface for different bandwidth estimation strategies. */
+/**
+ * The interface for different bandwidth estimation strategies.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public interface BandwidthEstimator {
 
   long ESTIMATE_NOT_AVAILABLE = Long.MIN_VALUE;

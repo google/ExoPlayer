@@ -52,7 +52,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * thread. In particular, when awaiting the result of an asynchronous session player operation, apps
  * should generally use {@link ListenableFuture#addListener(Runnable, Executor)} to be notified of
  * completion, rather than calling the blocking {@link ListenableFuture#get()} method.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class SessionPlayerConnector extends SessionPlayer {
 
   static {

@@ -38,7 +38,13 @@ import java.util.List;
  *
  * <p>This class keeps track of the duration reported by the current item to fill any missing
  * durations in the media queue items [See internal: b/65152553].
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class CastTimelineTracker {
 
   private final SparseArray<CastTimeline.ItemData> itemIdToData;

@@ -59,7 +59,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A default {@link DashChunkSource} implementation. */
+/**
+ * A default {@link DashChunkSource} implementation.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class DefaultDashChunkSource implements DashChunkSource {
 
   public static final class Factory implements DashChunkSource.Factory {

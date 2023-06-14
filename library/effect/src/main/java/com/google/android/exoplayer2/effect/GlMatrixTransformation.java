@@ -30,7 +30,13 @@ import com.google.common.collect.ImmutableList;
  *
  * <p>Output frame pixels outside of the transformed input frame will be black, with alpha = 0 if
  * applicable.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface GlMatrixTransformation extends GlEffect {
   /**
    * Configures the input and output dimensions.

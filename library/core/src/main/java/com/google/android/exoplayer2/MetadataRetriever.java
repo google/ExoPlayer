@@ -40,7 +40,15 @@ import com.google.common.util.concurrent.SettableFuture;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 // TODO(internal b/161127201): discard samples written to the sample queue.
-/** Retrieves the static metadata of {@link MediaItem MediaItems}. */
+/**
+ * Retrieves the static metadata of {@link MediaItem MediaItems}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class MetadataRetriever {
 
   private MetadataRetriever() {}

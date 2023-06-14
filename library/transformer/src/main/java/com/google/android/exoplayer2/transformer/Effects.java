@@ -21,7 +21,15 @@ import com.google.android.exoplayer2.util.Effect;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-/** Effects to apply to a {@link MediaItem} or to a {@link Composition}. */
+/**
+ * Effects to apply to a {@link MediaItem} or to a {@link Composition}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class Effects {
 
   /** An empty {@link Effects} instance. */

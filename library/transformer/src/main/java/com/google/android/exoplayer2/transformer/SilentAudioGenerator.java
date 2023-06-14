@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Deprecated
 /* package */ final class SilentAudioGenerator {
   private static final int DEFAULT_BUFFER_SIZE_FRAMES = 1024;
 

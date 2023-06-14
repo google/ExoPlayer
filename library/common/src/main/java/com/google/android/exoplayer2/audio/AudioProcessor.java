@@ -30,7 +30,13 @@ import java.nio.ByteOrder;
  *
  * <p>In addition to being able to modify the format of audio, implementations may allow parameters
  * to be set that affect the output audio and whether the processor is active/inactive.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface AudioProcessor {
 
   /** PCM audio format that may be handled by an audio processor. */

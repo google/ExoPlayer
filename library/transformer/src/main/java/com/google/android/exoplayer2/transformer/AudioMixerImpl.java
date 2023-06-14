@@ -31,7 +31,15 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/** An {@link AudioMixer} that incrementally mixes source audio into a fixed size mixing buffer. */
+/**
+ * An {@link AudioMixer} that incrementally mixes source audio into a fixed size mixing buffer.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class AudioMixerImpl implements AudioMixer {
 
   private static final ByteBuffer EMPTY_BUFFER =

@@ -33,7 +33,13 @@ import com.google.android.exoplayer2.util.Util;
  * closest to {@code x}. If no sync point falls within the window then the seek will be performed to
  * {@code x - toleranceBeforeUs}. Internally the player may need to seek to an earlier sync point
  * and discard media until this position is reached.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class SeekParameters {
 
   /** Parameters for exact seeking. */

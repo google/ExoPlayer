@@ -40,7 +40,13 @@ import java.util.concurrent.Executor;
  * implement a {@link GlShaderProgram} that produces exactly one output frame per input frame.
  *
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class BaseGlShaderProgram implements GlShaderProgram {
   private final TexturePool outputTexturePool;
   protected InputListener inputListener;

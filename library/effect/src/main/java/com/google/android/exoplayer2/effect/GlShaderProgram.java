@@ -43,7 +43,13 @@ import java.util.concurrent.Executor;
  * <p>The methods in this interface must be called on the thread that owns the parent OpenGL
  * context. If the implementation uses another OpenGL context, e.g., on another thread, it must
  * configure it to share data with the context of thread the interface methods are called on.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface GlShaderProgram {
 
   /**

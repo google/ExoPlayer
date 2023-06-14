@@ -59,7 +59,13 @@ import java.util.zip.GZIPInputStream;
  * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default properties that can
  * be passed to {@link HttpDataSource.Factory#setDefaultRequestProperties(Map)}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   /** {@link DataSource.Factory} for {@link DefaultHttpDataSource} instances. */

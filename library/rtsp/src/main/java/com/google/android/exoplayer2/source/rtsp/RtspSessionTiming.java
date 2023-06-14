@@ -29,7 +29,13 @@ import java.util.regex.Pattern;
  * Represent the timing (RTSP Normal Playback Time format) of an RTSP session.
  *
  * <p>Currently only NPT is supported. See RFC2326 Section 3.6 for detail of NPT.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtspSessionTiming {
   /** The default session timing starting from 0.000 and indefinite length, effectively live. */
   public static final RtspSessionTiming DEFAULT =

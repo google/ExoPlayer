@@ -25,7 +25,13 @@ import java.nio.ByteBuffer;
 /**
  * An {@link AudioProcessor} that applies a mapping from input channels onto specified output
  * channels. This can be used to reorder, duplicate or discard channels.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
 
   @Nullable private int[] pendingOutputChannels;

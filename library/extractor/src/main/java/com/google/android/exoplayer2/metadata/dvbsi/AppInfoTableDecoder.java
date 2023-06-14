@@ -30,7 +30,13 @@ import java.util.ArrayList;
  * <p>For more info on the AIT see section 5.3.4 of the <a
  * href="https://www.etsi.org/deliver/etsi_ts/102800_102899/102809/01.01.01_60/ts_102809v010101p.pdf">
  * DVB ETSI TS 102 809 v1.1.1 spec</a>.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class AppInfoTableDecoder extends SimpleMetadataDecoder {
 
   /** See section 5.3.6. */

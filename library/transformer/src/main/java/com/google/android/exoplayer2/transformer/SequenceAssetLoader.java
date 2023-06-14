@@ -46,7 +46,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * An {@link AssetLoader} that is composed of a {@linkplain EditedMediaItemSequence sequence} of
  * non-overlapping {@linkplain AssetLoader asset loaders}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class SequenceAssetLoader implements AssetLoader, AssetLoader.Listener {
 
   private static final Format FORCE_AUDIO_TRACK_FORMAT =

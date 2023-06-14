@@ -29,7 +29,13 @@ import java.io.IOException;
 /**
  * A {@link SingleFrameGlShaderProgram} that periodically dims the frames such that pixels are
  * darker the further they are away from the frame center.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class PeriodicVignetteShaderProgram extends SingleFrameGlShaderProgram {
 
   private static final String VERTEX_SHADER_PATH = "vertex_shader_copy_es2.glsl";

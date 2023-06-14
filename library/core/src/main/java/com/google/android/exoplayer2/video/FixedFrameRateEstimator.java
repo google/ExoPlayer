@@ -22,7 +22,13 @@ import java.util.Arrays;
 
 /**
  * Attempts to detect and refine a fixed frame rate estimate based on frame presentation timestamps.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class FixedFrameRateEstimator {
 
   /** The number of consecutive matching frame durations required to detect a fixed frame rate. */

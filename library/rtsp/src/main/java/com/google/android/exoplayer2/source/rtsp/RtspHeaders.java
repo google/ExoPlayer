@@ -32,7 +32,13 @@ import java.util.Map;
  * <p>{@link Builder} must be used to construct an instance. Use {@link #get} to query header values
  * with case-insensitive header names. The extra spaces around header names and values are trimmed.
  * Contrary to HTTP, RTSP does not allow ambiguous/arbitrary header names (RFC 2326 Section 12).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtspHeaders {
 
   public static final String ACCEPT = "Accept";

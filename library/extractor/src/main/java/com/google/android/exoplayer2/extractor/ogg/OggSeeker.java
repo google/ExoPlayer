@@ -24,7 +24,13 @@ import java.io.IOException;
  * Used to seek in an Ogg stream. OggSeeker implementation may do direct seeking or progressive
  * seeking. OggSeeker works together with a {@link SeekMap} instance to capture the queried position
  * and start the seeking with an initial estimated position.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ interface OggSeeker {
 
   /**

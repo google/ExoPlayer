@@ -18,7 +18,15 @@ package com.google.android.exoplayer2.muxer;
 import android.media.MediaFormat;
 import com.google.common.collect.ImmutableList;
 
-/** Utilities for color information. */
+/**
+ * Utilities for color information.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class ColorUtils {
   // The constants are defined as per ISO/IEC 29199-2 (mentioned in MP4 spec ISO/IEC 14496-12:
   // 8.5.2.3).

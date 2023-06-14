@@ -31,6 +31,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
+@Deprecated
 /* package */ final class ExoAssetLoaderVideoRenderer extends ExoAssetLoaderBaseRenderer {
 
   private static final String TAG = "ExoAssetLoaderVideoRenderer";

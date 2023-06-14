@@ -36,7 +36,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * <p>Media sources loading muxed media, e.g. progressive streams with muxed video and audio, are
  * still likely to parse all of these streams even if the tracks are not made available to the
  * player.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class FilteringMediaSource extends WrappingMediaSource {
 
   private final ImmutableSet<@C.TrackType Integer> trackTypes;

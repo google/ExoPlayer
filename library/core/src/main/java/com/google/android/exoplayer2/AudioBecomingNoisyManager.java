@@ -22,6 +22,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Handler;
 
+@Deprecated
 /* package */ final class AudioBecomingNoisyManager {
 
   private final Context context;

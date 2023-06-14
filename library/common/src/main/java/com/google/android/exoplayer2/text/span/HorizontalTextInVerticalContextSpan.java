@@ -25,8 +25,14 @@ package com.google.android.exoplayer2.text.span;
  * <p>More information on <a
  * href="https://www.w3.org/TR/jlreq/#handling_of_tatechuyoko">tate-chu-yoko</a> and <a
  * href="https://developer.android.com/guide/topics/text/spans">span styling</a>.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // NOTE: There's no Android layout support for this, so this span currently doesn't extend any
 // styling superclasses (e.g. MetricAffectingSpan). The only way to render this styling is to
 // extract the spans and do the layout manually.
+@Deprecated
 public final class HorizontalTextInVerticalContextSpan implements LanguageFeatureSpan {}

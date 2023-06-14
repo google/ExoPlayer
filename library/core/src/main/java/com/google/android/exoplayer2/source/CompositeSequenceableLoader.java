@@ -19,7 +19,15 @@ import static java.lang.Math.min;
 
 import com.google.android.exoplayer2.C;
 
-/** A {@link SequenceableLoader} that encapsulates multiple other {@link SequenceableLoader}s. */
+/**
+ * A {@link SequenceableLoader} that encapsulates multiple other {@link SequenceableLoader}s.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class CompositeSequenceableLoader implements SequenceableLoader {
 
   protected final SequenceableLoader[] loaders;

@@ -45,7 +45,13 @@ import java.util.List;
  * empty override will only be applied if the media being played contains a {@link TrackGroup} equal
  * to the one in the override. Conversely, disabling a track type will prevent selection of tracks
  * of that type for all media.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class TrackSelectionOverride implements Bundleable {
 
   /** The media {@link TrackGroup} whose {@link #trackIndices} are forced to be selected. */

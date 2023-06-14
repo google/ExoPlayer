@@ -37,7 +37,13 @@ import java.util.Collections;
 /**
  * An abstract implementation of the {@link MediaSessionConnector.QueueNavigator} that maps the
  * windows of a {@link Player}'s {@link Timeline} to the media session queue.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class TimelineQueueNavigator implements MediaSessionConnector.QueueNavigator {
 
   public static final int DEFAULT_MAX_QUEUE_SIZE = 10;

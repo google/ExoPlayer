@@ -38,7 +38,13 @@ import java.util.Set;
  *       cache span that's not cached is called a <em>hole span</em>. A cache span that is cached
  *       corresponds to a single underlying file in the cache.
  * </ul>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface Cache {
 
   /** Listener of {@link Cache} events. */

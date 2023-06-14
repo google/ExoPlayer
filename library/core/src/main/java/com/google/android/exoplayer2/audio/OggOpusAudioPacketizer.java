@@ -23,7 +23,15 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/** A packetizer that encapsulates OPUS audio encodings in OGG packets. */
+/**
+ * A packetizer that encapsulates OPUS audio encodings in OGG packets.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class OggOpusAudioPacketizer {
 
   /** ID Header and Comment Header pages are 0 and 1 respectively */

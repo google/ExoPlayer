@@ -32,7 +32,13 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
  * <p>It holds various attributes related to the playback of media content according to the
  * specifications outlined in the CMCD standard document <a
  * href="https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf">CTA-5004</a>.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class CmcdLog {
 
   /**

@@ -21,7 +21,15 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 
-/** Provides {@link TimestampAdjuster} instances for use during HLS playbacks. */
+/**
+ * Provides {@link TimestampAdjuster} instances for use during HLS playbacks.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class TimestampAdjusterProvider {
 
   // TODO: Prevent this array from growing indefinitely large by removing adjusters that are no

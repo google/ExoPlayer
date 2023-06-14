@@ -18,7 +18,15 @@ package com.google.android.exoplayer2.effect;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
-/** Utility functions for working with {@link Bitmap}. */
+/**
+ * Utility functions for working with {@link Bitmap}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class BitmapUtil {
   public static Bitmap flipBitmapVertically(Bitmap bitmap) {
     Matrix flip = new Matrix();

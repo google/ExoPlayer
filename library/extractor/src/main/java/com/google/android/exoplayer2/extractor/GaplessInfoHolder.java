@@ -24,7 +24,15 @@ import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Holder for gapless playback information. */
+/**
+ * Holder for gapless playback information.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class GaplessInfoHolder {
 
   private static final String GAPLESS_DOMAIN = "com.apple.iTunes";

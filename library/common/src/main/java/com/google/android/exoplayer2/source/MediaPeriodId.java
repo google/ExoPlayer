@@ -26,8 +26,14 @@ import com.google.android.exoplayer2.Timeline;
  * instances of this class identifies a specific playback of a {@link Timeline.Period}.
  *
  * <p>In ExoPlayer's implementation, {@link MediaPeriodId} identifies a {@code MediaPeriod}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // TODO(b/172315872) Should be final, but subclassed in MediaSource for backward-compatibility.
+@Deprecated
 public class MediaPeriodId {
 
   /** The unique id of the timeline period. */

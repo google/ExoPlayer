@@ -25,7 +25,15 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Decodes splice info sections and produces splice commands. */
+/**
+ * Decodes splice info sections and produces splice commands.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class SpliceInfoDecoder extends SimpleMetadataDecoder {
 
   private static final int TYPE_SPLICE_NULL = 0x00;

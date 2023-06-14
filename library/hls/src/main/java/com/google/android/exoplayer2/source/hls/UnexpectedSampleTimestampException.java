@@ -24,7 +24,13 @@ import java.io.IOException;
 /**
  * Thrown when an attempt is made to write a sample to a {@link SampleQueue} whose timestamp is
  * inconsistent with the chunk from which it originates.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class UnexpectedSampleTimestampException extends IOException {
 
   /** The {@link MediaChunk} that contained the rejected sample. */

@@ -21,7 +21,15 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 
-/** Base class for subtitle parsers that use their own decode thread. */
+/**
+ * Base class for subtitle parsers that use their own decode thread.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public abstract class SimpleSubtitleDecoder
     extends SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, SubtitleDecoderException>
     implements SubtitleDecoder {

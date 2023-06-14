@@ -34,7 +34,13 @@ import java.util.List;
 /**
  * A {@link Player} that forwards method calls to another {@link Player}. Applications can use this
  * class to suppress or modify specific operations, by overriding the respective methods.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class ForwardingPlayer implements Player {
 
   private final Player player;

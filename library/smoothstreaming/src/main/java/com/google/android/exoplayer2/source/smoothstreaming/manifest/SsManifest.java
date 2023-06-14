@@ -35,7 +35,13 @@ import java.util.UUID;
  *
  * <p>See the <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
  * Streaming Client Manifest Format</a>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class SsManifest implements FilterableManifest<SsManifest> {
 
   /** Represents a protection element containing a single header. */

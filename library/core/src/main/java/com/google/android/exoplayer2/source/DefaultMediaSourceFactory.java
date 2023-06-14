@@ -95,8 +95,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>To support media items with {@link MediaItem.LocalConfiguration#adsConfiguration ads
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
  * configure the factory with the required providers.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
+@Deprecated
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**

@@ -35,7 +35,13 @@ import java.util.Map;
  * <p>Instances of this class are intended to be used as parts of (possibly larger) tasks that are
  * registered with the {@link PriorityTaskManager}, and hence do <em>not</em> register as tasks
  * themselves.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class PriorityDataSource implements DataSource {
 
   /** {@link DataSource.Factory} for {@link PriorityDataSource} instances. */
