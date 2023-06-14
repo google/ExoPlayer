@@ -19,12 +19,14 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 
@@ -192,6 +194,27 @@ public final class CommandButton implements Bundleable {
     this.displayName = displayName;
     this.extras = new Bundle(extras);
     this.isEnabled = enabled;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof CommandButton)) {
+      return false;
+    }
+    CommandButton button = (CommandButton) obj;
+    return Objects.equal(sessionCommand, button.sessionCommand)
+        && playerCommand == button.playerCommand
+        && iconResId == button.iconResId
+        && TextUtils.equals(displayName, button.displayName)
+        && isEnabled == button.isEnabled;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(sessionCommand, playerCommand, iconResId, displayName, isEnabled);
   }
 
   // Bundleable implementation.

@@ -445,7 +445,7 @@ public class DefaultMediaNotificationProviderTest {
         DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, -1);
     CommandButton commandButton2 =
         new CommandButton.Builder()
-            .setDisplayName("displayName")
+            .setDisplayName("displayName2")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
             .setExtras(commandButtonBundle2)
@@ -456,7 +456,7 @@ public class DefaultMediaNotificationProviderTest {
     int[] compactViewIndices =
         defaultMediaNotificationProvider.addNotificationActions(
             mediaSession,
-            ImmutableList.of(commandButton1, commandButton2),
+            /* mediaButtons= */ ImmutableList.of(commandButton1, commandButton2),
             notificationBuilder,
             mockActionFactory);
     mediaSession.release();
