@@ -134,10 +134,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public int dequeueInputBufferIndex() {
     synchronized (lock) {
+      maybeThrowException();
       if (isFlushingOrShutdown()) {
         return MediaCodec.INFO_TRY_AGAIN_LATER;
       } else {
-        maybeThrowException();
         return availableInputBuffers.isEmpty()
             ? MediaCodec.INFO_TRY_AGAIN_LATER
             : availableInputBuffers.remove();
@@ -153,10 +153,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
     synchronized (lock) {
+      maybeThrowException();
       if (isFlushingOrShutdown()) {
         return MediaCodec.INFO_TRY_AGAIN_LATER;
       } else {
-        maybeThrowException();
         if (availableOutputBuffers.isEmpty()) {
           return MediaCodec.INFO_TRY_AGAIN_LATER;
         } else {
