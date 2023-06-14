@@ -1584,7 +1584,7 @@ public class MediaSession {
 
     @SuppressWarnings("unchecked")
     public BuilderT setBitmapLoader(BitmapLoader bitmapLoader) {
-      this.bitmapLoader = bitmapLoader;
+      this.bitmapLoader = checkNotNull(bitmapLoader);
       return (BuilderT) this;
     }
 
