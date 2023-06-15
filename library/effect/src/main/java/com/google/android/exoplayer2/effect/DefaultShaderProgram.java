@@ -440,8 +440,7 @@ import java.util.List;
       throw new VideoFrameProcessingException(e);
     }
 
-    float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
-    glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
+    glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
     return glProgram;
   }
 
