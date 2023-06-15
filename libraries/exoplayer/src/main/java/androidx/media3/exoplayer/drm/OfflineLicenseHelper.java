@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.analytics.PlayerId;
@@ -35,7 +36,6 @@ import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Helper class to download, renew and release offline licenses. */
 @RequiresApi(18)

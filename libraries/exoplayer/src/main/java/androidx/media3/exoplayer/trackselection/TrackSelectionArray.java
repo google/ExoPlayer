@@ -16,9 +16,9 @@
 package androidx.media3.exoplayer.trackselection;
 
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** An array of {@link TrackSelection}s. */
 @UnstableApi

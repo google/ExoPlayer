@@ -18,10 +18,10 @@ package androidx.media3.test.utils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Function;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Wraps a {@link Format} to allow dumping it. */
 @UnstableApi

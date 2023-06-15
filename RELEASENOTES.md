@@ -9,6 +9,10 @@
         methods, so implementations will need to manually append this
         information if desired (possibly using
         `Logger.appendThrowableString(String, Throwable)`).
+    *   Fix Kotlin compatibility issue where nullable generic type parameters
+        and nullable array element types are not detected as nullable. Examples
+        are `TrackSelectorResult` and `SimpleDecoder` method parameters
+        ([6792](https://github.com/google/ExoPlayer/issues/6792)).
 *   ExoPlayer:
     *   Add suppression of playback on unsuitable audio output devices (e.g. the
         built-in speaker on Wear OS devices) when this feature is enabled via

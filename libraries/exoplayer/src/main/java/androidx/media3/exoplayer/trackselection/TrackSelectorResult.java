@@ -17,10 +17,10 @@ package androidx.media3.exoplayer.trackselection;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.RendererConfiguration;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** The result of a {@link TrackSelector} operation. */
 @UnstableApi

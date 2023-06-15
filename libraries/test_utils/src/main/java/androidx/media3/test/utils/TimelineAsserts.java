@@ -25,9 +25,9 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Assertion methods for {@link Timeline}. */
 @UnstableApi

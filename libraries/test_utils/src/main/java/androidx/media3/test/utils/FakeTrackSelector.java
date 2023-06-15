@@ -17,6 +17,7 @@ package androidx.media3.test.utils;
 
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.RendererCapabilities.AdaptiveSupport;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
@@ -29,7 +30,6 @@ import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.test.core.app.ApplicationProvider;
 import java.util.ArrayList;
 import java.util.List;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** A fake {@link MappingTrackSelector} that returns {@link FakeTrackSelection}s. */
 @UnstableApi

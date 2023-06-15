@@ -23,6 +23,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.extractor.GaplessInfoHolder;
@@ -32,7 +33,6 @@ import androidx.media3.extractor.metadata.id3.Id3Frame;
 import androidx.media3.extractor.metadata.id3.InternalFrame;
 import androidx.media3.extractor.metadata.id3.TextInformationFrame;
 import com.google.common.collect.ImmutableList;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
