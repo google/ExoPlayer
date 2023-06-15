@@ -487,7 +487,7 @@ public interface ExoPlayer extends Player {
     /* package */ boolean usePlatformDiagnostics;
     @Nullable /* package */ Looper playbackLooper;
     /* package */ boolean buildCalled;
-    /* package */ boolean suppressPlaybackWhenNoSuitableOutputAvailable;
+    /* package */ boolean suppressPlaybackOnUnsuitableOutput;
 
     /**
      * Creates a builder.
@@ -703,26 +703,25 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Sets whether the player should suppress playback when a suitable audio output is not
-     * available. An example of an unsuitable audio output is the built-in speaker on a Wear OS
-     * device (unless it is explicitly selected by the user).
+     * Sets whether the player should suppress playback that is attempted on an unsuitable output.
+     * An example of an unsuitable audio output is the built-in speaker on a Wear OS device (unless
+     * it is explicitly selected by the user).
      *
-     * <p>If called with {@code suppressPlaybackWhenNoSuitableOutputAvailable = true}, then a
-     * playback attempt while no suitable output is available will result in calls to {@link
+     * <p>If called with {@code suppressPlaybackOnUnsuitableOutput = true}, then a playback attempt
+     * on an unsuitable audio output will result in calls to {@link
      * Player.Listener#onPlaybackSuppressionReasonChanged(int)} with the value {@link
      * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT}.
      *
-     * @param suppressPlaybackWhenNoSuitableOutputAvailable Whether the player should suppress the
-     *     playback when suitable media route is not available.
+     * @param suppressPlaybackOnUnsuitableOutput Whether the player should suppress the playback
+     *     when it is attempted on an unsuitable output.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     @CanIgnoreReturnValue
-    public Builder setSuppressPlaybackWhenNoSuitableOutputAvailable(
-        boolean suppressPlaybackWhenNoSuitableOutputAvailable) {
+    public Builder setSuppressPlaybackOnUnsuitableOutput(
+        boolean suppressPlaybackOnUnsuitableOutput) {
       checkState(!buildCalled);
-      this.suppressPlaybackWhenNoSuitableOutputAvailable =
-          suppressPlaybackWhenNoSuitableOutputAvailable;
+      this.suppressPlaybackOnUnsuitableOutput = suppressPlaybackOnUnsuitableOutput;
       return this;
     }
 

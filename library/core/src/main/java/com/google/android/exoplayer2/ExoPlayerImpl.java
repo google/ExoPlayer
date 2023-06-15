@@ -173,7 +173,7 @@ import java.util.concurrent.TimeoutException;
   private final WifiLockManager wifiLockManager;
   private final long detachSurfaceTimeoutMs;
   @Nullable private AudioManager audioManager;
-  private final boolean suppressPlaybackWhenNoSuitableOutputAvailable;
+  private final boolean suppressPlaybackOnUnsuitableOutput;
 
   private @RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
@@ -276,8 +276,7 @@ import java.util.concurrent.TimeoutException;
       this.applicationLooper = builder.looper;
       this.clock = builder.clock;
       this.wrappingPlayer = wrappingPlayer == null ? this : wrappingPlayer;
-      this.suppressPlaybackWhenNoSuitableOutputAvailable =
-          builder.suppressPlaybackWhenNoSuitableOutputAvailable;
+      this.suppressPlaybackOnUnsuitableOutput = builder.suppressPlaybackOnUnsuitableOutput;
       listeners =
           new ListenerSet<>(
               applicationLooper,
@@ -386,7 +385,7 @@ import java.util.concurrent.TimeoutException;
       audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
       audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
       audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
-      if (suppressPlaybackWhenNoSuitableOutputAvailable) {
+      if (suppressPlaybackOnUnsuitableOutput) {
         audioManager = (AudioManager) applicationContext.getSystemService(Context.AUDIO_SERVICE);
         audioManager.registerAudioDeviceCallback(
             new NoSuitableOutputPlaybackSuppressionAudioDeviceCallback(), /* handler= */ null);
@@ -2771,7 +2770,7 @@ import java.util.concurrent.TimeoutException;
     if (playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY) {
       return Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS;
     }
-    if (suppressPlaybackWhenNoSuitableOutputAvailable) {
+    if (suppressPlaybackOnUnsuitableOutput) {
       if (playWhenReady && !hasSupportedAudioOutput()) {
         return Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT;
       }
