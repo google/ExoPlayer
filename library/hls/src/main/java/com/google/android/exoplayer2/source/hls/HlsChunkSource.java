@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
@@ -486,17 +487,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     seenExpectedPlaylistError = false;
     expectedPlaylistUrl = null;
 
+    @Nullable
+    CmcdLog cmcdLog =
+        cmcdConfiguration == null
+            ? null
+            : CmcdLog.createInstance(
+                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+
     // Check if the media segment or its initialization segment are fully encrypted.
     @Nullable
     Uri initSegmentKeyUri =
         getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase.initializationSegment);
-    out.chunk = maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex);
+    out.chunk = maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex, cmcdLog);
     if (out.chunk != null) {
       return;
     }
     @Nullable
     Uri mediaSegmentKeyUri = getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase);
-    out.chunk = maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex);
+    out.chunk = maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex, cmcdLog);
     if (out.chunk != null) {
       return;
     }
@@ -511,13 +519,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // becomes fully available (or the track selection selects another track).
       return;
     }
-
-    @Nullable
-    CmcdLog cmcdLog =
-        cmcdConfiguration == null
-            ? null
-            : CmcdLog.createInstance(
-                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
 
     out.chunk =
         HlsMediaChunk.createInstance(
@@ -846,7 +847,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Nullable
-  private Chunk maybeCreateEncryptionChunkFor(@Nullable Uri keyUri, int selectedTrackIndex) {
+  private Chunk maybeCreateEncryptionChunkFor(
+      @Nullable Uri keyUri, int selectedTrackIndex, @Nullable CmcdLog cmcdLog) {
     if (keyUri == null) {
       return null;
     }
@@ -859,8 +861,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       keyCache.put(keyUri, encryptionKey);
       return null;
     }
+    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
+        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
     DataSpec dataSpec =
-        new DataSpec.Builder().setUri(keyUri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
+        new DataSpec.Builder()
+            .setUri(keyUri)
+            .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+            .setHttpRequestHeaders(httpRequestHeaders)
+            .build();
     return new EncryptionKeyChunk(
         encryptionDataSource,
         dataSpec,

@@ -376,6 +376,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     trackSelection.updateSelectedTrack(
         playbackPositionUs, bufferedDurationUs, availableLiveDurationUs, queue, chunkIterators);
 
+    @Nullable
+    CmcdLog cmcdLog =
+        cmcdConfiguration == null
+            ? null
+            : CmcdLog.createInstance(
+                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+
     RepresentationHolder representationHolder =
         updateSelectedBaseUrl(trackSelection.getSelectedIndex());
     if (representationHolder.chunkExtractor != null) {
@@ -398,7 +405,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
                 trackSelection.getSelectionReason(),
                 trackSelection.getSelectionData(),
                 pendingInitializationUri,
-                pendingIndexUri);
+                pendingIndexUri,
+                cmcdLog);
         return;
       }
     }
@@ -450,13 +458,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
         maxSegmentCount--;
       }
     }
-
-    @Nullable
-    CmcdLog cmcdLog =
-        cmcdConfiguration == null
-            ? null
-            : CmcdLog.createInstance(
-                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
 
     long seekTimeUs = queue.isEmpty() ? loadPositionUs : C.TIME_UNSET;
     out.chunk =
@@ -645,7 +646,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       @Nullable RangedUri initializationUri,
-      @Nullable RangedUri indexUri) {
+      @Nullable RangedUri indexUri,
+      @Nullable CmcdLog cmcdLog) {
     Representation representation = representationHolder.representation;
     @Nullable RangedUri requestUri;
     if (initializationUri != null) {
@@ -659,9 +661,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } else {
       requestUri = indexUri;
     }
+    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
+        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
     DataSpec dataSpec =
         DashUtil.buildDataSpec(
-            representation, representationHolder.selectedBaseUrl.url, requestUri, /* flags= */ 0);
+            representation,
+            representationHolder.selectedBaseUrl.url,
+            requestUri,
+            /* flags= */ 0,
+            httpRequestHeaders);
     return new InitializationChunk(
         dataSource,
         dataSpec,
@@ -697,8 +705,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
-              representation, representationHolder.selectedBaseUrl.url, segmentUri, flags);
-      dataSpec = dataSpec.buildUpon().setHttpRequestHeaders(httpRequestHeaders).build();
+              representation,
+              representationHolder.selectedBaseUrl.url,
+              segmentUri,
+              flags,
+              httpRequestHeaders);
       return new SingleSampleMediaChunk(
           dataSource,
           dataSpec,
@@ -737,8 +748,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
-              representation, representationHolder.selectedBaseUrl.url, segmentUri, flags);
-      dataSpec = dataSpec.buildUpon().setHttpRequestHeaders(httpRequestHeaders).build();
+              representation,
+              representationHolder.selectedBaseUrl.url,
+              segmentUri,
+              flags,
+              httpRequestHeaders);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -809,7 +823,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolder.representation,
           representationHolder.selectedBaseUrl.url,
           segmentUri,
-          flags);
+          flags,
+          /* httpRequestHeaders= */ ImmutableMap.of());
     }
 
     @Override
