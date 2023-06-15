@@ -16,15 +16,15 @@
 *   ExoPlayer:
     *   Add suppression of playback on unsuitable audio output devices (e.g. the
         built-in speaker on Wear OS devices) when this feature is enabled via
-        `ExoPlayer.Builder.setSuppressPlaybackWhenNoSuitableOutputAvailable`.
-        The playback suppression reason will be updated as
+        `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`. The playback
+        suppression reason will be updated as
         `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` if playback
         is attempted when no suitable audio outputs are available.
     *   Add handling for auto-resume or auto-pause of playback when audio output
         devices are added or removed dynamically during suppressed or ongoing
         playback when the playback suppression due to no suitable output has
         been enabled via
-        `ExoPlayer.Builder.setSuppressPlaybackWhenNoSuitableOutputAvailable`.
+        `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`.
     *   Fix seeking issues in AC4 streams caused by not identifying decode-only
         samples correctly
         ([#11000](https://github.com/google/ExoPlayer/issues/11000)).

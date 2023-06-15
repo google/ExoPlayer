@@ -13141,9 +13141,7 @@ public final class ExoPlayerTest {
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     List<Integer> playbackSuppressionList = new ArrayList<>();
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.addListener(
@@ -13177,9 +13175,7 @@ public final class ExoPlayerTest {
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
     List<Integer> playbackSuppressionList = new ArrayList<>();
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.addListener(
@@ -13214,9 +13210,7 @@ public final class ExoPlayerTest {
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     List<Integer> playbackSuppressionList = new ArrayList<>();
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.addListener(
@@ -13252,9 +13246,7 @@ public final class ExoPlayerTest {
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
     List<Integer> playbackSuppressionList = new ArrayList<>();
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.addListener(
@@ -13279,8 +13271,8 @@ public final class ExoPlayerTest {
 
   /**
    * Tests playback suppression for playback with only unsuitable route (e.g. builtin speaker) on
-   * Wear OS but {@link ExoPlayer.Builder#setSuppressPlaybackWhenNoSuitableOutputAvailable(boolean)}
-   * is not called with parameter as TRUE.
+   * Wear OS but {@link ExoPlayer.Builder#setSuppressPlaybackOnUnsuitableOutput(boolean)} is not
+   * called with parameter as TRUE.
    */
   @Test
   public void
@@ -13319,9 +13311,7 @@ public final class ExoPlayerTest {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13358,9 +13348,7 @@ public final class ExoPlayerTest {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13394,9 +13382,7 @@ public final class ExoPlayerTest {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13429,9 +13415,7 @@ public final class ExoPlayerTest {
       throws Exception {
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13469,9 +13453,7 @@ public final class ExoPlayerTest {
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13508,9 +13490,7 @@ public final class ExoPlayerTest {
         AudioDeviceInfo.TYPE_BUS,
         AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13547,9 +13527,7 @@ public final class ExoPlayerTest {
         AudioDeviceInfo.TYPE_BLE_SPEAKER,
         AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
@@ -13582,9 +13560,7 @@ public final class ExoPlayerTest {
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
     ExoPlayer player =
-        new TestExoPlayerBuilder(context)
-            .setSuppressOutputWhenNoSuitableOutputAvailable(true)
-            .build();
+        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     player.prepare();
