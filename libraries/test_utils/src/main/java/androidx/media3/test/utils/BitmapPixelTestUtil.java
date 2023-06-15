@@ -314,7 +314,7 @@ public class BitmapPixelTestUtil {
    * save to the {@link Context#getCacheDir() cache directory}.
    *
    * <p>File name will be {@code <testId>_<bitmapLabel>.png}. If the file failed to write, any
-   * {@link IOException} will be caught and logged.
+   * {@link IOException} will be caught and logged. The path will be logged regardless of success.
    *
    * @param testId Name of the test that produced the {@link Bitmap}.
    * @param bitmapLabel Label to identify the bitmap.
@@ -338,6 +338,7 @@ public class BitmapPixelTestUtil {
 
     try (FileOutputStream outputStream = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, outputStream);
+      Log.d(TAG, "Saved bitmap to file path: " + file.getAbsolutePath());
     } catch (IOException e) {
       Log.e(TAG, "Could not write Bitmap to file path: " + file.getAbsolutePath(), e);
     }
