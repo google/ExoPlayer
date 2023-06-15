@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.RunnableFutureTask;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -231,7 +232,13 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
 
   private Segment createSegment(
       Representation representation, String baseUrl, long startTimeUs, RangedUri rangedUri) {
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, baseUrl, rangedUri, /* flags= */ 0);
+    DataSpec dataSpec =
+        DashUtil.buildDataSpec(
+            representation,
+            baseUrl,
+            rangedUri,
+            /* flags= */ 0,
+            /* httpRequestHeaders= */ ImmutableMap.of());
     return new Segment(startTimeUs, dataSpec);
   }
 
