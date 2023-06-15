@@ -843,11 +843,9 @@ public final class SpannedSubject extends Subject {
 
   private static final Colored ALREADY_FAILED_COLORED = color -> ALREADY_FAILED_AND_FLAGS;
 
-  // incompatible parameter types for parameter 1 in lambda expression.
-  @SuppressWarnings("nullness:lambda.param.type.incompatible")
   private static Factory<ForegroundColorSpansSubject, List<ForegroundColorSpan>>
       foregroundColorSpans(Spanned actualSpanned) {
-    return (FailureMetadata metadata, List<ForegroundColorSpan> spans) ->
+    return (FailureMetadata metadata, @Nullable List<ForegroundColorSpan> spans) ->
         new ForegroundColorSpansSubject(metadata, spans, actualSpanned);
   }
 
@@ -884,11 +882,9 @@ public final class SpannedSubject extends Subject {
     }
   }
 
-  // incompatible parameter types for parameter 1 in lambda expression.
-  @SuppressWarnings("nullness:lambda.param.type.incompatible")
   private static Factory<BackgroundColorSpansSubject, List<BackgroundColorSpan>>
       backgroundColorSpans(Spanned actualSpanned) {
-    return (FailureMetadata metadata, List<BackgroundColorSpan> spans) ->
+    return (FailureMetadata metadata, @Nullable List<BackgroundColorSpan> spans) ->
         new BackgroundColorSpansSubject(metadata, spans, actualSpanned);
   }
 
@@ -989,11 +985,9 @@ public final class SpannedSubject extends Subject {
   private static final AbsoluteSized ALREADY_FAILED_ABSOLUTE_SIZED =
       size -> ALREADY_FAILED_AND_FLAGS;
 
-  // incompatible parameter types for parameter 1 in lambda expression.
-  @SuppressWarnings("nullness:lambda.param.type.incompatible")
   private static Factory<AbsoluteSizeSpansSubject, List<AbsoluteSizeSpan>> absoluteSizeSpans(
       Spanned actualSpanned) {
-    return (FailureMetadata metadata, List<AbsoluteSizeSpan> spans) ->
+    return (FailureMetadata metadata, @Nullable List<AbsoluteSizeSpan> spans) ->
         new AbsoluteSizeSpansSubject(metadata, spans, actualSpanned);
   }
 
@@ -1095,10 +1089,8 @@ public final class SpannedSubject extends Subject {
   private static final RubyText ALREADY_FAILED_WITH_TEXT =
       (text, position) -> ALREADY_FAILED_AND_FLAGS;
 
-  // incompatible parameter types for parameter 1 in lambda expression.
-  @SuppressWarnings("nullness:lambda.param.type.incompatible")
   private static Factory<RubySpansSubject, List<RubySpan>> rubySpans(Spanned actualSpanned) {
-    return (FailureMetadata metadata, List<RubySpan> spans) ->
+    return (FailureMetadata metadata, @Nullable List<RubySpan> spans) ->
         new RubySpansSubject(metadata, spans, actualSpanned);
   }
 
