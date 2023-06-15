@@ -1,5 +1,18 @@
 # Release notes
 
+### 2.19.0 (2023-07-05)
+
+This is the last planned release of the `com.google.android.exoplayer2`
+artifacts. This project is now deprecated. All users should migrate to
+`androidx.media3` (which contains the same ExoPlayer code). See
+[the migration guide](https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide)
+for more details, including a script to help with the migration.
+
+This release corresponds to the
+[AndroidX Media3 1.1.0 release](https://github.com/androidx/media/releases/tag/1.1.0).
+
+TODO: b/276627468 - Fill in the rest of these notes
+
 ### 2.18.7 (2023-05-18)
 
 This release corresponds to the
