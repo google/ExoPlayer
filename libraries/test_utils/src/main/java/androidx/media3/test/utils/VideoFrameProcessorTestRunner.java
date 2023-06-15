@@ -342,6 +342,20 @@ public final class VideoFrameProcessorTestRunner {
     endFrameProcessing();
   }
 
+  public void registerInputStream(@InputType int inputType) {
+    videoFrameProcessor.registerInputStream(inputType, ImmutableList.of());
+  }
+
+  public void queueInputBitmap(
+      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
+    videoFrameProcessor.setInputFrameInfo(
+        new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
+            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .setOffsetToAddUs(offsetToAddUs)
+            .build());
+    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+  }
+
   public void registerAndQueueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
     videoFrameProcessor.setInputFrameInfo(
