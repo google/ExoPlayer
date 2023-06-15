@@ -971,8 +971,12 @@ import java.util.concurrent.TimeoutException;
       case PlaybackStateCompat.REPEAT_MODE_GROUP:
         return Player.REPEAT_MODE_ALL;
       default:
-        throw new IllegalArgumentException(
-            "Unrecognized PlaybackStateCompat.RepeatMode: " + playbackStateCompatRepeatMode);
+        Log.w(
+            TAG,
+            "Unrecognized PlaybackStateCompat.RepeatMode: "
+                + playbackStateCompatRepeatMode
+                + " was converted to `Player.REPEAT_MODE_OFF`");
+        return Player.REPEAT_MODE_OFF;
     }
   }
 
@@ -987,7 +991,12 @@ import java.util.concurrent.TimeoutException;
       case Player.REPEAT_MODE_ALL:
         return PlaybackStateCompat.REPEAT_MODE_ALL;
       default:
-        throw new IllegalArgumentException("Unrecognized RepeatMode: " + repeatMode);
+        Log.w(
+            TAG,
+            "Unrecognized RepeatMode: "
+                + repeatMode
+                + " was converted to `PlaybackStateCompat.REPEAT_MODE_NONE`");
+        return PlaybackStateCompat.REPEAT_MODE_NONE;
     }
   }
 
@@ -1392,9 +1401,9 @@ import java.util.concurrent.TimeoutException;
    * previousPlayerInfo} and taking into account the passed available commands.
    *
    * @param oldPlayerInfo The old {@link PlayerInfo}.
-   * @param oldBundlingExclusions The bundling exlusions in the old {@link PlayerInfo}.
+   * @param oldBundlingExclusions The bundling exclusions in the old {@link PlayerInfo}.
    * @param newPlayerInfo The new {@link PlayerInfo}.
-   * @param newBundlingExclusions The bundling exlusions in the new {@link PlayerInfo}.
+   * @param newBundlingExclusions The bundling exclusions in the new {@link PlayerInfo}.
    * @param availablePlayerCommands The available commands to take into account when merging.
    * @return A pair with the resulting {@link PlayerInfo} and {@link BundlingExclusions}.
    */
