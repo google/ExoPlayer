@@ -171,7 +171,19 @@ public final class InAppMuxer implements Muxer {
         data.position(), size, presentationTimeUs, TransformerUtil.getMediaCodecFlags(flags));
 
     try {
-      mp4Muxer.writeSampleData(trackTokenList.get(trackIndex), data, bufferInfo);
+      // Copy sample data and release the original buffer.
+      ByteBuffer byteBufferCopy = ByteBuffer.allocateDirect(data.remaining());
+      byteBufferCopy.put(data);
+      byteBufferCopy.rewind();
+
+      BufferInfo bufferInfoCopy = new BufferInfo();
+      bufferInfoCopy.set(
+          /* newOffset= */ byteBufferCopy.position(),
+          /* newSize= */ byteBufferCopy.remaining(),
+          bufferInfo.presentationTimeUs,
+          bufferInfo.flags);
+
+      mp4Muxer.writeSampleData(trackTokenList.get(trackIndex), byteBufferCopy, bufferInfoCopy);
     } catch (IOException e) {
       throw new MuxerException(
           "Failed to write sample for trackIndex="

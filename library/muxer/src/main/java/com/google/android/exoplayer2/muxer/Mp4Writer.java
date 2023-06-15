@@ -387,19 +387,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // Skip empty samples.
       // TODO: b/279931840 - Confirm whether muxer should throw when writing empty samples.
       if (byteBuffer.remaining() > 0) {
-        // Copy sample data and release the original buffer.
-        ByteBuffer byteBufferCopy = ByteBuffer.allocateDirect(byteBuffer.remaining());
-        byteBufferCopy.put(byteBuffer);
-        byteBufferCopy.rewind();
-
-        BufferInfo bufferInfoCopy = new BufferInfo();
-        bufferInfoCopy.set(
-            /* newOffset= */ byteBufferCopy.position(),
-            /* newSize= */ byteBufferCopy.remaining(),
-            bufferInfo.presentationTimeUs,
-            bufferInfo.flags);
-
-        pendingSamples.addLast(Pair.create(bufferInfoCopy, byteBufferCopy));
+        pendingSamples.addLast(Pair.create(bufferInfo, byteBuffer));
         doInterleave();
       }
     }
