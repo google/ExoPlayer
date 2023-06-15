@@ -69,4 +69,16 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
       inputListener.onReadyToAcceptInputFrame();
     }
   }
+
+  @Override
+  public void signalEndOfCurrentInputStream() {
+    super.signalEndOfCurrentInputStream();
+    framesReceived = 0;
+  }
+
+  @Override
+  public void flush() {
+    super.flush();
+    framesReceived = 0;
+  }
 }

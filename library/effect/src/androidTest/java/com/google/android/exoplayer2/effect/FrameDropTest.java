@@ -97,12 +97,13 @@ public class FrameDropTest {
                     /* expectedFrameRate= */ 6, /* targetFrameRate= */ 2))
             .build();
 
-    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
+    videoFrameProcessorTestRunner.registerInputStream(INPUT_TYPE_BITMAP);
+    videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ 0L,
         /* frameRate= */ 4);
-    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
+    videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(SCALE_WIDE_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ C.MICROS_PER_SECOND,
