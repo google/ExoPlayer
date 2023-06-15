@@ -37,8 +37,10 @@ import androidx.media3.extractor.ChunkIndex;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /** Utility methods for DASH streams. */
 @UnstableApi
@@ -52,33 +54,47 @@ public final class DashUtil {
    * @param requestUri The {@link RangedUri} of the data to request.
    * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
    *     DataSpec.Builder#setFlags(int)}.
+   * @param httpRequestHeaders The {@link DataSpec#httpRequestHeaders}.
    * @return The {@link DataSpec}.
    */
   public static DataSpec buildDataSpec(
-      Representation representation, String baseUrl, RangedUri requestUri, int flags) {
+      Representation representation,
+      String baseUrl,
+      RangedUri requestUri,
+      int flags,
+      Map<String, String> httpRequestHeaders) {
     return new DataSpec.Builder()
         .setUri(requestUri.resolveUri(baseUrl))
         .setPosition(requestUri.start)
         .setLength(requestUri.length)
         .setKey(resolveCacheKey(representation, requestUri))
         .setFlags(flags)
+        .setHttpRequestHeaders(httpRequestHeaders)
         .build();
   }
 
   /**
-   * Builds a {@link DataSpec} for a given {@link RangedUri} belonging to {@link Representation}.
-   *
-   * <p>Uses the first base URL of the representation to build the data spec.
-   *
-   * @param representation The {@link Representation} to which the request belongs.
-   * @param requestUri The {@link RangedUri} of the data to request.
-   * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
-   *     DataSpec.Builder#setFlags(int)}.
-   * @return The {@link DataSpec}.
+   * @deprecated Use {@link #buildDataSpec(Representation, String, RangedUri, int, Map)} instead.
    */
+  @Deprecated
+  public static DataSpec buildDataSpec(
+      Representation representation, String baseUrl, RangedUri requestUri, int flags) {
+    return buildDataSpec(
+        representation, baseUrl, requestUri, flags, /* httpRequestHeaders= */ ImmutableMap.of());
+  }
+
+  /**
+   * @deprecated Use {@link #buildDataSpec(Representation, String, RangedUri, int, Map)} instead.
+   */
+  @Deprecated
   public static DataSpec buildDataSpec(
       Representation representation, RangedUri requestUri, int flags) {
-    return buildDataSpec(representation, representation.baseUrls.get(0).url, requestUri, flags);
+    return buildDataSpec(
+        representation,
+        representation.baseUrls.get(0).url,
+        requestUri,
+        flags,
+        /* httpRequestHeaders= */ ImmutableMap.of());
   }
 
   /**
@@ -292,7 +308,8 @@ public final class DashUtil {
             representation,
             representation.baseUrls.get(baseUrlIndex).url,
             requestUri,
-            /* flags= */ 0);
+            /* flags= */ 0,
+            /* httpRequestHeaders= */ ImmutableMap.of());
     InitializationChunk initializationChunk =
         new InitializationChunk(
             dataSource,
