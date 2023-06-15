@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.util;
 
 import androidx.annotation.Nullable;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A utility class to keep a queue of values with timestamps. This class is thread safe.

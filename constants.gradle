@@ -33,7 +33,6 @@ project.ext {
     robolectricVersion = '4.10.3'
     // Keep this in sync with Google's internal Checker Framework version.
     checkerframeworkVersion = '3.13.0'
-    checkerframeworkCompatVersion = '2.5.5'
     errorProneVersion = '2.18.0'
     jsr305Version = '3.0.2'
     kotlinAnnotationsVersion = '1.8.20'

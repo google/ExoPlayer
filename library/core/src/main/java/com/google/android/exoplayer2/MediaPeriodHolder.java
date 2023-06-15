@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
+import com.google.android.exoplayer2.util.NullableType;
 
 /**
  * Holds a {@link MediaPeriod} with information required to play it as part of a timeline.

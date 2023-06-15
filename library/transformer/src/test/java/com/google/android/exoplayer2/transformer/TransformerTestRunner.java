@@ -20,10 +20,10 @@ import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLoope
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
+import com.google.android.exoplayer2.util.NullableType;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Helper class to run a {@link Transformer} test. */
 public final class TransformerTestRunner {

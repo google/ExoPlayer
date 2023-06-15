@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.trackselection;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.NullableType;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * An array of {@link TrackSelection}s.

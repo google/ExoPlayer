@@ -33,10 +33,10 @@ import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.NullableType;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

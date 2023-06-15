@@ -23,12 +23,12 @@ import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.util.NullableType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A {@link MediaSource} that filters the available {@linkplain C.TrackType track types}.

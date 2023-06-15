@@ -25,8 +25,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Assertion methods for {@link Timeline}. */
 public final class TimelineAsserts {

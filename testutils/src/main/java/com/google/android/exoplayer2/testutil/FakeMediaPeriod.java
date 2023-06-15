@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamI
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -48,7 +49,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. */
 public class FakeMediaPeriod implements MediaPeriod {

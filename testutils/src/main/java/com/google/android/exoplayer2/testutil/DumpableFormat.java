@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.testutil;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Function;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Wraps a {@link Format} to allow dumping it. */
 public final class DumpableFormat implements Dumper.Dumpable {
