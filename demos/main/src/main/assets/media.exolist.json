@@ -638,6 +638,10 @@
       {
         "name": "MPEG-4 Timed Text",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
+      },
+      {
+        "name": "SubRip muxed into MKV",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-with-subrip.mkv"
       }
     ]
   },
