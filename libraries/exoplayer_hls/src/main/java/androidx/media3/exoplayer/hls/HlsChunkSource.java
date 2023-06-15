@@ -483,8 +483,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     CmcdLog cmcdLog =
         cmcdConfiguration == null
             ? null
-            : CmcdLog.createInstance(
-                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+            : CmcdLog.createInstance(cmcdConfiguration, trackSelection, bufferedDurationUs);
 
     // Check if the media segment or its initialization segment are fully encrypted.
     @Nullable

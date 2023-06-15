@@ -374,8 +374,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     CmcdLog cmcdLog =
         cmcdConfiguration == null
             ? null
-            : CmcdLog.createInstance(
-                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+            : CmcdLog.createInstance(cmcdConfiguration, trackSelection, bufferedDurationUs);
 
     RepresentationHolder representationHolder =
         updateSelectedBaseUrl(trackSelection.getSelectedIndex());

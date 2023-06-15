@@ -284,9 +284,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     CmcdLog cmcdLog =
         cmcdConfiguration == null
             ? null
-            : CmcdLog.createInstance(
-                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
-    ;
+            : CmcdLog.createInstance(cmcdConfiguration, trackSelection, bufferedDurationUs);
 
     out.chunk =
         newMediaChunk(

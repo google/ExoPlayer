@@ -42,14 +42,13 @@ public final class CmcdLog {
    *
    * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
    * @param trackSelection The {@linkplain ExoTrackSelection track selection}.
-   * @param playbackPositionUs The current playback position in microseconds.
-   * @param loadPositionUs The current load position in microseconds.
+   * @param bufferedDurationUs The duration of media currently buffered from the current playback
+   *     position, in microseconds.
    */
   public static CmcdLog createInstance(
       CmcdConfiguration cmcdConfiguration,
       ExoTrackSelection trackSelection,
-      long playbackPositionUs,
-      long loadPositionUs) {
+      long bufferedDurationUs) {
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> customData =
         cmcdConfiguration.requestConfig.getCustomData();
     int bitrateKbps = trackSelection.getSelectedFormat().bitrate / 1000;
@@ -65,8 +64,7 @@ public final class CmcdLog {
         new CmcdLog.CmcdRequest.Builder()
             .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
     if (cmcdConfiguration.isBufferLengthLoggingAllowed()) {
-      cmcdRequest.setBufferLengthMs(
-          loadPositionUs == C.TIME_UNSET ? 0 : (loadPositionUs - playbackPositionUs) / 1000);
+      cmcdRequest.setBufferLengthMs(bufferedDurationUs / 1000);
     }
 
     CmcdLog.CmcdSession.Builder cmcdSession =

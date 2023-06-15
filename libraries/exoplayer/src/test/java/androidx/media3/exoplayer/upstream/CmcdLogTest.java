@@ -60,10 +60,7 @@ public class CmcdLogTest {
         .thenReturn(new Format.Builder().setPeakBitrate(840_000).build());
     CmcdLog cmcdLog =
         CmcdLog.createInstance(
-            cmcdConfiguration,
-            trackSelection,
-            /* playbackPositionUs= */ 1_000_000,
-            /* loadPositionUs= */ 2_760_000);
+            cmcdConfiguration, trackSelection, /* bufferedDurationUs= */ 1_760_000);
 
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> requestHeaders =
         cmcdLog.getHttpRequestHeaders();
