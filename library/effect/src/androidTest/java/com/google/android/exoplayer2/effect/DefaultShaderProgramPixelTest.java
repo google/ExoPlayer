@@ -73,7 +73,8 @@ public final class DefaultShaderProgramPixelTest {
   public void createGlObjects() throws IOException, GlUtil.GlException {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
-    EGLSurface placeholderEglSurface = GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
+    EGLSurface placeholderEglSurface =
+        GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
 
     Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();

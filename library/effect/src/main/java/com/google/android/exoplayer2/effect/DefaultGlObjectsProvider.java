@@ -69,10 +69,9 @@ public final class DefaultGlObjectsProvider implements GlObjectsProvider {
   }
 
   @Override
-  public EGLSurface createFocusedPlaceholderEglSurface(
-      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes)
+  public EGLSurface createFocusedPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
       throws GlUtil.GlException {
-    return GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+    return GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
   }
 
   @Override

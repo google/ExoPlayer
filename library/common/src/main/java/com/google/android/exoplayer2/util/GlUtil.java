@@ -220,7 +220,7 @@ public final class GlUtil {
       try {
         EGLDisplay eglDisplay = createEglDisplay();
         EGLContext eglContext = createEglContext(eglDisplay);
-        focusPlaceholderEglSurface(eglContext, eglDisplay);
+        createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
         glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
         destroyEglContext(eglDisplay, eglContext);
       } catch (GlException e) {
@@ -362,29 +362,12 @@ public final class GlUtil {
    * @return {@link EGL14#EGL_NO_SURFACE} if supported and a 1x1 pixel buffer surface otherwise.
    */
   @RequiresApi(17)
-  public static EGLSurface focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
-      throws GlException {
-    return createFocusedPlaceholderEglSurface(
-        eglContext, eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
-  }
-
-  /**
-   * Creates and focuses a placeholder {@link EGLSurface}.
-   *
-   * <p>This makes a {@link EGLContext} current when reading and writing to a surface is not
-   * required.
-   *
-   * @param eglContext The {@link EGLContext} to make current.
-   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
-   * @param configAttributes The attributes to configure EGL with. Accepts {@link
-   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
-   * @return A placeholder {@link EGLSurface} that has been focused to allow rendering to take
-   *     place, or {@link EGL14#EGL_NO_SURFACE} if the current context supports rendering without a
-   *     surface.
-   */
-  @RequiresApi(17)
   public static EGLSurface createFocusedPlaceholderEglSurface(
-      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes) throws GlException {
+      EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
+    // EGL_CONFIG_ATTRIBUTES_RGBA_1010102 could be used for HDR input, but
+    // EGL14.EGL_NO_SURFACE support was added before EGL 2, so HDR-capable devices should have
+    // support for EGL_NO_SURFACE and therefore configAttributes shouldn't matter for HDR.
+    int[] configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_8888;
     EGLSurface eglSurface =
         isSurfacelessContextExtensionSupported()
             ? EGL14.EGL_NO_SURFACE
