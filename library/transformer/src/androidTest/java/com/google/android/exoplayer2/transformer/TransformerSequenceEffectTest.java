@@ -62,12 +62,11 @@ public final class TransformerSequenceEffectTest {
   private static final int EXPORT_HEIGHT = 240;
 
   /**
-   * Allowing more difference than {@link
-   * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} for YUV to RGB conversion on
-   * emulators.
+   * Maximum allowed average pixel difference between bitmaps generated from luma values.
+   *
+   * @see BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE
    */
-  private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE =
-      8 * BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+  private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA = 5.0f;
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
@@ -258,7 +257,7 @@ public final class TransformerSequenceEffectTest {
       float averagePixelAbsoluteDifference =
           getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, subTestId);
       assertThat(averagePixelAbsoluteDifference)
-          .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+          .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA);
     }
   }
 }
