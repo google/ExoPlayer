@@ -51,7 +51,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private @MonotonicNonNull GlShaderProgram downstreamShaderProgram;
   private @MonotonicNonNull TextureManager activeTextureManager;
-  private boolean inputEnded;
 
   public InputSwitcher(
       Context context,
@@ -191,16 +190,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkNotNull(activeTextureManager).signalEndOfCurrentInputStream();
   }
 
-  /** Signals end of input to all {@linkplain #registerInput registered inputs}. */
-  public void signalEndOfInput() {
-    checkState(!inputEnded);
-    inputEnded = true;
-    for (int i = 0; i < inputs.size(); i++) {
-      @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
-      inputs.get(inputType).signalEndOfInput();
-    }
-  }
-
   /** Releases the resources. */
   public void release() throws VideoFrameProcessingException {
     for (int i = 0; i < inputs.size(); i++) {
@@ -236,10 +225,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return;
       }
       gatedChainingListenerWrapper.setActive(active);
-    }
-
-    public void signalEndOfInput() {
-      textureManager.signalEndOfInput();
     }
 
     public void release() throws VideoFrameProcessingException {

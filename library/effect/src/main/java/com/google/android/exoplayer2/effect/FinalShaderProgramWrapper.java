@@ -79,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * Returns whether {@link FinalShaderProgramWrapper} should invoke {@link
      * VideoFrameProcessor.Listener#signalEndOfInput}.
      */
-    boolean onInputStreamProcessed();
+    void onInputStreamProcessed();
   }
 
   private static final String TAG = "FinalShaderWrapper";
@@ -199,12 +199,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void signalEndOfCurrentInputStream() {
     frameProcessingStarted = true;
-    boolean frameProcessingEnded =
-        checkNotNull(onInputStreamProcessedListener).onInputStreamProcessed();
-    if (frameProcessingEnded) {
-      DebugTraceUtil.recordVideoFrameProcessorSignalEos();
-      videoFrameProcessorListenerExecutor.execute(videoFrameProcessorListener::onEnded);
-    }
+    checkNotNull(onInputStreamProcessedListener).onInputStreamProcessed();
   }
 
   // Methods that must be called on the GL thread.
