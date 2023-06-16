@@ -95,20 +95,8 @@ import androidx.media3.common.VideoFrameProcessor;
   /** See {@link VideoFrameProcessor#getPendingInputFrameCount}. */
   int getPendingFrameCount();
 
-  /**
-   * Signals the end of the current input stream.
-   *
-   * <p>This method must be called on the last input stream, before calling {@link
-   * #signalEndOfInput}.
-   */
+  /** Signals the end of the current input stream. */
   void signalEndOfCurrentInputStream();
-
-  /**
-   * Signals the end of the input.
-   *
-   * @see VideoFrameProcessor#signalEndOfInput()
-   */
-  void signalEndOfInput();
 
   /** Sets the task to run on completing flushing, or {@code null} to clear any task. */
   void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task);

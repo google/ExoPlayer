@@ -15,7 +15,6 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -73,9 +72,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   // Read and written only on GL thread.
   private int availableFrameCount;
-
-  // Read and written on the GL thread only.
-  private boolean inputStreamEnded;
 
   // Read and written on the GL thread only.
   private boolean currentInputStreamEnded;
@@ -198,7 +194,6 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   @Override
   public void registerInputFrame(FrameInfo frame) {
-    checkState(!inputStreamEnded);
     pendingFrames.add(frame);
     videoFrameProcessingTaskExecutor.submit(() -> shouldRejectIncomingFrames = false);
   }
@@ -227,12 +222,6 @@ import java.util.concurrent.atomic.AtomicInteger;
             restartForceSignalEndOfStreamTimer();
           }
         });
-  }
-
-  @Override
-  public void signalEndOfInput() {
-    // TODO(b/274109008) Consider remove inputStreamEnded boolean.
-    videoFrameProcessingTaskExecutor.submit(() -> inputStreamEnded = true);
   }
 
   @Override

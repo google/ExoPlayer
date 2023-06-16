@@ -102,11 +102,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void signalEndOfCurrentInputStream() {
-    signalEndOfInput();
-  }
-
-  @Override
-  public void signalEndOfInput() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           if (framesToQueueForCurrentBitmap == 0 && pendingBitmaps.isEmpty()) {

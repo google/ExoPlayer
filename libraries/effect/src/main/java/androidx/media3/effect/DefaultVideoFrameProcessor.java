@@ -54,8 +54,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -298,9 +296,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   // Shader programs that apply Effects.
   private final List<GlShaderProgram> intermediateGlShaderPrograms;
-  // A queue of input streams that have not been fully processed identified by their input types.
+  // Whether DefaultVideoFrameProcessor is currently processing an input stream.
   @GuardedBy("lock")
-  private final Queue<@InputType Integer> unprocessedInputStreams;
+  private boolean processingInput;
 
   private final List<Effect> activeEffects;
   private final Object lock;
@@ -334,7 +332,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.listener = listener;
     this.listenerExecutor = listenerExecutor;
     this.renderFramesAutomatically = renderFramesAutomatically;
-    this.unprocessedInputStreams = new ConcurrentLinkedQueue<>();
     this.activeEffects = new ArrayList<>();
     this.lock = new Object();
     this.outputColorInfo = outputColorInfo;
@@ -342,12 +339,18 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.finalShaderProgramWrapper = finalShaderProgramWrapper;
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
+          boolean inputEndedAfterThisInputStream;
           synchronized (lock) {
-            unprocessedInputStreams.remove();
+            processingInput = false;
+            // inputStreamEnded could be overwritten right after counting down the latch.
+            inputEndedAfterThisInputStream = this.inputStreamEnded;
             if (latch != null) {
               latch.countDown();
             }
-            return inputStreamEnded && unprocessedInputStreams.isEmpty();
+          }
+          if (inputEndedAfterThisInputStream) {
+            listenerExecutor.execute(listener::onEnded);
+            DebugTraceUtil.recordVideoFrameProcessorSignalEos();
           }
         });
     this.intermediateGlShaderPrograms = new ArrayList<>(intermediateGlShaderPrograms);
@@ -412,9 +415,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void registerInputStream(@InputType int inputType, List<Effect> effects) {
     synchronized (lock) {
-      if (unprocessedInputStreams.isEmpty()) {
+      if (!processingInput) {
         inputSwitcher.switchToInput(inputType);
-        unprocessedInputStreams.add(inputType);
+        processingInput = true;
         activeEffects.clear();
         activeEffects.addAll(effects);
         return;
@@ -432,7 +435,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
 
     synchronized (lock) {
-      unprocessedInputStreams.add(inputType);
+      processingInput = true;
     }
 
     if (!activeEffects.equals(effects)) {
@@ -526,15 +529,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     DebugTraceUtil.recordVideoFrameProcessorReceiveDecoderEos();
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    boolean allInputStreamsProcessed;
-    synchronized (lock) {
-      allInputStreamsProcessed = unprocessedInputStreams.isEmpty();
-    }
-    if (allInputStreamsProcessed) {
-      inputSwitcher.signalEndOfInput();
-    } else {
-      inputSwitcher.signalEndOfCurrentInputStream();
-    }
+    inputSwitcher.signalEndOfCurrentInputStream();
   }
 
   @Override

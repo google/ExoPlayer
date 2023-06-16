@@ -107,11 +107,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void signalEndOfInput() {
-    // Do nothing.
-  }
-
-  @Override
   public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
     // Do nothing.
   }
