@@ -565,7 +565,7 @@ public final class AndroidTestUtil {
         new DefaultGlObjectsProvider(/* sharedEglContext= */ null);
     EGLContext eglContext =
         glObjectsProvider.createEglContext(eglDisplay, /* openGlVersion= */ 2, configAttributes);
-    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
+    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
     return eglContext;
   }
 

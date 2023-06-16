@@ -58,10 +58,8 @@ public interface GlObjectsProvider {
         @Override
         @RequiresApi(17)
         public EGLSurface createFocusedPlaceholderEglSurface(
-            EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes)
-            throws GlException {
-          return GlUtil.createFocusedPlaceholderEglSurface(
-              eglContext, eglDisplay, configAttributes);
+            EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
+          return GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
         }
 
         @Override
@@ -109,15 +107,14 @@ public interface GlObjectsProvider {
    *
    * @param eglContext The {@link EGLContext} to make current.
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
-   * @param configAttributes The attributes to configure EGL with.
    * @return A placeholder {@link EGLSurface} that has been focused to allow rendering to take
    *     place, or {@link EGL14#EGL_NO_SURFACE} if the current context supports rendering without a
    *     surface.
    * @throws GlException If an error occurs during creation.
    */
   @RequiresApi(17)
-  EGLSurface createFocusedPlaceholderEglSurface(
-      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes) throws GlException;
+  EGLSurface createFocusedPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
+      throws GlException;
 
   /**
    * Returns a {@link GlTextureInfo} containing the identifiers of the newly created buffers.
