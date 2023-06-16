@@ -112,7 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTask task) {
+  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
     // Do nothing.
   }
 
