@@ -627,7 +627,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * <p>Must be called on the GL thread.
      */
     public synchronized void maybeRenderToSurfaceView(
-        VideoFrameProcessingTask renderingTask, GlObjectsProvider glObjectsProvider)
+        VideoFrameProcessingTaskExecutor.Task renderingTask, GlObjectsProvider glObjectsProvider)
         throws GlUtil.GlException, VideoFrameProcessingException {
       if (surface == null) {
         return;

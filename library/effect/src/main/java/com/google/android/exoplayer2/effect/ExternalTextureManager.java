@@ -91,7 +91,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Nullable private volatile FrameInfo currentFrame;
 
   // TODO(b/238302341) Remove the use of after flush task, block the calling thread instead.
-  @Nullable private volatile VideoFrameProcessingTask onFlushCompleteTask;
+  @Nullable private volatile VideoFrameProcessingTaskExecutor.Task onFlushCompleteTask;
   @Nullable private Future<?> forceSignalEndOfStreamFuture;
 
   // Whether to reject frames from the SurfaceTexture. Accessed only on GL thread.
@@ -186,7 +186,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTask task) {
+  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
     onFlushCompleteTask = task;
   }
 

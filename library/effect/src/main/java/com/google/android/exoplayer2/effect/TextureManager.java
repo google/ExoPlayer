@@ -119,7 +119,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
   void signalEndOfInput();
 
   /** Sets the task to run on completing flushing, or {@code null} to clear any task. */
-  void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTask task);
+  void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task);
 
   /**
    * Releases all resources.
