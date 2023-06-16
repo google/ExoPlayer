@@ -370,7 +370,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputEglSurface,
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
-    GlUtil.clearOutputFrame();
+    GlUtil.clearFocusedBuffers();
     defaultShaderProgram.drawFrame(inputTexture.getTexId(), presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(
@@ -389,7 +389,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     outputTextureTimestamps.add(presentationTimeUs);
     GlUtil.focusFramebufferUsingCurrentContext(
         outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
-    GlUtil.clearOutputFrame();
+    GlUtil.clearFocusedBuffers();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.getTexId(), presentationTimeUs);
     // TODO(b/262694346): If Compositor's VFPs all use the same context, media3 should be able to
     //  avoid calling glFinish, and require the onTextureRendered listener to decide whether to
@@ -535,7 +535,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkNotNull(debugSurfaceViewWrapper)
           .maybeRenderToSurfaceView(
               () -> {
-                GlUtil.clearOutputFrame();
+                GlUtil.clearFocusedBuffers();
                 if (enableColorTransfers) {
                   @C.ColorTransfer
                   int configuredColorTransfer = defaultShaderProgram.getOutputColorTransfer();

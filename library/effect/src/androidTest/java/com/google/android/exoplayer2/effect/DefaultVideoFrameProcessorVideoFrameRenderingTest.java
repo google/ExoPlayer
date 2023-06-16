@@ -387,7 +387,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
         int fboId = GlUtil.createFboForTexture(texId);
         blankTexture = new GlTextureInfo(texId, fboId, /* rboId= */ C.INDEX_UNSET, WIDTH, HEIGHT);
         GlUtil.focusFramebufferUsingCurrentContext(fboId, WIDTH, HEIGHT);
-        GlUtil.clearOutputFrame();
+        GlUtil.clearFocusedBuffers();
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }
