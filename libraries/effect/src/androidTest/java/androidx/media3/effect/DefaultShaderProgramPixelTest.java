@@ -71,7 +71,7 @@ public final class DefaultShaderProgramPixelTest {
 
   @Before
   public void createGlObjects() throws IOException, GlUtil.GlException {
-    eglDisplay = GlUtil.createEglDisplay();
+    eglDisplay = GlUtil.getDefaultEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
     EGLSurface placeholderEglSurface =
         GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);

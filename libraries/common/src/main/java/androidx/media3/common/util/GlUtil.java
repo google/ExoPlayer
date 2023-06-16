@@ -211,7 +211,7 @@ public final class GlUtil {
     if (Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT)) {
       // Create a placeholder context and make it current to allow calling GLES20.glGetString().
       try {
-        EGLDisplay eglDisplay = createEglDisplay();
+        EGLDisplay eglDisplay = getDefaultEglDisplay();
         EGLContext eglContext = createEglContext(eglDisplay);
         createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
         glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
@@ -235,8 +235,8 @@ public final class GlUtil {
 
   /** Returns an initialized default {@link EGLDisplay}. */
   @RequiresApi(17)
-  public static EGLDisplay createEglDisplay() throws GlException {
-    return Api17.createEglDisplay();
+  public static EGLDisplay getDefaultEglDisplay() throws GlException {
+    return Api17.getDefaultEglDisplay();
   }
 
   /**
@@ -424,8 +424,14 @@ public final class GlUtil {
     }
   }
 
-  /** Fills the pixels in the current output render target with (r=0, g=0, b=0, a=0). */
-  public static void clearOutputFrame() throws GlException {
+  /**
+   * Fills the pixels in the current output render target buffers with (r=0, g=0, b=0, a=0).
+   *
+   * <p>Buffers can be focused using {@link #focusEglSurface} and {@link
+   * #focusFramebufferUsingCurrentContext}, {@link #focusFramebuffer}, and {@link
+   * #createFocusedPlaceholderEglSurface}.
+   */
+  public static void clearFocusedBuffers() throws GlException {
     GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
     GLES20.glClearDepthf(1.0f);
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -672,7 +678,7 @@ public final class GlUtil {
     private Api17() {}
 
     @DoNotInline
-    public static EGLDisplay createEglDisplay() throws GlException {
+    public static EGLDisplay getDefaultEglDisplay() throws GlException {
       EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
       checkGlException(!eglDisplay.equals(EGL14.EGL_NO_DISPLAY), "No EGL display.");
       checkGlException(

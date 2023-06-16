@@ -140,7 +140,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
       // Copy frame to fbo.
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
-      GlUtil.clearOutputFrame();
+      GlUtil.clearFocusedBuffers();
       drawFrame(inputTexture.getTexId(), presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);

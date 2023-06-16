@@ -607,7 +607,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       throws GlUtil.GlException, VideoFrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
-    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
+    EGLDisplay eglDisplay = GlUtil.getDefaultEglDisplay();
     int[] configAttributes =
         ColorInfo.isTransferHdr(outputColorInfo)
             ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102

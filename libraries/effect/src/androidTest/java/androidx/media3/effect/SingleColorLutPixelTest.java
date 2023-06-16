@@ -77,7 +77,7 @@ public class SingleColorLutPixelTest {
 
   @Before
   public void createGlObjects() throws Exception {
-    eglDisplay = GlUtil.createEglDisplay();
+    eglDisplay = GlUtil.getDefaultEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
     placeholderEglSurface = GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
 
