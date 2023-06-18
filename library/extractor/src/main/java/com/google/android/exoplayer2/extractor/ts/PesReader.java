@@ -164,6 +164,13 @@ public final class PesReader implements TsPayloadReader {
     }
   }
 
+  @Override
+  public void endOfStream() {
+    if (state == STATE_READING_BODY) {
+      reader.endOfStream();
+    }
+  }
+
   private void setState(int state) {
     this.state = state;
     bytesRead = 0;
