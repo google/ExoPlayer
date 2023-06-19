@@ -59,6 +59,14 @@ public interface AudioProcessor {
     /** The number of bytes used to represent one audio frame. */
     public final int bytesPerFrame;
 
+    /**
+     * Creates an instance using the {@link Format#sampleRate}, {@link Format#channelCount} and
+     * {@link Format#pcmEncoding}.
+     */
+    public AudioFormat(Format format) {
+      this(format.sampleRate, format.channelCount, format.pcmEncoding);
+    }
+
     public AudioFormat(int sampleRate, int channelCount, @C.PcmEncoding int encoding) {
       this.sampleRate = sampleRate;
       this.channelCount = channelCount;
