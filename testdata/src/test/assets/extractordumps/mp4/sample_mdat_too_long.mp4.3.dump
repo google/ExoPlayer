@@ -17,7 +17,7 @@ track 0:
     width = 1080
     height = 720
     frameRate = 29.970028
-    metadata = entries=[Mp4Timestamp: creation time=3547558895, modification time=3547558895, timescale=1000]
+    metadata = entries=[TSSE: description=null: values=[Lavf56.1.0], Mp4Timestamp: creation time=3547558895, modification time=3547558895, timescale=1000]
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B

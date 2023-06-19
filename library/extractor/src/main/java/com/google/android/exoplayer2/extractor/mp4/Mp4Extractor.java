@@ -497,20 +497,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     List<Mp4Track> tracks = new ArrayList<>();
 
     // Process metadata.
-    @Nullable Metadata udtaMetaMetadata = null;
-    @Nullable Metadata smtaMetadata = null;
-    @Nullable Metadata xyzMetadata = null;
     boolean isQuickTime = fileType == FILE_TYPE_QUICKTIME;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
+    @Nullable Metadata udtaMetadata = null;
     @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      AtomParsers.UdtaInfo udtaInfo = AtomParsers.parseUdta(udta);
-      udtaMetaMetadata = udtaInfo.metaMetadata;
-      smtaMetadata = udtaInfo.smtaMetadata;
-      xyzMetadata = udtaInfo.xyzMetadata;
-      if (udtaMetaMetadata != null) {
-        gaplessInfoHolder.setFromMetadata(udtaMetaMetadata);
-      }
+      udtaMetadata = AtomParsers.parseUdta(udta);
+      gaplessInfoHolder.setFromMetadata(udtaMetadata);
     }
     @Nullable Metadata mdtaMetadata = null;
     @Nullable Atom.ContainerAtom meta = moov.getContainerAtomOfType(Atom.TYPE_meta);
@@ -568,12 +561,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       MetadataUtil.setFormatGaplessInfo(track.type, gaplessInfoHolder, formatBuilder);
       MetadataUtil.setFormatMetadata(
           track.type,
-          udtaMetaMetadata,
           mdtaMetadata,
           formatBuilder,
-          smtaMetadata,
           slowMotionMetadataEntries.isEmpty() ? null : new Metadata(slowMotionMetadataEntries),
-          xyzMetadata,
+          udtaMetadata,
           mvhdMetadata);
       mp4Track.trackOutput.format(formatBuilder.build());
 

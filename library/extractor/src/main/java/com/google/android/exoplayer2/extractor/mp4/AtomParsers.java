@@ -68,26 +68,6 @@ import java.util.List;
 @Deprecated
 /* package */ final class AtomParsers {
 
-  /** Stores metadata retrieved from the udta atom. */
-  public static final class UdtaInfo {
-    /** The metadata retrieved from the meta sub atom. */
-    @Nullable public final Metadata metaMetadata;
-    /** The metadata retrieved from the smta sub atom. */
-    @Nullable public final Metadata smtaMetadata;
-    /** The location metadata retrieved from the xyz sub atom. */
-    @Nullable public final Metadata xyzMetadata;
-
-    /** Creates an instance. */
-    public UdtaInfo(
-        @Nullable Metadata metaMetadata,
-        @Nullable Metadata smtaMetadata,
-        @Nullable Metadata xyzMetadata) {
-      this.metaMetadata = metaMetadata;
-      this.smtaMetadata = smtaMetadata;
-      this.xyzMetadata = xyzMetadata;
-    }
-  }
-
   private static final String TAG = "AtomParsers";
 
   @SuppressWarnings("ConstantCaseForConstants")
@@ -187,31 +167,30 @@ import java.util.List;
    * Parses a udta atom.
    *
    * @param udtaAtom The udta (user data) atom to decode.
-   * @return A {@link UdtaInfo} containing the metadata extracted from the meta, smta and xyz child
-   *     atoms (if present).
+   * @return Parsed metadata.
    */
-  public static UdtaInfo parseUdta(Atom.LeafAtom udtaAtom) {
+  public static Metadata parseUdta(Atom.LeafAtom udtaAtom) {
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
-    @Nullable Metadata metaMetadata = null;
-    @Nullable Metadata smtaMetadata = null;
-    @Nullable Metadata xyzMetadata = null;
+    Metadata metadata = new Metadata();
     while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
       int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
       int atomType = udtaData.readInt();
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(atomPosition);
-        metaMetadata = parseUdtaMeta(udtaData, atomPosition + atomSize);
+        metadata =
+            metadata.copyWithAppendedEntriesFrom(parseUdtaMeta(udtaData, atomPosition + atomSize));
       } else if (atomType == Atom.TYPE_smta) {
         udtaData.setPosition(atomPosition);
-        smtaMetadata = parseSmta(udtaData, atomPosition + atomSize);
+        metadata =
+            metadata.copyWithAppendedEntriesFrom(parseSmta(udtaData, atomPosition + atomSize));
       } else if (atomType == Atom.TYPE_xyz) {
-        xyzMetadata = parseXyz(udtaData);
+        metadata = metadata.copyWithAppendedEntriesFrom(parseXyz(udtaData));
       }
       udtaData.setPosition(atomPosition + atomSize);
     }
-    return new UdtaInfo(metaMetadata, smtaMetadata, xyzMetadata);
+    return metadata;
   }
 
   /**

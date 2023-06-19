@@ -198,8 +198,8 @@ public class MetadataRetrieverTest {
         .isEqualTo(expectedAndroidVersionMetadata);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(1))
         .isEqualTo(expectedTemporalLayersCountMetdata);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(2)).isEqualTo(expectedSmtaEntry);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(3)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(2)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(3)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(4)).isEqualTo(expectedMp4TimestampData);
 
     // Video
@@ -209,8 +209,8 @@ public class MetadataRetrieverTest {
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(1))
         .isEqualTo(expectedTemporalLayersCountMetdata);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(2)).isEqualTo(expectedMdtaEntry);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedSmtaEntry);
-    assertThat(trackGroups.get(1).getFormat(0).metadata.get(4)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(4)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(5)).isEqualTo(expectedMp4TimestampData);
   }
 
