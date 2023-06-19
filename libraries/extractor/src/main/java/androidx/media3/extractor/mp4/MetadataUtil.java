@@ -288,25 +288,17 @@ import com.google.common.collect.ImmutableList;
   /** Updates a {@link Format.Builder} to include metadata from the provided sources. */
   public static void setFormatMetadata(
       int trackType,
-      @Nullable Metadata udtaMetaMetadata,
       @Nullable Metadata mdtaMetadata,
       Format.Builder formatBuilder,
       @NullableType Metadata... additionalMetadata) {
     Metadata formatMetadata = new Metadata();
-
-    if (trackType == C.TRACK_TYPE_AUDIO) {
-      // We assume all meta metadata in the udta box is associated with the audio track.
-      if (udtaMetaMetadata != null) {
-        formatMetadata = udtaMetaMetadata;
-      }
-    }
 
     if (mdtaMetadata != null) {
       for (int i = 0; i < mdtaMetadata.length(); i++) {
         Metadata.Entry entry = mdtaMetadata.get(i);
         if (entry instanceof MdtaMetadataEntry) {
           MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-          // This key is present in the container level meta box.
+          // This key is present in the moov.meta box.
           if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {
             if (trackType == C.TRACK_TYPE_VIDEO) {
               formatMetadata = formatMetadata.copyWithAppendedEntries(mdtaMetadataEntry);
