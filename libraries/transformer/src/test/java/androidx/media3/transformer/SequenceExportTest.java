@@ -18,9 +18,11 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.TestUtil.ASSET_URI_PREFIX;
+import static androidx.media3.transformer.TestUtil.FILE_AUDIO_RAW;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static androidx.media3.transformer.TestUtil.createEncodersAndDecoders;
+import static androidx.media3.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static androidx.media3.transformer.TestUtil.createTransformerBuilder;
 import static androidx.media3.transformer.TestUtil.getDumpFileName;
 import static androidx.media3.transformer.TestUtil.removeEncodersAndDecoders;
@@ -40,12 +42,20 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * End-to-end test for exporting a single {@link EditedMediaItemSequence} containing multiple {@link
  * EditedMediaItem} instances with {@link Transformer}.
+ *
+ * <p>Video tracks can not be processed by Robolectric, as the muxer audio/video interleaving means
+ * it waits for more audio samples before writing video samples. Robolectric decoders (currently)
+ * just copy input buffers to the output. Audio timestamps are computed based on the amount of data
+ * passed through (see [internal: b/178685617]), so are much smaller than expected because they are
+ * based on encoded samples. As a result, input files with video and audio must either remove or
+ * transmux the video.
  */
 @RunWith(AndroidJUnit4.class)
 public final class SequenceExportTest {
@@ -97,8 +107,7 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
-    sonicAudioProcessor.setPitch(2f);
+    SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
     Effect videoEffect = RgbFilter.createGrayscaleFilter();
     Effects effects =
         new Effects(ImmutableList.of(sonicAudioProcessor), ImmutableList.of(videoEffect));
@@ -172,11 +181,11 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    EditedMediaItem noAudioEditedMediaItem =
+    EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
-    EditedMediaItem audioEditedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItem audioVideoMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(noAudioEditedMediaItem, audioEditedMediaItem));
+        new EditedMediaItemSequence(ImmutableList.of(videoOnlyMediaItem, audioVideoMediaItem));
     Composition composition =
         new Composition.Builder(ImmutableList.of(sequence))
             .experimentalSetForceAudioTrack(true)
@@ -198,8 +207,7 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
-    sonicAudioProcessor.setPitch(2f);
+    SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
     Effects effects =
         new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
     EditedMediaItem noAudioEditedMediaItem =
@@ -224,22 +232,11 @@ public final class SequenceExportTest {
   }
 
   @Test
-  public void start_concatenateSameAudioItemWithEffects_completesSuccessfully() throws Exception {
+  public void start_concatenateSameAudioItem_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
-    sonicAudioProcessor.setPitch(2f);
-    Effects effects =
-        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
-
-    // The video track must be removed in order for the export to end. Indeed, the
-    // Robolectric decoder just copies the input buffers to the output and the audio timestamps are
-    // therefore computed based on the encoded samples (see [internal: b/178685617]). As a result,
-    // the audio timestamps are much smaller than they should be and the muxer waits for more audio
-    // samples before writing video samples.
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).setRemoveVideo(true).build();
+    MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(audioOnlyMediaItem).build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
@@ -251,6 +248,68 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         checkNotNull(testMuxerHolder.testMuxer),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_audio_high_pitch"));
+        getDumpFileName(FILE_AUDIO_RAW + ".concatenated"));
+  }
+
+  @Test
+  public void start_concatenateSameAudioItemWithEffects_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
+    Effects effects =
+        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(audioOnlyMediaItem).setEffects(effects).build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW + ".concatenated_high_pitch"));
+  }
+
+  @Test
+  @Ignore("Handle MediaItem effects changes (See [internal: b/274093424]).")
+  public void start_concatenateSameAudioItemWithDifferentEffects_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    Effects highPitchEffects =
+        new Effects(
+            ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+            /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem highPitchMediaItem =
+        new EditedMediaItem.Builder(audioOnlyMediaItem)
+            .setRemoveVideo(true)
+            .setEffects(highPitchEffects)
+            .build();
+    Effects lowPitchEffects =
+        new Effects(
+            ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)),
+            /* videoEffects= */ ImmutableList.of());
+    EditedMediaItem lowPitchMediaItem =
+        new EditedMediaItem.Builder(audioOnlyMediaItem)
+            .setRemoveVideo(true)
+            .setEffects(lowPitchEffects)
+            .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(highPitchMediaItem, lowPitchMediaItem));
+    Composition composition = new Composition.Builder(ImmutableList.of(sequence)).build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW + ".high_pitch_then_low_pitch"));
   }
 }
