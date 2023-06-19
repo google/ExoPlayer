@@ -39,7 +39,11 @@ public abstract class Buffer {
     return getFlag(C.BUFFER_FLAG_FIRST_SAMPLE);
   }
 
-  /** Returns whether the {@link C#BUFFER_FLAG_END_OF_STREAM} flag is set. */
+  /**
+   * Returns whether the {@link C#BUFFER_FLAG_END_OF_STREAM} flag is set.
+   *
+   * <p>If this is set, all other attributes of the buffer should be ignored.
+   */
   public final boolean isEndOfStream() {
     return getFlag(C.BUFFER_FLAG_END_OF_STREAM);
   }
