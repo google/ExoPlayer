@@ -67,6 +67,11 @@
 *   IMA extension:
 *   Session:
 *   UI:
+    *   Add a `Player.Listener` implementation for Wear OS devices that handles
+        playback suppression due to
+        `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` by
+        launching a system dialog to allow a user to connect a suitable audio
+        output (e.g. bluetooth headphones).
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
