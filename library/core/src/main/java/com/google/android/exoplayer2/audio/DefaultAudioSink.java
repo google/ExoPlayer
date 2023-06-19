@@ -667,9 +667,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
       channelMappingAudioProcessor.setChannelMap(outputChannels);
 
-      AudioProcessor.AudioFormat outputFormat =
-          new AudioProcessor.AudioFormat(
-              inputFormat.sampleRate, inputFormat.channelCount, inputFormat.pcmEncoding);
+      AudioProcessor.AudioFormat outputFormat = new AudioProcessor.AudioFormat(inputFormat);
       try {
         outputFormat = audioProcessingPipeline.configure(outputFormat);
       } catch (UnhandledAudioFormatException e) {

@@ -91,11 +91,7 @@ import org.checkerframework.dataflow.qual.Pure;
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
 
     checkArgument(firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE);
-    AudioFormat inputAudioFormat =
-        new AudioFormat(
-            firstPipelineInputFormat.sampleRate,
-            firstPipelineInputFormat.channelCount,
-            firstPipelineInputFormat.pcmEncoding);
+    AudioFormat inputAudioFormat = new AudioFormat(firstPipelineInputFormat);
 
     silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
 
