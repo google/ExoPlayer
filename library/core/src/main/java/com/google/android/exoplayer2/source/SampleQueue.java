@@ -700,6 +700,7 @@ public class SampleQueue implements TrackOutput {
     if (!hasNextSample()) {
       if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+        buffer.timeUs = C.TIME_END_OF_SOURCE;
         return C.RESULT_BUFFER_READ;
       } else if (upstreamFormat != null && (formatRequired || upstreamFormat != downstreamFormat)) {
         onFormatResult(Assertions.checkNotNull(upstreamFormat), formatHolder);
