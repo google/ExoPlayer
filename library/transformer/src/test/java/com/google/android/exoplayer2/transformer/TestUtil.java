@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -235,6 +236,12 @@ public final class TestUtil {
         .setMuxerFactory(new TestMuxerFactory(testMuxerHolder))
         .setEncoderFactory(
             new DefaultEncoderFactory.Builder(context).setEnableFallback(enableFallback).build());
+  }
+
+  public static SonicAudioProcessor createPitchChangingAudioProcessor(float pitch) {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setPitch(pitch);
+    return sonicAudioProcessor;
   }
 
   public static String getDumpFileName(String originalFileName) {
