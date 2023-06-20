@@ -123,7 +123,7 @@ import java.util.List;
  * <p>The figure below shows ExoPlayer's threading model.
  *
  * <p style="align:center"><img
- * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/exoplayer-threading-model.svg"
+ * src="https://developer.android.com/static/images/reference/com/google/android/exoplayer2/exoplayer-threading-model.svg"
  * alt="ExoPlayer's threading model">
  *
  * <ul>
@@ -158,8 +158,8 @@ import java.util.List;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-// TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
-// developer.android.com.
+// TODO: b/288080357 - Replace developer.android.com fully-qualified SVG URL above with a relative
+// URL once we stop publishing exoplayer2 javadoc.
 @Deprecated
 public interface ExoPlayer extends Player {
 
