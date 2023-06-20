@@ -26,16 +26,14 @@ import java.util.concurrent.atomic.AtomicLong;
 /* package */ final class SilentAudioGenerator {
   private static final int DEFAULT_BUFFER_SIZE_FRAMES = 1024;
 
-  private final int sampleRate;
-  private final int frameSize;
+  private final AudioFormat audioFormat;
   private final ByteBuffer internalBuffer;
   private final AtomicLong remainingBytesToOutput;
 
-  public SilentAudioGenerator(AudioFormat format) {
-    sampleRate = format.sampleRate;
-    frameSize = Util.getPcmFrameSize(format.encoding, format.channelCount);
+  public SilentAudioGenerator(AudioFormat audioFormat) {
+    this.audioFormat = audioFormat;
     internalBuffer =
-        ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE_FRAMES * frameSize)
+        ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE_FRAMES * audioFormat.bytesPerFrame)
             .order(ByteOrder.nativeOrder());
     internalBuffer.flip();
     remainingBytesToOutput = new AtomicLong();
@@ -49,8 +47,15 @@ import java.util.concurrent.atomic.AtomicLong;
    * @param durationUs The duration of the additional silence to generate, in microseconds.
    */
   public void addSilence(long durationUs) {
-    long outputFrameCount = (sampleRate * durationUs) / C.MICROS_PER_SECOND;
-    remainingBytesToOutput.addAndGet(frameSize * outputFrameCount);
+    // The number of frames is not a timestamp, however this utility method provides
+    // overflow-safe multiplication & division.
+    long outputFrameCount =
+        Util.scaleLargeTimestamp(
+            /* timestamp= */ audioFormat.sampleRate,
+            /* multiplier= */ durationUs,
+            /* divisor= */ C.MICROS_PER_SECOND);
+
+    remainingBytesToOutput.addAndGet(audioFormat.bytesPerFrame * outputFrameCount);
   }
 
   public ByteBuffer getBuffer() {
