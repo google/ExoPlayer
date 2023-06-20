@@ -52,6 +52,7 @@ project.ext {
     androidxRecyclerViewVersion = '1.3.0'
     androidxMaterialVersion = '1.8.0'
     androidxTestCoreVersion = '1.5.0'
+    androidxTestEspressoVersion = '3.5.1'
     androidxTestJUnitVersion = '1.1.5'
     androidxTestRunnerVersion = '1.5.2'
     androidxTestRulesVersion = '1.5.0'

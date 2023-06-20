@@ -36,6 +36,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     implementation project(modulePrefix + 'lib-exoplayer')
+    testImplementation 'androidx.test.espresso:espresso-core:' + androidxTestEspressoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

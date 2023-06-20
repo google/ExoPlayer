@@ -85,6 +85,9 @@
         standard MIDI files using the Jsyn library to synthesize audio.
 *   Cast Extension:
 *   Test Utilities:
+    *   Make `TestExoPlayerBuilder` and `FakeClock` compatible with Espresso UI
+        tests and Compose UI tests. This fixes a bug where playback advances
+        non-deterministically during Espresso or Compose view interactions.
 *   Remove deprecated symbols:
 
 ## 1.1
