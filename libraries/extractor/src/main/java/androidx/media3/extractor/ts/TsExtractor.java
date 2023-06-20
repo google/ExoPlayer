@@ -323,7 +323,7 @@ public final class TsExtractor implements Extractor {
     }
 
     if (!fillBufferWithAtLeastOnePacket(input)) {
-      // Send a dummy pusi to allow for packetFinished to be triggered on the last unit
+      // Send a synthesised empty pusi to allow for packetFinished to be triggered on the last unit.
       for (int i = 0; i < tsPayloadReaders.size(); i++) {
         TsPayloadReader payloadReader = tsPayloadReaders.valueAt(i);
         if (payloadReader instanceof PesReader) {

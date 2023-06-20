@@ -174,6 +174,7 @@ public final class H265Reader implements ElementaryStreamReader {
 
   @Override
   public void packetFinished(boolean isEndOfInput) {
+    assertTracksCreated();
     if (isEndOfInput) {
       sampleReader.end(totalBytesWritten);
     }
@@ -379,9 +380,9 @@ public final class H265Reader implements ElementaryStreamReader {
     }
 
     public void end(long position) {
-      // Output a final sample with the nal units currently held
+      // Output a final sample with the NAL units currently held
       nalUnitPosition = position;
-      outputSample(0);
+      outputSample(/* offset= */ 0);
       readingSample = false;
     }
 

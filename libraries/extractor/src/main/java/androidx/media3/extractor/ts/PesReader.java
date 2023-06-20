@@ -149,7 +149,7 @@ public final class PesReader implements TsPayloadReader {
             payloadSize -= readLength;
             if (payloadSize == 0) {
               // There are bytes left in data, see above, so this is not the end of input
-              reader.packetFinished(false);
+              reader.packetFinished(/* isEndOfInput= */ false);
               setState(STATE_READING_HEADER);
             }
           }
