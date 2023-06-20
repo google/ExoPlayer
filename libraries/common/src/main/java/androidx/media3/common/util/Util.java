@@ -2688,6 +2688,18 @@ public final class Util {
   }
 
   /**
+   * Returns whether the app is running on a Wear OS device.
+   *
+   * @param context Any context.
+   * @return Whether the app is running on a Wear OS device.
+   */
+  @UnstableApi
+  public static boolean isWear(Context context) {
+    return SDK_INT >= 20
+        && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH);
+  }
+
+  /**
    * Gets the size of the current mode of the default display, in pixels.
    *
    * <p>Note that due to application UI scaling, the number of pixels made available to applications

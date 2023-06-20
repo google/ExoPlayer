@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.Events;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import java.util.List;
 
 /**
@@ -96,7 +97,7 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
 
   @Override
   public void onEvents(Player player, Events events) {
-    if (!isRunningOnWear(applicationContext)) {
+    if (!Util.isWear(applicationContext)) {
       return;
     }
     if (events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)
@@ -159,10 +160,5 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
       }
     }
     return null;
-  }
-
-  private static boolean isRunningOnWear(Context context) {
-    PackageManager packageManager = context.getPackageManager();
-    return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
   }
 }
