@@ -48,7 +48,7 @@ import java.util.List;
  * transition.
  *
  * <p style="align:center"><img
- * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/renderer-states.svg"
+ * src="https://developer.android.com/static/images/reference/com/google/android/exoplayer2/renderer-states.svg"
  * alt="Renderer state transitions">
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
@@ -56,8 +56,8 @@ import java.util.List;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-// TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
-// developer.android.com.
+// TODO: b/288080357 - Replace developer.android.com fully-qualified SVG URL above with a relative
+// URL once we stop publishing exoplayer2 javadoc.
 @Deprecated
 public interface Renderer extends PlayerMessage.Target {
 
