@@ -65,8 +65,8 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
     if (framesReceived % n == 0) {
       super.queueInputFrame(inputTexture, presentationTimeUs);
     } else {
-      inputListener.onInputFrameProcessed(inputTexture);
-      inputListener.onReadyToAcceptInputFrame();
+      getInputListener().onInputFrameProcessed(inputTexture);
+      getInputListener().onReadyToAcceptInputFrame();
     }
   }
 

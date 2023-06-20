@@ -59,8 +59,6 @@ public class FrameDropTest {
     checkNotNull(videoFrameProcessorTestRunner).release();
   }
 
-  // TODO: b/536973872 - When support for testing multiple frames in the output, test whether the
-  //  correct frames comes out.
   @RequiresNonNull("actualPresentationTimesUs")
   @Test
   public void frameDrop_withDefaultStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
@@ -72,9 +70,10 @@ public class FrameDropTest {
             .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
             .build();
 
+    videoFrameProcessorTestRunner.registerInputStream(INPUT_TYPE_BITMAP);
     ImmutableList<Integer> timestampsMs = ImmutableList.of(0, 16, 32, 48, 58, 71, 86);
     for (int timestampMs : timestampsMs) {
-      videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
+      videoFrameProcessorTestRunner.queueInputBitmap(
           readBitmap(ORIGINAL_PNG_ASSET_PATH),
           /* durationUs= */ C.MICROS_PER_SECOND,
           /* offsetToAddUs= */ timestampMs * 1000L,
