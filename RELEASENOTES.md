@@ -34,6 +34,9 @@
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
 *   Extractors:
+    *   Fix typo when determining `rotationDegrees`. Changed
+        `projectionPosePitch` to `projectionPoseRoll`
+        ([#461](https://github.com/androidx/media/pull/461)).
 *   Audio:
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
