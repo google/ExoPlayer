@@ -26,6 +26,7 @@ import android.provider.Settings;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
+import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 /**
@@ -100,7 +101,7 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
 
   @Override
   public void onEvents(Player player, Events events) {
-    if (!isRunningOnWear(applicationContext)) {
+    if (!Util.isWear(applicationContext)) {
       return;
     }
     if (events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)
@@ -163,10 +164,5 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
       }
     }
     return null;
-  }
-
-  private static boolean isRunningOnWear(Context context) {
-    PackageManager packageManager = context.getPackageManager();
-    return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
   }
 }

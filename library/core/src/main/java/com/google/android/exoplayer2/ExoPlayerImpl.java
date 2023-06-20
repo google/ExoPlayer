@@ -40,7 +40,6 @@ import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.AudioDeviceCallback;
@@ -3321,7 +3320,7 @@ import java.util.concurrent.TimeoutException;
 
     public static boolean isSuitableAudioOutputPresentInAudioDeviceInfoList(
         Context context, AudioDeviceInfo[] audioDeviceInfos) {
-      if (!isRunningOnWear(context)) {
+      if (!Util.isWear(context)) {
         return true;
       }
       for (AudioDeviceInfo device : audioDeviceInfos) {
@@ -3349,11 +3348,6 @@ import java.util.concurrent.TimeoutException;
         }
       }
       return false;
-    }
-
-    private static boolean isRunningOnWear(Context context) {
-      PackageManager packageManager = context.getPackageManager();
-      return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
     }
   }
 
