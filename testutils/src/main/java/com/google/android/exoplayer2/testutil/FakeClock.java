@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,10 +51,20 @@ import java.util.Set;
  */
 public class FakeClock implements Clock {
 
+  private static final ImmutableSet<String> UI_INTERACTION_TEST_CLASSES =
+      ImmutableSet.of(
+          "org.robolectric.android.internal.LocalControlledLooper",
+          "androidx.test.core.app.ActivityScenario",
+          "org.robolectric.android.controller.ActivityController");
+  private static final String ROBOLECTRIC_SHADOW_LOOPER_CLASS =
+      "org.robolectric.shadows.ShadowPausedLooper";
+  private static final String ROBOLECTRIC_SHADOW_LOOPER_IDLE_METHOD = "idle";
+
   private static long messageIdProvider = 0;
 
   private final boolean isRobolectric;
   private final boolean isAutoAdvancing;
+  private final Handler mainHandler;
 
   @GuardedBy("this")
   private final List<HandlerMessage> handlerMessages;
@@ -119,6 +130,7 @@ public class FakeClock implements Clock {
     this.isAutoAdvancing = isAutoAdvancing;
     this.handlerMessages = new ArrayList<>();
     this.busyLoopers = new HashSet<>();
+    this.mainHandler = new Handler(Looper.getMainLooper());
     this.isRobolectric = "robolectric".equals(Build.FINGERPRINT);
     if (isRobolectric) {
       SystemClock.setCurrentTimeMillis(initialTimeMs);
@@ -233,6 +245,18 @@ public class FakeClock implements Clock {
       }
       message = handlerMessages.get(messageIndex);
     }
+    if (message.handler.getLooper() == Looper.getMainLooper() && isIdlingInUiInteraction()) {
+      // UI interaction tests idle the main looper and may trigger almost infinite progress in the
+      // player. Avoid this situation by postponing any further updates on the main looper to after
+      // the UI interaction.
+      Looper.myQueue()
+          .addIdleHandler(
+              () -> {
+                mainHandler.postDelayed(this::maybeTriggerMessage, /* delayMillis= */ 1);
+                return false;
+              });
+      return;
+    }
     if (message.timeMs > timeSinceBootMs) {
       if (isAutoAdvancing) {
         advanceTimeInternal(message.timeMs - timeSinceBootMs);
@@ -272,6 +296,25 @@ public class FakeClock implements Clock {
 
   private static synchronized long getNextMessageId() {
     return messageIdProvider++;
+  }
+
+  private static boolean isIdlingInUiInteraction() {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+      return false;
+    }
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    boolean isIdling = false;
+    boolean isInUiInteraction = false;
+    for (StackTraceElement element : stackTrace) {
+      if (UI_INTERACTION_TEST_CLASSES.contains(element.getClassName())) {
+        isInUiInteraction = true;
+      }
+      if (element.getClassName().equals(ROBOLECTRIC_SHADOW_LOOPER_CLASS)
+          && element.getMethodName().equals(ROBOLECTRIC_SHADOW_LOOPER_IDLE_METHOD)) {
+        isIdling = true;
+      }
+    }
+    return isIdling && isInUiInteraction;
   }
 
   /** Message data saved to send messages or execute runnables at a later time on a Handler. */
