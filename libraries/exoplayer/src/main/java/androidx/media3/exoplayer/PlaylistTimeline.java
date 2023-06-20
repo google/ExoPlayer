@@ -15,7 +15,9 @@
  */
 package androidx.media3.exoplayer;
 
+import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
+import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.ForwardingTimeline;
@@ -117,15 +119,43 @@ import java.util.List;
     return periodCount;
   }
 
+  /**
+   * Creates a copy of the timeline and wraps each child timeline with a {@link ForwardingTimeline}
+   * that overrides {@link Timeline#getPeriod(int, Period, boolean)} to set the {@link
+   * Period#isPlaceholder} flag.
+   *
+   * <p>For periods of a live window, the {@link AdPlaybackState} is set to {@link
+   * AdPlaybackState#NONE} to allow a live source with ad support to drop the ad playback state.
+   *
+   * <p>This method should be used when the player is reset (for instance when a playback error
+   * occurs or {@link Player#stop()} is called) to make the player resolve the start position like
+   * when prepared initially. In this state, each source needs to be prepared again at which point
+   * the first timeline delivered by the source will replace the wrapped source to continue
+   * playback.
+   */
   public PlaylistTimeline copyWithPlaceholderTimeline(ShuffleOrder shuffleOrder) {
     Timeline[] newTimelines = new Timeline[timelines.length];
     for (int i = 0; i < timelines.length; i++) {
       newTimelines[i] =
           new ForwardingTimeline(timelines[i]) {
+            private final Window window = new Window();
+
             @Override
             public Period getPeriod(int periodIndex, Period period, boolean setIds) {
               Period superPeriod = super.getPeriod(periodIndex, period, setIds);
-              superPeriod.isPlaceholder = true;
+              if (super.getWindow(superPeriod.windowIndex, window).isLive()) {
+                // Reset the ad playback state for placeholder period of a live streams.
+                superPeriod.set(
+                    period.id,
+                    period.uid,
+                    period.windowIndex,
+                    period.durationUs,
+                    period.positionInWindowUs,
+                    AdPlaybackState.NONE,
+                    /* isPlaceholder= */ true);
+              } else {
+                superPeriod.isPlaceholder = true;
+              }
               return superPeriod;
             }
           };

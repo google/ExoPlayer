@@ -1494,11 +1494,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     Timeline timeline = playbackInfo.timeline;
     if (releaseMediaSourceList && timeline instanceof PlaylistTimeline) {
-      // Wrap the current live timeline to make sure the current period is marked as a placeholder
-      // to force resolving the default start position with the next timeline refresh.
+      // Wrap the current timeline to make sure the current period is marked as a placeholder to
+      // force resolving the default start position with the next timeline refresh.
       timeline =
           ((PlaylistTimeline) playbackInfo.timeline)
               .copyWithPlaceholderTimeline(mediaSourceList.getShuffleOrder());
+      if (mediaPeriodId.adGroupIndex != C.INDEX_UNSET) {
+        timeline.getPeriodByUid(mediaPeriodId.periodUid, period);
+        if (timeline.getWindow(period.windowIndex, window).isLive()) {
+          // Drop ad metadata to allow live streams to reset the ad playback state. In case the ad
+          // playback state is not reset by the source, the first timeline refresh after
+          // re-preparation will add the ad metadata to the period again.
+          mediaPeriodId =
+              new MediaPeriodId(mediaPeriodId.periodUid, mediaPeriodId.windowSequenceNumber);
+        }
+      }
     }
     playbackInfo =
         new PlaybackInfo(
