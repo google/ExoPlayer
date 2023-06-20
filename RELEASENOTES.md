@@ -28,6 +28,8 @@
     *   Fix seeking issues in AC4 streams caused by not identifying decode-only
         samples correctly
         ([#11000](https://github.com/google/ExoPlayer/issues/11000)).
+    *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
+        created after the playlist is cleared.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
