@@ -51,11 +51,11 @@ import java.util.List;
  * transition.
  *
  * <p style="align:center"><img
- * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/renderer-states.svg"
+ * src="https://developer.android.com/static/images/reference/androidx/media3/exoplayer/renderer-states.svg"
  * alt="Renderer state transitions">
  */
-// TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
-// developer.android.com.
+// TODO: b/288080357 - Replace developer.android.com fully-qualified SVG URL above with a relative
+// URL once we stop publishing exoplayer2 javadoc.
 @UnstableApi
 public interface Renderer extends PlayerMessage.Target {
 
