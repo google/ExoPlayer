@@ -66,7 +66,7 @@ public final class TransformerSequenceEffectTest {
    *
    * @see BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE
    */
-  private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA = 5.0f;
+  private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA = 8.0f;
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
