@@ -27,9 +27,9 @@ import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -45,7 +45,7 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
   private @MonotonicNonNull Bitmap outputBitmap;
 
   public TextureBitmapReader() {
-    outputTimestampsToBitmaps = new ConcurrentHashMap<>();
+    outputTimestampsToBitmaps = new LinkedHashMap<>();
   }
 
   @Nullable
@@ -64,6 +64,7 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     return checkStateNotNull(outputTimestampsToBitmaps.get(presentationTimeUs));
   }
 
+  /** Returns the timestamps in the order they were added. */
   public Set<Long> getOutputTimestamps() {
     return outputTimestampsToBitmaps.keySet();
   }

@@ -44,8 +44,8 @@ import java.util.concurrent.Executor;
  */
 @UnstableApi
 public abstract class BaseGlShaderProgram implements GlShaderProgram {
-  private final TexturePool outputTexturePool;
-  protected InputListener inputListener;
+  protected final TexturePool outputTexturePool;
+  private InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
   private Executor errorListenerExecutor;
@@ -183,5 +183,18 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
+  }
+
+  protected final InputListener getInputListener() {
+    return inputListener;
+  }
+
+  protected final OutputListener getOutputListener() {
+    return outputListener;
+  }
+
+  protected final void onError(Exception e) {
+    errorListenerExecutor.execute(
+        () -> errorListener.onError(VideoFrameProcessingException.from(e)));
   }
 }

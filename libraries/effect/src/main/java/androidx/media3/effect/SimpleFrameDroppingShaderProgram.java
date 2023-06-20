@@ -59,8 +59,8 @@ import androidx.media3.common.VideoFrameProcessingException;
     if (framesReceived % n == 0) {
       super.queueInputFrame(inputTexture, presentationTimeUs);
     } else {
-      inputListener.onInputFrameProcessed(inputTexture);
-      inputListener.onReadyToAcceptInputFrame();
+      getInputListener().onInputFrameProcessed(inputTexture);
+      getInputListener().onReadyToAcceptInputFrame();
     }
   }
 
