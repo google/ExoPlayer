@@ -2559,7 +2559,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
-                  finalPlayerInfo.playWhenReady, finalPlayerInfo.playWhenReadyChangedReason));
+                  finalPlayerInfo.playWhenReady, finalPlayerInfo.playWhenReadyChangeReason));
     }
     if (oldPlayerInfo.playbackSuppressionReason != finalPlayerInfo.playbackSuppressionReason) {
       listeners.queueEvent(

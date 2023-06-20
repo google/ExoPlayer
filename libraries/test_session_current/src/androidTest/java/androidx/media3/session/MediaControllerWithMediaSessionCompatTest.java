@@ -1349,7 +1349,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     CountDownLatch latch = new CountDownLatch(1);
     AtomicBoolean playWhenReadyFromParamRef = new AtomicBoolean();
     AtomicBoolean playWhenReadyFromGetterRef = new AtomicBoolean();
-    AtomicInteger playWhenReadyChangedReasonFromParamRef = new AtomicInteger();
+    AtomicInteger playWhenReadyChangeReasonFromParamRef = new AtomicInteger();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -1357,7 +1357,7 @@ public class MediaControllerWithMediaSessionCompatTest {
               boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
             playWhenReadyFromParamRef.set(playWhenReady);
             playWhenReadyFromGetterRef.set(controller.getPlayWhenReady());
-            playWhenReadyChangedReasonFromParamRef.set(reason);
+            playWhenReadyChangeReasonFromParamRef.set(reason);
             latch.countDown();
           }
         };
@@ -1371,7 +1371,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playWhenReadyFromParamRef.get()).isEqualTo(testPlayWhenReady);
     assertThat(playWhenReadyFromGetterRef.get()).isEqualTo(testPlayWhenReady);
-    assertThat(playWhenReadyChangedReasonFromParamRef.get())
+    assertThat(playWhenReadyChangeReasonFromParamRef.get())
         .isEqualTo(Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE);
   }
 

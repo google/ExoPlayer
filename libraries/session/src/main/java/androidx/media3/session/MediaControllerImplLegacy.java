@@ -2240,7 +2240,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             /* deviceVolume= */ deviceVolume,
             /* deviceMuted= */ deviceMuted,
             /* playWhenReady= */ playWhenReady,
-            /* playWhenReadyChangedReason= */ PlayerInfo.PLAY_WHEN_READY_CHANGE_REASON_DEFAULT,
+            /* playWhenReadyChangeReason= */ PlayerInfo.PLAY_WHEN_READY_CHANGE_REASON_DEFAULT,
             /* playbackSuppressionReason= */ Player.PLAYBACK_SUPPRESSION_REASON_NONE,
             /* playbackState= */ playbackState,
             /* isPlaying= */ isPlaying,

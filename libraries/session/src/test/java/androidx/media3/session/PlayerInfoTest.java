@@ -150,7 +150,7 @@ public class PlayerInfoTest {
                 new PlaybackException(
                     /* message= */ null, /* cause= */ null, PlaybackException.ERROR_CODE_TIMEOUT))
             .setPlayWhenReady(true)
-            .setPlayWhenReadyChangedReason(Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
+            .setPlayWhenReadyChangeReason(Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
             .setRepeatMode(Player.REPEAT_MODE_ONE)
             .setSeekBackIncrement(7000)
             .setSeekForwardIncrement(6000)
@@ -225,7 +225,7 @@ public class PlayerInfoTest {
     assertThat(infoAfterBundling.playerError.errorCode)
         .isEqualTo(PlaybackException.ERROR_CODE_TIMEOUT);
     assertThat(infoAfterBundling.playWhenReady).isTrue();
-    assertThat(infoAfterBundling.playWhenReadyChangedReason)
+    assertThat(infoAfterBundling.playWhenReadyChangeReason)
         .isEqualTo(Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
     assertThat(infoAfterBundling.repeatMode).isEqualTo(Player.REPEAT_MODE_ONE);
     assertThat(infoAfterBundling.seekBackIncrementMs).isEqualTo(7000);

@@ -930,7 +930,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       session.playerInfo =
           session.playerInfo.copyWithPlayWhenReady(
               session.playerInfo.playWhenReady,
-              session.playerInfo.playWhenReadyChangedReason,
+              session.playerInfo.playWhenReadyChangeReason,
               reason);
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
           /* excludeTimeline= */ true, /* excludeTracks= */ true);

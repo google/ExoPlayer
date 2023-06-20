@@ -722,7 +722,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -730,7 +730,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -757,7 +757,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
@@ -789,7 +789,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -797,7 +797,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -824,7 +824,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
@@ -853,7 +853,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -861,7 +861,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -888,7 +888,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
@@ -919,7 +919,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -927,7 +927,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -954,7 +954,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
@@ -984,7 +984,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -992,7 +992,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1017,7 +1017,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
@@ -1046,7 +1046,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1054,7 +1054,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1081,7 +1081,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
@@ -1113,7 +1113,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1121,7 +1121,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1146,7 +1146,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
@@ -1331,7 +1331,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(3); // 2x onTimelineChanged + onEvents
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1339,7 +1339,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1366,7 +1366,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(3);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
@@ -1395,7 +1395,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(3); // 2x onTimelineChanged + onEvents
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1403,7 +1403,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1430,7 +1430,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(1);
     assertThat(currentMediaItemRef.get()).isEqualTo(newMediaItems.get(0));
@@ -1458,7 +1458,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1466,7 +1466,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1494,7 +1494,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(1);
     assertThat(currentMediaItemRef.get()).isEqualTo(expectedMediaItems.get(1));
@@ -1522,7 +1522,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1530,7 +1530,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1558,7 +1558,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(0);
     assertThat(currentMediaItemRef.get()).isEqualTo(expectedMediaItems.get(0));
@@ -1579,7 +1579,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1587,7 +1587,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1614,7 +1614,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), newMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(0);
     assertThat(currentMediaItemRef.get()).isEqualTo(newMediaItems.get(0));
@@ -1642,7 +1642,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(3);
     AtomicReference<Timeline> timelineFromParamRef = new AtomicReference<>();
-    AtomicInteger timelineChangedReasonRef = new AtomicInteger();
+    AtomicInteger timelineChangeReasonRef = new AtomicInteger();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
@@ -1650,7 +1650,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
           public void onTimelineChanged(
               Timeline timeline, @Player.TimelineChangeReason int reason) {
             timelineFromParamRef.set(timeline);
-            timelineChangedReasonRef.set(reason);
+            timelineChangeReasonRef.set(reason);
             latch.countDown();
           }
 
@@ -1677,7 +1677,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), expectedMediaItems);
-    assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    assertThat(timelineChangeReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(expectedEvents);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(1);
     assertThat(currentMediaItemRef.get()).isEqualTo(newMediaItems.get(0));

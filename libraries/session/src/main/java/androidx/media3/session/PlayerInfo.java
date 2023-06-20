@@ -137,7 +137,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     private int deviceVolume;
     private boolean deviceMuted;
     private boolean playWhenReady;
-    private @Player.PlayWhenReadyChangeReason int playWhenReadyChangedReason;
+    private @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason;
     private boolean isPlaying;
     private boolean isLoading;
     private @PlaybackSuppressionReason int playbackSuppressionReason;
@@ -169,7 +169,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
       deviceVolume = playerInfo.deviceVolume;
       deviceMuted = playerInfo.deviceMuted;
       playWhenReady = playerInfo.playWhenReady;
-      playWhenReadyChangedReason = playerInfo.playWhenReadyChangedReason;
+      playWhenReadyChangeReason = playerInfo.playWhenReadyChangeReason;
       isPlaying = playerInfo.isPlaying;
       isLoading = playerInfo.isLoading;
       playbackSuppressionReason = playerInfo.playbackSuppressionReason;
@@ -298,9 +298,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     }
 
     @CanIgnoreReturnValue
-    public Builder setPlayWhenReadyChangedReason(
-        @Player.PlayWhenReadyChangeReason int playWhenReadyChangedReason) {
-      this.playWhenReadyChangedReason = playWhenReadyChangedReason;
+    public Builder setPlayWhenReadyChangeReason(
+        @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
+      this.playWhenReadyChangeReason = playWhenReadyChangeReason;
       return this;
     }
 
@@ -389,7 +389,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
           deviceVolume,
           deviceMuted,
           playWhenReady,
-          playWhenReadyChangedReason,
+          playWhenReadyChangeReason,
           playbackSuppressionReason,
           playbackState,
           isPlaying,
@@ -485,7 +485,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
   public final boolean playWhenReady;
 
-  public final int playWhenReadyChangedReason;
+  public final int playWhenReadyChangeReason;
 
   public final boolean isPlaying;
 
@@ -510,11 +510,11 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   @CheckResult
   public PlayerInfo copyWithPlayWhenReady(
       boolean playWhenReady,
-      @Player.PlayWhenReadyChangeReason int playWhenReadyChangedReason,
+      @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason,
       @Player.PlaybackSuppressionReason int playbackSuppressionReason) {
     return new Builder(this)
         .setPlayWhenReady(playWhenReady)
-        .setPlayWhenReadyChangedReason(playWhenReadyChangedReason)
+        .setPlayWhenReadyChangeReason(playWhenReadyChangeReason)
         .setPlaybackSuppressionReason(playbackSuppressionReason)
         .setIsPlaying(isPlaying(playbackState, playWhenReady, playbackSuppressionReason))
         .build();
@@ -704,7 +704,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
       int deviceVolume,
       boolean deviceMuted,
       boolean playWhenReady,
-      @Player.PlayWhenReadyChangeReason int playWhenReadyChangedReason,
+      @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason,
       @Player.PlaybackSuppressionReason int playbackSuppressionReason,
       @Player.State int playbackState,
       boolean isPlaying,
@@ -734,7 +734,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     this.deviceVolume = deviceVolume;
     this.deviceMuted = deviceMuted;
     this.playWhenReady = playWhenReady;
-    this.playWhenReadyChangedReason = playWhenReadyChangedReason;
+    this.playWhenReadyChangeReason = playWhenReadyChangeReason;
     this.playbackSuppressionReason = playbackSuppressionReason;
     this.playbackState = playbackState;
     this.isPlaying = isPlaying;
@@ -778,7 +778,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   private static final String FIELD_DEVICE_VOLUME = Util.intToStringMaxRadix(10);
   private static final String FIELD_DEVICE_MUTED = Util.intToStringMaxRadix(11);
   private static final String FIELD_PLAY_WHEN_READY = Util.intToStringMaxRadix(12);
-  private static final String FIELD_PLAY_WHEN_READY_CHANGED_REASON = Util.intToStringMaxRadix(13);
+  private static final String FIELD_PLAY_WHEN_READY_CHANGE_REASON = Util.intToStringMaxRadix(13);
   private static final String FIELD_PLAYBACK_SUPPRESSION_REASON = Util.intToStringMaxRadix(14);
   private static final String FIELD_PLAYBACK_STATE = Util.intToStringMaxRadix(15);
   private static final String FIELD_IS_PLAYING = Util.intToStringMaxRadix(16);
@@ -938,9 +938,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     int deviceVolume = bundle.getInt(FIELD_DEVICE_VOLUME, /* defaultValue= */ 0);
     boolean deviceMuted = bundle.getBoolean(FIELD_DEVICE_MUTED, /* defaultValue= */ false);
     boolean playWhenReady = bundle.getBoolean(FIELD_PLAY_WHEN_READY, /* defaultValue= */ false);
-    int playWhenReadyChangedReason =
+    int playWhenReadyChangeReason =
         bundle.getInt(
-            FIELD_PLAY_WHEN_READY_CHANGED_REASON,
+            FIELD_PLAY_WHEN_READY_CHANGE_REASON,
             /* defaultValue= */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
     @Player.PlaybackSuppressionReason
     int playbackSuppressionReason =
@@ -990,7 +990,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
         deviceVolume,
         deviceMuted,
         playWhenReady,
-        playWhenReadyChangedReason,
+        playWhenReadyChangeReason,
         playbackSuppressionReason,
         playbackState,
         isPlaying,
