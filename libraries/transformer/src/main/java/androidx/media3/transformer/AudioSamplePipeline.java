@@ -26,6 +26,7 @@ import static java.lang.Math.min;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.AudioProcessingPipeline;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
@@ -151,7 +152,10 @@ import org.checkerframework.dataflow.qual.Pure;
       if (isLast) {
         queueEndOfStreamAfterSilence = true;
       }
+      return;
     }
+    checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
+    checkState(trackFormat.pcmEncoding != Format.NO_VALUE);
   }
 
   @Override
