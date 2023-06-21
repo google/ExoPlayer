@@ -82,17 +82,21 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
 
   @Override
   public ListenableFuture<Bitmap> decodeBitmap(byte[] data) {
-    return listeningExecutorService.submit(() -> decode(data));
+    return listeningExecutorService.submit(() -> decode(data, /* options= */ null));
   }
 
-  /** Loads an image from a {@link Uri}. */
   @Override
-  public ListenableFuture<Bitmap> loadBitmap(Uri uri) {
-    return listeningExecutorService.submit(() -> load(dataSourceFactory.createDataSource(), uri));
+  public ListenableFuture<Bitmap> loadBitmap(Uri uri, @Nullable BitmapFactory.Options options) {
+    return listeningExecutorService.submit(
+        () -> load(dataSourceFactory.createDataSource(), uri, options));
   }
 
-  private static Bitmap decode(byte[] data) throws IOException {
-    @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length);
+  // BitmapFactory's options parameter is null-ok.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static Bitmap decode(byte[] data, @Nullable BitmapFactory.Options options)
+      throws IOException {
+    @Nullable
+    Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length, options);
     checkArgument(bitmap != null, "Could not decode image data");
     ExifInterface exifInterface;
     try (InputStream inputStream = new ByteArrayInputStream(data)) {
@@ -115,12 +119,13 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
     return bitmap;
   }
 
-  private static Bitmap load(DataSource dataSource, Uri uri) throws IOException {
+  private static Bitmap load(
+      DataSource dataSource, Uri uri, @Nullable BitmapFactory.Options options) throws IOException {
     try {
       DataSpec dataSpec = new DataSpec(uri);
       dataSource.open(dataSpec);
       byte[] readData = DataSourceUtil.readToEnd(dataSource);
-      return decode(readData);
+      return decode(readData, options);
     } finally {
       dataSource.close();
     }
