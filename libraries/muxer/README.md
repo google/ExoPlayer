@@ -17,3 +17,9 @@ Alternatively, you can clone this GitHub project and depend on the module
 locally. Instructions for doing this can be found in the [top level README][].
 
 [top level README]: ../../README.md
+
+## Links
+
+*   [Javadoc][]
+
+[Javadoc]: https://developer.android.com/reference/androidx/media3/muxer/package-summary
