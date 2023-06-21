@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.effect.DebugTraceUtil;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -350,7 +351,8 @@ public final class DefaultCodec implements Codec {
     }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = convertToFormat(mediaCodec.getOutputFormat(), isDecoder);
+        outputFormat =
+            convertToFormat(mediaCodec.getOutputFormat(), isDecoder, configurationFormat.metadata);
       }
       return false;
     }
@@ -401,9 +403,10 @@ public final class DefaultCodec implements Codec {
     return ExportException.createForCodec(cause, errorCode, isVideo, isDecoder, codecDetails);
   }
 
-  private static Format convertToFormat(MediaFormat mediaFormat, boolean isDecoder) {
+  private static Format convertToFormat(
+      MediaFormat mediaFormat, boolean isDecoder, @Nullable Metadata metadata) {
     Format.Builder formatBuilder =
-        MediaFormatUtil.createFormatFromMediaFormat(mediaFormat).buildUpon();
+        MediaFormatUtil.createFormatFromMediaFormat(mediaFormat).buildUpon().setMetadata(metadata);
     if (isDecoder) {
       // TODO(b/178685617): Restrict this to only set the PCM encoding for audio/raw once we have
       // a way to simulate more realistic codec input/output formats in tests.
