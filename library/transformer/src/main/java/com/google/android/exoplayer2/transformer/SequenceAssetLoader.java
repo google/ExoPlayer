@@ -237,6 +237,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (addForcedAudioTrack) {
       sequenceAssetLoaderListener.onTrackAdded(
           FORCE_AUDIO_TRACK_FORMAT, SUPPORTED_OUTPUT_TYPE_DECODED);
+      decodeAudio = true;
     }
 
     return decodeOutput;

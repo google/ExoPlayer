@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.audio.AudioProcessingPipeline;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -159,7 +160,10 @@ import org.checkerframework.dataflow.qual.Pure;
       if (isLast) {
         queueEndOfStreamAfterSilence = true;
       }
+      return;
     }
+    checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
+    checkState(trackFormat.pcmEncoding != Format.NO_VALUE);
   }
 
   @Override
