@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
@@ -344,7 +345,8 @@ public final class DefaultCodec implements Codec {
     }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = convertToFormat(mediaCodec.getOutputFormat(), isDecoder);
+        outputFormat =
+            convertToFormat(mediaCodec.getOutputFormat(), isDecoder, configurationFormat.metadata);
       }
       return false;
     }
@@ -395,9 +397,10 @@ public final class DefaultCodec implements Codec {
     return ExportException.createForCodec(cause, errorCode, isVideo, isDecoder, codecDetails);
   }
 
-  private static Format convertToFormat(MediaFormat mediaFormat, boolean isDecoder) {
+  private static Format convertToFormat(
+      MediaFormat mediaFormat, boolean isDecoder, @Nullable Metadata metadata) {
     Format.Builder formatBuilder =
-        MediaFormatUtil.createFormatFromMediaFormat(mediaFormat).buildUpon();
+        MediaFormatUtil.createFormatFromMediaFormat(mediaFormat).buildUpon().setMetadata(metadata);
     if (isDecoder) {
       // TODO(b/178685617): Restrict this to only set the PCM encoding for audio/raw once we have
       // a way to simulate more realistic codec input/output formats in tests.
