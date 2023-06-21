@@ -76,21 +76,24 @@ public final class SimpleBitmapLoader implements BitmapLoader {
 
   @Override
   public ListenableFuture<Bitmap> decodeBitmap(byte[] data) {
-    return executorService.submit(() -> decode(data));
+    return executorService.submit(() -> decode(data, /* options= */ null));
   }
 
   @Override
-  public ListenableFuture<Bitmap> loadBitmap(Uri uri) {
-    return executorService.submit(() -> load(uri));
+  public ListenableFuture<Bitmap> loadBitmap(Uri uri, @Nullable BitmapFactory.Options options) {
+    return executorService.submit(() -> load(uri, options));
   }
 
-  private static Bitmap decode(byte[] data) {
-    @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length);
+  // BitmapFactory's options parameter is null-ok.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static Bitmap decode(byte[] data, @Nullable BitmapFactory.Options options) {
+    @Nullable
+    Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length, options);
     checkArgument(bitmap != null, "Could not decode image data");
     return bitmap;
   }
 
-  private static Bitmap load(Uri uri) throws IOException {
+  private static Bitmap load(Uri uri, @Nullable BitmapFactory.Options options) throws IOException {
     if ("file".equals(uri.getScheme())) {
       @Nullable String path = uri.getPath();
       if (path == null) {
@@ -113,7 +116,7 @@ public final class SimpleBitmapLoader implements BitmapLoader {
       throw new IOException("Invalid response status code: " + responseCode);
     }
     try (InputStream inputStream = httpConnection.getInputStream()) {
-      return decode(ByteStreams.toByteArray(inputStream));
+      return decode(ByteStreams.toByteArray(inputStream), options);
     }
   }
 }

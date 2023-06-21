@@ -26,6 +26,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ColorSpace;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -35,6 +37,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.datasource.DefaultDataSource;
@@ -109,7 +112,12 @@ public final class ImageAssetLoader implements AssetLoader {
             MoreExecutors.listeningDecorator(scheduledExecutorService), dataSourceFactory);
     MediaItem.LocalConfiguration localConfiguration =
         checkNotNull(editedMediaItem.mediaItem.localConfiguration);
-    ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri);
+    @Nullable BitmapFactory.Options options = null;
+    if (Util.SDK_INT >= 26) {
+      options = new BitmapFactory.Options();
+      options.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
+    }
+    ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri, options);
     Futures.addCallback(
         future,
         new FutureCallback<Bitmap>() {

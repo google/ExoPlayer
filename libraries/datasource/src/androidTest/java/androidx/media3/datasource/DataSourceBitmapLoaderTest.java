@@ -199,6 +199,24 @@ public class DataSourceBitmapLoaderTest {
   }
 
   @Test
+  public void loadBitmap_withFileUriAndOptions_loadsDataWithRespectToOptions() throws Exception {
+    byte[] imageData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    File file = tempFolder.newFile();
+    Files.write(Paths.get(file.getAbsolutePath()), imageData);
+    Uri uri = Uri.fromFile(file);
+    DataSourceBitmapLoader bitmapLoader =
+        new DataSourceBitmapLoader(MoreExecutors.newDirectExecutorService(), dataSourceFactory);
+
+    BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inMutable = true;
+
+    Bitmap bitmap = bitmapLoader.loadBitmap(uri, options).get();
+
+    assertThat(bitmap.isMutable()).isTrue();
+  }
+
+  @Test
   public void loadBitmap_fileUriWithFileNotExisting_throws() {
     DataSourceBitmapLoader bitmapLoader =
         new DataSourceBitmapLoader(MoreExecutors.newDirectExecutorService(), dataSourceFactory);
