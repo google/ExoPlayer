@@ -38,6 +38,24 @@ you made on top of `main` using
 $ git diff -U0 main... | google-java-format-diff.py -p1 -i
 ```
 
+### Push access to PR branches
+
+Please ensure maintainers of this repository have push access to your PR branch
+by ticking the `Allow edits from maintainers` checkbox when creating the PR (or
+after it's created). See the
+[GitHub docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+for more info. This allows us to make changes and fixes to the PR while it goes
+through internal review, and ensures we don't create an
+['evil' merge](https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefevilmergeaevilmerge)
+when it gets merged.
+
+This checkbox only appears on PRs from individual-owned forks
+(https://github.com/orgs/community/discussions/5634). If you open a PR from an
+organization-owned fork we will ask you to open a new one from an
+individual-owned fork. If this isn't possible we can still merge the PR, but it
+will result in an 'evil' merge because the changes and fixes we make during
+internal review will be part of the merge commit.
+
 ## Contributor license agreement
 
 Contributions to any Google project must be accompanied by a Contributor
