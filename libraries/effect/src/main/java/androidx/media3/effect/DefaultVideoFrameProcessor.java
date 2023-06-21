@@ -769,7 +769,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /** Sets the {@link GlObjectsProvider} on all of the {@linkplain GlShaderProgram}s provided. */
   private static void setGlObjectProviderOnShaderPrograms(
       List<GlShaderProgram> shaderPrograms, GlObjectsProvider glObjectsProvider) {
-    for (int i = 0; i < shaderPrograms.size() - 1; i++) {
+    for (int i = 0; i < shaderPrograms.size(); i++) {
       GlShaderProgram shaderProgram = shaderPrograms.get(i);
       shaderProgram.setGlObjectsProvider(glObjectsProvider);
     }
