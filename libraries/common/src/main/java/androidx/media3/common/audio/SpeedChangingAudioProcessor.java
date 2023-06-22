@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.media3.transformer;
+package androidx.media3.common.audio;
 
 import static java.lang.Math.min;
 
 import androidx.media3.common.C;
-import androidx.media3.common.audio.AudioProcessor;
-import androidx.media3.common.audio.BaseAudioProcessor;
-import androidx.media3.common.audio.SonicAudioProcessor;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
@@ -29,9 +27,10 @@ import java.nio.ByteBuffer;
 /**
  * An {@link AudioProcessor} that changes the speed of audio samples depending on their timestamp.
  */
-// TODO(b/198772621): Consider making the processor inactive and skipping it in the processor chain
+// TODO(b/288221200): Consider making the processor inactive and skipping it in the processor chain
 //  when speed is 1.
-/* package */ final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
+@UnstableApi
+public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
 
   /** The speed provider that provides the speed for each timestamp. */
   private final SpeedProvider speedProvider;

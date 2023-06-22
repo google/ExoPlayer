@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer;
+package androidx.media3.common.audio;
 
 import androidx.media3.common.C;
+import androidx.media3.common.util.UnstableApi;
 
 /** A custom interface that determines the speed for media at specific timestamps. */
-/* package */ interface SpeedProvider {
+@UnstableApi
+public interface SpeedProvider {
 
   /**
-   * Provides the speed that the media should be played at, based on the timeUs.
+   * Returns the media speed at the provided timestamp.
    *
    * @param timeUs The timestamp of the media.
-   * @return The speed that the media should be played at, based on the timeUs.
+   * @return The speed that the media should be played at.
    */
   float getSpeed(long timeUs);
 

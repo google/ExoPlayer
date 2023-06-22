@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer;
+package androidx.media3.common.audio;
 
 import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
-import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
