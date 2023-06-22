@@ -159,6 +159,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster) {
+    // LINT.IfChange(extractor_instantiation)
     switch (fileType) {
       case FileTypes.WEBVTT:
         return new WebvttExtractor(format.language, timestampAdjuster);
