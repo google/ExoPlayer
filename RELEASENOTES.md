@@ -37,6 +37,9 @@
     *   MPEG-TS: Ensure the last frame is rendered by passing the last access
         unit of a stream to the sample queue
         ([#7909](https://github.com/google/ExoPlayer/issues/7909)).
+    *   Fix typo when determining `rotationDegrees`. Changed
+        `projectionPosePitch` to `projectionPoseRoll`
+        ([#461](https://github.com/androidx/media/pull/461)).
 *   Audio:
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
