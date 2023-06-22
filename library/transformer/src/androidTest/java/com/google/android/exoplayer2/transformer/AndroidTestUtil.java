@@ -87,6 +87,10 @@ public final class AndroidTestUtil {
           .setCodecs("avc1.64001F")
           .build();
 
+  // Result of the following command for MP4_ASSET_URI_STRING
+  // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
+  public static final int MP4_ASSET_FRAME_COUNT = 30;
+
   public static final String MP4_PORTRAIT_ASSET_URI_STRING =
       "asset:///media/mp4/sample_portrait.mp4";
   public static final Format MP4_PORTRAIT_ASSET_FORMAT =

@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.util.Pair;
@@ -100,6 +101,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public Codec createForVideoDecoding(
       Format format, Surface outputSurface, boolean requestSdrToneMapping) throws ExportException {
+    Pair<MediaFormat, String> videoDecoderMediaFormatAndName =
+        findVideoDecoder(format, requestSdrToneMapping);
+    return new DefaultCodec(
+        context,
+        format,
+        videoDecoderMediaFormatAndName.first,
+        videoDecoderMediaFormatAndName.second,
+        /* isDecoder= */ true,
+        outputSurface);
+  }
+
+  /**
+   * Returns the {@link MediaFormat} to configure the {@linkplain Codec decoder}, and the name of
+   * the {@link MediaCodec} decoder.
+   */
+  @VisibleForTesting
+  /* package */ Pair<MediaFormat, String> findVideoDecoder(
+      Format format, boolean requestSdrToneMapping) throws ExportException {
     checkNotNull(format.sampleMimeType);
 
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
@@ -154,8 +173,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
     }
 
-    return new DefaultCodec(
-        context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
+    return Pair.create(mediaFormat, mediaCodecName);
   }
 
   private static boolean deviceNeedsDisableToneMappingWorkaround(

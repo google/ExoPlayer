@@ -57,7 +57,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class DefaultCodec implements Codec {
+public class DefaultCodec implements Codec {
   // MediaCodec decoders output 16 bit PCM, unless configured to output PCM float.
   // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
   public static final int DEFAULT_PCM_ENCODING = C.ENCODING_PCM_16BIT;
@@ -277,7 +277,12 @@ public final class DefaultCodec implements Codec {
     releaseOutputBuffer(/* render= */ true, renderPresentationTimeUs);
   }
 
-  private void releaseOutputBuffer(boolean render, long renderPresentationTimeUs)
+  /**
+   * Releases the output buffer at {@code renderPresentationTimeUs} if {@code render} is {@code
+   * true}, otherwise release the buffer without rendering.
+   */
+  @VisibleForTesting
+  protected void releaseOutputBuffer(boolean render, long renderPresentationTimeUs)
       throws ExportException {
     outputBuffer = null;
     try {
