@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.audio;
 
 import static java.lang.Math.min;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.audio.AudioProcessor;
-import com.google.android.exoplayer2.audio.BaseAudioProcessor;
-import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
@@ -34,10 +31,10 @@ import java.nio.ByteBuffer;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-// TODO(b/198772621): Consider making the processor inactive and skipping it in the processor chain
+// TODO(b/288221200): Consider making the processor inactive and skipping it in the processor chain
 //  when speed is 1.
 @Deprecated
-/* package */ final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
+public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
 
   /** The speed provider that provides the speed for each timestamp. */
   private final SpeedProvider speedProvider;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
 
@@ -26,13 +26,13 @@ import com.google.android.exoplayer2.C;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ interface SpeedProvider {
+public interface SpeedProvider {
 
   /**
-   * Provides the speed that the media should be played at, based on the timeUs.
+   * Returns the media speed at the provided timestamp.
    *
    * @param timeUs The timestamp of the media.
-   * @return The speed that the media should be played at, based on the timeUs.
+   * @return The speed that the media should be played at.
    */
   float getSpeed(long timeUs);
 
