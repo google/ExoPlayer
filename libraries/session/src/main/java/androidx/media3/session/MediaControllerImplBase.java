@@ -2178,12 +2178,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     PlayerInfo oldPlayerInfo = this.playerInfo;
     this.playerInfo = newPlayerInfo;
 
-    if (mediaItemTransition) {
+    if (!oldPlayerInfo.timeline.equals(newPlayerInfo.timeline)) {
       listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
-          listener ->
-              listener.onMediaItemTransition(
-                  newPlayerInfo.getCurrentMediaItem(), mediaItemTransitionReason));
+          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
+          listener -> listener.onTimelineChanged(newPlayerInfo.timeline, timelineChangeReason));
     }
     if (positionDiscontinuity) {
       listeners.queueEvent(
@@ -2194,10 +2192,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                   newPlayerInfo.newPositionInfo,
                   positionDiscontinuityReason));
     }
-    if (!oldPlayerInfo.timeline.equals(newPlayerInfo.timeline)) {
+    if (mediaItemTransition) {
       listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
-          listener -> listener.onTimelineChanged(newPlayerInfo.timeline, timelineChangeReason));
+          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
+          listener ->
+              listener.onMediaItemTransition(
+                  newPlayerInfo.getCurrentMediaItem(), mediaItemTransitionReason));
     }
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
     PlaybackException newPlayerError = newPlayerInfo.playerError;
@@ -2467,6 +2467,32 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                 intersectedPlayerCommands)
             .first;
     PlayerInfo finalPlayerInfo = playerInfo;
+    if (!oldPlayerInfo.timeline.equals(finalPlayerInfo.timeline)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
+          listener ->
+              listener.onTimelineChanged(
+                  finalPlayerInfo.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    }
+    if (!oldPlayerInfo.oldPositionInfo.equals(finalPlayerInfo.oldPositionInfo)
+        || !oldPlayerInfo.newPositionInfo.equals(finalPlayerInfo.newPositionInfo)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
+          listener ->
+              listener.onPositionDiscontinuity(
+                  finalPlayerInfo.oldPositionInfo,
+                  finalPlayerInfo.newPositionInfo,
+                  finalPlayerInfo.discontinuityReason));
+    }
+    MediaItem oldCurrentMediaItem = oldPlayerInfo.getCurrentMediaItem();
+    MediaItem currentMediaItem = finalPlayerInfo.getCurrentMediaItem();
+    if (!Util.areEqual(oldCurrentMediaItem, currentMediaItem)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
+          listener ->
+              listener.onMediaItemTransition(
+                  currentMediaItem, finalPlayerInfo.mediaItemTransitionReason));
+    }
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
     PlaybackException playerError = finalPlayerInfo.playerError;
     boolean errorsMatch =
@@ -2482,25 +2508,51 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             listener -> listener.onPlayerError(finalPlayerInfo.playerError));
       }
     }
-    MediaItem oldCurrentMediaItem = oldPlayerInfo.getCurrentMediaItem();
-    MediaItem currentMediaItem = finalPlayerInfo.getCurrentMediaItem();
-    if (!Util.areEqual(oldCurrentMediaItem, currentMediaItem)) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
-          listener ->
-              listener.onMediaItemTransition(
-                  currentMediaItem, finalPlayerInfo.mediaItemTransitionReason));
-    }
     if (!Util.areEqual(oldPlayerInfo.currentTracks, finalPlayerInfo.currentTracks)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(finalPlayerInfo.currentTracks));
+    }
+    if (!oldPlayerInfo.mediaMetadata.equals(finalPlayerInfo.mediaMetadata)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_MEDIA_METADATA_CHANGED,
+          listener -> listener.onMediaMetadataChanged(finalPlayerInfo.mediaMetadata));
+    }
+    if (oldPlayerInfo.isLoading != finalPlayerInfo.isLoading) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_IS_LOADING_CHANGED,
+          listener -> listener.onIsLoadingChanged(finalPlayerInfo.isLoading));
+    }
+    if (oldPlayerInfo.playbackState != finalPlayerInfo.playbackState) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
+          listener -> listener.onPlaybackStateChanged(finalPlayerInfo.playbackState));
+    }
+    if (oldPlayerInfo.playWhenReady != finalPlayerInfo.playWhenReady) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
+          listener ->
+              listener.onPlayWhenReadyChanged(
+                  finalPlayerInfo.playWhenReady, finalPlayerInfo.playWhenReadyChangeReason));
+    }
+    if (oldPlayerInfo.playbackSuppressionReason != finalPlayerInfo.playbackSuppressionReason) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+          listener ->
+              listener.onPlaybackSuppressionReasonChanged(
+                  finalPlayerInfo.playbackSuppressionReason));
+    }
+    if (oldPlayerInfo.isPlaying != finalPlayerInfo.isPlaying) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
+          listener -> listener.onIsPlayingChanged(finalPlayerInfo.isPlaying));
     }
     if (!Util.areEqual(oldPlayerInfo.playbackParameters, finalPlayerInfo.playbackParameters)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(finalPlayerInfo.playbackParameters));
     }
+
     if (oldPlayerInfo.repeatMode != finalPlayerInfo.repeatMode) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_REPEAT_MODE_CHANGED,
@@ -2510,13 +2562,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(finalPlayerInfo.shuffleModeEnabled));
-    }
-    if (!Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
-          listener ->
-              listener.onTimelineChanged(
-                  finalPlayerInfo.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     }
     if (!Util.areEqual(oldPlayerInfo.playlistMetadata, finalPlayerInfo.playlistMetadata)) {
       listeners.queueEvent(
@@ -2554,54 +2599,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               listener.onDeviceVolumeChanged(
                   finalPlayerInfo.deviceVolume, finalPlayerInfo.deviceMuted));
     }
-    if (oldPlayerInfo.playWhenReady != finalPlayerInfo.playWhenReady) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
-          listener ->
-              listener.onPlayWhenReadyChanged(
-                  finalPlayerInfo.playWhenReady, finalPlayerInfo.playWhenReadyChangeReason));
-    }
-    if (oldPlayerInfo.playbackSuppressionReason != finalPlayerInfo.playbackSuppressionReason) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
-          listener ->
-              listener.onPlaybackSuppressionReasonChanged(
-                  finalPlayerInfo.playbackSuppressionReason));
-    }
-    if (oldPlayerInfo.playbackState != finalPlayerInfo.playbackState) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
-          listener -> listener.onPlaybackStateChanged(finalPlayerInfo.playbackState));
-    }
-    if (oldPlayerInfo.isPlaying != finalPlayerInfo.isPlaying) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
-          listener -> listener.onIsPlayingChanged(finalPlayerInfo.isPlaying));
-    }
-    if (oldPlayerInfo.isLoading != finalPlayerInfo.isLoading) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_IS_LOADING_CHANGED,
-          listener -> listener.onIsLoadingChanged(finalPlayerInfo.isLoading));
-    }
-    if (!Util.areEqual(oldPlayerInfo.videoSize, finalPlayerInfo.videoSize)) {
+    if (!oldPlayerInfo.videoSize.equals(finalPlayerInfo.videoSize)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_VIDEO_SIZE_CHANGED,
           listener -> listener.onVideoSizeChanged(finalPlayerInfo.videoSize));
-    }
-    if (!Util.areEqual(oldPlayerInfo.oldPositionInfo, finalPlayerInfo.oldPositionInfo)
-        || !Util.areEqual(oldPlayerInfo.newPositionInfo, finalPlayerInfo.newPositionInfo)) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
-          listener ->
-              listener.onPositionDiscontinuity(
-                  finalPlayerInfo.oldPositionInfo,
-                  finalPlayerInfo.newPositionInfo,
-                  finalPlayerInfo.discontinuityReason));
-    }
-    if (!Util.areEqual(oldPlayerInfo.mediaMetadata, finalPlayerInfo.mediaMetadata)) {
-      listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_MEDIA_METADATA_CHANGED,
-          listener -> listener.onMediaMetadataChanged(finalPlayerInfo.mediaMetadata));
     }
     if (oldPlayerInfo.seekBackIncrementMs != finalPlayerInfo.seekBackIncrementMs) {
       listeners.queueEvent(
@@ -2621,8 +2622,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               listener.onMaxSeekToPreviousPositionChanged(
                   finalPlayerInfo.maxSeekToPreviousPositionMs));
     }
-    if (!Util.areEqual(
-        oldPlayerInfo.trackSelectionParameters, finalPlayerInfo.trackSelectionParameters)) {
+    if (!oldPlayerInfo.trackSelectionParameters.equals(finalPlayerInfo.trackSelectionParameters)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
           listener ->
