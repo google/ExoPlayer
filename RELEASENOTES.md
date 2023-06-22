@@ -34,6 +34,9 @@
     *   Parse EXIF rotation data for image inputs.
 *   Track Selection:
 *   Extractors:
+    *   MPEG-TS: Ensure the last frame is rendered by passing the last access
+        unit of a stream to the sample queue
+        ([#7909](https://github.com/google/ExoPlayer/issues/7909)).
 *   Audio:
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of

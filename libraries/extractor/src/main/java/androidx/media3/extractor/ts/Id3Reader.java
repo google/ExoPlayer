@@ -121,7 +121,7 @@ public final class Id3Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished() {
+  public void packetFinished(boolean isEndOfInput) {
     Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
     if (!writingSample || sampleSize == 0 || sampleBytesRead != sampleSize) {
       return;

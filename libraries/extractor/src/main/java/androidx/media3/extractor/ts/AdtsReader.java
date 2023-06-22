@@ -192,7 +192,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished() {
+  public void packetFinished(boolean isEndOfInput) {
     // Do nothing.
   }
 
