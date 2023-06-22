@@ -149,8 +149,6 @@ public final class DefaultAudioOffloadSupportProvider
       return new AudioOffloadSupport.Builder()
           .setIsFormatSupported(true)
           .setIsSpeedChangeSupported(isOffloadVariableRateSupported)
-          // Manual testing has shown that Pixels on Android 11 support gapless offload.
-          .setIsGaplessSupported(Util.SDK_INT == 30 && Util.MODEL.startsWith("Pixel"))
           .build();
     }
   }
@@ -170,10 +168,14 @@ public final class DefaultAudioOffloadSupportProvider
         return AudioOffloadSupport.DEFAULT_UNSUPPORTED;
       }
       AudioOffloadSupport.Builder audioOffloadSupport = new AudioOffloadSupport.Builder();
+      // (b/191950723) Gapless is not supported pre-API 33 due to playback position
+      // issue upon transition of gapless tracks
+      boolean isGaplessSupported =
+          Util.SDK_INT > 32
+              && playbackOffloadSupport == AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
       return audioOffloadSupport
           .setIsFormatSupported(true)
-          .setIsGaplessSupported(
-              playbackOffloadSupport == AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED)
+          .setIsGaplessSupported(isGaplessSupported)
           .setIsSpeedChangeSupported(isOffloadVariableRateSupported)
           .build();
     }

@@ -59,6 +59,8 @@
         `DefaultTrackSelector` will only select an audio track and only if that
         track's format is supported in offload. If no audio track is supported
         in offload, then no track will be selected.
+    *   Disabling gapless support for offload when pre-API level 33 due to
+        playback position issue after track transition.
     *   Remove parameter `enableOffload` from
         `DefaultRenderersFactory.buildAudioSink` method signature.
     *   Remove method `DefaultAudioSink.Builder.setOffloadMode`.
