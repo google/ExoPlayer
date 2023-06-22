@@ -97,6 +97,7 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
         extractor.getUnderlyingImplementation() == extractor,
         "Can't recreate wrapped extractors. Outer type: " + extractor.getClass());
     Extractor newExtractorInstance;
+    // LINT.IfChange(extractor_instantiation)
     if (extractor instanceof WebvttExtractor) {
       newExtractorInstance =
           new WebvttExtractor(multivariantPlaylistFormat.language, timestampAdjuster);
