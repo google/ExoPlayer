@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -27,7 +29,6 @@ import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
 
@@ -75,20 +76,26 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
 
   @Override
   public boolean isPackedAudioExtractor() {
-    return extractor instanceof AdtsExtractor
-        || extractor instanceof Ac3Extractor
-        || extractor instanceof Ac4Extractor
-        || extractor instanceof Mp3Extractor;
+    Extractor underlyingExtractor = extractor.getUnderlyingImplementation();
+    return underlyingExtractor instanceof AdtsExtractor
+        || underlyingExtractor instanceof Ac3Extractor
+        || underlyingExtractor instanceof Ac4Extractor
+        || underlyingExtractor instanceof Mp3Extractor;
   }
 
   @Override
   public boolean isReusable() {
-    return extractor instanceof TsExtractor || extractor instanceof FragmentedMp4Extractor;
+    Extractor underlyingExtractor = extractor.getUnderlyingImplementation();
+    return underlyingExtractor instanceof TsExtractor
+        || underlyingExtractor instanceof FragmentedMp4Extractor;
   }
 
   @Override
   public HlsMediaChunkExtractor recreate() {
-    Assertions.checkState(!isReusable());
+    checkState(!isReusable());
+    checkState(
+        extractor.getUnderlyingImplementation() == extractor,
+        "Can't recreate wrapped extractors. Outer type: " + extractor.getClass());
     Extractor newExtractorInstance;
     if (extractor instanceof WebvttExtractor) {
       newExtractorInstance =
