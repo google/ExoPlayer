@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFI
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_STEREO;
 import static com.google.android.exoplayer2.transformer.TestUtil.createEncodersAndDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
@@ -180,7 +181,7 @@ public final class SequenceExportTest {
       throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_STEREO);
     EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
     EditedMediaItem audioVideoMediaItem = new EditedMediaItem.Builder(mediaItem).build();
@@ -198,7 +199,7 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         checkNotNull(testMuxerHolder.testMuxer),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".silence_then_audio"));
+        getDumpFileName(FILE_AUDIO_VIDEO_STEREO + ".silence_then_audio"));
   }
 
   @Test
@@ -206,7 +207,7 @@ public final class SequenceExportTest {
       throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_STEREO);
     SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
     Effects effects =
         new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
@@ -228,7 +229,7 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         checkNotNull(testMuxerHolder.testMuxer),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".silence_then_audio_with_effects"));
+        getDumpFileName(FILE_AUDIO_VIDEO_STEREO + ".silence_then_audio_with_effects"));
   }
 
   @Test
