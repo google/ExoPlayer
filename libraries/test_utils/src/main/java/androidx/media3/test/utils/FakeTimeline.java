@@ -326,7 +326,7 @@ public final class FakeTimeline extends Timeline {
     AdPlaybackState contentPeriodState = new AdPlaybackState(/* adsId= */ "adsId");
     AdPlaybackState firstAdPeriodState =
         contentPeriodState
-            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimesUs */ 0)
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ 0)
             .withAdCount(/* adGroupIndex= */ 0, 1)
             .withAdDurationsUs(
                 /* adGroupIndex= */ 0, DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + periodDurationUs)

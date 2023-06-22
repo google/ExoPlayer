@@ -239,7 +239,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         .query(
             tableName,
             COLUMNS,
-            /* selection */ null,
+            /* selection= */ null,
             /* selectionArgs= */ null,
             /* groupBy= */ null,
             /* having= */ null,

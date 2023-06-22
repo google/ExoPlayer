@@ -316,7 +316,7 @@ public final class DashUtil {
             dataSpec,
             representation.format,
             C.SELECTION_REASON_UNKNOWN,
-            null /* trackSelectionData */,
+            /* trackSelectionData= */ null,
             chunkExtractor);
     initializationChunk.load();
   }

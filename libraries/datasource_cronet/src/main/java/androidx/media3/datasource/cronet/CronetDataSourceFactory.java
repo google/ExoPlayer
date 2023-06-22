@@ -358,7 +358,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
             /* userAgent= */ null,
             defaultRequestProperties,
             /* contentTypePredicate= */ null,
-            /* keepPostFor302Redirects */ false);
+            /* keepPostFor302Redirects= */ false);
     if (transferListener != null) {
       dataSource.addTransferListener(transferListener);
     }
