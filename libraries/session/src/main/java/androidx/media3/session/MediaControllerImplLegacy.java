@@ -650,7 +650,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
                 /* durationMs= */ C.TIME_UNSET,
                 /* bufferedPositionMs= */ 0,
                 /* bufferedPercentage= */ 0,
-                /* totalBufferedDurationMs= */ 0));
+                /* totalBufferedDurationMs= */ 0),
+            Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
             maskedPlayerInfo,
@@ -711,7 +712,9 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         calculateCurrentItemIndexAfterAddItems(currentMediaItemIndex, index, mediaItems.size());
     PlayerInfo maskedPlayerInfo =
         controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
-            newQueueTimeline, newCurrentMediaItemIndex);
+            newQueueTimeline,
+            newCurrentMediaItemIndex,
+            Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
             maskedPlayerInfo,
@@ -759,7 +762,9 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     }
     PlayerInfo maskedPlayerInfo =
         controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
-            newQueueTimeline, newCurrentMediaItemIndex);
+            newQueueTimeline,
+            newCurrentMediaItemIndex,
+            Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -823,7 +828,9 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         queueTimeline.copyWithMovedMediaItems(fromIndex, toIndex, newIndex);
     PlayerInfo maskedPlayerInfo =
         controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
-            newQueueTimeline, newCurrentMediaItemIndex);
+            newQueueTimeline,
+            newCurrentMediaItemIndex,
+            Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -1536,7 +1543,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           (listener) ->
               listener.onTimelineChanged(
                   newControllerInfo.playerInfo.timeline,
-                  Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+                  newControllerInfo.playerInfo.timelineChangeReason));
     }
     if (!Util.areEqual(oldLegacyPlayerInfo.queueTitle, newLegacyPlayerInfo.queueTitle)) {
       listeners.queueEvent(
@@ -2232,6 +2239,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             /* shuffleModeEnabled= */ shuffleModeEnabled,
             /* videoSize= */ VideoSize.UNKNOWN,
             /* timeline= */ currentTimeline,
+            /* timelineChangeReason= */ PlayerInfo.TIMELINE_CHANGE_REASON_DEFAULT,
             /* playlistMetadata= */ playlistMetadata,
             /* volume= */ 1.0f,
             /* audioAttributes= */ audioAttributes,

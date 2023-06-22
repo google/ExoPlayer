@@ -1086,7 +1086,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       session.playerInfo =
           session.playerInfo.copyWithTimelineAndSessionPositionInfo(
-              timeline, player.createSessionPositionInfoForBundling());
+              timeline, player.createSessionPositionInfoForBundling(), reason);
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
           /* excludeTimeline= */ false, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
@@ -1361,7 +1361,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         playerInfo =
             playerInfo.copyWithTimelineAndSessionPositionInfo(
                 getPlayerWrapper().getCurrentTimelineWithCommandCheck(),
-                getPlayerWrapper().createSessionPositionInfoForBundling());
+                getPlayerWrapper().createSessionPositionInfoForBundling(),
+                playerInfo.timelineChangeReason);
         dispatchOnPlayerInfoChanged(playerInfo, excludeTimeline, excludeTracks);
         excludeTimeline = true;
         excludeTracks = true;

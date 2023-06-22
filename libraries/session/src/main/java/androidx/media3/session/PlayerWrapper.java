@@ -1169,6 +1169,7 @@ import java.util.List;
         getShuffleModeEnabled(),
         getVideoSize(),
         getCurrentTimelineWithCommandCheck(),
+        PlayerInfo.TIMELINE_CHANGE_REASON_DEFAULT,
         getPlaylistMetadataWithCommandCheck(),
         getVolumeWithCommandCheck(),
         getAudioAttributesWithCommandCheck(),

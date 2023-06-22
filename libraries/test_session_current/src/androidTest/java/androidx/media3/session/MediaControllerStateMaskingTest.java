@@ -63,7 +63,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
-/** Tests for state masking {@link MediaController} calls. */
+/** Tests for state masking {@link MediaController} ({@link MediaControllerImplBase}) calls. */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerStateMaskingTest {
