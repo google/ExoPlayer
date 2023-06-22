@@ -15,9 +15,10 @@
  */
 package androidx.media3.exoplayer.hls;
 
+import static androidx.media3.common.util.Assertions.checkState;
+
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.Format;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.TimestampAdjuster;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.Extractor;
@@ -71,20 +72,26 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
 
   @Override
   public boolean isPackedAudioExtractor() {
-    return extractor instanceof AdtsExtractor
-        || extractor instanceof Ac3Extractor
-        || extractor instanceof Ac4Extractor
-        || extractor instanceof Mp3Extractor;
+    Extractor underlyingExtractor = extractor.getUnderlyingImplementation();
+    return underlyingExtractor instanceof AdtsExtractor
+        || underlyingExtractor instanceof Ac3Extractor
+        || underlyingExtractor instanceof Ac4Extractor
+        || underlyingExtractor instanceof Mp3Extractor;
   }
 
   @Override
   public boolean isReusable() {
-    return extractor instanceof TsExtractor || extractor instanceof FragmentedMp4Extractor;
+    Extractor underlyingExtractor = extractor.getUnderlyingImplementation();
+    return underlyingExtractor instanceof TsExtractor
+        || underlyingExtractor instanceof FragmentedMp4Extractor;
   }
 
   @Override
   public HlsMediaChunkExtractor recreate() {
-    Assertions.checkState(!isReusable());
+    checkState(!isReusable());
+    checkState(
+        extractor.getUnderlyingImplementation() == extractor,
+        "Can't recreate wrapped extractors. Outer type: " + extractor.getClass());
     Extractor newExtractorInstance;
     if (extractor instanceof WebvttExtractor) {
       newExtractorInstance =

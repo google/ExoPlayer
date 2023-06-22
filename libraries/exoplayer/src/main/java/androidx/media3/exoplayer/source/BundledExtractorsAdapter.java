@@ -108,8 +108,12 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
 
   @Override
   public void disableSeekingOnMp3Streams() {
-    if (extractor instanceof Mp3Extractor) {
-      ((Mp3Extractor) extractor).disableSeeking();
+    if (extractor == null) {
+      return;
+    }
+    Extractor underlyingExtractor = extractor.getUnderlyingImplementation();
+    if (underlyingExtractor instanceof Mp3Extractor) {
+      ((Mp3Extractor) underlyingExtractor).disableSeeking();
     }
   }
 

@@ -40,6 +40,10 @@
     *   Fix typo when determining `rotationDegrees`. Changed
         `projectionPosePitch` to `projectionPoseRoll`
         ([#461](https://github.com/androidx/media/pull/461)).
+    *   Remove the assumption that `Extractor` instances can be directly
+        inspected with `instanceof`. If you want runtime access to the
+        implementation details of an `Extractor` you must first call
+        `Extractor.getUnderlyingInstance`.
 *   Audio:
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
