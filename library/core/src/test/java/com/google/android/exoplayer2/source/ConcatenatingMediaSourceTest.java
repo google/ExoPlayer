@@ -445,7 +445,7 @@ public final class ConcatenatingMediaSourceTest {
     testThread.runOnMainThread(
         () ->
             mediaSource.addMediaSource(
-                /* index */ 0,
+                /* index= */ 0,
                 createFakeMediaSource(),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
@@ -463,7 +463,7 @@ public final class ConcatenatingMediaSourceTest {
     testThread.runOnMainThread(
         () ->
             mediaSource.addMediaSources(
-                /* index */ 0,
+                /* index= */ 0,
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
@@ -482,7 +482,7 @@ public final class ConcatenatingMediaSourceTest {
         () -> {
           mediaSource.addMediaSource(createFakeMediaSource());
           mediaSource.removeMediaSource(
-              /* index */ 0, Util.createHandlerForCurrentLooper(), runnableInvoked::countDown);
+              /* index= */ 0, Util.createHandlerForCurrentLooper(), runnableInvoked::countDown);
         });
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
@@ -557,7 +557,7 @@ public final class ConcatenatingMediaSourceTest {
       testThread.runOnMainThread(
           () ->
               mediaSource.addMediaSource(
-                  /* index */ 0,
+                  /* index= */ 0,
                   createFakeMediaSource(),
                   Util.createHandlerForCurrentLooper(),
                   timelineGrabber));
@@ -577,7 +577,7 @@ public final class ConcatenatingMediaSourceTest {
       testThread.runOnMainThread(
           () ->
               mediaSource.addMediaSources(
-                  /* index */ 0,
+                  /* index= */ 0,
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
                   Util.createHandlerForCurrentLooper(),
@@ -601,7 +601,7 @@ public final class ConcatenatingMediaSourceTest {
       testThread.runOnMainThread(
           () ->
               mediaSource.removeMediaSource(
-                  /* index */ 0, Util.createHandlerForCurrentLooper(), timelineGrabber));
+                  /* index= */ 0, Util.createHandlerForCurrentLooper(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(0);
     } finally {
@@ -1114,7 +1114,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   private static FakeMediaSource createFakeMediaSource() {
-    return new FakeMediaSource(createFakeTimeline(/* index */ 0));
+    return new FakeMediaSource(createFakeTimeline(/* index= */ 0));
   }
 
   private static FakeTimeline createFakeTimeline(int index) {

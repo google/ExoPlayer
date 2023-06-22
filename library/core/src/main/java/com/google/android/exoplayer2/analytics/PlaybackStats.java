@@ -344,7 +344,7 @@ public final class PlaybackStats {
     return new PlaybackStats(
         playbackCount,
         playbackStateDurationsMs,
-        /* playbackStateHistory */ Collections.emptyList(),
+        /* playbackStateHistory= */ Collections.emptyList(),
         /* mediaTimeHistory= */ Collections.emptyList(),
         firstReportedTimeMs,
         foregroundPlaybackCount,
